@@ -1,5 +1,5 @@
 /*
- * The aim of this file is to provide a common interface for different libraries.
+ * The aim of this file is to provide a common interface for different FFT libraries.
  * E.g.: we may run FFT's on CPU's, FFT over MPI, or an FFT on GPU's. This common
  * interface hides the differences between those implementations: independent of
  * the underlying library we can just write: fft_execute(plan)
@@ -12,13 +12,14 @@
  * other object file which runs the fft on GPU's or so. The main program won't notice
  * the difference since all libraries are all wrapped in the same interface.
  * 
- * All functions are to be stateless. If they need to access some state, like an FFTW plan, it gets passed
+ * In the spirit of the FFTW design, all functions should be stateless. 
+ * If they need to access some state, like an FFTW plan, it gets passed
  * as a void* parameter. This state gets initialized by XXX_init() methods, who return the state as a void*.
  * E.g.: fft_init(N0, N1, N2) may create an FFTW plan and return it. The plan is to be passed to each call of
  * fft_forward(plan, data).
  *
- * WHY?
- * We need full flexibilty: there may need to be more than one FFT function during a simulation. E.g., for
+ * This is important as we need some flexibilty:
+ * there may need to be more than one FFT function during a simulation. E.g., for
  * two coupled systems who each need their own demag field. A typical C++ approach might be to implement a
  * class FFT_Transformer, and create many instances of it. However, we need plain C because we have to
  * interface with low-level languages like NVIDIA CUDA. Therefore, the state passed as a void* plays
@@ -45,7 +46,7 @@ extern "C" {
 #endif
 
 
-/* Define SINGLE_PRECISSION or DOUBLE_PRECISSION. After changing, obviously, libsim and any program using libsim.* should be re-built from source Can be overridden via a command-line flag*/
+/* Define SINGLE_PRECISSION or DOUBLE_PRECISSION. Can be overridden via a command-line flag. */
 #ifndef SINGLE_PRECISSION
 #ifndef DOUBLE_PRECISSION
 
@@ -55,9 +56,6 @@ extern "C" {
 #endif
 
 
-/*
- * Data interface
- */
 /**
  * We will probably do everything with single-precission floating point data. Nevertheless we use 'real' instead of float so that later we might still re-define it as double. 
  */
@@ -79,16 +77,18 @@ typedef real complex_t[2];
 
 
 
-/** Returns a libsim build number (used for debugging, to be sure we have linked against the expected libsim) */
+/** Returns a number to identify the library (used mainly for debugging, to be sure we have linked against the expected library) */
 int fft_version(void);
 
+/** Should be called once to initialize the library. Implementations using MPI may need this. Todo: the command-line arguments should be passed */
 void fft_init(void);
 
+/** Should be called once to finalize the library. Implementations using MPI may need this. */
 void fft_finalize(void);
 
 /**
- * Gets called once to initialize the FFT for transformation of an N0 x N1 x N2 array. 
- * Returns a plan (or any other state needed by a specific FFT implementation).
+ * fft_init functions get called once to initialize the FFT for transformation of an N0 x N1 x N2 array. 
+ * They return a plan (or any other state needed by a specific FFT implementation).
  *
  * NOTE: Depending on the underlying library, fft_init_XXX may destroy the data in
  * the source and dest arrays. They should thus be initialized after fft_init_XXX.
@@ -97,19 +97,16 @@ void fft_finalize(void);
  * This is important because many micromagnetic simulations of thin-films are 2D.
  */
 
-/** dest will store complex numbers stored as pairs of real numbers, it should thus be sufficiently large. */
+/** real to complex forward transform */
 void* fft_init_forward(int N0, int N1, int N2, real* source, real* dest);
 
+/** complex to real backward transform */
 void* fft_init_backward(int N0, int N1, int N2, real* source, real* dest);
-
 
 /** Gets called once to free the FFT resources */
 void fft_destroy_plan(void* plan);
 
-
-/**
- * Performs an unnormalized FFT. The result is multiplied by a factor sqrt(N), with N the total number of points, compared to a normalized FFT. 
- */
+/** Performs an unnormalized FFT. The result is multiplied by a factor sqrt(N), with N the total number of points, compared to a normalized FFT. */
 void fft_execute(void* plan);
 
 
