@@ -41,7 +41,7 @@ typedef struct{
 tensor* new_tensor(int rank, int* size);
 
 /** Prints the tensor as ascii text */
-void print_tensor(tensor* t, FILE* out);
+void print_tensor(tensor* t);
 
 #ifdef __cplusplus
 }
