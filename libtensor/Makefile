@@ -1,7 +1,7 @@
 all: libtensor.so
 
-libtensor.o:	libtensor.h libtensor.c	
-	gcc -fPIC -c -O3 libtensor.c -o libtensor.o
+libtensor.o:	libtensor.h libtensor.cpp	
+	g++ -fPIC -c -O3 libtensor.cpp -o libtensor.o
 
 libtensor.so:	libtensor.o
 	ld -shared libtensor.o -o libtensor.so
