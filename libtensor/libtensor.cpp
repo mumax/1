@@ -1,10 +1,11 @@
 #include "libtensor.h"
+
 #include <iostream>
 
 using namespace std;
 
 /** Creates a new tensor with given rank and size. Allocates the neccesary space for the elements. */
-extern "C" tensor* new_tensor(int rank, int* size){
+tensor* new_tensor(int rank, int* size){
   int i, totalsize;
   
   tensor* t = (tensor*)malloc(sizeof(tensor));
@@ -26,7 +27,7 @@ extern "C" tensor* new_tensor(int rank, int* size){
 }
 
 /** Prints the tensor as ascii text */
-extern "C" void print_tensor(tensor* t){
+void print_tensor(tensor* t){
     cout << "#tensor" << endl;
 }
 
