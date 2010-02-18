@@ -1,33 +1,17 @@
+/*
+ * libtensor provides a common interface for N-dimensional arrays of floats. The tensor type knows its rank and sizes in each dimension, so these do not have to be passed to function calls. Tensors can also be input/output in a common format, for sharing them between different programs or storing them in files.
+ */
+
 #ifndef LIBTENSOR_H
 #define LIBTENSOR_H
-
-#include <stdlib.h>
-#include <stdio.h>
 
 // allow inclusion in C++ code
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
-/* Define SINGLE_PRECISSION or DOUBLE_PRECISSION. Can be overridden via a command-line flag. */
-#ifndef SINGLE_PRECISSION
-#ifndef DOUBLE_PRECISSION
-
-#define SINGLE_PRECISSION
-
-#endif
-#endif
-
-
-/** We will probably do everything with single-precission floating point data. Nevertheless we use 'real' instead of float so that later we might still re-define it as double. */
-#ifdef SINGLE_PRECISSION
-typedef float real;
-#endif
-
-#ifdef DOUBLE_PRECISSION
-typedef double real;
-#endif
+#include <stdlib.h>
+#include <stdio.h>
 
 
 typedef struct{
@@ -39,6 +23,26 @@ typedef struct{
 
 /** Creates a new tensor with given rank and size. Allocates the neccesary space for the elements. */
 tensor* new_tensor(int rank, int* size);
+
+tensor* new_tensor0();
+
+/** An easy way to acces tensor elements is to view it as an N-dimensional array. */
+// void* tensor_array(tensor* t){
+// 
+// }
+
+
+/** Returns the address of element i,j,k,... inside the tensor. This can be used to set or get elements form the tensor. */
+float* tensor_elem(tensor* t, int* index);
+
+/** Given an N-dimensional index (i, j, k, ...), this function calculates the 1-dimensional index in the corresponding array that stores the tensor data. Thus, tensor_elem(i,j,k) is equivalent to list[tensor_index(i,j,k)]. */ 
+int tensor_index(tensor* t, int* indexarray);
+
+/** Returns the total number of elements in the tensor: size[0]*size[1]*...*size[rank-1]. This is also the length of the contiguous array that stores the tensor data. */
+int tensor_length(tensor* t);
+
+/** Frees everything. */
+void delete_tensor(tensor* t);
 
 /** Prints the tensor as ascii text */
 void print_tensor(tensor* t);
