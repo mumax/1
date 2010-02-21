@@ -1,20 +1,24 @@
 #include "libtensor.h"
 
-//#include <stdio>
 
 using namespace std;
 
 
-tensor* new_tensor(int rank, int* size){
+tensor* new_tensor(int rank, ...){
   
   tensor* t = (tensor*)malloc(sizeof(tensor));
   t->rank = rank;
   t->size = (int*)calloc(rank, sizeof(int));	// we copy the size array to protect from accidental modification
 						// also, if we're a bit lucky, it gets allocated nicely after t and before list,
 						// so we can have good cache efficiency.
+  va_list varargs;
+  va_start(varargs, rank);
+  
   for(int i=0; i<rank; i++){
-    t->size[i] = size[i];
+    t->size[i] = va_arg(varargs, int);
   }
+  va_end(varargs);
+  
   t-> list = (float*)calloc(tensor_length(t), sizeof(float));
   
   return t;

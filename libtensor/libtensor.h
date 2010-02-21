@@ -12,6 +12,7 @@ extern "C" {
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 
 typedef struct{
@@ -21,10 +22,11 @@ typedef struct{
 }tensor;
 
 
-/** Creates a new tensor with given rank and size. Allocates the neccesary space for the elements. */
-tensor* new_tensor(int rank, int* size);
+/** Creates a new tensor with given rank and size (as integer vararg). Allocates the neccesary space for the elements. */
+tensor* new_tensor(int rank, ...);
 
-tensor* new_tensor0();
+/** The same as new_tensor(), but with the size given as an array */
+//tensor* new_tensorN(int rank, int* size);
 
 /** An easy way to acces tensor elements is to view it as an N-dimensional array. */
 // void* tensor_array(tensor* t){
