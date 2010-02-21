@@ -48,7 +48,7 @@ int main(int argc, char** argv){
     }
     
     // I/O example:
-    print_tensor(a, stdout);
+    //print_tensor(a, stdout);
     
     delete_tensor(a);
     

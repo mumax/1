@@ -46,9 +46,10 @@ int tensor_length(tensor* t);
 /** Frees everything. */
 void delete_tensor(tensor* t);
 
-/** Prints the tensor as ascii text */
-void print_tensor(tensor* t, FILE* out);
+/** Writes the tensor in binary format */
+void write_tensor(tensor* t, FILE* out);
 
+/** Reads the tensor from binary format */
 tensor* read_tensor(FILE* in);
 
 #ifdef __cplusplus

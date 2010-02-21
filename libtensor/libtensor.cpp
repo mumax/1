@@ -71,21 +71,10 @@ void delete_tensor(tensor* t){
 }
 
 
-/** Prints the tensor as ascii text */
-void print_tensor(tensor* t, FILE* out){
-    
-    fprintf(out, "#tensor\n");
-//     cout << "#rank:" << endl;
-//     cout << t->rank << endl;
-//     cout << "#size:" << endl;
-//     for(int i=0; i<t->rank; i++){
-//       cout << t->size[i] << endl;
-//     }
-//     cout << "#data:" << endl;
-//     for(int i=0; i<tensor_length(t); i++){
-//       cout << t->list[i] << endl;
-//     }
-//     
-//     cout.close();
+void write_tensor(tensor* t, FILE* out){
+      //fwrite(&(t->rank), 
 }
 
+tensor* read_tensor(FILE* in){
+
+}

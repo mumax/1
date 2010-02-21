@@ -1,4 +1,4 @@
-all: libtensor.so libtensor.a libtensor
+all: libtensor.so libtensor.a tensor
 
 libtensor.o:	libtensor.h libtensor.cpp
 	g++ -c -Wall -fPIC libtensor.cpp -o libtensor.o
@@ -9,8 +9,8 @@ libtensor.so:	libtensor.o
 libtensor.a:	libtensor.o
 	ar rcs libtensor.a libtensor.o
 
-libtensor:	main.cpp libtensor.a
-	g++ -Wall main.cpp -L. -o libtensor
+tensor:	main.cpp libtensor.a
+	g++ -Wall main.cpp -L. -o tensor
 
 test: tensor_test
 	./tensor_test
@@ -21,4 +21,4 @@ tensor_test:	tensor_test.c libtensor.a
 
 .PHONY: clean
 clean:
-	rm -f *.o *.so *.a tensor_test libtensor
+	rm -f *.o *.so *.a tensor_test tensor
