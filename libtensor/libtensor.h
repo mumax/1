@@ -1,5 +1,8 @@
 /*
  * libtensor provides a common interface for N-dimensional arrays of floats. The tensor type knows its rank and sizes in each dimension, so these do not have to be passed to function calls. Tensors can also be input/output in a common format, for sharing them between different programs or storing them in files.
+ *
+ * For an example how to use the tensor type, see tensor_test.c
+ *
  */
 
 #ifndef LIBTENSOR_H
@@ -20,15 +23,16 @@ typedef struct{
    int32_t* size; 		// array of length rank, stores dimensions in all directions 
    float* list;			// data as a continous array of length size[0]*size[1]*...
 }tensor;
+// Note: we use int32_t for easy storing in binary format. Just using int would probably work as long as we're not porting to a big endian machine with a 64-bit int type... 
 
 
 /** Creates a new tensor with given rank and size (as integer vararg). Allocates the neccesary space for the elements. */
 tensor* new_tensor(int rank, ...);
 
-/** The same as new_tensor(), but with the size given as an array. This is handy when the rank is not know at compile time. */
+/** The same as new_tensor(), but with the size given as an array. This is only neccesary when the rank is not known at compile time, otherwise just use new_tensor() */
 tensor* new_tensorN(int rank, int* size);
 
-/** Frees everything. */
+/** Frees the tensor, including its data list. Make sure no pointers to that list exist anymore, otherwise, delete_tensor_component() can be used to free everything but the data list. */
 void delete_tensor(tensor* t);
 
 
@@ -36,7 +40,7 @@ void delete_tensor(tensor* t);
 int tensor_length(tensor* t);
 
 
-/** Returns the address of element i,j,k,... inside the tensor. This can be used to set or get elements form the tensor. */
+/** Returns the address of element i,j,k,... inside the tensor. This can be used to set or get elements form the tensor. Of course, the "manual" way: t->list[i*size + j ...] can still be used as well. */
 float* tensor_elem(tensor* t, int* index);
 
 /** Given an N-dimensional index (i, j, k, ...), this function calculates the 1-dimensional index in the corresponding array that stores the tensor data. Thus, tensor_elem(i,j,k) is equivalent to list[tensor_index(i,j,k)]. */ 
@@ -48,13 +52,26 @@ int tensor_index(tensor* t, int* indexarray);
 // }
 
 
-/** Writes the tensor in binary format */
+/** 
+ * Writes the tensor in binary format:
+ * All data is written as 32-bit words, either integers or floats.
+ * The first word is an integer that stores the rank N.
+ * The next N words store the sizes in each of the N dimensions (also integers).
+ * The remaining words are floats representing the data in row-major (C) order.
+ *
+ * Note: currently the data is stored in the endianess of the machine. It might be nicer to store everything in big endian, though.
+ */
 void write_tensor(tensor* t, FILE* out);
 
-/** Reads the tensor from binary format */
+/** Reads the tensor from binary format. */
 tensor* read_tensor(FILE* in);
 
-/** Prints the tensor as ascii text. Can also be used to print to the screen: write_tensor_ascii(tensor, stdout); */
+/** Prints the tensor as ascii text. 
+ * The format is just the same as write_tensor(), but with ascii output instead of binary.
+ * This can also be used to print to the screen: write_tensor_ascii(tensor, stdout);
+ *
+ * Todo: does anyone want a read_tensor_ascii() ?
+ */
 void write_tensor_ascii(tensor* t, FILE* out);
 
 /** Prints the tensor to standard output. */
