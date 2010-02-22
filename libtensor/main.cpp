@@ -10,7 +10,6 @@ void improper_arguments(int argc, char** argv){
 }
 
 int main(int argc, char** argv){
-  cout << sizeof(int) << endl;
   
   bool ascii;
   bool recognized = false;

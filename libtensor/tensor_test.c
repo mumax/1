@@ -6,8 +6,7 @@
 #include <assert.h>
 
 int main(int argc, char** argv){
-    tensor* a, *b, *c, *d;
-    int i,j;
+    tensor* a;
     
     // make a 3x4 matrix
     a = new_tensor(2,  3, 4);
@@ -21,8 +20,8 @@ int main(int argc, char** argv){
     
     int buffer[10];
     // the data is initialized to zero:
-    for(i=0; i < a->size[0]; i++){
-      for(j=0; j < a->size[1]; j++){
+    for(int i=0; i < a->size[0]; i++){
+      for(int j=0; j < a->size[1]; j++){
 	buffer[0] = i;
 	buffer[1] = j;
 	assert(*tensor_elem(a, buffer) == 0.);
@@ -30,8 +29,8 @@ int main(int argc, char** argv){
     }
     
     // let's set some elements...
-    for(i=0; i < a->size[0]; i++){
-      for(j=0; j < a->size[1]; j++){
+    for(int i=0; i < a->size[0]; i++){
+      for(int j=0; j < a->size[1]; j++){
 	buffer[0] = i;
 	buffer[1] = j;
 	*tensor_elem(a, buffer) = i + 10. *j;
@@ -39,8 +38,8 @@ int main(int argc, char** argv){
     }
     
     // ... and get them back
-    for(i=0; i < a->size[0]; i++){
-      for(j=0; j < a->size[1]; j++){
+    for(int i=0; i < a->size[0]; i++){
+      for(int j=0; j < a->size[1]; j++){
 	buffer[0] = i;
 	buffer[1] = j;
 	assert(*tensor_elem(a, buffer) == i + 10. *j);
@@ -48,9 +47,29 @@ int main(int argc, char** argv){
     }
     
     // I/O example:
-    //print_tensor(a, stdout);
+    // write:
+    FILE* out;
+    out = fopen ( "iotest" , "wb" );
+    write_tensor(a, out);
+    fclose (out);
+  
+    // read back in:
+    FILE* in;
+    in = fopen ( "iotest" , "rb" );
+    tensor* b = read_tensor(in);
+    fclose (out);
+ 
+    // check if read back equals original:
+    assert(a->rank == b->rank);
+    for(int i=0; i<a->rank; i++){
+      assert(a->size[i] == b->size[i]);
+    }
+    
+    for(int i=0; i < tensor_length(a); i++){
+       assert(a->list[i] == b->list[i]);
+    }
     
     delete_tensor(a);
-    
+    delete_tensor(b);
     return 0;
 }

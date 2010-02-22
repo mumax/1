@@ -16,8 +16,8 @@ extern "C" {
 
 
 typedef struct{
-   int rank;			// tensor rank
-   int* size; 			// array of length rank, stores dimensions in all directions 
+   int32_t rank;		// tensor rank
+   int32_t* size; 		// array of length rank, stores dimensions in all directions 
    float* list;			// data as a continous array of length size[0]*size[1]*...
 }tensor;
 
@@ -28,7 +28,7 @@ tensor* new_tensor(int rank, ...);
 /** The same as new_tensor(), but with the size given as an array */
 //tensor* new_tensorN(int rank, int* size);
 
-/** An easy way to acces tensor elements is to view it as an N-dimensional array. */
+/** An easy way to acces tensor's elements is to view it as an N-dimensional array. */
 // void* tensor_array(tensor* t){
 // 
 // }

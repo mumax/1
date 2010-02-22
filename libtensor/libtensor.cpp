@@ -8,28 +8,19 @@ tensor* new_tensor(int rank, ...){
   
   tensor* t = (tensor*)malloc(sizeof(tensor));
   t->rank = rank;
-  t->size = (int*)calloc(rank, sizeof(int));	// we copy the size array to protect from accidental modification
-						// also, if we're a bit lucky, it gets allocated nicely after t and before list,
-						// so we can have good cache efficiency.
+  t->size = (int*)calloc(rank, sizeof(int32_t));	// we copy the size array to protect from accidental modification
+							// also, if we're a bit lucky, it gets allocated nicely after t and before list,
+							// so we can have good cache efficiency.
   va_list varargs;
   va_start(varargs, rank);
   
   for(int i=0; i<rank; i++){
-    t->size[i] = va_arg(varargs, int);
+    t->size[i] = va_arg(varargs, int32_t);
   }
   va_end(varargs);
   
   t-> list = (float*)calloc(tensor_length(t), sizeof(float));
   
-  return t;
-}
-
-
-tensor* new_tensor0(){
-  tensor* t = (tensor*)malloc(sizeof(tensor));
-  t->rank = 0;
-  t->size = NULL;
-  t->list = (float*)calloc(1, sizeof(float));
   return t;
 }
 
@@ -59,7 +50,6 @@ int tensor_length(tensor* t){
   return length;
 }
 
-
 void delete_tensor(tensor* t){
   // for safety, we invalidate the tensor so we'd quickly notice accidental use after freeing.
   t->rank = -1;
@@ -70,11 +60,19 @@ void delete_tensor(tensor* t){
   free(t);
 }
 
-
 void write_tensor(tensor* t, FILE* out){
-      //fwrite(&(t->rank), 
+  fwrite(&(t->rank), sizeof(int32_t), 1, out);
+  fwrite(t->size, sizeof(int32_t), t->rank, out);
+  fwrite(t->list, sizeof(float), tensor_length(t), out);
+  // todo: error handling
 }
 
 tensor* read_tensor(FILE* in){
-
+  tensor* t = (tensor*)malloc(sizeof(tensor));
+  fread(&(t->rank), sizeof(int32_t), 1, in);
+  t->size = (int32_t*)calloc(t->rank, sizeof(int32_t));
+  fread(t->size, sizeof(int32_t), t->rank, in);
+  t-> list = (float*)calloc(tensor_length(t), sizeof(float));
+  fread(t->list, sizeof(float), tensor_length(t), in);
+  return t;
 }
