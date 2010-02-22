@@ -11,4 +11,6 @@ clean:
 	make clean -C bin
 
 test:
-	make test -C go-frontend
+	make test -C libtensor
+	#make test -C libfft
+	#make test -C go-frontend
