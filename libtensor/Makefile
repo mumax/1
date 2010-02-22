@@ -20,8 +20,8 @@ tensor_test:	tensor_test.c libtensor.a
 	g++ -Wall -L. tensor_test.o -static libtensor.a -o tensor_test
 
 install: libtensor.so libtensor.a
-	ln -sf libtensor.so ../lib
-	ln -sf libtensor.a ../lib
+	ln -sf ../libtensor/libtensor.so ../lib/libtensor.so
+	ln -sf ../libtensor/libtensor.a ../lib/libtensor.a
 
 .PHONY: clean
 clean:

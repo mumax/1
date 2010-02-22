@@ -12,5 +12,5 @@ clean:
 
 test:
 	make test -C libtensor
-	#make test -C libfft
+	make test -C libfft
 	#make test -C go-frontend
