@@ -17,4 +17,4 @@ include $(GOROOT)/src/Make.pkg
 # seems to install libsim_libsim.so
 %: install %.go
 	$(GC) $*.go
-	$(LD) -o $@ $*.$O
+	$(LD) -d -o $@ $*.$O

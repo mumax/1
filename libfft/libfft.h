@@ -34,6 +34,7 @@
  * to be as standard as possible. E.g.:
  * void function(void);
  *
+ * For an example: see fft_test.cpp
  */
 
 #ifndef LIBSIM_H

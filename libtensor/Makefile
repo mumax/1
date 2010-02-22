@@ -1,4 +1,4 @@
-all: libtensor.so libtensor.a tensor
+all: libtensor.so libtensor.a tensor install
 
 libtensor.o:	libtensor.h libtensor.cpp
 	g++ -c -Wall -fPIC libtensor.cpp -o libtensor.o
@@ -19,6 +19,10 @@ tensor_test:	tensor_test.c libtensor.a
 	g++ -c -Wall tensor_test.c -o tensor_test.o
 	g++ -Wall -L. tensor_test.o -static libtensor.a -o tensor_test
 
+install: libtensor.so libtensor.a
+	ln -sf libtensor.so ../lib
+	ln -sf libtensor.a ../lib
+
 .PHONY: clean
 clean:
-	rm -f *.o *.so *.a tensor_test tensor
+	rm -f *.o *.so *.a tensor_test tensor ../lib/libtensor.*
