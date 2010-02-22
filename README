@@ -1,0 +1,6 @@
+* Compiling FFTW:
+
+./configure CFLAGS="-fPIC" --enable-float  --enable-threads --enable-sse
+make
+sudo make install
+
