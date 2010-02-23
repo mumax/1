@@ -15,9 +15,12 @@
 
 int _fft_initialized = 0;
 
+/*
+ * We use automatic initialization. Gets called just once before creating the first plan.
+ */
 void fft_init(void){
   fftwf_init_threads();
-  fftwf_plan_with_nthreads(4);
+  fftwf_plan_with_nthreads(4); // todo: we need a way to configure the number of CPU's
   _fft_initialized = 1;
 }
 
@@ -27,15 +30,18 @@ void fft_finalize(void){
   _fft_initialized = 0;
 }
 
+/* Internal function: initialize if necessary. */
 void _fft_check_initialization(){
    if(!_fft_initialized){
-      printf(stderr, "Bug: FFT not initialized");
-      exit(2);
+     fft_init();
+//       printf(stderr, "Bug: FFT not initialized\n");
+//       exit(2);
     }
 }
 
 real* fft_malloc(int N0, int N1, int N2){
   real* result;
+  _fft_check_initialization();
   result = (real*) fftwf_malloc(N0*N1*N2 * sizeof(real));
   printf("fft_malloc_real\t(%d, %d, %d):\t%p\n", N0, N1, N2, result);
   return result;
