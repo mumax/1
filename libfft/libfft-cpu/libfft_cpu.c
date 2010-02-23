@@ -2,6 +2,7 @@
 
 #include <fftw3.h>
 #include <stdio.h>
+#include <sys/sysinfo.h>
 
 #ifdef DOUBLE_PRECISSION
 #define fftwf_malloc fftw_malloc
@@ -19,8 +20,9 @@ int _fft_initialized = 0;
  * We use automatic initialization. Gets called just once before creating the first plan.
  */
 void fft_init(void){
+  fprintf(stderr, "fft_init(), #CPUs: %d\n", get_nprocs_conf());
   fftwf_init_threads();
-  fftwf_plan_with_nthreads(4); // todo: we need a way to configure the number of CPU's
+  fftwf_plan_with_nthreads(get_nprocs_conf()); // automatically determines the available number of CPU's
   _fft_initialized = 1;
 }
 
@@ -34,7 +36,7 @@ void fft_finalize(void){
 void _fft_check_initialization(){
    if(!_fft_initialized){
      fft_init();
-//       printf(stderr, "Bug: FFT not initialized\n");
+//       fprintf(stderr, "Bug: FFT not initialized\n");
 //       exit(2);
     }
 }
