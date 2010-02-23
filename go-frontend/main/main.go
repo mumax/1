@@ -4,11 +4,12 @@ import(
        . "../tensor";
        //. "../fft";
        . "../sim";
-       //"../libsim";
+       "../libsim";
        . "fmt";
 )
 
 func main() {
+  libsim.Init(); // does not seem to be called automatically, what's wrong?
   PrintInfo();
   Run();
 }

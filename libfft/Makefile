@@ -10,5 +10,5 @@ clean:
 	rm -f *.so *.o *.a fft_test ../lib/libfft*.*
 
 test:	all
-	g++ ../lib/libtensor.so ../lib/libfft.so -lfftw3f fft_test.cpp -o fft_test
+	g++ ../lib/libtensor.so ../lib/libfft.so -lfftw3f -lfftw3f_threads -lpthread fft_test.cpp -o fft_test
 	./fft_test

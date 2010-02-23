@@ -14,6 +14,8 @@ double sqr(double r){
 
 int main(int argc, char** argv){
 
+    fft_init();
+    
     tensor* orig = new_tensor(3, 16, 16, 4); // a 3-dimensional block of size 16x16x4
     tensor* transf = new_tensor(3, 16, 16, 4+2); // transformed data must be 1 complex number (two floats) larger in its last dimension.
     tensor* back = new_tensor(3, 16, 16, 4); // forward+backward transformed data;
@@ -38,4 +40,6 @@ int main(int argc, char** argv){
     cout << "FFT error: " << rms_error << endl;
     
     assert(rms_error < 1E-5);
+    
+    fft_finalize();
 }

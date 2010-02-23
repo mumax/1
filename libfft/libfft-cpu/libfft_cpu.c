@@ -13,16 +13,26 @@
 #define fftwf_plan fftw_plan
 #endif
 
+int _fft_initialized = 0;
 
 void fft_init(void){
-
+  fftwf_init_threads();
+  fftwf_plan_with_nthreads(4);
+  _fft_initialized = 1;
 }
 
 
 void fft_finalize(void){
-
+  fftwf_cleanup_threads();
+  _fft_initialized = 0;
 }
 
+void _fft_check_initialization(){
+   if(!_fft_initialized){
+      printf(stderr, "Bug: FFT not initialized");
+      exit(2);
+    }
+}
 
 real* fft_malloc(int N0, int N1, int N2){
   real* result;
@@ -39,6 +49,7 @@ void fft_free(void* data){
 
 
 void* fft_init_forward(int N0, int N1, int N2, real* source, real* dest){
+    _fft_check_initialization();
     void* result = fftwf_plan_dft_r2c_3d(N0, N1, N2, source, (complex_t*)dest, FFTW_ESTIMATE); // replace by FFTW_PATIENT for super-duper performance  
     printf("fft_init_forward\t(%d, %d, %d):\t%p\n", N0, N1, N2, result);
     return result;
@@ -46,6 +57,7 @@ void* fft_init_forward(int N0, int N1, int N2, real* source, real* dest){
 
 
 void* fft_init_backward(int N0, int N1, int N2, real* source, real* dest){
+    _fft_check_initialization();
     void* result = fftwf_plan_dft_c2r_3d(N0, N1, N2, (complex_t*)source, dest, FFTW_ESTIMATE);
     printf("fft_init_backward\t(%d, %d, %d):\t%p\n", N0, N1, N2, result);
     return result;

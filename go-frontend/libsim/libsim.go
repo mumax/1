@@ -17,8 +17,15 @@ int pointer_to_int(void* ptr){
 */
 import "C"
 import "unsafe"
+import . "fmt"
 
 type real float;
+
+func Init(){ // does not seem to be called automatically
+  Println("initializing libsim...");
+  FFTInit();
+  Println("...libsim initialized.");
+}
 
 /** used to check alignments. */
 func ToInt(pointer unsafe.Pointer) int64{
