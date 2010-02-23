@@ -1,23 +1,23 @@
 all: libtensor.so libtensor.a tensor install
 
 libtensor.o:	libtensor.h libtensor.cpp
-	g++ -c -Wall -fPIC libtensor.cpp -o libtensor.o
+	$(CPP) $(CFLAGS) -c libtensor.cpp -o libtensor.o
 
 libtensor.so:	libtensor.o
-	g++ -Wall -shared libtensor.o -o libtensor.so
+	$(CPP) $(CFLAGS) -shared libtensor.o -o libtensor.so
 
 libtensor.a:	libtensor.o
 	ar rcs libtensor.a libtensor.o
 
 tensor:	main.cpp libtensor.a
-	g++ -Wall main.cpp -L. -o tensor
+	$(CPP) $(CFLAGS) main.cpp -L. -o tensor
 
 test: tensor_test
 	./tensor_test
 
 tensor_test:	tensor_test.c libtensor.a
-	g++ -c -Wall tensor_test.c -o tensor_test.o
-	g++ -Wall -L. tensor_test.o -static libtensor.a -o tensor_test
+	$(CPP) $(CFLAGS) -c  tensor_test.c -o tensor_test.o
+	$(CPP) $(CFLAGS) -L. tensor_test.o -static libtensor.a -o tensor_test
 
 install: libtensor.so libtensor.a
 	ln -sf ../libtensor/libtensor.so ../lib/libtensor.so
@@ -25,4 +25,4 @@ install: libtensor.so libtensor.a
 
 .PHONY: clean
 clean:
-	rm -f *.o *.so *.a tensor_test tensor ../lib/libtensor.*
+	rm -f $(CLEANFILES) tensor_test tensor ../lib/libtensor.*

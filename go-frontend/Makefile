@@ -12,6 +12,7 @@ all:
 	make -C main
 	ln -sf main/main ./run
 
+.PHONY: clean
 clean:
 	make clean -C assert
 	make clean -C libsim
