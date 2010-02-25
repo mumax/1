@@ -1,5 +1,5 @@
 all:	*.cu
-	nvcc -L/usr/local/cuda/lib64 test.cu -o test
+	nvcc test.cu -lcuda -lcudart -lcufft -o test
 
 .PHONY:	clean
 clean:
