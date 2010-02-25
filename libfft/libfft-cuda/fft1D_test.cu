@@ -1,3 +1,6 @@
+/*
+ * Example of 1D cuda FFT. Copies some random data to the GPU where it is transformed back and forth, and copied back to the main RAM. The FFT error is checked.
+ */
 
 #include <cufft.h>
 #include <stdio.h>
