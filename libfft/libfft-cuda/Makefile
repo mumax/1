@@ -1,7 +1,8 @@
 export LD_CUDA_LIBS=-lcuda -lcudart -lcufft
 
-all:	*.cu
-	nvcc test.cu $(LD_CUDA_LIBS) -o test
+all:	libfft_cuda.cu
+	nvcc --compiler-options -fPIC -c libfft_cuda.cu $(LD_CUDA_LIBS)
+	nvcc -shared libfft_cuda.o $(LD_CUDA_LIBS) -o libfft-cuda.so
 
 test:	*_test.cu
 	nvcc fft1D_test.cu $(LD_CUDA_LIBS) -o fft1D_test
@@ -11,6 +12,6 @@ test:	*_test.cu
 
 .PHONY:	clean
 clean:
-	rm -f test *_test
+	rm -f test *_test *.o *.so
 
 

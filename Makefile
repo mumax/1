@@ -33,7 +33,7 @@ clean:
 	make clean -C libfft
 	make clean -C go-frontend
 
-test:
+test:	all
 	make test -C libtensor
 	make test -C libfft
 	make test -C go-frontend
