@@ -2,10 +2,10 @@ CLEANFILES+="fft_test ../lib/libfft*.*"
 
 all:
 	make -C libfft-cpu
-	#make -C libfft-cuda
-	# Here we choose to use libfft-cpu as the default, can be changed.
-	ln -sf ../libfft/libfft-cpu/libfft-cpu.so ../lib/libfft.so
-	ln -sf ../libfft/libfft-cpu/libfft-cpu.a ../lib/libfft.a
+	make -C libfft-cuda
+	# Here we choose to use libfft-XXX as the default, can be changed.
+	ln -sf ../libfft/libfft-cuda/libfft-cuda.so ../lib/libfft.so
+	#ln -sf ../libfft/libfft-cuda/libfft-cpu.a ../lib/libfft.a
 
 .PHONY: clean
 clean:

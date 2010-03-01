@@ -3,13 +3,13 @@
 
 #include <stdio.h>
 
-/** An FFTW plan "knows" everything it needs to know, including its source and destination arrays and direction (forward/backward). We can thus just call execute(fftw_plan). A CUDA plan, on the other hand, does not store this information. Therefore, we wrap this information in a cudaPlan, which is similar to an FFTW_plan. This allows us to call execute(plan), regardless of the plan being an FFTW or CUDA plan.
+/** An FFTW plan "knows" everything it needs to know, including its source and transfination arrays and direction (forward/backward). We can thus just call execute(fftw_plan). A CUDA plan, on the other hand, does not store this information. Therefore, we wrap this information in a cudaPlan, which is similar to an FFTW_plan. This allows us to call execute(plan), regardless of the plan being an FFTW or CUDA plan.
 */
 typedef struct{
   cufftHandle handle;
   
   real* source;
-  real* dest;
+  real* transf;
   
   real* device;
   
@@ -42,12 +42,12 @@ void fft_free(void* data){
 }
 
 
-void* fft_init_forward(int N0, int N1, int N2, real* source, real* dest){
+void* fft_init_forward(int N0, int N1, int N2, real* source, real* transf){
     cudaPlan* plan = (cudaPlan*) malloc(sizeof(cudaPlan));
     
     cufftPlan3d(&(plan->handle), N0, N1, N2, CUFFT_C2C);
     plan->source = source;
-    plan->dest = dest;
+    plan->transf = transf;
     cudaMalloc((void**)&plan->device, (2*N0*N1*N2) * sizeof(float));
     plan->N0 = N0;
     plan->N1 = N1;
@@ -58,36 +58,69 @@ void* fft_init_forward(int N0, int N1, int N2, real* source, real* dest){
 }
 
 
-void* fft_init_backward(int N0, int N1, int N2, real* source, real* dest){
-//     void* result = 
-//     
-//     printf("fft_init_backward\t(%d, %d, %d):\t%p\n", N0, N1, N2, result);
-//     return result;
+void* fft_init_backward(int N0, int N1, int N2, real* source, real* transf){
+    cudaPlan* plan = (cudaPlan*) malloc(sizeof(cudaPlan));
+    
+    cufftPlan3d(&(plan->handle), N0, N1, N2, CUFFT_C2C);
+    plan->source = source;
+    plan->transf = transf;
+    cudaMalloc((void**)&plan->device, (2*N0*N1*N2) * sizeof(float));
+    plan->N0 = N0;
+    plan->N1 = N1;
+    plan->N2 = N2;
+    plan->direction = CUFFT_INVERSE;
+    printf("fft_init_backward\t(%d, %d, %d):\t%p\n", N0, N1, N2, plan);
+    return plan;
 }
 
 
-void fft_destroy_plan(void* plan){
+void fft_transfroy_plan(void* plan){
   
 }
 
 
 void fft_execute(void* plan_ptr){
-  int i;
+  int i, j, k;
   cudaPlan* plan = (cudaPlan*)plan_ptr;
+  int N0 = plan->N0, N1 = plan->N1, N2 = plan->N2;
   int N = plan->N0 * plan->N1 * plan->N2;
   
   if(plan->direction == CUFFT_FORWARD){
-  for(i=0; i<N; i++){
-    plan->device[2*i] = plan->source[i];
-  }
-  cufftExecC2C(plan->handle, (cufftComplex*)plan->device, (cufftComplex*)plan->device, plan->direction);
+    
+    for(i=0; i<N; i++){
+      plan->device[2*i] = plan->source[i];
+    }
+    
+    cufftExecC2C(plan->handle, (cufftComplex*)plan->device, (cufftComplex*)plan->device, plan->direction);
+    
+    for(i=0; i < N0; i++){
+      for(j=0; j <  N1; j++){
+	for(k=0; k < N2+2; k++){
+	  plan->transf[ (i*N1+j)*N2+k ] = plan->device[ (i*N1+j)*N2+k ]; 
+	}
+      }
+    }
   }
   else if (plan->direction == CUFFT_INVERSE){
-    
+    for(i=0; i < N0; i++){
+      for(j=0; j < N1; j++){
+	for(k=0; k < N2+2; k++){
+	  plan->device[ (i*N1+j)*N2+k ] = plan->transf[ (i*N1+j)*N2+k ]; 
+	}
+	for(k= N2+2; k < N2; k+=2){
+	  plan->device[ (i*N1+j)*N2+k ] = plan->device[ (i*N1+j)*N2+k ];
+	  plan->device[ (i*N1+j)*N2+k +1 ] = -plan->transf[ (i*N1+j)*N2+k +1 ]; 
+	}
+	
+	cufftExecC2C(plan->handle, (cufftComplex*)plan->device, (cufftComplex*)plan->device, plan->direction);
+	
+	for(i=0; i<N; i++){
+	   plan->source[i] = plan->device[2*i];
+	}
+      }
+    }
   }
   else{
     exit(3);
   }
-    
-  
 }
