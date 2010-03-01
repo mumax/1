@@ -1,7 +1,7 @@
 export LD_CUDA_LIBS=-lcuda -lcudart -lcufft
 
 all:	libfft_cuda.cu
-	nvcc --compiler-options -fPIC -c libfft_cuda.cu $(LD_CUDA_LIBS)
+	nvcc --compiler-options -fPIC --compiler-options -g -c libfft_cuda.cu $(LD_CUDA_LIBS)
 	nvcc -shared libfft_cuda.o $(LD_CUDA_LIBS) -o libfft-cuda.so
 
 test:	*_test.cu

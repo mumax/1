@@ -1,3 +1,5 @@
+include ../common.mk
+
 CLEANFILES+="fft_test ../lib/libfft*.*"
 
 all:

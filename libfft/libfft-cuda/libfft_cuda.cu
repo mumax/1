@@ -80,6 +80,7 @@ void fft_transfroy_plan(void* plan){
 
 
 void fft_execute(void* plan_ptr){
+  printf("fft_execute()\t%p", plan_ptr);
   int i, j, k;
   cudaPlan* plan = (cudaPlan*)plan_ptr;
   int N0 = plan->N0, N1 = plan->N1, N2 = plan->N2;
@@ -88,6 +89,7 @@ void fft_execute(void* plan_ptr){
   if(plan->direction == CUFFT_FORWARD){
     
     for(i=0; i<N; i++){
+      printf("-");
       plan->device[2*i] = plan->source[i];
     }
     
