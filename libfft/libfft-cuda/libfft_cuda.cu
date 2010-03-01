@@ -58,7 +58,7 @@ void* fft_init_forward(int N0, int N1, int N2, real* source, real* transf){
 }
 
 
-void* fft_init_backward(int N0, int N1, int N2, real* source, real* transf){
+void* fft_init_backward(int N0, int N1, int N2, real* transf, real* source){
     cudaPlan* plan = (cudaPlan*) malloc(sizeof(cudaPlan));
     
     cufftPlan3d(&(plan->handle), N0, N1, N2, CUFFT_C2C);
@@ -80,17 +80,16 @@ void fft_transfroy_plan(void* plan){
 
 
 void fft_execute(void* plan_ptr){
-  printf("fft_execute()\t%p", plan_ptr);
+  printf("fft_execute():\t%p\n", plan_ptr);
   int i, j, k;
   cudaPlan* plan = (cudaPlan*)plan_ptr;
   int N0 = plan->N0, N1 = plan->N1, N2 = plan->N2;
   int N = plan->N0 * plan->N1 * plan->N2;
-  
+  printf("%d x %d x %d = %d\n", N0, N1, N2, N);
   if(plan->direction == CUFFT_FORWARD){
-    
+    printf("fft_execute() [forward]:\t%p\n", plan_ptr);
     for(i=0; i<N; i++){
-      printf("-");
-      plan->device[2*i] = plan->source[i];
+      plan->device[2*i] = plan->source[i]; // segfault...
     }
     
     cufftExecC2C(plan->handle, (cufftComplex*)plan->device, (cufftComplex*)plan->device, plan->direction);
@@ -104,6 +103,7 @@ void fft_execute(void* plan_ptr){
     }
   }
   else if (plan->direction == CUFFT_INVERSE){
+    printf("fft_execute() [backward]:\t%p\n", plan_ptr);
     for(i=0; i < N0; i++){
       for(j=0; j < N1; j++){
 	for(k=0; k < N2+2; k++){
@@ -123,6 +123,7 @@ void fft_execute(void* plan_ptr){
     }
   }
   else{
+    printf("fft_execute() [illegal plan]:\t%p", plan_ptr);
     exit(3);
   }
 }

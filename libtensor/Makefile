@@ -1,3 +1,5 @@
+include ../common.mk
+
 all: libtensor.so libtensor.a tensor install
 
 libtensor.o:	libtensor.h libtensor.cpp

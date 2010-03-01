@@ -1,6 +1,6 @@
 include ../common.mk
 
-CLEANFILES+="fft_test ../lib/libfft*.*"
+CLEANFILES+=../lib/libfft*.*
 
 all:
 	make -C libfft-cpu
@@ -13,7 +13,7 @@ all:
 clean:
 	make clean -C libfft-cpu
 	make clean -C libfft-cuda
-	rm -f $(CLEANFILES)
+	rm -f $(CLEANFILES) fft_test
 
 test:	all
 	$(CPP) $(CFLAGS) ../lib/libtensor.so ../lib/libfft.so $(LD_FFTW_LIBS) fft_test.cpp -o fft_test
