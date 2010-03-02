@@ -1,12 +1,12 @@
 include ../common.mk
 
 CLEANFILES+=../lib/libfft*.*
+FFTLIB=libfft-cpu
 
 all:
-	make -C libfft-cpu
-	make -C libfft-cuda
+	make -C $(FFTLIB);
 	# Here we choose to use libfft-XXX as the default, can be changed.
-	ln -sf ../libfft/libfft-cuda/libfft-cuda.so ../lib/libfft.so
+	ln -sf ../libfft/$(FFTLIB)/$(FFTLIB).so ../lib/libfft.so
 	#ln -sf ../libfft/libfft-cuda/libfft-cpu.a ../lib/libfft.a
 
 .PHONY: clean

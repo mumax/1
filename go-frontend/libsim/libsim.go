@@ -3,7 +3,7 @@ package libsim
 /*
 #include "../../libfft/libfft.h"
 
-// Although this is not libsim code, we put just this one function here. It should be replacable by pure goo with some dirty poiter->string->int conversion or so.
+// Although this is not libsim code, we put just this one function here. It should be replacable by pure go with some dirty poiter->string->int conversion or so.
 // 32-bit vs/ 64-bit issue here:
 // 32-bit needs int, 64 bit needs long long int.
 

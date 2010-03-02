@@ -2,9 +2,11 @@ package tensor
 
 /*
  * StoredTensor wraps a multi-dimensional array in the Tensor interface.
- * The array can be passed to FFTW because the underlying storage is cotiguous,
+ * The array can be passed to FFTW because the underlying storage is contiguous,
  * in contrast to multi-dimensional arrays allocated in the usual way.
  * The contiguous array can be obtained via List().
+ *
+ * The underlying array is guaranteed to be sufficiently aligned for FFTW.
  */
 
 import(
@@ -69,12 +71,6 @@ func IndexUnchecked(size, indexarray []int) int{
   return index;
 }
 
-
-
-
-// func IndexArray(t Tensor, index int) []int{
-//   
-// }
 
 // todo: tensor struct should be allocated before arrays
 
@@ -445,13 +441,13 @@ func mallocAligned(size int)[]float{
   log.Stderr("mallocAligned(", size, ")");
   array:= make([]float, size);
    // better way: make array a bit too big and slice'em!, perhaps make it 32-bite aligned, to be sure.
-  testAlignment(array);
+  TestAlignment(array);
   return array;
 }
 
-func testAlignment(array []float){
+func TestAlignment(array []float){
   i := libsim.ToInt(unsafe.Pointer(&array[0])); // replace by DataAddress;
   if i%16 != 0{
-    log.Crash("mallocAligned: misalignment, sorry...");
+    log.Crash("Misalignment, sorry...");
   }
 }

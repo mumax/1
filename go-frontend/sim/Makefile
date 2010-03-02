@@ -5,8 +5,9 @@ GOFILES=\
 	demag.go\
 	exchange.go\
 	fieldplan.go\
+	solver.go\
 	euler.go\
 	rk.go\
-	sim.go\
+	rkf.go\
 	
 include $(GOROOT)/src/Make.pkg

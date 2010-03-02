@@ -1,13 +1,34 @@
 package sim
 
+/* 
+ * This file contains numerous functions that return micromagnetic kernels.
+ *
+ * A kernel is a rank 5 Tensor: K[S][D][x][y][z].
+ * S and D are source and destination directions, ranging from 0 (X) to 2 (Z).
+ * K[S][D][x][y][z] is the D-the component of the magnetic field at position
+ * (x,y,z) due to a unit spin along direction S, at the origin.
+ *
+ * The kernel is twice the size of the magnetization field we want to convolve it with.
+ * The indices are wrapped: a negative index i is stored at N-abs(i), with N
+ * the total size in that direction.
+ *
+ * Idea: we migth calculate in the kernel in double precession and only round it
+ * just before it is returned, or even after doing the FFT. Because it is used over
+ * and over, this small gain in accuracy *might* be worth it.
+ */
+
 import(
   . "../tensor";
   . "../fft";
   . "math";
-  //. "fmt";
 )
 
-
+/** 
+ * With this kernel, cells are treated as homogenously magnetized cuboids.
+ * The magnetic charges on the faces are integrated by just taking one
+ * point at the center of the face. It is thus not a very accurate kernel,
+ * but OK for debugging.
+ */
 func PointKernel(unpaddedsize []int, cubesize float) *Tensor5{
   size := PadSize(unpaddedsize);
   k := NewTensor5([]int{3, 3, size[0], size[1], size[2]});
@@ -58,7 +79,12 @@ func PointKernel(unpaddedsize []int, cubesize float) *Tensor5{
 }
 
 
-/** Todo: calculate in double precession and only round in the end? */
+/**
+ * With this kernel, each "cell" contains a magnetic point-dipole.
+ * This is more useful for spin-lattice simulations than micromagnetics.
+ * The self-contribution is (anti)parallel to m and thus does not
+ * influence the dynamics.
+ */
 func DipoleKernel(unpaddedsize []int) *Tensor5{
   size := PadSize(unpaddedsize);
   k := NewTensor5([]int{3, 3, size[0], size[1], size[2]});
@@ -104,45 +130,7 @@ func DipoleKernel(unpaddedsize []int) *Tensor5{
   return k;
 }
 
-
-/*
-func UnwrappedDipoleKernel(unpaddedsize []int) *Tensor5{
-  size := PadSize(unpaddedsize);
-  k := NewTensor5([]int{3, 3, size[0], size[1], size[2]});
-    
-  R := NewVector();
-  B := NewVector();
-
-  for s:=0; s<3; s++{	// source index Ksdxyz
-  m:=UnitVector(s);	// unit vector along the source axis, e.g.: x.
-  
-  // in each dimension, go from -(size-1)/2 to size/2, wrapped. 
-  for x:=0; x<size[X]; x++{
-    for y:=0; y<size[Y]; y++{
-      for z:=0; z<size[Z]; z++{
-	if !(x==0 && y==0 && z==0){ // exclude self-contribution
-	  // B = \mu_0 / (4 \pi r^3) * (3(m \dot \hat r)\hat r -m)
-	  R.Set(float(x), float(y), float(z));
-	  r := R.Norm();
-	  R.Normalize();
-	  B.SetTo(R);
-	  B.Scale(3.*m.Dot(R));
-	  B.Sub(m);
-	  B.Scale(1./(4.*Pi*r*r*r));
-	  for d:=0; d<3; d++{	// destination index Ksdxyz
-	    k.Array()[s][d][x][y][z] = B.Component[d]; 
-	  }
-	}
-      }
-    }
-
-  }
-
-  }
-
-  return k;
-}*/
-
+/* --------- Internal functions --------- */
 
 func wrap(number, max int) int{
   for number < 0{
@@ -155,15 +143,3 @@ func wrap(number, max int) int{
 func FSqrt(x float64) float{
   return float(Sqrt(x));
 }
-
-/** wraps negative indices to padded positive indices */
-
-// func wrap(paddedindex, paddedsize []int) []int{
-//   wrapped := make([]int, len(paddedsize));
-//   for i:=range(paddedsize){
-//     for paddedindex[i] < 0{
-//       paddedindex[i] += paddedsize[i];
-//     }
-//   }
-//   return wrapped;
-// }

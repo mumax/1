@@ -7,7 +7,6 @@ GOFILES=\
 	io.go\
 	tensor.go\
 	vector.go\
-	block.go\
 	storedtensor.go\
 	vectorblock.go\
 

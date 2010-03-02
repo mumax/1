@@ -3,9 +3,12 @@ package sim
 import(
   . "../tensor";
   . "math";
-  //.  "fmt";
 )
 
+/**
+ * The euler solver (time stepper) is used for testing, 
+ * it's not very useful for real simulations.
+ */
 type Euler struct{
   m_tensor, h_tensor *Tensor4;
   m, h [][]float;	// components as lists
@@ -60,19 +63,4 @@ func (s *Euler) Step(){
 
 
 
-func Torque(m, h, torque []float, alpha, gilbert float) {
-    // - m cross H
-     _mxHx := -m[Y] * h[Z] + h[Y] * m[Z];
-     _mxHy := m[X] * h[Z] - h[X] * m[Z];
-     _mxHz := -m[X] * h[Y] + h[X] * m[Y];
 
-    // - m cross (m cross H)
-     _mxmxHx := m[Y] * _mxHz - _mxHy * m[Z];
-     _mxmxHy := -m[X] * _mxHz + _mxHx * m[Z];
-     _mxmxHz := m[X] * _mxHy - _mxHx * m[Y];
-
-    
-    torque[X] = (_mxHx + _mxmxHx * alpha) * gilbert;
-    torque[Y] = (_mxHy + _mxmxHy * alpha) * gilbert;
-    torque[Z] = (_mxHz + _mxmxHz * alpha) * gilbert;
-}

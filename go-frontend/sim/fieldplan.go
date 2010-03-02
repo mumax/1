@@ -7,6 +7,13 @@ import(
   . "fmt";
 )
 
+/**
+ * A FieldPlan takes a magnetization m and returns an effective field H:
+ * plan.Execute(m, H);
+ * Internally, it uses a convPlan to do the convolution. The field plan
+ * sets up the kernel for the convPlan, based on material parameters and
+ * cell size.
+ */
 type FieldPlan struct{
   /** Exchange constant in J/m */
   aExch float;
@@ -16,16 +23,16 @@ type FieldPlan struct{
   mu0 float;
   /** Gyromagnetic ratio in m/As */
   gamma0 float;
-
+  /** Mesh size, e.g. 64x64x4 */
   size []int;
+  /** Cell size in exchange lengths, e.g. 0.5x0.5.1.2 */
   cellsize []float;
 
   convPlan *ConvPlan;
-
-  initiated bool;
+  //initiated bool;
 }
 
-/** All parameters passed in SI units. */
+/** All parameters passed in SI units. Program units are used only internally. */
 func NewFieldPlan(size []int, cellsize []float, mSat, aExch float) *FieldPlan{
   plan := new(FieldPlan);
   
@@ -49,15 +56,17 @@ func NewFieldPlan(size []int, cellsize []float, mSat, aExch float) *FieldPlan{
   return plan;
 }
 
+/** Executes the plan: stores the field h corresponding to the magnetization m. */
 func (plan *FieldPlan) Execute(m, h *Tensor4){
-  if !plan.initiated { plan.init() }
+  //if !plan.initiated { plan.init() }
   plan.convPlan.Execute(m, h);
 }
 
-func (plan *FieldPlan) init(){
-  
-}
+// func (plan *FieldPlan) init(){
+//   
+// }
 
+/** Prints some human-readable information to the screen. */
 func (plan *FieldPlan) PrintInfo() {
   Println("Material parameters");
   Println("aExch      : \t", plan.aExch, " J/m");
@@ -92,25 +101,27 @@ func (plan *FieldPlan) PrintInfo() {
  TIME = 1.0 / (gamma * Ms);
  ENERGY = A * LENGTH;*/
 
+/** The internal unit of length, expressed in meters. */
 func (plan *FieldPlan) UnitLength() float{
   return float(Sqrt(2. * float64(plan.aExch / (plan.mu0*plan.mSat*plan.mSat))));
 }
 
-
+/** The internal unit of time, expressed in seconds. */
 func (plan *FieldPlan) UnitTime() float{
   return 1.0 / (plan.gamma0 * plan.mSat);
 }
 
-
+/** The internal unit of field, expressed in A/m. */
 func (plan *FieldPlan) UnitField() float{
   return plan.mSat;
 }
 
-
+/** The internal unit of energy, expressed in J. */
 func (plan *FieldPlan) UnitEnergy() float{
   return plan.aExch * plan.UnitLength();
 }
 
+/** The plan's mesh size. */
 func (plan *FieldPlan) Size() []int{
   return plan.size;
 }

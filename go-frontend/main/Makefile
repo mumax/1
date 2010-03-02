@@ -1,6 +1,6 @@
 include $(GOROOT)/src/Make.$(GOARCH)
 
-main:
+main:	*.go
 	$(GC) -I_obj main.go
 	$(LD) -L_obj -o $@ main.$O
 

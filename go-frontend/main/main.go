@@ -15,37 +15,36 @@ func main() {
 }
 
 func Run(){
- const(N0 = 64; 
-       N1 = 64;
-       N2 = 4;
+ const(N0 = 16; 
+       N1 = 16;
+       N2 = 1;
   );
 
   size := []int{N0, N1, N2};
   size3D := []int{3, N0, N1, N2};
-  s := NewFieldPlan(size, []float{5E-9, 5E-9, 5E-9}, 800E3, 1.3E-11);
-  s.PrintInfo();
+  field := NewFieldPlan(size, []float{5E-9, 5E-9, 5E-9}, 800E3, 1.3E-11);
+  field.PrintInfo();
  
   M := NewTensor4(size3D);
-  euler := NewEuler(M, s, 0.01);
+  euler := NewRKF(M, field, 0.1);
   
   SetAll(M.Component(Y), 1.);
   for i:=0; i<len(M.Component(X).List())/2; i++{
     M.Component(Y).List()[i] = -1.
   }
-  M.Component(Z).List()[64*32+16] = -1.;
+  //M.Component(Z).List()[0] = -1.;
   //SetAll(M.Component(Z), 0.2);
   
 
   t:=0;
-  for i:=0; i<1000; i++{
+  for i:=0; i<10; i++{
     Print(t, " ");
-    for j:=0; j<100; j++{
+    PrintVectors(FOpen(Sprintf("/home/arne/Desktop/vortex")), M);
+    for j:=0; j<50; j++{
       euler.Step();
       t++;
     }
-    PrintVectors(FOpen(Sprintf("/home/arne/Desktop/vortex")), M);
   }
-  
 }
 
 
