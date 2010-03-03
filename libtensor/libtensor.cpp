@@ -76,11 +76,20 @@ void delete_tensor(tensor* t){
 }
 
 void write_tensor(tensor* t, FILE* out){
-  fwrite(&(t->rank), sizeof(int32_t), 1, out);
-  fwrite(t->size, sizeof(int32_t), t->rank, out);
-  fwrite(t->list, sizeof(float), tensor_length(t), out);
+  write_tensor_pieces(t->rank, t->size, t->list, out);
+}
+
+void write_tensor_pieces(int rank, int* size, float* list, FILE* out){
+  int length = 1;
+  for(int i=0; i<rank; i++){
+    length *= size[i];
+  }  
+  fwrite(&(rank), sizeof(int32_t), 1, out);
+  fwrite(size, sizeof(int32_t), rank, out);
+  fwrite(list, sizeof(float), length, out);
   // todo: error handling
 }
+
 
 void write_tensor_ascii(tensor* t, FILE* out){
   fprintf(out, "%d\n", t->rank);
@@ -99,12 +108,20 @@ void print_tensor(tensor* t){
 
 tensor* read_tensor(FILE* in){
   tensor* t = (tensor*)malloc(sizeof(tensor));
-  fread(&(t->rank), sizeof(int32_t), 1, in);
-  t->size = (int32_t*)calloc(t->rank, sizeof(int32_t));
-  fread(t->size, sizeof(int32_t), t->rank, in);
-  t-> list = (float*)calloc(tensor_length(t), sizeof(float));
-  fread(t->list, sizeof(float), tensor_length(t), in);
+  read_tensor_pieces(&(t->rank), &(t->size), &(t->list), in);
   return t;
+}
+
+void read_tensor_pieces(int* rank, int** size, float** list, FILE* in){
+  fread(rank, sizeof(int32_t), 1, in);
+  *size = (int32_t*)calloc(*rank, sizeof(int32_t));
+  fread(*size, sizeof(int32_t), *rank, in);
+  int length = 1;
+  for(int i=0; i<*rank; i++){
+    length *= (*size)[i];
+  } 
+  *list = (float*)calloc(length, sizeof(float));
+  fread(*list, sizeof(float), length, in);
 }
 
 tensor* tensor_component(tensor* t, int component){

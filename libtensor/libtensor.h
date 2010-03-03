@@ -63,8 +63,15 @@ int tensor_index(tensor* t, int* indexarray);
  */
 void write_tensor(tensor* t, FILE* out);
 
+/** Can be used as an alternative for write_tensor() if you don't want to use the tensor struct. */
+void write_tensor_pieces(int rank, int* size, float* data, FILE* out);
+
+
 /** Reads the tensor from binary format. */
 tensor* read_tensor(FILE* in);
+
+/** Can be used as an alternative for read_tensor() if you don't want to use the tensor struct. */
+void read_tensor_pieces(int* rank, int** size, float** list, FILE* in);
 
 /** Prints the tensor as ascii text. 
  * The format is just the same as write_tensor(), but with ascii output instead of binary.
