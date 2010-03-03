@@ -1,7 +1,7 @@
 package sim
 
 /*
- * This file contains a few Runge-Kutta solvers.
+ * The adaptive step Runge-Kutta-Fehlberg method
  */
 
 import(
@@ -31,6 +31,7 @@ type RKF struct{
   dt float;
   error float; // desired error per step
 }
+
 
 func NewRKF(m *Tensor4, field *FieldPlan, error float) *RKF{
   rkf := new(RKF);

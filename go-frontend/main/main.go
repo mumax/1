@@ -1,3 +1,5 @@
+
+
 package main
   
 import( 
@@ -15,8 +17,8 @@ func main() {
 }
 
 func Run(){
- const(N0 = 16; 
-       N1 = 16;
+ const(N0 = 64; 
+       N1 = 64;
        N2 = 1;
   );
 
@@ -26,7 +28,7 @@ func Run(){
   field.PrintInfo();
  
   M := NewTensor4(size3D);
-  euler := NewRKF(M, field, 0.1);
+  euler := NewRK4MaxDm(M, field, 0.02);
   
   SetAll(M.Component(Y), 1.);
   for i:=0; i<len(M.Component(X).List())/2; i++{
@@ -37,10 +39,10 @@ func Run(){
   
 
   t:=0;
-  for i:=0; i<10; i++{
+  for i:=0; i<50; i++{
     Print(t, " ");
     PrintVectors(FOpen(Sprintf("/home/arne/Desktop/vortex")), M);
-    for j:=0; j<50; j++{
+    for j:=0; j<10; j++{
       euler.Step();
       t++;
     }
