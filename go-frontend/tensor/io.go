@@ -6,7 +6,38 @@ import(
   "io";
   "os";
   "log";
+  "libsim";
 )
+
+
+func WriteTensor(t Tensor, out io.Writer){
+  buffer := make([]byte, 4);
+  
+  libsim.IntToBytes(Rank(t), buffer);
+  _, err := out.Write(buffer);
+  if err != nil{ log.Crash(err) }
+  
+  for i:=range(t.Size()){
+      libsim.IntToBytes(t.Size()[i], buffer);
+      _, err := out.Write(buffer);
+      if err != nil{ log.Crash(err) }
+  }
+  
+  for i:=NewIterator(t); i.HasNext(); i.Next(){
+      libsim.FloatToBytes(i.Get(), buffer);
+      _, err := out.Write(buffer);
+      if err != nil{ log.Crash(err) }
+  }
+}
+
+// func WriteInt(i uint32, out *io.Writer){
+//   var bytes [4]byte;
+//   bytes[0] = byte((i & 0xFF000000) >> 3);
+//   bytes[1] = byte((i & 0x00FF0000) >> 2);
+//   bytes[2] = byte((i & 0x0000FF00) >> 1);
+//   bytes[3] = byte((i & 0x000000FF) >> 0);
+//   out.Write(bytes[0:4]);
+// }
 
 func PrintTensor(out io.Writer, t Tensor){
 //   rank := Rank(t);

@@ -1,34 +1,37 @@
-
-
 package main
   
 import( 
        . "../tensor";
        //. "../fft";
        . "../sim";
-       "../libsim";
+       //"../libsim";
        . "fmt";
+       //. "os";
 )
 
 func main() {
-  libsim.Init(); // does not seem to be called automatically, what's wrong?
+  //libsim.Init(); // does not seem to be called automatically, what's wrong > init(), not Init() !
   PrintInfo();
   Run();
 }
 
 func Run(){
- const(N0 = 64; 
-       N1 = 64;
+ const(N0 = 32; 
+       N1 = 32;
        N2 = 1;
   );
 
   size := []int{N0, N1, N2};
   size3D := []int{3, N0, N1, N2};
+  
+  M := NewTensor4(size3D);
+  WriteTensor(M, FOpen("/home/arne/Desktop/tensor"));
+  
   field := NewFieldPlan(size, []float{5E-9, 5E-9, 5E-9}, 800E3, 1.3E-11);
   field.PrintInfo();
  
-  M := NewTensor4(size3D);
-  euler := NewRK4MaxDm(M, field, 0.02);
+  
+  euler := NewRK4MaxDm(M, field, 0.05);
   
   SetAll(M.Component(Y), 1.);
   for i:=0; i<len(M.Component(X).List())/2; i++{
@@ -42,7 +45,7 @@ func Run(){
   for i:=0; i<50; i++{
     Print(t, " ");
     PrintVectors(FOpen(Sprintf("/home/arne/Desktop/vortex")), M);
-    for j:=0; j<10; j++{
+    for j:=0; j<100; j++{
       euler.Step();
       t++;
     }

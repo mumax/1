@@ -90,6 +90,13 @@ void write_tensor_pieces(int rank, int* size, float* list, FILE* out){
   // todo: error handling
 }
 
+void write_int(int i, FILE* out){
+  fwrite(&i, sizeof(int32_t), 1, out);
+}
+
+void write_float(float f, FILE* out){
+  fwrite(&f, sizeof(int32_t), 1, out);
+}
 
 void write_tensor_ascii(tensor* t, FILE* out){
   fprintf(out, "%d\n", t->rank);

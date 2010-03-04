@@ -84,6 +84,8 @@ void write_tensor_ascii(tensor* t, FILE* out);
 /** Prints the tensor to standard output. */
 void print_tensor(tensor* t);
 
+void write_int(int i, FILE* out);
+void write_float(float f, FILE* out);
 
 /** Makes a slice of a tensor, sharing the data with the original. */
 tensor* tensor_component(tensor* t, int component);
