@@ -441,11 +441,11 @@ func mallocAligned(size int)[]float{
   log.Stderr("mallocAligned(", size, ")");
   array:= make([]float, size);
    // better way: make array a bit too big and slice'em!, perhaps make it 32-bite aligned, to be sure.
-  TestAlignment(array);
+  CheckAlignment(array);
   return array;
 }
 
-func TestAlignment(array []float){
+func CheckAlignment(array []float){
   i := libsim.ToInt(unsafe.Pointer(&array[0])); // replace by DataAddress;
   if i%16 != 0{
     log.Crash("Misalignment, sorry...");

@@ -4,12 +4,14 @@ import(
   . "../tensor";
   . "../fft";
   . "math";
-  . "fmt";
+  "fmt";
 )
 
 
 
-/** Magnetostatic field at position r (integer, number of cellsizes away form source) for a given source magnetization direction m (X, Y, or Z) */
+/** 
+TODO: uses only one point (yet), should be made more accurate!
+Magnetostatic field at position r (integer, number of cellsizes away form source) for a given source magnetization direction m (X, Y, or Z) */
 func faceIntegral(cellsize[] float, r []int, mdir int) [3]float{
 
   pole := make([]*Vector, 2);
@@ -67,7 +69,7 @@ func faceIntegral(cellsize[] float, r []int, mdir int) [3]float{
 
 /** Integrates the demag field based on multiple points per face. */
 func FaceKernel(unpaddedsize []int, cellsize []float) *Tensor5{
-  Println("FaceKernel(", unpaddedsize, cellsize, ")");
+  fmt.Println("FaceKernel(", unpaddedsize, cellsize, ")");
   size := PadSize(unpaddedsize);
   k := NewTensor5([]int{3, 3, size[0], size[1], size[2]});
   
@@ -94,7 +96,7 @@ func FaceKernel(unpaddedsize []int, cellsize []float) *Tensor5{
 
 /** DEBUG: 'integrates' the magnetostatic field out of just one point per face. */
 func PointKernel(unpaddedsize []int, cellsize []float) *Tensor5{
-  Println("PointKernel(", unpaddedsize, cellsize, ")");
+  fmt.Println("PointKernel(", unpaddedsize, cellsize, ")");
   size := PadSize(unpaddedsize);
   k := NewTensor5([]int{3, 3, size[0], size[1], size[2]});
 

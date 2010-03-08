@@ -1,6 +1,8 @@
 all:
 	make -C assert
 	ln -sf assert/_obj/assert.a .
+	make -C util
+	ln -sf util/_obj/util.a .
 	make install -C libsim
 	ln -sf libsim/_obj/libsim.a .
 	make -C tensor
@@ -11,15 +13,18 @@ all:
 	ln -sf sim/_obj/sim.a .
 	make -C main
 	ln -sf main/main ./run
+	make -C tensor-main
 
 .PHONY: clean
 clean:
 	make clean -C assert
+	make clean -C util
 	make clean -C libsim
 	make clean -C tensor
 	make clean -C fft
 	make clean -C sim
 	make clean -C main
+	make clean -C tensor-main
 	rm -f *.a run
 
 test:

@@ -130,6 +130,7 @@ func (t *TensorSlice) Get(index []int) float {
 	return t.Tensor.Get(bigindex);
 }
 
+// Note: slice can be use to take a component. //
 
 /** Swap two dimensions. */
 

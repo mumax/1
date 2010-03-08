@@ -20,7 +20,7 @@ func Array2D(size0, size1 int) ([]float, [][]float){
    */
   sliced := make([][]float, size0);
   list := make([]float, size0*size1);
-  TestAlignment(list);
+  CheckAlignment(list);
   
   for i:=0; i<size0; i++{
     sliced[i] = list[i*size1:(i+1)*size1];
@@ -41,7 +41,7 @@ func Array3D(size0, size1, size2 int) ([]float, [][][]float){
     sliced[i] = make([][]float, size1);
   }
   list := make([]float, size0*size1*size2);
-  TestAlignment(list);
+  CheckAlignment(list);
   
   for i:=range(sliced){
     for j:=range(sliced[i]){
@@ -69,7 +69,7 @@ func Array4D(size0, size1, size2, size3 int) ([]float, [][][][]float){
     }
   }
   list := make([]float, size0*size1*size2*size3);
-  TestAlignment(list);
+  CheckAlignment(list);
   
   for i:=range(sliced){
     for j:=range(sliced[i]){
@@ -106,7 +106,7 @@ func Array5D(size0, size1, size2, size3, size4 int) ([]float, [][][][][]float){
     }
   }
   list := make([]float, size0*size1*size2*size3*size4);
-  TestAlignment(list);
+  CheckAlignment(list);
   
   for i:=range(sliced){
     for j:=range(sliced[i]){

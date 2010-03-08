@@ -1,26 +1,29 @@
-package out
+package util
 
 import(
-  . "./tensor";
   "fmt";
-  "io";
+  //"io";
   "os";
-  . "./util";
+  "log";
 )
 
+// idea: merge with assert(?)
+
+
+// TODO: rename function, FOpen already exists.
 /** Todo: sometimes appends instead of overwriting... */
-func FOpen(filename string) io.Writer{
+func FOpenz(filename string) *os.File{
   file, ok := os.Open(filename, os.O_RDWR | os.O_CREAT, 0666);
   if ok!=nil{
     fmt.Fprint(os.Stderr, ok, "\n");
-    ErrorMsg("Could not open file");
+    log.Crash("Could not open file");
   }
   return file;
 }
 
 
 /** Prints an unstructured field of vectors (3 co-ordinates and 3 vector components per line), suitable for Gnuplot 'plot with vectors' */
-
+/*
 func PrintVectors(out io.Writer, t Tensor){
   Assert(Rank(t)==4, "ToGnuplotVectors: needs 4D data");
   Assert(t.Size()[0]==3, "ToGnuplotVectors: needs first dimension of size 3 (vector components)");
@@ -41,7 +44,7 @@ func PrintVectors(out io.Writer, t Tensor){
   if  c != nil{
     out.(io.Closer).Close();
   }
-}
+}*/
 
 /** ugly temp. hack, make general: Vectorblock is really a 4D stored tensor. */
 

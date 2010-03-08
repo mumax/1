@@ -2,12 +2,24 @@ package tensor
 
 import( . "testing";
 	"reflect";
+	. "../util";
+	. "os";
 )
 
 /*
  * Tensor Unit Tests
  */
 
+func TestIO(t *T){
+  A := NewTensor3([]int{5, 7, 9});
+  for i:=range(A.List()) {
+    A.List()[i] = float(i) / 10.0;
+  }
+  Write(FOpenz("iotest"), A);
+  A2 := Read(FOpenz("iotest"));
+  Print(Stdout, A2);
+  if !Equals(A, A2) { t.Fail() }
+}
 
 func TestTensorOps(t *T){
 

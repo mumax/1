@@ -6,7 +6,8 @@ package sim
 
 import(
   . "../tensor";
-  . "fmt";
+  "fmt";
+  "os";
 )
 
 var butcher45 = [...][5]float{
@@ -133,11 +134,11 @@ func (rkf *RKF) Step(){
        }
      }
      maxError = FSqrt(float64(maxError));
-     Println("maxError: ", maxError);
+     fmt.Fprint(os.Stderr, "maxError: ", maxError);
      scale := FSqrt(float64(FSqrt(float64((rkf.error) / (1.0 * maxError)))));
 
      rkf.dt *= scale;
-     Println("dt: ", dt);
+     fmt.Fprint(os.Stderr, "dt: ", dt);
 }
 
 

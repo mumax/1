@@ -3,7 +3,7 @@ package sim
 import( . "testing";
 	. "../tensor";
 	//. "../fft";
-	. "fmt";
+	//"fmt";
 	//. "os";
 	//"rand";
 	//. "math";
@@ -26,7 +26,7 @@ func TestField(t *T){
   M, H := NewTensor4(size3D), NewTensor4(size3D);
   M.Array()[X][N0/2][N1/2][N2/2] = 1.;
   field.Execute(M, H);
-  PrintVectors(FOpen(Sprintf("/home/arne/Desktop/h")), Normalize(H, 0));
+  PrintVectors(FOpen("h"), Normalize(H, 0));
 }
 
 func BenchmarkProblem4(b *B){
@@ -51,7 +51,7 @@ func BenchmarkProblem4(b *B){
       euler.Step();
       t++;
     }
-   PrintVectors(FOpen(Sprintf("/home/arne/Desktop/probl4")), M);
+   PrintVectors(FOpen("probl4"), M);
 }
 
 func BenchmarkConv(b *B){

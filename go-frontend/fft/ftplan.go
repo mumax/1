@@ -12,6 +12,7 @@ import( . "../assert";
  */
 
 
+// TODO: refactor to fft.Plan
 type FTPlan struct{
   real, transformed *Tensor3;			// original (real) and transformed data	
   plan unsafe.Pointer;				// FFTW plan for transforming

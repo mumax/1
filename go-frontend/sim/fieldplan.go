@@ -4,7 +4,7 @@ import(
   . "../tensor";
   . "../fft";
   . "math";
-  . "fmt";
+  "fmt";
 )
 
 /**
@@ -68,31 +68,31 @@ func (plan *FieldPlan) Execute(m, h *Tensor4){
 
 /** Prints some human-readable information to the screen. */
 func (plan *FieldPlan) PrintInfo() {
-  Println("Material parameters");
-  Println("aExch      : \t", plan.aExch, " J/m");
-  Println("mSat       : \t", plan.mSat, " A/m");
-  Println("gamma0      : \t", plan.gamma0, " m/As");
-  Println("mu0     : \t", plan.mu0, " N/A^2");
-  Println("exch length: \t", plan.UnitLength(), " m");
-  Println("unit time  : \t", plan.UnitTime(), " s");
-  Println("unit energy: \t", plan.UnitEnergy(), " J");
-  Println("Geometry");
-  Println("Grid size  : \t", plan.Size());
-  Print("Cell size  : \t");
+  fmt.Println("Material parameters");
+  fmt.Println("aExch      : \t", plan.aExch, " J/m");
+  fmt.Println("mSat       : \t", plan.mSat, " A/m");
+  fmt.Println("gamma0      : \t", plan.gamma0, " m/As");
+  fmt.Println("mu0     : \t", plan.mu0, " N/A^2");
+  fmt.Println("exch length: \t", plan.UnitLength(), " m");
+  fmt.Println("unit time  : \t", plan.UnitTime(), " s");
+  fmt.Println("unit energy: \t", plan.UnitEnergy(), " J");
+  fmt.Println("Geometry");
+  fmt.Println("Grid size  : \t", plan.Size());
+  fmt.Print("Cell size  : \t");
   for i:=range(plan.cellsize){
-    Print(plan.UnitLength() * plan.cellsize[i], " ");
+    fmt.Print(plan.UnitLength() * plan.cellsize[i], " ");
   }
-  Print("(m), (");
+  fmt.Print("(m), (");
    for i:=range(plan.cellsize){
-    Print(plan.cellsize[i], " ");
+    fmt.Print(plan.cellsize[i], " ");
   }
-  Println("exch. lengths)");
+  fmt.Println("exch. lengths)");
 
-  Print("Sim size   : \t ");
+  fmt.Print("Sim size   : \t ");
   for i:=range(plan.size){
-    Print(float(plan.Size()[i]) * plan.UnitLength() * plan.cellsize[i], " ");
+    fmt.Print(float(plan.Size()[i]) * plan.UnitLength() * plan.cellsize[i], " ");
   }
-  Println("(m)");
+  fmt.Println("(m)");
 }
 
 /*

@@ -5,7 +5,6 @@ import( . "testing";
 	"rand";
 	. "math";
 	//. "os";
-	"libsim";
 )
 
 /*
@@ -14,7 +13,6 @@ import( . "testing";
 
 
 func TestFFTPlan(t *T){
-  libsim.Init();
   const(N0 = 3; 
         N1 = 4;
 	N2 = 5

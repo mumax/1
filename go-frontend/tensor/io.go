@@ -9,11 +9,16 @@ import(
   "libsim";
 )
 
+// TODO(general): refactor all names to go convention: tensor.Print(), sim.New(), assert.Check(), ... 
+// use "." imports a bit less.
 
-func WriteTensor(t Tensor, out io.Writer){
+
+/** Writes the tensor in 32-bit binary format. See libtensor.h for more details. */
+func Write(out io.Writer, t Tensor){
+  //Fprintln(os.Stderr, "WriteTensor(", &t, out, ")");
   buffer := make([]byte, 4);
   
-  libsim.IntToBytes(Rank(t), buffer);
+  libsim.IntToBytes(Rank(t), buffer);	// probably could have used unformatted printf, scanf here?
   _, err := out.Write(buffer);
   if err != nil{ log.Crash(err) }
   
@@ -30,55 +35,58 @@ func WriteTensor(t Tensor, out io.Writer){
   }
 }
 
-// func WriteInt(i uint32, out *io.Writer){
-//   var bytes [4]byte;
-//   bytes[0] = byte((i & 0xFF000000) >> 3);
-//   bytes[1] = byte((i & 0x00FF0000) >> 2);
-//   bytes[2] = byte((i & 0x0000FF00) >> 1);
-//   bytes[3] = byte((i & 0x000000FF) >> 0);
-//   out.Write(bytes[0:4]);
-// }
-
-func PrintTensor(out io.Writer, t Tensor){
-//   rank := Rank(t);
-//   
-//   if rank == 0{
-//     Fprintf(out, "% f", Get(t), "\n");
-//     return;
-//   }
-//   
-//   if rank <= 3 {
-//     size := [3]int{};
-//     // promote to a rank 3 tensor of size 1x1xN or 1xNxM
-//     for i:=range(size){
-//       if rank < i+1{
-// 	size[i] = 1;
-//       }
-//       else {
-// 	size[i] = t.Size()[i];
-//       }
-//     }
-// 
-//     for k:=0; k<size[2]; k++ {
-//       for j:=0; j<size[1]; j++ {
-// 	for i:=0; i<size[0]; i++ {
-// 	  Fprintf(out, "% f ", Get(t, i, j, k));
-// 	}
-// 	Fprintf(out, "\n");
-//       }
-//       Fprintf(out, "\n");
-//     }
-//     return;
-//   }
-// 
-//   //else{
-//   //  Fprintf(out, "Can not yet print tensors with rank > 3");
-//   //}   
+/** Reads a tensor from 32-bit binary format. See libtensor.h for more details. */
+func Read(in io.Reader) StoredTensor{
+  //Fprintln(os.Stderr, "ReadTensor(", in, ")");
+  buffer := make([]byte, 4);
+  
+  in.Read(buffer);
+  rank := libsim.BytesToInt(buffer);
+  
+  size := make([]int, rank);
+  for i:=range(size){
+    in.Read(buffer);
+    size[i] = libsim.BytesToInt(buffer);
+  }
+  
+  t := NewTensorN(size);
+  list := t.List();
+  
+  for i:=range(list){
+    in.Read(buffer);
+    list[i] = libsim.BytesToFloat(buffer);
+  }
+  
+  return t;
 }
 
+/** Prints the tensor in ASCII format, See libtensor.h for more details. */
+func Print(out io.Writer, t Tensor){
+  Fprintln(out, Rank(t));
+  
+  for i:=range(t.Size()){
+    Fprintln(out, t.Size()[i]);
+  }
+  
+  for i:=NewIterator(t); i.HasNext(); i.Next(){
+    Fprintln(out, i.Get());
+  }
+}
+
+/** Prints the tensor in ASCII with some row/column formatting to make it easier to read for humans. */
+func Format(out io.Writer, t Tensor){
+  Fprintln(out, Rank(t));
+  
+  for i:=range(t.Size()){
+    Fprintln(out, t.Size()[i]);
+  }
+  
+  for i:=NewIterator(t); i.HasNext(); i.Next(){
+    Fprintln(out, i.Get());
+  }
+}
 
 /** Prints an unstructured field of vectors (3 co-ordinates and 3 vector components per line), suitable for Gnuplot 'plot with vectors' */
-
 func PrintVectors(out io.Writer, t Tensor){
   AssertMsg(t.Size()[0]==3, "Needs first dimension of size 3 (vector components)");
   xcomp := Slice(t, 0, X);
@@ -105,6 +113,7 @@ func PrintVectors(out io.Writer, t Tensor){
 
 /* Todo: sometimes appends instead of overwriting...
   move to util?
+  TODO: remove the duplicate in util
  */
 
 func FOpen(filename string) io.Writer{

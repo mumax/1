@@ -5,7 +5,8 @@ package sim
  */
 
 import(
-  . "fmt";
+  "fmt";
+  "os";
   . "math";
   . "../tensor";
 )
@@ -106,8 +107,8 @@ func (rk4 *RK4) Step(){
     maxTorque = FSqrt(float64(maxTorque));
     if rk4.maxDm != 0.{
 	rk4.dt = rk4.maxDm / maxTorque;
-	Println("maxTorque:", maxTorque);
-	Println("dt:", rk4.dt);
+	fmt.Fprintln(os.Stderr, "maxTorque:", maxTorque);
+	fmt.Fprintln(os.Stderr, "dt:", rk4.dt);
      }
     
     dt := rk4.dt;
