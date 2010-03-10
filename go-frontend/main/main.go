@@ -17,9 +17,9 @@ func main() {
 }
 
 func Run(){
- const(N0 = 32; 
-       N1 = 32;
-       N2 = 1;
+ const(N0 = 128; 
+       N1 = 128;
+       N2 = 8;
   );
 
   size := []int{N0, N1, N2};
