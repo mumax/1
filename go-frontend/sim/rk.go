@@ -19,8 +19,7 @@ var butcher4 = [...][4]float{
   [4]float{NAN, NAN, NAN, NAN},
   [4]float{1.0 / 2.0, NAN, NAN},
   [4]float{0.0, 1.0 / 2.0, NAN},
-  [4]float{0.0, 0.0, 1.0, NAN}
-};
+  [4]float{0.0, 0.0, 1.0, NAN}};
 
 var      h4 = [...]float{0.0, 1.0 / 2.0, 1.0 / 2.0, 1.0};
 var weight4 = [...]float{1.0 / 6.0, 1.0 / 3.0, 1.0 / 3.0, 1.0 / 6.0};
