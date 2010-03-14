@@ -10,7 +10,9 @@ import(
 )
 
 var ascii = flag.Bool("ascii", false, "output in ASCII format rather than binary")
-var format = flag.Bool("format", false, "if outputting ASCII, format it in rows and columns")
+var gnuplot = flag.Bool("gnuplot", false, "print in a format usable for gnuplot splot with vectors")
+
+//var format = flag.Bool("format", false, "if outputting ASCII, format it in rows and columns")
 var component = flag.String("component", "", "select a component")
 
 
@@ -23,6 +25,12 @@ func main() {
     if len(*component) != 0{
       tensor = Slice(tensor, 0, Atoi(*component));
     }
+    
+    if *gnuplot{
+      PrintVectors(os.Stdout, tensor);
+      return;
+    }
+    
     
     if *ascii{
       Print(os.Stdout, tensor);

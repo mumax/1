@@ -12,6 +12,7 @@ typedef struct{
   real* transf;
   
   real* device;
+  real* device_buf;
   
   int N0, N1, N2;
   int direction;
@@ -49,6 +50,7 @@ void* fft_init_forward(int N0, int N1, int N2, real* source, real* transf){
     plan->source = source;
     plan->transf = transf;
     cudaMalloc((void**)&plan->device, (2*N0*N1*N2) * sizeof(float));
+    //plan->device = 
     plan->N0 = N0;
     plan->N1 = N1;
     plan->N2 = N2;

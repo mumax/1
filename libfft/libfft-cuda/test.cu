@@ -1,4 +1,3 @@
-
 #include <cufft.h>
 #include <stdio.h>
 #include <assert.h>

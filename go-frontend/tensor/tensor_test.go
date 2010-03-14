@@ -3,7 +3,7 @@ package tensor
 import( . "testing";
 	"reflect";
 	. "../util";
-	. "os";
+	//. "os";
 )
 
 /*
@@ -17,7 +17,7 @@ func TestIO(t *T){
   }
   Write(FOpenz("iotest"), A);
   A2 := Read(FOpenz("iotest"));
-  Print(Stdout, A2);
+  //Print(Stdout, A2);
   if !Equals(A, A2) { t.Fail() }
 }
 
