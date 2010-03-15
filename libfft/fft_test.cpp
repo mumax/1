@@ -25,7 +25,7 @@ int main(int argc, char** argv){
     void* bw_plan = fft_init_backward(orig->size[0], orig->size[1], orig->size[2], transf->list, back->list);
     
     for(int i=0; i<tensor_length(orig); i++){
-      orig->list[i] = (rand() % 100) / 10.0;
+      orig->list[i] = (rand() % 100) / 100.0;
     }
     //orig->list[0] = 1.0;
     
