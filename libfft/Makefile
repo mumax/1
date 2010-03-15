@@ -1,7 +1,7 @@
 include ../common.mk
 
 CLEANFILES+=../lib/libfft*.*
-FFTLIB=libfft-cpu
+FFTLIB=libfft-cuda
 
 all:
 	make -C $(FFTLIB);
