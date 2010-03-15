@@ -25,18 +25,18 @@ int main(int argc, char** argv){
     void* bw_plan = fft_init_backward(orig->size[0], orig->size[1], orig->size[2], transf->list, back->list);
     
     for(int i=0; i<tensor_length(orig); i++){
-      orig->list[i] = (rand() % 100) / 100.0;
+      orig->list[i] = i;//(rand() % 100) / 100.0;
     }
     //orig->list[0] = 1.0;
     
-    //print_tensor(orig);
+    format_tensor(orig, stdout);
     
     fft_execute(fw_plan);
     fft_execute(bw_plan);
     
-    //print_tensor(transf);
+    format_tensor(transf, stdout);
     
-    //print_tensor(back);
+    format_tensor(back, stdout);
     
     double rms_error = 0.0;
     int N = tensor_length(orig);
