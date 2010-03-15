@@ -15,7 +15,7 @@ double sqr(double r){
 int main(int argc, char** argv){
 
     fft_init();
-    int N0 = 2, N1 = 2, N2 = 4;
+    int N0 = 4, N1 = 4, N2 = 8;
     
     tensor* orig = new_tensor(3, N0, N1, N2); // a 3-dimensional block of size 16x16x4
     tensor* transf = new_tensor(3, N0, N1, N2+2); // transformed data must be 1 complex number (two floats) larger in its last dimension.
@@ -25,7 +25,7 @@ int main(int argc, char** argv){
     void* bw_plan = fft_init_backward(orig->size[0], orig->size[1], orig->size[2], transf->list, back->list);
     
     for(int i=0; i<tensor_length(orig); i++){
-      orig->list[i] = i;//(rand() % 10000) / 10000.0 + 0.01;
+      orig->list[i] = (rand() % 100) / 10.0;
     }
     //orig->list[0] = 1.0;
     

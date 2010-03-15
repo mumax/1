@@ -31,7 +31,7 @@ func Run(){
   field.PrintInfo();
  
   
-  euler := NewRK4MaxDm(M, field, 0.05);
+  euler := NewRK4MaxDm(M, field, 0.02);
   
   SetAll(M.Component(Y), 1.);
   for i:=0; i<len(M.Component(X).List())/2; i++{
