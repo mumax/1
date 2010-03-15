@@ -97,10 +97,10 @@ void fft_execute(void* plan_ptr){
     printf("fft_execute() [forward]:\t%p\n", plan_ptr);
     
     
-//     printf("**ORIGINAL DATA:\n");
-//     for(i=0; i<N; i++){
-//       printf("%f\n", plan->source[i]);
-//     }
+    printf("**ORIGINAL DATA:\n");
+    for(i=0; i<N; i++){
+      printf("%f\n", plan->source[i]);
+    }
     
     
     // convert to real [a, b, c, ...] to complex [a, 0, b, 0, c, 0, ...]
@@ -109,10 +109,10 @@ void fft_execute(void* plan_ptr){
       plan->device_buf[2*i+1] = 0.0;
     }
     
-//     printf("**COMPLEX ORIGINAL DATA:\n");
-//     for(i=0; i<2*N; i++){
-//       printf("%f\n", plan->device_buf[i]);
-//     }
+    printf("**COMPLEX ORIGINAL DATA:\n");
+    for(i=0; i<2*N; i++){
+      printf("%f\n", plan->device_buf[i]);
+    }
     
     // copy complex data [a, 0, b, 0, c, 0, ...] to GPU
     cudaMemcpy(plan->device, plan->device_buf, 2*N * sizeof(float), cudaMemcpyHostToDevice);
@@ -123,24 +123,24 @@ void fft_execute(void* plan_ptr){
     // copy everything back, full complex format
     cudaMemcpy(plan->device_buf, plan->device, 2*N * sizeof(float), cudaMemcpyDeviceToHost);
     
-//     printf("**TRANSFORMED (FULL):\n"); // todo: check conjugacy
-//     for(i=0; i<2*N; i++){
-//       printf("%f\n", plan->device_buf[i]);
-//     }
+    printf("**TRANSFORMED (FULL):\n"); // todo: check conjugacy
+    for(i=0; i<2*N; i++){
+      printf("%f\n", plan->device_buf[i]);
+    }
     
     // copy only half(+1) of the transformed data back, the rest is conjugate. 
     for(i=0; i < N0; i++){
       for(j=0; j <  N1; j++){
 	for(k=0; k < N2+2; k++){
-	  plan->transf[ (i*N1+j)*N2+k ] = plan->device_buf[ (i*N1+j)*N2+k ]; 
+	  plan->transf[ (i*N1+j)*N2+k ] = plan->device_buf[ (i*N1+j)*2*N2+k ]; 
 	}
       }
     }
     
-//     printf("**TRANSFORMED (HALF):\n"); // todo: check conjugacy
-//     for(i=0; i<N; i++){
-//       printf("%f\n", plan->transf[i]);
-//     }
+    printf("**TRANSFORMED (HALF):\n"); // todo: check conjugacy
+    for(i=0; i<N+2; i++){
+      printf("%f\n", plan->transf[i]);
+    }
     
   }
   
@@ -149,10 +149,10 @@ void fft_execute(void* plan_ptr){
   else if (plan->direction == CUFFT_INVERSE){
     printf("fft_execute() [backward]:\t%p\n", plan_ptr);
     
-//     printf("**BACKTRANSF INPUT (HALF):\n"); // todo: check conjugacy
-//     for(i=0; i<N; i++){
-//       printf("%f\n", plan->transf[i]);
-//     }
+    printf("**BACKTRANSF INPUT (HALF):\n"); // todo: check conjugacy
+    for(i=0; i<N+2; i++){
+      printf("%f\n", plan->transf[i]);
+    }
     
     // convert the half-complex format into full complex: the second half is the conjugate of the first half
     for(i=0; i < N0; i++){
@@ -169,10 +169,10 @@ void fft_execute(void* plan_ptr){
       }
     }
     
-//     printf("**BACKTRANSF INPUT (FULL):\n"); // todo: check conjugacy
-//     for(i=0; i<2*N; i++){
-//       printf("%f\n", plan->device_buf[i]);
-//     }
+    printf("**BACKTRANSF INPUT (FULL):\n"); // todo: check conjugacy
+    for(i=0; i<2*N; i++){
+      printf("%f\n", plan->device_buf[i]);
+    }
     
     cudaMemcpy(plan->device, plan->device_buf, 2*N * sizeof(float), cudaMemcpyHostToDevice);
     
@@ -180,10 +180,10 @@ void fft_execute(void* plan_ptr){
     
     cudaMemcpy(plan->device_buf, plan->device, 2*N * sizeof(float), cudaMemcpyDeviceToHost);
     
-//     printf("**BACKTRANSF (FULL):\n"); // todo: check realness: OK
-//     for(i=0; i<2*N; i++){
-//       printf("%f\n", plan->device_buf[i]);
-//     }
+    printf("**BACKTRANSF (FULL):\n"); // todo: check realness: OK
+    for(i=0; i<2*N; i++){
+      printf("%f\n", plan->device_buf[i]);
+    }
     
     // copy only real part backward
     // todo: check that imag part is zero.
@@ -191,10 +191,10 @@ void fft_execute(void* plan_ptr){
       plan->source[i] = plan->device_buf[2*i];
     }
     
-//     printf("**BACKTRANSF (HALF):\n"); 
-//     for(i=0; i<N; i++){
-//       printf("%f\n", plan->source[i]);
-//     }
+    printf("**BACKTRANSF (HALF):\n"); 
+    for(i=0; i<N; i++){
+      printf("%f\n", plan->source[i]);
+    }
   }
   /////////////////////////////////// not backward nor forward ///////////////////////////
   

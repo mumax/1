@@ -179,5 +179,8 @@ int main(int argc, char** argv){
    delete_tensor(d);
    // make sure you don't use components anymore when the parent has been deleted!
    
+   tensor* x = new_tensor(3, 4, 5, 6);
+   format_tensor(x, stdout);
+   
    return 0;
 }

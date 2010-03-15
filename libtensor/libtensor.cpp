@@ -1,5 +1,5 @@
 #include "libtensor.h"
-
+#include <iostream>
 
 using namespace std;
 
@@ -22,6 +22,26 @@ tensor* new_tensor(int rank, ...){
   t-> list = (float*)calloc(tensor_length(t), sizeof(float));
   
   return t;
+}
+
+
+float* tensor_get(tensor* t, int r ...){
+  int* index = new int[t->rank];
+  
+  va_list varargs;
+  va_start(varargs, r);
+  if(r != t->rank){
+    cerr << "2nd argument != tensor rank" << endl;
+    exit(-3);
+  }
+  
+  for(int i=0; i<t->rank; i++){
+    index[i] = va_arg(varargs, int);
+  }
+  va_end(varargs);
+  float* ret = tensor_elem(t, index);
+  delete[] index;
+  return ret;
 }
 
 
@@ -106,6 +126,25 @@ void write_tensor_ascii(tensor* t, FILE* out){
   for(int i=0; i<tensor_length(t); i++){
     fprintf(out, "%f\n", t->list[i]);
   }
+}
+
+
+void format_tensor(tensor* t, FILE* out){
+  if(t->rank != 3){
+    write_tensor_ascii(t, out);
+    return;
+  }
+  
+  for(int i=0; i<t->size[0]; i++){
+    for(int j=0; j<t->size[1]; j++){
+      for(int k=0; k<t->size[2]; k++){
+	fprintf(out, "%f ", *tensor_get(t, 3, i, j, k));
+      }
+      fprintf(out, "\n");
+    }
+    fprintf(out, "\n");
+  }
+  
 }
 
 void print_tensor(tensor* t){

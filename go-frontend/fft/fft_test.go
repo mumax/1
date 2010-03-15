@@ -4,6 +4,7 @@ import( . "testing";
 	. "../tensor";
 	"rand";
 	. "math";
+	"fmt";
 	//. "os";
 )
 
@@ -28,7 +29,7 @@ func TestFFTPlan(t *T){
   for i:= range(m.List()){
     ma[i] = rand.Float()+0.001; // so it's not zero
    }
-  m.Array()[1][2][3] = 123;
+  //m.Array()[1][2][3] = 123;
 
   //PrintTensor(Stdout, m);
   orig := Copy(m);
@@ -48,13 +49,17 @@ func TestFFTPlan(t *T){
 
   //PrintTensor(Stdout, m);
 
+  var rms float64 = 0.;
   for i:= range(m.List()){
     // we test if the tranformed + backtransformed data equals the original
     // must take into account scale factor
     // also, we do not allow zero's, as it is too dangerous to be comparing to zero arrays by accident.
-    if Fabs(float64(ma[i] - orig.List()[i])) > 0.00001  || m.List()[i] == 0.{ t.Fail(); }
+    //if Fabs(float64(ma[i] - orig.List()[i])) > 0.0001  || m.List()[i] == 0.{ t.Fail(); }
+    rms += float64( (float64(ma[i] - orig.List()[i])) * (float64(ma[i] - orig.List()[i])) );
   }
-  
+  rms = Sqrt(rms);
+  fmt.Println("FFT rms error: ", rms);
+
   //m.Real().Print(Stdout);*/
 
 }

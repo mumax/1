@@ -15,7 +15,7 @@ double sqr(double r){
 int main(int argc, char** argv){
 
     fft_init();
-    int N0 = 1, N1 = 1, N2 = 32;
+    int N0 = 4, N1 = 4, N2 = 2;
     
     tensor* orig = new_tensor(3, N0, N1, N2); // a 3-dimensional block of size 16x16x4
     tensor* transf = new_tensor(3, N0, N1, N2+2); // transformed data must be 1 complex number (two floats) larger in its last dimension.
