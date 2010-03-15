@@ -1,4 +1,5 @@
 #include "../libfft.h"
+#include "../../libtensor/libtensor.h"
 #include <cufft.h>
 
 #include <stdio.h>
@@ -98,9 +99,7 @@ void fft_execute(void* plan_ptr){
     
     
     printf("**ORIGINAL DATA:\n");
-    for(i=0; i<N; i++){
-      printf("%f\n", plan->source[i]);
-    }
+    //format_tensor(as_tensor(plan->source, 3, N0, N1, N2), stdout);
     
     
     // convert to real [a, b, c, ...] to complex [a, 0, b, 0, c, 0, ...]
@@ -110,9 +109,10 @@ void fft_execute(void* plan_ptr){
     }
     
     printf("**COMPLEX ORIGINAL DATA:\n");
-    for(i=0; i<2*N; i++){
-      printf("%f\n", plan->device_buf[i]);
-    }
+    //format_tensor(as_tensor(plan->device_buf, 3, N0, N1, 2*N2), stdout);
+//     for(i=0; i<2*N; i++){
+//       printf("%f\n", plan->device_buf[i]);
+//     }
     
     // copy complex data [a, 0, b, 0, c, 0, ...] to GPU
     cudaMemcpy(plan->device, plan->device_buf, 2*N * sizeof(float), cudaMemcpyHostToDevice);
@@ -124,23 +124,25 @@ void fft_execute(void* plan_ptr){
     cudaMemcpy(plan->device_buf, plan->device, 2*N * sizeof(float), cudaMemcpyDeviceToHost);
     
     printf("**TRANSFORMED (FULL):\n"); // todo: check conjugacy
-    for(i=0; i<2*N; i++){
-      printf("%f\n", plan->device_buf[i]);
-    }
+    //format_tensor(as_tensor(plan->device_buf, 3, N0, N1, 2*N2), stdout);
+//     for(i=0; i<2*N; i++){
+//       printf("%f\n", plan->device_buf[i]);
+//     }
     
     // copy only half(+1) of the transformed data back, the rest is conjugate. 
     for(i=0; i < N0; i++){
       for(j=0; j <  N1; j++){
 	for(k=0; k < N2+2; k++){
-	  plan->transf[ (i*N1+j)*N2+k ] = plan->device_buf[ (i*N1+j)*2*N2+k ]; 
+	  plan->transf[ (i*N1+j)*(N2+2)+k ] = plan->device_buf[ (i*N1+j)*(2*N2)+k ]; 
 	}
       }
     }
     
     printf("**TRANSFORMED (HALF):\n"); // todo: check conjugacy
-    for(i=0; i<N+2; i++){
-      printf("%f\n", plan->transf[i]);
-    }
+    //format_tensor(as_tensor(plan->transf, 3, N0, N1, N2+2), stdout);
+//     for(i=0; i<N+2; i++){
+//       printf("%f\n", plan->transf[i]);
+//     }
     
   }
   
@@ -150,29 +152,31 @@ void fft_execute(void* plan_ptr){
     printf("fft_execute() [backward]:\t%p\n", plan_ptr);
     
     printf("**BACKTRANSF INPUT (HALF):\n"); // todo: check conjugacy
-    for(i=0; i<N+2; i++){
-      printf("%f\n", plan->transf[i]);
-    }
+    //format_tensor(as_tensor(plan->transf, 3, N0, N1, N2+2), stdout);
+//     for(i=0; i<N+2; i++){
+//       printf("%f\n", plan->transf[i]);
+//     }
     
     // convert the half-complex format into full complex: the second half is the conjugate of the first half
     for(i=0; i < N0; i++){
       for(j=0; j < N1; j++){
 	// first half: just copy
-	for(k=0; k < N2+2; k++){
-	  plan->device_buf[ (i*N1+j)*2*N2+k ] = plan->transf[ (i*N1+j)*N2+k ]; 
+	for(k=0; k < N2+2; k++){  // < N2+2
+	  plan->device_buf[ (i*N1+j)*(2*N2)+k ] = plan->transf[ (i*N1+j)*(N2+2) +k ]; 
 	}
 	// second half: copy + conjugate
 	for(k=N2+2; k < 2*N2; k+=2){
-	  plan->device_buf[ (i*N1+j)*2*N2 + k] = plan->transf[ (i*N1+j)*N2 + 2*N2 - k ];
-	  plan->device_buf[ (i*N1+j)*2*N2 + k + 1] = - plan->transf[ (i*N1+j)*N2 + 2*N2 - k + 1]; 
+	  plan->device_buf[ (i*N1+j)*(2*N2) + k] = plan->transf[ (i*N1+j)*(N2+2) + 2*N2 - k ];
+	  plan->device_buf[ (i*N1+j)*(2*N2) + k + 1] = - plan->transf[ (i*N1+j)*(N2+2) + 2*N2 - k + 1]; 
 	}
       }
     }
     
-    printf("**BACKTRANSF INPUT (FULL):\n"); // todo: check conjugacy
-    for(i=0; i<2*N; i++){
-      printf("%f\n", plan->device_buf[i]);
-    }
+    printf("**BACKTRANSF INPUT (FULL ):\n"); // todo: check conjugacy
+    //format_tensor(as_tensor(plan->device_buf, 3, N0, N1, 2*N2), stdout);
+//     for(i=0; i<2*N; i++){
+//       printf("%f\n", plan->device_buf[i]);
+//     }
     
     cudaMemcpy(plan->device, plan->device_buf, 2*N * sizeof(float), cudaMemcpyHostToDevice);
     
@@ -181,9 +185,10 @@ void fft_execute(void* plan_ptr){
     cudaMemcpy(plan->device_buf, plan->device, 2*N * sizeof(float), cudaMemcpyDeviceToHost);
     
     printf("**BACKTRANSF (FULL):\n"); // todo: check realness: OK
-    for(i=0; i<2*N; i++){
-      printf("%f\n", plan->device_buf[i]);
-    }
+    //format_tensor(as_tensor(plan->device_buf, 3, N0, N1, 2*N2), stdout);
+//     for(i=0; i<2*N; i++){
+//       printf("%f\n", plan->device_buf[i]);
+//     }
     
     // copy only real part backward
     // todo: check that imag part is zero.
@@ -192,9 +197,10 @@ void fft_execute(void* plan_ptr){
     }
     
     printf("**BACKTRANSF (HALF):\n"); 
-    for(i=0; i<N; i++){
-      printf("%f\n", plan->source[i]);
-    }
+    //format_tensor(as_tensor(plan->source, 3, N0, N1, N2), stdout);
+//     for(i=0; i<N; i++){
+//       printf("%f\n", plan->source[i]);
+//     }
   }
   /////////////////////////////////// not backward nor forward ///////////////////////////
   

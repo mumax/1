@@ -27,4 +27,4 @@ install: libtensor.so libtensor.a
 
 .PHONY: clean
 clean:
-	rm -f $(CLEANFILES) tensor_test tensor ../lib/libtensor.* iotest
+	rm -f tensor_test tensor ../lib/libtensor.* iotest $(CLEANFILES)

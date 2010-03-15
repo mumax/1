@@ -32,6 +32,9 @@ tensor* new_tensor(int rank, ...);
 /** The same as new_tensor(), but with the size given as an array. This is only neccesary when the rank is not known at compile time, otherwise just use new_tensor() */
 tensor* new_tensorN(int rank, int* size);
 
+/** Makes a tensor form existing data. */
+tensor* as_tensor(float*, int rank, ...);
+
 /** Frees the tensor, including its data list. Make sure no pointers to that list exist anymore, otherwise, delete_tensor_component() can be used to free everything but the data list. */
 void delete_tensor(tensor* t);
 
@@ -43,7 +46,7 @@ int tensor_length(tensor* t);
 /** Returns the address of element i,j,k,... inside the tensor. This can be used to set or get elements form the tensor. Of course, the "manual" way: t->list[i*size + j ...] can still be used as well. */
 float* tensor_elem(tensor* t, int* index);
 
-/** Same as tensor_elem, but with varargs for ease of use. */
+/** Same as tensor_elem, but with varargs for ease of use. DOES NOT WORK YET*/
 float* tensor_get(tensor* t, ...);
 
 /** Given an N-dimensional index (i, j, k, ...), this function calculates the 1-dimensional index in the corresponding array that stores the tensor data. Thus, tensor_elem(i,j,k) is equivalent to list[tensor_index(i,j,k)]. */ 

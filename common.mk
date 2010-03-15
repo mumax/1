@@ -7,7 +7,6 @@ export CFLAGS+=\
   -fPIC\
   -g\
 
-export LDFLAGS+=\
 
 export LD_FFTW_LIBS+=\
   -lfftw3f\

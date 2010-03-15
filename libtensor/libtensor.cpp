@@ -25,6 +25,24 @@ tensor* new_tensor(int rank, ...){
   return t;
 }
 
+tensor* as_tensor(float* list, int rank, ...){
+  
+  tensor* t = (tensor*)malloc(sizeof(tensor));
+  t->rank = rank;
+  t->size = (int*)calloc(rank, sizeof(int32_t));	
+  
+  va_list varargs;
+  va_start(varargs, rank);
+  
+  for(int i=0; i<rank; i++){
+    t->size[i] = va_arg(varargs, int32_t);
+  }
+  va_end(varargs);
+  
+  t-> list = list;
+  
+  return t;
+}
 
 float* tensor_get(tensor* t, int r ...){
   int* index = new int[t->rank];
