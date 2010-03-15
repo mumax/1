@@ -84,6 +84,11 @@ void fft_transfroy_plan(void* plan){
 
 
 void fft_execute(void* plan_ptr){
+  
+  // this approach seems logically flawed but incidentally worked for the special input data I used in the first tests
+  // anyways, it was only meant as a quick way to get r2c transforms on the GPU, it is now clear that a full
+  // convolution should actually be simpler to implement, so there is no need to try to correct this code.
+  
   printf("fft_execute():\t%p\n", plan_ptr);
   
   int i, j, k;
@@ -152,7 +157,7 @@ void fft_execute(void* plan_ptr){
 	for(k=0; k < N2+2; k++){  // < N2+2
 	  plan->device_buf[ (i*N1+j)*(2*N2)+k ] = plan->transf[ (i*N1+j)*(N2+2) +k ]; 
 	}
-	// second half: copy + conjugate
+	// second half: copy + conjugate: does not work
 	for(k=N2+2; k < 2*N2; k+=2){
 	  plan->device_buf[ (i*N1+j)*(2*N2) + k] = plan->transf[ (i*N1+j)*(N2+2) + 2*N2 - k ];
 	  plan->device_buf[ (i*N1+j)*(2*N2) + k + 1] = - plan->transf[ (i*N1+j)*(N2+2) + 2*N2 - k + 1]; 
@@ -160,7 +165,7 @@ void fft_execute(void* plan_ptr){
       }
     }
     
-    printf("**BACKTRANSF INPUT (FULL ):\n"); // todo: check conjugacy
+    printf("**BACKTRANSF INPUT (FULL ):\n"); // todo: check conjugacy: OK?
     format_tensor(as_tensor(plan->device_buf, 3, N0, N1, 2*N2), stdout);
     
     cudaMemcpy(plan->device, plan->device_buf, 2*N * sizeof(float), cudaMemcpyHostToDevice);
@@ -170,6 +175,7 @@ void fft_execute(void* plan_ptr){
     cudaMemcpy(plan->device_buf, plan->device, 2*N * sizeof(float), cudaMemcpyDeviceToHost);
     
     printf("**BACKTRANSF (FULL):\n"); // todo: check realness: KO: most imaginary parts nearly zero, but some are large!
+				      
     format_tensor(as_tensor(plan->device_buf, 3, N0, N1, 2*N2), stdout);
 
     
