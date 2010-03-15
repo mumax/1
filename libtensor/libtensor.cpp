@@ -1,5 +1,6 @@
 #include "libtensor.h"
 #include <iostream>
+#include <assert.h>
 
 using namespace std;
 
@@ -62,9 +63,9 @@ tensor* new_tensorN(int rank, int* size){
 
 int tensor_index(tensor* t, int* indexarray){
   int index = indexarray[0];
-  //AssertMsg(! (indexarray[0] < 0 || indexarray[0] >= size[0]), "Index out of range");
+  assert(! (indexarray[0] < 0 || indexarray[0] >= t->size[0]));
   for (int i=1; i<t->rank; i++){
-    //AssertMsg(!(indexarray[i] < 0 || indexarray[i] >= size[i]), "Index out of range");
+    assert(!(indexarray[i] < 0 || indexarray[i] >= t->size[i]));
     index *= t->size[i];
     index += indexarray[i];
   }

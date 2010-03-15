@@ -168,7 +168,7 @@ int main(int argc, char** argv){
    index[2] = 2;
    index[3] = 3;
    assert(*tensor_elem(d, index) == 123.0);
-   
+    
    // components need te freed like this:
    delete_tensor_component(dx);
    delete_tensor_component(dy);
@@ -179,8 +179,12 @@ int main(int argc, char** argv){
    delete_tensor(d);
    // make sure you don't use components anymore when the parent has been deleted!
    
-   tensor* x = new_tensor(3, 4, 5, 6);
-   format_tensor(x, stdout);
-   
+//     tensor* x = new_tensor(3, 4, 5, 6);
+//     buffer[0] = 0;
+//     buffer[1] = 0;
+//     buffer[2] = 0;
+//     float z = *tensor_elem(x, buffer);
+//     format_tensor(x, stdout);
+//    
    return 0;
 }
