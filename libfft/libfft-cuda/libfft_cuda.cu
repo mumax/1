@@ -50,7 +50,7 @@ void* fft_init_forward(int N0, int N1, int N2, real* source, real* transf){
     plan->source = source;
     plan->transf = transf;
     cudaMalloc((void**)&plan->device, (2*N0*N1*N2) * sizeof(float));
-    //plan->device = 
+    plan->device_buf = (float*)malloc((2*N0*N1*N2) * sizeof(float));
     plan->N0 = N0;
     plan->N1 = N1;
     plan->N2 = N2;
@@ -67,6 +67,7 @@ void* fft_init_backward(int N0, int N1, int N2, real* transf, real* source){
     plan->source = source;
     plan->transf = transf;
     cudaMalloc((void**)&plan->device, (2*N0*N1*N2) * sizeof(float));
+    plan->device_buf = (float*)malloc((2*N0*N1*N2) * sizeof(float));
     plan->N0 = N0;
     plan->N1 = N1;
     plan->N2 = N2;
@@ -83,19 +84,29 @@ void fft_transfroy_plan(void* plan){
 
 void fft_execute(void* plan_ptr){
   printf("fft_execute():\t%p\n", plan_ptr);
+  
   int i, j, k;
   cudaPlan* plan = (cudaPlan*)plan_ptr;
   int N0 = plan->N0, N1 = plan->N1, N2 = plan->N2;
   int N = plan->N0 * plan->N1 * plan->N2;
   printf("%d x %d x %d = %d\n", N0, N1, N2, N);
+  
   if(plan->direction == CUFFT_FORWARD){
     printf("fft_execute() [forward]:\t%p\n", plan_ptr);
+    
+    // convert to real [a, b, c, ...] to complex [a, 0, b, 0, c, 0, ...]
     for(i=0; i<N; i++){
-      plan->device[2*i] = plan->source[i]; // segfault...
+      plan->device_buf[2*i] = plan->source[i];
+      plan->device_buf[2*i+1] = 0.0;
     }
     
+    // copy complex data [a, 0, b, 0, c, 0, ...] to GPU
+    cudaMemcpy(plan->device, plan->device_buf, 2*N * sizeof(float), cudaMemcpyHostToDevice);
+    
+    // c2c transform
     cufftExecC2C(plan->handle, (cufftComplex*)plan->device, (cufftComplex*)plan->device, plan->direction);
     
+    // copy only half(+1) of the transformed data back, the rest is conjugate. 
     for(i=0; i < N0; i++){
       for(j=0; j <  N1; j++){
 	for(k=0; k < N2+2; k++){

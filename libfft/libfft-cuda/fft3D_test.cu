@@ -19,7 +19,7 @@ int main(){
  float* transf_dev; 			// the transformed data, on the device
  float* transf2_host, *transf2_dev; 	// transformed+backtransformed data, on the device and a copy on host
  
- data_host = (float*)malloc(N * sizeof(float));		
+ data_host = (float*)malloc(N * sizeof(float));		// C 2 C	
  cudaMalloc((void**)&data_dev, N * sizeof(float));	
  transf2_host = (float*)malloc((N) * sizeof(float));
  cudaMalloc((void**)&transf_dev, (N) * sizeof(float));
