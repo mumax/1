@@ -3,20 +3,32 @@ include ../common.mk
 CPPFILES=\
 	tensor.cpp\
 
+CUFILES=\
+	*.cu\
 
-CUDA_LIBS=-L /usr/local/cuda/lib/libcudart.so -L /usr/local/cuda/lib/libcufft.so
-NVCCFLAGS =--compiler-options -fPIC --compiler-options -g
+OFILES=\
+	tensor.o\
+	conv_gpu.o\
 
-all:	*.h $(CPPFILES) *.cu
-	$(CPP) -c $(CFLAGS) $(CPPFILES)
-	nvcc   -c $(NVCCFLAGS) $(CUDA_LIBS) *.cu
-	$(CPP) -shared *.o $(CUDA_LIBS) -o core.so
+# CUDALIBS=-L /usr/local/cuda/lib/libcudart.so -L /usr/local/cuda/lib/libcufft.so
+
+
+all: core.so
+
+core.so: $(OFILES)
+	$(NVCC) -shared $(LDFLAGS) $(OFILES) $(CUDALIBS) -o core.so
+
+$(OFILES): *.h $(CPPFILES) $(CUFILES)
+	$(CPP)  -c $(CFLAGS) $(CPPFILES)
+	$(NVCC) -c $(NVCCFLAGS) $(CUDA_LIBS) *.cu
+
 
 test:	all  *_test.cpp
-	$(CPP) $(CFLAGS) $(LDFLAGS) tensor_test.cpp tensor.o -o tensor_test
-	$(CPP) $(CFLAGS) $(LDFLAGS) conv_test.cpp tensor.o -o conv_test
+	$(CPP) $(CFLAGS) $(LDFLAGS) tensor_test.cpp core.so -o tensor_test
+	$(CPP) $(CFLAGS) $(LDFLAGS) conv_test.cpp core.so -o conv_test
 	./tensor_test
 	./conv_test
+
 
 .PHONY:	clean
 clean:	

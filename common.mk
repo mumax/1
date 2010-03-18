@@ -1,19 +1,14 @@
-# The C and C++ compilers:
+# The compilers:
 export CC=gcc
 export CPP=g++
+export NVCC=nvcc
 
 export CFLAGS+=\
   -Werror\
   -fPIC\
   -g\
 
-
-export LD_FFTW_LIBS+=\
-  -lfftw3f\
-  -lfftw3f_threads\
-  -lpthread\
-
-export CLEANFILES+=\
-  *.o\
-  *.so\
-  *.a\
+export NVCCFLAGS+=\
+  --compiler-options -Werror\
+  --compiler-options -fPIC\
+  --compiler-options -g\
