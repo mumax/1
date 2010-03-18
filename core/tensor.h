@@ -47,7 +47,7 @@ int tensor_length(tensor* t);
 float* tensor_elem(tensor* t, int* index);
 
 /** Same as tensor_elem, but with varargs for ease of use. DOES NOT WORK YET*/
-float* tensor_get(tensor* t, ...);
+float* tensor_get(tensor* t, int rank ...);
 
 /** Given an N-dimensional index (i, j, k, ...), this function calculates the 1-dimensional index in the corresponding array that stores the tensor data. Thus, tensor_elem(i,j,k) is equivalent to list[tensor_index(i,j,k)]. */ 
 int tensor_index(tensor* t, int* indexarray);

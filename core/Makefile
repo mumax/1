@@ -32,4 +32,4 @@ test:	all  *_test.cpp
 
 .PHONY:	clean
 clean:	
-	rm -f *.o *.so iotest tensor_test conv_test
+	rm -f *.o *.so iotest *_test
