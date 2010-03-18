@@ -17,6 +17,9 @@ extern "C" {
 #include <stdio.h>
 #include <stdarg.h>
 
+#define X 0
+#define Y 1
+#define Z 2
 
 typedef struct{
    int32_t rank;		// tensor rank
@@ -53,9 +56,8 @@ float* tensor_get(tensor* t, int rank ...);
 int tensor_index(tensor* t, int* indexarray);
 
 /** An easy way to acces tensor's elements is to view it as an N-dimensional array. */
-// void* tensor_array(tensor* t){
-// 
-// }
+float** tensor_array2D(tensor* t);
+float** slice_array2D(float* list, int size0, int size1);
 
 
 /** 

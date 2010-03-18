@@ -4,9 +4,61 @@
 #include <stdio.h>
 
 
-convplan* new_convplan(int* size, tensor* kernel){
-  return NULL;
+void conv_execute(convplan* p, float* m, float* h){
+  // Zero-out field components
+  for(int i = 0; i < 3; i++){
+    for(int j = 0; j < p->paddedComplexN; j++){
+      p->ft_h[i][j] = 0.;
+    }
+  }
+  
+  for(int i = 0; i < 3; i++){
+    // zero-out the padded magnetization buffer first
+    for(int j = 0; j < p->paddedComplexN; j++){
+      p->ft_m_i[j] = 0.;
+    }
+
+//     // then copy the current magnetization component into the padded magnetization buffer
+//     CopyInto(m.Component(i).Array(), p.ft_m_i.Array());
+// 
+//     // in-place FFT of the padded magnetization
+//     p.forward.Execute();
+//    
+//     // apply kernel multiplication to FFT'ed magnetization and add to FFT'ed H-components
+//     ft_m_i := p.ft_m_i.List();
+//     for j:=0; j<3; j++{
+//       ft_h_j := p.ft_h[j].List();
+//       for e:=0; e<len(ft_m_i); e+=2{
+// 	rea := ft_m_i[e];
+// 	reb := p.ft_kernel[i][j].List()[e];
+// 	ima := ft_m_i[e+1];
+// 	imb := p.ft_kernel[i][j].List()[e+1];
+// 	ft_h_j[e] +=  rea*reb - ima*imb;
+// 	ft_h_j[e+1] +=  rea*imb + ima*reb;
+//       }
+//     }
+  }
+  
 }
+
+
+convplan* new_convplan(int* size, tensor* kernel){
+  convplan* plan = (convplan*) malloc(sizeof(convplan));
+  plan->size[0] = size[0];
+  plan->size[1] = size[1];
+  plan->size[2] = size[2];
+  plan->paddedComplexSize[0] = size[0];
+  plan->paddedComplexSize[1] = size[1];
+  plan->paddedComplexSize[2] = 2*size[2];
+  return plan;
+}
+
+
+void delete_convplan(convplan* plan){
+  
+  free(plan);
+}
+
 
 // typedef struct{
 //   cufftHandle handle;

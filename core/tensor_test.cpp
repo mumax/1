@@ -46,6 +46,14 @@ int main(int argc, char** argv){
     }
   }
   
+  // easier way
+  float** a_arr = tensor_array2D(a);
+    for(int i=0; i < a->size[0]; i++){
+    for(int j=0; j < a->size[1]; j++){
+      assert(a_arr[i][j] == i + 10. *j);
+    }
+  }
+  
   // I/O example:
   // print to screen
   //print_tensor(a);

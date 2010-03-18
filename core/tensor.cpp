@@ -98,6 +98,20 @@ float* tensor_elem(tensor* t, int* indexarray){
 }
 
 
+float** tensor_array2D(tensor* t){
+  assert(t->rank == 2);
+  return slice_array2D(t->list, t->size[0], t->size[1]);
+}
+
+float** slice_array2D(float* list, int size0, int size1){
+  float** sliced = (float**)calloc(size0, sizeof(float*));
+  for(int i=0; i < size0; i++){
+    sliced[i] = &list[i*size1];
+  }
+  return sliced;
+}
+
+
 int tensor_length(tensor* t){
   int length = 1;
   for(int i=0; i < t->rank; i++){
