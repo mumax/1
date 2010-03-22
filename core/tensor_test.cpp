@@ -124,6 +124,7 @@ int main(int argc, char** argv){
   
   // this represents a 10x20x30 field of 3-component vectors:
   tensor* d = new_tensor(4, 3, 10, 20, 30);
+  
   // let's set all the X components to 1, Y to 2 and Z to 3:
   for(int c=0; c<3; c++){
     for(int i=0; i<d->size[1]; i++){
@@ -142,7 +143,7 @@ int main(int argc, char** argv){
   }
   //print_tensor(d);
   
-  // we kan take a tensor slice that contains only one component:
+  // we can take a tensor slice that contains only one component:
   tensor* dx = tensor_component(d, 0);
   tensor* dy = tensor_component(d, 1);
   tensor* dz = tensor_component(d, 2);
@@ -177,6 +178,12 @@ int main(int argc, char** argv){
   index[2] = 2;
   index[3] = 3;
   assert(*tensor_elem(d, index) == 123.0);
+  
+  // access the tensor as an ordinary 3D array:
+  float*** dy_arr = tensor_array3D(dy);
+  assert(dy_arr[1][2][3] == 123.0);
+  float**** d_arr = tensor_array4D(d);
+  assert(d_arr[1][1][2][3] == 123.0);
   
   // components need te freed like this:
   delete_tensor_component(dx);

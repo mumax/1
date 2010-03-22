@@ -59,6 +59,12 @@ int tensor_index(tensor* t, int* indexarray);
 float** tensor_array2D(tensor* t);
 float** slice_array2D(float* list, int size0, int size1);
 
+float*** tensor_array3D(tensor* t);
+float*** slice_array3D(float* list, int size0, int size1, int size2);
+
+float**** tensor_array4D(tensor* t);
+float**** slice_array4D(float* list, int size0, int size1, int size2, int size3);
+
 
 /** 
  * Writes the tensor in binary format:
