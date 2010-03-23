@@ -3,10 +3,17 @@
 
 #include "tensor.h"
 #include <stdio.h>
+#include <cufft.h>
 
 #ifdef __cplusplus
 extern "C" { // allow inclusion in C++ code
 #endif
+
+typedef struct{
+  cufftHandle handle;
+  //tensor* device_data;
+  float* device_buffer;
+}cuda_c2c_plan;
 
 
 /**
@@ -17,11 +24,13 @@ extern "C" { // allow inclusion in C++ code
 typedef struct{
   /** Logical size of the input data. */
   int size[3];
+  
   /** Total number of real elements in the input data (= size[0] * size[1] * size[2]). */
   int N;
   
   /** Physical size (number of floats) of padded, complex data. Currently: size[0], size[1], 2*size[2], can become size[0], size[1], (size[2] + 2). */
   int paddedComplexSize[3];
+  
   /** Total number of real elements in padded complex data (currently = 2 * size[0] * size[1] * size[2]).*/
   int paddedComplexN;
   
@@ -31,16 +40,30 @@ typedef struct{
    /** Transformed total demag field due to all the magnetization components i: h[j] = sum_i h_i[j] */
    tensor* ft_h; //rank 4
    
+   /** Transformed Kernel */
+   tensor* ft_kernel; // rank 5
+   
+   /** Plan for transforming size[0] * size[1] * size[2] complex numbers on the GPU. */
+   cuda_c2c_plan* c2c_plan;
+   
 }convplan;
 
 
-/** Makes a new convplan with given logical size of the input data and a convolution kernel. */
+/** Makes a new convplan with given logical size of the input data and a convolution kernel (rank 5). */
 convplan* new_convplan(int* size, tensor* kernel);
 
 void delete_convplan(convplan* plan);
 
 void conv_execute(convplan* plan, tensor* source, tensor* dest);
 
+/** Initializes a 3D c2c FFT plan for the GPU. Size is the logical size of the input data (number of complex numbers). */
+cuda_c2c_plan* gpu_init_c2c(int* size);
+
+/** Executes a 3D c2c FFT plan created by gpu_init_c2c.*/
+void gpu_exec_c2c(cuda_c2c_plan* plan, tensor* data, int direction);
+
+/** Internal function that initializes the FT'ed kernel. */
+void _init_kernel(convplan* plan, tensor* kernel);
 
 #ifdef __cplusplus
 }

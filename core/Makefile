@@ -19,13 +19,15 @@ core.so: $(OFILES)
 
 $(OFILES): *.h $(CPPFILES) $(CUFILES)
 	$(CPP)  -c $(CFLAGS) $(CPPFILES)
-	$(NVCC) -c $(NVCCFLAGS) $(CUDALIBS) *.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS)  *.cu
 
 
 test:	all  *_test.cpp
-	$(CPP) $(CFLAGS) $(LDFLAGS) tensor_test.cpp core.so -o tensor_test
-	$(CPP) $(CFLAGS) $(LDFLAGS) conv_test.cpp core.so -o conv_test
+	$(CPP) -c $(CFLAGS) $(LDFLAGS) tensor_test.cpp
+	$(CPP) tensor_test.o core.so -o tensor_test
 	./tensor_test
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) conv_test.cpp
+	$(CPP) conv_test.o core.so -o conv_test
 	./conv_test
 
 
