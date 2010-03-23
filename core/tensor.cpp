@@ -52,7 +52,7 @@ float* tensor_get(tensor* t, int r ...){
   va_list varargs;
   va_start(varargs, r);
   if(r != t->rank){
-    cerr << "2nd argument != tensor rank" << endl;
+    cerr << "2nd argument (" << r << ")!= tensor rank (" << t->rank << ")" << endl;
     exit(-3);
   }
   

@@ -2,22 +2,56 @@
 #include "tensor.h"
 #include <cufft.h>
 #include <stdio.h>
+#include <assert.h>
 
+typedef struct{
+  cufftHandle handle;
+}cuda_c2c_plan;
 
-void conv_execute(convplan* p, float* m, float* h){
+cuda_c2c_plan* gpu_init_c2c(int* size){
+  cuda_c2c_plan* plan = (cuda_c2c_plan*) malloc(sizeof(cuda_c2c_plan));
+  cufftPlan3d(&(plan->handle), size[0], size[1], size[2], CUFFT_C2C);
+  return plan;
+}
+
+void gpu_exec_c2c(void* plan, tensor* data){
+  
+}
+
+void conv_execute(convplan* p, tensor* m, tensor* h){
+  assert(m->rank == 4);
+  assert(h->rank == 4);
+  
+  tensor* ft_h = p->ft_h;
+  tensor* ft_m_i = p->ft_m_i;
+  int* size = p->size;	// note: m->size == {3, N0, N1, N2}, size = {N0, N1, N2};
+  
   // Zero-out field components
-  for(int i = 0; i < 3; i++){
-    for(int j = 0; j < p->paddedComplexN; j++){
-      p->ft_h[i][j] = 0.;
-    }
+  for(int i = 0; i < tensor_length(ft_h); i++){
+    ft_h->list[i] = 0.;
   }
   
+  // transform and convolve per magnetization component m_i
   for(int i = 0; i < 3; i++){
+    
     // zero-out the padded magnetization buffer first
-    for(int j = 0; j < p->paddedComplexN; j++){
-      p->ft_m_i[j] = 0.;
+    for(int j = 0; j < tensor_length(ft_m_i); j++){
+      ft_m_i->list[j] = 0.;
     }
+    
+     //copy the current magnetization component into the padded magnetization buffer
+     // we convert real to complex format
+     for(int i_= 0; i_< size[0]; i_++){
+      for(int j_= 0; j_< size[1]; j_++){
+	for(int k_= 0; k_< size[2]; k_++){
+	  *tensor_get(ft_m_i, 3, i_, j_, 2 * k_) = *tensor_get(m, 4, i, i_, j_, k_);
+	}
+      }
+     }
+     
+     format_tensor(ft_m_i, stdout);
 
+  }
 //     // then copy the current magnetization component into the padded magnetization buffer
 //     CopyInto(m.Component(i).Array(), p.ft_m_i.Array());
 // 
@@ -37,19 +71,24 @@ void conv_execute(convplan* p, float* m, float* h){
 // 	ft_h_j[e+1] +=  rea*imb + ima*reb;
 //       }
 //     }
-  }
+
   
 }
 
 
 convplan* new_convplan(int* size, tensor* kernel){
   convplan* plan = (convplan*) malloc(sizeof(convplan));
+  
   plan->size[0] = size[0];
   plan->size[1] = size[1];
   plan->size[2] = size[2];
   plan->paddedComplexSize[0] = size[0];
   plan->paddedComplexSize[1] = size[1];
   plan->paddedComplexSize[2] = 2*size[2];
+  
+  plan->ft_m_i = new_tensorN(3, plan->paddedComplexSize);
+  plan->ft_h = new_tensor(4, 3, plan->paddedComplexSize[0], plan->paddedComplexSize[1], plan->paddedComplexSize[2]);
+  
   return plan;
 }
 

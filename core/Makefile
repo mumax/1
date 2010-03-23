@@ -10,8 +10,7 @@ OFILES=\
 	tensor.o\
 	conv_gpu.o\
 
-# CUDALIBS=-L /usr/local/cuda/lib/libcudart.so -L /usr/local/cuda/lib/libcufft.so
-
+CUDALIBS=-lcuda -lcudart -lcufft
 
 all: core.so
 
@@ -20,7 +19,7 @@ core.so: $(OFILES)
 
 $(OFILES): *.h $(CPPFILES) $(CUFILES)
 	$(CPP)  -c $(CFLAGS) $(CPPFILES)
-	$(NVCC) -c $(NVCCFLAGS) $(CUDA_LIBS) *.cu
+	$(NVCC) -c $(NVCCFLAGS) $(CUDALIBS) *.cu
 
 
 test:	all  *_test.cpp

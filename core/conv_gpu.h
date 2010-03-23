@@ -26,10 +26,10 @@ typedef struct{
   int paddedComplexN;
   
   /** Transformed magnetization component m_i, re-used for m_0, m_1, m_2 (allocating three separate buffers would be a waste of space). This space is zero-padded to be twice the size of the input data in all directions. Plus, the last dimension is even 2 elements larger to allow an in-place FFT. */
-  float* ft_m_i;
+  tensor* ft_m_i; //rank 3
   
    /** Transformed total demag field due to all the magnetization components i: h[j] = sum_i h_i[j] */
-   float** ft_h;
+   tensor* ft_h; //rank 4
    
 }convplan;
 
@@ -39,7 +39,7 @@ convplan* new_convplan(int* size, tensor* kernel);
 
 void delete_convplan(convplan* plan);
 
-void conv_execute(convplan* plan, float* source, float* dest);
+void conv_execute(convplan* plan, tensor* source, tensor* dest);
 
 
 #ifdef __cplusplus
