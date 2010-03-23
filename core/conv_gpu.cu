@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <assert.h>
 
-void conv_execute(convplan* p, tensor* m, tensor* h){
-  assert(m->rank == 4);
-  assert(h->rank == 4);
+void conv_execute(convplan* p, float* m_list, float* h_list){
+  tensor* m = as_tensor(m_list, 4, 3, p->size[0], p->size[1], p->size[2]);
+  tensor* h = as_tensor(h_list, 4, 3, p->size[0], p->size[1], p->size[2]);
   
   // shorthand notations
   tensor* ft_h      = p->ft_h;
@@ -71,20 +71,20 @@ void conv_execute(convplan* p, tensor* m, tensor* h){
 }
 
 
-convplan* new_convplan(int* size, float* kernel_list){
+convplan* new_convplan(int N0, int N1, int N2, float* kernel_list){
   convplan* plan = (convplan*) malloc(sizeof(convplan));
   
-  plan->size[0] = size[0];
-  plan->size[1] = size[1];
-  plan->size[2] = size[2];
+  plan->size[0] = N0;
+  plan->size[1] = N1;
+  plan->size[2] = N2;
   
-  plan->paddedSize[0] = 2*size[0];
-  plan->paddedSize[1] = 2*size[1];
-  plan->paddedSize[2] = 2*size[2];
+  plan->paddedSize[0] = 2 * plan->size[0];
+  plan->paddedSize[1] = 2 * plan->size[1];
+  plan->paddedSize[2] = 2 * plan->size[2];
   
-  plan->paddedComplexSize[0] =   plan->paddedSize[0];
-  plan->paddedComplexSize[1] =   plan->paddedSize[1];
-  plan->paddedComplexSize[2] = 2*plan->paddedSize[2];
+  plan->paddedComplexSize[0] =     plan->paddedSize[0];
+  plan->paddedComplexSize[1] =     plan->paddedSize[1];
+  plan->paddedComplexSize[2] = 2 * plan->paddedSize[2];
   
   tensor* kernel = as_tensor(kernel_list, 5, 3, 3, plan->paddedSize[0], plan->paddedSize[1], plan->paddedSize[2]);
   

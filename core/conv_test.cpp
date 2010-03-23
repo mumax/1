@@ -29,13 +29,13 @@ int main(int argc, char** argv){
     *tensor_get(kernel, 5, s, s, 0, 0, 0) = 1.0;
   }
   
-  convplan* plan = new_convplan(size, kernel->list);
+  convplan* plan = new_convplan(N0, N1, N2, kernel->list);
 
   //format_tensor(kernel, stdout);
   printf("M\n\n");
   //format_tensor(m, stdout);
   
-  conv_execute(plan, m, h);
+  conv_execute(plan, m->list, h->list);
   
   printf("H\n\n");
   //format_tensor(h, stdout);

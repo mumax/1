@@ -53,11 +53,11 @@ typedef struct{
 
 
 /** Makes a new convplan with given logical size of the input data and a convolution kernel (rank 5). */
-convplan* new_convplan(int* size, float* kernel);
+convplan* new_convplan(int N0, int N1, int N2, float* kernel);
 
 void delete_convplan(convplan* plan);
 
-void conv_execute(convplan* plan, tensor* source, tensor* dest);
+void conv_execute(convplan* plan, float* source, float* dest);
 
 /** Initializes a 3D c2c FFT plan for the GPU. Size is the logical size of the input data (number of complex numbers). */
 cuda_c2c_plan* gpu_init_c2c(int* size);
