@@ -12,7 +12,7 @@ float sqr(float x){
 int main(int argc, char** argv){
   printf("conv_test:\n");
   
-  int N0 = 16, N1 = 16, N2 = 4;
+  int N0 = 1, N1 = 4, N2 = 4;
   int* size = new int[3];
   size[0] = N0; size[1] = N1, size[2] = N2;
   
@@ -29,7 +29,7 @@ int main(int argc, char** argv){
     *tensor_get(kernel, 5, s, s, 0, 0, 0) = 1.0;
   }
   
-  convplan* plan = new_convplan(size, kernel);
+  convplan* plan = new_convplan(size, kernel->list);
 
   //format_tensor(kernel, stdout);
   printf("M\n\n");

@@ -28,7 +28,10 @@ typedef struct{
   /** Total number of real elements in the input data (= size[0] * size[1] * size[2]). */
   int N;
   
-  /** Physical size (number of floats) of padded, complex data. Currently: size[0], size[1], 2*size[2], can become size[0], size[1], (size[2] + 2). */
+  /** Size of the zero-padded data (2*size[0], 2*size[1], 2*size[2]) */
+  int paddedSize[3];
+  
+   /** Physical size (number of floats) of padded, complex data. Currently: paddedSize[0], paddedSize[1], 2*paddedSize[2], can become paddedSize[0], paddedSize[1], (paddedSize[2] + 2). */
   int paddedComplexSize[3];
   
   /** Total number of real elements in padded complex data (currently = 2 * size[0] * size[1] * size[2]).*/
@@ -50,7 +53,7 @@ typedef struct{
 
 
 /** Makes a new convplan with given logical size of the input data and a convolution kernel (rank 5). */
-convplan* new_convplan(int* size, tensor* kernel);
+convplan* new_convplan(int* size, float* kernel);
 
 void delete_convplan(convplan* plan);
 

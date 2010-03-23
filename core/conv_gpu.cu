@@ -61,25 +61,45 @@ void conv_execute(convplan* p, tensor* m, tensor* h){
 	}
       }
      }
+     
+     //debug
+     printf("H%d:\n", i);
+     format_tensor(tensor_component(h, i), stdout);
+     
   }
 
 }
 
 
-convplan* new_convplan(int* size, tensor* kernel){
+convplan* new_convplan(int* size, float* kernel_list){
   convplan* plan = (convplan*) malloc(sizeof(convplan));
   
   plan->size[0] = size[0];
   plan->size[1] = size[1];
   plan->size[2] = size[2];
-  plan->paddedComplexSize[0] = size[0];
-  plan->paddedComplexSize[1] = size[1];
-  plan->paddedComplexSize[2] = 2*size[2];
+  
+  plan->paddedSize[0] = 2*size[0];
+  plan->paddedSize[1] = 2*size[1];
+  plan->paddedSize[2] = 2*size[2];
+  
+  plan->paddedComplexSize[0] =   plan->paddedSize[0];
+  plan->paddedComplexSize[1] =   plan->paddedSize[1];
+  plan->paddedComplexSize[2] = 2*plan->paddedSize[2];
+  
+  tensor* kernel = as_tensor(kernel_list, 5, 3, 3, plan->paddedSize[0], plan->paddedSize[1], plan->paddedSize[2]);
+  
+  // DEBUG
+  for(int s = 0; s<3; s++){
+    for(int d = 0; d < 3; d++){
+      printf("K%d%d:\n", s, d);
+      format_tensor(tensor_component(tensor_component(kernel, s), d), stdout);
+    }
+  }
   
   plan->ft_m_i = new_tensorN(3, plan->paddedComplexSize);
   plan->ft_h = new_tensor(4, 3, plan->paddedComplexSize[0], plan->paddedComplexSize[1], plan->paddedComplexSize[2]);
   plan->ft_kernel = new_tensor(5, 3, 3, plan->paddedComplexSize[0], plan->paddedComplexSize[1], plan->paddedComplexSize[2]);
-  plan->c2c_plan = gpu_init_c2c(size);
+  plan->c2c_plan = gpu_init_c2c(plan->paddedSize);
   
   _init_kernel(plan, kernel);
       
@@ -90,7 +110,8 @@ convplan* new_convplan(int* size, tensor* kernel){
 void _init_kernel(convplan* plan, tensor* kernel){
   tensor* ft_kernel = plan->ft_kernel;
   int* size = plan->size;
-  float norm = size[0] * size[1] * size[2];
+  int* paddedSize = plan->paddedSize;
+  float norm = paddedSize[0] * paddedSize[1] * paddedSize[2];
   
   for(int s=0; s<3; s++){
     for(int d=0; d<3; d++){
@@ -104,10 +125,27 @@ void _init_kernel(convplan* plan, tensor* kernel){
       }
       
       tensor* k_sd = tensor_component(tensor_component(ft_kernel, s), d);
+      
+      // DEBUG
+      printf("K_complex%d%d:\n", s, d);
+      format_tensor(tensor_component(tensor_component(ft_kernel, s), d), stdout);
+      
       gpu_exec_c2c(plan->c2c_plan, k_sd, CUFFT_FORWARD);
       // todo: free tensor components.
+      
+       printf("FT_K%d%d:\n", s, d);
+      format_tensor(k_sd, stdout);
     }
   }
+  
+    // DEBUG
+  for(int s = 0; s<3; s++){
+    for(int d = 0; d < 3; d++){
+      printf("FT_K%d%d:\n", s, d);
+      format_tensor(tensor_component(tensor_component(ft_kernel, s), d), stdout);
+    }
+  }
+  
 }
 
 
@@ -131,9 +169,16 @@ cuda_c2c_plan* gpu_init_c2c(int* size){
 
 
 void gpu_exec_c2c(cuda_c2c_plan* plan, tensor* data, int direction){
+  printf("\nFFT input:\n");
+  format_tensor(data, stdout);
+  
   int N = tensor_length(data);
   printf("N=%d\n", N);
   printf("memcpy: %d\n", cudaMemcpy(plan->device_buffer, data->list, N*sizeof(float), cudaMemcpyHostToDevice));
-  cufftExecC2C(plan->handle, (cufftComplex*)plan->device_buffer, (cufftComplex*)plan->device_buffer, direction);
+  printf("fft: %d\n", cufftExecC2C(plan->handle, (cufftComplex*)plan->device_buffer, (cufftComplex*)plan->device_buffer, direction));
   printf("memcpy: %d\n", cudaMemcpy(data->list, plan->device_buffer, N*sizeof(float), cudaMemcpyDeviceToHost));
+  
+  printf("\nFFT output:\n");
+  format_tensor(data, stdout);
+  
 }
