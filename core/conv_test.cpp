@@ -12,7 +12,7 @@ float sqr(float x){
 int main(int argc, char** argv){
   printf("conv_test:\n");
   
-  int N0 = 1, N1 = 4, N2 = 4;
+  int N0 = 4, N1 = 4, N2 = 2;
   int* size = new int[3];
   size[0] = N0; size[1] = N1, size[2] = N2;
   
@@ -20,7 +20,7 @@ int main(int argc, char** argv){
   tensor* h = new_tensor(4, 3, N0, N1, N2);
   
   for(int i=0; i<tensor_length(m); i++){
-    m->list[i] = (rand()%1000 + 1)/1000.0;
+    m->list[i] = i/100.;//(rand()%1000 + 1)/1000.0;
   }
   
   tensor* kernel = new_tensor(5, 3, 3, 2*N0, 2*N1, 2*N2);
@@ -33,12 +33,12 @@ int main(int argc, char** argv){
 
   //format_tensor(kernel, stdout);
   printf("M\n\n");
-  //format_tensor(m, stdout);
+  format_tensor(m, stdout);
   
   conv_execute(plan, m->list, h->list);
   
   printf("H\n\n");
-  //format_tensor(h, stdout);
+  format_tensor(h, stdout);
   
   delete_convplan(plan);
 

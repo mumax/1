@@ -81,7 +81,17 @@ func Format(out io.Writer, t Tensor){
   }
   
   for i:=NewIterator(t); i.HasNext(); i.Next(){
-    Fprintln(out, i.Get());
+    //Fprintf(out, "%f ", i.Get()); // %15f
+    Fprint(out, i.Get(), "\t");
+
+    for j:=0; j<Rank(t); j++{
+      newline := true;
+      for k:=j; k<Rank(t); k++{
+	if i.Index()[k] != t.Size()[k] - 1 { newline = false }
+      }
+      if newline { Fprint(out, "\n") };
+    }
+
   }
 }
 
