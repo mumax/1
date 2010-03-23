@@ -1,8 +1,0 @@
-7619450000 # initial
-4498681000 # 2 Tensor.Component() less
-2976588000 # 1 Tensor.Component() less
-3052368000 # inlined torque(), oops.
-2962798000 # torque() not inlined anymore.
-2947881000 # do not re-calculate gilbert factor every time
-2414660000 # using more float[][]'s instead of Tensors
-2309565000 # Disabled euler solver, convolution only
