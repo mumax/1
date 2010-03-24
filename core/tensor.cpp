@@ -7,9 +7,9 @@ using namespace std;
 
 tensor* new_tensor(int rank, ...){
   
-  tensor* t = (tensor*)malloc(sizeof(tensor));
+  tensor* t = (tensor*)safe_malloc(sizeof(tensor));
   t->rank = rank;
-  t->size = (int*)calloc(rank, sizeof(int32_t));	// we copy the size array to protect from accidental modification
+  t->size = (int*)safe_calloc(rank, sizeof(int32_t));	// we copy the size array to protect from accidental modification
 							// also, if we're a bit lucky, it gets allocated nicely after t and before list,
 							// so we can have good cache efficiency.
   va_list varargs;
@@ -20,7 +20,7 @@ tensor* new_tensor(int rank, ...){
   }
   va_end(varargs);
   
-  t-> list = (float*)calloc(tensor_length(t), sizeof(float));
+  t-> list = (float*)safe_calloc(tensor_length(t), sizeof(float));
   
   return t;
 }
@@ -28,9 +28,9 @@ tensor* new_tensor(int rank, ...){
 
 tensor* as_tensor(float* list, int rank, ...){
   
-  tensor* t = (tensor*)malloc(sizeof(tensor));
+  tensor* t = (tensor*)safe_malloc(sizeof(tensor));
   t->rank = rank;
-  t->size = (int*)calloc(rank, sizeof(int32_t));	
+  t->size = (int*)safe_calloc(rank, sizeof(int32_t));	
   
   va_list varargs;
   va_start(varargs, rank);
@@ -67,15 +67,15 @@ float* tensor_get(tensor* t, int r ...){
 
 
 tensor* new_tensorN(int rank, int* size){
-  tensor* t = (tensor*)malloc(sizeof(tensor));
+  tensor* t = (tensor*)safe_malloc(sizeof(tensor));
   t->rank = rank;
-  t->size = (int*)calloc(rank, sizeof(int32_t));
+  t->size = (int*)safe_calloc(rank, sizeof(int32_t));
   
   for(int i=0; i<rank; i++){
     t->size[i] = size[i];
   }
  
-  t-> list = (float*)calloc(tensor_length(t), sizeof(float));
+  t-> list = (float*)safe_calloc(tensor_length(t), sizeof(float));
   
   return t;
 }
@@ -104,7 +104,7 @@ float** tensor_array2D(tensor* t){
 }
 
 float** slice_array2D(float* list, int size0, int size1){
-  float** sliced = (float**)calloc(size0, sizeof(float*));
+  float** sliced = (float**)safe_calloc(size0, sizeof(float*));
   for(int i=0; i < size0; i++){
     sliced[i] = &list[i*size1];
   }
@@ -112,9 +112,9 @@ float** slice_array2D(float* list, int size0, int size1){
 }
 
 float*** slice_array3D(float* list, int size0, int size1, int size2){
-  float*** sliced = (float***)calloc(size0, sizeof(float*));
+  float*** sliced = (float***)safe_calloc(size0, sizeof(float*));
   for(int i=0; i < size0; i++){
-    sliced[i] = (float**)calloc(size1, sizeof(float*));
+    sliced[i] = (float**)safe_calloc(size1, sizeof(float*));
   }
   for(int i=0; i<size0; i++){
     for(int j=0; j<size1; j++){
@@ -130,13 +130,13 @@ float*** tensor_array3D(tensor* t){
 }
 
 float**** slice_array4D(float* list, int size0, int size1, int size2, int size3){
-  float**** sliced = (float****)calloc(size0, sizeof(float*));
+  float**** sliced = (float****)safe_calloc(size0, sizeof(float*));
   for(int i=0; i < size0; i++){
-    sliced[i] = (float***)calloc(size1, sizeof(float*));
+    sliced[i] = (float***)safe_calloc(size1, sizeof(float*));
   }
   for(int i=0; i<size0; i++){
     for(int j=0; j<size1; j++){
-      sliced[i][j] = (float**)calloc(size2, sizeof(float*));
+      sliced[i][j] = (float**)safe_calloc(size2, sizeof(float*));
     }
   }
   for(int i=0; i<size0; i++){
@@ -245,7 +245,7 @@ void print_tensor(tensor* t){
 
 
 tensor* read_tensor(FILE* in){
-  tensor* t = (tensor*)malloc(sizeof(tensor));
+  tensor* t = (tensor*)safe_malloc(sizeof(tensor));
   read_tensor_pieces(&(t->rank), &(t->size), &(t->list), in);
   return t;
 }
@@ -253,13 +253,13 @@ tensor* read_tensor(FILE* in){
 
 void read_tensor_pieces(int* rank, int** size, float** list, FILE* in){
   fread(rank, sizeof(int32_t), 1, in);
-  *size = (int32_t*)calloc(*rank, sizeof(int32_t));
+  *size = (int32_t*)safe_calloc(*rank, sizeof(int32_t));
   fread(*size, sizeof(int32_t), *rank, in);
   int length = 1;
   for(int i=0; i<*rank; i++){
     length *= (*size)[i];
   } 
-  *list = (float*)calloc(length, sizeof(float));
+  *list = (float*)safe_calloc(length, sizeof(float));
   fread(*list, sizeof(float), length, in);
 }
 
@@ -290,4 +290,23 @@ void delete_tensor_component(tensor* t){
   free(t->size);
   // we do not free t->list as it is owned by the parent tensor who may still be using it.
   free(t);
+}
+
+
+void* safe_malloc(int size){
+  void* ptr = malloc(size);
+  if(ptr == NULL){
+    fprintf(stderr, "could not allocate memory\n");
+    abort();
+  }
+  return ptr;
+}
+
+void* safe_calloc(int length, int elemsize){
+  void* ptr = calloc(length, elemsize);
+  if(ptr == NULL){
+    fprintf(stderr, "could not allocate memory\n");
+    abort();
+  }
+  return ptr;
 }

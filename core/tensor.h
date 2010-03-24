@@ -110,6 +110,12 @@ tensor* tensor_component(tensor* t, int component);
 /** Tensors created by tensor_component() should not be freed with delete_tensor() but with delete_tensor_component(), as the parent tensor may still be using the data list. */
 void delete_tensor_component(tensor* t);
 
+/** A malloc that can print an error message instead of just causing a segfault when unable to allocate. */
+void* safe_malloc(int size);
+
+/** A malloc that can print an error message instead of just causing a segfault when unable to allocate. */
+void* safe_calloc(int length, int elemsize);
+
 #ifdef __cplusplus
 }
 #endif
