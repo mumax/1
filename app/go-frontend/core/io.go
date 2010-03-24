@@ -59,6 +59,10 @@ func Read(in io.Reader) StoredTensor{
   return t;
 }
 
+func ReadFile(file string) StoredTensor{
+  return Read(FOpenz(file));
+}
+
 /** Prints the tensor in ASCII format, See libtensor.h for more details. */
 func Print(out io.Writer, t Tensor){
   Fprintln(out, Rank(t));
