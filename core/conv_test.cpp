@@ -20,7 +20,7 @@ int main(int argc, char** argv){
   tensor* h = new_tensor(4, 3, N0, N1, N2);
   
   for(int i=0; i<tensor_length(m); i++){
-    m->list[i] = i/100.;//(rand()%1000 + 1)/1000.0;
+    m->list[i] = (rand()%1000 + 1)/1000.0;
   }
   
   tensor* kernel = new_tensor(5, 3, 3, 2*N0, 2*N1, 2*N2);

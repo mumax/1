@@ -213,21 +213,29 @@ void write_tensor_ascii(tensor* t, FILE* out){
 
 
 void format_tensor(tensor* t, FILE* out){
-  if(t->rank != 3){
-    write_tensor_ascii(t, out);
-    return;
+  // print rank...
+  fprintf(out, "%d\n", t->rank);
+  // ... and size...
+  for(int i=0; i < t->rank; i++){
+    fprintf(out, "%d\n", t->size[i]);
   }
-  
-  for(int i=0; i<t->size[0]; i++){
-    for(int j=0; j<t->size[1]; j++){
-      for(int k=0; k<t->size[2]; k++){
-	fprintf(out, "%f ", *tensor_get(t, 3, i, j, k));
+  // ... and data
+  for(int i=0; i < tensor_length(t); i++){
+    fprintf(out, "% 11f ", t->list[i]);
+    // If we reach the end of dimension, we print an extra newline
+    // for each dimension:
+    for(int j=0; j < t->rank; j++){
+      // calc. the length in that dimension
+      int size = 1;
+      for(int k=j; k < t->rank; k++){
+	size *= t->size[k];
       }
-      fprintf(out, "\n");
+      // if we are at the end of the dimesion, print the newline.
+      if((i+1) % size == 0){
+	fprintf(out, "\n");
+      }
     }
-    fprintf(out, "\n");
   }
-  
 }
 
 
