@@ -3,6 +3,14 @@
 #include <stdio.h>
 #include <assert.h>
 
+/** Should be wrapped around all cudaXXX() functions, it will abort the program when a CUDA error is returned. */
+void safe(int status){
+  if(status != 0){
+    fprintf(stderr, "received CUDA error: %d\n", status);
+    abort();
+  }
+}
+
 void conv_execute(convplan* p, float* m_list, float* h_list){
   tensor* m = as_tensor(m_list, 4, 3, p->size[0], p->size[1], p->size[2]);
   tensor* h = as_tensor(h_list, 4, 3, p->size[0], p->size[1], p->size[2]);
@@ -10,7 +18,6 @@ void conv_execute(convplan* p, float* m_list, float* h_list){
   // shorthand notations
   tensor* ft_h      = p->ft_h;
   tensor* ft_m_i    = p->ft_m_i;
-  tensor* ft_kernel = p->ft_kernel;
   int*    size      = p->size;			// note: m->size == {3, N0, N1, N2}, size = {N0, N1, N2};
   
   // Zero-out field (h) components
@@ -51,20 +58,20 @@ void conv_execute(convplan* p, float* m_list, float* h_list){
   
   for(int i=0; i<3; i++){
     // Inplace backtransform of each of the padded H-buffers
-    tensor* ft_h_i = tensor_component(ft_h, i);
-    gpu_exec_c2c(p->c2c_plan, ft_h_i, CUFFT_INVERSE);
+    //tensor* ft_h_i = tensor_component(ft_h, i);
+    gpu_exec_c2c(p->c2c_plan, p->ft_h_comp[i], CUFFT_INVERSE);
     // Copy region of interest (non-padding space) to destination
     for(int i_= 0; i_< size[0]; i_++){
       for(int j_= 0; j_< size[1]; j_++){
 	for(int k_= 0; k_< size[2]; k_++){
-	  *tensor_get(h, 4, i, i_, j_, k_) = *tensor_get(ft_h_i, 3, i_, j_, 2*k_);
+	  *tensor_get(h, 4, i, i_, j_, k_) = *tensor_get(p->ft_h_comp[i], 3, i_, j_, 2*k_);
 	}
       }
      }
      
      //debug
-     printf("H%d:\n", i);
-     format_tensor(tensor_component(h, i), stdout);
+//      printf("H%d:\n", i);
+//      format_tensor(tensor_component(h, i), stdout);
      
   }
 
@@ -141,25 +148,26 @@ void _init_kernel(convplan* plan, tensor* kernel){
       
       tensor* k_sd = tensor_component(tensor_component(ft_kernel, s), d);
       
-      // DEBUG
-      printf("K_complex%d%d:\n", s, d);
-      format_tensor(tensor_component(tensor_component(ft_kernel, s), d), stdout);
+//       // DEBUG
+//       printf("K_complex%d%d:\n", s, d);
+//       format_tensor(tensor_component(tensor_component(ft_kernel, s), d), stdout);
       
       gpu_exec_c2c(plan->c2c_plan, k_sd, CUFFT_FORWARD);
       // todo: free tensor components.
       
-       printf("FT_K%d%d:\n", s, d);
-      format_tensor(k_sd, stdout);
+//       //DEBUG
+//        printf("FT_K%d%d:\n", s, d);
+//       format_tensor(k_sd, stdout);
     }
   }
   
     // DEBUG
-  for(int s = 0; s<3; s++){
-    for(int d = 0; d < 3; d++){
-      printf("FT_K%d%d:\n", s, d);
-      format_tensor(tensor_component(tensor_component(ft_kernel, s), d), stdout);
-    }
-  }
+//   for(int s = 0; s<3; s++){
+//     for(int d = 0; d < 3; d++){
+//       printf("FT_K%d%d:\n", s, d);
+//       format_tensor(tensor_component(tensor_component(ft_kernel, s), d), stdout);
+//     }
+//   }
   
 }
 
@@ -174,26 +182,27 @@ void delete_convplan(convplan* plan){
 
 cuda_c2c_plan* gpu_init_c2c(int* size){
   cuda_c2c_plan* plan = (cuda_c2c_plan*) malloc(sizeof(cuda_c2c_plan));
-  cufftPlan3d(&(plan->handle), size[0], size[1], size[2], CUFFT_C2C);
+  safe( cufftPlan3d(&(plan->handle), size[0], size[1], size[2], CUFFT_C2C) );
   
   //float* device_list;
-  cudaMalloc((void**)&(plan->device_buffer), (size[0]*size[1]*size[2]) * 2*sizeof(float));
+  safe( cudaMalloc((void**)&(plan->device_buffer), (size[0]*size[1]*size[2]) * 2*sizeof(float)) );
   //plan->device_data = as_tensor(device_list, 3, size[0], size[1], size[2]);
   return plan;
 }
 
 
 void gpu_exec_c2c(cuda_c2c_plan* plan, tensor* data, int direction){
-  printf("\nFFT input:\n");
-  format_tensor(data, stdout);
+//   // DEBUG
+//   printf("\nFFT input:\n");
+//   format_tensor(data, stdout);
   
   int N = tensor_length(data);
-  printf("N=%d\n", N);
-  printf("memcpy: %d\n", cudaMemcpy(plan->device_buffer, data->list, N*sizeof(float), cudaMemcpyHostToDevice));
-  printf("fft: %d\n", cufftExecC2C(plan->handle, (cufftComplex*)plan->device_buffer, (cufftComplex*)plan->device_buffer, direction));
-  printf("memcpy: %d\n", cudaMemcpy(data->list, plan->device_buffer, N*sizeof(float), cudaMemcpyDeviceToHost));
+  safe( cudaMemcpy(plan->device_buffer, data->list, N*sizeof(float), cudaMemcpyHostToDevice) );
+  safe( cufftExecC2C(plan->handle, (cufftComplex*)plan->device_buffer, (cufftComplex*)plan->device_buffer, direction) );
+  safe( cudaMemcpy(data->list, plan->device_buffer, N*sizeof(float), cudaMemcpyDeviceToHost) );
   
-  printf("\nFFT output:\n");
-  format_tensor(data, stdout);
+//   // DEBUG
+//   printf("\nFFT output:\n");
+//   format_tensor(data, stdout);
   
 }

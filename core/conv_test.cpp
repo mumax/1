@@ -3,6 +3,7 @@
 */
 #include "conv_gpu.h"
 #include "tensor.h"
+#include "math.h"
 #include <assert.h>
 
 float sqr(float x){
@@ -12,7 +13,7 @@ float sqr(float x){
 int main(int argc, char** argv){
   printf("conv_test:\n");
   
-  int N0 = 4, N1 = 4, N2 = 2;
+  int N0 = 128, N1 = 128, N2 = 1024;
   int* size = new int[3];
   size[0] = N0; size[1] = N1, size[2] = N2;
   
@@ -42,14 +43,15 @@ int main(int argc, char** argv){
   
   delete_convplan(plan);
 
-  float rmserror = 0.;
+  double maxerror = 0.;
   for(int i=0; i<tensor_length(m); i++){
-    rmserror += sqr(m->list[i] - h->list[i]);
+    if(abs(m->list[i] - h->list[i]) > maxerror){
+      maxerror = abs(m->list[i] - h->list[i]);
+    }
     assert(m->list[i] != 0.); // it's really easy to make such a mistake that both m and h contain only zero's. 
   }
-  rmserror = sqrt(rmserror);
-  printf("unit convolution rms error = %f\n", rmserror);
-  assert(rmserror < 1E-5);
+  printf("unit convolution max error = %lf\n", maxerror);
+  assert(maxerror < 1E-5);
   
   printf("PASS\n");
   return 0;

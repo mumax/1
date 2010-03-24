@@ -30,7 +30,6 @@ test:	all  *_test.cpp
 	$(CPP) conv_test.o core.so -o conv_test
 	./conv_test
 
-
 .PHONY:	clean
 clean:	
 	rm -f *.o *.so iotest *_test
