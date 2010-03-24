@@ -42,6 +42,7 @@ typedef struct{
   
    /** Transformed total demag field due to all the magnetization components i: h[j] = sum_i h_i[j] */
    tensor* ft_h; //rank 4
+   tensor** ft_h_comp; // 3x rank 3
    
    /** Transformed Kernel */
    tensor* ft_kernel; // rank 5

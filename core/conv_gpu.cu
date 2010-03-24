@@ -37,7 +37,7 @@ void conv_execute(convplan* p, float* m_list, float* h_list){
 
      // apply kernel multiplication to FFT'ed magnetization and add to FFT'ed H-components
      for(int j=0; j<3; j++){
-	float* ft_h_j = tensor_component(ft_h, j)->list;	// todo: clean
+	float* ft_h_j = p->ft_h_comp[j]->list; //tensor_component(ft_h, j)->list;
 	for(int e=0; e<tensor_length(ft_m_i); e+=2){
 	  float rea = ft_m_i->list[e];
 	  float reb = tensor_component(tensor_component(ft_kernel, i), j)->list[e];
@@ -89,15 +89,19 @@ convplan* new_convplan(int N0, int N1, int N2, float* kernel_list){
   tensor* kernel = as_tensor(kernel_list, 5, 3, 3, plan->paddedSize[0], plan->paddedSize[1], plan->paddedSize[2]);
   
   // DEBUG
-  for(int s = 0; s<3; s++){
-    for(int d = 0; d < 3; d++){
-      printf("K%d%d:\n", s, d);
-      format_tensor(tensor_component(tensor_component(kernel, s), d), stdout);
-    }
-  }
+//   for(int s = 0; s<3; s++){
+//     for(int d = 0; d < 3; d++){
+//       printf("K%d%d:\n", s, d);
+//       format_tensor(tensor_component(tensor_component(kernel, s), d), stdout);
+//     }
+//   }
   
   plan->ft_m_i = new_tensorN(3, plan->paddedComplexSize);
   plan->ft_h = new_tensor(4, 3, plan->paddedComplexSize[0], plan->paddedComplexSize[1], plan->paddedComplexSize[2]);
+  plan->ft_h_comp = (tensor**)calloc(3, sizeof(tensor*));
+  for(int i=0; i<3; i++){
+    plan->ft_h_comp[i] = tensor_component(plan->ft_h, i);
+  }
   plan->ft_kernel = new_tensor(5, 3, 3, plan->paddedComplexSize[0], plan->paddedComplexSize[1], plan->paddedComplexSize[2]);
   plan->c2c_plan = gpu_init_c2c(plan->paddedSize);
   
