@@ -1,4 +1,4 @@
-package core
+package tensor
 
 import (
 	//. "log";
@@ -206,7 +206,7 @@ func (t *TensorSum) Size() []int { return t.t1.Size() }
 func (t *TensorSum) Get(index []int) float { return t.t1.Get(index) + t.t2.Get(index) }
 
 func Add(t1, t2 Tensor) *TensorSum {
-	Assert(EqualSize(t1.Size(), t2.Size()));
+	assert(EqualSize(t1.Size(), t2.Size()));
 	return &TensorSum{t1, t2}
 }
 
@@ -222,7 +222,7 @@ func (t *TensorTotal) Size() []int {
 }
 
 func (t *TensorTotal) Get(index []int) float {
-	Assert(len(index) == 0);
+	assert(len(index) == 0);
 
 	sum := float64(0.0);
 

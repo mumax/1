@@ -1,4 +1,4 @@
-package core
+package tensor
 
 import(
   . "fmt";
@@ -101,7 +101,7 @@ func Format(out io.Writer, t Tensor){
 
 /** Prints an unstructured field of vectors (3 co-ordinates and 3 vector components per line), suitable for Gnuplot 'plot with vectors' */
 func PrintVectors(out io.Writer, t Tensor){
-  AssertMsg(t.Size()[0]==3, "Needs first dimension of size 3 (vector components)");
+  assertMsg(t.Size()[0]==3, "Needs first dimension of size 3 (vector components)");
   xcomp := Slice(t, 0, X);
   ycomp := Slice(t, 0, Y);
   zcomp := Slice(t, 0, Z);

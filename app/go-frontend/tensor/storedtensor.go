@@ -1,4 +1,4 @@
-package core
+package tensor
 
 /*
  * StoredTensor wraps a multi-dimensional array in the Tensor interface.
@@ -42,12 +42,12 @@ func NewTensor(size []int) StoredTensor{
 
 func Index(size, indexarray []int) int{
   //size := t.Size();
-  Assert(len(size) == len(indexarray));
+  assert(len(size) == len(indexarray));
 
   index := indexarray[0];
-  AssertMsg(! (indexarray[0] < 0 || indexarray[0] >= size[0]), "Index out of range");
+  assertMsg(! (indexarray[0] < 0 || indexarray[0] >= size[0]), "Index out of range");
   for i:=1; i<len(indexarray); i++{
-    AssertMsg(!(indexarray[i] < 0 || indexarray[i] >= size[i]), "Index out of range");
+    assertMsg(!(indexarray[i] < 0 || indexarray[i] >= size[i]), "Index out of range");
     index *= size[i];
     index += indexarray[i]
   }
@@ -57,12 +57,12 @@ func Index(size, indexarray []int) int{
 // temp hack.
 func IndexUnchecked(size, indexarray []int) int{
   //size := t.Size();
-  Assert(len(size) == len(indexarray));
+  assert(len(size) == len(indexarray));
 
   index := indexarray[0];
-  //AssertMsg(! (indexarray[0] < 0 || indexarray[0] >= size[0]), "Index out of range");
+  //assertMsg(! (indexarray[0] < 0 || indexarray[0] >= size[0]), "Index out of range");
   for i:=1; i<len(indexarray); i++{
-    AssertMsg(!(indexarray[i] < 0 || indexarray[i] >= size[i]), "Index out of range");
+    assertMsg(!(indexarray[i] < 0 || indexarray[i] >= size[i]), "Index out of range");
     index *= size[i];
     index += indexarray[i]
   }
@@ -95,7 +95,7 @@ func (t *Tensor0) List() []float{
 /** Implements Tensor interface. */
 
 func (t *Tensor0) Get(index []int) float{
-  Assert(len(index) == 0);
+  assert(len(index) == 0);
   return t.list[0];
 }
 
@@ -131,7 +131,7 @@ func (t *Tensor1) List() []float{
 /** Implements Tensor interface. */
 
 func (t *Tensor1) Get(index []int) float{
-  Assert(len(index) == 1);
+  assert(len(index) == 1);
   return t.list[index[0]];
 }
 
@@ -169,7 +169,7 @@ func (t *Tensor2) List() []float{
 /** Implements Tensor interface. */
 
 func (t *Tensor2) Get(index []int) float{
-  Assert(len(index) == 2);
+  assert(len(index) == 2);
   return t.array[index[0]][index[1]];
 }
 
@@ -210,7 +210,7 @@ func (t *Tensor3) List() []float{
 /** Implements Tensor interface. */
 
 func (t *Tensor3) Get(index []int) float{
-  AssertMsg(len(index) == 3, "Tensor3.Get() needs index of dimension 3");
+  assertMsg(len(index) == 3, "Tensor3.Get() needs index of dimension 3");
   return t.array[index[0]][index[1]][index[2]];
 }
 
@@ -250,7 +250,7 @@ func (t *Tensor4) List() []float{
 /** Implements Tensor interface. */
 
 func (t *Tensor4) Get(index []int) float{
-  AssertMsg(len(index) == 4, "Tensor4.Get() needs index of dimension 4");
+  assertMsg(len(index) == 4, "Tensor4.Get() needs index of dimension 4");
   return t.array[index[0]][index[1]][index[2]][index[3]];
 }
 
@@ -290,7 +290,7 @@ func (t *Tensor5) List() []float{
 /** Implements Tensor interface. */
 
 func (t *Tensor5) Get(index []int) float{
-  AssertMsg(len(index) == 5, "Tensor5.Get() needs index of dimension 4");
+  assertMsg(len(index) == 5, "Tensor5.Get() needs index of dimension 4");
   return t.array[index[0]][index[1]][index[2]][index[3]][index[4]];
 }
 
@@ -392,7 +392,7 @@ func Zero(t StoredTensor){
 /** Copies data from a StoredTensor to an existing StoredTensor. */
 
 func CopyTo(source, dest StoredTensor){
-  Assert(EqualSize(dest.Size(), source.Size()));
+  assert(EqualSize(dest.Size(), source.Size()));
   d, s := dest.List(), source.List();
   for i:=range(d){
     d[i] = s[i];
@@ -412,7 +412,7 @@ func Copy(t StoredTensor) StoredTensor{
 /** Copies a Tensor into a freshly made StoredTensor. */
 
 func BufferTo(source Tensor, dest StoredTensor){
-  Assert(EqualSize(dest.Size(), source.Size()));
+  assert(EqualSize(dest.Size(), source.Size()));
   for i := NewIterator(dest); i.HasNext(); i.Next(){
     Set(dest, i.Index(), source.Get(i.Index()));
   }

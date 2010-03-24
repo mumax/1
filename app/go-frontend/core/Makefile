@@ -3,16 +3,6 @@ include $(GOROOT)/src/Make.$(GOARCH)
 TARG=core
 CGOFILES=core.go
 
-GOFILES=\
-	assert.go\
-	arrayslice.go\
-	iterator.go\
-	io.go\
-	tensor.go\
-	vector.go\
-	storedtensor.go\
-	out.go\
-
 CGO_LDFLAGS+=../../../core/core.so -I/usr/local/cuda/include/
 
 # files to be removed by make clean

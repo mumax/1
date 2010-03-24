@@ -1,4 +1,4 @@
-package core
+package tensor
 
 /**
  * An iterator for tensors.

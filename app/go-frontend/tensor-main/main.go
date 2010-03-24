@@ -3,10 +3,11 @@ package main
 import( 
        "flag";
        "fmt";
-       . "../core";
+       . "../tensor";
        "os";
        "strconv";
        "strings";
+       "log";
 )
 
 var tensor Tensor;
@@ -101,7 +102,7 @@ func parseArgs() ([]string, [][]string){
   {command := 0;
   i:=0;
   for i < flag.NArg(){
-    Assert(strings.HasPrefix(flag.Arg(i), "--"));
+    assert(strings.HasPrefix(flag.Arg(i), "--"));
     commands[command] = flag.Arg(i);
     nargs := 0;
     i++;
@@ -116,7 +117,7 @@ func parseArgs() ([]string, [][]string){
   {command := 0;
   i:=0;
    for i < flag.NArg(){
-    Assert(strings.HasPrefix(flag.Arg(i), "--"));
+    assert(strings.HasPrefix(flag.Arg(i), "--"));
     commands[command] = flag.Arg(i);
     nargs := 0;
     i++;
@@ -148,3 +149,19 @@ func Atof(s string) float{
   }
   return f;
 }
+
+
+/** Crashes the program when the test is false. */
+func assert(test bool){
+  if !test{
+    log.Crash("Assertion failed");
+  }
+}
+
+/** Crashes the program with an error message when the test is false. */
+func assertMsg(test bool, msg string){
+  if !test{
+    log.Crash(msg);
+  }
+}
+

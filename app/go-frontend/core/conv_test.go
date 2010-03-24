@@ -5,6 +5,7 @@ import(
   "os";
   "fmt";
   . "math";
+  . "../tensor";
 )
 
 func TestConv(t *testing.T){

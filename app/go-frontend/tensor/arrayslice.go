@@ -1,4 +1,4 @@
-package core
+package tensor
 
 /*
  * Allocates multi-dimensional arrays of float's, 
@@ -11,7 +11,7 @@ package core
 /** Returns a 2D array, as well as the contiguous 1D array backing it. */ 
 
 func Array2D(size0, size1 int) ([]float, [][]float){
-  AssertMsg(size0 > 0 && size1 > 0, "Array size must be > 0");
+  assertMsg(size0 > 0 && size1 > 0, "Array size must be > 0");
 
   /* First make the slice and then the list. When the memory is not fragmented,
    * they are probably allocated in a good order for the cache.
