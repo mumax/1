@@ -40,9 +40,9 @@ void conv_execute(convplan* p, float* m_list, float* h_list){
 	float* ft_h_j = p->ft_h_comp[j]->list; //tensor_component(ft_h, j)->list;
 	for(int e=0; e<tensor_length(ft_m_i); e+=2){
 	  float rea = ft_m_i->list[e];
-	  float reb = tensor_component(tensor_component(ft_kernel, i), j)->list[e];
+	  float reb = p->ft_kernel_comp[i][j]->list[e]; //tensor_component(tensor_component(ft_kernel, i), j)->list[e];
 	  float ima = ft_m_i->list[e + 1];
-	  float imb = tensor_component(tensor_component(ft_kernel, i), j)->list[e + 1];
+	  float imb = p->ft_kernel_comp[i][j]->list[e + 1]; //tensor_component(tensor_component(ft_kernel, i), j)->list[e + 1];
 	  ft_h_j[e] 	+=  rea*reb - ima*imb;
 	  ft_h_j[e + 1] +=  rea*imb + ima*reb;
 	}
@@ -97,12 +97,23 @@ convplan* new_convplan(int N0, int N1, int N2, float* kernel_list){
 //   }
   
   plan->ft_m_i = new_tensorN(3, plan->paddedComplexSize);
+  
   plan->ft_h = new_tensor(4, 3, plan->paddedComplexSize[0], plan->paddedComplexSize[1], plan->paddedComplexSize[2]);
   plan->ft_h_comp = (tensor**)calloc(3, sizeof(tensor*));
   for(int i=0; i<3; i++){
     plan->ft_h_comp[i] = tensor_component(plan->ft_h, i);
   }
+  
   plan->ft_kernel = new_tensor(5, 3, 3, plan->paddedComplexSize[0], plan->paddedComplexSize[1], plan->paddedComplexSize[2]);
+  plan->ft_kernel_comp = (tensor***)calloc(3, sizeof(tensor**));
+  for(int i=0; i<3; i++){
+    plan->ft_kernel_comp[i] = (tensor**)calloc(3, sizeof(tensor*));
+    tensor* ft_kernel_comp_i = tensor_component(plan->ft_kernel, i);
+    for(int j=0; j<3; j++){
+      plan->ft_kernel_comp[i][j] = tensor_component(ft_kernel_comp_i, j);
+    }
+  }
+  
   plan->c2c_plan = gpu_init_c2c(plan->paddedSize);
   
   _init_kernel(plan, kernel);

@@ -46,6 +46,7 @@ typedef struct{
    
    /** Transformed Kernel */
    tensor* ft_kernel; // rank 5
+   tensor*** ft_kernel_comp; // 3x3 x rank 3
    
    /** Plan for transforming size[0] * size[1] * size[2] complex numbers on the GPU. */
    cuda_c2c_plan* c2c_plan;
