@@ -70,6 +70,9 @@ void gpu_exec_c2c(cuda_c2c_plan* plan, tensor* data, int direction);
 /** Internal function that initializes the FT'ed kernel. */
 void _init_kernel(convplan* plan, tensor* kernel);
 
+/** Should be wrapped around all cudaXXX() functions, it will abort the program when a CUDA error is returned. */
+void safe(int status);
+  
 #ifdef __cplusplus
 }
 #endif

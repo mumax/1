@@ -3,13 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-/** Should be wrapped around all cudaXXX() functions, it will abort the program when a CUDA error is returned. */
-void safe(int status){
-  if(status != 0){
-    fprintf(stderr, "received CUDA error: %d\n", status);
-    abort();
-  }
-}
+
 
 void conv_execute(convplan* p, float* m_list, float* h_list){
   tensor* m = as_tensor(m_list, 4, 3, p->size[0], p->size[1], p->size[2]);
@@ -106,6 +100,7 @@ convplan* new_convplan(int N0, int N1, int N2, float* kernel_list){
   plan->ft_m_i = new_tensorN(3, plan->paddedComplexSize);
   
   plan->ft_h = new_tensor(4, 3, plan->paddedComplexSize[0], plan->paddedComplexSize[1], plan->paddedComplexSize[2]);
+  
   plan->ft_h_comp = (tensor**)calloc(3, sizeof(tensor*));
   for(int i=0; i<3; i++){
     plan->ft_h_comp[i] = tensor_component(plan->ft_h, i);
@@ -138,9 +133,10 @@ void _init_kernel(convplan* plan, tensor* kernel){
   for(int s=0; s<3; s++){
     for(int d=0; d<3; d++){
       
-      for(int i_= 0; i_< size[0]; i_++){
-	for(int j_= 0; j_< size[1]; j_++){
-	  for(int k_= 0; k_< size[2]; k_++){
+      // convert real kernel input to complex format first
+      for(int i_= 0; i_< paddedSize[0]; i_++){		    // paddedsize
+	for(int j_= 0; j_< paddedSize[1]; j_++){
+	  for(int k_= 0; k_< paddedSize[2]; k_++){
 	    *tensor_get(ft_kernel, 5, s, d, i_, j_, 2 * k_) = *tensor_get(kernel, 5, s, d, i_, j_, k_) / norm;
 	  }
 	}
@@ -205,4 +201,12 @@ void gpu_exec_c2c(cuda_c2c_plan* plan, tensor* data, int direction){
 //   printf("\nFFT output:\n");
 //   format_tensor(data, stdout);
   
+}
+
+
+void safe(int status){
+  if(status != 0){
+    fprintf(stderr, "received CUDA error: %d\n", status);
+    abort();
+  }
 }

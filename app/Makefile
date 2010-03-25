@@ -10,6 +10,5 @@ clean:
 	make clean -C go-frontend
 
 test:	all
-	make test -C cpp-frontend
-	make test -C go-frontend
+
 

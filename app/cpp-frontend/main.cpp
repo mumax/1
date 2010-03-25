@@ -6,13 +6,28 @@
 
 int main(int argc, char** argv){
   
-    assert(argc == 2);
+    assert(argc == 3);
     
-    FILE* mfile = fopen(argv[0], "rb");
+    FILE* mfile = fopen(argv[1], "rb");
     tensor* m = read_tensor(mfile);
     fclose(mfile);
+    printf("read m: %d x %d x %d\n", m->size[1], m->size[2], m->size[3]);
     
+    tensor* h = new_tensorN(4, m->size);
     
+    FILE* kernelfile = fopen(argv[2], "rb");
+    tensor* kernel = read_tensor(kernelfile);
+    fclose(kernelfile);
+    printf("read kernel: %d x %d x %d\n", kernel->size[2], kernel->size[3], kernel->size[4]);
+    
+    convplan* plan = new_convplan(m->size[1], m->size[2], m->size[3], kernel->list);
+    conv_execute(plan, m->list, h->list);
+    
+    FILE* hfile = fopen("h.t", "wb");
+    write_tensor(h, hfile);
+    fclose(hfile);
+    
+    return 0;
   
 //   int N0 = 4, N1 = 4, N2 = 2;
 //   int* size = new int[3];

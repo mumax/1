@@ -1,14 +1,14 @@
 # The compilers:
-export CC=gcc
-export CPP=g++
-export NVCC=nvcc
+CC=gcc
+CPP=g++
+NVCC=nvcc
 
-export CFLAGS+=\
+CFLAGS+=\
   -Werror\
   -fPIC\
   -g\
 
-export NVCCFLAGS+=\
-  --compiler-options -Werror\
+
+NVCCFLAGS+=\
   --compiler-options -fPIC\
   --compiler-options -g\
