@@ -2,6 +2,7 @@ include ../common.mk
 
 CPPFILES=\
 	tensor.cpp\
+	euler.cpp\
 
 CUFILES=\
 	*.cu\
