@@ -250,6 +250,16 @@ tensor* read_tensor(FILE* in){
   return t;
 }
 
+tensor* read_tensor_fname(char* filename){
+  FILE* file = fopen(filename, "rb");
+  if(file == NULL){
+    fprintf(stderr, "Could not read file: %s", filename);
+    abort();
+  }
+  return read_tensor(file);
+  fclose(file);
+}
+
 
 void read_tensor_pieces(int* rank, int** size, float** list, FILE* in){
   fread(rank, sizeof(int32_t), 1, in);

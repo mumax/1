@@ -83,6 +83,7 @@ void write_tensor_pieces(int rank, int* size, float* data, FILE* out);
 
 /** Reads the tensor from binary format. */
 tensor* read_tensor(FILE* in);
+tensor* read_tensor_fname(char* filename);
 
 /** Can be used as an alternative for read_tensor() if you don't want to use the tensor struct. */
 void read_tensor_pieces(int* rank, int** size, float** list, FILE* in);

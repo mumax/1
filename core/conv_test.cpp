@@ -13,7 +13,7 @@ float sqr(float x){
 int main(int argc, char** argv){
   printf("conv_test:\n");
   
-  int N0 = 128, N1 = 128, N2 = 2048; 
+  int N0 = 128, N1 = 128, N2 = 8; 
   int* size = new int[3];
   size[0] = N0; size[1] = N1, size[2] = N2;
   
