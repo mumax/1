@@ -1,6 +1,7 @@
 #include "main.h"
 #include "../../core/tensor.h"
 #include "../../core/conv_gpu.h"
+#include "../../core/euler.h"
 #include <assert.h>
 #include <stdio.h>
 
@@ -13,19 +14,25 @@ int main(int argc, char** argv){
     fclose(mfile);
     printf("read m: %d x %d x %d\n", m->size[1], m->size[2], m->size[3]);
     
-    tensor* h = new_tensorN(4, m->size);
-    
     FILE* kernelfile = fopen(argv[2], "rb");
     tensor* kernel = read_tensor(kernelfile);
     fclose(kernelfile);
     printf("read kernel: %d x %d x %d\n", kernel->size[2], kernel->size[3], kernel->size[4]);
     
-    convplan* plan = new_convplan(m->size[1], m->size[2], m->size[3], kernel->list);
-    conv_execute(plan, m->list, h->list);
+    char* buffer = (char*)calloc(200, sizeof(char));
+    eulersolver* solver = new_euler(m, new_convplan(m->size[1], m->size[2], m->size[3], kernel->list), 0.01);
+    for(int i=0; i<100; i++){
+      printf("%d\n", i);
+      for(int j=0; j<100; j++){
+	euler_step(solver);
+      }
+      sprintf(buffer, "m%d.t", i);
+      FILE* mifile = fopen(buffer, "wb");
+      write_tensor(m, mifile);
+      fclose(mifile);
+    }
     
-    FILE* hfile = fopen("h.t", "wb");
-    write_tensor(h, hfile);
-    fclose(hfile);
+
     
     return 0;
   
