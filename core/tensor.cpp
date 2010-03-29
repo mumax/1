@@ -81,6 +81,21 @@ tensor* new_tensorN(int rank, int* size){
 }
 
 
+// tensor* new_cudatensorN(int rank, int* size){
+//   tensor* t = (tensor*)safe_malloc(sizeof(tensor));
+//   t->rank = rank;
+//   t->size = (int*)safe_calloc(rank, sizeof(int32_t));
+//   
+//   for(int i=0; i<rank; i++){
+//     t->size[i] = size[i];
+//   }
+//  
+//   t-> list = (float*)safe_calloc(tensor_length(t), sizeof(float));
+//   
+//   return t;
+// }
+
+
 int tensor_index(tensor* t, int* indexarray){
   int index = indexarray[0];
   assert(! (indexarray[0] < 0 || indexarray[0] >= t->size[0]));

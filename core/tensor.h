@@ -35,6 +35,9 @@ tensor* new_tensor(int rank, ...);
 /** The same as new_tensor(), but with the size given as an array. This is only neccesary when the rank is not known at compile time, otherwise just use new_tensor() */
 tensor* new_tensorN(int rank, int* size);
 
+
+// tensor* new_cudatensorN(int rank, int* size);
+
 /** Makes a tensor form existing data. */
 tensor* as_tensor(float*, int rank, ...);
 

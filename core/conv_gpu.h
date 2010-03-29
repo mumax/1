@@ -6,7 +6,7 @@
 #include <cufft.h>
 
 #ifdef __cplusplus
-extern "C" { // allow inclusion in C++ code
+extern "C" {
 #endif
 
 typedef struct{

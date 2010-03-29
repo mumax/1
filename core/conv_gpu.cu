@@ -11,7 +11,7 @@ void conv_execute(convplan* p, float* m_list, float* h_list){
   
   // shorthand notations
   tensor* ft_h      = p->ft_h;
-  tensor* ft_m_i     = p->ft_m_i;
+  tensor* ft_m_i    = p->ft_m_i;
   int*    size      = p->size;			// note: m->size == {3, N0, N1, N2}, size = {N0, N1, N2};
   
   // Zero-out field (h) components

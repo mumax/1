@@ -9,8 +9,9 @@ CUFILES=\
 
 OFILES=\
 	tensor.o\
-	euler.o\
 	conv_gpu.o\
+	euler.o\
+	gpusim.o\
 
 CUDALIBS=-lcuda -lcudart -lcufft
 
@@ -22,16 +23,19 @@ core.so: $(OFILES)
 $(OFILES): *.h $(CPPFILES) $(CUFILES)
 #	$(CPP)  -c $(CFLAGS) $(CPPFILES)
 	$(NVCC) -c $(NVCCFLAGS)  $(CPPFILES)
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS)  *.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) *.cu
 
 
 test:	all  *_test.cpp
-	$(CPP) -c $(CFLAGS) $(LDFLAGS) tensor_test.cpp
-	$(CPP) tensor_test.o core.so -o tensor_test
-	./tensor_test
-	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) conv_test.cpp
-	$(CPP) conv_test.o core.so -o conv_test
-	./conv_test
+# 	$(CPP) -c $(CFLAGS) $(LDFLAGS) tensor_test.cpp
+# 	$(CPP) tensor_test.o core.so -o tensor_test
+# 	./tensor_test
+# 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) conv_test.cpp
+# 	$(CPP) conv_test.o core.so -o conv_test
+# 	./conv_test
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpusim_test.cpp
+	$(CPP) gpusim_test.o core.so -o gpusim_test
+	./gpusim_test
 
 .PHONY:	clean
 clean:	
