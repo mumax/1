@@ -11,7 +11,7 @@ void conv_execute(convplan* p, float* m_list, float* h_list){
   
   // shorthand notations
   tensor* ft_h      = p->ft_h;
-  tensor* ft_m_i    = p->ft_m_i;
+  tensor* ft_m_i     = p->ft_m_i;
   int*    size      = p->size;			// note: m->size == {3, N0, N1, N2}, size = {N0, N1, N2};
   
   // Zero-out field (h) components
@@ -22,6 +22,7 @@ void conv_execute(convplan* p, float* m_list, float* h_list){
     
     // zero-out the padded magnetization buffer first
     for(int j = 0; j < tensor_length(ft_m_i); j++){  ft_m_i->list[j] = 0.;  }
+    //for(int j = 0; j < tensor_length(ft_m_i); j++){  ft_m_i->list[j] = 0.;  }
     
      //copy the current magnetization component into the padded magnetization buffer
      // we convert real to complex format
@@ -75,29 +76,24 @@ void conv_execute(convplan* p, float* m_list, float* h_list){
 convplan* new_convplan(int N0, int N1, int N2, float* kernel_list){
   convplan* plan = (convplan*) malloc(sizeof(convplan));
   
-  plan->size[0] = N0;
+   plan->size[0] = N0;
   plan->size[1] = N1;
   plan->size[2] = N2;
-  
+  plan->N = plan->size[0] * plan->size[1] * plan->size[2];
+   
   plan->paddedSize[0] = 2 * plan->size[0];
   plan->paddedSize[1] = 2 * plan->size[1];
   plan->paddedSize[2] = 2 * plan->size[2];
+  plan->paddedN = plan->paddedSize[0] * plan->paddedSize[1] * plan->paddedSize[2];
   
   plan->paddedComplexSize[0] =     plan->paddedSize[0];
   plan->paddedComplexSize[1] =     plan->paddedSize[1];
   plan->paddedComplexSize[2] = 2 * plan->paddedSize[2];
+  plan->paddedComplexN = plan->paddedComplexSize[0] * plan->paddedComplexSize[1] * plan->paddedComplexSize[2];
   
   tensor* kernel = as_tensor(kernel_list, 5, 3, 3, plan->paddedSize[0], plan->paddedSize[1], plan->paddedSize[2]);
   
-  // DEBUG
-//   for(int s = 0; s<3; s++){
-//     for(int d = 0; d < 3; d++){
-//       printf("K%d%d:\n", s, d);
-//       format_tensor(tensor_component(tensor_component(kernel, s), d), stdout);
-//     }
-//   }
-  
-  plan->ft_m_i = new_tensorN(3, plan->paddedComplexSize);
+  plan->ft_m_i = //new_tensorN(3, plan->paddedComplexSize);
   
   plan->ft_h = new_tensor(4, 3, plan->paddedComplexSize[0], plan->paddedComplexSize[1], plan->paddedComplexSize[2]);
   
@@ -126,7 +122,7 @@ convplan* new_convplan(int N0, int N1, int N2, float* kernel_list){
 
 void _init_kernel(convplan* plan, tensor* kernel){
   tensor* ft_kernel = plan->ft_kernel;
-  int* size = plan->size;
+  //int* size = plan->size;
   int* paddedSize = plan->paddedSize;
   float norm = paddedSize[0] * paddedSize[1] * paddedSize[2];
   

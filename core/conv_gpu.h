@@ -22,7 +22,7 @@ typedef struct{
  * The plan can then be called many times with the source (magnetization) and dest (field) arrays as parameters.
  */
 typedef struct{
-  /** Logical size of the input data. */
+   /** Logical size of the input data. */
   int size[3];
   
   /** Total number of real elements in the input data (= size[0] * size[1] * size[2]). */
@@ -30,6 +30,9 @@ typedef struct{
   
   /** Size of the zero-padded data (2*size[0], 2*size[1], 2*size[2]) */
   int paddedSize[3];
+  
+  /** Total number of zero-padded elements. */
+  int paddedN;
   
    /** Physical size (number of floats) of padded, complex data. Currently: paddedSize[0], paddedSize[1], 2*paddedSize[2], can become paddedSize[0], paddedSize[1], (paddedSize[2] + 2). */
   int paddedComplexSize[3];
