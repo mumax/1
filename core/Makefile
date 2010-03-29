@@ -9,6 +9,7 @@ CUFILES=\
 
 OFILES=\
 	tensor.o\
+	euler.o\
 	conv_gpu.o\
 
 CUDALIBS=-lcuda -lcudart -lcufft
@@ -19,7 +20,8 @@ core.so: $(OFILES)
 	$(NVCC) -shared $(LDFLAGS) $(OFILES) $(CUDALIBS) -o core.so
 
 $(OFILES): *.h $(CPPFILES) $(CUFILES)
-	$(CPP)  -c $(CFLAGS) $(CPPFILES)
+#	$(CPP)  -c $(CFLAGS) $(CPPFILES)
+	$(NVCC) -c $(NVCCFLAGS)  $(CPPFILES)
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS)  *.cu
 
 

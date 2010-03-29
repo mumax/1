@@ -22,8 +22,8 @@ extern "C" {
 #define Z 2
 
 typedef struct{
-   int32_t rank;		// tensor rank
-   int32_t* size; 		// array of length rank, stores dimensions in all directions 
+   int rank;			// tensor rank
+   int* size; 			// array of length rank, stores dimensions in all directions 
    float* list;			// data as a continous array of length size[0]*size[1]*...
 }tensor;
 // Note: we use int32_t for easy storing in binary format. Just using int would probably work as long as we're not porting to a big endian machine with a 64-bit int type... 

@@ -184,17 +184,25 @@ void write_tensor_pieces(int rank, int* size, float* list, FILE* out){
   for(int i=0; i<rank; i++){
     length *= size[i];
   }  
-  fwrite(&(rank), sizeof(int32_t), 1, out);
-  fwrite(size, sizeof(int32_t), rank, out);
+  write_int(rank, out);
+  for(int i=0; i<rank; i++){
+    write_int(size[i], out);
+  }
   fwrite(list, sizeof(float), length, out);
   // todo: error handling
 }
 
 
 void write_int(int i, FILE* out){
-  fwrite(&i, sizeof(int32_t), 1, out);
+  int32_t i32 = (int32_t)i;
+  fwrite(&i32, sizeof(int32_t), 1, out);
 }
 
+int read_int(FILE* in){
+  int32_t i;
+  fread(&i, sizeof(int32_t), 1, in);
+  return (int)i;
+}
 
 void write_float(float f, FILE* out){
   fwrite(&f, sizeof(int32_t), 1, out);
@@ -243,7 +251,7 @@ void print_tensor(tensor* t){
   write_tensor_ascii(t, stdout);
 }
 
-
+// TODO: catch file not found!
 tensor* read_tensor(FILE* in){
   tensor* t = (tensor*)safe_malloc(sizeof(tensor));
   read_tensor_pieces(&(t->rank), &(t->size), &(t->list), in);
@@ -262,9 +270,14 @@ tensor* read_tensor_fname(char* filename){
 
 
 void read_tensor_pieces(int* rank, int** size, float** list, FILE* in){
-  fread(rank, sizeof(int32_t), 1, in);
-  *size = (int32_t*)safe_calloc(*rank, sizeof(int32_t));
-  fread(*size, sizeof(int32_t), *rank, in);
+  //fread(rank, sizeof(int32_t), 1, in);
+  (*rank) = read_int(in);
+  (*size) = (int*)safe_calloc(*rank, sizeof(int));
+  for(int i=0; i<(*rank); i++){
+    (*size)[i] = read_int(in);
+  }
+  
+  
   int length = 1;
   for(int i=0; i<*rank; i++){
     length *= (*size)[i];
@@ -306,8 +319,8 @@ void delete_tensor_component(tensor* t){
 void* safe_malloc(int size){
   void* ptr = malloc(size);
   if(ptr == NULL){
-    fprintf(stderr, "could not allocate memory\n");
-    abort();
+    fprintf(stderr, "could not malloc(%d)\n", size);
+    float trigger_segfault = *((float*)0);
   }
   return ptr;
 }
@@ -315,8 +328,8 @@ void* safe_malloc(int size){
 void* safe_calloc(int length, int elemsize){
   void* ptr = calloc(length, elemsize);
   if(ptr == NULL){
-    fprintf(stderr, "could not allocate memory\n");
-    abort();
+    fprintf(stderr, "could not calloc(%d, %d)\n", length, elemsize);
+    float trigger_segfault = *((float*)0);
   }
   return ptr;
 }
