@@ -128,23 +128,36 @@ void delete_gpusim_c2cplan(gpusim_c2cplan* plan){
 
 //_____________________________________________________________________________________________ data management
 
+int gpu_len(int size){
+  assert(size != 0);
+  int gpulen = ((size-1)/threadsPerBlock + 1) * threadsPerBlock;
+  assert(gpulen % threadsPerBlock == 0);
+  return gpulen;
+}
+
+__global__ void _gpu_zero(float* list){
+  int i = (blockIdx.x * blockDim.x) + threadIdx.x;
+  list[i] = 0.;
+}
 
 
-void gpusim_zero(float* data, int nElements){
-
+void gpu_zero(float* data, int nElements){
+  int blocks = nElements / threadsPerBlock;
+  _gpu_zero<<<blocks, threadsPerBlock>>>(data);
 }
 
 void memcpy_to_gpu(float* source, float* dest, int nElements){
   int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyHostToDevice);
-  if(status != 0){
+  if(status != cudaSuccess){
     fprintf(stderr, "CUDA could not copy %d floats from host addres %p to device addres %p", nElements, source, dest);
+    gpusim_safe(status);
   }
 }
 
 
 void memcpy_from_gpu(float* source, float* dest, int nElements){
   int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyDeviceToHost);
-  if(status != 0){
+  if(status != cudaSuccess){
     fprintf(stderr, "CUDA could not copy %d floats from host addres %p to device addres %p", nElements, source, dest);
     gpusim_safe(status);
   }
@@ -153,19 +166,21 @@ void memcpy_from_gpu(float* source, float* dest, int nElements){
 // does not seem to work.. 
 void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
   int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyHostToHost);
-  if(status != 0){
+  if(status != cudaSuccess){
     fprintf(stderr, "CUDA could not copy %d floats from host addres %p to host addres %p", nElements, source, dest);
     gpusim_safe(status);
   }
 }
 
 float* new_gpu_array(int size){
+  assert(size % threadsPerBlock == 0);
   float* array = NULL;
   int status = cudaMalloc((void**)(&array), size * sizeof(float));
-  if(status != 0 || array == NULL){
+  if(status != cudaSuccess){
     fprintf(stderr, "CUDA could not allocate %d bytes\n", size);
     gpusim_safe(status);
   }
+  //assert(array != NULL); // strange: it seems cuda can return 0 as a valid address?? 
   return array;
 }
 
@@ -188,7 +203,7 @@ void memcpy_r2c(float* source, float* dest, int nReal){
 //_____________________________________________________________________________________________ misc
 
 void gpusim_safe(int status){
-  if(status != 0){
+  if(status != cudaSuccess){
     fprintf(stderr, "received CUDA error: %s\n", cudaGetErrorString((cudaError_t)status));
     abort();
   }

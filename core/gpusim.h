@@ -12,6 +12,8 @@ extern "C" {
  *
  */
 
+int threadsPerBlock = 512;
+  
 typedef struct{
   
   cufftHandle handle;
@@ -55,7 +57,10 @@ void gpusim_storem(gpusim* sim, tensor* m);
 void gpusim_loadkernel(gpusim* sim, tensor* kernel);
 
 float* new_gpu_array(int size);
+int gpu_len(int size);
+
 float* new_ram_array(int size);
+void gpu_zero(float* data, int nElements);
 
 void memcpy_to_gpu(float* source, float* dest, int nElements);
 void memcpy_from_gpu(float* source, float* dest, int nElements);
