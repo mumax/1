@@ -9,25 +9,26 @@ int main(int argc, char** argv){
   FILE* mfile = fopen(argv[1], "rb");
   tensor* m = read_tensor(mfile);
   fclose(mfile);
-  printf("read m: %d x %d x %d\n", m->size[1], m->size[2], m->size[3]);
+  int N0 = m->size[1];
+  int N1 = m->size[2];
+  int N2 = m->size[3];
+  printf("read m: %d x %d x %d\n", N0, N1, N2);
   
   FILE* kernelfile = fopen(argv[2], "rb");
   tensor* kernel = read_tensor(kernelfile);
   fclose(kernelfile);
   printf("read kernel: %d x %d x %d\n", kernel->size[2], kernel->size[3], kernel->size[4]);
   
-  gpusim* sim = new_gpusim(m->size[1], m->size[2], m->size[3], kernel);
-  
-  
+  gpusim* sim = new_gpusim(N0, N1, N2, kernel);
   for(int i=0; i<sim->len_m; i++){ m->list[i] = 1.; }
   
   gpusim_loadm(sim, m);
-  gpu_zero(sim->m, sim->len_m);
+  gpusim_updateh(sim);
   
-  for(int i=0; i<sim->len_m; i++){ m->list[i] = 2.; }
-  gpusim_storem(sim, m);
+  tensor* mi = new_tensor(3, 2*N0, 2*N1, 2*N2);
+  memcpy_from_gpu(sim->ft_m_i, mi->list, tensor_length(mi));
   
-  format_tensor(m, stdout);
+  format_tensor(mi, stdout);
   
   return 0;
 }

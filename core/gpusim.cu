@@ -11,6 +11,16 @@ void print(const char* msg, tensor* t){
   format_tensor(t, stdout);
 }
 
+//_____________________________________________________________________________________________ sim
+
+void gpusim_updateh(gpusim* sim){
+  gpu_zero(sim->h, sim->len_h);								// zero-out field (h) components
+  //for(int i=0; i<3; i++){								// transform and convolve per magnetization component m_i
+    gpu_zero(sim->ft_m_i, sim->len_ft_m_i);						// zero-out the padded magnetization buffer first
+    gpu_copy_pad_r2c(sim->m, sim->ft_m_i, sim->size[0], sim->size[1], sim->size[2]);	//copy mi into the padded magnetization buffer, converting to complex format
+  //}
+}
+
 //_____________________________________________________________________________________________ load / store data
 
 void gpusim_checksize_m(gpusim* sim, tensor* m){
@@ -128,6 +138,26 @@ void delete_gpusim_c2cplan(gpusim_c2cplan* plan){
 
 //_____________________________________________________________________________________________ data management
 
+__global__ void _gpu_copy_pad_r2c(float* source, float* dest, int N0, int N1, int N2){
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  int j = blockIdx.y * blockDim.y + threadIdx.y;
+  int k = blockIdx.z * blockDim.z + threadIdx.z;
+  
+  dest[i*2*N1*2*N2 + j*2*N1 + 2*k] = source[i*N1*N2 + j*N1 + k];
+  dest[i*2*N1*2*N2 + j*2*N1 + 2*k + 1] = 0.;
+  
+}
+
+void gpu_copy_pad_r2c(float* source, float* dest, int N0, int N1, int N2){
+  assert(N0 % 16 == 0);
+  assert(N1 % 16 == 0);
+  
+  dim3 threadsPerBlock(16, 16, 1);
+  dim3 numBlocks(N0 / threadsPerBlock.x, N1 / threadsPerBlock.y, N2 / threadsPerBlock.z);
+  _gpu_copy_pad_r2c<<<numBlocks, threadsPerBlock>>>(source, dest, N0, N1, N2);
+
+}
+
 int gpu_len(int size){
   assert(size != 0);
   int gpulen = ((size-1)/threadsPerBlock + 1) * threadsPerBlock;
@@ -149,7 +179,7 @@ void gpu_zero(float* data, int nElements){
 void memcpy_to_gpu(float* source, float* dest, int nElements){
   int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyHostToDevice);
   if(status != cudaSuccess){
-    fprintf(stderr, "CUDA could not copy %d floats from host addres %p to device addres %p", nElements, source, dest);
+    fprintf(stderr, "CUDA could not copy %d floats from host addres %p to device addres %p\n", nElements, source, dest);
     gpusim_safe(status);
   }
 }
@@ -158,7 +188,7 @@ void memcpy_to_gpu(float* source, float* dest, int nElements){
 void memcpy_from_gpu(float* source, float* dest, int nElements){
   int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyDeviceToHost);
   if(status != cudaSuccess){
-    fprintf(stderr, "CUDA could not copy %d floats from host addres %p to device addres %p", nElements, source, dest);
+    fprintf(stderr, "CUDA could not copy %d floats from device addres %p to host addres %p\n", nElements, source, dest);
     gpusim_safe(status);
   }
 }
@@ -167,11 +197,12 @@ void memcpy_from_gpu(float* source, float* dest, int nElements){
 void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
   int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyHostToHost);
   if(status != cudaSuccess){
-    fprintf(stderr, "CUDA could not copy %d floats from host addres %p to host addres %p", nElements, source, dest);
+    fprintf(stderr, "CUDA could not copy %d floats from host addres %p to host addres %p\n", nElements, source, dest);
     gpusim_safe(status);
   }
 }
 
+// todo: we need cudaMalloc3D for better alignment!
 float* new_gpu_array(int size){
   assert(size % threadsPerBlock == 0);
   float* array = NULL;
@@ -180,7 +211,7 @@ float* new_gpu_array(int size){
     fprintf(stderr, "CUDA could not allocate %d bytes\n", size);
     gpusim_safe(status);
   }
-  //assert(array != NULL); // strange: it seems cuda can return 0 as a valid address?? 
+  assert(array != NULL); // strange: it seems cuda can return 0 as a valid address?? 
   return array;
 }
 
