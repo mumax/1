@@ -1,5 +1,5 @@
 /**
-* This program runs the Unittests for libtensor and illustrates its functions.
+* This program runs the Unittests for "tensor" and illustrates its functions.
 */
 #include "tensor.h"
 #include <assert.h>

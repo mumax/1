@@ -76,7 +76,7 @@ void conv_execute(convplan* p, float* m_list, float* h_list){
 convplan* new_convplan(int N0, int N1, int N2, float* kernel_list){
   convplan* plan = (convplan*) malloc(sizeof(convplan));
   
-   plan->size[0] = N0;
+  plan->size[0] = N0;
   plan->size[1] = N1;
   plan->size[2] = N2;
   plan->N = plan->size[0] * plan->size[1] * plan->size[2];
@@ -183,20 +183,11 @@ cuda_c2c_plan* gpu_init_c2c(int* size){
 }
 
 
-void gpu_exec_c2c(cuda_c2c_plan* plan, tensor* data, int direction){
-//   // DEBUG
-//   printf("\nFFT input:\n");
-//   format_tensor(data, stdout);
-  
+void gpu_exec_c2c(cuda_c2c_plan* plan, tensor* data, int direction){ 
   int N = tensor_length(data);
   safe( cudaMemcpy(plan->device_buffer, data->list, N*sizeof(float), cudaMemcpyHostToDevice) );
   safe( cufftExecC2C(plan->handle, (cufftComplex*)plan->device_buffer, (cufftComplex*)plan->device_buffer, direction) );
   safe( cudaMemcpy(data->list, plan->device_buffer, N*sizeof(float), cudaMemcpyDeviceToHost) );
-  
-//   // DEBUG
-//   printf("\nFFT output:\n");
-//   format_tensor(data, stdout);
-  
 }
 
 

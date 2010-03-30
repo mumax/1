@@ -35,7 +35,7 @@ test:	all  *_test.cpp
 # 	./conv_test
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpusim_test.cpp
 	$(CPP) gpusim_test.o core.so -o gpusim_test
-	./gpusim_test
+	./gpusim_test m0.t kern.t
 
 .PHONY:	clean
 clean:	

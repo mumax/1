@@ -6,14 +6,20 @@
 int main(int argc, char** argv){
   printf("gpusim_test\n");
   
-  int N0 = 8, N1 = 8, N2 = 4;
-  gpusim* sim = new_gpusim(N0, N1, N2);
+  FILE* mfile = fopen(argv[1], "rb");
+  tensor* m = read_tensor(mfile);
+  fclose(mfile);
+  printf("read m: %d x %d x %d\n", m->size[1], m->size[2], m->size[3]);
+
+  FILE* kernelfile = fopen(argv[2], "rb");
+  tensor* kernel = read_tensor(kernelfile);
+  fclose(kernelfile);
+  printf("read kernel: %d x %d x %d\n", kernel->size[2], kernel->size[3], kernel->size[4]);
   
-  tensor* m = new_tensor(4, 3, N0, N1, N2);
-  format_tensor(m, stdout);
+  gpusim* sim = new_gpusim(m->size[1], m->size[2], m->size[3], kernel);
   
   gpusim_loadm(sim, m);
-  gpusim_dumpm(sim, m);
+  gpusim_storem(sim, m);
   
   format_tensor(m, stdout);
   
