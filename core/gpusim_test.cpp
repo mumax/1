@@ -11,12 +11,20 @@ int main(int argc, char** argv){
   FILE* mfile = fopen(argv[1], "rb");
   tensor* m = read_tensor(mfile);
   fclose(mfile);
+
+//   tensor* m = new_tensor(4, 3, 16, 16, 2);
+//   tensor* mx = tensor_component(m, 0);
+//   for(int i=0; i<tensor_length(mx); i++){
+//     mx->list[i] = 1.;
+//   }
   
   int N0 = m->size[1];
   int N1 = m->size[2];
   int N2 = m->size[3];
   printf("read m: %d x %d x %d\n", N0, N1, N2);
+  format_tensor(m, stdout);
   
+  // todo: need safe_fopen
   FILE* kernelfile = fopen(argv[2], "rb");
   tensor* kernel = read_tensor(kernelfile);
   fclose(kernelfile);
@@ -35,7 +43,7 @@ int main(int argc, char** argv){
   fclose(hfile);
   
   //gpusim_storem(sim, m);
-  //format_tensor(m, stdout);
+  format_tensor(h, stdout);
   
   
   return 0;

@@ -6,9 +6,16 @@
 extern "C" {
 #endif
 
-void print(const char* msg, tensor* t){
-  printf("%s:\n", msg);
+void extract(const char* msg, float* data, int* size){
+  int N0 = size[0];
+  int N1 = size[1];
+  int N2 = size[2];
+  
+  printf("%s(%d x %d x %d){\n", msg, N0, N1, N2);
+  tensor* t = new_tensor(3, N0, N1, N2);
+  memcpy_from_gpu(data, t->list, tensor_length(t));
   format_tensor(t, stdout);
+  printf("}\n\n");
 }
 
 //_____________________________________________________________________________________________ convolution
@@ -18,11 +25,14 @@ void gpusim_updateh(gpusim* sim){
   gpu_zero(sim->ft_h, sim->len_ft_h);							// zero-out field (h) components
   for(int i=0; i<3; i++){								// transform and convolve per magnetization component m_i
     gpu_zero(sim->ft_m_i, sim->len_ft_m_i);						// zero-out the padded magnetization buffer first
-    gpu_copy_pad_r2c(sim->m_comp[0], sim->ft_m_i, sim->size[0], sim->size[1], sim->size[2]);	//copy mi into the padded magnetization buffer, converting to complex format
+    gpu_copy_pad_r2c(sim->m_comp[i], sim->ft_m_i, sim->size[0], sim->size[1], sim->size[2]);	//copy mi into the padded magnetization buffer, converting to complex format
+    //extract("ft_m_i", sim->ft_m_i, sim->paddedComplexSize);
     gpusim_c2cplan_exec(sim->fftplan, sim->ft_m_i, CUFFT_FORWARD);
+    extract("ft_m_i (transformed)", sim->ft_m_i, sim->paddedComplexSize);
     // TODO: asynchronous execution hazard !!
     for(int j=0; j<3; j++){								// apply kernel multiplication to FFT'ed magnetization and add to FFT'ed H-components
       gpu_kernel_mul(sim->ft_m_i, sim->ft_kernel[i][j], sim->ft_h_comp[j], sim->len_ft_m_i);
+      extract("ft_h_j", sim->ft_h_comp[j], sim->paddedComplexSize);
     }
   }
   
@@ -33,7 +43,7 @@ void gpusim_updateh(gpusim* sim){
 }
 
 __global__ void _gpu_kernel_mul(float* ft_m_i, float* ft_kernel_ij, float* ft_h_j){
-  int e = 2 * (blockIdx.x * blockDim.x) + threadIdx.x;
+  int e = 2 * ((blockIdx.x * blockDim.x) + threadIdx.x);
   
   float rea = ft_m_i[e];
   float reb = ft_kernel_ij[e];
@@ -41,15 +51,14 @@ __global__ void _gpu_kernel_mul(float* ft_m_i, float* ft_kernel_ij, float* ft_h_
   float imb = ft_kernel_ij[e + 1];
   ft_h_j[e] 	+=  rea*reb - ima*imb;
   ft_h_j[e + 1] +=  rea*imb + ima*reb;
-
-//   ft_h_j[e] 	+=  ft_m_i[e];
-//   ft_h_j[e + 1] +=  ft_m_i[e + 1];
     
 }
 
 
 void gpu_kernel_mul(float* ft_m_i, float* ft_kernel_ij, float* ft_h_comp_j, int nRealNumbers){
   assert(nRealNumbers > 0);
+  assert(nRealNumbers % 2 == 0);
+  
   int blocks = (nRealNumbers/2) / threadsPerBlock;
   gpu_checkconf_int(blocks, threadsPerBlock);
   _gpu_kernel_mul<<<blocks, threadsPerBlock>>>(ft_m_i, ft_kernel_ij, ft_h_comp_j);
@@ -142,14 +151,23 @@ void gpusim_alloc_ft_kernel(gpusim* sim){
 }
 
 void gpusim_loadkernel(gpusim* sim, tensor* kernel){
+  fprintf(stderr, "loadkernel %d x %d x %d\n", kernel->size[2], kernel->size[3], kernel->size[4]);
+  
   gpusim_checksize_kernel(sim, kernel);
   gpusim_c2cplan* plan = new_gpusim_c2cplan(kernel->size[2], kernel->size[3], kernel->size[4]);
+  //float norm = 1.0/float(sim->paddedN);
   float* complex_kernel_ij = new_ram_array(sim->len_ft_kernel_ij);
   for(int i=0; i<3; i++){
       for(int j=0; j<3; j++){
 	memcpy_r2c(tensor_get(kernel, 5, i, j, 0, 0, 0), complex_kernel_ij, sim->len_kernel_ij);
+	// normalize
+// 	for(int e=0; e<sim->len_ft_kernel_ij; e++){
+// 	  complex_kernel_ij[e] *= norm;
+// 	}
 	memcpy_to_gpu(complex_kernel_ij, sim->ft_kernel[i][j], sim->len_ft_kernel_ij);
+	//extract("kernel_ij", sim->ft_kernel[i][j], sim->paddedComplexSize);
 	gpusim_c2cplan_exec(plan, sim->ft_kernel[i][j], CUFFT_FORWARD);
+	//extract("ft_kernel_ij", sim->ft_kernel[i][j], sim->paddedComplexSize);
     }
   }
   free(complex_kernel_ij);
