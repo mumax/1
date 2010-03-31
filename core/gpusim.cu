@@ -85,6 +85,12 @@ gpusim* new_gpusim(int N0, int N1, int N2, tensor* kernel){
   sim->size[0] = N0; sim->size[1] = N1; sim->size[2] = N2;
   sim->N = N0 * N1 * N2;
   
+  // init kernel
+  sim->len_kernel_ij = kernel->size[2] * kernel->size[3] * kernel->size[4];		//the length of each kernel component K[i][j] (eg: Kxy)
+  sim->len_ft_kernel_ij = 2 * sim->len_kernel_ij;					//the length of each FFT'ed kernel component ~K[i][j] (eg: ~Kxy)
+  gpusim_alloc_ft_kernel(sim);
+  gpusim_loadkernel(sim, kernel);
+  
   // init magnetization arrays
   sim->len_m = 3 * sim->N;
   sim->m = new_gpu_array(sim->len_m);
@@ -95,12 +101,6 @@ gpusim* new_gpusim(int N0, int N1, int N2, tensor* kernel){
   }
   sim->len_ft_m_i = sim->len_ft_kernel_ij;
   sim->ft_m_i = new_gpu_array(sim->len_ft_m_i);
-  
-  // init kernel
-  sim->len_kernel_ij = kernel->size[2] * kernel->size[3] * kernel->size[4];		//the length of each kernel component K[i][j] (eg: Kxy)
-  sim->len_ft_kernel_ij = 2 * sim->len_kernel_ij;					//the length of each FFT'ed kernel component ~K[i][j] (eg: ~Kxy)
-  gpusim_alloc_ft_kernel(sim);
-  gpusim_loadkernel(sim, kernel);
   
   // init h
   sim->len_h = sim->len_m;
@@ -159,9 +159,10 @@ void gpu_copy_pad_r2c(float* source, float* dest, int N0, int N1, int N2){
 }
 
 int gpu_len(int size){
-  assert(size != 0);
+  assert(size > 0);
   int gpulen = ((size-1)/threadsPerBlock + 1) * threadsPerBlock;
   assert(gpulen % threadsPerBlock == 0);
+  assert(gpulen > 0);
   return gpulen;
 }
 
@@ -172,11 +173,13 @@ __global__ void _gpu_zero(float* list){
 
 
 void gpu_zero(float* data, int nElements){
+  assert(nElements > 0);
   int blocks = nElements / threadsPerBlock;
   _gpu_zero<<<blocks, threadsPerBlock>>>(data);
 }
 
 void memcpy_to_gpu(float* source, float* dest, int nElements){
+  assert(nElements > 0);
   int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyHostToDevice);
   if(status != cudaSuccess){
     fprintf(stderr, "CUDA could not copy %d floats from host addres %p to device addres %p\n", nElements, source, dest);
@@ -186,6 +189,7 @@ void memcpy_to_gpu(float* source, float* dest, int nElements){
 
 
 void memcpy_from_gpu(float* source, float* dest, int nElements){
+  assert(nElements > 0);
   int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyDeviceToHost);
   if(status != cudaSuccess){
     fprintf(stderr, "CUDA could not copy %d floats from device addres %p to host addres %p\n", nElements, source, dest);
@@ -195,6 +199,7 @@ void memcpy_from_gpu(float* source, float* dest, int nElements){
 
 // does not seem to work.. 
 void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
+  assert(nElements > 0);
   int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyHostToHost);
   if(status != cudaSuccess){
     fprintf(stderr, "CUDA could not copy %d floats from host addres %p to host addres %p\n", nElements, source, dest);
@@ -204,21 +209,27 @@ void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
 
 // todo: we need cudaMalloc3D for better alignment!
 float* new_gpu_array(int size){
+  assert(size > 0);
   assert(size % threadsPerBlock == 0);
   float* array = NULL;
   int status = cudaMalloc((void**)(&array), size * sizeof(float));
   if(status != cudaSuccess){
-    fprintf(stderr, "CUDA could not allocate %d bytes\n", size);
+    fprintf(stderr, "CUDA could not allocate %d floats\n", size);
     gpusim_safe(status);
   }
-  assert(array != NULL); // strange: it seems cuda can return 0 as a valid address?? 
+  //assert(array != NULL); // strange: it seems cuda can return 0 as a valid address?? 
+  if(array == 0){
+    fprintf(stderr, "cudaMalloc(%p, %ld) returned null without error status, retrying...\n", (void**)(&array), size * sizeof(float));
+    abort();
+  }
   return array;
 }
 
 float* new_ram_array(int size){
+  assert(size > 0);
   float* array = (float*)calloc(size, sizeof(float));
   if(array == NULL){
-    fprintf(stderr, "could not allocate %d bytes in main memory\n", size);
+    fprintf(stderr, "could not allocate %d floats in main memory\n", size);
     abort();
   }
   return array;
