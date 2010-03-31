@@ -11,19 +11,73 @@ void print(const char* msg, tensor* t){
   format_tensor(t, stdout);
 }
 
-//_____________________________________________________________________________________________ sim
+//_____________________________________________________________________________________________ convolution
 
 void gpusim_updateh(gpusim* sim){
-  fprintf(stderr, "updateh\n");
-  gpu_zero(sim->h, sim->len_h);								// zero-out field (h) components
-  //for(int i=0; i<3; i++){								// transform and convolve per magnetization component m_i
+ 
+  gpu_zero(sim->ft_h, sim->len_ft_h);							// zero-out field (h) components
+  for(int i=0; i<3; i++){								// transform and convolve per magnetization component m_i
     gpu_zero(sim->ft_m_i, sim->len_ft_m_i);						// zero-out the padded magnetization buffer first
     gpu_copy_pad_r2c(sim->m_comp[0], sim->ft_m_i, sim->size[0], sim->size[1], sim->size[2]);	//copy mi into the padded magnetization buffer, converting to complex format
-  //}
+    gpusim_c2cplan_exec(sim->fftplan, sim->ft_m_i, CUFFT_FORWARD);
+    // TODO: asynchronous execution hazard !!
+    for(int j=0; j<3; j++){								// apply kernel multiplication to FFT'ed magnetization and add to FFT'ed H-components
+      gpu_kernel_mul(sim->ft_m_i, sim->ft_kernel[i][j], sim->ft_h_comp[j], sim->len_ft_m_i);
+    }
+  }
+  
+  for(int i=0; i<3; i++){
+    gpusim_c2cplan_exec(sim->fftplan, sim->ft_h_comp[i], CUFFT_INVERSE);		// Inplace backtransform of each of the padded h[i]-buffers
+    gpu_copy_unpad_c2r(sim->ft_h_comp[i], sim->h_comp[i], sim->size[0], sim->size[1], sim->size[2]);
+  }
+}
+
+__global__ void _gpu_kernel_mul(float* ft_m_i, float* ft_kernel_ij, float* ft_h_j){
+  int e = 2 * (blockIdx.x * blockDim.x) + threadIdx.x;
+  
+  float rea = ft_m_i[e];
+  float reb = ft_kernel_ij[e];
+  float ima = ft_m_i[e + 1];
+  float imb = ft_kernel_ij[e + 1];
+  ft_h_j[e] 	+=  rea*reb - ima*imb;
+  ft_h_j[e + 1] +=  rea*imb + ima*reb;
+
+//   ft_h_j[e] 	+=  ft_m_i[e];
+//   ft_h_j[e + 1] +=  ft_m_i[e + 1];
+    
+}
+
+
+void gpu_kernel_mul(float* ft_m_i, float* ft_kernel_ij, float* ft_h_comp_j, int nRealNumbers){
+  assert(nRealNumbers > 0);
+  int blocks = (nRealNumbers/2) / threadsPerBlock;
+  gpu_checkconf_int(blocks, threadsPerBlock);
+  _gpu_kernel_mul<<<blocks, threadsPerBlock>>>(ft_m_i, ft_kernel_ij, ft_h_comp_j);
+}
+
+//_____________________________________________________________________________________________ padding/complex numbers
+
+__global__ void _gpu_copy_unpad_c2r(float* source, float* dest, int N0, int N1, int N2){
+  int i = blockIdx.x;
+  int j = blockIdx.y;
+  int k = threadIdx.x;
+  
+  dest[i*N1*N2 + j*N2 + k] = source[i*2*N1*2*2*N2 + j*2*2*N2 + 2*k];
+  // 0. == source[i*2*N1*2*2*N2 + j*2*2*N2 + 2*k+1]; // TODO: check this
+}
+
+void gpu_copy_unpad_c2r(float* source, float* dest, int N0, int N1, int N2){
+  dim3 gridsize(N0, N1, 1);
+  dim3 blocksize(N2, 1, 1);
+  gpu_checkconf(gridsize, blocksize);
+  _gpu_copy_unpad_c2r<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
 }
 
 // Ni: logical size of m
 // Todo: not the slightest bit optimized
+// arrays should be strided
+// N0, N1, N2 are redundant
+// linear -> multidimensional array acces
 __global__ void _gpu_copy_pad_r2c(float* source, float* dest, int N0, int N1, int N2){
   int i = blockIdx.x;
   int j = blockIdx.y;
@@ -38,17 +92,10 @@ void gpu_copy_pad_r2c(float* source, float* dest, int N0, int N1, int N2){
   /*
    * CUDA Note: the block size must be 2 dimensional (A x B x 1), despite being of type dim3.
    */
-  
-  fprintf(stderr, "gpu_copy_pad_r2c\n");
-  assert(N0 % 16 == 0);
-  assert(N1 % 16 == 0);
- 
   dim3 gridsize(N0, N1, 1);
   dim3 blocksize(N2, 1, 1);
-  
   gpu_checkconf(gridsize, blocksize);
   _gpu_copy_pad_r2c<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
-
 }
 
 //_____________________________________________________________________________________________ load / store data
@@ -78,6 +125,10 @@ void gpusim_checksize_kernel(gpusim* sim, tensor* kernel){
   assert(kernel->size[0] == 3);
   assert(kernel->size[1] == 3);
   for(int i=0; i<3; i++){ assert(kernel->size[i+2] == 2 * sim->size[i]); }
+  
+  assert(kernel->size[2] == sim->paddedSize[0]);
+  assert(kernel->size[3] == sim->paddedSize[1]);
+  assert(kernel->size[4] == sim->paddedSize[2]);
 }
 
 void gpusim_alloc_ft_kernel(gpusim* sim){
@@ -107,10 +158,7 @@ void gpusim_loadkernel(gpusim* sim, tensor* kernel){
 
 //_____________________________________________________________________________________________ new
 
-gpusim* new_gpusim(int N0, int N1, int N2, tensor* kernel){
-  gpusim* sim = (gpusim*)malloc(sizeof(gpusim));
-  
-  // init sizes
+void gpusim_init_sizes(gpusim* sim, int N0, int N1, int N2){
   sim->size = (int*)calloc(3, sizeof(int));
   sim->size[0] = N0; sim->size[1] = N1; sim->size[2] = N2;
   sim->N = N0 * N1 * N2;
@@ -122,18 +170,16 @@ gpusim* new_gpusim(int N0, int N1, int N2, tensor* kernel){
   sim->paddedComplexSize = (int*)calloc(3, sizeof(int));
   sim->paddedComplexSize[0] = 2 * N0; sim->paddedComplexSize[1] = 2 * N1; sim->paddedComplexSize[2] = 2 * 2 * N2;
   sim->paddedComplexN = sim->paddedComplexSize[0] * sim->paddedComplexSize[1] * sim->paddedComplexSize[2];
-  
-  
-  // init kernel
-  assert(kernel->size[2] == sim->paddedSize[0]);
-  assert(kernel->size[3] == sim->paddedSize[1]);
-  assert(kernel->size[4] == sim->paddedSize[2]);
+}
+
+void gpusim_init_kernel(gpusim* sim, tensor* kernel){
   sim->len_kernel_ij = sim->paddedN;		//the length of each kernel component K[i][j] (eg: Kxy)
   sim->len_ft_kernel_ij = sim->paddedComplexN;	//the length of each FFT'ed kernel component ~K[i][j] (eg: ~Kxy)
   gpusim_alloc_ft_kernel(sim);
   gpusim_loadkernel(sim, kernel);
-  
-  // init magnetization arrays
+}
+
+void gpusim_init_m(gpusim* sim){
   sim->len_m = 3 * sim->N;
   sim->m = new_gpu_array(sim->len_m);
   sim->len_m_comp = sim->N; 
@@ -143,8 +189,9 @@ gpusim* new_gpusim(int N0, int N1, int N2, tensor* kernel){
   }
   sim->len_ft_m_i = sim->paddedComplexN;
   sim->ft_m_i = new_gpu_array(sim->len_ft_m_i);
-  
-  // init h
+}
+
+void gpusim_init_h(gpusim* sim){
   sim->len_h = sim->len_m;
   sim->h = new_gpu_array(sim->len_h);
   sim->len_h_comp = sim->len_m_comp; 
@@ -152,9 +199,25 @@ gpusim* new_gpusim(int N0, int N1, int N2, tensor* kernel){
   for(int i=0; i<3; i++){ 
     sim->h_comp[i] = &(sim->h[i * sim->len_h_comp]); // slice the contiguous h array in 3 equal pieces, one for each component
   }
-  sim->len_ft_h_i = sim->len_ft_m_i;
-  sim->ft_h_i = new_gpu_array(sim->len_ft_h_i);
   
+  sim->len_ft_h = 3 * sim->len_ft_m_i;
+  sim->ft_h = new_gpu_array(sim->len_ft_h);
+  
+  sim->len_ft_h_comp = sim->len_ft_m_i;
+  sim->ft_h_comp = (float**)calloc(3, sizeof(float*));
+  for(int i=0; i<3; i++){ 
+    sim->ft_h_comp[i] = &(sim->ft_h[i * sim->len_ft_h_comp]); // slice the contiguous ft_h array in 3 equal pieces, one for each component
+  }
+  
+}
+
+gpusim* new_gpusim(int N0, int N1, int N2, tensor* kernel){
+  gpusim* sim = (gpusim*)malloc(sizeof(gpusim));
+  gpusim_init_sizes(sim, N0, N1, N2);
+  gpusim_init_kernel(sim, kernel);
+  gpusim_init_m(sim);
+  gpusim_init_h(sim);
+  sim->fftplan = new_gpusim_c2cplan(sim->paddedSize[0], sim->paddedSize[1], sim->paddedSize[2]);
   return sim;
 }
 
@@ -194,7 +257,8 @@ __global__ void _gpu_zero(float* list){
   list[i] = 0.;
 }
 
-
+// can probably be replaced by some cudaMemset function,
+// but I just wanted to try out some manual cuda coding.
 void gpu_zero(float* data, int nElements){
   assert(nElements > 0);
   int blocks = nElements / threadsPerBlock;

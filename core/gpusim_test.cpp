@@ -1,14 +1,17 @@
 #include "gpusim.h"
 #include "tensor.h"
-
+#include <assert.h>
 #include <stdio.h>
 
 int main(int argc, char** argv){
   printf("gpusim_test\n");
   
+  assert(argc == 4);
+  
   FILE* mfile = fopen(argv[1], "rb");
   tensor* m = read_tensor(mfile);
   fclose(mfile);
+  
   int N0 = m->size[1];
   int N1 = m->size[2];
   int N2 = m->size[3];
@@ -20,15 +23,17 @@ int main(int argc, char** argv){
   printf("read kernel: %d x %d x %d\n", kernel->size[2], kernel->size[3], kernel->size[4]);
   
   gpusim* sim = new_gpusim(N0, N1, N2, kernel);
-  for(int i=0; i<sim->len_m; i++){ m->list[i] = 1.; }
   
   gpusim_loadm(sim, m);
   gpusim_updateh(sim);
   
-  tensor* ft_m_i = new_tensor(3, 2*N0, 2*N1, 2*2*N2);
-  memcpy_from_gpu(sim->ft_m_i, ft_m_i->list, tensor_length(ft_m_i));
+  tensor* h = new_tensor(4, 3, N0, N1, N2);
+  memcpy_from_gpu(sim->h, h->list, tensor_length(h));
   
-  format_tensor(ft_m_i, stdout);
+  FILE* hfile = fopen(argv[3], "wb");
+  write_tensor(h, hfile);
+  fclose(hfile);
+  
   //gpusim_storem(sim, m);
   //format_tensor(m, stdout);
   

@@ -36,7 +36,6 @@ typedef struct{
   int len_m;
   float** m_comp;
   int len_m_comp;
-  
   float* ft_m_i;
   int len_ft_m_i;
   
@@ -45,12 +44,16 @@ typedef struct{
   int len_ft_kernel_ij;
   int len_kernel_ij;
   
-  float* ft_h_i;
-  int len_ft_h_i;
   float* h;
   int len_h;
   float** h_comp;
   int len_h_comp;
+  float* ft_h;
+  int len_ft_h;
+  float** ft_h_comp;
+  int len_ft_h_comp;
+  
+  gpusim_c2cplan* fftplan;
   
 }gpusim;
 
@@ -71,7 +74,10 @@ void memcpy_to_gpu(float* source, float* dest, int nElements);
 void memcpy_from_gpu(float* source, float* dest, int nElements);
 void memcpy_gpu_to_gpu(float* source, float* dest, int nElements);
 void memcpy_r2c(float* source, float* dest, int nReal);
+
 void gpu_copy_pad_r2c(float* source, float* dest, int N0, int N1, int N2);
+void gpu_copy_unpad_c2r(float* source, float* dest, int N0, int N1, int N2);
+void gpu_kernel_mul(float* ft_m_i, float* ft_kernel_comp_ij, float* ft_h_comp_j, int nRealNumbers);
 
 void gpu_zero(float* data, int nElements);
 
