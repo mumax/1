@@ -23,36 +23,31 @@ void gpusim_updateh(gpusim* sim){
 }
 
 // Ni: logical size of m
+// Todo: not the slightest bit optimized
 __global__ void _gpu_copy_pad_r2c(float* source, float* dest, int N0, int N1, int N2){
-  int i = blockIdx.x * blockDim.x + threadIdx.x;
-  int j = blockIdx.y * blockDim.y + threadIdx.y;
-  int k = blockIdx.z * blockDim.z + threadIdx.z;
+  int i = blockIdx.x;
+  int j = blockIdx.y;
+  int k = threadIdx.x;
   
-  int destN0 = 2*N0;	//padded complex
-  int destN1 = 2*N1;
-  int destN2 = 2*2*N2;
-  
-  dest[i*destN1*destN2 + j*destN2 + 2*k    ] = 3.;//source[i*N1*N2 + j*N2 + k];
-  dest[i*destN1*destN2 + j*destN2 + 2*k + 1] = 4.;
+  dest[i*2*N1*2*2*N2 + j*2*2*N2 + 2*k  ] = source[i*N1*N2 + j*N2 + k];
+  dest[i*2*N1*2*2*N2 + j*2*2*N2 + 2*k+1] = 0.;
   
 }
 
 void gpu_copy_pad_r2c(float* source, float* dest, int N0, int N1, int N2){
   /*
-   * Note: the block size must be 2 dimensional (A x B x 1), despite being of type dim3.
+   * CUDA Note: the block size must be 2 dimensional (A x B x 1), despite being of type dim3.
    */
+  
   fprintf(stderr, "gpu_copy_pad_r2c\n");
   assert(N0 % 16 == 0);
   assert(N1 % 16 == 0);
+ 
+  dim3 gridsize(N0, N1, 1);
+  dim3 blocksize(N2, 1, 1);
   
-  dim3 threadsPerBlock(8, 8, 1);
-  dim3 numBlocks(N0 / threadsPerBlock.x, N1 / threadsPerBlock.y, N2 / threadsPerBlock.z);
-  fprintf(stderr, "numBlocks %d %d %d\n", numBlocks.x, numBlocks.y, numBlocks.z);
-  assert(numBlocks.x != 0); assert(numBlocks.y != 0); assert(numBlocks.z != 0); 
-  
-  gpu_checkconf(numBlocks, threadsPerBlock);
-  //_gpu_copy_pad_r2c<<<numBlocks, threadsPerBlock>>>(source, dest, N0, N1, N2);
-  _gpu_copy_pad_r2c<<<2, threadsPerBlock>>>(source, dest, N0, N1, N2);
+  gpu_checkconf(gridsize, blocksize);
+  _gpu_copy_pad_r2c<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
 
 }
 
