@@ -14,11 +14,46 @@ void print(const char* msg, tensor* t){
 //_____________________________________________________________________________________________ sim
 
 void gpusim_updateh(gpusim* sim){
+  fprintf(stderr, "updateh\n");
   gpu_zero(sim->h, sim->len_h);								// zero-out field (h) components
   //for(int i=0; i<3; i++){								// transform and convolve per magnetization component m_i
     gpu_zero(sim->ft_m_i, sim->len_ft_m_i);						// zero-out the padded magnetization buffer first
-    gpu_copy_pad_r2c(sim->m, sim->ft_m_i, sim->size[0], sim->size[1], sim->size[2]);	//copy mi into the padded magnetization buffer, converting to complex format
+    gpu_copy_pad_r2c(sim->m_comp[0], sim->ft_m_i, sim->size[0], sim->size[1], sim->size[2]);	//copy mi into the padded magnetization buffer, converting to complex format
   //}
+}
+
+// Ni: logical size of m
+__global__ void _gpu_copy_pad_r2c(float* source, float* dest, int N0, int N1, int N2){
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  int j = blockIdx.y * blockDim.y + threadIdx.y;
+  int k = blockIdx.z * blockDim.z + threadIdx.z;
+  
+  int destN0 = 2*N0;	//padded complex
+  int destN1 = 2*N1;
+  int destN2 = 2*2*N2;
+  
+  dest[i*destN1*destN2 + j*destN2 + 2*k    ] = 3.;//source[i*N1*N2 + j*N2 + k];
+  dest[i*destN1*destN2 + j*destN2 + 2*k + 1] = 4.;
+  
+}
+
+void gpu_copy_pad_r2c(float* source, float* dest, int N0, int N1, int N2){
+  /*
+   * Note: the block size must be 2 dimensional (A x B x 1), despite being of type dim3.
+   */
+  fprintf(stderr, "gpu_copy_pad_r2c\n");
+  assert(N0 % 16 == 0);
+  assert(N1 % 16 == 0);
+  
+  dim3 threadsPerBlock(8, 8, 1);
+  dim3 numBlocks(N0 / threadsPerBlock.x, N1 / threadsPerBlock.y, N2 / threadsPerBlock.z);
+  fprintf(stderr, "numBlocks %d %d %d\n", numBlocks.x, numBlocks.y, numBlocks.z);
+  assert(numBlocks.x != 0); assert(numBlocks.y != 0); assert(numBlocks.z != 0); 
+  
+  gpu_checkconf(numBlocks, threadsPerBlock);
+  //_gpu_copy_pad_r2c<<<numBlocks, threadsPerBlock>>>(source, dest, N0, N1, N2);
+  _gpu_copy_pad_r2c<<<2, threadsPerBlock>>>(source, dest, N0, N1, N2);
+
 }
 
 //_____________________________________________________________________________________________ load / store data
@@ -85,9 +120,21 @@ gpusim* new_gpusim(int N0, int N1, int N2, tensor* kernel){
   sim->size[0] = N0; sim->size[1] = N1; sim->size[2] = N2;
   sim->N = N0 * N1 * N2;
   
+  sim->paddedSize = (int*)calloc(3, sizeof(int));
+  sim->paddedSize[0] = 2 * N0; sim->paddedSize[1] = 2 * N1; sim->paddedSize[2] = 2 * N2;
+  sim->paddedN = sim->paddedSize[0] * sim->paddedSize[1] * sim->paddedSize[2];
+  
+  sim->paddedComplexSize = (int*)calloc(3, sizeof(int));
+  sim->paddedComplexSize[0] = 2 * N0; sim->paddedComplexSize[1] = 2 * N1; sim->paddedComplexSize[2] = 2 * 2 * N2;
+  sim->paddedComplexN = sim->paddedComplexSize[0] * sim->paddedComplexSize[1] * sim->paddedComplexSize[2];
+  
+  
   // init kernel
-  sim->len_kernel_ij = kernel->size[2] * kernel->size[3] * kernel->size[4];		//the length of each kernel component K[i][j] (eg: Kxy)
-  sim->len_ft_kernel_ij = 2 * sim->len_kernel_ij;					//the length of each FFT'ed kernel component ~K[i][j] (eg: ~Kxy)
+  assert(kernel->size[2] == sim->paddedSize[0]);
+  assert(kernel->size[3] == sim->paddedSize[1]);
+  assert(kernel->size[4] == sim->paddedSize[2]);
+  sim->len_kernel_ij = sim->paddedN;		//the length of each kernel component K[i][j] (eg: Kxy)
+  sim->len_ft_kernel_ij = sim->paddedComplexN;	//the length of each FFT'ed kernel component ~K[i][j] (eg: ~Kxy)
   gpusim_alloc_ft_kernel(sim);
   gpusim_loadkernel(sim, kernel);
   
@@ -96,21 +143,21 @@ gpusim* new_gpusim(int N0, int N1, int N2, tensor* kernel){
   sim->m = new_gpu_array(sim->len_m);
   sim->len_m_comp = sim->N; 
   sim->m_comp = (float**)calloc(3, sizeof(float*));
-  for(int i=0; i<3; i++){ 
+  for(int i=0; i<3; i++){ 			// slice the contiguous m array in 3 equal pieces, one for each component
     sim->m_comp[i] = &(sim->m[i * sim->len_m_comp]); 
   }
-  sim->len_ft_m_i = sim->len_ft_kernel_ij;
+  sim->len_ft_m_i = sim->paddedComplexN;
   sim->ft_m_i = new_gpu_array(sim->len_ft_m_i);
   
   // init h
   sim->len_h = sim->len_m;
   sim->h = new_gpu_array(sim->len_h);
-  sim->len_h_comp = sim->N; 
+  sim->len_h_comp = sim->len_m_comp; 
   sim->h_comp = (float**)calloc(3, sizeof(float*));
   for(int i=0; i<3; i++){ 
-    sim->h_comp[i] = &(sim->h[i * sim->len_h_comp]); 
+    sim->h_comp[i] = &(sim->h[i * sim->len_h_comp]); // slice the contiguous h array in 3 equal pieces, one for each component
   }
-  sim->len_ft_h_i = sim->len_ft_kernel_ij;
+  sim->len_ft_h_i = sim->len_ft_m_i;
   sim->ft_h_i = new_gpu_array(sim->len_ft_h_i);
   
   return sim;
@@ -138,25 +185,6 @@ void delete_gpusim_c2cplan(gpusim_c2cplan* plan){
 
 //_____________________________________________________________________________________________ data management
 
-__global__ void _gpu_copy_pad_r2c(float* source, float* dest, int N0, int N1, int N2){
-  int i = blockIdx.x * blockDim.x + threadIdx.x;
-  int j = blockIdx.y * blockDim.y + threadIdx.y;
-  int k = blockIdx.z * blockDim.z + threadIdx.z;
-  
-  dest[i*2*N1*2*N2 + j*2*N1 + 2*k] = source[i*N1*N2 + j*N1 + k];
-  dest[i*2*N1*2*N2 + j*2*N1 + 2*k + 1] = 0.;
-  
-}
-
-void gpu_copy_pad_r2c(float* source, float* dest, int N0, int N1, int N2){
-  assert(N0 % 16 == 0);
-  assert(N1 % 16 == 0);
-  
-  dim3 threadsPerBlock(16, 16, 1);
-  dim3 numBlocks(N0 / threadsPerBlock.x, N1 / threadsPerBlock.y, N2 / threadsPerBlock.z);
-  _gpu_copy_pad_r2c<<<numBlocks, threadsPerBlock>>>(source, dest, N0, N1, N2);
-
-}
 
 int gpu_len(int size){
   assert(size > 0);
@@ -175,6 +203,7 @@ __global__ void _gpu_zero(float* list){
 void gpu_zero(float* data, int nElements){
   assert(nElements > 0);
   int blocks = nElements / threadsPerBlock;
+  gpu_checkconf_int(blocks, threadsPerBlock);
   _gpu_zero<<<blocks, threadsPerBlock>>>(data);
 }
 
@@ -243,6 +272,32 @@ void memcpy_r2c(float* source, float* dest, int nReal){
 }
 
 //_____________________________________________________________________________________________ misc
+
+#define MAX_THREADS_PER_BLOCK 512
+#define MAX_BLOCKSIZE_X 512
+#define MAX_BLOCKSIZE_Y 512
+#define MAX_BLOCKSIZE_Z 64
+
+#define MAX_GRIDSIZE_Z 1
+
+void gpu_checkconf(dim3 gridsize, dim3 blocksize){
+  assert(blocksize.x * blocksize.y * blocksize.z <= MAX_THREADS_PER_BLOCK);
+  assert(blocksize.x * blocksize.y * blocksize.z >  0);
+  
+  assert(blocksize.x <= MAX_BLOCKSIZE_X);
+  assert(blocksize.y <= MAX_BLOCKSIZE_Y);
+  assert(blocksize.z <= MAX_BLOCKSIZE_Z);
+  
+  assert(gridsize.z <= MAX_GRIDSIZE_Z);
+  assert(gridsize.x > 0);
+  assert(gridsize.y > 0);
+  assert(gridsize.z > 0);
+}
+
+void gpu_checkconf_int(int gridsize, int blocksize){
+  assert(blocksize <= MAX_BLOCKSIZE_X);
+  assert(gridsize > 0);
+}
 
 void gpusim_safe(int status){
   if(status != cudaSuccess){

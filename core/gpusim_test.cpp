@@ -25,10 +25,13 @@ int main(int argc, char** argv){
   gpusim_loadm(sim, m);
   gpusim_updateh(sim);
   
-  tensor* mi = new_tensor(3, 2*N0, 2*N1, 2*N2);
-  memcpy_from_gpu(sim->ft_m_i, mi->list, tensor_length(mi));
+  tensor* ft_m_i = new_tensor(3, 2*N0, 2*N1, 2*2*N2);
+  memcpy_from_gpu(sim->ft_m_i, ft_m_i->list, tensor_length(ft_m_i));
   
-  format_tensor(mi, stdout);
+  format_tensor(ft_m_i, stdout);
+  //gpusim_storem(sim, m);
+  //format_tensor(m, stdout);
+  
   
   return 0;
 }

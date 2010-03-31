@@ -26,6 +26,12 @@ typedef struct{
   int* size;
   int N;
   
+  int* paddedSize;
+  int paddedN;
+  
+  int* paddedComplexSize;
+  int paddedComplexN;
+  
   float* m;	// on GPU
   int len_m;
   float** m_comp;
@@ -74,7 +80,8 @@ void gpusim_c2cplan_exec(gpusim_c2cplan* plan, float* data, int direction);
 void delete_gpusim_c2cplan(gpusim_c2cplan* plan);
 
 void gpusim_safe(int status);
-
+void gpu_checkconf(dim3 gridsize, dim3 blocksize);
+void gpu_checkconf_int(int gridsize, int blocksize);
 
 #ifdef __cplusplus
 }
