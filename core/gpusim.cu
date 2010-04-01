@@ -18,6 +18,45 @@ void extract(const char* msg, float* data, int* size){
   printf("}\n\n");
 }
 
+//_____________________________________________________________________________________________ timestepping
+
+
+__global__ void _gpu_eulerstep(float* mx, float* my, float* mz, float* hx, float* hy, float* hz, float dt){
+  int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
+  float alpha = 0.2;
+ 
+  // - m cross H
+  float _mxHx = -my[i] * hz[i] + hy[i] * mz[i];
+  float _mxHy =  mx[i] * hz[i] - hx[i] * mz[i];
+  float _mxHz = -mx[i] * hy[i] + hx[i] * my[i];
+
+  // - m cross (m cross H)
+  float _mxmxHx =  my[i] * _mxHz - _mxHy * mz[i];
+  float _mxmxHy = -mx[i] * _mxHz + _mxHx * mz[i];
+  float _mxmxHz =  mx[i] * _mxHy - _mxHx * my[i];
+
+  float torquex = (_mxHx + _mxmxHx * alpha);
+  float torquey = (_mxHy + _mxmxHy * alpha);
+  float torquez = (_mxHz + _mxmxHz * alpha);
+  
+  mx[i] += torquex * dt;
+  my[i] += torquey * dt;
+  mz[i] += torquez * dt;
+  
+  float norm = rsqrtf(mx[i]*mx[i] + my[i]*my[i] + mz[i]*mz[i]); // inverse square root
+  mx[i] *= norm;
+  my[i] *= norm;
+  mz[i] *= norm;
+}
+
+void gpusim_eulerstep(gpusim* sim, float dt){
+  int threadsPerBlock = 512;
+  gpusim_updateh(sim);
+  int blocks = (sim->len_m_comp) / threadsPerBlock;
+  gpu_checkconf_int(blocks, threadsPerBlock);
+  _gpu_eulerstep<<<blocks, threadsPerBlock>>>(sim->m_comp[0], sim->m_comp[1], sim->m_comp[2], sim->h_comp[0], sim->h_comp[1], sim->h_comp[2], dt);
+}
+
 //_____________________________________________________________________________________________ convolution
 
 void gpusim_updateh(gpusim* sim){
@@ -28,11 +67,11 @@ void gpusim_updateh(gpusim* sim){
     gpu_copy_pad_r2c(sim->m_comp[i], sim->ft_m_i, sim->size[0], sim->size[1], sim->size[2]);	//copy mi into the padded magnetization buffer, converting to complex format
     //extract("ft_m_i", sim->ft_m_i, sim->paddedComplexSize);
     gpusim_c2cplan_exec(sim->fftplan, sim->ft_m_i, CUFFT_FORWARD);
-    extract("ft_m_i (transformed)", sim->ft_m_i, sim->paddedComplexSize);
+    //extract("ft_m_i (transformed)", sim->ft_m_i, sim->paddedComplexSize);
     // TODO: asynchronous execution hazard !!
     for(int j=0; j<3; j++){								// apply kernel multiplication to FFT'ed magnetization and add to FFT'ed H-components
       gpu_kernel_mul(sim->ft_m_i, sim->ft_kernel[i][j], sim->ft_h_comp[j], sim->len_ft_m_i);
-      extract("ft_h_j", sim->ft_h_comp[j], sim->paddedComplexSize);
+      //extract("ft_h_j", sim->ft_h_comp[j], sim->paddedComplexSize);
     }
   }
   
@@ -58,7 +97,7 @@ __global__ void _gpu_kernel_mul(float* ft_m_i, float* ft_kernel_ij, float* ft_h_
 void gpu_kernel_mul(float* ft_m_i, float* ft_kernel_ij, float* ft_h_comp_j, int nRealNumbers){
   assert(nRealNumbers > 0);
   assert(nRealNumbers % 2 == 0);
-  
+  int threadsPerBlock = 512;
   int blocks = (nRealNumbers/2) / threadsPerBlock;
   gpu_checkconf_int(blocks, threadsPerBlock);
   _gpu_kernel_mul<<<blocks, threadsPerBlock>>>(ft_m_i, ft_kernel_ij, ft_h_comp_j);
@@ -264,6 +303,7 @@ void delete_gpusim_c2cplan(gpusim_c2cplan* plan){
 
 int gpu_len(int size){
   assert(size > 0);
+  int threadsPerBlock = 512; // todo: centralize
   int gpulen = ((size-1)/threadsPerBlock + 1) * threadsPerBlock;
   assert(gpulen % threadsPerBlock == 0);
   assert(gpulen > 0);
@@ -278,6 +318,7 @@ __global__ void _gpu_zero(float* list){
 // can probably be replaced by some cudaMemset function,
 // but I just wanted to try out some manual cuda coding.
 void gpu_zero(float* data, int nElements){
+  int threadsPerBlock = 512;
   assert(nElements > 0);
   int blocks = nElements / threadsPerBlock;
   gpu_checkconf_int(blocks, threadsPerBlock);
@@ -316,6 +357,7 @@ void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
 // todo: we need cudaMalloc3D for better alignment!
 float* new_gpu_array(int size){
   assert(size > 0);
+  int threadsPerBlock = 512;
   assert(size % threadsPerBlock == 0);
   float* array = NULL;
   int status = cudaMalloc((void**)(&array), size * sizeof(float));

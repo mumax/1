@@ -12,7 +12,7 @@ extern "C" {
  *
  */
 
-int threadsPerBlock = 512;
+//int threadsPerBlock = 512;
   
 typedef struct{
   
@@ -61,6 +61,7 @@ typedef struct{
 gpusim* new_gpusim(int N0, int N1, int N2, tensor* kernel);
 
 void gpusim_updateh(gpusim* sim);
+void gpusim_eulerstep(gpusim* sim, float dt);
 
 void gpusim_loadm(gpusim* sim, tensor* m);
 void gpusim_storem(gpusim* sim, tensor* m);

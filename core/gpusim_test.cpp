@@ -6,23 +6,16 @@
 int main(int argc, char** argv){
   printf("gpusim_test\n");
   
-  assert(argc == 4);
+  assert(argc == 3);
   
   FILE* mfile = fopen(argv[1], "rb");
   tensor* m = read_tensor(mfile);
   fclose(mfile);
-
-//   tensor* m = new_tensor(4, 3, 16, 16, 2);
-//   tensor* mx = tensor_component(m, 0);
-//   for(int i=0; i<tensor_length(mx); i++){
-//     mx->list[i] = 1.;
-//   }
   
   int N0 = m->size[1];
   int N1 = m->size[2];
   int N2 = m->size[3];
   printf("read m: %d x %d x %d\n", N0, N1, N2);
-  format_tensor(m, stdout);
   
   // todo: need safe_fopen
   FILE* kernelfile = fopen(argv[2], "rb");
@@ -33,18 +26,20 @@ int main(int argc, char** argv){
   gpusim* sim = new_gpusim(N0, N1, N2, kernel);
   
   gpusim_loadm(sim, m);
-  gpusim_updateh(sim);
   
-  tensor* h = new_tensor(4, 3, N0, N1, N2);
-  memcpy_from_gpu(sim->h, h->list, tensor_length(h));
-  
-  FILE* hfile = fopen(argv[3], "wb");
-  write_tensor(h, hfile);
-  fclose(hfile);
-  
-  //gpusim_storem(sim, m);
-  format_tensor(h, stdout);
-  
-  
+  char* fname = (char*)calloc(257, sizeof(char));
+  for(int i=0; i<1000; i++){
+    printf("%d ", i);
+    fflush(stdout);
+    gpusim_storem(sim, m);
+    sprintf(fname, "m%07d.t", i);
+    FILE* file = fopen(fname, "wb");
+    write_tensor(m, file);
+    fclose(file);
+    for(int j=0; j<10; j++){
+	gpusim_eulerstep(sim, 0.00001);
+    }
+  }
+
   return 0;
 }

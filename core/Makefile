@@ -20,6 +20,9 @@ all: core.so
 core.so: $(OFILES)
 	$(NVCC) -shared $(LDFLAGS) $(OFILES) $(CUDALIBS) -o core.so
 
+# core.o: $(OFILES)
+# 	ld -r $(OFILES) -o core.o
+
 $(OFILES): *.h $(CPPFILES) $(CUFILES)
 #	$(CPP)  -c $(CFLAGS) $(CPPFILES)
 	$(NVCC) -c $(NVCCFLAGS)  $(CPPFILES)
@@ -34,8 +37,8 @@ test:	all  *_test.cpp
 # 	$(CPP) conv_test.o core.so -o conv_test
 # 	./conv_test
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpusim_test.cpp
-	$(CPP) gpusim_test.o core.so -o gpusim_test
-	./gpusim_test m0.t kern.t h.t
+	$(NVCC) $(CUDALIBS) tensor.o gpusim_test.o gpusim.o -o gpusim_test
+#	./gpusim_test m0.t kern.t h.t
 
 .PHONY:	clean
 clean:	
