@@ -1,10 +1,3 @@
-/*
- * tensor provides a common interface for N-dimensional arrays of floats. The tensor type knows its rank and sizes in each dimension, so these do not have to be passed to function calls. Tensors can also be input/output in a common format, for sharing them between different programs or storing them in files.
- *
- * For an example how to use the tensor type, see tensor_test.c
- *
- */
-
 #ifndef TENSOR_H
 #define TENSOR_H
 
@@ -21,28 +14,40 @@ extern "C" {
 #define Y 1
 #define Z 2
 
+/**
+ * tensor provides a common interface for N-dimensional arrays of floats. The tensor type knows its rank and sizes in each dimension, so these do not have to be passed to function calls. Tensors can also be input/output in a common format, for sharing them between different programs or storing them in files.
+ *
+ * For an example how to use the tensor type, see tensor_test.cpp
+ *
+ */
 typedef struct{
-   int rank;			// tensor rank
-   int* size; 			// array of length rank, stores dimensions in all directions 
-   float* list;			// data as a continous array of length size[0]*size[1]*...
+   int rank;			///< the tensor's rank
+   int* size; 			///< an array of length rank that stores the dimensions in all directions 
+   float* list;			///< tensor data, stored as a contiguous array of length size[0]*size[1]*...
 }tensor;
-// Note: we use int32_t for easy storing in binary format. Just using int would probably work as long as we're not porting to a big endian machine with a 64-bit int type... 
 
 
-/** Creates a new tensor with given rank and size (as integer vararg). Allocates the neccesary space for the elements. */
-tensor* new_tensor(int rank, ...);
+/** Creates a new tensor with given rank and size (as integer varargs). Allocates the neccesary space for the elements. */
+tensor* new_tensor(int rank,	///< rank of the new tensor 
+		   ...		///< sizes in each dimension, as many as rank
+		   );
 
 /** The same as new_tensor(), but with the size given as an array. This is only neccesary when the rank is not known at compile time, otherwise just use new_tensor() */
-tensor* new_tensorN(int rank, int* size);
+tensor* new_tensorN(int rank,  	///< rank of the new tensor 
+		    int* size	///< sizes in each dimension, the number of elements should be equal to rank.
+		    );
 
 
-// tensor* new_cudatensorN(int rank, int* size);
 
 /** Makes a tensor form existing data. */
-tensor* as_tensor(float*, int rank, ...);
+tensor* as_tensor(float* data,	///< array of data to wrapped in the tensor
+		  int rank,	///< rank of the new tensor 
+		  ...		///< sizes in each dimension, as many as rank
+		  );
 
 /** Frees the tensor, including its data list. Make sure no pointers to that list exist anymore, otherwise, delete_tensor_component() can be used to free everything but the data list. */
-void delete_tensor(tensor* t);
+void delete_tensor(tensor* t	///< the tensor to be deleted
+		  );
 
 
 /** Returns the total number of elements in the tensor: size[0]*size[1]*...*size[rank-1]. This is also the length of the contiguous array that stores the tensor data. */

@@ -37,3 +37,8 @@ test:	all  *_test.cpp
 .PHONY:	clean
 clean:	
 	rm -f *.o *.so iotest *_test
+
+doc:	*
+	doxygen doxygen.cfg
+
+
