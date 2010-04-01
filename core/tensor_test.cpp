@@ -1,6 +1,7 @@
 /**
-* This program runs the Unittests for "tensor" and illustrates its functions.
-*/
+ * @file
+ * This program runs the Unittests for "tensor" and illustrates its functions.
+ */
 #include "tensor.h"
 #include <assert.h>
 

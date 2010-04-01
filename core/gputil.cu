@@ -36,6 +36,34 @@ int gpu_len(int size){
   return gpulen;
 }
 
+float* new_gpu_array(int size){
+  assert(size > 0);
+  int threadsPerBlock = 512;
+  assert(size % threadsPerBlock == 0);
+  float* array = NULL;
+  int status = cudaMalloc((void**)(&array), size * sizeof(float));
+  if(status != cudaSuccess){
+    fprintf(stderr, "CUDA could not allocate %d floats\n", size);
+    gpu_safe(status);
+  }
+  //assert(array != NULL); // strange: it seems cuda can return 0 as a valid address?? 
+  if(array == 0){
+    fprintf(stderr, "cudaMalloc(%p, %ld) returned null without error status, retrying...\n", (void**)(&array), size * sizeof(float));
+    abort();
+  }
+  return array;
+}
+
+float* new_ram_array(int size){
+  assert(size > 0);
+  float* array = (float*)calloc(size, sizeof(float));
+  if(array == NULL){
+    fprintf(stderr, "could not allocate %d floats in main memory\n", size);
+    abort();
+  }
+  return array;
+}
+
 __global__ void _gpu_zero(float* list){
   int i = (blockIdx.x * blockDim.x) + threadIdx.x;
   list[i] = 0.;
@@ -80,34 +108,7 @@ void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
   }
 }
 
-// todo: we need cudaMalloc3D for better alignment!
-float* new_gpu_array(int size){
-  assert(size > 0);
-  int threadsPerBlock = 512;
-  assert(size % threadsPerBlock == 0);
-  float* array = NULL;
-  int status = cudaMalloc((void**)(&array), size * sizeof(float));
-  if(status != cudaSuccess){
-    fprintf(stderr, "CUDA could not allocate %d floats\n", size);
-    gpu_safe(status);
-  }
-  //assert(array != NULL); // strange: it seems cuda can return 0 as a valid address?? 
-  if(array == 0){
-    fprintf(stderr, "cudaMalloc(%p, %ld) returned null without error status, retrying...\n", (void**)(&array), size * sizeof(float));
-    abort();
-  }
-  return array;
-}
 
-float* new_ram_array(int size){
-  assert(size > 0);
-  float* array = (float*)calloc(size, sizeof(float));
-  if(array == NULL){
-    fprintf(stderr, "could not allocate %d floats in main memory\n", size);
-    abort();
-  }
-  return array;
-}
 
 //_____________________________________________________________________________________________ misc
 

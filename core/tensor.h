@@ -1,3 +1,28 @@
+/**
+ * @mainpage
+ * 
+ * Micromagnetic/Spin-Lattice Simuations on the GPU 
+ *
+ *
+ * General-purpose GPU functions are implemented in gputil.h. These can be used to create convolution plans (like gpuconv1) and solvers (like gpueuler).
+ *
+ * Data can be input/output to files or exchanged with the general tensor interface.
+ *
+ * @see tensor gputil.h gpuconv1 gpueuler
+ *
+ * @author Arne Vansteenkiste
+ * @author Ben Van de Wiele
+ */
+
+/**
+ * @file tensor.h
+ *
+ * tensor provides a common interface for N-dimensional arrays of floats. The tensor type knows its rank and sizes in each dimension, so these do not have to be passed to function calls. Tensors can also be input/output in a common format, for sharing them between different programs or storing them in files.
+ *
+ * For an example how to use the tensor type, see tensor_test.cpp
+ *
+ * @author Arne Vansteenkiste
+ */
 #ifndef TENSOR_H
 #define TENSOR_H
 
@@ -14,12 +39,7 @@ extern "C" {
 #define Y 1
 #define Z 2
 
-/**
- * tensor provides a common interface for N-dimensional arrays of floats. The tensor type knows its rank and sizes in each dimension, so these do not have to be passed to function calls. Tensors can also be input/output in a common format, for sharing them between different programs or storing them in files.
- *
- * For an example how to use the tensor type, see tensor_test.cpp
- *
- */
+
 typedef struct{
    int rank;			///< the tensor's rank
    int* size; 			///< an array of length rank that stores the dimensions in all directions 
