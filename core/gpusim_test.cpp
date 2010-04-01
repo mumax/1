@@ -1,5 +1,5 @@
-#include "gpusim.h"
 #include "tensor.h"
+#include "gpueuler.h"
 #include <assert.h>
 #include <stdio.h>
 
@@ -23,21 +23,21 @@ int main(int argc, char** argv){
   fclose(kernelfile);
   printf("read kernel: %d x %d x %d\n", kernel->size[2], kernel->size[3], kernel->size[4]);
   
-  gpusim* sim = new_gpusim(N0, N1, N2, kernel);
+  gpueuler* euler = new_gpueuler(N0, N1, N2, kernel);
   
-  gpusim_loadm(sim, m);
+  gpueuler_loadm(euler, m);
   
   char* fname = (char*)calloc(257, sizeof(char));
   for(int i=0; i<1000; i++){
     printf("%d ", i);
     fflush(stdout);
-    gpusim_storem(sim, m);
+    gpueuler_storem(euler, m);
     sprintf(fname, "m%07d.t", i);
     FILE* file = fopen(fname, "wb");
     write_tensor(m, file);
     fclose(file);
-    for(int j=0; j<10; j++){
-	gpusim_eulerstep(sim, 0.00001);
+    for(int j=0; j<40; j++){
+	gpueuler_step(euler, 0.000001);
     }
   }
 
