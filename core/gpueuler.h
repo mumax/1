@@ -52,11 +52,16 @@ void gpueuler_loadm(gpueuler* euler, tensor* m);
 
 /**
  * Copies a magnetization configuration from the solver to the RAM, e.g. the magnetization after a number of time steps.
- * @see: gpueuler_storem
+ * @see: gpueuler_loadm
  */
 void gpueuler_storem(gpueuler* euler, tensor* m);
 
-void gpueuler_step(gpueuler* solver, float dt);
+/**
+ * Takes one time step
+ */
+void gpueuler_step(gpueuler* solver,	///< the solver to step
+		   float dt		///< time step (internal units).
+		   );
 
 #ifdef __cplusplus
 }

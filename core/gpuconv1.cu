@@ -33,7 +33,7 @@ void extract(const char* msg, float* data, int* size){
 
 //_____________________________________________________________________________________________ convolution
 
-void gpuconv1_updateh(gpuconv1* sim, float* m, float* h){
+void gpuconv1_exec(gpuconv1* sim, float* m, float* h){
   gpuconv1_init_m_comp(sim, m);
   gpuconv1_init_h_comp(sim, h);
   
@@ -206,12 +206,12 @@ void gpuconv1_init_m(gpuconv1* sim){
 
 void gpuconv1_init_h(gpuconv1* sim){
   sim->len_h = sim->len_m;
-  sim->h = new_gpu_array(sim->len_h);
+  //sim->h = new_gpu_array(sim->len_h);
   sim->len_h_comp = sim->len_m_comp; 
   sim->h_comp = (float**)calloc(3, sizeof(float*));
-  for(int i=0; i<3; i++){ 
-    sim->h_comp[i] = &(sim->h[i * sim->len_h_comp]); // slice the contiguous h array in 3 equal pieces, one for each component
-  }
+//   for(int i=0; i<3; i++){ 
+//     sim->h_comp[i] = &(sim->h[i * sim->len_h_comp]); // slice the contiguous h array in 3 equal pieces, one for each component
+//   }
   
   sim->len_ft_h = 3 * sim->len_ft_m_i;
   sim->ft_h = new_gpu_array(sim->len_ft_h);

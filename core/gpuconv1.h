@@ -6,12 +6,12 @@
  * The zero's in the micromagnetic kernel are not ignored.
  * No care is taken to align CUDA memory access.
  *
- * The interface is flexible: gpucon1_exec(m, h) can be called on any magnetization and field array that match the size of the plan. m and h are thus not stored in the plan itself. This is handy for higher order solvers that keep multiple versions of m and h.
+ * The interface is flexible: gpuconv1_exec(m, h) can be called on any magnetization and field array that match the size of the plan. m and h are thus not stored in the plan itself. This is handy for higher order solvers that keep multiple versions of m and h.
  *
  * When more intelligent implementations are made, this one can serve as a comparison
  * for correctness and performance.
  *
- * @see new_gpuconv1, gpucon1_exec
+ * @see new_gpuconv1, gpuconv1_exec
  *
  * @author Arne Vansteenkiste
  */
@@ -79,10 +79,10 @@ gpuconv1* new_gpuconv1(int N0,		///< X size of the magnetization vector field
  * Executes the convolution plan: convolves the source data with the stored kernel and stores the result in the destination pointer.
  * @todo: rename: execute 
  */
-void gpuconv1_updateh(gpuconv1* plan,	///< the plan to execute 
-		      float* source, 	///< the input vector field (magnetization)
-		      float* dest	///< the destination vector field (magnetic field) to store the result in
-		     );
+void gpuconv1_exec(gpuconv1* plan,	///< the plan to execute 
+		   float* source, 	///< the input vector field (magnetization)
+		   float* dest	///< the destination vector field (magnetic field) to store the result in
+		   );
 
 /**
  * Loads a kernel. Automatically called during new_gpuconv1(), but could be used to change the kernel afterwards.

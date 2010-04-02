@@ -36,7 +36,7 @@ __global__ void _gpu_eulerstep(float* mx, float* my, float* mz, float* hx, float
 
 void gpueuler_step(gpueuler* solver, float dt){
   int threadsPerBlock = 512;
-  gpuconv1_updateh(solver->convplan, solver->m, solver->h);
+  gpuconv1_exec(solver->convplan, solver->m, solver->h);
   int blocks = (solver->convplan->len_m_comp) / threadsPerBlock;
   gpu_checkconf_int(blocks, threadsPerBlock);
   _gpu_eulerstep<<<blocks, threadsPerBlock>>>(solver->convplan->m_comp[0], solver->convplan->m_comp[1], solver->convplan->m_comp[2], solver->convplan->h_comp[0], solver->convplan->h_comp[1], solver->convplan->h_comp[2], dt);
