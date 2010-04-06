@@ -1,6 +1,7 @@
 package main
   
 import( 
+  . "../tensor";
   . "../sim";
   "os";
   "fmt";
@@ -20,7 +21,10 @@ func main() {
 }
 
 func makeKernel(){
- //kern := CubicKernel();
+ demag := FaceKernel(units.Size, units.CellSize);
+ exch := Exch6NgbrKernel(units.Size, units.CellSize);
+ kernel := Add(exch, demag);
+ Write(os.Stdout, kernel);
 }
 
 var units Units = *NewUnits();

@@ -18,7 +18,7 @@ func main() {
     exec(commands[c], args[c]);
   }
   if !written{
-    Write(parseFileOrStdout(args), getbuffer());
+    Write(os.Stdout, getbuffer());
     written = true;
   }
 }

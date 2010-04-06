@@ -3,7 +3,6 @@ package sim
 import(
   . "../tensor";
   . "math";
-  "fmt";
 )
 
 
@@ -68,7 +67,7 @@ func faceIntegral(cellsize[] float, r []int, mdir int) [3]float{
 
 /** Integrates the demag field based on multiple points per face. */
 func FaceKernel(unpaddedsize []int, cellsize []float) *Tensor5{
-  fmt.Println("FaceKernel(", unpaddedsize, cellsize, ")");
+  //fmt.Println("FaceKernel(", unpaddedsize, cellsize, ")");
   size := PadSize(unpaddedsize);
   k := NewTensor5([]int{3, 3, size[0], size[1], size[2]});
   
@@ -95,7 +94,7 @@ func FaceKernel(unpaddedsize []int, cellsize []float) *Tensor5{
 
 /** DEBUG: 'integrates' the magnetostatic field out of just one point per face. */
 func PointKernel(unpaddedsize []int, cellsize []float) *Tensor5{
-  fmt.Println("PointKernel(", unpaddedsize, cellsize, ")");
+  //fmt.Println("PointKernel(", unpaddedsize, cellsize, ")");
   size := PadSize(unpaddedsize);
   k := NewTensor5([]int{3, 3, size[0], size[1], size[2]});
 

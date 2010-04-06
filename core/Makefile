@@ -14,7 +14,7 @@ OFILES=\
 	gpuconv1.o\
 	gpueuler.o\
 
-CUDALIBS=-lcuda -lcudart -lcufft
+CUDALIBS= -lcudart -lcufft
 
 all: core.so
 

@@ -52,19 +52,19 @@ func (units *Units) PrintInfo(out io.Writer) {
   fmt.Fprintln(out, "unit energy: \t", units.UnitEnergy(), " J");
   fmt.Fprintln(out, "Geometry");
   fmt.Fprintln(out, "Grid Size  : \t", units.Size);
-  fmt.Print("Cell Size  : \t");
+  fmt.Fprint(out, "Cell Size  : \t");
   for i:=range(units.CellSize){
-    fmt.Print(units.UnitLength() * units.CellSize[i], " ");
+    fmt.Fprint(out, units.UnitLength() * units.CellSize[i], " ");
   }
-  fmt.Print("(m), (");
+  fmt.Fprint(out, "(m), (");
    for i:=range(units.CellSize){
-    fmt.Print(units.CellSize[i], " ");
+    fmt.Fprint(out, units.CellSize[i], " ");
   }
   fmt.Fprintln(out, "exch. lengths)");
-
-  fmt.Print("Sim Size   : \t ");
+  
+  fmt.Fprint(out, "Sim Size   : \t ");
   for i:=range(units.Size){
-    fmt.Print(float(units.Size[i]) * units.UnitLength() * units.CellSize[i], " ");
+    fmt.Fprint(out, float(units.Size[i]) * units.UnitLength() * units.CellSize[i], " ");
   }
   fmt.Fprintln(out, "(m)");
 }

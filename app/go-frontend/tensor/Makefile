@@ -15,7 +15,7 @@ GOFILES=\
 
 
 # files to be removed by make clean
-CLEANFILES+=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)/tensor_native.so
+CLEANFILES+=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)/tensor_native.so iotest
 
 include $(GOROOT)/src/Make.pkg
 
