@@ -1,7 +1,7 @@
 package tensor
 
 import(
-  . "fmt";
+  "fmt";
   "io";
   "os";
   "log";
@@ -13,7 +13,7 @@ import(
 
 /** Writes the tensor in 32-bit binary format. See libtensor.h for more details. */
 func Write(out io.Writer, t Tensor){
-  //Fprintln(os.Stderr, "WriteTensor(", &t, out, ")");
+  //fmt.Fprintln(os.Stderr, "WriteTensor(", &t, out, ")");
   buffer := make([]byte, 4);
   
   IntToBytes(Rank(t), buffer);	// probably could have used unformatted printf, scanf here?
@@ -35,7 +35,7 @@ func Write(out io.Writer, t Tensor){
 
 /** Reads a tensor from 32-bit binary format. See libtensor.h for more details. */
 func Read(in io.Reader) StoredTensor{
-  //Fprintln(os.Stderr, "ReadTensor(", in, ")");
+  //fmt.Fprintln(os.Stderr, "ReadTensor(", in, ")");
   buffer := make([]byte, 4);
   
   in.Read(buffer);
@@ -64,35 +64,35 @@ func ReadFile(file string) StoredTensor{
 
 /** Prints the tensor in ASCII format, See libtensor.h for more details. */
 func Print(out io.Writer, t Tensor){
-  Fprintln(out, Rank(t));
+  fmt.Fprintln(out, Rank(t));
   
   for i:=range(t.Size()){
-    Fprintln(out, t.Size()[i]);
+    fmt.Fprintln(out, t.Size()[i]);
   }
   
   for i:=NewIterator(t); i.HasNext(); i.Next(){
-    Fprintln(out, i.Get());
+    fmt.Fprintln(out, i.Get());
   }
 }
 
 /** Prints the tensor in ASCII with some row/column formatting to make it easier to read for humans. */
 func Format(out io.Writer, t Tensor){
-  Fprintln(out, Rank(t));
+  fmt.Fprintln(out, Rank(t));
   
   for i:=range(t.Size()){
-    Fprintln(out, t.Size()[i]);
+    fmt.Fprintln(out, t.Size()[i]);
   }
   
   for i:=NewIterator(t); i.HasNext(); i.Next(){
-    //Fprintf(out, "%f ", i.Get()); // %15f
-    Fprint(out, i.Get(), "\t");
+    //fmt.Fprintf(out, "%f ", i.Get()); // %15f
+    fmt.Fprint(out, i.Get(), "\t");
 
     for j:=0; j<Rank(t); j++{
       newline := true;
       for k:=j; k<Rank(t); k++{
 	if i.Index()[k] != t.Size()[k] - 1 { newline = false }
       }
-      if newline { Fprint(out, "\n") };
+      if newline { fmt.Fprint(out, "\n") };
     }
 
   }
@@ -108,9 +108,9 @@ func PrintVectors(out io.Writer, t Tensor){
   for it := NewIterator(xcomp); it.HasNext(); it.Next(){
     index := it.Index();
     for i:=0; i<len(it.Index()); i++{
-      Fprintf(out, "% d", index[i]);
+      fmt.Fprintf(out, "% d", index[i]);
     }
-    Fprint(out, " ", xcomp.Get(index), ycomp.Get(index), zcomp.Get(index), "\n");
+    fmt.Fprint(out, " ", xcomp.Get(index), ycomp.Get(index), zcomp.Get(index), "\n");
   }
 
   // close if possible.
@@ -131,7 +131,7 @@ func PrintVectors(out io.Writer, t Tensor){
 func FOpen(filename string) io.Writer{
   file, ok := os.Open(filename, os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0666);
   if ok!=nil{
-    Fprint(os.Stderr, ok, "\n");
+    fmt.Fprint(os.Stderr, ok, "\n");
     log.Crash("Could not open file");
   }
   return file;
