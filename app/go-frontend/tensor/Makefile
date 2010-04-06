@@ -15,11 +15,11 @@ GOFILES=\
 
 
 # files to be removed by make clean
-#CLEANFILES+=core.cgo1.go core.cgo2.go core.cgo3.8 core.cgo3.c core.cgo4.c
+CLEANFILES+=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)/tensor_native.so
 
 include $(GOROOT)/src/Make.pkg
 
-# seems to install libsim_libsim.so
+# seems to install .so library
 %: install %.go
 	$(GC) $*.go
 	$(LD) -o $@ $*.$O

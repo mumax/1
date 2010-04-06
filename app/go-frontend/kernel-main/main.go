@@ -1,7 +1,6 @@
 package main
   
 import( 
-  . "../tensor";
   . "../sim";
   "os";
   "fmt";
@@ -13,19 +12,39 @@ func main() {
   for i:=range(commands){
     exec(commands[i], args[i]);
   }
-  if kernel != nil{ Write(os.Stdout, kernel) } else { fmt.Fprintln(os.Stderr, "no kernel generated.")}
+  for i:=range(units.CellSize){
+    units.CellSize[i] /= units.UnitLength();
+  }
+  units.PrintInfo(os.Stderr);
+  makeKernel();
 }
 
-var kernel Tensor;
+func makeKernel(){
+ //kern := CubicKernel();
+}
+
+var units Units = *NewUnits();
+
+var demagtype string = "cuboid";
+var exchtype string = "exch6";
+
 
 func exec(command string, args []string){
   switch command{
-    case "--unit":
-      kernel = UnitKernel(parseSize(args));
+    case "--size":
+	units.Size = parseSize(args);
+    case "--cellsize":
+	units.CellSize = parseCellSize(args);
+    case "--aexch":
+	 argCount(command, args, 1, 1);
+	 units.AExch = Atof(args[0]);
+    case "--msat":
+         argCount(command, args, 1, 1);
+	 units.MSat = Atof(args[0]);
     case "--dipole":
-      kernel = DipoleKernel(parseSize(args));
-    case "--cubic":
-      kernel = PointKernel(parseSize(args), 1.);
+	 demagtype = "dipole";
+    case "--cuboid":
+	 demagtype = "cuboid";
     default:
       fmt.Fprintln(os.Stderr, "unknown command:", command);
       os.Exit(-1);
@@ -38,6 +57,15 @@ func parseSize(args []string) []int{
   size := make([]int, 3);
   for i:=0; i<3; i++{
     size[i] = Atoi(args[i]);
+  }
+  return size;
+}
+
+func parseCellSize(args []string) []float{
+  argCount("size", args, 3, 3);
+  size := make([]float, 3);
+  for i:=0; i<3; i++{
+    size[i] = Atof(args[i]);
   }
   return size;
 }

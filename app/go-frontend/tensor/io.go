@@ -5,7 +5,6 @@ import(
   "io";
   "os";
   "log";
-  "libsim";
 )
 
 // TODO(general): refactor all names to go convention: tensor.Print(), sim.New(), assert.Check(), ... 
@@ -17,18 +16,18 @@ func Write(out io.Writer, t Tensor){
   //Fprintln(os.Stderr, "WriteTensor(", &t, out, ")");
   buffer := make([]byte, 4);
   
-  libsim.IntToBytes(Rank(t), buffer);	// probably could have used unformatted printf, scanf here?
+  IntToBytes(Rank(t), buffer);	// probably could have used unformatted printf, scanf here?
   _, err := out.Write(buffer);
   if err != nil{ log.Crash(err) }
   
   for i:=range(t.Size()){
-      libsim.IntToBytes(t.Size()[i], buffer);
+      IntToBytes(t.Size()[i], buffer);
       _, err := out.Write(buffer);
       if err != nil{ log.Crash(err) }
   }
   
   for i:=NewIterator(t); i.HasNext(); i.Next(){
-      libsim.FloatToBytes(i.Get(), buffer);
+      FloatToBytes(i.Get(), buffer);
       _, err := out.Write(buffer);
       if err != nil{ log.Crash(err) }
   }
@@ -40,12 +39,12 @@ func Read(in io.Reader) StoredTensor{
   buffer := make([]byte, 4);
   
   in.Read(buffer);
-  rank := libsim.BytesToInt(buffer);
+  rank := BytesToInt(buffer);
   
   size := make([]int, rank);
   for i:=range(size){
     in.Read(buffer);
-    size[i] = libsim.BytesToInt(buffer);
+    size[i] = BytesToInt(buffer);
   }
   
   t := NewTensorN(size);
@@ -53,7 +52,7 @@ func Read(in io.Reader) StoredTensor{
   
   for i:=range(list){
     in.Read(buffer);
-    list[i] = libsim.BytesToFloat(buffer);
+    list[i] = BytesToFloat(buffer);
   }
   
   return t;

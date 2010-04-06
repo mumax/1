@@ -1,8 +1,9 @@
 all:
 	make -C tensor
+	make install -C tensor
 	ln -sf tensor/_obj/tensor.a .
-	make -C core
-	ln -sf core/_obj/core.a .
+#	make -C core
+#	ln -sf core/_obj/core.a .
 	make -C sim
 	ln -sf sim/_obj/sim.a .
 	make -C tensor-main
@@ -18,5 +19,5 @@ clean:
 
 test:	all
 	make test -C tensor
-	make test -C core
+#	make test -C core
 

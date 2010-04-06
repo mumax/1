@@ -1,6 +1,7 @@
 include $(GOROOT)/src/Make.$(GOARCH)
 
 main:	*.go
+	ln -sf ../tensor-main/flags.go .
 	$(GC) -I_obj *.go
 	$(LD) -L_obj -o $@ *.$O
 
