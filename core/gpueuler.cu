@@ -40,6 +40,7 @@ void gpueuler_step(gpueuler* solver, float dt){
   int blocks = (solver->convplan->len_m_comp) / threadsPerBlock;
   gpu_checkconf_int(blocks, threadsPerBlock);
   _gpu_eulerstep<<<blocks, threadsPerBlock>>>(solver->convplan->m_comp[0], solver->convplan->m_comp[1], solver->convplan->m_comp[2], solver->convplan->h_comp[0], solver->convplan->h_comp[1], solver->convplan->h_comp[2], dt);
+  cudaThreadSynchronize();
 }
 
 void gpueuler_checksize_m(gpueuler* sim, tensor* m){

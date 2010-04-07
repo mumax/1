@@ -77,6 +77,7 @@ void gpu_zero(float* data, int nElements){
   int blocks = nElements / threadsPerBlock;
   gpu_checkconf_int(blocks, threadsPerBlock);
   _gpu_zero<<<blocks, threadsPerBlock>>>(data);
+  cudaThreadSynchronize();
 }
 
 void memcpy_to_gpu(float* source, float* dest, int nElements){
@@ -106,6 +107,7 @@ void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
     fprintf(stderr, "CUDA could not copy %d floats from host addres %p to host addres %p\n", nElements, source, dest);
     gpu_safe(status);
   }
+  cudaThreadSynchronize();
 }
 
 

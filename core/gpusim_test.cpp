@@ -36,8 +36,8 @@ int main(int argc, char** argv){
     FILE* file = fopen(fname, "wb");
     write_tensor(m, file);
     fclose(file);
-    for(int j=0; j<40; j++){
-	gpueuler_step(euler, 0.000001);
+    for(int j=0; j<1; j++){
+	gpueuler_step(euler, 1E-6);
     }
   }
 

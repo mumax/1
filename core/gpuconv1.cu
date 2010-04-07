@@ -77,6 +77,7 @@ void gpu_kernel_mul(float* ft_m_i, float* ft_kernel_ij, float* ft_h_comp_j, int 
   int blocks = (nRealNumbers/2) / threadsPerBlock;
   gpu_checkconf_int(blocks, threadsPerBlock);
   _gpu_kernel_mul<<<blocks, threadsPerBlock>>>(ft_m_i, ft_kernel_ij, ft_h_comp_j);
+  cudaThreadSynchronize();
 }
 
 //_____________________________________________________________________________________________ padding/complex numbers
@@ -95,6 +96,7 @@ void gpu_copy_unpad_c2r(float* source, float* dest, int N0, int N1, int N2){
   dim3 blocksize(N2, 1, 1);
   gpu_checkconf(gridsize, blocksize);
   _gpu_copy_unpad_c2r<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
+  cudaThreadSynchronize();
 }
 
 // Ni: logical size of m
@@ -120,6 +122,7 @@ void gpu_copy_pad_r2c(float* source, float* dest, int N0, int N1, int N2){
   dim3 blocksize(N2, 1, 1);
   gpu_checkconf(gridsize, blocksize);
   _gpu_copy_pad_r2c<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
+  cudaThreadSynchronize();
 }
 
 //_____________________________________________________________________________________________ kernel
