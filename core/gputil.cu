@@ -102,9 +102,9 @@ void memcpy_from_gpu(float* source, float* dest, int nElements){
 // does not seem to work.. 
 void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
   assert(nElements > 0);
-  int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyHostToHost);
+  int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyDeviceToDevice);
   if(status != cudaSuccess){
-    fprintf(stderr, "CUDA could not copy %d floats from host addres %p to host addres %p\n", nElements, source, dest);
+    fprintf(stderr, "CUDA could not copy %d floats from device addres %p to device addres %p\n", nElements, source, dest);
     gpu_safe(status);
   }
   cudaThreadSynchronize();

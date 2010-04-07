@@ -7,12 +7,14 @@ CUFILES=\
 	gputil.cu\
 	gpuconv1.cu\
 	gpueuler.cu\
+	gpurk4.cu\
 
 OFILES=\
 	tensor.o\
 	gputil.o\
 	gpuconv1.o\
 	gpueuler.o\
+	gpurk4.o\
 
 CUDALIBS= -lcudart -lcufft
 
@@ -23,7 +25,7 @@ core.so: $(OFILES)
 
 $(OFILES): *.h $(CPPFILES) $(CUFILES)
 	$(NVCC) -c $(NVCCFLAGS)  $(CPPFILES)
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) *.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) $(CUFILES)
 
 
 test:	all  *_test.cpp

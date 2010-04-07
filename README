@@ -1,6 +1,30 @@
-* Compiling FFTW:
+Required software/libraries:
 
+* Subversion/dynamag access:
+install seahorse, make keypair for dynamag login
+simlink /var/www/user
+sftp access to sim, home: add entry to "places" in dolphin
+install kdesvn
+
+* CUDA
+cuda 3.0 + devdriver
+
+* Go
+export GOROOT=$HOME/sbin/go
+export GOOS=linux
+export GOARCH=amd64
+export GOBIN=$HOME/sbin
+
+* env. variables:
+edit .bashrc
+export PATH=$PATH:/usr/local/cuda/bin:/home/XXX/YYY/trunk/bin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/lib
+
+* Compiling FFTW:
 ./configure CFLAGS="-fPIC" --enable-float  --enable-threads --enable-sse
 make
 sudo make install
 
+(* general Ubuntu)
+sudo apt-get install build-essential ubuntu-restricted-extras 
+automount win partition
