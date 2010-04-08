@@ -4,6 +4,7 @@ main:	*.go
 	ln -sf ../tensor-main/flags.go .
 	$(GC) -I_obj *.go
 	$(LD) -L_obj -o $@ *.$O
+	ln -sf $(CURDIR)/main ../../../bin/kernel
 
 .PHONY:	clean
 clean:

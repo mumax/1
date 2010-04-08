@@ -34,7 +34,7 @@ test:	all  *_test.cpp
 	./tensor_test
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpusim_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpusim_test.o -o gpusim_test
-# #	./gpusim_test m0.t kern.t h.t
+	ln -sf $(CURDIR)/gpusim_test ../../../bin/gpusim_test
 
 .PHONY:	clean
 clean:	
