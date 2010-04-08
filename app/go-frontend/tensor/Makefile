@@ -9,6 +9,7 @@ GOFILES=\
 	iterator.go\
 	io.go\
 	tensor.go\
+	tensorops.go\
 	vector.go\
 	storedtensor.go\
 	out.go\

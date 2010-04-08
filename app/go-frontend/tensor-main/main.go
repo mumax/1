@@ -65,6 +65,17 @@ func exec(command string, args []string){
     case "--normalize":
       argCount(command, args, 1, 1);
       setbuffer(Normalize(getbuffer(), Atoi(args[0])));
+    case "--average":
+      argCount(command, args, 1, 1);
+      setbuffer(Average(getbuffer(), Atoi(args[0])));
+
+    case "--get":
+      argCount(command, args, Rank(getbuffer()), Rank(getbuffer()));
+      t := Buffer(getbuffer());
+      index := make([]int, Rank(getbuffer()));
+      for i:=0; i<len(args); i++ { index[i] = Atoi(args[i]) }
+      fmt.Println(t.Get(index));
+      written = true;
 
     case "--set":
       argCount(command, args, Rank(getbuffer())+1, Rank(getbuffer())+1);

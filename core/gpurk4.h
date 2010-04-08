@@ -1,10 +1,20 @@
 /**
  * @file
- *
  * The classical 4th order Runge-Kutta algorithm for solving the LL equation.
  *
- * @author Arne Vansteenkiste
+ * @note When writing out of allocated memory bounds, 
+ * the GPU of course does not throw a segmentation fault. 
+ * However, I had one case where a copy operation AFTER faulty
+ * memory acces failed with "the launch timed out and was terminated",
+ * and also my screen went black for a split-second. Writing
+ * out of bounds can thus actually affect your graphics!
  *
+ * @todo we do not need 4 k arrays: just one where we accumulate the total k
+ * first calc k_i in shared memory, use it to set the next m_i+1
+ * then add it to the global k array with the correct weigth
+ * the last k_i is not even added to that array but immediately to m
+ *
+ * @author Arne Vansteenkiste
  */
 #ifndef GPURK4_H
 #define GPURK4_H

@@ -1,22 +1,3 @@
-/**
- * @file
- * 4th order Runge-Kutta solver.
- *
- * @note When writing out of allocated memory bounds, 
- * the GPU of course does not throw a segmentation fault. 
- * However, I had one case where a copy operation AFTER faulty
- * memory acces failed with "the launch timed out and was terminated",
- * and also my screen went black for a split-second. Writing
- * out of bounds can thus actually affect your graphics!
- *
- * @todo we do not need 4 k arrays: just one where we accumulate the total k
- * first calc k_i in shared memory, use it to set the next m_i+1
- * then add it to the global k array with the correct weigth
- * the last k_i is not even added to that array but immediately to m
- *
- * @author Arne Vansteenkiste
- *
- */
 #include "gpurk4.h"
 #include <stdio.h>
 #include <assert.h>
@@ -24,6 +5,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define alpha 1.0f
 
 //__________________________________________________________________________________________ step 0
 
@@ -33,7 +16,7 @@ __global__ void _gpu_rk4step_0(float* mx, float* my, float* mz,
 			       float dt){
   
   int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
-  float alpha = 0.2;
+  
  
   // - m cross H
   float _mxHx = -my[i] * hz[i] + hy[i] * mz[i];
@@ -68,7 +51,7 @@ __global__ void _gpu_rk4step_1(float*  mx, float*  my, float*  mz,
 			       float  dt){
   
   int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
-  float alpha = 0.2;
+  
  
   // - m cross H
   float _mxHx = -my[i] * hz[i] + hy[i] * mz[i];
@@ -102,7 +85,7 @@ __global__ void _gpu_rk4step_2(float*  mx, float*  my, float*  mz,
 			       float* m0x, float* m0y, float* m0z,
 			       float  dt){
   int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
-  float alpha = 0.2;
+  
  
   // - m cross H
   float _mxHx = -my[i] * hz[i] + hy[i] * mz[i];
@@ -137,7 +120,7 @@ __global__ void _gpu_rk4step_3(float*  mx, float*  my, float*  mz,
 			       float dt){
   
   int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
-  float alpha = 0.2;
+  
  
   // - m cross H
   float _mxHx = -my[i] * hz[i] + hy[i] * mz[i];
@@ -157,11 +140,6 @@ __global__ void _gpu_rk4step_3(float*  mx, float*  my, float*  mz,
   my[i] = m0y[i];
   mz[i] = m0z[i];
   
-  float norm = rsqrtf(mx[i]*mx[i] + my[i]*my[i] + mz[i]*mz[i]); // inverse square root
-  mx[i] *= norm;
-  my[i] *= norm;
-  mz[i] *= norm;
-
 }
 
 //__________________________________________________________________________________________ step 4
@@ -237,12 +215,12 @@ void gpurk4_step(gpurk4* solver, float dt){
   
   gpuconv1_exec(solver->convplan, solver->m, solver->h);
   
-  _gpu_rk4step_2<<<blocks, threadsPerBlock>>>(mx,my,mz,  hx,hy,hz, k2x,k2y,k2z,  m0x,m0y,m0z,  dt);
+  _gpu_rk4step_2<<<blocks, threadsPerBlock>>>(mx,my,mz,  hx,hy,hz,  k2x,k2y,k2z,  m0x,m0y,m0z,  dt);
   cudaThreadSynchronize();
   
   gpuconv1_exec(solver->convplan, solver->m, solver->h);
   
-  _gpu_rk4step_3<<<blocks, threadsPerBlock>>>(mx,my,mz,  hx,hy,hz, k3x,k3y,k3z,  m0x,m0y,m0z,  dt);
+  _gpu_rk4step_3<<<blocks, threadsPerBlock>>>(mx,my,mz,  hx,hy,hz,  k3x,k3y,k3z,  m0x,m0y,m0z,  dt);
   cudaThreadSynchronize();
   
   _gpu_rk4step_4<<<blocks, threadsPerBlock>>>(mx,my,mz,  k0x,k0y,k0z,  k1x,k1y,k1z,  k2x,k2y,k2z,  k3x,k3y,k3z,  dt);

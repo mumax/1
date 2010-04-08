@@ -8,6 +8,7 @@ install kdesvn
 
 * CUDA
 cuda 3.0 + devdriver
+compute-exclusive mode?
 
 * Go
 export GOROOT=$HOME/sbin/go
