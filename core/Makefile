@@ -28,10 +28,19 @@ $(OFILES): *.h $(CPPFILES) $(CUFILES)
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) $(CUFILES)
 
 
-test:	all  *_test.cpp
+test:	all  $(OFILES) tensor_test gpueuler_test
+
+tensor_test:	all tensor_test.cpp
 	$(CPP) -c $(CFLAGS) $(LDFLAGS) tensor_test.cpp
 	$(CPP) tensor_test.o core.so -o tensor_test
 	./tensor_test
+
+gpueuler_test:	all gpueuler_test.cpp
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpueuler_test.cpp
+	$(NVCC) $(CUDALIBS) $(OFILES) gpueuler_test.o -o gpueuler_test
+	./gpueuler_test testm0.t testkernel.t
+
+gpusim_test:	all gpusim_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpusim_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpusim_test.o -o gpusim_test
 	ln -sf $(CURDIR)/gpusim_test ../../../bin/gpusim_test

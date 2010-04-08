@@ -1,10 +1,19 @@
+/**
+ * @file
+ * This test program runs a small simulation using gpuconv1 and gpueuler.
+ * The initial magnetization and demag tensor are read from testm0.t and testkernel.t.
+ * A few time steps are taken and one spin of the result is compared with its known solution.
+ *
+ * @author Arne Vansteenkiste
+ *
+ */
 #include "tensor.h"
 #include "gpueuler.h"
 #include <assert.h>
 #include <stdio.h>
 
 int main(int argc, char** argv){
-  printf("gpusim_test\n");
+  printf("gpueuler_test\n");
   
   assert(argc == 3);
   
@@ -27,19 +36,13 @@ int main(int argc, char** argv){
   
   gpueuler_loadm(euler, m);
   
-  char* fname = (char*)calloc(257, sizeof(char));
-  for(int i=0; i<1000; i++){
-    printf("%d ", i);
-    fflush(stdout);
-    gpueuler_storem(euler, m);
-    sprintf(fname, "m%07d.t", i);
-    FILE* file = fopen(fname, "wb");
-    write_tensor(m, file);
-    fclose(file);
-    for(int j=0; j<10; j++){
-	gpueuler_step(euler, 1E-7);
-    }
+  for(int i=0; i<100; i++){
+    gpueuler_step(euler, 1E-7);
   }
+  gpueuler_storem(euler, m);
+  
+  assert(fabs(*tensor_get(m, 4, 0, 0, 0, 0) - 0.776904) < 1E-6);
+  printf("%f\n", *tensor_get(m, 4, 0, 0, 0, 0));
 
   return 0;
 }
