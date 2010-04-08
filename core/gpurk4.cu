@@ -1,3 +1,22 @@
+/**
+ * @file
+ * 4th order Runge-Kutta solver.
+ *
+ * @note When writing out of allocated memory bounds, 
+ * the GPU of course does not throw a segmentation fault. 
+ * However, I had one case where a copy operation AFTER faulty
+ * memory acces failed with "the launch timed out and was terminated",
+ * and also my screen went black for a split-second. Writing
+ * out of bounds can thus actually affect your graphics!
+ *
+ * @todo we do not need 4 k arrays: just one where we accumulate the total k
+ * first calc k_i in shared memory, use it to set the next m_i+1
+ * then add it to the global k array with the correct weigth
+ * the last k_i is not even added to that array but immediately to m
+ *
+ * @author Arne Vansteenkiste
+ *
+ */
 #include "gpurk4.h"
 #include <stdio.h>
 #include <assert.h>
@@ -6,7 +25,13 @@
 extern "C" {
 #endif
 
-__global__ void _gpu_rk4step_0(float* mx, float* my, float* mz, float* hx, float* hy, float* hz, float* kx, float* ky, float* kz, float dt){
+//__________________________________________________________________________________________ step 0
+
+__global__ void _gpu_rk4step_0(float* mx, float* my, float* mz, 
+			       float* hx, float* hy, float* hz, 
+			       float* kx, float* ky, float* kz, 
+			       float dt){
+  
   int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
   float alpha = 0.2;
  
@@ -34,12 +59,14 @@ __global__ void _gpu_rk4step_0(float* mx, float* my, float* mz, float* hx, float
   mz[i] *= norm;
 }
 
+//__________________________________________________________________________________________ step 1
 
 __global__ void _gpu_rk4step_1(float*  mx, float*  my, float*  mz, 
 			       float*  hx, float*  hy, float*  hz, 
 			       float*  kx, float*  ky, float*  kz, 
 			       float* m0x, float* m0y, float* m0z,
 			       float  dt){
+  
   int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
   float alpha = 0.2;
  
@@ -66,6 +93,8 @@ __global__ void _gpu_rk4step_1(float*  mx, float*  my, float*  mz,
   my[i] *= norm;
   mz[i] *= norm;
 }
+
+//__________________________________________________________________________________________ step 2
 
 __global__ void _gpu_rk4step_2(float*  mx, float*  my, float*  mz, 
 			       float*  hx, float*  hy, float*  hz, 
@@ -99,10 +128,14 @@ __global__ void _gpu_rk4step_2(float*  mx, float*  my, float*  mz,
   mz[i] *= norm;
 }
 
+//__________________________________________________________________________________________ step 3
+
 __global__ void _gpu_rk4step_3(float*  mx, float*  my, float*  mz, 
 			       float*  hx, float*  hy, float*  hz, 
 			       float*  kx, float*  ky, float*  kz, 
-			       float* m0x, float* m0y, float* m0z){
+			       float* m0x, float* m0y, float* m0z,
+			       float dt){
+  
   int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
   float alpha = 0.2;
  
@@ -119,7 +152,7 @@ __global__ void _gpu_rk4step_3(float*  mx, float*  my, float*  mz,
   kx[i] = (_mxHx + _mxmxHx * alpha);
   ky[i] = (_mxHy + _mxmxHy * alpha);
   kz[i] = (_mxHz + _mxmxHz * alpha);
-  
+
   mx[i] = m0x[i];
   my[i] = m0y[i];
   mz[i] = m0z[i];
@@ -131,10 +164,7 @@ __global__ void _gpu_rk4step_3(float*  mx, float*  my, float*  mz,
 
 }
 
-// we do not need 4 k arrays: just one where we accumulate the total k
-// first calc k_i in shared memory, use it to set the next m_i+1
-// then add it to the global k array with the correct weigth
-// the last k_i is not even added to that array but immediately to m
+//__________________________________________________________________________________________ step 4
 
 __global__ void _gpu_rk4step_4(float* mx,  float* my,  float* mz, 
 			       float* k0x, float* k0y, float* k0z,
@@ -156,65 +186,66 @@ __global__ void _gpu_rk4step_4(float* mx,  float* my,  float* mz,
 
 }
 
+//__________________________________________________________________________________________ gpurk4_step
+
 void gpurk4_step(gpurk4* solver, float dt){
-  int threadsPerBlock = 512;
+  
+  int threadsPerBlock = 256;
   int blocks = (solver->convplan->len_m_comp) / threadsPerBlock;
   gpu_checkconf_int(blocks, threadsPerBlock);
   
-  //memcpy_gpu_to_gpu(solver->m, solver->m0, solver->len_m);
+  float* mx = &(solver->m[X*solver->len_m_comp]);
+  float* my = &(solver->m[Y*solver->len_m_comp]);
+  float* mz = &(solver->m[Z*solver->len_m_comp]);
+  
+  float* hx = &(solver->h[X*solver->len_m_comp]);
+  float* hy = &(solver->h[Y*solver->len_m_comp]);
+  float* hz = &(solver->h[Z*solver->len_m_comp]);
+  
   float* m0x = &(solver->m0[X*solver->len_m_comp]);
   float* m0y = &(solver->m0[Y*solver->len_m_comp]);
   float* m0z = &(solver->m0[Z*solver->len_m_comp]);
   
-  gpuconv1_exec(solver->convplan, solver->m, solver->h);
-    float* k0x = &(solver->k[0][X*solver->len_m_comp]);
-    float* k0y = &(solver->k[0][Y*solver->len_m_comp]);
-    float* k0z = &(solver->k[0][Z*solver->len_m_comp]);
-    _gpu_rk4step_0<<<blocks, threadsPerBlock>>>(solver->convplan->m_comp[0], solver->convplan->m_comp[1], solver->convplan->m_comp[2],
-						solver->convplan->h_comp[0], solver->convplan->h_comp[1], solver->convplan->h_comp[2], 
-						k0x, k0y, k0z,
-						dt);
-    cudaThreadSynchronize();
+  float* k0x = &(solver->k[0][X*solver->len_m_comp]);
+  float* k0y = &(solver->k[0][Y*solver->len_m_comp]);
+  float* k0z = &(solver->k[0][Z*solver->len_m_comp]);
   
+  float* k1x = &(solver->k[1][X*solver->len_m_comp]);
+  float* k1y = &(solver->k[1][Y*solver->len_m_comp]);
+  float* k1z = &(solver->k[1][Z*solver->len_m_comp]);
+  
+  float* k2x = &(solver->k[2][X*solver->len_m_comp]);
+  float* k2y = &(solver->k[2][Y*solver->len_m_comp]);
+  float* k2z = &(solver->k[2][Z*solver->len_m_comp]);
+
+  float* k3x = &(solver->k[3][X*solver->len_m_comp]);
+  float* k3y = &(solver->k[3][Y*solver->len_m_comp]);
+  float* k3z = &(solver->k[3][Z*solver->len_m_comp]);
+
+  // first backup starting point m0
+  memcpy_gpu_to_gpu(solver->m, solver->m0, solver->len_m);
+  // calc the field
   gpuconv1_exec(solver->convplan, solver->m, solver->h);
-    float* k1x = &(solver->k[1][X*solver->len_m_comp]);
-    float* k1y = &(solver->k[1][Y*solver->len_m_comp]);
-    float* k1z = &(solver->k[1][Z*solver->len_m_comp]);
-    _gpu_rk4step_1<<<blocks, threadsPerBlock>>>(solver->convplan->m_comp[0], solver->convplan->m_comp[1], solver->convplan->m_comp[2],
-						solver->convplan->h_comp[0], solver->convplan->h_comp[1], solver->convplan->h_comp[2], 
-						k1x, k1y, k1z,
-						m0x, m0y, m0z,
-						dt);
+  
+  _gpu_rk4step_0<<<blocks, threadsPerBlock>>>(mx,my,mz,  hx,hy,hz,  k0x,k0y,k0z,  dt);
   cudaThreadSynchronize();
   
   gpuconv1_exec(solver->convplan, solver->m, solver->h);
-    float* k2x = &(solver->k[2][X*solver->len_m_comp]);
-    float* k2y = &(solver->k[2][Y*solver->len_m_comp]);
-    float* k2z = &(solver->k[2][Z*solver->len_m_comp]);
-    _gpu_rk4step_2<<<blocks, threadsPerBlock>>>(solver->convplan->m_comp[0], solver->convplan->m_comp[1], solver->convplan->m_comp[2],
-						solver->convplan->h_comp[0], solver->convplan->h_comp[1], solver->convplan->h_comp[2], 
-						k2x, k2y, k2z,
-						m0x, m0y, m0z,
-						dt);
+
+  _gpu_rk4step_1<<<blocks, threadsPerBlock>>>(mx,my,mz,  hx,hy,hz,  k1x,k1y,k1z,  m0x,m0y,m0z,  dt);
   cudaThreadSynchronize();
   
   gpuconv1_exec(solver->convplan, solver->m, solver->h);
-    float* k3x = &(solver->k[3][X*solver->len_m_comp]);
-    float* k3y = &(solver->k[3][Y*solver->len_m_comp]);
-    float* k3z = &(solver->k[3][Z*solver->len_m_comp]);
-    _gpu_rk4step_3<<<blocks, threadsPerBlock>>>(solver->convplan->m_comp[0], solver->convplan->m_comp[1], solver->convplan->m_comp[2],
-						solver->convplan->h_comp[0], solver->convplan->h_comp[1], solver->convplan->h_comp[2], 
-						m0x, m0y, m0z,
-						k3x, k3y, k3z);
+  
+  _gpu_rk4step_2<<<blocks, threadsPerBlock>>>(mx,my,mz,  hx,hy,hz, k2x,k2y,k2z,  m0x,m0y,m0z,  dt);
   cudaThreadSynchronize();
   
-   _gpu_rk4step_4<<<blocks, threadsPerBlock>>>(solver->convplan->m_comp[X], solver->convplan->m_comp[Y], solver->convplan->m_comp[Z],
-						k0x, k0y, k0z,
-						k1x, k1y, k1z,
-						k2x, k2y, k2z,
-						k3x, k3y, k3z,
-						dt);
+  gpuconv1_exec(solver->convplan, solver->m, solver->h);
   
+  _gpu_rk4step_3<<<blocks, threadsPerBlock>>>(mx,my,mz,  hx,hy,hz, k3x,k3y,k3z,  m0x,m0y,m0z,  dt);
+  cudaThreadSynchronize();
+  
+  _gpu_rk4step_4<<<blocks, threadsPerBlock>>>(mx,my,mz,  k0x,k0y,k0z,  k1x,k1y,k1z,  k2x,k2y,k2z,  k3x,k3y,k3z,  dt);
   cudaThreadSynchronize();
 }
 
@@ -255,7 +286,10 @@ void gpurk4_init_h(gpurk4* solver){
 
 void gpurk4_init_k(gpurk4* solver){
   solver->k = (float**)calloc(3, sizeof(float*));
-  for(int i=0; i<3; i++){
+  // painful bugfix: was initialized up to 3 instead of 4.
+  // result: error in memcpy_gpu_to_gpu, AFTER execution of the offending kernel and acting on legal addresses
+  // FOLLOWED by : unspecified launch failure
+  for(int i=0; i<4; i++){
     solver->k[i] = new_gpu_array(solver->len_m);
   }
 }

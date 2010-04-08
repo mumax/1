@@ -28,7 +28,7 @@ $(OFILES): *.h $(CPPFILES) $(CUFILES)
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) $(CUFILES)
 
 
-test:	all  $(OFILES) tensor_test gpueuler_test
+test:	all  $(OFILES) tensor_test gpueuler_test gpusim_test
 
 tensor_test:	all tensor_test.cpp
 	$(CPP) -c $(CFLAGS) $(LDFLAGS) tensor_test.cpp

@@ -1,5 +1,5 @@
 #include "tensor.h"
-#include "gpueuler.h"
+#include "gpurk4.h"
 #include <assert.h>
 #include <stdio.h>
 
@@ -23,21 +23,21 @@ int main(int argc, char** argv){
   fclose(kernelfile);
   printf("read kernel: %d x %d x %d\n", kernel->size[2], kernel->size[3], kernel->size[4]);
   
-  gpueuler* euler = new_gpueuler(N0, N1, N2, kernel);
+  gpurk4* rk4 = new_gpurk4(N0, N1, N2, kernel);
   
-  gpueuler_loadm(euler, m);
+  gpurk4_loadm(rk4, m);
   
   char* fname = (char*)calloc(257, sizeof(char));
   for(int i=0; i<1000; i++){
     printf("%d ", i);
     fflush(stdout);
-    gpueuler_storem(euler, m);
+    gpurk4_storem(rk4, m);
     sprintf(fname, "m%07d.t", i);
     FILE* file = fopen(fname, "wb");
     write_tensor(m, file);
     fclose(file);
     for(int j=0; j<10; j++){
-	gpueuler_step(euler, 1E-7);
+	gpurk4_step(rk4, 1E-5);
     }
   }
 
