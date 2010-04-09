@@ -23,9 +23,20 @@ all: core.so
 core.so: $(OFILES)
 	$(NVCC) -shared $(LDFLAGS) $(OFILES) $(CUDALIBS) -o core.so
 
-$(OFILES): *.h $(CPPFILES) $(CUFILES)
-	$(NVCC) -c $(NVCCFLAGS)  $(CPPFILES)
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) $(CUFILES)
+tensor.o:	tensor.h tensor.cpp
+	$(NVCC) -c $(NVCCFLAGS) tensor.cpp
+
+gputil.o:	gputil.h gputil.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gputil.cu
+
+gpuconv1.o:	gpuconv1.h gpuconv1.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuconv1.cu
+
+gpueuler.o:	gpueuler.h gpueuler.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpueuler.cu
+
+gpurk4.o:	gpurk4.h gpurk4.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpurk4.cu
 
 
 test:	all  $(OFILES) tensor_test gpueuler_test gpusim_test
@@ -51,5 +62,3 @@ clean:
 
 doc:	*
 	doxygen doxygen.cfg
-
-
