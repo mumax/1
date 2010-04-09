@@ -2,6 +2,7 @@ include ../common.mk
 
 CPPFILES=\
 	tensor.cpp\
+	timer.cpp\
 
 CUFILES=\
 	gputil.cu\
@@ -11,6 +12,7 @@ CUFILES=\
 
 OFILES=\
 	tensor.o\
+	timer.o\
 	gputil.o\
 	gpuconv1.o\
 	gpueuler.o\
@@ -38,10 +40,13 @@ gpueuler.o:	gpueuler.h gpueuler.cu
 gpurk4.o:	gpurk4.h gpurk4.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpurk4.cu
 
+timer.o:	timer.h timer.cpp
+	$(NVCC) -c $(NVCCFLAGS) timer.cpp
+
 
 test:	all  $(OFILES) tensor_test gpueuler_test gpusim_test
 
-tensor_test:	all tensor_test.cpp
+tensor_test:	core.so tensor_test.cpp
 	$(CPP) -c $(CFLAGS) $(LDFLAGS) tensor_test.cpp
 	$(CPP) tensor_test.o core.so -o tensor_test
 	./tensor_test

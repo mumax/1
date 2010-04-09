@@ -2,6 +2,10 @@
 #include <iostream>
 #include <assert.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 using namespace std;
 
 
@@ -348,3 +352,7 @@ void* safe_calloc(int length, int elemsize){
   }
   return ptr;
 }
+
+#ifdef __cplusplus
+}
+#endif

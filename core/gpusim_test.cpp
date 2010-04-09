@@ -1,5 +1,6 @@
 #include "tensor.h"
 #include "gpueuler.h"
+#include "timer.h"
 #include <assert.h>
 #include <stdio.h>
 
@@ -28,7 +29,9 @@ int main(int argc, char** argv){
   gpueuler_loadm(euler, m);
   
   char* fname = (char*)calloc(257, sizeof(char));
+  
   for(int i=0; i<100; i++){
+    timer_start("run");
     printf("%d ", i);
     fflush(stdout);
     gpueuler_storem(euler, m);
@@ -39,7 +42,10 @@ int main(int argc, char** argv){
     for(int j=0; j<10; j++){
 	gpueuler_step(euler, 1E-6);
     }
+    timer_stop("run");
   }
+  
+  timer_printall();
 
   return 0;
 }

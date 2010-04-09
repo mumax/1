@@ -15,7 +15,7 @@
  */
 
 /**
- * @file tensor.h
+ * @file
  *
  * tensor provides a common interface for N-dimensional arrays of floats. The tensor type knows its rank and sizes in each dimension, so these do not have to be passed to function calls. Tensors can also be input/output in a common format, for sharing them between different programs or storing them in files.
  *
