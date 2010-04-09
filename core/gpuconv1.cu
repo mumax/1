@@ -1,5 +1,6 @@
 #include "gpuconv1.h"
 #include "gputil.h"
+#include "timer.h"
 #include <stdio.h>
 #include <assert.h>
 
@@ -36,7 +37,6 @@ void extract(const char* msg, float* data, int* size){
 void gpuconv1_exec(gpuconv1* sim, float* m, float* h){
   gpuconv1_init_m_comp(sim, m);
   gpuconv1_init_h_comp(sim, h);
-  
   gpu_zero(sim->ft_h, sim->len_ft_h);							// zero-out field (h) components
   for(int i=0; i<3; i++){								// transform and convolve per magnetization component m_i
     gpu_zero(sim->ft_m_i, sim->len_ft_m_i);						// zero-out the padded magnetization buffer first
@@ -71,6 +71,7 @@ __global__ void _gpu_kernel_mul(float* ft_m_i, float* ft_kernel_ij, float* ft_h_
 
 
 void gpu_kernel_mul(float* ft_m_i, float* ft_kernel_ij, float* ft_h_comp_j, int nRealNumbers){
+  timer_start("gpuconv1_kernel_mul");
   assert(nRealNumbers > 0);
   assert(nRealNumbers % 2 == 0);
   int threadsPerBlock = 512;
@@ -78,6 +79,7 @@ void gpu_kernel_mul(float* ft_m_i, float* ft_kernel_ij, float* ft_h_comp_j, int 
   gpu_checkconf_int(blocks, threadsPerBlock);
   _gpu_kernel_mul<<<blocks, threadsPerBlock>>>(ft_m_i, ft_kernel_ij, ft_h_comp_j);
   cudaThreadSynchronize();
+  timer_stop("gpuconv1_kernel_mul");
 }
 
 //_____________________________________________________________________________________________ padding/complex numbers
@@ -87,16 +89,18 @@ __global__ void _gpu_copy_unpad_c2r(float* source, float* dest, int N0, int N1, 
   int j = blockIdx.y;
   int k = threadIdx.x;
   
-  dest[i*N1*N2 + j*N2 + k] = source[i*2*N1*2*2*N2 + j*2*2*N2 + 2*k];
-  // 0. == source[i*2*N1*2*2*N2 + j*2*2*N2 + 2*k+1]; // TODO: check this
+  //dest[i*N1*N2 + j*N2 + k] = source[i*2*N1*2*2*N2 + j*2*2*N2 + 2*k];
+  dest[(i*N1 + j)*N2 + k] = source[(i*N1*8 + j*4)*N2 + 2*k];
 }
 
 void gpu_copy_unpad_c2r(float* source, float* dest, int N0, int N1, int N2){
+  timer_start("gpuconv1_copy_unpad_c2r");
   dim3 gridsize(N0, N1, 1);
   dim3 blocksize(N2, 1, 1);
   gpu_checkconf(gridsize, blocksize);
   _gpu_copy_unpad_c2r<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
   cudaThreadSynchronize();
+  timer_stop("gpuconv1_copy_unpad_c2r");
 }
 
 // Ni: logical size of m
@@ -118,11 +122,13 @@ void gpu_copy_pad_r2c(float* source, float* dest, int N0, int N1, int N2){
   /*
    * CUDA Note: the block size must be 2 dimensional (A x B x 1), despite being of type dim3.
    */
+  timer_start("gpuconv1_copy_pad_r2c");
   dim3 gridsize(N0, N1, 1);
   dim3 blocksize(N2, 1, 1);
   gpu_checkconf(gridsize, blocksize);
   _gpu_copy_pad_r2c<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
   cudaThreadSynchronize();
+  timer_stop("gpuconv1_copy_pad_r2c");
 }
 
 //_____________________________________________________________________________________________ kernel

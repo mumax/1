@@ -14,6 +14,11 @@
  * @note The CPU time is measured, not the walltime. This means that the time spent waiting for other processes or I/O does not count.
  *
  * @author Arne Vansteenkiste
+ *
+ * @note
+ * "We should forget about small efficiencies, say about 97% of the time: 
+ * premature optimization is the root of all evil"
+ * -- Donald Knuth 
  */
 #ifndef TIMER_H
 #define TIMER_H
@@ -40,6 +45,25 @@ void timer_print(const char* tag	///< identifies what is being timed
 		);
 /** Prints all the timers that are registered */
 void timer_printall();
+
+/**
+ * Like timer_printall(), but also prints percentages of the total time.
+ */
+void timer_printdetail();
+
+/** 
+ * The time elapsed between the first timer_start() and the last timer_stop() call.
+ * If all went well, this should be approximately equal to timer_accumulatedtime().
+ */
+double timer_elapsedtime();
+
+/** 
+ * The sum of registered times by all tags.
+ * If all went well, this should be approximately equal to timer_totaltime().
+ * If it is significantly smaller, important portions of the code have probably not been timed,
+ * if it is significantly larger, portions may have been double-timed.
+ */
+double timer_accumulatedtime();
 
 #ifdef __cplusplus
 }

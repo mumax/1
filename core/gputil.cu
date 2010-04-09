@@ -1,4 +1,5 @@
 #include "gputil.h"
+#include "timer.h"
 #include <stdio.h>
 #include <assert.h>
 
@@ -14,9 +15,11 @@ gpuc2cplan* new_gpuc2cplan(int N0, int N1, int N2){
 }
 
 void gpuc2cplan_exec(gpuc2cplan* plan, float* data, int direction){
+  timer_start("gpuc2cplan_exec");
   gpu_safe( 
     cufftExecC2C(plan->handle, (cufftComplex*)data, (cufftComplex*)data, direction) 
   );
+  timer_stop("gpuc2cplan_exec");
 }
 
 void delete_gpuc2cplan(gpuc2cplan* plan){
@@ -72,12 +75,14 @@ __global__ void _gpu_zero(float* list){
 // can probably be replaced by some cudaMemset function,
 // but I just wanted to try out some manual cuda coding.
 void gpu_zero(float* data, int nElements){
+  timer_start("gpu_zero");
   int threadsPerBlock = 512;
   assert(nElements > 0);
   int blocks = nElements / threadsPerBlock;
   gpu_checkconf_int(blocks, threadsPerBlock);
   _gpu_zero<<<blocks, threadsPerBlock>>>(data);
   cudaThreadSynchronize();
+  timer_stop("gpu_zero");
 }
 
 void memcpy_to_gpu(float* source, float* dest, int nElements){
@@ -101,6 +106,7 @@ void memcpy_from_gpu(float* source, float* dest, int nElements){
 
 // does not seem to work.. 
 void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
+  timer_start("memcpy_gpu_to_gpu");
   assert(nElements > 0);
   int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyDeviceToDevice);
   if(status != cudaSuccess){
@@ -108,6 +114,7 @@ void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
     gpu_safe(status);
   }
   cudaThreadSynchronize();
+  timer_stop("memcpy_gpu_to_gpu");
 }
 
 

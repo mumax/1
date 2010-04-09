@@ -1,3 +1,12 @@
+/**
+ * @file
+ * This test program runs a small simulation using gpuconv1 and gpuheun.
+ * The initial magnetization and demag tensor are read from testm0.t and testkernel.t.
+ * A few time steps are taken and one spin of the result is compared with its known solution.
+ *
+ * @author Arne Vansteenkiste
+ *
+ */
 #include "tensor.h"
 #include "gpuheun.h"
 #include "timer.h"
@@ -5,7 +14,7 @@
 #include <stdio.h>
 
 int main(int argc, char** argv){
-  printf("gpusim_test\n");
+  printf("gpuheun_test\n");
   
   assert(argc == 3);
   
@@ -28,22 +37,13 @@ int main(int argc, char** argv){
   
   gpuheun_loadm(heun, m);
   
-  char* fname = (char*)calloc(257, sizeof(char));
-  //printf("\27[H");
-  
-  for(int i=0; i<1000; i++){
-    printf("%d ", i);
-    fflush(stdout);
-    gpuheun_storem(heun, m);
-    sprintf(fname, "m%07d.t", i);
-    FILE* file = fopen(fname, "wb");
-    write_tensor(m, file);
-    fclose(file);
-    for(int j=0; j<1; j++){
-	gpuheun_step(heun, 1E-6);
-    }
+  for(int i=0; i<100; i++){
+    gpuheun_step(heun, 1E-7);
   }
-  printf("\n");
+  gpuheun_storem(heun, m);
+  
+  printf("%f\nPASS\n", *tensor_get(m, 4, 0, 0, 0, 0));
+  assert(fabs(*tensor_get(m, 4, 0, 0, 0, 0) - 0.832714) < 1E-6);
   timer_printdetail();
 
   return 0;

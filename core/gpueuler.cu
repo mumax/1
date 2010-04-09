@@ -1,4 +1,5 @@
 #include "gpueuler.h"
+#include "timer.h"
 #include <stdio.h>
 #include <assert.h>
 
@@ -39,8 +40,10 @@ void gpueuler_step(gpueuler* solver, float dt){
   gpuconv1_exec(solver->convplan, solver->m, solver->h);
   int blocks = (solver->convplan->len_m_comp) / threadsPerBlock;
   gpu_checkconf_int(blocks, threadsPerBlock);
+  timer_start("gpueuler_step");
   _gpu_eulerstep<<<blocks, threadsPerBlock>>>(solver->convplan->m_comp[0], solver->convplan->m_comp[1], solver->convplan->m_comp[2], solver->convplan->h_comp[0], solver->convplan->h_comp[1], solver->convplan->h_comp[2], dt);
   cudaThreadSynchronize();
+  timer_stop("gpueuler_step");
 }
 
 void gpueuler_checksize_m(gpueuler* sim, tensor* m){
