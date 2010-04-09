@@ -41,6 +41,8 @@ typedef struct{
   
   gpuconv1* convplan;
   
+  float* hExt;
+  
 }gpuheun;
 
 /**
@@ -49,7 +51,8 @@ typedef struct{
 gpuheun* new_gpuheun(int N0,		///< X-size of magnetization
 		       int N1,		///< Y-size of magnetization
 		       int N2, 		///< Z-size of magnetization
-		       tensor* kernel	///< convolution kernel describing the effective field. size: 2*N0 x 2*N1 x 2*N2
+		       tensor* kernel,	///< convolution kernel describing the effective field. size: 2*N0 x 2*N1 x 2*N2
+		       float* hExt	///< external field
 		       );
 
 /**

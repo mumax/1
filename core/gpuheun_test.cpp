@@ -37,8 +37,8 @@ int main(int argc, char** argv){
   
   gpuheun_loadm(heun, m);
   
-  for(int i=0; i<100; i++){
-    gpuheun_step(heun, 1E-7);
+  for(int i=0; i<1000; i++){
+    gpuheun_step(heun, 1E-8);
   }
   gpuheun_storem(heun, m);
   

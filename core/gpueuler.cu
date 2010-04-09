@@ -7,9 +7,10 @@
 extern "C" {
 #endif
 
+#define alpha 0.02f
+
 __global__ void _gpu_eulerstep(float* mx, float* my, float* mz, float* hx, float* hy, float* hz, float dt){
   int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
-  float alpha = 0.2;
  
   // - m cross H
   float _mxHx = -my[i] * hz[i] + hy[i] * mz[i];
