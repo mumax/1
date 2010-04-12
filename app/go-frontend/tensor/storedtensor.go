@@ -38,6 +38,10 @@ func NewTensor(size []int) StoredTensor{
 }
 
 
+func AsTensor(){
+  
+}
+
 /** Converts multi-dimensional index to integer index in row-major order. Includes range checks. */
 
 func Index(size, indexarray []int) int{

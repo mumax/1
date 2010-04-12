@@ -1,7 +1,10 @@
 include $(GOROOT)/src/Make.$(GOARCH)
 
 TARG=core
-CGOFILES=core.go
+CGOFILES=\
+	core.go\
+	gpuheun.go\
+
 
 CGO_LDFLAGS+=../../../core/core.so -I/usr/local/cuda/include/
 

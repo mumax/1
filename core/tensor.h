@@ -65,6 +65,13 @@ tensor* as_tensor(float* data,	///< array of data to wrapped in the tensor
 		  ...		///< sizes in each dimension, as many as rank
 		  );
 
+/** Makes a tensor form existing data, without varargs. */
+tensor* as_tensorN(float* data,	///< array of data to wrapped in the tensor
+		  int rank,	///< rank of the new tensor 
+		  int* size	///< sizes in each dimension, as many as rank
+		  );
+
+		  
 /** Frees the tensor, including its data list. Make sure no pointers to that list exist anymore, otherwise, delete_tensor_component() can be used to free everything but the data list. */
 void delete_tensor(tensor* t	///< the tensor to be deleted
 		  );

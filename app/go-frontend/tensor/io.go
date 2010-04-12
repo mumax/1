@@ -33,6 +33,12 @@ func Write(out io.Writer, t Tensor){
   }
 }
 
+func WriteFile(fname string, t Tensor){
+  file := FOpenz(fname);
+  Write(file, t);
+  file.Close();
+}
+
 /** Reads a tensor from 32-bit binary format. See libtensor.h for more details. */
 func Read(in io.Reader) StoredTensor{
   //fmt.Fprintln(os.Stderr, "ReadTensor(", in, ")");

@@ -104,12 +104,12 @@ void gpuheun_step(gpuheun* solver, float dt){
   cudaThreadSynchronize();
   timer_stop("gpuheun_step");
    
-//   gpuconv1_exec(solver->convplan, solver->m, solver->h);
-//   
-//   timer_start("gpuheun_step");
-//   _gpu_heunstep1<<<blocks, threadsPerBlock>>>(m[X],m[Y],m[Z],  h[X],h[Y],h[Z],  t0[X],t0[Y],t0[Z], m0[X], m0[Y], m0[Z], hExt[X],hExt[Y],hExt[Z], 0.5f*dt);
-//   cudaThreadSynchronize();
-//   timer_stop("gpuheun_step");
+  gpuconv1_exec(solver->convplan, solver->m, solver->h);
+  
+  timer_start("gpuheun_step");
+  _gpu_heunstep1<<<blocks, threadsPerBlock>>>(m[X],m[Y],m[Z],  h[X],h[Y],h[Z],  t0[X],t0[Y],t0[Z], m0[X], m0[Y], m0[Z], hExt[X],hExt[Y],hExt[Z], 0.5f*dt);
+  cudaThreadSynchronize();
+  timer_stop("gpuheun_step");
   
 }
 

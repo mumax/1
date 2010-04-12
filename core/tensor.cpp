@@ -49,6 +49,17 @@ tensor* as_tensor(float* list, int rank, ...){
   return t;
 }
 
+tensor* as_tensorN(float* list, int rank, int* size){
+  tensor* t = (tensor*)safe_malloc(sizeof(tensor));
+  t->rank = rank;
+  t->size = (int*)safe_calloc(rank, sizeof(int32_t));	
+  for(int i=0; i<rank; i++){
+    t->size[i] = size[i];
+  }
+  t-> list = list;
+  return t;
+}
+
 
 float* tensor_get(tensor* t, int r ...){
   int* index = new int[t->rank];

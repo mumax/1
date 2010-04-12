@@ -50,6 +50,7 @@ func (units *Units) PrintInfo(out io.Writer) {
   fmt.Fprintln(out, "exch length: \t", units.UnitLength(), " m");
   fmt.Fprintln(out, "unit time  : \t", units.UnitTime(), " s");
   fmt.Fprintln(out, "unit energy: \t", units.UnitEnergy(), " J");
+  fmt.Fprintln(out, "unit field: \t", units.UnitField(), " T");
   fmt.Fprintln(out, "Geometry");
   fmt.Fprintln(out, "Grid Size  : \t", units.Size);
   fmt.Fprint(out, "Cell Size  : \t");
@@ -87,10 +88,10 @@ func (units *Units) UnitTime() float{
   return 1.0 / (units.Gamma0 * units.MSat);
 }
 
-/** The internal unit of field, expressed in A/m. */
+/** The internal unit of field, expressed in tesla. */
 func (units *Units) UnitField() float{
   assert(units.Valid());
-  return units.MSat;
+  return units.Mu0 * units.MSat;
 }
 
 /** The internal unit of energy, expressed in J. */
@@ -103,9 +104,9 @@ func (units *Units) Valid() bool{
   return units.AExch != 0. && units.MSat != 0. && units.Gamma0 != 0 && units.Mu0 != 0;
 }
 
-// func (unit *Units) AssertValid(){
-//   
-// }
+func (unit *Units) AssertValid(){
+  assert(unit.Valid());
+}
 
 /** Crashes the program when the test is false. */
 func assert(test bool){
