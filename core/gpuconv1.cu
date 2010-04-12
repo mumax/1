@@ -160,15 +160,15 @@ void gpuconv1_loadkernel(gpuconv1* sim, tensor* kernel){
   
   gpuconv1_checksize_kernel(sim, kernel);
   gpuc2cplan* plan = new_gpuc2cplan(kernel->size[2], kernel->size[3], kernel->size[4]);
-  //float norm = 1.0/float(sim->paddedN);
+  float norm = 1.0/float(sim->paddedN);
   float* complex_kernel_ij = new_ram_array(sim->len_ft_kernel_ij);
   for(int i=0; i<3; i++){
       for(int j=0; j<3; j++){
 	memcpy_r2c(tensor_get(kernel, 5, i, j, 0, 0, 0), complex_kernel_ij, sim->len_kernel_ij);
-	// normalize
-// 	for(int e=0; e<sim->len_ft_kernel_ij; e++){
-// 	  complex_kernel_ij[e] *= norm;
-// 	}
+	//normalize
+	for(int e=0; e<sim->len_ft_kernel_ij; e++){
+	  complex_kernel_ij[e] *= norm;
+	}
 	memcpy_to_gpu(complex_kernel_ij, sim->ft_kernel[i][j], sim->len_ft_kernel_ij);
 	//extract("kernel_ij", sim->ft_kernel[i][j], sim->paddedComplexSize);
 	gpuc2cplan_exec(plan, sim->ft_kernel[i][j], CUFFT_FORWARD);

@@ -1,4 +1,6 @@
-# The compilers:
+# Common code for all makefiles
+# Should be included in each makefile
+
 CC=gcc
 CPP=g++
 NVCC=nvcc
@@ -12,3 +14,4 @@ CFLAGS+=\
 NVCCFLAGS+=\
   --compiler-options -fPIC\
   --compiler-options -g\
+

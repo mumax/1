@@ -1,3 +1,4 @@
+include ../../../common.mk
 include $(GOROOT)/src/Make.$(GOARCH)
 
 TARG=core
@@ -6,7 +7,7 @@ CGOFILES=\
 	gpuheun.go\
 
 
-CGO_LDFLAGS+=../../../core/core.so -I/usr/local/cuda/include/
+CGO_LDFLAGS+=$(CURDIR)/../../../core/core.so -I/usr/local/cuda/include/
 
 # files to be removed by make clean
 CLEANFILES+=core.cgo1.go core.cgo2.go core.cgo3.8 core.cgo3.c core.cgo4.c

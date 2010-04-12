@@ -1,3 +1,4 @@
+include ../../../common.mk
 include $(GOROOT)/src/Make.$(GOARCH)
 
 main:	*.go

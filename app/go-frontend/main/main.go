@@ -15,6 +15,7 @@ var m StoredTensor;
 var steps int;
 var savem float;
 var t float;
+var alpha float = 1.0;
 
 func main(){
   commands, args := parseArgs();
@@ -25,31 +26,43 @@ func main(){
 }
 
 func run(){
-  units.AssertValid();
-  for i:=range(units.CellSize){
-    units.CellSize[i] /= units.UnitLength();
-  }
-  units.PrintInfo(os.Stderr);
+  toInternalUnits();
   size := units.Size;
-  
+
   demag := FaceKernel(size, units.CellSize);
   exchange := Exch6NgbrKernel(size, units.CellSize);
   kernel := Buffer(Add(exchange, demag));
   solver := NewGpuHeun(size[0], size[1], size[2], kernel, hExt);
 
+  solver.LoadM(m);
   t = savem; // to trigger output for t=0
   for i:=0; i<steps; i++{
-    fmt.Fprintln(os.Stderr, i);
     if t >= savem{
-      //DUMP M from solver
+      solver.StoreM(m);
       saveM(i);
       t = 0;
     }
-    solver.Step(dt);
-    t += dt * units.UnitTime();
+    solver.Step(dt, alpha);
+    t += dt;
     
   }
   
+}
+
+func toInternalUnits(){
+  units.AssertValid();
+  for i:=range(units.CellSize){
+    units.CellSize[i] /= units.UnitLength();
+  }
+  savem /= units.UnitTime();
+  
+  for i:=0; i<3; i++{
+    hExt[i] /= units.UnitField();
+  }
+
+  dt /= units.UnitTime();
+
+  units.PrintInfo(os.Stderr);
 }
 
 func saveM(i int){
@@ -69,6 +82,9 @@ func exec(command string, args []string){
     case "--msat":
          argCount(command, args, 1, 1);
 	 units.MSat = Atof(args[0]);
+    case "--alpha":
+         argCount(command, args, 1, 1);
+	 alpha = Atof(args[0]);
     case "--dt":
 	 argCount(command, args, 1, 1);
 	 dt = Atof(args[0]);
@@ -81,7 +97,7 @@ func exec(command string, args []string){
     case "--steps":
 	 argCount(command, args, 1, 1);
 	 steps = Atoi(args[0]);
-    case "--savem":
+    case "--autosavem":
 	 argCount(command, args, 1, 1);
 	 savem = Atof(args[0]);
     default:
