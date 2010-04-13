@@ -29,7 +29,7 @@ func faceIntegral(cellsize[] float, r []int, mdir int) [3]float{
     R.Sub(pole[p]);
     r := R.Norm();
     R.Normalize();
-    R.Divide(4*charge*Pi*r*r);
+    R.Scale(charge / (4.*Pi*r*r) );
     if p == 1 {R.Scale(-1.)};
     B.Add(R); 
   }

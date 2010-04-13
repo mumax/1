@@ -11,8 +11,8 @@ N1=32
 N2=1
 
 all:	m_init.t
-	gosim --alpha 0.02  --msat 800E3 --aexch 1.3e-11 --size $(N0) $(N1) $(N2) --cellsize 3.90625E-9 3.90625E-9 3E-9 --loadm m_init.t --dt 0.1E-12 --steps 10000 --autosavem 1E-12
-#--hext -24.6E-3 4.3E-3 0
+	gosim --alpha 0.02  --msat 800E3 --aexch 1.3e-11 --size $(N0) $(N1) $(N2) --cellsize 3.90625E-9 3.90625E-9 3E-9 --loadm m_init.t --dt 0.2E-12 --hext -24.6E-3 4.3E-3 0 --autosavem 1E-12 --steps 5000 
+#
 
 m_init.t:
 	tensor --new 3 $(N0) $(N1) $(N2) --setall 1.0 --normalize 0 > m0.t
@@ -26,4 +26,4 @@ kernel.t:
 
 .PHONY:	clean
 clean:
-	rm -f m00*.t kernel.t *.png m0.t m_init.t
+	rm -f m00*.t kernel.t *.png m0.t
