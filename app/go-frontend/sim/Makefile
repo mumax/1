@@ -6,5 +6,6 @@ GOFILES=\
 	demag.go\
 	exchange.go\
 	units.go\
+	config.go\
 	
 include $(GOROOT)/src/Make.pkg

@@ -12,6 +12,7 @@ all:
 	ln -sf sim/_obj/sim.a .
 	make -C tensor-main
 	make -C kernel-main
+	make -C config-main
 	make -C main
 
 .PHONY: clean
@@ -21,6 +22,7 @@ clean:
 	make clean -C sim
 	make clean -C tensor-main
 	make clean -C kernel-main
+	make clean -C config-main
 	make clean -C main
 
 test:	all

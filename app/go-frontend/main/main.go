@@ -1,5 +1,9 @@
 package main
 
+/**
+ * Main simulation program
+ */
+
 import(
   "fmt";
   "os";
@@ -16,23 +20,24 @@ var steps int;
 var savem float;
 var t float;
 var alpha float = 1.0;
+var kernel StoredTensor;
 
 func main(){
   commands, args := parseArgs();
   for i:=range(commands){
     exec(commands[i], args[i]);
   }
-  run();
 }
+
+var solver *GpuHeun;
+var h StoredTensor;
 
 func run(){
   toInternalUnits();
   size := units.Size;
 
-  demag := FaceKernel(size, units.CellSize);
-  exchange := Exch6NgbrKernel(size, units.CellSize);
-  kernel := Buffer(Add(exchange, demag));
-  solver := NewGpuHeun(size[0], size[1], size[2], kernel, hExt);
+  if kernel == nil { makeKernel() };
+  if solver == nil { solver = NewGpuHeun(size[0], size[1], size[2], kernel, hExt) };
 
   solver.LoadM(m);
   t = savem; // to trigger output for t=0
@@ -47,6 +52,12 @@ func run(){
     
   }
   
+}
+
+func makeKernel(){
+  demag := FaceKernel(units.Size, units.CellSize);
+  exchange := Exch6NgbrKernel(units.Size, units.CellSize);
+  kernel = Buffer(Add(exchange, demag));
 }
 
 func toInternalUnits(){
@@ -97,9 +108,19 @@ func exec(command string, args []string){
     case "--steps":
 	 argCount(command, args, 1, 1);
 	 steps = Atoi(args[0]);
+	 run();
     case "--autosavem":
 	 argCount(command, args, 1, 1);
 	 savem = Atof(args[0]);
+    case "--storem":
+	 argCount(command, args, 1, 1);
+	 solver.StoreM(m);
+	 WriteFile(args[0], m);
+    case "--storeh":
+	 argCount(command, args, 1, 1);
+	 if h == nil { h = NewTensorN(m.Size()) };
+	 solver.StoreH(h);
+	 WriteFile(args[0], h);
     default:
       fmt.Fprintln(os.Stderr, "unknown command:", command);
       os.Exit(-1);

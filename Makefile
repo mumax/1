@@ -11,6 +11,8 @@ all:
 clean:
 	make clean -C core
 	make clean -C app
+	make clean -C sims
+	make clean -C bin
 
 test:	all
 	make test -C core

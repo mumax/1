@@ -23,17 +23,17 @@ func (solver *GpuHeun) Step(dt, alpha float){
 }
 
 func (solver *GpuHeun) LoadM(m StoredTensor){
-  assertEqualSize(solver.size, m.Size());
+  assertEqualSize(solver.size, []int{m.Size()[1+X], m.Size()[1+Y], m.Size()[1+Z]});
   C.gpuheun_loadm(solver.pointer, ToCTensor(m));
 }
 
 func (solver *GpuHeun) StoreM(m StoredTensor){
-  assertEqualSize(solver.size, m.Size());
+  assertEqualSize(solver.size, []int{m.Size()[1+X], m.Size()[1+Y], m.Size()[1+Z]});
   C.gpuheun_storem(solver.pointer, ToCTensor(m));
 }
 
 func (solver *GpuHeun) StoreH(h StoredTensor){
-  assertEqualSize(solver.size, h.Size());
+  assertEqualSize(solver.size, []int{h.Size()[1+X], h.Size()[1+Y], h.Size()[1+Z]});
   C.gpuheun_storeh(solver.pointer, ToCTensor(h));
 }
 

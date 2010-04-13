@@ -26,7 +26,6 @@ func Array2D(size0, size1 int) ([]float, [][]float){
   return list, sliced;
 }
 
-
 /** Returns a 3D array, as well as the contiguous 1D array backing it. */ 
 
 func Array3D(size0, size1, size2 int) ([]float, [][][]float){

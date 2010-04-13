@@ -26,4 +26,4 @@ kernel.t:
 
 .PHONY:	clean
 clean:
-	rm -f m00*.t kernel.t *.png
+	rm -f m00*.t kernel.t *.png m0.t m_init.t
