@@ -44,18 +44,18 @@ double timer_get(const char* tag	///< identifies what is being timed
 void timer_print(const char* tag	///< identifies what is being timed
 		);
 /** Prints all the timers that are registered */
-void timer_printall();
+void timer_printall(void);
 
 /**
  * Like timer_printall(), but also prints percentages of the total time.
  */
-void timer_printdetail();
+void timer_printdetail(void);
 
 /** 
  * The time elapsed between the first timer_start() and the last timer_stop() call.
  * If all went well, this should be approximately equal to timer_accumulatedtime().
  */
-double timer_elapsedtime();
+double timer_elapsedtime(void);
 
 /** 
  * The sum of registered times by all tags.
@@ -63,7 +63,7 @@ double timer_elapsedtime();
  * If it is significantly smaller, important portions of the code have probably not been timed,
  * if it is significantly larger, portions may have been double-timed.
  */
-double timer_accumulatedtime();
+double timer_accumulatedtime(void);
 
 #ifdef __cplusplus
 }

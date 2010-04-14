@@ -33,17 +33,21 @@ int main(int argc, char** argv){
   fclose(kernelfile);
   printf("read kernel: %d x %d x %d\n", kernel->size[2], kernel->size[3], kernel->size[4]);
   
-  gpuheun* heun = new_gpuheun(N0, N1, N2, kernel);
+  float* hExt = new float[3];
+  hExt[X] = hExt[Y] = hExt[Z] = 0.;
+  
+  gpuheun* heun = new_gpuheun(N0, N1, N2, kernel, hExt);
   
   gpuheun_loadm(heun, m);
   
-  for(int i=0; i<1000; i++){
-    gpuheun_step(heun, 1E-8);
+  float alpha = 1.0;
+  for(int i=0; i<100; i++){
+    gpuheun_step(heun, 1E-5, alpha);
   }
   gpuheun_storem(heun, m);
   
   printf("%f\nPASS\n", *tensor_get(m, 4, 0, 0, 0, 0));
-  assert(fabs(*tensor_get(m, 4, 0, 0, 0, 0) - 0.832714) < 1E-6);
+  assert(fabs(*tensor_get(m, 4, 0, 0, 0, 0) - 0.578391) < 1E-6);
   timer_printdetail();
 
   return 0;

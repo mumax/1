@@ -7,6 +7,24 @@
 extern "C" {
 #endif
 
+__global__ void _gpu_normalize(float* mx , float* my , float* mz){
+  int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
+  float norm = rsqrtf(mx[i]*mx[i] + my[i]*my[i] + mz[i]*mz[i]); // inverse square root
+  mx[i] *= norm;
+  my[i] *= norm;
+  mz[i] *= norm;
+}
+
+void gpuheun_normalize_m(gpuheun* solver){
+  int threadsPerBlock = 512;
+  int blocks = (solver->convplan->len_m_comp) / threadsPerBlock;
+  gpu_checkconf_int(blocks, threadsPerBlock);
+  
+  timer_start("normalize_m");
+  _gpu_normalize<<<blocks, threadsPerBlock>>>(solver->m_comp[X], solver->m_comp[Y], solver->m_comp[Z]);
+  cudaThreadSynchronize();
+  timer_stop("normalize_m");
+}
 
 __global__ void _gpu_heunstep0(float* mx , float* my , float* mz ,
 			       float* hx , float* hy , float* hz ,
@@ -37,11 +55,6 @@ __global__ void _gpu_heunstep0(float* mx , float* my , float* mz ,
   mx[i] += gilbert_dt * t0x[i];
   my[i] += gilbert_dt * t0y[i];
   mz[i] += gilbert_dt * t0z[i];
-  
-  float norm = rsqrtf(mx[i]*mx[i] + my[i]*my[i] + mz[i]*mz[i]); // inverse square root
-  mx[i] *= norm;
-  my[i] *= norm;
-  mz[i] *= norm;
 }
 
 __global__ void _gpu_heunstep1(float* mx , float* my , float* mz ,
@@ -75,13 +88,8 @@ __global__ void _gpu_heunstep1(float* mx , float* my , float* mz ,
   mx[i] = m0x[i] + half_gilbert_dt * (t0x[i] + torquex);
   my[i] = m0y[i] + half_gilbert_dt * (t0y[i] + torquey);
   mz[i] = m0z[i] + half_gilbert_dt * (t0z[i] + torquez);
-  
-  float norm = rsqrtf(mx[i]*mx[i] + my[i]*my[i] + mz[i]*mz[i]); // inverse square root
-  mx[i] *= norm;
-  my[i] *= norm;
-  mz[i] *= norm;
-  
 }
+
 /** @todo gilbert factor */
 void gpuheun_step(gpuheun* solver, float dt, float alpha){
   int threadsPerBlock = 512;
@@ -102,6 +110,7 @@ void gpuheun_step(gpuheun* solver, float dt, float alpha){
   _gpu_heunstep0<<<blocks, threadsPerBlock>>>(m[X],m[Y],m[Z],  h[X],h[Y],h[Z],  t0[X],t0[Y],t0[Z], hExt[X],hExt[Y],hExt[Z], dt, alpha);
   cudaThreadSynchronize();
   timer_stop("gpuheun_step");
+  gpuheun_normalize_m(solver);
    
   gpuconv1_exec(solver->convplan, solver->m, solver->h);
   
@@ -109,7 +118,7 @@ void gpuheun_step(gpuheun* solver, float dt, float alpha){
   _gpu_heunstep1<<<blocks, threadsPerBlock>>>(m[X],m[Y],m[Z],  h[X],h[Y],h[Z],  t0[X],t0[Y],t0[Z], m0[X], m0[Y], m0[Z], hExt[X],hExt[Y],hExt[Z], 0.5f*dt, alpha);
   cudaThreadSynchronize();
   timer_stop("gpuheun_step");
-  
+  gpuheun_normalize_m(solver);
 }
 
 void gpuheun_checksize_m(gpuheun* sim, tensor* m){
