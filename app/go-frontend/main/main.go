@@ -55,7 +55,7 @@ func run(){
 }
 
 func makeKernel(){
-  demag := FaceKernel(units.Size, units.CellSize);
+  demag := PointKernel(units.Size, units.CellSize);
   exchange := Exch6NgbrKernel(units.Size, units.CellSize);
   kernel = Buffer(Add(exchange, demag));
 }

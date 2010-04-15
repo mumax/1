@@ -21,7 +21,7 @@ func main() {
 }
 
 func makeKernel(){
- demag := FaceKernel(units.Size, units.CellSize);
+ demag := PointKernel(units.Size, units.CellSize);
  exch := Exch6NgbrKernel(units.Size, units.CellSize);
  kernel := Add(exch, demag);
  Write(os.Stdout, kernel);
