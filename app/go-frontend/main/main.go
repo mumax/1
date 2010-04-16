@@ -42,11 +42,7 @@ func run(){
   solver.LoadM(m);
   t = savem; // to trigger output for t=0
   for i:=0; i<steps; i++{
-    if t >= savem{
-      solver.StoreM(m);
-      saveM(i);
-      t = 0;
-    }
+    autosave(i);
     solver.Step(dt, alpha);
     t += dt;
     
@@ -55,7 +51,7 @@ func run(){
 }
 
 func makeKernel(){
-  demag := PointKernel(units.Size, units.CellSize);
+  demag := FaceKernel(units.Size, units.CellSize);
   exchange := Exch6NgbrKernel(units.Size, units.CellSize);
   kernel = Buffer(Add(exchange, demag));
 }
@@ -74,6 +70,14 @@ func toInternalUnits(){
   dt /= units.UnitTime();
 
   units.PrintInfo(os.Stderr);
+}
+
+func autosave(step int){
+  if savem != 0. && t >= savem{
+      solver.StoreM(m);
+      saveM(step);
+      t = 0;
+    }
 }
 
 func saveM(i int){
