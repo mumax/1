@@ -3,6 +3,7 @@ include ../common.mk
 CPPFILES=\
 	tensor.cpp\
 	timer.cpp\
+	units.c\
 
 CUFILES=\
 	gputil.cu\
@@ -14,6 +15,7 @@ CUFILES=\
 OFILES=\
 	tensor.o\
 	timer.o\
+	units.o\
 	gputil.o\
 	gpuconv1.o\
 	gpueuler.o\
@@ -47,6 +49,9 @@ gpurk4.o:	gpurk4.h gpurk4.cu
 
 timer.o:	timer.h timer.cpp
 	$(NVCC) -c $(NVCCFLAGS) timer.cpp
+
+units.o:	units.h units.c
+	$(NVCC) -c $(NVCCFLAGS) units.c
 
 
 test:	all  $(OFILES) tensor_test gpueuler_test gpuheun_test gpusim_test

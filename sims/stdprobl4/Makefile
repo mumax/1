@@ -19,7 +19,7 @@ all:	m_init.t
 plot:	plot.pdf
 
 plot.pdf:
-	$(bash -c '(for i in m00*.t; do tensor --component Y --average 0 --average 0 --get 0 < $i; done) > my.txt')
+	bash -c '(for i in m00*.t; do tensor --component Y --average 0 --average 0 --get 0 < $$i; done) > my.txt'
 	autoplot.sh plot
 
 m_init.t:

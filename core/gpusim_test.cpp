@@ -5,27 +5,6 @@
 #include <stdio.h>
 
 
-// even with time step 1E-7, the systems very slowly becomes unstable at low alpha (e.g. 0.02) 
-// the behavior is independent of the time step for dt= 1E-5, 1E-6, 1E-7, suggesting the time
-// step is small enough.
-// UPDATE: it seems 1E-8 is not TOO small, estimated from the intrinsic dynamics,
-// nevertheless, the behavior is the same.
-
-// both the euler and heun solvers suffer from this (not thouroughly checked for rk4)
-
-// everything seems OK at high alpha: standard problem 4 is relaxed correctly,
-// so exchange and demag contributions should be OK.
-
-// is the numerical accuracy seeding the spontanous oscillations?
-// todo: check with the CPU version if the same happens
-// if so: throw the exchange field out of the kernel and calculate manually, try again
-// if still present: perhaps boundary conditions DO matter for the dynamics??
-// if still present in CPU: try double precission
-
-
-
-
-
 int main(int argc, char** argv){
   printf("gpusim_test\n");
   

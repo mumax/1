@@ -1,20 +1,16 @@
 include ../../common.mk
 
 CPPFILES=\
-	main.cpp\
+	main.cpp
 
 OFILES=\
 	main.o\
 
-CUDALIBS=-lcuda -lcudart -lcufft
+CUDALIBS= -lcudart -lcufft
 
-all: main
-
-main: $(OFILES)
-	$(CPP) $(OFILES) ../../core/core.so  -o main
-
-$(OFILES): *.h $(CPPFILES)
-	$(CPP) -c $(CFLAGS) $(LDFLAGS) $(CPPFILES)
+all:	main.cpp
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) -I ../../core main.cpp
+	$(NVCC) $(CUDALIBS) $(OFILES) main.o -o main
 
 .PHONY:	clean
 clean:	

@@ -2,45 +2,97 @@ package main
 
 import(
   . "reflect";
-  "fmt";
-  "os";
-  "strconv";
+   "fmt";
+   "os";
+   "strconv";
 )
 
+const CAPACITY = 100;
+
+
 type Refsh struct{
-  Funcs map[string]*FuncValue;
+  funcnames []string;
+  funcs []*FuncValue;
 }
 
 func NewRefsh() *Refsh{
-  return &Refsh{map[string]*FuncValue{}}; 
+  return &Refsh{make([]string, CAPACITY)[0:0], make([]*FuncValue, CAPACITY)[0:0]}; 
+}
+
+func (r *Refsh) Add(funcname string, function Value){
+  if r.resolve(funcname) != nil{
+    fmt.Fprintln(os.Stderr, "Aldready defined:", funcname);
+    os.Exit(-4);
+  }
+  r.funcnames = r.funcnames[0:len(r.funcnames)+1];
+  r.funcnames[len(r.funcnames)-1] = funcname;
+  r.funcs = r.funcs[0:len(r.funcs)+1];
+  r.funcs[len(r.funcs)-1] = function.(*FuncValue);
 }
 
 func (refsh *Refsh) Call(fname string, argv []string){
-  function := refsh.Funcs[fname];
-  //functype := function.Type().(*FuncType);
-  args := refsh.ParseArgs(fname, argv);
+  function := refsh.resolve(fname);
+  if function == nil{
+    fmt.Fprintln(os.Stderr, "Unknown command:", fname, "Options are:", refsh.funcnames);
+    os.Exit(-5);
+  }
+
+  args := refsh.parseArgs(fname, argv);
   function.Call(args);
 }
 
-func CheckArgCount(fname string, argv []string, nargs int){
+func (refsh *Refsh) ExecFlags(){
+  commands, args := ParseFlags();
+  for i:=range(commands){
+    //fmt.Fprintln(os.Stderr, commands[i], args[i]);
+    refsh.Call(commands[i], args[i]);
+  }
+}
+
+
+
+func (r *Refsh) resolve(funcname string) *FuncValue{
+  for i:=range(r.funcnames){
+    if r.funcnames[i] == funcname{
+      return r.funcs[i];
+    }
+  }
+  return nil; // never reached
+}
+
+func (refsh *Refsh) parseArgs(fname string, argv []string) []Value{
+  function := refsh.resolve(fname);
+  functype := function.Type().(*FuncType);
+  nargs := functype.NumIn();
+
+  checkArgCount(fname, argv, nargs);
+
+  args := make([]Value, nargs);
+  for i:=range(args){
+    args[i] = parseArg(argv[i], functype.In(i));
+  }
+  return args;
+}
+
+func checkArgCount(fname string, argv []string, nargs int){
   if nargs != len(argv){
     fmt.Fprintln(os.Stderr, "Error calling", fname, argv, ": needs", nargs, "arguments.");
     os.Exit(-1);
   }
 }
 
-func ParseArg(arg string, argtype Type) Value{
+func parseArg(arg string, argtype Type) Value{
   switch argtype.Name(){
     default: 
       fmt.Fprintln(os.Stderr, "Do not know how to parse", argtype);
       os.Exit(-2);
     case "int":
-      return NewValue(ParseInt(arg));
+      return NewValue(parseInt(arg));
   }
   return NewValue(666); // is never reached.
 }
 
-func ParseInt(str string) int{
+func parseInt(str string) int{
   i, err := strconv.Atoi(str);
   if err != nil{
       fmt.Fprintln(os.Stderr, "Could not parse to int:", str);
@@ -49,27 +101,12 @@ func ParseInt(str string) int{
   return i;
 }
 
-func (refsh *Refsh) ParseArgs(fname string, argv []string) []Value{
-  function := refsh.Funcs[fname];
-  functype := function.Type().(*FuncType);
-  nargs := functype.NumIn();
-
-  CheckArgCount(fname, argv, nargs);
-
-  args := make([]Value, nargs);
-  for i:=range(args){
-    args[i] = ParseArg(argv[i], functype.In(i));
-  }
-  return args;
-}
-
 
 func main(){
   refsh := NewRefsh();
-  refsh.Funcs["test"] = NewValue(Test).(*FuncValue);
-  refsh.Call("test", []string{"123"});
+  refsh.Add("test", NewValue(Test));
+  refsh.ParseFlags();
 }
-
 
 func Test(i int){
   fmt.Println("Hello reflection!", i);
