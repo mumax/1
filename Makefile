@@ -13,6 +13,7 @@ clean:
 	make clean -C app
 	make clean -C sims
 	make clean -C bin
+	rm -rf doc/*
 
 test:	all
 	make test -C core

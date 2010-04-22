@@ -45,12 +45,15 @@ void timer_printall(){
 
 void timer_printdetail(){
   double acc = timer_accumulatedtime();
-  cerr << "elapsed time:     " << timer_elapsedtime() << " s" << endl;
+  double elapsed = timer_elapsedtime();
+  cerr << "elapsed time:     " << elapsed << " s" << endl;
   cerr << "accumulated time: " << acc << " s" << endl;
   for(map<string, double>::iterator it = timer_total.begin(); it != timer_total.end(); it++){
     timer_print(it->first.c_str());
-    fprintf(stderr, " (%5.2lf %%)\n", 100.0 * timer_get(it->first.c_str()) / acc);  
+    fprintf(stderr, " (%5.2lf %%)\n", 100.0 * timer_get(it->first.c_str()) / elapsed);  
   }
+  fprintf(stderr, "%25s: %6.2lf s", "[other]", elapsed - acc);
+  fprintf(stderr, " (%5.2lf %%)\n", 100.0 * (elapsed - acc) / elapsed); 
 }
 
 double timer_elapsedtime(){

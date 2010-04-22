@@ -44,6 +44,8 @@ double unitfield(units* u);
 /** The internal unit of energy, expressed in J. */
 double unitenergy(units* u);
 
+/** Prints the material parameters and units */
+void printunits(units* u);
 
 #ifdef __cplusplus
 }
