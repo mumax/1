@@ -2,6 +2,7 @@ include ../common.mk
 
 CPPFILES=\
 	tensor.cpp\
+	pipes.cpp\
 	timer.cpp\
 	units.c\
 
@@ -14,6 +15,7 @@ CUFILES=\
 
 OFILES=\
 	tensor.o\
+	pipes.o\
 	timer.o\
 	units.o\
 	gputil.o\
@@ -34,6 +36,9 @@ core.a:	$(OFILES)
 
 tensor.o:	tensor.h tensor.cpp
 	$(NVCC) -c $(NVCCFLAGS) tensor.cpp
+
+pipes.o:	pipes.h pipes.cpp
+	$(NVCC) -c $(NVCCFLAGS) pipes.cpp
 
 gputil.o:	gputil.h gputil.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gputil.cu

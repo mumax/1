@@ -3,8 +3,13 @@
  *
  * A timer for benchmarking and profiling.
  *
- * A timer is started/stopped with a tag to identify what is being timed, e.g.: timer_start("fft"); do_fft(); timer_stop("fft");
- * The time can then be obtained with timer_get("fft"), or printed to the screen with timer_print("fft").
+ * A timer is started/stopped with a tag to identify what is being timed, e.g.: 
+ * @code
+ * timer_start("fft"); 
+ * do_fft(); 
+ * timer_stop("fft");
+ * @endcode
+ * The time can then be obtained with @code timer_get("fft") @endcode or printed to the screen with @code timer_print("fft") @endcode.
  *
  * A timer can be started and stopped multiple times, which will accumulate the total time.
  *
