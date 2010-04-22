@@ -8,8 +8,7 @@
  *
  * A timer can be started and stopped multiple times, which will accumulate the total time.
  *
- * Multiple timers with different tags can safely be running at the same time. 
- * Everyting can be printed to the screen with timer_printall();
+ * Everyting can be printed to the screen with timer_printall(), timer_printdetail();
  * 
  * @note The CPU time is measured, not the walltime. This means that the time spent waiting for other processes or I/O does not count.
  *

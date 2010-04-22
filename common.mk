@@ -12,6 +12,7 @@ CFLAGS+=\
 
 
 NVCCFLAGS+=\
+  --compiler-options -Werror\
   --compiler-options -fPIC\
   --compiler-options -g\
 

@@ -3,6 +3,7 @@ extern "C" {
 #endif
 
 #include "units.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
