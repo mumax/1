@@ -24,10 +24,13 @@ OFILES=\
 
 CUDALIBS= -lcudart -lcufft
 
-all: core.so
+all: core.so core.a doc
 
 core.so: $(OFILES)
 	$(NVCC) -shared $(LDFLAGS) $(OFILES) $(CUDALIBS) -o core.so
+
+core.a:	$(OFILES)
+	ar rcs core.a $(OFILES)
 
 tensor.o:	tensor.h tensor.cpp
 	$(NVCC) -c $(NVCCFLAGS) tensor.cpp
@@ -78,7 +81,7 @@ gpusim_test:	all gpusim_test.cpp
 
 .PHONY:	clean
 clean:	
-	rm -f *.o *.so iotest *_test
+	rm -f *.o *.so *.a iotest *_test
 
 doc:	*
 	doxygen doxygen.cfg
