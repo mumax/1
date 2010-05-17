@@ -72,6 +72,7 @@ int gpu_len(int size	///< minimum size of the array
 /**
  * Allocates an array of floats on the GPU and asserts the size is a multiple of 512.
  * @see gpu_len(), new_ram_array()
+ * @todo We need to use strided arrays and make sure simulations work if the number of cells is no multiple of 512.
  */
 float* new_gpu_array(int size	///< size of the array
 		    );

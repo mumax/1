@@ -19,6 +19,7 @@ export GOROOT=$HOME/sbin/go
 export GOOS=linux
 export GOARCH=amd64
 export GOBIN=$HOME/sbin
+sudo cp sbin/go/misc/kate/go.xml /usr/share/kde4/apps/katepart/syntax/
 
 * env. variables:
 edit .bashrc
@@ -30,6 +31,14 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/li
 make
 sudo make install
 
+* Dependencies for scripts etc:
+ffmpeg gnuplot
+
+
 (* general Ubuntu)
-sudo apt-get install build-essential ubuntu-restricted-extras 
-automount win partition
+sudo apt-get install build-essential ubuntu-restricted-extras flashplugin
+automount win partition:
+/etc/fstab:  /dev/sdaXXX /media/xp ntfs-3g defaults,locale=en_US.utf8 0 0
+ln -s /media/xp /home/XXX/My\ Documents
+
+

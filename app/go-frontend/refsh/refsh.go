@@ -7,6 +7,10 @@ import(
    "strconv";
 )
 
+/** 
+ * Maximum number of functions.
+ * @todo use a vector to make this unlimited.
+ */
 const CAPACITY = 100;
 
 
@@ -19,6 +23,10 @@ func NewRefsh() *Refsh{
   return &Refsh{make([]string, CAPACITY)[0:0], make([]*FuncValue, CAPACITY)[0:0]}; 
 }
 
+/**
+ * Adds a function to the list of known commands.
+ * example: refsh.Add("exit", reflect.NewValue(Exit));
+ */
 func (r *Refsh) Add(funcname string, function Value){
   if r.resolve(funcname) != nil{
     fmt.Fprintln(os.Stderr, "Aldready defined:", funcname);
@@ -30,6 +38,10 @@ func (r *Refsh) Add(funcname string, function Value){
   r.funcs[len(r.funcs)-1] = function.(*FuncValue);
 }
 
+/**
+ * Calls a function. Function name and arguments are passed as strings.
+ * The function name should first have been added by refsh.Add();
+ */
 func (refsh *Refsh) Call(fname string, argv []string){
   function := refsh.resolve(fname);
   if function == nil{
@@ -41,6 +53,10 @@ func (refsh *Refsh) Call(fname string, argv []string){
   function.Call(args);
 }
 
+/**
+ * Executes the command line arguments. They should have a syntax like:
+ * --command1 arg1 arg2 --command2 --command3 arg1
+ */
 func (refsh *Refsh) ExecFlags(){
   commands, args := ParseFlags();
   for i:=range(commands){
