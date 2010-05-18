@@ -32,7 +32,7 @@ make
 sudo make install
 
 * Dependencies for scripts etc:
-doxygen ffmpeg gnuplot
+doxygen ffmpeg gnuplot mencoder
 
 
 (* general Ubuntu)

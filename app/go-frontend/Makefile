@@ -17,6 +17,7 @@ all:
 	make -C tensor-main
 	make -C kernel-main
 	make -C config-main
+	make -C draw
 	make -C main
 
 .PHONY: clean
