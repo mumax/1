@@ -1,4 +1,4 @@
-package main
+package refsh
 
 import(
   . "reflect";
@@ -21,6 +21,10 @@ type Refsh struct{
 
 func NewRefsh() *Refsh{
   return &Refsh{make([]string, CAPACITY)[0:0], make([]*FuncValue, CAPACITY)[0:0]}; 
+}
+
+func New() *Refsh{
+  return NewRefsh();
 }
 
 /**
@@ -121,7 +125,7 @@ func parseInt(str string) int{
 func main(){
   refsh := NewRefsh();
   refsh.Add("test", NewValue(Test));
-  refsh.ParseFlags();
+  refsh.ExecFlags();
 }
 
 func Test(i int){

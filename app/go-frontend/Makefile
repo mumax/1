@@ -8,8 +8,12 @@ all:
 	make -C core
 	make install -C core
 
+	make -C refsh
+	ln -sf refsh/_obj/refsh.a .
+
 	make -C sim
 	ln -sf sim/_obj/sim.a .
+
 	make -C tensor-main
 	make -C kernel-main
 	make -C config-main
@@ -28,4 +32,5 @@ clean:
 test:	all
 	make test -C tensor
 #	make test -C core
+
 

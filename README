@@ -32,7 +32,7 @@ make
 sudo make install
 
 * Dependencies for scripts etc:
-ffmpeg gnuplot
+doxygen ffmpeg gnuplot
 
 
 (* general Ubuntu)
