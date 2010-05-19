@@ -3,7 +3,7 @@ Required software/libraries:
 * Subversion/dynamag access:
 install seahorse, make keypair for dynamag login
 simlink /var/www/user
-sftp access to sim, home: add entry to "places" in dolphin
+sftp access to sim/$user, home: add entry to "places" in dolphin
 install kdesvn
 
 * CUDA
@@ -15,11 +15,16 @@ export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/cuda/include
 export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:/usr/local/cuda/include
 
 * Go
+install python-setuptools python-dev build-essential gcc bison libc6-dev ed gawk make mercurial
 export GOROOT=$HOME/sbin/go
 export GOOS=linux
 export GOARCH=amd64
 export GOBIN=$HOME/sbin
+hg clone -r release https://go.googlecode.com/hg/ $GOROOT
+./all.bash
+sudo ./sudo.bash
 sudo cp sbin/go/misc/kate/go.xml /usr/share/kde4/apps/katepart/syntax/
+
 
 * env. variables:
 edit .bashrc
@@ -32,13 +37,56 @@ make
 sudo make install
 
 * Dependencies for scripts etc:
-doxygen ffmpeg gnuplot mencoder
+doxygen ffmpeg gnuplot mencoder octave
 
 
 (* general Ubuntu)
-sudo apt-get install build-essential ubuntu-restricted-extras flashplugin
+software sources: enable partner repo
+download from main server
+
+sudo apt-get install ubuntu-restricted-extras flashplugin sun-java6-plugin sun-java6-jdk firefox thunderbird
+purge openjdk
+
 automount win partition:
 /etc/fstab:  /dev/sdaXXX /media/xp ntfs-3g defaults,locale=en_US.utf8 0 0
 ln -s /media/xp /home/XXX/My\ Documents
+
+purge network-manager-kde
+install network-manager-gnome 
+
+install network-manager-vpnc
+nm-applet: add cisco compatible
+Gateway: rtrvpn.ugent.be
+Group name: ipsecclient
+Group password: cisco123
+Encryption: Secure (Default)
+NAT traversal: Disabled
+
+UGent WPA:
+SSID: UGentWPA
+Mode: Infrastructure
+Security: WPA & WPA2 Enterprise
+Authentication: Tunneled TLS
+CA certificate: /etc/ssl/certs/GTE_CyberTrust_Global_Root.pem
+Inner authentication: MSCHAPv2
+
+eduroam:
+SSID: eduroam
+Mode: Infrastructure
+Security: WPA & WPA2 Enterprise
+Authentication: Tunneled TLS
+CA certificate: /etc/ssl/certs/GTE_CyberTrust_Global_Root.pem
+Inner authentication: MSCHAPv2
+
+/etc/default/grub:
+quiet (remove splash)
+3s timeout
+
+H:\ schijf:
+smb://avsteenk@samba1.ugent.be/avsteenk/
+(add dolphin bookmark H-schijf)
+
+
+
 
 

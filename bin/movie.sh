@@ -6,10 +6,17 @@
 #
 # @author Arne Vansteenkiste
 
+tmp=movie.tmp
+mkdir $tmp
 for i in $@; do
-if [ ! -e $i.jpg ]; then
-  echo $i;
-  convert -quality 100 $i $i.jpg;
+if [ ! -e $tmp/$i.jpg ]; then
+  echo -en "\033[s"		# save cursor pos
+  echo -n $i;  
+  echo -en "\033[K"		# erase rest of line
+  convert -quality 100 $i $tmp/$i.jpg;
+  echo -en "\033[u"		# restore cursor pos
 fi
 done;
-mencoder "mf://*.jpg" -mf fps=20 -o movie.avi -ovc lavc
+echo
+mencoder "mf://movie.tmp/*.jpg" -mf fps=20 -o movie.avi -ovc lavc
+rm -r $tmp
