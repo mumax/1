@@ -26,10 +26,10 @@ plot.pdf:
 movie:	movie.avi
 
 movie.avi:
-	bash -c 'for i in m*.t; do tensor --read $i --component X --slice Z 0 | draw > $i.png; done; movie.sh *.png'
+	bash -c 'for i in m*.t; do tensor --read $$i --component X --slice Z 0 | draw > $$i.png; done; movie.sh *.png'
 m_init.t:
 	tensor --new 3 $(N0) $(N1) $(N2) --setall 1.0 --normalize 0 > m0.t
-	gosim --alpha 1.0 --msat 800E3 --aexch 1.3e-11 --size $(N0) $(N1) $(N2) --cellsize $(X) $(X) $(Z) --loadm m0.t --dt 1E-12 --steps 2000 --storem m_init.t
+	gosim --alpha 1.0 --msat 800E3 --aexch 1.3e-11 --size $(N0) $(N1) $(N2) --cellsize $(X) $(X) $(Z) --loadm m0.t --dt 0.5E-12 --steps 4000 --storem m_init.t
 
 .PHONY:	clean
 clean:
