@@ -1,21 +1,21 @@
 #include "stridedtensor.h"
+#include "gputil.h"
 #include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int test(int argc, char** argv){
+void stride_test(){
   size_t width = 10;
   size_t height = 10;
   
   float* devPtr;
   size_t pitch;
-  cudaMallocPitch((void**)&devPtr, &pitch, width * sizeof(float), height);
+  gpu_safe( cudaMallocPitch((void**)&devPtr, &pitch, width * sizeof(float), height)) ;
 
-  printf("pitch: %d", pitch);
+  printf("pitch: %ud\n", pitch);
   
-  return 0;
 }
 
 

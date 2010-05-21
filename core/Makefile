@@ -89,6 +89,11 @@ gpusim_test:	all gpusim_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpusim_test.o -o gpusim_test
 	ln -sf $(CURDIR)/gpusim_test ../../../bin/gpusim_test
 
+stride_test:	all stride_test.cpp
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) stride_test.cpp
+	$(NVCC) $(CUDALIBS) $(OFILES) stride_test.o -o stride_test
+	./stride_test
+
 .PHONY:	clean
 clean:	
 	rm -f *.o *.so *.a iotest *_test

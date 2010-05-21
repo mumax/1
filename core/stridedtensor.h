@@ -14,8 +14,7 @@
 extern "C" {
 #endif
 
-
-
+void stride_test();
 
 #ifdef __cplusplus
 }
