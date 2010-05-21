@@ -2,6 +2,11 @@
  * @file
  * This file provides some common functions for the GPU, like allocating arrays on it, FFT's.
  *
+ * @todo use CudaGetDeviceProperties to obtain the maximum number of threads per block, etc...
+ * @todo Strided Arrays
+ * @todo Smart zero-padded FFT's: try strided and transposed
+ * @todo choose between in-place and out-of-place FFT's for best performance or best memory efficiency
+ * 
  * @author Arne Vansteenkiste
  */
 #ifndef GPUTIL_H

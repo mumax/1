@@ -28,6 +28,7 @@ clean:
 	make clean -C tensor-main
 	make clean -C kernel-main
 	make clean -C config-main
+	make clean -C draw
 	make clean -C main
 
 test:	all

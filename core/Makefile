@@ -7,6 +7,7 @@ CPPFILES=\
 	units.c\
 
 CUFILES=\
+	stridedtensor.cu\
 	gputil.cu\
 	gpuconv1.cu\
 	gpueuler.cu\
@@ -15,6 +16,7 @@ CUFILES=\
 
 OFILES=\
 	tensor.o\
+	stridedtensor.o\
 	pipes.o\
 	timer.o\
 	units.o\
@@ -36,6 +38,9 @@ core.a:	$(OFILES)
 
 tensor.o:	tensor.h tensor.cpp
 	$(NVCC) -c $(NVCCFLAGS) tensor.cpp
+
+stridedtensor.o:	stridedtensor.h stridedtensor.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) stridedtensor.cu
 
 pipes.o:	pipes.h pipes.cpp
 	$(NVCC) -c $(NVCCFLAGS) pipes.cpp
