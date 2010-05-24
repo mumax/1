@@ -52,11 +52,11 @@ float* new_gpu_array(int size){
   }
   //assert(array != NULL); // strange: it seems cuda can return 0 as a valid address?? 
   if(array == 0){
-#ifdef _64_BIT
-    fprintf(stderr, "cudaMalloc(%p, %ld) returned null without error status, retrying...\n", (void**)(&array), size * sizeof(float));
-#else
-    fprintf(stderr, "cudaMalloc(%p, %d) returned null without error status, retrying...\n", (void**)(&array), size * sizeof(float));
-#endif
+// #ifdef _64_BIT
+     fprintf(stderr, "cudaMalloc(%p, %ld) returned null without error status, retrying...\n", (void**)(&array), size * sizeof(float));
+// #else
+//    fprintf(stderr, "cudaMalloc(%p, %d) returned null without error status, retrying...\n", (void**)(&array), size * sizeof(float));
+// #endif
     abort();
   }
   return array;
@@ -131,6 +131,21 @@ void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
 
 //_____________________________________________________________________________________________ misc
 
+/* We test for the optimal array stride by creating a 1x1 matrix and checking
+ * the stride returned by CUDA.
+ */
+int gpu_stride_float(){
+  size_t width = 1;
+  size_t height = 1;
+  
+  float* devPtr;
+  size_t pitch;
+  gpu_safe( cudaMallocPitch((void**)&devPtr, &pitch, width * sizeof(float), height) );
+  gpu_safe( cudaFree(devPtr) );
+  return pitch / sizeof(float);
+}
+
+/** @todo use cudaDeviceProperties */
 #define MAX_THREADS_PER_BLOCK 512
 #define MAX_BLOCKSIZE_X 512
 #define MAX_BLOCKSIZE_Y 512

@@ -90,6 +90,21 @@ float* new_ram_array(int size	///< size of the array
 		    );
 
 /**
+ * Returns the optimal array stride (in number of floats):
+ * the second dimension of a 2D array should be a multiple of the stride.
+ * This number is usually 64 but could depend on the hardware.
+ *
+ * E.g.: it is better to use a  3 x 64 array than a 64 x 3.
+ * 
+ * This seems to generalize to higher dimensions: at least the last
+ * dimension should be a multiple of the stride. E.g.:
+ * Standard problem 4 ran about 4x faster when using a (3x) 1 x 32 x 128 geometry
+ * instead of (3x) 128 x 32 x 1 !
+ */
+int gpu_stride_float();
+
+
+/**
  * Copies floats from the main RAM to the GPU.
  * @see memcpy_from_gpu(), memcpy_gpu_to_gpu()
  */

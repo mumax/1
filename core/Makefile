@@ -7,7 +7,6 @@ CPPFILES=\
 	units.c\
 
 CUFILES=\
-	stridedtensor.cu\
 	gputil.cu\
 	gpuconv1.cu\
 	gpueuler.cu\
@@ -16,7 +15,6 @@ CUFILES=\
 
 OFILES=\
 	tensor.o\
-	stridedtensor.o\
 	pipes.o\
 	timer.o\
 	units.o\
@@ -38,9 +36,6 @@ core.a:	$(OFILES)
 
 tensor.o:	tensor.h tensor.cpp
 	$(NVCC) -c $(NVCCFLAGS) tensor.cpp
-
-stridedtensor.o:	stridedtensor.h stridedtensor.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) stridedtensor.cu
 
 pipes.o:	pipes.h pipes.cpp
 	$(NVCC) -c $(NVCCFLAGS) pipes.cpp
@@ -88,11 +83,6 @@ gpusim_test:	all gpusim_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpusim_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpusim_test.o -o gpusim_test
 	ln -sf $(CURDIR)/gpusim_test ../../../bin/gpusim_test
-
-stride_test:	all stride_test.cpp
-	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) stride_test.cpp
-	$(NVCC) $(CUDALIBS) $(OFILES) stride_test.o -o stride_test
-	./stride_test
 
 .PHONY:	clean
 clean:	
