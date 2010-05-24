@@ -29,6 +29,10 @@ typedef struct{
 
 /**
  * Creates a new 3D complex-to-complex FFT plan for the GPU.
+ * @todo There is a difficulty with real-to-complex FFT's:
+ * the last dimension must be made 2 complex numbers larger,
+ * but then it does not fit the stride anymore.
+ * Extra padding? Out-of-place transform?
  */
 gpuc2cplan* new_gpuc2cplan(int N0,	///< size in x-direction
 			   int N1,	///< size in y-direction
