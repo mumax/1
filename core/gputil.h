@@ -1,6 +1,6 @@
 /**
  * @file
- * This file provides some common functions for the GPU, like allocating arrays on it, FFT's.
+ * This file provides some common functions for the GPU, like allocating arrays on it...
  *
  * @todo use CudaGetDeviceProperties to obtain the maximum number of threads per block, etc...
  * @todo Strided Arrays
@@ -18,55 +18,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/**
- * A complex-to-complex FFT plan on the GPU.
- * @see new_gpuc2cplan(), delete_gpuc2cplan(), gpuc2cplan_exec().
- */
-typedef struct{  
-  cufftHandle handle;
-}gpuc2cplan;
-
-/**
- * Creates a new 3D complex-to-complex FFT plan for the GPU.
- * @todo There is a difficulty with real-to-complex FFT's:
- * the last dimension must be made 2 complex numbers larger,
- * but then it does not fit the stride anymore.
- * Extra padding? Out-of-place transform?
- */
-gpuc2cplan* new_gpuc2cplan(int N0,	///< size in x-direction
-			   int N1,	///< size in y-direction
-			   int N2	///< size in z-direction
-			   );
-
-/**
- * Forward FFT direction.
- * @see gpuc2cplan_exec()
- */
-#define FORWARD	CUFFT_FORWARD
-
-
-/**
- * Backward FFT direction.
- * @see gpuc2cplan_exec()
- */
-#define INVERSE	CUFFT_INVERSE
-
-/**
- * Executes the 3D complex-to-complex FFT plan in-place.
- */
-void gpuc2cplan_exec(gpuc2cplan* plan,	///< the plan to be executed
-		     float* data,	///< data to be transformed in-place
-		     int direction	/// FORWARD or INVERSE
-		     );
-
-		     
-/**
- * Frees the FFT plan
- * @todo not fully implemented
- */
-void delete_gpuc2cplan(gpuc2cplan* plan	///< the plan to be deleted
-		      );
 
 /**
  * In many cases, CUDA arrays are made "too big" by appending zero's until the size

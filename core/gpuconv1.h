@@ -26,6 +26,60 @@
 extern "C" {
 #endif
 
+//_________________________________________________________________________________________ FFT
+
+/**
+ * A complex-to-complex FFT plan on the GPU.
+ * @see new_gpuc2cplan(), delete_gpuc2cplan(), gpuc2cplan_exec().
+ */
+typedef struct{  
+  cufftHandle handle;
+}gpuc2cplan;
+
+/**
+ * Creates a new 3D complex-to-complex FFT plan for the GPU.
+ * @todo There is a difficulty with real-to-complex FFT's:
+ * the last dimension must be made 2 complex numbers larger,
+ * but then it does not fit the stride anymore.
+ * Extra padding? Out-of-place transform?
+ */
+gpuc2cplan* new_gpuc2cplan(int N0,	///< size in x-direction
+			   int N1,	///< size in y-direction
+			   int N2	///< size in z-direction
+			   );
+
+/**
+ * Forward FFT direction.
+ * @see gpuc2cplan_exec()
+ */
+#define FORWARD	CUFFT_FORWARD
+
+
+/**
+ * Backward FFT direction.
+ * @see gpuc2cplan_exec()
+ */
+#define INVERSE	CUFFT_INVERSE
+
+/**
+ * Executes the 3D complex-to-complex FFT plan in-place.
+ */
+void gpuc2cplan_exec(gpuc2cplan* plan,	///< the plan to be executed
+		     float* data,	///< data to be transformed in-place
+		     int direction	/// FORWARD or INVERSE
+		     );
+
+		     
+/**
+ * Frees the FFT plan
+ * @todo not fully implemented
+ */
+void delete_gpuc2cplan(gpuc2cplan* plan	///< the plan to be deleted
+		      );
+
+		      
+//_________________________________________________________________________________________ convolution
+
 /**
  * A very simple and unoptimized convolution plan on the GPU
  */
@@ -88,7 +142,7 @@ void gpuconv1_exec(gpuconv1* plan,	///< the plan to execute
  * Loads a kernel. Automatically called during new_gpuconv1(), but could be used to change the kernel afterwards.
  * @see new_gpuconv1
  */
-void gpuconv1_loadkernel(gpuconv1* plan,	///< plan to load to kernel into
+void gpuconv1_loadkernel(gpuconv1* plan,	///< plan to load the kernel into
 			 tensor* kernel		///< kernel to load (should match the plan size)
 			 );
 
@@ -130,6 +184,7 @@ void gpu_kernel_mul(float* ft_m_i,	///< multiplication input 1
 		    int nRealNumbers	///< the number of floats(!) in each of the arrays, thus twice the number of complex's in them.
 		    );
 
+		    
 
 #ifdef __cplusplus
 }

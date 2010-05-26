@@ -251,6 +251,29 @@ void memcpy_r2c(float* source, float* dest, int nReal){
   }
 }
 
+//_____________________________________________________________________________________________ FFT
+
+gpuc2cplan* new_gpuc2cplan(int N0, int N1, int N2){
+  gpuc2cplan* plan = (gpuc2cplan*) malloc(sizeof(gpuc2cplan));
+  gpu_safe( cufftPlan3d(&(plan->handle), N0, N1, N2, CUFFT_C2C) );
+  return plan;
+}
+
+void gpuc2cplan_exec(gpuc2cplan* plan, float* data, int direction){
+  timer_start("gpuc2cplan_exec");
+  gpu_safe( 
+    cufftExecC2C(plan->handle, (cufftComplex*)data, (cufftComplex*)data, direction) 
+  );
+  cudaThreadSynchronize();
+  timer_stop("gpuc2cplan_exec");
+}
+
+void delete_gpuc2cplan(gpuc2cplan* plan){
+  //gpu_safe( cudaFree(plan->gpudata) );
+  // TODO: free handle
+  free(plan);
+}
+
 #ifdef __cplusplus
 }
 #endif
