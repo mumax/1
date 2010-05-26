@@ -12,6 +12,7 @@ CUFILES=\
 	gpueuler.cu\
 	gpuheun.cu\
 	gpurk4.cu\
+	gpuanal1.cu\
 
 OFILES=\
 	tensor.o\
@@ -23,6 +24,7 @@ OFILES=\
 	gpueuler.o\
 	gpuheun.o\
 	gpurk4.o\
+	gpuanal1.o\
 
 CUDALIBS= -lcudart -lcufft
 
@@ -55,6 +57,9 @@ gpuheun.o:	gpuheun.h gpuheun.cu
 gpurk4.o:	gpurk4.h gpurk4.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpurk4.cu
 
+gpuanal1.o:	gpuanal1.h gpuanal1.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuanal1.cu
+
 timer.o:	timer.h timer.cpp
 	$(NVCC) -c $(NVCCFLAGS) timer.cpp
 
@@ -62,7 +67,7 @@ units.o:	units.h units.c
 	$(NVCC) -c $(NVCCFLAGS) units.c
 
 
-test:	all  $(OFILES) tensor_test gpueuler_test gpuheun_test gpusim_test
+test:	all  $(OFILES) tensor_test gpueuler_test gpuheun_test gpuanal1_test gpusim_test
 
 tensor_test:	core.so tensor_test.cpp
 	$(CPP) -c $(CFLAGS) $(LDFLAGS) tensor_test.cpp
@@ -78,6 +83,11 @@ gpuheun_test:	all gpuheun_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuheun_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpuheun_test.o -o gpuheun_test
 	./gpuheun_test testm0.t testkernel.t
+
+gpuanal1_test:	all gpuanal1_test.cpp
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuanal1_test.cpp
+	$(NVCC) $(CUDALIBS) $(OFILES) gpuanal1_test.o -o gpuanal1_test
+	./gpuanal1_test testm0.t testkernel.t
 
 gpusim_test:	all gpusim_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpusim_test.cpp
