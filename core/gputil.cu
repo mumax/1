@@ -31,7 +31,7 @@ float* new_gpu_array(int size){
   //assert(array != NULL); // strange: it seems cuda can return 0 as a valid address?? 
   if(array == 0){
 // #ifdef _64_BIT
-     fprintf(stderr, "cudaMalloc(%p, %ld) returned null without error status, retrying...\n", (void**)(&array), size * sizeof(float));
+     fprintf(stderr, "cudaMalloc(%p, %d) returned null without error status, retrying...\n", (void**)(&array), (int)(size * sizeof(float)));
 // #else
 //    fprintf(stderr, "cudaMalloc(%p, %d) returned null without error status, retrying...\n", (void**)(&array), size * sizeof(float));
 // #endif

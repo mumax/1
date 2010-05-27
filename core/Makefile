@@ -9,6 +9,7 @@ CPPFILES=\
 CUFILES=\
 	gputil.cu\
 	gpuconv1.cu\
+	gpuconv2.cu\
 	gpueuler.cu\
 	gpuheun.cu\
 	gpurk4.cu\
@@ -21,6 +22,7 @@ OFILES=\
 	units.o\
 	gputil.o\
 	gpuconv1.o\
+	gpuconv2.o\
 	gpueuler.o\
 	gpuheun.o\
 	gpurk4.o\
@@ -47,6 +49,9 @@ gputil.o:	gputil.h gputil.cu
 
 gpuconv1.o:	gpuconv1.h gpuconv1.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuconv1.cu
+
+gpuconv2.o:	gpuconv2.h gpuconv2.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuconv2.cu
 
 gpueuler.o:	gpueuler.h gpueuler.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpueuler.cu
