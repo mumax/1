@@ -1,5 +1,5 @@
 #include "tensor.h"
-#include "gpuheun.h"
+#include "gpuanal1.h"
 #include "timer.h"
 #include "units.h"
 #include "pipes.h"
@@ -80,20 +80,20 @@ int main(int argc, char** argv){
   
   //_______________________________________________________________ run
   
-  gpuheun* heun = new_gpuheun(N0, N1, N2, kernel, hExt);
-  gpuheun_loadm(heun, m);
+  gpuanal1* heun = new_gpuanal1(N0, N1, N2, kernel);
+  gpuanal1_loadm(heun, m);
   
   char* fname = (char*)calloc(257, sizeof(char));
   for(int i=0; i<steps; i++){
     if(i%savem == 0){
       //___________________________________________________________ save m
-      gpuheun_storem(heun, m);
+      gpuanal1_storem(heun, m);
       sprintf(fname, "m%07d.t", i);
       FILE* file = fopen(fname, "wb");
       write_tensor(m, file);
       fclose(file);
     }
-    gpuheun_step(heun, dt/unittime(unit), alpha);
+    gpuanal1_step(heun, dt/unittime(unit));
   }
   //___________________________________________________________ time
   timer_printdetail();
