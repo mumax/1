@@ -220,7 +220,65 @@ gpu_plan3d_real_input* new_gpu_plan3d_real_input(int N0, int N1, int N2, int* ze
   gpu_safe( cufftPlan1d(&(plan->fwPlanY), plan->paddedSize[Y], CUFFT_C2C, paddedStorageSize[Z] * size[X]) );
   gpu_safe( cufftPlan1d(&(plan->fwPlanX), plan->paddedSize[X], CUFFT_C2C, paddedStorageSize[Z] * paddedSize[Y]) );
   
+  plan->transp = new_gpu_array(plan->paddedStorageN);
+  
   return plan;
+}
+
+
+
+
+
+// __global__ void _gpu_copy_unpad_c2r(float* source, float* dest, int N0, int N1, int N2){
+//   int i = blockIdx.x;
+//   int j = blockIdx.y;
+//   int k = threadIdx.x;
+//   
+//   //dest[i*N1*N2 + j*N2 + k] = source[i*2*N1*2*2*N2 + j*2*2*N2 + 2*k];
+//   dest[(i*N1 + j)*N2 + k] = source[(i*N1*8 + j*4)*N2 + 2*k];
+// }
+// 
+// void gpu_copy_unpad_c2r(float* source, float* dest, int N0, int N1, int N2){
+//   timer_start("gpuconv1_copy_unpad_c2r");
+//   dim3 gridsize(N0, N1, 1);
+//   dim3 blocksize(N2, 1, 1);
+//   gpu_checkconf(gridsize, blocksize);
+//   _gpu_copy_unpad_c2r<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
+//   cudaThreadSynchronize();
+//   timer_stop("gpuconv1_copy_unpad_c2r");
+// }
+
+
+
+
+
+__global__ void _gpu_transposeYZ(float* source, float* dest, int Ny, int Nz, int Nyz){
+    int i = blockIdx.x;
+    int j = blockIdx.y;
+    int k = threadIdx.x;
+    
+    //dest[i][j][k] = source[i][k][j]
+    dest[i * Nyz + k * Ny + j] = source[i * Ny*Nz + j*Nz + k];
+}
+
+void gpu_transposeYZ(gpu_plan3d_real_input* plan, float* data){
+
+  timer_start("transposeYZ");
+  
+  int Nx = plan->paddedStorageSize[X];
+  int Ny = plan->paddedStorageSize[Y];
+  int Nz = plan->paddedStorageSize[Z];
+  
+  dim3 gridsize(Nx, Ny, 1);	///@todo generalize!
+  dim3 blocksize(Nz, 1, 1);
+  gpu_checkconf(gridsize, blocksize);
+  _gpu_transposeYZ<<<gridsize, blocksize>>>(data, plan->transp, Ny, Nz, Ny*Nz);
+  cudaThreadSynchronize();
+  
+  memcpy_gpu_to_gpu(plan->transp, data, plan->paddedStorageN);
+  
+  timer_stop("transposeYZ");
+  
 }
 
 void gpu_plan3d_real_input_forward(gpu_plan3d_real_input* plan, float* data){

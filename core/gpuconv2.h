@@ -48,6 +48,7 @@ typedef struct{
   cufftHandle fwPlanY;
   cufftHandle fwPlanX;
   
+  float* transp;	///< buffer for out-of-place transpose
   
 }gpu_plan3d_real_input;
 
@@ -78,7 +79,8 @@ void gpu_plan3d_real_input_backward(gpu_plan3d_real_input* plan,	///< the plan t
 		        float* data	///< data to be transformed in-place
 			);
 
-		     
+void gpu_transposeYZ(gpu_plan3d_real_input* plan, float* data);
+
 /**
  * Frees the FFT plan
  */
