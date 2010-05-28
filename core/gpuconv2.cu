@@ -43,7 +43,7 @@ void gpuconv2_exec(gpuconv2* conv, float* m, float* h){
 //     gpu_zero(conv->ft_m_i, conv->len_ft_m_i);						// zero-out the padded magnetization buffer first
 //     gpu_copy_pad_r2c(conv->m_comp[i], conv->ft_m_i, conv->size[0], conv->size[1], conv->size[2]);	//copy mi into the padded magnetization buffer, converting to complex format
 //     //extract("ft_m_i", conv->ft_m_i, conv->paddedComplexSize);
-//     gpur2cplan_exec(conv->fftplan, conv->ft_m_i, CUFFT_FORWARD);
+//     gpu_plan3d_real_input_exec(conv->fftplan, conv->ft_m_i, CUFFT_FORWARD);
 //     //extract("ft_m_i (transformed)", conv->ft_m_i, conv->paddedComplexSize);
 //     // TODO: asynchronous execution hazard !!
 //     for(int j=0; j<3; j++){								// apply kernel multiplication to FFT'ed magnetization and add to FFT'ed H-components
@@ -53,7 +53,7 @@ void gpuconv2_exec(gpuconv2* conv, float* m, float* h){
 //   }
 //   
 //   for(int i=0; i<3; i++){
-//     gpur2cplan_exec(conv->fftplan, conv->ft_h_comp[i], CUFFT_INVERSE);		// Inplace backtransform of each of the padded h[i]-buffers
+//     gpu_plan3d_real_input_exec(conv->fftplan, conv->ft_h_comp[i], CUFFT_INVERSE);		// Inplace backtransform of each of the padded h[i]-buffers
 //     gpu_copy_unpad_c2r(conv->ft_h_comp[i], conv->h_comp[i], conv->size[0], conv->size[1], conv->size[2]);
 //   }
 }
@@ -111,7 +111,7 @@ void gpuconv2_loadkernel(gpuconv2* conv, tensor* kernel){
   fprintf(stderr, "loadkernel %d x %d x %d\n", kernel->size[2], kernel->size[3], kernel->size[4]);
  /* 
   gpuconv2_checksize_kernel(conv, kernel);
-  gpur2cplan* plan = new_gpur2cplan(kernel->size[2], kernel->size[3], kernel->size[4]);
+  gpu_plan3d_real_input* plan = new_gpu_plan3d_real_input(kernel->size[2], kernel->size[3], kernel->size[4]);
   float norm = 1.0/float(conv->paddedN);
   float* complex_kernel_ij = new_ram_array(conv->len_ft_kernel_ij);
   for(int i=0; i<3; i++){
@@ -123,28 +123,18 @@ void gpuconv2_loadkernel(gpuconv2* conv, tensor* kernel){
 	}
 	memcpy_to_gpu(complex_kernel_ij, conv->ft_kernel[i][j], conv->len_ft_kernel_ij);
 	//extract("kernel_ij", conv->ft_kernel[i][j], conv->paddedComplexSize);
-	gpur2cplan_exec(plan, conv->ft_kernel[i][j], CUFFT_FORWARD);
+	gpu_plan3d_real_input_exec(plan, conv->ft_kernel[i][j], CUFFT_FORWARD);
 	//extract("ft_kernel_ij", conv->ft_kernel[i][j], conv->paddedComplexSize);
     }
   }
   free(complex_kernel_ij);
-  delete_gpur2cplan(plan);*/
+  delete_gpu_plan3d_real_input(plan);*/
 }
 
 //_____________________________________________________________________________________________ new
 
-void gpuconv2_init_sizes(gpuconv2* conv, int N0, int N1, int N2){
-  /*conv->size = (int*)calloc(3, sizeof(int));
-  conv->size[0] = N0; conv->size[1] = N1; conv->size[2] = N2;
-  conv->N = N0 * N1 * N2;
+void gpuconv2_init_sizes(gpuconv2* conv, int N0, int N1, int N2, int* zero_pad){
   
-  conv->paddedSize = (int*)calloc(3, sizeof(int));
-  conv->paddedSize[0] = 2 * N0; conv->paddedSize[1] = 2 * N1; conv->paddedSize[2] = 2 * N2;
-  conv->paddedN = conv->paddedSize[0] * conv->paddedSize[1] * conv->paddedSize[2];
-  
-  conv->paddedComplexSize = (int*)calloc(3, sizeof(int));
-  conv->paddedComplexSize[0] = 2 * N0; conv->paddedComplexSize[1] = 2 * N1; conv->paddedComplexSize[2] = 2 * 2 * N2;
-  conv->paddedComplexN = conv->paddedComplexSize[0] * conv->paddedComplexSize[1] * conv->paddedComplexSize[2];*/
 }
 
 void gpuconv2_init_kernel(gpuconv2* conv, tensor* kernel){
@@ -191,29 +181,66 @@ gpuconv2* new_gpuconv2(int N0, int N1, int N2, tensor* kernel){
 //   gpuconv2_init_kernel(conv, kernel);
 //   gpuconv2_init_m(conv);
 //   gpuconv2_init_h(conv);
-//   conv->fftplan = new_gpur2cplan(conv->paddedSize[0], conv->paddedSize[1], conv->paddedSize[2]);
+//   conv->fftplan = new_gpu_plan3d_real_input(conv->paddedSize[0], conv->paddedSize[1], conv->paddedSize[2]);
 //   return conv;
 }
 
 
 //_____________________________________________________________________________________________ FFT
 
-gpur2cplan* new_gpur2cplan(int N0, int N1, int N2){
-//   gpur2cplan* plan = (gpur2cplan*) malloc(sizeof(gpur2cplan));
-//   gpu_safe( cufftPlan3d(&(plan->handle), N0, N1, N2, CUFFT_C2C) );
-//   return plan;
+gpu_plan3d_real_input* new_gpu_plan3d_real_input(int N0, int N1, int N2, int* zero_pad){
+
+  gpu_plan3d_real_input* plan = (gpu_plan3d_real_input*)malloc(sizeof(gpu_plan3d_real_input));
+  
+  plan->size = (int*)calloc(3, sizeof(int));
+  plan->paddedSize = (int*)calloc(3, sizeof(int));
+  plan->paddedStorageSize = (int*)calloc(3, sizeof(int));
+    
+  int* size = plan->size;
+  int* paddedSize = plan->paddedSize;
+  int* paddedStorageSize = plan->paddedStorageSize;
+  
+  plan->size[0] = N0; 
+  plan->size[1] = N1; 
+  plan->size[2] = N2;
+  plan->N = N0 * N1 * N2;
+  
+ 
+  plan->paddedSize[X] = (1 + zero_pad[X]) * N0; 
+  plan->paddedSize[Y] = (1 + zero_pad[Y]) * N1; 
+  plan->paddedSize[Z] = (1 + zero_pad[Z]) * N2;
+  plan->paddedN = plan->paddedSize[0] * plan->paddedSize[1] * plan->paddedSize[2];
+  
+  plan->paddedStorageSize[X] = plan->paddedSize[X];
+  plan->paddedStorageSize[Y] = plan->paddedSize[Y];
+  plan->paddedStorageSize[Z] = plan->paddedSize[Z] +  gpu_stride_float();
+  plan->paddedStorageN = paddedStorageSize[X] * paddedStorageSize[Y] * paddedStorageSize[Z];
+  
+  gpu_safe( cufftPlan1d(&(plan->fwPlanZ), plan->paddedSize[Z], CUFFT_R2C, 1) );
+  gpu_safe( cufftPlan1d(&(plan->fwPlanY), plan->paddedSize[Y], CUFFT_C2C, paddedStorageSize[Z] * size[X]) );
+  gpu_safe( cufftPlan1d(&(plan->fwPlanX), plan->paddedSize[X], CUFFT_C2C, paddedStorageSize[Z] * paddedSize[Y]) );
+  
+  return plan;
 }
 
-void gpur2cplan_exec(gpur2cplan* plan, float* data){
-  timer_start("gpur2cplan_exec");
-//   gpu_safe( 
-//     cufftExecC2C(plan->handle, (cufftComplex*)data, (cufftComplex*)data, direction) 
-//   );
-//   cudaThreadSynchronize();
-  timer_stop("gpur2cplan_exec");
+void gpu_plan3d_real_input_forward(gpu_plan3d_real_input* plan, float* data){
+  timer_start("gpu_plan3d_real_input_exec");
+
+  int* size = plan->size;
+  int* pSSize = plan->paddedStorageSize;
+  
+  for(int i=0; i<size[X]; i++){
+    for(int j=0; j<size[Y]; j++){
+      float* row = &(data[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
+      gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)row,  (cufftComplex*)row) );
+    }
+  }
+  cudaThreadSynchronize();
+  
+  timer_stop("gpu_plan3d_real_input_exec");
 }
 
-void delete_gpur2cplan(gpur2cplan* plan){
+void delete_gpu_plan3d_real_input(gpu_plan3d_real_input* plan){
   
 }
 

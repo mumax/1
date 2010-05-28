@@ -99,6 +99,12 @@ gpusim_test:	all gpusim_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpusim_test.o -o gpusim_test
 	ln -sf $(CURDIR)/gpusim_test ../../../bin/gpusim_test
 
+gpuconv2_test:	all gpuconv2_test.cpp
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuconv2_test.cpp
+	$(NVCC) $(CUDALIBS) $(OFILES) gpuconv2_test.o -o gpuconv2_test
+	./gpuconv2_test
+
+
 .PHONY:	clean
 clean:	
 	rm -f *.o *.so *.a iotest *_test

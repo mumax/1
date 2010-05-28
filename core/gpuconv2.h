@@ -35,8 +35,22 @@ extern "C" {
  * A real-to-complex FFT plan on the GPU.
  */
 typedef struct{  
+  int* size;
+  int N;		///< total number of elements
   
-}gpur2cplan;
+  int* paddedSize;
+  int paddedN;		///< total number of elements
+  
+  int* paddedStorageSize;	///< extra 64 elements
+  int paddedStorageN;
+  
+  cufftHandle fwPlanZ;
+  cufftHandle fwPlanY;
+  cufftHandle fwPlanX;
+  
+  
+}gpu_plan3d_real_input;
+
 
 /**
  * There is a difficulty with real-to-complex FFT's:
@@ -44,22 +58,23 @@ typedef struct{
  * but then it does not fit the stride anymore.
  * Extra padding? Out-of-place transform?
  */
-gpur2cplan* new_gpur2cplan(int N0,	///< size in x-direction
+gpu_plan3d_real_input* new_gpu_plan3d_real_input(int N0,	///< size in x-direction
 			   int N1,	///< size in y-direction
-			   int N2	///< size in z-direction
-			   );
+			   int N2,	///< size in z-direction
+			   int* zero_pad///< 0 or 1
+			    );
 
 /**
  * Executes in-place.
  */
-void gpur2cplan_forward(gpur2cplan* plan,	///< the plan to be executed
+void gpu_plan3d_real_input_forward(gpu_plan3d_real_input* plan,	///< the plan to be executed
 		        float* data	///< data to be transformed in-place
 			);
 
 /**
  * Executes in-place.
  */
-void gpur2cplan_backward(gpur2cplan* plan,	///< the plan to be executed
+void gpu_plan3d_real_input_backward(gpu_plan3d_real_input* plan,	///< the plan to be executed
 		        float* data	///< data to be transformed in-place
 			);
 
@@ -67,7 +82,7 @@ void gpur2cplan_backward(gpur2cplan* plan,	///< the plan to be executed
 /**
  * Frees the FFT plan
  */
-void delete_gpur2cplan(gpur2cplan* plan	///< the plan to be deleted
+void delete_gpu_plan3d_real_input(gpu_plan3d_real_input* plan	///< the plan to be deleted
 		      );
 
 		      
@@ -108,7 +123,7 @@ typedef struct{
   float** ft_h_comp;		///< points to X, Y and Z components of ft_h
   int len_ft_h_comp;
   
-  gpur2cplan* fftplan;
+  gpu_plan3d_real_input* fftplan;
  */ 
 }gpuconv2;
 
