@@ -14,21 +14,21 @@ __global__ void _gpu_anal1step(float* mx, float* my, float* mz, float* hx, float
 	int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
 	float rot[9], hxy_r, hxyz_r;
 
-// 	if (mx[i]==0.0 && my[i]==0.0 && *mz[i]==0.0)
+// 	if (mx[i]==0.0f && my[i]==0.0f && *mz[i]==0.0f)
 // 		continue;
 
-	if (hx[i]==0.0 && hy[i] ==0.0){
-		rot[0] = 0.0;
-		rot[1] = 0.0;
-		rot[2] = -1.0;
-		rot[3] = 0.0;
-		rot[4] = 1.0;
-		rot[5] = 0.0;
-		rot[6] = 1.0;
-//			rot[7] = 0.0;
-		rot[8] = 0.0;
+	if (hx[i]==0.0f && hy[i] ==0.0f){
+		rot[0] = 0.0f;
+		rot[1] = 0.0f;
+		rot[2] = -1.0f;
+		rot[3] = 0.0f;
+		rot[4] = 1.0f;
+		rot[5] = 0.0f;
+		rot[6] = 1.0f;
+//			rot[7] = 0.0f;
+		rot[8] = 0.0f;
 
-		hxyz_r = 1.0/hz[i];
+		hxyz_r = 1.0f/hz[i];
 	}
 	else{
 		float temp = hx[i]*hx[i] + hy[i]*hy[i];
@@ -42,7 +42,7 @@ __global__ void _gpu_anal1step(float* mx, float* my, float* mz, float* hx, float
 		rot[4] = hx[i]*hxy_r;
 		rot[5] = rot[1]*hz[i]*hxyz_r;
 		rot[6] = hz[i]*hxyz_r;
-//			rot[7] = 0.0;
+//			rot[7] = 0.0f;
 		rot[8] = hxyz_r/hxy_r;
 	}
 
@@ -58,11 +58,11 @@ __global__ void _gpu_anal1step(float* mx, float* my, float* mz, float* hx, float
 	float ex, sn, cs, denom;
 	ex = exp(act/hxyz_r);
 	__sincosf(at/hxyz_r, &sn, &cs);
-	denom = ex*(1.0+mx_rot) + (1.0-mx_rot)/ex;
+	denom = ex*(1.0f+mx_rot) + (1.0f-mx_rot)/ex;
 
-	float mx_rotnw = (ex*(1.0+mx_rot) - (1.0-mx_rot)/ex)/denom;
-	float my_rotnw = 2.0*(my_rot*cs - mz_rot*sn)/denom;
-	float mz_rotnw = 2.0*(my_rot*sn + mz_rot*cs)/denom;
+	float mx_rotnw = (ex*(1.0f+mx_rot) - (1.0f-mx_rot)/ex)/denom;
+	float my_rotnw = 2.0f*(my_rot*cs - mz_rot*sn)/denom;
+	float mz_rotnw = 2.0f*(my_rot*sn + mz_rot*cs)/denom;
 
 // in deze lijnen komt fout tot uiting
 // 	mx[i] = mx_rotnw*rot[0] + my_rotnw*rot[1] + mz_rotnw*rot[2];
