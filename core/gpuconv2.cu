@@ -226,39 +226,78 @@ gpu_plan3d_real_input* new_gpu_plan3d_real_input(int N0, int N1, int N2, int* ze
 }
 
 
-__global__ void _gpu_transposeYZ(float* source, float* dest, int Ny, int Nz, int Nyz){
+
+__global__ void _gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
+    int N3 = 2;
+    
     int i = blockIdx.x;
     int j = blockIdx.y;
     int k = threadIdx.x;
     
-    int Nzd = Ny * 2;	
-    int Nyd = Nz / 2;
-    
-    //dest[i][j][k] = source[i][k][j]
-    dest[i * Nyd * Nzd + k * Nyd + (2*j)  ] = source[i * Ny*Nz + j*Nz + (2*k)  ];
-    dest[i * Nyd * Nzd + k * Nyd + (2*j+1)] = source[i * Ny*Nz + j*Nz + (2*k+1)];
-    
+    dest[i*N2*N1*N3 + k*N1*N3 + j*N3 + 0] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 0];
+    dest[i*N2*N1*N3 + k*N1*N3 + j*N3 + 1] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 1];
+
+    // debug: do not copy but just transpose.
+//       dest[i*N1*N2*N3 + j*N2*N3 + k*N3 + 0] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 0];
+//       dest[i*N1*N2*N3 + j*N2*N3 + k*N3 + 1] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 1];
+//   
 }
 
-void gpu_transposeYZ(gpu_plan3d_real_input* plan, float* data){
+void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
 
   timer_start("transposeYZ");
   
-  int Nx = plan->paddedStorageSize[X];
-  int Ny = plan->paddedStorageSize[Y];
-  int Nz = plan->paddedStorageSize[Z];
+  // we treat the complex array as a N0 x N1 x N2 x 2 real array
+  // after transposing it becomes N0 x N2 x N1 x 2
+  N2 /= 2;
+  int N3 = 2;
   
-  dim3 gridsize(Nx, Ny, 1);	///@todo generalize!
-  dim3 blocksize(Nz/2, 1, 1);
+  dim3 gridsize(N0, N1, 1);	///@todo generalize!
+  dim3 blocksize(N2, 1, 1);
   gpu_checkconf(gridsize, blocksize);
-  _gpu_transposeYZ<<<gridsize, blocksize>>>(data, plan->transp, Ny, Nz, Ny*Nz);
+  _gpu_transposeYZ_complex<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
   cudaThreadSynchronize();
   
-  memcpy_gpu_to_gpu(plan->transp, data, plan->paddedStorageN);
+  //memcpy_gpu_to_gpu(plan->transp, data, plan->paddedStorageN);
   
   timer_stop("transposeYZ");
   
 }
+
+
+// __global__ void _gpu_transposeYZ(float* source, float* dest, int Ny, int Nz, int Nyz){
+//     int i = blockIdx.x;
+//     int j = blockIdx.y;
+//     int k = threadIdx.x;
+//     
+//     int Nzd = Ny * 2;	
+//     int Nyd = Nz / 2;
+//     
+//     //dest[i][j][k] = source[i][k][j]
+//     dest[i * Nyd * Nzd + k * Nyd + (2*j)  ] = source[i * Ny*Nz + j*Nz + (2*k)  ];
+//     dest[i * Nyd * Nzd + k * Nyd + (2*j+1)] = source[i * Ny*Nz + j*Nz + (2*k+1)];
+//     
+// }
+// 
+// void gpu_transposeYZ(gpu_plan3d_real_input* plan, float* data){
+// 
+//   timer_start("transposeYZ");
+//   
+//   int Nx = plan->paddedStorageSize[X];
+//   int Ny = plan->paddedStorageSize[Y];
+//   int Nz = plan->paddedStorageSize[Z];
+//   
+//   dim3 gridsize(Nx, Ny, 1);	///@todo generalize!
+//   dim3 blocksize(Nz/2, 1, 1);
+//   gpu_checkconf(gridsize, blocksize);
+//   _gpu_transposeYZ<<<gridsize, blocksize>>>(data, plan->transp, Ny, Nz, Ny*Nz);
+//   cudaThreadSynchronize();
+//   
+//   memcpy_gpu_to_gpu(plan->transp, data, plan->paddedStorageN);
+//   
+//   timer_stop("transposeYZ");
+//   
+// }
 
 void gpu_plan3d_real_input_forward(gpu_plan3d_real_input* plan, float* data){
   timer_start("gpu_plan3d_real_input_exec");

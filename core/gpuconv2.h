@@ -79,7 +79,7 @@ void gpu_plan3d_real_input_backward(gpu_plan3d_real_input* plan,	///< the plan t
 		        float* data	///< data to be transformed in-place
 			);
 
-void gpu_transposeYZ(gpu_plan3d_real_input* plan, float* data);
+void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2);
 
 /**
  * Frees the FFT plan

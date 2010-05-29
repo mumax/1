@@ -104,6 +104,10 @@ gpuconv2_test:	all gpuconv2_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpuconv2_test.o -o gpuconv2_test
 	./gpuconv2_test
 
+transpose_test: all transpose_test.cpp
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) transpose_test.cpp
+	$(NVCC) $(CUDALIBS) $(OFILES) transpose_test.o -o transpose_test
+	./transpose_test
 
 .PHONY:	clean
 clean:	

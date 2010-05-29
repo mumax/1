@@ -21,7 +21,9 @@ int gpu_len(int size){
 float* new_gpu_array(int size){
   assert(size > 0);
   int threadsPerBlock = 512;
-  assert(size % threadsPerBlock == 0);
+  if(size % threadsPerBlock != 0){
+    fprintf(stderr, "WARNING: new_gpu_array: size %% threadsPerBlock != 0\n");
+  }
   float* array = NULL;
   int status = cudaMalloc((void**)(&array), size * sizeof(float));
   if(status != cudaSuccess){
