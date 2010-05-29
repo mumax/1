@@ -225,9 +225,46 @@ gpu_plan3d_real_input* new_gpu_plan3d_real_input(int N0, int N1, int N2, int* ze
   return plan;
 }
 
+//_____________________________________________________________________________________________ transpose
 
+__global__ void _gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2){
+    // N0 <-> N2
+    // i  <-> k
+    int N3 = 2;
+    
+    int i = blockIdx.x;
+    int j = blockIdx.y;
+    int k = threadIdx.x;
+    
+    dest[k*N1*N0*N3 + j*N0*N3 + i*N3 + 0] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 0];
+    dest[k*N1*N0*N3 + j*N0*N3 + i*N3 + 1] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 1];
+}
+
+void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2){
+  timer_start("transposeXZ");
+  
+  assert(source != dest); // must be out-of-place
+  
+  // we treat the complex array as a N0 x N1 x N2 x 2 real array
+  // after transposing it becomes N0 x N2 x N1 x 2
+  N2 /= 2;
+  //int N3 = 2;
+  
+  dim3 gridsize(N0, N1, 1);	///@todo generalize!
+  dim3 blocksize(N2, 1, 1);
+  gpu_checkconf(gridsize, blocksize);
+  _gpu_transposeXZ_complex<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
+  cudaThreadSynchronize();
+  
+  timer_stop("transposeXZ");
+}
+
+//_____________________________________________________________________________________________
 
 __global__ void _gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
+    // N1 <-> N2
+    // j  <-> k
+    
     int N3 = 2;
     
     int i = blockIdx.x;
@@ -236,11 +273,6 @@ __global__ void _gpu_transposeYZ_complex(float* source, float* dest, int N0, int
     
     dest[i*N2*N1*N3 + k*N1*N3 + j*N3 + 0] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 0];
     dest[i*N2*N1*N3 + k*N1*N3 + j*N3 + 1] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 1];
-
-    // debug: do not copy but just transpose.
-//       dest[i*N1*N2*N3 + j*N2*N3 + k*N3 + 0] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 0];
-//       dest[i*N1*N2*N3 + j*N2*N3 + k*N3 + 1] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 1];
-//   
 }
 
 void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
@@ -262,6 +294,7 @@ void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2)
   timer_stop("transposeYZ");
 }
 
+//_____________________________________________________________________________________________ exec plan
 
 void gpu_plan3d_real_input_forward(gpu_plan3d_real_input* plan, float* data){
   timer_start("gpu_plan3d_real_input_exec");

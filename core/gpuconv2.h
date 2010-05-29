@@ -90,6 +90,15 @@ void gpu_transposeYZ_complex(float* source,
 			     int N1, 
 			     int N2 ///< number of floats (!) in the Z-direction, thus 2x the number of complex numbers in Z.
 			     );
+/**
+ * @see gpu_transposeYZ_complex()
+ */
+void gpu_transposeXZ_complex(float* source, 
+			     float* dest, 
+			     int N0, 
+			     int N1, 
+			     int N2
+			     );
 
 /**
  * Frees the FFT plan
