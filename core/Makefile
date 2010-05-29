@@ -72,7 +72,7 @@ units.o:	units.h units.c
 	$(NVCC) -c $(NVCCFLAGS) units.c
 
 
-test:	all  $(OFILES) tensor_test gpueuler_test gpuheun_test gpuanal1_test gpusim_test
+test:	all  $(OFILES) tensor_test gpueuler_test gpuheun_test gpuanal1_test gpusim_test transpose_test
 
 tensor_test:	core.so tensor_test.cpp
 	$(CPP) -c $(CFLAGS) $(LDFLAGS) tensor_test.cpp

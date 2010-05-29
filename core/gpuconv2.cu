@@ -217,8 +217,8 @@ gpu_plan3d_real_input* new_gpu_plan3d_real_input(int N0, int N1, int N2, int* ze
   plan->paddedStorageN = paddedStorageSize[X] * paddedStorageSize[Y] * paddedStorageSize[Z];
   
   gpu_safe( cufftPlan1d(&(plan->fwPlanZ), plan->paddedSize[Z], CUFFT_R2C, 1) );
-  gpu_safe( cufftPlan1d(&(plan->fwPlanY), plan->paddedSize[Y], CUFFT_C2C, paddedStorageSize[Z] * size[X]) );
-  gpu_safe( cufftPlan1d(&(plan->fwPlanX), plan->paddedSize[X], CUFFT_C2C, paddedStorageSize[Z] * paddedSize[Y]) );
+  gpu_safe( cufftPlan1d(&(plan->planY), plan->paddedSize[Y], CUFFT_C2C, paddedStorageSize[Z] * size[X]) );
+  gpu_safe( cufftPlan1d(&(plan->planX), plan->paddedSize[X], CUFFT_C2C, paddedStorageSize[Z] * paddedSize[Y]) );
   
   plan->transp = new_gpu_array(plan->paddedStorageN);
   
@@ -244,13 +244,14 @@ __global__ void _gpu_transposeYZ_complex(float* source, float* dest, int N0, int
 }
 
 void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
-
   timer_start("transposeYZ");
+  
+  assert(source != dest); // must be out-of-place
   
   // we treat the complex array as a N0 x N1 x N2 x 2 real array
   // after transposing it becomes N0 x N2 x N1 x 2
   N2 /= 2;
-  int N3 = 2;
+  //int N3 = 2;
   
   dim3 gridsize(N0, N1, 1);	///@todo generalize!
   dim3 blocksize(N2, 1, 1);
@@ -258,46 +259,9 @@ void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2)
   _gpu_transposeYZ_complex<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
   cudaThreadSynchronize();
   
-  //memcpy_gpu_to_gpu(plan->transp, data, plan->paddedStorageN);
-  
   timer_stop("transposeYZ");
-  
 }
 
-
-// __global__ void _gpu_transposeYZ(float* source, float* dest, int Ny, int Nz, int Nyz){
-//     int i = blockIdx.x;
-//     int j = blockIdx.y;
-//     int k = threadIdx.x;
-//     
-//     int Nzd = Ny * 2;	
-//     int Nyd = Nz / 2;
-//     
-//     //dest[i][j][k] = source[i][k][j]
-//     dest[i * Nyd * Nzd + k * Nyd + (2*j)  ] = source[i * Ny*Nz + j*Nz + (2*k)  ];
-//     dest[i * Nyd * Nzd + k * Nyd + (2*j+1)] = source[i * Ny*Nz + j*Nz + (2*k+1)];
-//     
-// }
-// 
-// void gpu_transposeYZ(gpu_plan3d_real_input* plan, float* data){
-// 
-//   timer_start("transposeYZ");
-//   
-//   int Nx = plan->paddedStorageSize[X];
-//   int Ny = plan->paddedStorageSize[Y];
-//   int Nz = plan->paddedStorageSize[Z];
-//   
-//   dim3 gridsize(Nx, Ny, 1);	///@todo generalize!
-//   dim3 blocksize(Nz/2, 1, 1);
-//   gpu_checkconf(gridsize, blocksize);
-//   _gpu_transposeYZ<<<gridsize, blocksize>>>(data, plan->transp, Ny, Nz, Ny*Nz);
-//   cudaThreadSynchronize();
-//   
-//   memcpy_gpu_to_gpu(plan->transp, data, plan->paddedStorageN);
-//   
-//   timer_stop("transposeYZ");
-//   
-// }
 
 void gpu_plan3d_real_input_forward(gpu_plan3d_real_input* plan, float* data){
   timer_start("gpu_plan3d_real_input_exec");
@@ -313,10 +277,8 @@ void gpu_plan3d_real_input_forward(gpu_plan3d_real_input* plan, float* data){
   }
   cudaThreadSynchronize();
   
-  //gpu_safe( cufftExecC2C(plan->fwPlanY, (cufftComplex*)data,  (cufftComplex*)data), CUFFT_FORWARD );
-  cudaThreadSynchronize();
-  
-  
+  //gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data,  (cufftComplex*)data), CUFFT_FORWARD );
+  cudaThreadSynchronize();  
   
   timer_stop("gpu_plan3d_real_input_exec");
 }

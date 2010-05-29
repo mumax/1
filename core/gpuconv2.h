@@ -35,20 +35,21 @@ extern "C" {
  * A real-to-complex FFT plan on the GPU.
  */
 typedef struct{  
-  int* size;
-  int N;		///< total number of elements
+  int* size;		///< logical size of the (real) input data
+  int N;		///< total number of floats in size
   
-  int* paddedSize;
-  int paddedN;		///< total number of elements
+  int* paddedSize;	///< size after zero-padding. @note zero-padding is conditional and not necessarily performed in each direction. Therefore, "paddedSize" is not necessarily twice "size".
+  int paddedN;		///< total number of floats in paddedSize
   
-  int* paddedStorageSize;	///< extra 64 elements
-  int paddedStorageN;
+  int* paddedStorageSize;	///< A real-to-complex FFT requires padding with one complex number in the last dimension. However, is this would result in misalgned memory, we pad with (typically) 64 floats
+  int paddedStorageN;		///< total number of floats in paddedStorageSize
   
-  cufftHandle fwPlanZ;
-  cufftHandle fwPlanY;
-  cufftHandle fwPlanX;
+  cufftHandle fwPlanZ;	///< 1D real-to-complex plan for Z-direction
+  cufftHandle bwPlanZ;	///< 1D complex-to-real plan for Z-direction
+  cufftHandle planY;	///< 1D complex-to-complex plan for Y-direction, forward or backward
+  cufftHandle planX;	///< 1D complex-to-complex plan for X-direction, forward or backward
   
-  float* transp;	///< buffer for out-of-place transpose
+  float* transp;	///< buffer for out-of-place transposing
   
 }gpu_plan3d_real_input;
 
@@ -59,27 +60,36 @@ typedef struct{
  * but then it does not fit the stride anymore.
  * Extra padding? Out-of-place transform?
  */
-gpu_plan3d_real_input* new_gpu_plan3d_real_input(int N0,	///< size in x-direction
-			   int N1,	///< size in y-direction
-			   int N2,	///< size in z-direction
-			   int* zero_pad///< 0 or 1
-			    );
+gpu_plan3d_real_input* new_gpu_plan3d_real_input(int N0,	///< size of real input data in x-direction
+			   int N1,		///< size of real input data  in y-direction
+			   int N2,		///< size of real input data  in z-direction
+			   int* zero_pad	///< 3 ints, should be 1 or 0, meaning zero-padding or no zero-padding in X,Y,Z respectively
+			   );
 
 /**
  * Executes in-place.
  */
 void gpu_plan3d_real_input_forward(gpu_plan3d_real_input* plan,	///< the plan to be executed
-		        float* data	///< data to be transformed in-place
+		        float* data	///< data to be transformed in-place, it size should be plan->paddedStorageSize
 			);
 
 /**
  * Executes in-place.
  */
 void gpu_plan3d_real_input_backward(gpu_plan3d_real_input* plan,	///< the plan to be executed
-		        float* data	///< data to be transformed in-place
+		        float* data	///< data to be transformed in-place, it size should be plan->paddedStorageSize
 			);
 
-void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2);
+/**
+ * Swaps the Y and Z components of a 3D array of complex numbers.
+ * N0 x N1 x N2/2 complex numbers are stored as N0 x N1 x N2 interleaved real numbers.
+ */
+void gpu_transposeYZ_complex(float* source, 
+			     float* dest,
+			     int N0,
+			     int N1, 
+			     int N2 ///< number of floats (!) in the Z-direction, thus 2x the number of complex numbers in Z.
+			     );
 
 /**
  * Frees the FFT plan

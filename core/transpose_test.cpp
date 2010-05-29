@@ -1,7 +1,11 @@
+/**
+ * @file
+ * Tests for transposing complex number arrays on the GPU
+ */
+
 #include "gputil.h"
 #include "gpuconv2.h"
 #include "tensor.h"
-
 
 int main(int argc, char** argv){
   int N0 = 1;

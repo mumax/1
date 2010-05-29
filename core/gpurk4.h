@@ -2,6 +2,8 @@
  * @file
  * The classical 4th order Runge-Kutta algorithm for solving the LL equation.
  *
+ * @note Does not work yet
+ *
  * @note When writing out of allocated memory bounds, 
  * the GPU of course does not throw a segmentation fault. 
  * However, I had one case where a copy operation AFTER faulty

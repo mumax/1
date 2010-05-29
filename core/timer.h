@@ -9,12 +9,18 @@
  * do_fft(); 
  * timer_stop("fft");
  * @endcode
- * The time can then be obtained with @code timer_get("fft") @endcode or printed to the screen with @code timer_print("fft") @endcode.
+ *
+ * At the end of program, call
+ * @code
+ * timer_printdetail();
+ * @endcode
+ * To get a detailed overview of how much time is spent in each of the timed sections.
+ *
+ * The time of an individual section can then be obtained with, e.g.: @code timer_get("fft") @endcode 
+ * or printed to the screen with @code timer_print("fft") @endcode.
  *
  * A timer can be started and stopped multiple times, which will accumulate the total time.
  *
- * Everyting can be printed to the screen with timer_printall(), timer_printdetail();
- * 
  * @note The CPU time is measured, not the walltime. This means that the time spent waiting for other processes or I/O does not count.
  *
  * @author Arne Vansteenkiste
