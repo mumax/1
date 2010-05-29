@@ -301,17 +301,28 @@ void gpu_plan3d_real_input_forward(gpu_plan3d_real_input* plan, float* data){
 
   int* size = plan->size;
   int* pSSize = plan->paddedStorageSize;
+  int N0 = pSSize[X];
+  int N1 = pSSize[Y];
+  int N2 = pSSize[Z]/2; // we treat the complex data as an N0 x N1 x N2 x 2 array
+  int N3 = 2;
+  
+  float* data2 = plan->transp; // both the transpose and FFT are out-of-place between data and data2
   
   for(int i=0; i<size[X]; i++){
     for(int j=0; j<size[Y]; j++){
       float* row = &(data[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-      gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)row,  (cufftComplex*)row) );
+      gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)row,  (cufftComplex*)row) ); // all stays in data
     }
   }
   cudaThreadSynchronize();
   
-  //gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data,  (cufftComplex*)data), CUFFT_FORWARD );
-  cudaThreadSynchronize();  
+  gpu_transposeYZ_complex(data, data2, N0, N1, N2*N3);					// it's now in data2
+  gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data2,  (cufftComplex*)data, CUFFT_FORWARD) ); // it's now again in data
+  cudaThreadSynchronize();
+  
+  gpu_transposeXZ_complex(data, data2, N0, N2, N1*N3); // size has changed due to previous transpose! // it's now in data2
+  gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data2,  (cufftComplex*)data, CUFFT_FORWARD) ); // it's now again in data
+  cudaThreadSynchronize();
   
   timer_stop("gpu_plan3d_real_input_exec");
 }

@@ -1,6 +1,8 @@
 /**
  * @file
  * Tests for transposing complex number arrays on the GPU
+ *
+ * @author Arne Vansteenkiste
  */
 
 #include "gputil.h"
