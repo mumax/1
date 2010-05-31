@@ -127,14 +127,24 @@ void gpu_checkconf_int(int gridsize, ///< 1D size of the thread grid
 		       );
 		       
 /**
- * @private
  * Makes a 3D thread configuration suited for a data array of size N0 x N1 x N2.
  * The returned configuration will:
  *  - span the entire N0 x N1 x N2 array
  *  - have the largest valid block size that fits in the N0 x N1 x N2 array
  * 
  */
-void make3dconf(int N0, int N1, int N2, dim3* gridSize, dim3* blockSize);
+void make3dconf(int N0, 	///< size of 3D array to span
+		int N1, 	///< size of 3D array to span
+		int N2, 	///< size of 3D array to span
+		dim3* gridSize, ///< grid size is returned here
+		dim3* blockSize ///< block size is returned here
+		);
+
+/**
+ * Prints the properties of the used GPU
+ */
+void print_device_properties(FILE* out	///< stream to print to
+			     );
 
 #ifdef __cplusplus
 }

@@ -10,7 +10,7 @@
 # then run:
 # watchsvn.sh &
 #
-INTERVAL=60 #check every X seconds.
+INTERVAL=120 #check every X seconds.
 
 echo
 echo watching $(pwd) for subversion updates

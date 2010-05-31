@@ -168,6 +168,62 @@ void gpu_checkconf_int(int gridsize, int blocksize){
   assert(gridsize > 0);
 }
 
+void make3dconf(int N0, int N1, int N2, dim3* gridSize, dim3* blockSize ){
+
+}
+
+
+// struct cudaDeviceProp {
+// char name[256];
+// size_t totalGlobalMem;
+// size_t sharedMemPerBlock;
+// int regsPerBlock;
+// int warpSize;
+// size_t memPitch;
+// int maxThreadsPerBlock;
+// int maxThreadsDim[3];
+// int maxGridSize[3];
+// size_t totalConstMem;
+// int major;
+// int minor;
+// int clockRate;
+// size_t textureAlignment;
+// int deviceOverlap;
+// int multiProcessorCount;
+// int kernelExecTimeoutEnabled;
+// int integrated;
+// int canMapHostMemory;
+// int computeMode;
+// int concurrentKernels;
+// }
+
+
+void print_device_properties(FILE* out){
+  int device = -1;
+  gpu_safe( cudaGetDevice(&device) );
+  
+  cudaDeviceProp prop;
+  gpu_safe( cudaGetDeviceProperties(&prop, device) ); 
+  
+  int MiB = 1024 * 1024;
+  int kiB = 1024;
+  
+  fprintf(out, "    Device number: %d\n", device);
+  fprintf(out, "      Device name: %s\n", prop.name);
+  fprintf(out, "    Global Memory: %d MiB\n", (int)(prop.totalGlobalMem/MiB));
+  fprintf(out, "    Shared Memory: %d kiB/block\n", (int)(prop.sharedMemPerBlock/kiB));
+  fprintf(out, "        Registers: %d per block\n", (int)(prop.regsPerBlock/kiB));
+  fprintf(out, "        Warp size: %d threads\n", (int)(prop.warpSize));
+  fprintf(out, " Max memory pitch: %d bytes\n", (int)(prop.memPitch));
+  fprintf(out, "Max threads/block: %d\n", prop.maxThreadsPerBlock);
+  fprintf(out, "  Constant memory: %d kiB\n", (int)(prop.totalConstMem/kiB));
+  
+  
+  
+  
+}
+
+			     
 void gpu_safe(int status){
   if(status != cudaSuccess){
     fprintf(stderr, "received CUDA error: %s\n", cudaGetErrorString((cudaError_t)status));
