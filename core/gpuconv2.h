@@ -72,6 +72,13 @@ gpu_plan3d_real_input* new_gpu_plan3d_real_input(int N0,	///< size of real input
 void gpu_plan3d_real_input_forward(gpu_plan3d_real_input* plan,	///< the plan to be executed
 		        float* data	///< data to be transformed in-place, it size should be plan->paddedStorageSize
 			);
+			
+/**
+ * Executes in-place.
+ */
+void gpu_plan3d_real_input_backward(gpu_plan3d_real_input* plan,	///< the plan to be executed
+		        float* data	///< data to be transformed in-place, it size should be plan->paddedStorageSize
+			);
 
 /**
  * Executes in-place.

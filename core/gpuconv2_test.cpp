@@ -16,6 +16,8 @@ int main(int argc, char** argv){
   int N1 = 4;
   int N2 = 8;
   
+  // make some host data
+  
   tensor* mHost = new_tensor(3, N0, N1, N2);
   int N = tensor_length(mHost);
   
@@ -29,14 +31,28 @@ int main(int argc, char** argv){
   mHost->list[0] = 1.0;
   fprintf(stderr, "original:\n");
   format_tensor(mHost, stderr);
+  
+  // make data on device
+  tensor* mDev = as_tensor(new_gpu_array(N), 3, N0, N1, N2);
+  memcpy_to_gpu(mHost->list, mDev->list, N);
        
+  // make fft plan
   int* zero_pad = new int[3];
   zero_pad[X] = 0;
-  zero_pad[X] = 1;
-  zero_pad[X] = 2;
-  
-  
+  zero_pad[X] = 0;
+  zero_pad[X] = 0;
   gpu_plan3d_real_input* plan = new_gpu_plan3d_real_input(N0, N1, N2, zero_pad);
+  
+  // test forward
+  gpu_plan3d_real_input_forward(plan, mDev->list);
+  memcpy_from_gpu(mDev->list, mHost->list, N);
+  format_tensor(mHost, stderr);
+  
+//   // test backward
+//   gpu_plan3d_real_input_backward(plan, mDev->list);
+//   memcpy_from_gpu(mDev->list, mHost->list, N);
+//   format_tensor(mHost, stderr);
+  
   
   fprintf(stderr, "PASS\n");
   return 0;
