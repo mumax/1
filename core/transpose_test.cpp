@@ -13,9 +13,9 @@
 
 int main(int argc, char** argv){
   
-  int N0 = 64;
-  int N1 = 256;
-  int N2 = 256;
+  int N0 = 2;
+  int N1 = 4;
+  int N2 = 8;
   int N3 = 2; // real and imag part
   
   // (untransposed) "magnetization" on the host (CPU)
