@@ -8,18 +8,6 @@
 extern "C" {
 #endif
 
-void gpuconv2_init_m_comp(gpuconv2* conv, float* m){
-/*  for(int i=0; i<3; i++){ 			// slice the contiguous m array in 3 equal pieces, one for each component
-    conv->m_comp[i] = &(m[i * conv->len_m_comp]); 
-  }*/
-}
-
-void gpuconv2_init_h_comp(gpuconv2* conv, float* h){
-/*  for(int i=0; i<3; i++){ 			// slice the contiguous m array in 3 equal pieces, one for each component
-    conv->h_comp[i] = &(h[i * conv->len_h_comp]); 
-  }*/
-}
-
 /** For debugging: gets tensor from the GPU and prints to screen */
 // void extract(const char* msg, float* data, int* size){
 //   int N0 = size[0];
@@ -36,8 +24,15 @@ void gpuconv2_init_h_comp(gpuconv2* conv, float* h){
 //_____________________________________________________________________________________________ convolution
 
 void gpuconv2_exec(gpuconv2* conv, float* m, float* h){
-/*  gpuconv2_init_m_comp(conv, m);
-  gpuconv2_init_h_comp(conv, h);
+  // set m and h components
+  float* m_comp[3];
+  float* h_comp[3];
+  for(int i=0; i<3; i++){ 			// slice the contiguous m array in 3 equal pieces, one for each component
+    m_comp[i] = &(m[i * conv->len_m_comp]); 
+    h_comp[i] = &(h[i * conv->len_h_comp]); 
+  }
+  
+  /*
   gpu_zero(conv->ft_h, conv->len_ft_h);							// zero-out field (h) components
   for(int i=0; i<3; i++){								// transform and convolve per magnetization component m_i
     gpu_zero(conv->ft_m_i, conv->len_ft_m_i);						// zero-out the padded magnetization buffer first
@@ -91,49 +86,54 @@ void gpu_kernel_mul2(float* ft_m_i, float* ft_kernel_ij, float* ft_h_comp_j, int
 //_____________________________________________________________________________________________ kernel
 
 void gpuconv2_checksize_kernel(gpuconv2* conv, tensor* kernel){
-/*  // kernel should be rank 5 tensor with size 3 x 3 x 2*N0 x 2xN1 x 2xN2 (could be reduced a bit)
-  assert(kernel->rank == 5);
-  assert(kernel->size[0] == 3);
-  assert(kernel->size[1] == 3);
-  for(int i=0; i<3; i++){ assert(kernel->size[i+2] == 2 * conv->size[i]); }
-  
-  assert(kernel->size[2] == conv->paddedSize[0]);
-  assert(kernel->size[3] == conv->paddedSize[1]);
-  assert(kernel->size[4] == conv->paddedSize[2]);*/
+  // kernel should be rank 5 tensor with size 3 x 3 x 2*N0 x 2xN1 x 2xN2 (could be reduced a bit)
+//   assert(kernel->rank == 5);
+//   assert(kernel->size[0] == 3);
+//   assert(kernel->size[1] == 3);
+//   for(int i=0; i<3; i++){ assert(kernel->size[i+2] == 2 * conv->size[i]); }
+//   
+//   assert(kernel->size[2] == conv->paddedSize[0]);
+//   assert(kernel->size[3] == conv->paddedSize[1]);
+//   assert(kernel->size[4] == conv->paddedSize[2]);
 }
 
 void gpuconv2_alloc_ft_kernel(gpuconv2* conv){
-/*  conv->ft_kernel = (float***)calloc(3, sizeof(float**));
+  conv->ft_kernel = (float***)calloc(3, sizeof(float**));
   for(int i=0; i<3; i++){ 
     conv->ft_kernel[i] = (float**)calloc(3, sizeof(float*));
     for(int j=0; j<3; j++){
       conv->ft_kernel[i][j] = new_gpu_array(conv->len_ft_kernel_ij);
     }
-  }*/
+  }
 }
 
+int* NO_ZERO_PAD = (int*)calloc(3, sizeof(int));
+
 void gpuconv2_loadkernel(gpuconv2* conv, tensor* kernel){
-/*  fprintf(stderr, "loadkernel %d x %d x %d\n", kernel->size[2], kernel->size[3], kernel->size[4]);
+  fprintf(stderr, "loadkernel %d x %d x %d\n", kernel->size[2], kernel->size[3], kernel->size[4]);
   
   gpuconv2_checksize_kernel(conv, kernel);
-  gpu_plan3d_real_input* plan = new_gpu_plan3d_real_input(kernel->size[2], kernel->size[3], kernel->size[4]);
-  float norm = 1.0/float(conv->paddedN);
+  gpu_plan3d_real_input* plan = new_gpu_plan3d_real_input(kernel->size[2], kernel->size[3], kernel->size[4], NO_ZERO_PAD);
+  float norm = 1.0/float(conv->fftplan->paddedN);
   float* complex_kernel_ij = new_ram_array(conv->len_ft_kernel_ij);
   for(int i=0; i<3; i++){
       for(int j=0; j<3; j++){
-	memcpy_r2c(tensor_get(kernel, 5, i, j, 0, 0, 0), complex_kernel_ij, conv->len_kernel_ij);
+	
+	/// @todo !!!!!!!!!!!!!!!!!!!!!!! 
+	//memcpy_r2c(tensor_get(kernel, 5, i, j, 0, 0, 0), complex_kernel_ij, conv->len_kernel_ij);
+	
 	//normalize
 	for(int e=0; e<conv->len_ft_kernel_ij; e++){
 	  complex_kernel_ij[e] *= norm;
 	}
 	memcpy_to_gpu(complex_kernel_ij, conv->ft_kernel[i][j], conv->len_ft_kernel_ij);
 	//extract("kernel_ij", conv->ft_kernel[i][j], conv->paddedComplexSize);
-	gpu_plan3d_real_input_exec(plan, conv->ft_kernel[i][j], CUFFT_FORWARD);
+	gpu_plan3d_real_input_forward(plan, conv->ft_kernel[i][j]);
 	//extract("ft_kernel_ij", conv->ft_kernel[i][j], conv->paddedComplexSize);
     }
   }
   free(complex_kernel_ij);
-  delete_gpu_plan3d_real_input(plan);*/
+  delete_gpu_plan3d_real_input(plan);
 }
 
 //_____________________________________________________________________________________________ new
@@ -143,31 +143,27 @@ void gpuconv2_loadkernel(gpuconv2* conv, tensor* kernel){
 // }
 
 void gpuconv2_init_kernel(gpuconv2* conv, tensor* kernel){
-/*  conv->len_kernel_ij = conv->paddedN;		//the length of each kernel component K[i][j] (eg: Kxy)
-  conv->len_ft_kernel_ij = conv->paddedComplexN;	//the length of each FFT'ed kernel component ~K[i][j] (eg: ~Kxy)
+  conv->len_kernel_ij = conv->fftplan->paddedN;		//the length of each kernel component K[i][j] (eg: Kxy)
+  conv->len_ft_kernel_ij = conv->fftplan->paddedStorageN;	//the length of each FFT'ed kernel component ~K[i][j] (eg: ~Kxy)
   gpuconv2_alloc_ft_kernel(conv);
-  gpuconv2_loadkernel(conv, kernel);*/
+  gpuconv2_loadkernel(conv, kernel);
 }
 
 void gpuconv2_init_m(gpuconv2* conv){
-/*  conv->len_m = 3 * conv->N;
-  
-  conv->len_m_comp = conv->N; 
-  conv->m_comp = (float**)calloc(3, sizeof(float*));
-  
-  conv->len_ft_m_i = conv->paddedComplexN;
-  conv->ft_m_i = new_gpu_array(conv->len_ft_m_i);*/
+  conv->len_m = 3 * conv->fftplan->N;
+  conv->len_m_comp = conv->fftplan->N; 
+  conv->ft_m_i = new_gpu_array(conv->len_ft_m_i);
 }
 
 void gpuconv2_init_h(gpuconv2* conv){
-//   conv->len_h = conv->len_m;
-//   //conv->h = new_gpu_array(conv->len_h);
-//   conv->len_h_comp = conv->len_m_comp; 
-//   conv->h_comp = (float**)calloc(3, sizeof(float*));
+  conv->len_h = conv->len_m;
+  //conv->h = new_gpu_array(conv->len_h);
+  conv->len_h_comp = conv->len_m_comp; 
+//  conv->h_comp = (float**)calloc(3, sizeof(float*));
 //   for(int i=0; i<3; i++){ 
 //     conv->h_comp[i] = &(conv->h[i * conv->len_h_comp]); // slice the contiguous h array in 3 equal pieces, one for each component
 //   }
-  /*
+  
   conv->len_ft_h = 3 * conv->len_ft_m_i;
   conv->ft_h = new_gpu_array(conv->len_ft_h);
   
@@ -176,17 +172,19 @@ void gpuconv2_init_h(gpuconv2* conv){
   for(int i=0; i<3; i++){ 
     conv->ft_h_comp[i] = &(conv->ft_h[i * conv->len_ft_h_comp]); // slice the contiguous ft_h array in 3 equal pieces, one for each component
   }
-  */
+  
 }
 
-gpuconv2* new_gpuconv2(int N0, int N1, int N2, tensor* kernel){
-/*  gpuconv2* conv = (gpuconv2*)malloc(sizeof(gpuconv2));
-  gpuconv2_init_sizes(conv, N0, N1, N2);
+//_____________________________________________________________________________________________ new gpuconv2
+
+gpuconv2* new_gpuconv2(int N0, int N1, int N2, tensor* kernel, int* zero_pad){
+  gpuconv2* conv = (gpuconv2*)malloc(sizeof(gpuconv2));
+  conv->fftplan = new_gpu_plan3d_real_input(N0, N1, N2, zero_pad);
+  //gpuconv2_init_sizes(conv, N0, N1, N2);
   gpuconv2_init_kernel(conv, kernel);
   gpuconv2_init_m(conv);
   gpuconv2_init_h(conv);
-  conv->fftplan = new_gpu_plan3d_real_input(conv->paddedSize[0], conv->paddedSize[1], conv->paddedSize[2]);
-  return conv;*/
+  return conv;
 }
 
 
@@ -217,7 +215,7 @@ gpu_plan3d_real_input* new_gpu_plan3d_real_input(int N0, int N1, int N2, int* ze
   
   plan->paddedStorageSize[X] = plan->paddedSize[X];
   plan->paddedStorageSize[Y] = plan->paddedSize[Y];
-//  plan->paddedStorageSize[Z] = plan->paddedSize[Z] +  gpu_stride_float();   //TODO aanpassen!!
+//  plan->paddedStorageSize[Z] = plan->paddedSize[Z] +  gpu_stride_float();   ///@todo aanpassen!!
   plan->paddedStorageSize[Z] = plan->paddedSize[Z] +  2;
   plan->paddedStorageN = paddedStorageSize[X] * paddedStorageSize[Y] * paddedStorageSize[Z];
   
@@ -247,7 +245,7 @@ __global__ void _gpu_transposeXZ_complex(float* source, float* dest, int N0, int
 }
 
 void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2){
-  timer_start("transposeXZ");
+  timer_start("transposeXZ"); /// @todo section is double-timed with FFT exec
   
   assert(source != dest); // must be out-of-place
   
