@@ -23,6 +23,14 @@ extern "C" {
 
 //_____________________________________________________________________________________________ convolution
 
+void gpuconv2_copy_pad(gpuconv2* conv, float* source, float* dest){
+
+}
+
+void gpuconv2_copy_unpad(gpuconv2* conv, float* source, float* dest){
+
+}
+
 void gpuconv2_exec(gpuconv2* conv, float* m, float* h){
   // set m and h components
   float* m_comp[3];
@@ -138,10 +146,6 @@ void gpuconv2_loadkernel(gpuconv2* conv, tensor* kernel){
 
 //_____________________________________________________________________________________________ new
 
-// void gpuconv2_init_sizes(gpuconv2* conv, int N0, int N1, int N2, int* zero_pad){
-//   
-// }
-
 void gpuconv2_init_kernel(gpuconv2* conv, tensor* kernel){
   conv->len_kernel_ij = conv->fftplan->paddedN;		//the length of each kernel component K[i][j] (eg: Kxy)
   conv->len_ft_kernel_ij = conv->fftplan->paddedStorageN;	//the length of each FFT'ed kernel component ~K[i][j] (eg: ~Kxy)
@@ -157,30 +161,21 @@ void gpuconv2_init_m(gpuconv2* conv){
 
 void gpuconv2_init_h(gpuconv2* conv){
   conv->len_h = conv->len_m;
-  //conv->h = new_gpu_array(conv->len_h);
   conv->len_h_comp = conv->len_m_comp; 
-//  conv->h_comp = (float**)calloc(3, sizeof(float*));
-//   for(int i=0; i<3; i++){ 
-//     conv->h_comp[i] = &(conv->h[i * conv->len_h_comp]); // slice the contiguous h array in 3 equal pieces, one for each component
-//   }
-  
   conv->len_ft_h = 3 * conv->len_ft_m_i;
   conv->ft_h = new_gpu_array(conv->len_ft_h);
-  
   conv->len_ft_h_comp = conv->len_ft_m_i;
   conv->ft_h_comp = (float**)calloc(3, sizeof(float*));
   for(int i=0; i<3; i++){ 
     conv->ft_h_comp[i] = &(conv->ft_h[i * conv->len_ft_h_comp]); // slice the contiguous ft_h array in 3 equal pieces, one for each component
   }
-  
 }
 
 //_____________________________________________________________________________________________ new gpuconv2
 
 gpuconv2* new_gpuconv2(int N0, int N1, int N2, tensor* kernel, int* zero_pad){
   gpuconv2* conv = (gpuconv2*)malloc(sizeof(gpuconv2));
-  conv->fftplan = new_gpu_plan3d_real_input(N0, N1, N2, zero_pad);
-  //gpuconv2_init_sizes(conv, N0, N1, N2);
+  conv->fftplan = new_gpu_plan3d_real_input(N0, N1, N2, zero_pad);	// it's important to FIRST initialize the fft plan because it stores the sizes used by other functions.
   gpuconv2_init_kernel(conv, kernel);
   gpuconv2_init_m(conv);
   gpuconv2_init_h(conv);

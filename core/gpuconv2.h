@@ -184,6 +184,21 @@ void gpu_kernel_mul2(float* ft_m_i,		///< multiplication input 1
 		     int nRealNumbers		///< the number of floats(!) in each of the arrays, thus twice the number of complex's in them.
 		     );
 
+/**
+ * Copies 3D data to a zero-padded and strided destination
+ */
+void gpuconv2_copy_pad(gpuconv2* conv, 	///< this convolution plan contains the sizes of both arrays
+		       float* source,   ///< source data should have size: conv->size
+		       float* dest	///< destination data should have size: conv->paddedStorageSize
+		       );
+
+/**
+ * Copies 3D data from a zero-padded and strided destination
+ */
+void gpuconv2_copy_unpad(gpuconv2* conv, 
+			 float* source, 
+			 float* dest
+			 );
 
 #ifdef __cplusplus
 }
