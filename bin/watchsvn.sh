@@ -10,11 +10,11 @@
 # then run:
 # watchsvn.sh &
 #
-INTERVAL=120 #check every X seconds.
+INTERVAL=60 #check every X seconds.
 
 echo
 echo watching $(pwd) for subversion updates
-echo refreshing every $INTERVAL seconds
+echo re-checking every $INTERVAL seconds
 
 (for (( ;; )); do
 
@@ -22,8 +22,8 @@ echo refreshing every $INTERVAL seconds
   REMOTE=$(svn stat -uq | grep "Status against revision:" | tr -d "Status against revision:\t");
 
   if ((( $LOCAL != $REMOTE ))); then
-#    echo "New SVN update available: revision" $REMOTE
-    notify-send "New SVN update available: " $REMOTE
+#    echo "SVN revision $REMOTE available" "$((svn log | head -n 4 | tail -n 1) 2> /dev/null)"
+    notify-send "SVN revision $REMOTE available" "$((svn log | head -n 4 | tail -n 1) 2> /dev/null)"
     sleep $INTERVAL
 #     while ((( $LOCAL != $REMOTE ))); do
 #       sleep $INTERVAL
@@ -36,4 +36,4 @@ echo refreshing every $INTERVAL seconds
 #    echo up to date, at revison: $LOCAL
     sleep $INTERVAL;
   fi;
-done;)
+done;)&
