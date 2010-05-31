@@ -112,5 +112,5 @@ transpose_test: $(OFILES) transpose_test.cpp
 clean:	
 	rm -f *.o *.so *.a iotest *_test
 
-doc:	*
+doc:
 	doxygen doxygen.cfg
