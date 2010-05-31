@@ -28,13 +28,12 @@ extern "C" {
  * or equal to size.
  * @see new_gpu_array()
  */
-int gpu_len(int size	///< minimum size of the array
-	    );
+// int gpu_len(int size	///< minimum size of the array
+// 	    );
 
 /**
  * Allocates an array of floats on the GPU and asserts the size is a multiple of 512.
  * @see gpu_len(), new_ram_array()
- * @todo We need to use strided arrays and make sure simulations work if the number of cells is no multiple of 512.
  */
 float* new_gpu_array(int size	///< size of the array
 		    );
@@ -61,6 +60,8 @@ float* new_ram_array(int size	///< size of the array
  * dimension should be a multiple of the stride. E.g.:
  * Standard problem 4 ran about 4x faster when using a (3x) 1 x 32 x 128 geometry
  * instead of (3x) 128 x 32 x 1 !
+ *
+ * @todo use cudaGetDeviceProperties for this.
  */
 int gpu_stride_float();
 
@@ -102,6 +103,9 @@ void gpu_zero(float* data,	///< data pointer on the GPU
 /**
  * This function should be wrapped around cuda functions to check for a non-zero error status.
  * It will print an error message and abort when neccesary.
+ * @code
+ * gpu_safe( cudaMalloc(...) );
+ * @endcode
  */
 void gpu_safe(int status	///< CUDA return status
 	      );
@@ -121,6 +125,16 @@ void gpu_checkconf(dim3 gridsize, ///< 3D size of the thread grid
 void gpu_checkconf_int(int gridsize, ///< 1D size of the thread grid
 		       int blocksize ///< 1D size of the trhead blocks on the grid
 		       );
+		       
+/**
+ * @private
+ * Makes a 3D thread configuration suited for a data array of size N0 x N1 x N2.
+ * The returned configuration will:
+ *  - span the entire N0 x N1 x N2 array
+ *  - have the largest valid block size that fits in the N0 x N1 x N2 array
+ * 
+ */
+void make3dconf(int N0, int N1, int N2, dim3* gridSize, dim3* blockSize);
 
 #ifdef __cplusplus
 }

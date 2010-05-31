@@ -185,8 +185,8 @@ void gpu_kernel_mul2(float* ft_m_i,		///< multiplication input 1
 		     );
 
 /**
- * @private
- * Copies 3D data to a zero-padded, strided destination. Runs on the GPU
+ * @internal
+ * Copies 3D data to a zero-padded, strided destination. Runs on the GPU.
  */
 void gpuconv2_copy_pad(gpuconv2* conv, 	///< this convolution plan contains the sizes of both arrays
 		       float* source,   ///< source data on GPU, should have size: conv->size
@@ -194,8 +194,8 @@ void gpuconv2_copy_pad(gpuconv2* conv, 	///< this convolution plan contains the 
 		       );
 
 /**
- * @private
- * Copies 3D data from a zero-padded and strided destination
+ * @internal
+ * Copies 3D data from a zero-padded and strided destination. Runs on the GPU
  */
 void gpuconv2_copy_unpad(gpuconv2* conv, ///< this convolution plan contains the sizes of both arrays
 			 float* source,  ///< destination data on GPU, should have size: conv->paddedStorageSize
