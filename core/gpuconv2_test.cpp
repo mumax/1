@@ -35,6 +35,7 @@ int main(int argc, char** argv){
   zero_pad[X] = 1;
   zero_pad[X] = 2;
   
+  
   gpu_plan3d_real_input* plan = new_gpu_plan3d_real_input(N0, N1, N2, zero_pad);
   
   fprintf(stderr, "PASS\n");
