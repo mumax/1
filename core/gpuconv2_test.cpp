@@ -54,6 +54,6 @@ int main(int argc, char** argv){
 //   format_tensor(mHost, stderr);
   
   
-  fprintf(stderr, "PASS\n");
+  //fprintf(stderr, "PASS\n");
   return 0;
 }
