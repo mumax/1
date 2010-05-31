@@ -55,28 +55,20 @@ typedef struct{
 
 
 /**
- * There is a difficulty with real-to-complex FFT's:
- * the last dimension must be made 2 complex numbers larger,
- * but then it does not fit the stride anymore.
- * Extra padding? Out-of-place transform?
+ * Creates a new FFT plan for transforming the magnetization. 
+ * Zero-padding in each dimension is optional, and rows with
+ * only zero's are not transformed.
  */
 gpu_plan3d_real_input* new_gpu_plan3d_real_input(int N0,	///< size of real input data in x-direction
-			   int N1,		///< size of real input data  in y-direction
-			   int N2,		///< size of real input data  in z-direction
-			   int* zero_pad	///< 3 ints, should be 1 or 0, meaning zero-padding or no zero-padding in X,Y,Z respectively
-			   );
+						int N1,		///< size of real input data  in y-direction
+						int N2,		///< size of real input data  in z-direction
+						int* zero_pad	///< 3 ints, should be 1 or 0, meaning zero-padding or no zero-padding in X,Y,Z respectively
+						);
 
 /**
  * Executes in-place.
  */
 void gpu_plan3d_real_input_forward(gpu_plan3d_real_input* plan,	///< the plan to be executed
-		        float* data	///< data to be transformed in-place, it size should be plan->paddedStorageSize
-			);
-			
-/**
- * Executes in-place.
- */
-void gpu_plan3d_real_input_backward(gpu_plan3d_real_input* plan,	///< the plan to be executed
 		        float* data	///< data to be transformed in-place, it size should be plan->paddedStorageSize
 			);
 

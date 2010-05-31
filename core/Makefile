@@ -71,40 +71,39 @@ timer.o:	timer.h timer.cpp
 units.o:	units.h units.c
 	$(NVCC) -c $(NVCCFLAGS) units.c
 
+test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuanal1_test gpusim_test transpose_test gpuconv2_test
 
-test:	all  $(OFILES) tensor_test gpueuler_test gpuheun_test gpuanal1_test gpusim_test transpose_test
-
-tensor_test:	core.so tensor_test.cpp
+tensor_test:	$(OFILES) tensor_test.cpp
 	$(CPP) -c $(CFLAGS) $(LDFLAGS) tensor_test.cpp
 	$(CPP) tensor_test.o core.so -o tensor_test
 	./tensor_test
 
-gpueuler_test:	all gpueuler_test.cpp
+gpueuler_test:	$(OFILES) gpueuler_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpueuler_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpueuler_test.o -o gpueuler_test
 	./gpueuler_test testm0.t testkernel.t
 
-gpuheun_test:	all gpuheun_test.cpp
+gpuheun_test:	$(OFILES) gpuheun_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuheun_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpuheun_test.o -o gpuheun_test
 	./gpuheun_test testm0.t testkernel.t
 
-gpuanal1_test:	all gpuanal1_test.cpp
+gpuanal1_test:	$(OFILES) gpuanal1_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuanal1_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpuanal1_test.o -o gpuanal1_test
-	gdb ./gpuanal1_test testm0.t testkernel.t
+	./gpuanal1_test testm0.t testkernel.t
 
-gpusim_test:	all gpusim_test.cpp
+gpusim_test:	$(OFILES) gpusim_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpusim_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpusim_test.o -o gpusim_test
 	ln -sf $(CURDIR)/gpusim_test ../../../bin/gpusim_test
 
-gpuconv2_test:	all gpuconv2_test.cpp
+gpuconv2_test:	$(OFILES) gpuconv2_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuconv2_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpuconv2_test.o -o gpuconv2_test
 	./gpuconv2_test
 
-transpose_test: all transpose_test.cpp
+transpose_test: $(OFILES) transpose_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) transpose_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) transpose_test.o -o transpose_test
 	./transpose_test

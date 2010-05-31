@@ -108,7 +108,7 @@ typedef struct{
   
   //float* h;
   int len_h;
-  float** h_comp;		///< pointers to X, Y and Z components of the magnetic field, they will point into the h array passed to gpuconv1_exec() 
+  float** h_comp;		///< pointers to X, Y and Z components of the magnetic field, they will point into the h array passed to gpuconv1_exec() @todo should be removed as it gets only initialized after calling gpuconv1_exec(). This is confusing...
   int len_h_comp;
   float* ft_h;			///< buffer for the FFT'ed magnetic field
   int len_ft_h;

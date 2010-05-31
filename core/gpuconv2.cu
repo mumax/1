@@ -329,11 +329,11 @@ void gpu_plan3d_real_input_forward(gpu_plan3d_real_input* plan, float* data){
   cudaThreadSynchronize();
   
   gpu_transposeYZ_complex(data, data2, N0, N1, N2*N3);					// it's now in data2
-  gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data2,  (cufftComplex*)data, CUFFT_FORWARD) ); // it's now again in data
+  gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data2,  (cufftComplex*)data2, CUFFT_FORWARD) ); // it's now again in data
   cudaThreadSynchronize();
   
-  gpu_transposeXZ_complex(data, data2, N0, N2, N1*N3); // size has changed due to previous transpose! // it's now in data2
-  gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data2,  (cufftComplex*)data, CUFFT_FORWARD) ); // it's now again in data
+  gpu_transposeXZ_complex(data2, data, N0, N2, N1*N3); // size has changed due to previous transpose! // it's now in data2
+  gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)data, CUFFT_FORWARD) ); // it's now again in data
   cudaThreadSynchronize();
   
   timer_stop("gpu_plan3d_real_input_forward_exec");

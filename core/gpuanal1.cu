@@ -70,6 +70,8 @@ __global__ void _gpu_anal1step(float* mx, float* my, float* mz, float* hx, float
 	my[i] = mx_rotnw*rot[3] + my_rotnw*rot[4] + mz_rotnw*rot[5];
 	mz[i] = mx_rotnw*rot[6] + mz_rotnw*rot[8];*/
 // -----------------------------------
+// note from Arne: on my GPU, the launch timeout even occurs with the above code commented out, so it
+// seems to be a more general problem
 
 
 // wanneer volgende ipv vorige lijnen uitgevoerd worden is alles ok (met fout resultaat natuurlijk)
@@ -80,9 +82,9 @@ __global__ void _gpu_anal1step(float* mx, float* my, float* mz, float* hx, float
 
 	//correction on possible accumulating errors on amplitude M, should not be done frequently
 	float norm = rsqrtf(mx[i]*mx[i] + my[i]*my[i] + mz[i]*mz[i]);
-  mx[i] *= norm;
-  my[i] *= norm;
-  mz[i] *= norm;
+//   mx[i] *= norm;
+//   my[i] *= norm;
+//   mz[i] *= norm;
 }
 
 
