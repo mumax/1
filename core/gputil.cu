@@ -194,7 +194,12 @@ void make3dconf(int N0, int N1, int N2, dim3* gridSize, dim3* blockSize ){
     gridSize->z = 1;
   }
 
-  fprintf(stderr, "make3dconf(%d, %d, %d): (%d x %d x %d) x (%d x %d x %d)", 
+
+  assert(blockSize->x * gridSize->x == N0);
+  assert(blockSize->y * gridSize->y == N1);
+  assert(blockSize->z * gridSize->z == N2);
+  
+  fprintf(stderr, "make3dconf(%d, %d, %d): (%d x %d x %d) x (%d x %d x %d)\n", 
 	  N0, N1, N2, 
 	  gridSize->x, gridSize->y, gridSize->z,
 	  blockSize->x, blockSize->y, blockSize->z);
