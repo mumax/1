@@ -7,6 +7,7 @@ export SIMROOT=$(CURDIR)
 all:
 	make -C core
 	make -C app
+	make -C bin
 
 clean:
 	make clean -C core

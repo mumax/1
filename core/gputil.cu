@@ -169,7 +169,35 @@ void gpu_checkconf_int(int gridsize, int blocksize){
 }
 
 void make3dconf(int N0, int N1, int N2, dim3* gridSize, dim3* blockSize ){
+  int device = -1;
+  gpu_safe( cudaGetDevice(&device) );
+  
+  cudaDeviceProp prop;
+  gpu_safe( cudaGetDeviceProperties(&prop, device) ); 
+  
+  int maxThreadsPerBlock = prop.maxThreadsPerBlock;
+  int* maxBlockSize = prop.maxThreadsDim;
+  int* maxGridSize = prop.maxGridSize;
+  
+  if(N2 >= maxBlockSize[Z]){
+    if(N2 % maxBlockSize[Z] == 0){
+      blockSize->z = maxBlockSize[Z];
+      gridSize->z = N2 / blockSize->z;
+    }
+    else{
+      blockSize->z = N2 % maxBlockSize[Z];
+      gridSize->z = N2 / blockSize->z;
+    }
+  }
+  else{
+    blockSize->z = N2;
+    gridSize->z = 1;
+  }
 
+  fprintf(stderr, "make3dconf(%d, %d, %d): (%d x %d x %d) x (%d x %d x %d)", 
+	  N0, N1, N2, 
+	  gridSize->x, gridSize->y, gridSize->z,
+	  blockSize->x, blockSize->y, blockSize->z);
 }
 
 
@@ -208,18 +236,24 @@ void print_device_properties(FILE* out){
   int MiB = 1024 * 1024;
   int kiB = 1024;
   
-  fprintf(out, "    Device number: %d\n", device);
-  fprintf(out, "      Device name: %s\n", prop.name);
-  fprintf(out, "    Global Memory: %d MiB\n", (int)(prop.totalGlobalMem/MiB));
-  fprintf(out, "    Shared Memory: %d kiB/block\n", (int)(prop.sharedMemPerBlock/kiB));
-  fprintf(out, "        Registers: %d per block\n", (int)(prop.regsPerBlock/kiB));
-  fprintf(out, "        Warp size: %d threads\n", (int)(prop.warpSize));
-  fprintf(out, " Max memory pitch: %d bytes\n", (int)(prop.memPitch));
-  fprintf(out, "Max threads/block: %d\n", prop.maxThreadsPerBlock);
-  fprintf(out, "  Constant memory: %d kiB\n", (int)(prop.totalConstMem/kiB));
-  
-  
-  
+  fprintf(out, "     Device number: %d\n", device);
+  fprintf(out, "       Device name: %s\n", prop.name);
+  fprintf(out, "     Global Memory: %d MiB\n", (int)(prop.totalGlobalMem/MiB));
+  fprintf(out, "     Shared Memory: %d kiB/block\n", (int)(prop.sharedMemPerBlock/kiB));
+  fprintf(out, "   Constant memory: %d kiB\n", (int)(prop.totalConstMem/kiB));
+  fprintf(out, "         Registers: %d per block\n", (int)(prop.regsPerBlock/kiB));
+  fprintf(out, "         Warp size: %d threads\n", (int)(prop.warpSize));
+  fprintf(out, "  Max memory pitch: %d bytes\n", (int)(prop.memPitch));
+  fprintf(out, " Texture alignment: %d bytes\n", (int)(prop.textureAlignment));
+  fprintf(out, " Max threads/block: %d\n", prop.maxThreadsPerBlock);
+  fprintf(out, "    Max block size: %d x %d x %d threads\n", prop.maxThreadsDim[X], prop.maxThreadsDim[Y], prop.maxThreadsDim[Z]);
+  fprintf(out, "    Max grid size: %d x %d x %d blocks\n", prop.maxGridSize[X], prop.maxGridSize[Y], prop.maxGridSize[Z]);
+  fprintf(out, "Compute capability: %d.%d\n", prop.major, prop.minor);
+  fprintf(out, "        Clock rate: %d\n", prop.clockRate);
+  fprintf(out, "        CUDA cores: %d\n", prop.multiProcessorCount);
+  fprintf(out, "   Timeout enabled: %d\n", prop.kernelExecTimeoutEnabled);
+  fprintf(out, "      Compute mode: %d\n", prop.computeMode);
+  fprintf(out, "Concurrent kernels: %d\n", prop.concurrentKernels);
   
 }
 

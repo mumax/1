@@ -18,6 +18,10 @@ int main(int argc, char** argv){
   int N2 = 8;
   int N3 = 2; // real and imag part
   
+  dim3 gridSize;
+  dim3 blockSize;
+  make3dconf(N0, N1, N2, &gridSize, &blockSize);
+  
   // (untransposed) "magnetization" on the host (CPU)
   tensor* mHost = new_tensor(3, N0, N1, N2*N3);
   int N = tensor_length(mHost);

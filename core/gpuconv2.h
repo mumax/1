@@ -83,11 +83,11 @@ void gpu_plan3d_real_input_inverse(gpu_plan3d_real_input* plan,	///< the plan to
  * Swaps the Y and Z components of a 3D array of complex numbers.
  * N0 x N1 x N2/2 complex numbers are stored as N0 x N1 x N2 interleaved real numbers.
  */
-void gpu_transposeYZ_complex(float* source, 
-			     float* dest,
-			     int N0,
-			     int N1, 
-			     int N2 ///< number of floats (!) in the Z-direction, thus 2x the number of complex numbers in Z.
+void gpu_transposeYZ_complex(float* source, ///< source data, size N0 x N1 x N2 
+			     float* dest,   ///< destination data, size N0 x N2 x N1
+			     int N0, ///< source size X
+			     int N1, ///< source size Z
+			     int N2  ///< number of floats (!) in the Z-direction, thus 2x the number of complex numbers in Z.
 			     );
 /**
  * @see gpu_transposeYZ_complex()
@@ -154,7 +154,7 @@ gpuconv2* new_gpuconv2(int N0,		///< X size of the magnetization vector field
 		       int N1,		///< Y size of the magnetization vector field
 		       int N2,  	///< Z size of the magnetization vector field
 		       tensor* kernel,	///< convolution kernel of size 3 x 3 x 2*N0 x 2*N1 x 2*N2
-		       int* zero_pad
+		       int* zero_pad    ///< 3 ints, should be 1 or 0, meaning zero-padding or no zero-padding in X,Y,Z respectively
 		       );
 
 /**
@@ -162,7 +162,7 @@ gpuconv2* new_gpuconv2(int N0,		///< X size of the magnetization vector field
  */
 void gpuconv2_exec(gpuconv2* plan,	///< the plan to execute 
 		   float* source, 	///< the input vector field (magnetization)
-		   float* dest	///< the destination vector field (magnetic field) to store the result in
+		   float* dest		///< the destination vector field (magnetic field) to store the result in
 		   );
 
 /**

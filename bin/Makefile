@@ -1,3 +1,6 @@
+all:
+	chmod u+x *
+
 .PHONY:	clean
 
 clean:
