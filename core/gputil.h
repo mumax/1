@@ -14,6 +14,8 @@
 
 #include "tensor.h"
 #include <cufft.h>
+#include <stdlib.h>
+#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,6 +38,10 @@ int gpu_len(int size	///< minimum size of the array
  */
 float* new_gpu_array(int size	///< size of the array
 		    );
+/**
+ * Creates a new tensor whose data is allocated on the GPU. (rank and size are stored in the host RAM)
+ */
+// tensor* new_gpu_tensor(int rank, ...);
 
 /**
  * Allocates an array of floats in the main RAM.

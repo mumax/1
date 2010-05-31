@@ -13,14 +13,14 @@ tensor* new_tensor(int rank, ...){
   
   tensor* t = (tensor*)safe_malloc(sizeof(tensor));
   t->rank = rank;
-  t->size = (int*)safe_calloc(rank, sizeof(int32_t));	// we copy the size array to protect from accidental modification
+  t->size = (int*)safe_calloc(rank, sizeof(int));	// we copy the size array to protect from accidental modification
 							// also, if we're a bit lucky, it gets allocated nicely after t and before list,
 							// so we can have good cache efficiency.
   va_list varargs;
   va_start(varargs, rank);
   
   for(int i=0; i<rank; i++){
-    t->size[i] = va_arg(varargs, int32_t);
+    t->size[i] = va_arg(varargs, int);
   }
   va_end(varargs);
   

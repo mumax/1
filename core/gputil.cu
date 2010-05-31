@@ -2,6 +2,8 @@
 #include "timer.h"
 #include <stdio.h>
 #include <assert.h>
+#include <stdlib.h>
+#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,17 +32,31 @@ float* new_gpu_array(int size){
     fprintf(stderr, "CUDA could not allocate %d floats\n", size);
     gpu_safe(status);
   }
-  //assert(array != NULL); // strange: it seems cuda can return 0 as a valid address?? 
+  assert(array != NULL); // strange: it seems cuda can return 0 as a valid address?? 
   if(array == 0){
-// #ifdef _64_BIT
-     fprintf(stderr, "cudaMalloc(%p, %d) returned null without error status, retrying...\n", (void**)(&array), (int)(size * sizeof(float)));
-// #else
-//    fprintf(stderr, "cudaMalloc(%p, %d) returned null without error status, retrying...\n", (void**)(&array), size * sizeof(float));
-// #endif
+     fprintf(stderr, "cudaMalloc(%p, %d) returned null without error status, retrying...\n", (void**)(&array), (int)(size * sizeof(float))); // (int) cast to resolve 32-bit vs. 64 bit problem...
     abort();
   }
   return array;
 }
+
+// tensor* new_gpu_tensor(int rank, ...){
+//   
+//   int* size = (int*)safe_calloc(rank, sizeof(int));
+//   int N = 1;
+//   
+//   va_list varargs;
+//   va_start(varargs, rank);
+//   
+//   for(int i=0; i<rank; i++){
+//     size[i] = va_arg(varargs, int);
+//     N *= size[i];
+//   }
+//   va_end(varargs);
+//   
+//   return as_tensorN(new_gpu_array(N), rank, size);
+// }
+
 
 float* new_ram_array(int size){
   assert(size > 0);
