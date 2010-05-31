@@ -5,6 +5,7 @@
  * @author Arne Vansteenkiste
  */
 
+#include "timer.h"
 #include "gputil.h"
 #include "gpuconv2.h"
 #include "tensor.h"
@@ -12,9 +13,9 @@
 
 int main(int argc, char** argv){
   
-  int N0 = 2;
-  int N1 = 4;
-  int N2 = 8;
+  int N0 = 64;
+  int N1 = 256;
+  int N2 = 256;
   int N3 = 2; // real and imag part
   
   // (untransposed) "magnetization" on the host (CPU)
@@ -29,7 +30,7 @@ int main(int argc, char** argv){
 	m[i][j][k][1] = -( i + j*0.01 + k*0.00001 );
       }
   fprintf(stderr, "original:\n");
-  format_tensor(mHost, stderr);
+//   format_tensor(mHost, stderr);
        
   // (untransposed) "magnetization" on the device (gPU)
   float* lDev = new_gpu_array(N);
@@ -45,7 +46,7 @@ int main(int argc, char** argv){
   gpu_transposeYZ_complex(mDev->list, lDevT, N0, N1, N2*N3); // complex !
   
   memcpy_from_gpu(lDevT, mHostT->list, N);
-  format_tensor(mHostT, stderr);
+//   format_tensor(mHostT, stderr);
   float**** mT = tensor_array4D(as_tensor(mHostT->list, 4, N0, N2, N1, N3)); // N1 <-> N2
   // test if it worked
   for(int i=0; i<N0; i++)
@@ -61,7 +62,7 @@ int main(int argc, char** argv){
   mHostT = new_tensor(3, N2, N1, N0*N3); // N0 <-> N2
   
   memcpy_from_gpu(lDevT, mHostT->list, N);
-  format_tensor(mHostT, stderr);
+//   format_tensor(mHostT, stderr);
   mT = tensor_array4D(as_tensor(mHostT->list, 4, N2, N1, N0, N3)); // N0 <-> N2
   // test if it worked
   for(int i=0; i<N0; i++)
@@ -71,6 +72,7 @@ int main(int argc, char** argv){
 	    assert(m[i][j][k][c] == mT[k][j][i][c]); // i <-> k
 	}
 	
+  timer_printdetail();
   fprintf(stderr, "PASS\n");
   return 0;
 }

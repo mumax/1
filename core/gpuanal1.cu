@@ -9,6 +9,7 @@ extern "C" {
 
 #define alpha 1.0f
 
+
 __global__ void _gpu_anal1step(float* mx, float* my, float* mz, float* hx, float* hy, float* hz, float dt){
 
 	int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
@@ -65,10 +66,11 @@ __global__ void _gpu_anal1step(float* mx, float* my, float* mz, float* hx, float
 	float mz_rotnw = 2.0f*(my_rot*sn + mz_rot*cs)/denom;
 
 // in deze lijnen komt fout tot uiting
-// 	mx[i] = mx_rotnw*rot[0] + my_rotnw*rot[1] + mz_rotnw*rot[2];
-// 	my[i] = mx_rotnw*rot[3] + my_rotnw*rot[4] + mz_rotnw*rot[5];
-// 	mz[i] = mx_rotnw*rot[6] + mz_rotnw*rot[8];
+/*	mx[i] = mx_rotnw*rot[0] + my_rotnw*rot[1] + mz_rotnw*rot[2];
+	my[i] = mx_rotnw*rot[3] + my_rotnw*rot[4] + mz_rotnw*rot[5];
+	mz[i] = mx_rotnw*rot[6] + mz_rotnw*rot[8];*/
 // -----------------------------------
+
 
 // wanneer volgende ipv vorige lijnen uitgevoerd worden is alles ok (met fout resultaat natuurlijk)
   mx[i] = mx_rotnw;
@@ -82,6 +84,7 @@ __global__ void _gpu_anal1step(float* mx, float* my, float* mz, float* hx, float
   my[i] *= norm;
   mz[i] *= norm;
 }
+
 
 
 void gpuanal1_step(gpuanal1* solver, float dt){

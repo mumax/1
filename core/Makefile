@@ -92,7 +92,7 @@ gpuheun_test:	all gpuheun_test.cpp
 gpuanal1_test:	all gpuanal1_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuanal1_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpuanal1_test.o -o gpuanal1_test
-	./gpuanal1_test testm0.t testkernel.t
+	gdb ./gpuanal1_test testm0.t testkernel.t
 
 gpusim_test:	all gpusim_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpusim_test.cpp
@@ -108,11 +108,6 @@ transpose_test: all transpose_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) transpose_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) transpose_test.o -o transpose_test
 	./transpose_test
-
-gpuconv2_test: all gpuconv2_test.cpp
-	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuconv2_test.cpp
-	$(NVCC) $(CUDALIBS) $(OFILES) gpuconv2_test.o -o gpuconv2_test
-	./gpuconv2_test
 
 .PHONY:	clean
 clean:	

@@ -23,12 +23,13 @@ int main(int argc, char** argv){
   
   // make some initial data
   float*** m = tensor_array3D(mHost);
-//   for(int i=0; i<N0; i++)
-//     for(int j=0; j<N1; j++)
-//       for(int k=0; k<N2; k++){
-// 	m[i][j][k] = i + j*0.01 + k*0.00001;
-//       }
-  mHost->list[0] = 1.0;
+  for(int i=0; i<N0; i++)
+    for(int j=0; j<N1; j++)
+      for(int k=0; k<N2; k++){
+//				m[i][j][k] = i + j*0.01 + k*0.00001;
+				m[i][j][k] = 1.0f;
+      }
+//  mHost->list[0] = 1.0;
   fprintf(stderr, "original:\n");
   format_tensor(mHost, stderr);
   
@@ -49,10 +50,11 @@ int main(int argc, char** argv){
   format_tensor(mHost, stderr);
   
 //   // test backward
-//   gpu_plan3d_real_input_backward(plan, mDev->list);
-//   memcpy_from_gpu(mDev->list, mHost->list, N);
-//   format_tensor(mHost, stderr);
+  gpu_plan3d_real_input_inverse(plan, mDev->list);
+  memcpy_from_gpu(mDev->list, mHost->list, N);
+  format_tensor(mHost, stderr);
   
+  fprintf(stderr, "\n\ninverse:\n");
   
   //fprintf(stderr, "PASS\n");
   return 0;

@@ -45,9 +45,9 @@ typedef struct{
   int paddedStorageN;		///< total number of floats in paddedStorageSize
   
   cufftHandle fwPlanZ;	///< 1D real-to-complex plan for Z-direction
-  cufftHandle bwPlanZ;	///< 1D complex-to-real plan for Z-direction
-  cufftHandle planY;	///< 1D complex-to-complex plan for Y-direction, forward or backward
-  cufftHandle planX;	///< 1D complex-to-complex plan for X-direction, forward or backward
+  cufftHandle invPlanZ;	///< 1D complex-to-real plan for Z-direction
+  cufftHandle planY;	///< 1D complex-to-complex plan for Y-direction, forward or inverse
+  cufftHandle planX;	///< 1D complex-to-complex plan for X-direction, forward or inverse
   
   float* transp;	///< buffer for out-of-place transposing
   
@@ -83,7 +83,7 @@ void gpu_plan3d_real_input_backward(gpu_plan3d_real_input* plan,	///< the plan t
 /**
  * Executes in-place.
  */
-void gpu_plan3d_real_input_backward(gpu_plan3d_real_input* plan,	///< the plan to be executed
+void gpu_plan3d_real_input_inverse(gpu_plan3d_real_input* plan,	///< the plan to be executed
 		        float* data	///< data to be transformed in-place, it size should be plan->paddedStorageSize
 			);
 
@@ -121,39 +121,41 @@ void delete_gpu_plan3d_real_input(gpu_plan3d_real_input* plan	///< the plan to b
  */
 typedef struct{
   
- /* int* size;			///< 3D size of the magnetization field
-  int N;			///< total number of magnetization vectors for linear access
-  
+   int* size;							///< 3D size of the magnetization field
+   int N;									///< total number of magnetization vectors for linear access
+   
   int* paddedSize;		///< 3D size of the zero-padded magnetization buffer
   int paddedN;			///< total number of magnetization vectors in the padded magnetization buffer, for linear access
-  
-  
+   
+   
   int* paddedComplexSize;	///< 3D size of the zero-padded magnetization buffer, in complex-number format
   int paddedComplexN;		///< total number of magnetization vectors in the padded magnetization buffer in complex-number format, for linear access
+
+   int len_m;							///< total number of floats in the magnetization array
+   float** m_comp;				///< pointers to X, Y and Z components of magnetization, they will point into the m array passed to gpuconv2_exec() 
+   int len_m_comp;				///< total number of floats in each of the m_comp array (1/3 of len_m)
+   float* ft_m_i;					///< buffer for one componet of m, zero-padded and in complex-format 
+   int len_ft_m_i;				///< total number of floats in ft_m_i
+
+   float*** ft_kernel;		///< ft_kernel[s][d] gives the d-component of the field of a a unit vector along the s direction (in Fourier space). These components are themselves 3D fields of size paddedComplexSize. 
+   int len_ft_kernel;
+   int len_ft_kernel_ij;
+   int len_kernel_ij;
+   
+   float* h;
+   int len_h;
+   float** h_comp;		///< pointers to X, Y and Z components of the magnetic field, they will point into the h array passed to gpuconv1_exec() 
+	 int len_h_comp;
+   float* ft_h;			///< buffer for the FFT'ed magnetic field
+   int len_ft_h;
+   float** ft_h_comp;		///< points to X, Y and Z components of ft_h
+   int len_ft_h_comp;
+   
+   gpu_plan3d_real_input* fftplan;
   
-  int len_m;			///< total number of floats in the magnetization array
-  float** m_comp;		///< pointers to X, Y and Z components of magnetization, they will point into the m array passed to gpuconv1_exec() 
-  int len_m_comp;		///< total number of floats in each of the m_comp array (1/3 of len_m)
-  float* ft_m_i;		///< buffer for one componet of m, zero-padded and in complex-format 
-  int len_ft_m_i;		///< total number of floats in ft_m_i
-  
-  float*** ft_kernel;		///< ft_kernel[s][d] gives the d-component of the field of a a unit vector along the s direction (in Fourier space). These components are themselves 3D fields of size paddedComplexSize. 
-  int len_ft_kernel;
-  int len_ft_kernel_ij;
-  int len_kernel_ij;
-  
-  //float* h;
-  int len_h;
-  float** h_comp;		///< pointers to X, Y and Z components of the magnetic field, they will point into the h array passed to gpuconv1_exec() 
-  int len_h_comp;
-  float* ft_h;			///< buffer for the FFT'ed magnetic field
-  int len_ft_h;
-  float** ft_h_comp;		///< points to X, Y and Z components of ft_h
-  int len_ft_h_comp;
-  
-  gpu_plan3d_real_input* fftplan;
- */ 
 }gpuconv2;
+
+
 
 /**
  * New convolution plan.
