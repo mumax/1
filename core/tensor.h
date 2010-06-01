@@ -5,6 +5,8 @@
  *
  * For an example how to use the tensor type, see tensor_test.cpp
  *
+ * @todo introduction of symmetrical (rank 3) tensor for Greens function kernel
+ *
  * @author Arne Vansteenkiste
  */
 #ifndef TENSOR_H
@@ -25,7 +27,7 @@ extern "C" {
 
 
 typedef struct{
-   int rank;			///< the tensor's rank
+   int rank;			  ///< the tensor's rank
    int* size; 			///< an array of length rank that stores the dimensions in all directions 
    float* list;			///< tensor data, stored as a contiguous array of length size[0]*size[1]*...
 }tensor;

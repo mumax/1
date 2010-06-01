@@ -15,6 +15,7 @@ CUFILES=\
 	gpuheun.cu\
 	gpurk4.cu\
 	gpuanal1.cu\
+	gpukernel1.cu\
 
 OFILES=\
 	tensor.o\
@@ -29,6 +30,7 @@ OFILES=\
 	gpuheun.o\
 	gpurk4.o\
 	gpuanal1.o\
+	gpukernel1.o\
 
 CUDALIBS= -lcudart -lcufft
 
@@ -69,6 +71,9 @@ gpurk4.o:	gpurk4.h gpurk4.cu
 
 gpuanal1.o:	gpuanal1.h gpuanal1.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuanal1.cu
+
+gpukernel1.o:	gpukernel1.h gpukernel1.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpukernel1.cu
 
 timer.o:	timer.h timer.cpp
 	$(NVCC) -c $(NVCCFLAGS) timer.cpp
@@ -117,6 +122,12 @@ transpose_test: $(OFILES) transpose_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) transpose_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) transpose_test.o -o transpose_test
 	./transpose_test
+
+gpukernel1_test: $(OFILES) gpukernel1_test.cpp
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpukernel1_test.cpp
+	$(NVCC) $(CUDALIBS) $(OFILES) gpukernel1_test.o -o gpukernel1_test
+	./gpukernel1_test
+
 
 .PHONY:	clean
 clean:	
