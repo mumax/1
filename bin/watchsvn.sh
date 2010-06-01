@@ -12,7 +12,6 @@
 #
 INTERVAL=120 #check every X seconds.
 
-echo
 echo watching $(pwd) for subversion updates
 echo re-checking every $INTERVAL seconds
 
