@@ -11,7 +11,44 @@
  * m and h are thus not stored in the plan itself. 
  * This is handy for higher order solvers that keep multiple versions of m and h.
  *
- * @todo Should we use tensors everywhere ?
+ * @todo 
+  TODO voor convolutie (Ben)
+
+1.  Greense functies 
+	-> 	dienen gegenereerd te worden in strided formaat
+	-> 	is symmetrische rank 4 tensor (vb: gxy = gyx, gxz = gzx, ..., slechts 2/3 van geheugen nodig)
+	->	Enkel reeel deel in Fourier domein (halveert geheugen vereisten)
+  ->  implementatie algemene Greense tensor nodig met als input te gebruiken Greense functie 
+	->  Er dient rekening gehouden te worden met mogelijke periodiciteit
+
+2.  seriele berekening veldwaarden gunstiger
+	-> 	beter seriele berekening van H_x, H_y, H_z als
+				a. H^FFT = g^FFT_xx* m^FFT_x + g^FFT_xy* m^FFT_y + g^FFT_xz* m^FFT_z
+				b. H_x = inv_FFT(H^FFT)
+				c. H^FFT = g^FFT_xy* m^FFT_x + g^FFT_yy* m^FFT_y + g^FFT_yz* m^FFT_z
+				d. H_y = inv_FFT(H^FFT)
+				e. H^FFT = g^FFT_xz* m^FFT_x + g^FFT_yz* m^FFT_y + g^FFT_zz* m^FFT_z
+				f. H_z = inv_FFT(H^FFT)
+			Op die manier enkel geheugen nodig voor H^FFT (en niet voor elke component H^FFT_x, H^FFT_y, H^FFT_z)
+			Antw: Ik denk dat ik nu slechts even veel geheugen gebruik: Ik houd 3 H^FFT componenten in het geheugen,
+			maar slechts één m^FFT component, jij één H^FFT maar 3 m^FFT's. Of heb ik het mis op? (Arne.)
+			
+			
+	->  H^FFT dient dezelfde dimensies te hebben als andere strided FFT tensoren
+
+3.  Transponeren matrices
+	->  is versnelling mogelijk door nullen niet te transponeren?
+	->  In place transponeren
+
+4.  Omtrent de FFT routines
+	-> Waarschijnlijk beter om FFT routines in een aparte bibliotheek te steken wegens mogelijk gebruik in andere convoluties
+	-> implementatie 2D varianten:
+				Uitbreiding van de huidige routines of aparte routines? mogelijkheden:
+				a. Aparte routines voor 3D en 2D: bij aanroepen if constructies nodig (if 3D, if 2D)
+				b. uitbreiding routines:
+						- extra argument 2D of 3D, met daarna daarna twee totaal verschillende code blokken
+						- geen extra argumenten, maar op basis van dimensies in argument.
+
  *
  * @see gpuconv1, new_gpuconv2, gpuconv2_exec
  *
