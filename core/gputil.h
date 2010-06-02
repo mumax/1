@@ -134,6 +134,17 @@ void make3dconf(int N0, 	///< size of 3D array to span
 		);
 
 /**
+ * Returns a cudaDeviceProp struct that contains the properties of the
+ * used GPU. When there are multiple GPUs present, the active one, used
+ * by this thread, is considered.
+ * @warning One global cudaDeviceProp* is stored. The first time this
+ * function is called, it gets initialized. All subsequent calls return
+ * this cached cudaDeviceProp*. Consequently, the returned pointer
+ * must not be freed!
+ */
+cudaDeviceProp* gpu_getproperties(void);
+
+/**
  * Prints the properties of the used GPU
  */
 void print_device_properties(FILE* out	///< stream to print to

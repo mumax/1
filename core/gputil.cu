@@ -255,6 +255,20 @@ void make3dconf(int N0, int N1, int N2, dim3* gridSize, dim3* blockSize ){
 // }
 
 
+cudaDeviceProp* gpu_device_properties = NULL;
+
+cudaDeviceProp* gpu_getproperties(void){
+  if(gpu_device_properties == NULL){
+    int device = -1;
+    gpu_safe( cudaGetDevice(&device) );
+  
+    gpu_device_properties = (cudaDeviceProp*)malloc(sizeof(cudaDeviceProp));
+    gpu_safe( cudaGetDeviceProperties(gpu_device_properties, device) ); 
+  }
+  return gpu_device_properties;
+}
+
+
 void print_device_properties(FILE* out){
   int device = -1;
   gpu_safe( cudaGetDevice(&device) );
