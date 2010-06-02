@@ -143,11 +143,21 @@ void check1dconf(int gridsize, ///< 1D size of the thread grid
 //______________________________________________________________________________________ make conf
 
 /**
- * Makes a 3D thread configuration suited for a data array of size N0 x N1 x N2.
+ * Makes a 3D thread configuration suited for a float array of size N0 x N1 x N2.
  * The returned configuration will:
  *  - span the entire N0 x N1 x N2 array
  *  - have the largest valid block size that fits in the N0 x N1 x N2 array
- * 
+ *  - be valid
+ *
+ * @todo works only up to N2 = 512 
+ * @see make1dconf()
+ *
+ * Example:
+ * @code
+  dim3 gridSize, blockSize;
+  make3dconf(N0, N1, N2, &gridSize, &blockSize);
+  mykernel<<<gridSize, blockSize>>>(arrrrgh);
+ * @endcode
  */
 void make3dconf(int N0, 	///< size of 3D array to span
 		int N1, 	///< size of 3D array to span
@@ -155,8 +165,27 @@ void make3dconf(int N0, 	///< size of 3D array to span
 		dim3* gridSize, ///< grid size is returned here
 		dim3* blockSize ///< block size is returned here
 		);
-
 		
+/**
+ * Makes a 1D thread configuration suited for a float array of size N
+ * The returned configuration will:
+ *  - span the entire array
+ *  - have the largest valid block size that fits in the  array
+ *  - be valid
+ *
+ * @see make3dconf()
+ *
+ * Example:
+ * @code
+  int gridSize, blockSize;
+  make1dconf(N0, N1, N2, &gridSize, &blockSize);
+  mykernel<<<gridSize, blockSize>>>(arrrrgh);
+ * @endcode
+ */
+void make1dconf(int N, 		///< size of array to span
+		int* gridSize,  ///< grid size is returned here
+		int* blockSize  ///< block size is returned here
+		);
 
 
 /**
