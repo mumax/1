@@ -149,6 +149,7 @@ int gpu_stride_float(){
 
 #define MAX_GRIDSIZE_Z 1
 
+/** @todo: uses deviced props.  */
 void gpu_checkconf(dim3 gridsize, dim3 blocksize){
   assert(blocksize.x * blocksize.y * blocksize.z <= MAX_THREADS_PER_BLOCK);
   assert(blocksize.x * blocksize.y * blocksize.z >  0);
@@ -168,6 +169,26 @@ void gpu_checkconf_int(int gridsize, int blocksize){
   assert(gridsize > 0);
 }
 
+void make1dconf(int N, unsigned int* gridSize, unsigned int* blockSize, int maxGridSize, int maxBlockSize){
+  if(N >= maxBlockSize){
+    *blockSize = maxBlockSize;
+    while(N % (*blockSize) != 0){
+      (*blockSize)--;
+    }
+    *gridSize = N / *blockSize;
+  }
+  else{ // N < maxBlockSize
+    *blockSize = N;
+    *gridSize = 1;
+  }
+  
+  assert(*blockSize > 0);
+  assert(*gridSize > 0);
+  assert(*blockSize <= maxBlockSize);
+  assert(*gridSize <= maxGridSize);
+  assert((*blockSize) * (*gridSize) == N);
+}
+
 void make3dconf(int N0, int N1, int N2, dim3* gridSize, dim3* blockSize ){
   int device = -1;
   gpu_safe( cudaGetDevice(&device) );
@@ -179,25 +200,28 @@ void make3dconf(int N0, int N1, int N2, dim3* gridSize, dim3* blockSize ){
   int* maxBlockSize = prop.maxThreadsDim;
   int* maxGridSize = prop.maxGridSize;
   
-  if(N2 >= maxBlockSize[Z]){
-    if(N2 % maxBlockSize[Z] == 0){
-      blockSize->z = maxBlockSize[Z];
-      gridSize->z = N2 / blockSize->z;
-    }
-    else{
-      blockSize->z = N2 % maxBlockSize[Z];
-      gridSize->z = N2 / blockSize->z;
-    }
-  }
-  else{
-    blockSize->z = N2;
-    gridSize->z = 1;
-  }
-
+  make1dconf(N2, &(gridSize->z), &(blockSize->z), maxGridSize[Z], maxBlockSize[Z]);
+  
+  int newMaxBlockSizeY = min(maxBlockSize[Y], maxThreadsPerBlock / blockSize->z);
+  make1dconf(N1, &(gridSize->y), &(blockSize->y), maxGridSize[Y], newMaxBlockSizeY);
+  
+  int newMaxBlockSizeX = min(maxBlockSize[X], maxThreadsPerBlock / (blockSize->z * blockSize->y));
+  make1dconf(N0, &(gridSize->x), &(blockSize->x), maxGridSize[X], newMaxBlockSizeX);
+  
 
   assert(blockSize->x * gridSize->x == N0);
   assert(blockSize->y * gridSize->y == N1);
   assert(blockSize->z * gridSize->z == N2);
+  
+  assert(blockSize->x <= maxBlockSize[X]);
+  assert(blockSize->y <= maxBlockSize[Y]);
+  assert(blockSize->z <= maxBlockSize[Z]);
+  
+  assert(gridSize->x <= maxGridSize[X]);
+  assert(gridSize->y <= maxGridSize[Y]);
+  assert(gridSize->z <= maxGridSize[Z]);
+  
+  assert(blockSize->x * blockSize->y * blockSize->z <= maxThreadsPerBlock);
   
   fprintf(stderr, "make3dconf(%d, %d, %d): (%d x %d x %d) x (%d x %d x %d)\n", 
 	  N0, N1, N2, 
@@ -248,16 +272,17 @@ void print_device_properties(FILE* out){
   fprintf(out, "   Constant memory: %d kiB\n", (int)(prop.totalConstMem/kiB));
   fprintf(out, "         Registers: %d per block\n", (int)(prop.regsPerBlock/kiB));
   fprintf(out, "         Warp size: %d threads\n", (int)(prop.warpSize));
-  fprintf(out, "  Max memory pitch: %d bytes\n", (int)(prop.memPitch));
+  //fprintf(out, "  Max memory pitch: %d bytes\n", (int)(prop.memPitch));
   fprintf(out, " Texture alignment: %d bytes\n", (int)(prop.textureAlignment));
   fprintf(out, " Max threads/block: %d\n", prop.maxThreadsPerBlock);
   fprintf(out, "    Max block size: %d x %d x %d threads\n", prop.maxThreadsDim[X], prop.maxThreadsDim[Y], prop.maxThreadsDim[Z]);
-  fprintf(out, "    Max grid size: %d x %d x %d blocks\n", prop.maxGridSize[X], prop.maxGridSize[Y], prop.maxGridSize[Z]);
+  fprintf(out, "     Max grid size: %d x %d x %d blocks\n", prop.maxGridSize[X], prop.maxGridSize[Y], prop.maxGridSize[Z]);
   fprintf(out, "Compute capability: %d.%d\n", prop.major, prop.minor);
-  fprintf(out, "        Clock rate: %d\n", prop.clockRate);
-  fprintf(out, "        CUDA cores: %d\n", prop.multiProcessorCount);
+  fprintf(out, "        Clock rate: %d MHz\n", prop.clockRate/1000);
+  fprintf(out, "   Multiprocessors: %d\n", prop.multiProcessorCount);
   fprintf(out, "   Timeout enabled: %d\n", prop.kernelExecTimeoutEnabled);
   fprintf(out, "      Compute mode: %d\n", prop.computeMode);
+  fprintf(out, "    Device overlap: %d\n", prop.deviceOverlap);
   fprintf(out, "Concurrent kernels: %d\n", prop.concurrentKernels);
   
 }

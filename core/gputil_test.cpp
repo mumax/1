@@ -1,6 +1,6 @@
 /**
  * @file
- * Tests for transposing complex number arrays on the GPU
+ * Tests for gputil
  *
  * @author Arne Vansteenkiste
  */
@@ -11,16 +11,26 @@
 #include "tensor.h"
 #include "assert.h"
 
-int main(int argc, char** argv){
+void makeconf_test(){
+  fprintf(stderr, "makeconf_test\n");
+  int N0 = 2;
+  int N1 = 4;
+  int N2 = 64; // works only up to 64
+  
+  dim3 gridSize, blockSize;
+  make3dconf(N0, N1, N2, &gridSize, &blockSize);
+  
+  fprintf(stderr, "PASS\n");
+}
+
+void transpose_test(){
+  fprintf(stderr, "transpose_test\n");
   
   int N0 = 2;
   int N1 = 4;
   int N2 = 8;
   int N3 = 2; // real and imag part
   
-  dim3 gridSize;
-  dim3 blockSize;
-  make3dconf(N0, N1, N2, &gridSize, &blockSize);
   
   // (untransposed) "magnetization" on the host (CPU)
   tensor* mHost = new_tensor(3, N0, N1, N2*N3);
@@ -76,7 +86,12 @@ int main(int argc, char** argv){
 	    assert(m[i][j][k][c] == mT[k][j][i][c]); // i <-> k
 	}
 	
-  timer_printdetail();
   fprintf(stderr, "PASS\n");
+}
+
+int main(int argc, char** argv){
+  print_device_properties(stderr);
+  makeconf_test();
+  transpose_test();
   return 0;
 }

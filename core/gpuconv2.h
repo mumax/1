@@ -32,7 +32,9 @@
 			Op die manier enkel geheugen nodig voor H^FFT (en niet voor elke component H^FFT_x, H^FFT_y, H^FFT_z)
 			Antw: Ik denk dat ik nu slechts even veel geheugen gebruik: Ik houd 3 H^FFT componenten in het geheugen,
 			maar slechts één m^FFT component, jij één H^FFT maar 3 m^FFT's. Of heb ik het mis op? (Arne.)
-			
+			Opm: misschien kunnen we wel één buffer uitsparen door eerst alle m_i te FFT-en en dan een "in-place"
+			kernel vermenigvuldiging te doen. Per element wordt dan m_x[i], m_y[i], m_z[i] gebufferd in
+			locale variablen, daarna wordt m^FFT element per element overschreven door H^FFT...
 			
 	->  H^FFT dient dezelfde dimensies te hebben als andere strided FFT tensoren
 
@@ -137,7 +139,7 @@ void gpuconv2_loadkernel(gpuconv2* plan,	///< plan to load the kernel into
 /**
  * Pointwise multiplication of arrays of complex numbers. ft_h_comp_j += ft_m_i * ft_kernel_comp_ij. Runs on the GPU.
  * Makes use of kernel symmetry
- * @todo store in texture memory (writing is slow but only done once, reading is very fast)
+ * @note DO NOT store in texture memory! This would be a bit faster on older devices, but actually slower on Fermi cards!
  */
 void gpu_kernel_mul2(float* ft_m_i,		    ///< multiplication input 1
 		     float* ft_kernel_comp_ij,      	///< multiplication input 2

@@ -6,6 +6,7 @@ CPP=g++
 NVCC=nvcc
 
 CFLAGS+=\
+  -Wall\
   -Werror\
   -fPIC\
   -g\

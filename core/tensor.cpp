@@ -350,7 +350,7 @@ void* safe_malloc(int size){
   void* ptr = malloc(size);
   if(ptr == NULL){
     fprintf(stderr, "could not malloc(%d)\n", size);
-    float trigger_segfault = *((float*)0);
+    abort();
   }
   return ptr;
 }
@@ -359,7 +359,7 @@ void* safe_calloc(int length, int elemsize){
   void* ptr = calloc(length, elemsize);
   if(ptr == NULL){
     fprintf(stderr, "could not calloc(%d, %d)\n", length, elemsize);
-    float trigger_segfault = *((float*)0);
+    abort();
   }
   return ptr;
 }

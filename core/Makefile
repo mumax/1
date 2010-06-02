@@ -81,7 +81,7 @@ timer.o:	timer.h timer.cpp
 units.o:	units.h units.c
 	$(NVCC) -c $(NVCCFLAGS) units.c
 
-test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuanal1_test gpusim_test transpose_test gpuconv2_test gpufft_test
+test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test
 
 tensor_test:	$(OFILES) tensor_test.cpp
 	$(CPP) -c $(CFLAGS) $(LDFLAGS) tensor_test.cpp
@@ -118,10 +118,10 @@ gpufft_test:	$(OFILES) gpufft_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpufft_test.o -o gpufft_test
 	./gpufft_test
 
-transpose_test: $(OFILES) transpose_test.cpp
-	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) transpose_test.cpp
-	$(NVCC) $(CUDALIBS) $(OFILES) transpose_test.o -o transpose_test
-	./transpose_test
+gputil_test: $(OFILES) gputil_test.cpp
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gputil_test.cpp
+	$(NVCC) $(CUDALIBS) $(OFILES) gputil_test.o -o gputil_test
+	./gputil_test
 
 gpukernel1_test: $(OFILES) gpukernel1_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpukernel1_test.cpp

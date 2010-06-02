@@ -176,7 +176,7 @@ void gpu_copy_unpad_c2r(float* source,	///< complex input data, length = 2*N0 * 
 /**
  * Pointwise multiplication of arrays of complex numbers. ft_h_comp_j += ft_m_i * ft_kernel_comp_ij. Runs on the GPU.
  * @todo make use of symmetry
- * @todo store in texture memory (writing is slow but only done once, reading is very fast)
+ * @note DO NOT store in texture memory! This would be a bit faster on older devices, but actually slower on Fermi cards!
  */
 void gpu_kernel_mul(float* ft_m_i,	///< multiplication input 1
 		    float* ft_kernel_comp_ij, ///< multiplication input 2

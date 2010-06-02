@@ -21,19 +21,10 @@
 extern "C" {
 #endif
 
-/**
- * In many cases, CUDA arrays are made "too big" by appending zero's until the size
- * is a multiple of 512 (or in general, the number of threads per block). This function
- * takes a size as parameter and returns the smallest multiple of 512, larger than
- * or equal to size.
- * @see new_gpu_array()
- */
-// int gpu_len(int size	///< minimum size of the array
-// 	    );
 
 /**
  * Allocates an array of floats on the GPU and asserts the size is a multiple of 512.
- * @see gpu_len(), new_ram_array()
+ * @see new_ram_array()
  */
 float* new_gpu_array(int size	///< size of the array
 		    );
@@ -44,7 +35,7 @@ float* new_gpu_array(int size	///< size of the array
 
 /**
  * Allocates an array of floats in the main RAM.
- * @see gpu_len(), new_gpu_array()
+ * @see new_gpu_array()
  */		    
 float* new_ram_array(int size	///< size of the array
 		    );
@@ -61,7 +52,7 @@ float* new_ram_array(int size	///< size of the array
  * Standard problem 4 ran about 4x faster when using a (3x) 1 x 32 x 128 geometry
  * instead of (3x) 128 x 32 x 1 !
  *
- * @todo use cudaGetDeviceProperties for this.
+ * @todo use cudaGetDeviceProperties for this?
  */
 int gpu_stride_float();
 
@@ -113,6 +104,7 @@ void gpu_safe(int status	///< CUDA return status
 /**
  * Checks if the CUDA 3D kernel launch configuration is valid. 
  * CUDA tends to ignore invalid configurations silently, which is painfull for debugging.
+ * @todo: use device properties
  */
 void gpu_checkconf(dim3 gridsize, ///< 3D size of the thread grid
 		   dim3 blocksize ///< 3D size of the trhead blocks on the grid
@@ -121,6 +113,7 @@ void gpu_checkconf(dim3 gridsize, ///< 3D size of the thread grid
 /**
  * Checks if the CUDA 1D kernel launch configuration is valid. 
  * CUDA tends to ignore invalid configurations silently, which is painfull for debugging.
+ * @todo: use device properties
  */	   
 void gpu_checkconf_int(int gridsize, ///< 1D size of the thread grid
 		       int blocksize ///< 1D size of the trhead blocks on the grid
