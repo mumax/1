@@ -44,8 +44,8 @@ void init_Greens_kernel1(tensor* kernel,  		///< rank 3 tensor containing all co
 void get_Quad_Points(float *gaussQP, 					///< float array containing the requested Gauss quadrature points
 										 float *stdgaussQ,				///< standard Gauss quadrature points between -1 and +1
 										 int qOrder, 							///< Gauss quadrature order
-										 float a,  								///< integration lower bound
-										 float b									///< integration upper bound
+										 double a,  								///< integration lower bound
+										 double b									///< integration upper bound
 										 );
 
 		    
