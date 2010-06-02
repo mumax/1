@@ -101,10 +101,12 @@ void gpu_zero(float* data,	///< data pointer on the GPU
 void gpu_safe(int status	///< CUDA return status
 	      );
 
+//______________________________________________________________________________________ check conf
+
 /**
  * Checks if the CUDA 3D kernel launch configuration is valid. 
  * CUDA tends to ignore invalid configurations silently, which is painfull for debugging.
- * @todo: use device properties
+ * @deprecated use check3dconf(), which uses the actual device properties
  */
 void gpu_checkconf(dim3 gridsize, ///< 3D size of the thread grid
 		   dim3 blocksize ///< 3D size of the trhead blocks on the grid
@@ -113,12 +115,33 @@ void gpu_checkconf(dim3 gridsize, ///< 3D size of the thread grid
 /**
  * Checks if the CUDA 1D kernel launch configuration is valid. 
  * CUDA tends to ignore invalid configurations silently, which is painfull for debugging.
- * @todo: use device properties
+ * @deprecated use check1dconf(), which uses the actual device properties
  */	   
 void gpu_checkconf_int(int gridsize, ///< 1D size of the thread grid
 		       int blocksize ///< 1D size of the trhead blocks on the grid
 		       );
 		       
+/**
+ * Checks if the CUDA 3D kernel launch configuration is valid. 
+ * CUDA tends to ignore invalid configurations silently, which is painfull for debugging.
+ * Uses device properties
+ */
+void check3dconf(dim3 gridsize, ///< 3D size of the thread grid
+		   dim3 blocksize ///< 3D size of the trhead blocks on the grid
+		   );
+
+/**
+ * Checks if the CUDA 1D kernel launch configuration is valid. 
+ * CUDA tends to ignore invalid configurations silently, which is painfull for debugging.
+ * Uses device properties
+ */	   
+void check1dconf(int gridsize, ///< 1D size of the thread grid
+		       int blocksize ///< 1D size of the trhead blocks on the grid
+		       );
+		       
+
+//______________________________________________________________________________________ make conf
+
 /**
  * Makes a 3D thread configuration suited for a data array of size N0 x N1 x N2.
  * The returned configuration will:
@@ -133,6 +156,9 @@ void make3dconf(int N0, 	///< size of 3D array to span
 		dim3* blockSize ///< block size is returned here
 		);
 
+		
+
+
 /**
  * Returns a cudaDeviceProp struct that contains the properties of the
  * used GPU. When there are multiple GPUs present, the active one, used
@@ -141,6 +167,31 @@ void make3dconf(int N0, 	///< size of 3D array to span
  * function is called, it gets initialized. All subsequent calls return
  * this cached cudaDeviceProp*. Consequently, the returned pointer
  * must not be freed!
+ *
+ * The struct looks like this:
+ * @code
+    char name[256];
+    size_t totalGlobalMem;
+    size_t sharedMemPerBlock;
+    int regsPerBlock;
+    int warpSize;
+    size_t memPitch;
+    int maxThreadsPerBlock;
+    int maxThreadsDim[3];
+    int maxGridSize[3];
+    size_t totalConstMem;
+    int major;
+    int minor;
+    int clockRate;
+    size_t textureAlignment;
+    int deviceOverlap;
+    int multiProcessorCount;
+    int kernelExecTimeoutEnabled;
+    int integrated;
+    int canMapHostMemory;
+    int computeMode;
+    int concurrentKernels;
+ * @endcode
  */
 cudaDeviceProp* gpu_getproperties(void);
 

@@ -141,6 +141,8 @@ int gpu_stride_float(){
   return pitch / sizeof(float);
 }
 
+//_____________________________________________________________________________________________ check conf
+
 /** @todo use cudaDeviceProperties */
 #define MAX_THREADS_PER_BLOCK 512
 #define MAX_BLOCKSIZE_X 512
@@ -169,6 +171,39 @@ void gpu_checkconf_int(int gridsize, int blocksize){
   assert(gridsize > 0);
 }
 
+void check3dconf(dim3 gridSize, dim3 blockSize){
+ 
+  cudaDeviceProp* prop = gpu_getproperties();
+  int maxThreadsPerBlock = prop->maxThreadsPerBlock;
+  int* maxBlockSize = prop->maxThreadsDim;
+  int* maxGridSize = prop->maxGridSize;
+  
+  assert(gridSize.x > 0);
+  assert(gridSize.y > 0);
+  assert(gridSize.z > 0);
+  
+  assert(blockSize.x > 0);
+  assert(blockSize.y > 0);
+  assert(blockSize.z > 0);
+  
+  assert(blockSize.x <= maxBlockSize[X]);
+  assert(blockSize.y <= maxBlockSize[Y]);
+  assert(blockSize.z <= maxBlockSize[Z]);
+  
+  assert(gridSize.x <= maxGridSize[X]);
+  assert(gridSize.y <= maxGridSize[Y]);
+  assert(gridSize.z <= maxGridSize[Z]);
+  
+  assert(blockSize.x * blockSize.y * blockSize.z <= maxThreadsPerBlock);
+}
+
+void check1dconf(int gridsize, int blocksize){
+  assert(gridsize > 0);
+  assert(blocksize > 0);
+  assert(blocksize <= gpu_getproperties()->maxThreadsPerBlock);
+}
+
+//_____________________________________________________________________________________________ make conf
 void make1dconf(int N, unsigned int* gridSize, unsigned int* blockSize, int maxGridSize, int maxBlockSize){
   if(N >= maxBlockSize){
     *blockSize = maxBlockSize;
@@ -230,30 +265,10 @@ void make3dconf(int N0, int N1, int N2, dim3* gridSize, dim3* blockSize ){
 }
 
 
-// struct cudaDeviceProp {
-// char name[256];
-// size_t totalGlobalMem;
-// size_t sharedMemPerBlock;
-// int regsPerBlock;
-// int warpSize;
-// size_t memPitch;
-// int maxThreadsPerBlock;
-// int maxThreadsDim[3];
-// int maxGridSize[3];
-// size_t totalConstMem;
-// int major;
-// int minor;
-// int clockRate;
-// size_t textureAlignment;
-// int deviceOverlap;
-// int multiProcessorCount;
-// int kernelExecTimeoutEnabled;
-// int integrated;
-// int canMapHostMemory;
-// int computeMode;
-// int concurrentKernels;
-// }
 
+
+
+//_____________________________________________________________________________________________ device properties
 
 cudaDeviceProp* gpu_device_properties = NULL;
 
