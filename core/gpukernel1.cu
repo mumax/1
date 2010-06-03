@@ -11,8 +11,16 @@ extern "C" {
 #endif
 
 
-void init_Greens_kernel1(tensor* kernel, int N0, int N1, int N2, int *zero_pad, float *FD_cell_size){
+void gpu_init_Greens_kernel1(tensor* kernel, int N0, int N1, int N2, int *zero_pad, int *repetition, float *FD_cell_size){
 
+	for (int i=0; i<3; i++){
+		if (repetition[i]=<1 && zero_pad[i]!=0){
+			fprintf(stderr, "repetition[%d]= %d, while no periodicity is considered!", i, repetition[i]);
+			fprintf(stderr, "repetition[%d], should be 1", i);
+			return;
+		}
+	}
+	
 	int *Nkernel =  (int*)calloc(3, sizeof(int));
   Nkernel[X] = (1 + zero_pad[X]) * N0; 
   Nkernel[Y] = (1 + zero_pad[Y]) * N1; 
@@ -25,16 +33,12 @@ void init_Greens_kernel1(tensor* kernel, int N0, int N1, int N2, int *zero_pad, 
 //  NkernelStorage[Z] = Nkernel[Z] + gpu_stride_float();   ///@todo aanpassen!!;
   NkernelStorage[Z] = Nkernel[Z] + 2;
 	int NkernelStorageN = NkernelStorage[X] * NkernelStorage[Y] * NkernelStorage[Z];
-	
-	tensor *temp = new_tensor(3, NkernelStorage[X], NkernelStorage[Y], NkernelStorage[Z]);
-	float*** temp_3D = tensor_array3D(temp);
 
+// temp tensor for storage of each component in real + i*complex format _________________________	
+	tensor *temp = new_tensor(3, NkernelStorage[X], NkernelStorage[Y], NkernelStorage[Z]);
+// ______________________________________________________________________________________________
 	
-	
-/*	if(!gaussQuadrOrderIsSupported(quad_Order)){
-		fprintf(stderr, "Gauss quadrature order not supported!\n");
-		return;
-	}*/
+// initialization Gauss quadrature points for integrations ______________________________________
 	float *std_qd_P_10 = (float*) calloc(10, sizeof(float));
 	std_qd_P_10[0] = -0.97390652851717197f;
 	std_qd_P_10[1] = -0.86506336668898498f;
@@ -53,24 +57,134 @@ void init_Greens_kernel1(tensor* kernel, int N0, int N1, int N2, int *zero_pad, 
 	qd_W_10[3] = qd_W_10[6] = 0.26926671930999602f;
 	qd_W_10[4] = qd_W_10[5] = 0.29552422471475298f;
 	
-	float *qd_P_x = (float *) calloc(10, sizeof(float));
-	float *qd_P_y = (float *) calloc(10, sizeof(float));
-	float *qd_P_z = (float *) calloc(10, sizeof(float));
-	get_Quad_Points(qd_P_x, std_qd_P_10, 10, -0.5f*FD_cell_size[X], 0.5f*FD_cell_size[X]);
-	get_Quad_Points(qd_P_y, std_qd_P_10, 10, -0.5f*FD_cell_size[Y], 0.5f*FD_cell_size[Y]);
-	get_Quad_Points(qd_P_z, std_qd_P_10, 10, -0.5f*FD_cell_size[Z], 0.5f*FD_cell_size[Z]);
+	float **qd_P_10 =  (float **) calloc (3, sizeof(float **));
+	get_Quad_Points(qd_P_10[X], std_qd_P_10, 10, -0.5f*FD_cell_size[X], 0.5f*FD_cell_size[X]);
+	get_Quad_Points(qd_P_10[Y], std_qd_P_10, 10, -0.5f*FD_cell_size[Y], 0.5f*FD_cell_size[Y]);
+	get_Quad_Points(qd_P_10[Z], std_qd_P_10, 10, -0.5f*FD_cell_size[Z], 0.5f*FD_cell_size[Z]);
 	free (std_qd_P_10);
-
+// ______________________________________________________________________________________________
 	
 	
-	
-	
-	
-/*	int* zero_pad_kernel = (int*)calloc(3, sizeof(int));
+// Plan initialization for FFTs Greens kernel elements __________________________________________		
+	int* zero_pad_kernel = (int*)calloc(3, sizeof(int));
 	zero_pad_kernel[X] = zero_pad_kernel[Y] = zero_pad_kernel[Z] = 0; 
-	gpu_plan3d_real_input* kernel_plan = new_gpu_plan3d_real_input( (1+zero_pad[X])*N0, (1+zero_pad[Y])*N1, (1+zero_pad[Z])* N2, zero_pad_kernel);*/
-/*
+	gpu_plan3d_real_input* kernel_plan = new_gpu_plan3d_real_input( (1+zero_pad[X])*N0, (1+zero_pad[Y])*N1, (1+zero_pad[Z])* N2, zero_pad_kernel);
+// ______________________________________________________________________________________________
+
+
+//	float cst = Ms/4/Pi/(float)NkernelN;         
+	float cst = 1.0;												///@todo what is the normalized constant?
+	gpu_init_and_FFT_Greens_kernel_elements(temp, Nkernel, FD_cell_size, cst, repetition, qd_P_10, qd_W_10);
 	
+	return();
+}
+
+
+/// @todo argument defining which Greens function should be added
+/// remark: number of FD cells in a dimension can not be odd if no zero padding!!
+void gpu_init_and_FFT_Greens_kernel_elements(tensor *temp, int *Nkernel, float *FD_cell_size, float cst, int *repetition, float **qd_P_10, float *qd_W_10){
+
+	dim3 gridsize(Nkernel[X]/2, Nkernel[Y]/2, 1);	///@todo generalize!
+  dim3 blocksize(Nkernel[Z]/2, 1, 1);
+  gpu_checkconf(gridsize, blocksize);
+
+	for (int i=0; i<3; i++){
+		for (int j=i; j<3; j++){
+			// temp should be put to zero
+		  _gpu_init_Greens_kernel_elements<<<gridsize, blocksize>>>(temp, Nkernel, i, j, FD_cell_size, cst, repetition, qd_P_10, qd_W_10);
+			cudaThreadSynchronize();
+		}
+	}
+
+}
+
+__global__ void _gpu_init_Greens_kernel_elements(tensor *temp, int Nkernel, int co1, int co2, float *FD_cell_size, float cst, int *repetition, float **qd_P_10, float *qd_W_10){
+   
+    int i = blockIdx.x;
+    int j = blockIdx.y;
+    int k = threadIdx.x;
+		float*** temp_3D = tensor_array3D(temp);
+		
+		temp_3D[i           ][j           ][k           ] = get_Greens_element(Nkernel, co1, co2,  i,  j,  k, FD_cell_size, cst, repetion, qd_P_10, qd_W_10);
+		if (i>0) 
+		temp_3D[Nkernel[X]-i][j           ][k           ] = get_Greens_element(Nkernel, co1, co2, -i,  j,  k, FD_cell_size, cst, repetion, qd_P_10, qd_W_10);
+		if (j>0) 
+		temp_3D[i           ][Nkernel[Y]-j][k           ] = get_Greens_element(Nkernel, co1, co2,  i, -j,  k, FD_cell_size, cst, repetion, qd_P_10, qd_W_10);
+		if (k>0) 
+		temp_3D[i           ][j           ][Nkernel[Z]-k] = get_Greens_element(Nkernel, co1, co2,  i,  j, -k, FD_cell_size, cst, repetion, qd_P_10, qd_W_10);
+		if (i>0 && j>0) 
+		temp_3D[Nkernel[X]-i][Nkernel[Y]-j][k           ] = get_Greens_element(Nkernel, co1, co2, -i, -j,  k, FD_cell_size, cst, repetion, qd_P_10, qd_W_10);
+		if (i>0 && k>0) 
+		temp_3D[Nkernel[X]-i][j           ][Nkernel[Z]-k] = get_Greens_element(Nkernel, co1, co2, -i,  j, -k, FD_cell_size, cst, repetion, qd_P_10, qd_W_10);
+		if (j>0 && k>0) 
+		temp_3D[i           ][Nkernel[Y]-j][Nkernel[Z]-k] = get_Greens_element(Nkernel, co1, co2,  i, -j, -k, FD_cell_size, cst, repetion, qd_P_10, qd_W_10);
+		if (i>0 && j>0 && k>0) 
+		temp_3D[Nkernel[X]-i][Nkernel[Y]-j][Nkernel[Z]-k] = get_Greens_element(Nkernel, co1, co2, -i, -j, -k, FD_cell_size, cst, repetion, qd_P_10, qd_W_10);
+}
+
+float get_Greens_element(int Nkernel, int co1, int co2, int a, int b, int c, float *FD_cell_size, float *cst, int *repetition, float **qd_P_10, float *qd_W_10){
+
+
+	float result = 0.0;
+
+	if (co1==0 && co2==0){
+
+		for(int cnta=-repetition[X]; cnta<=repetition[X]; cnta++)
+		for(int cntb=-repetition[Y]; cntb<=repetition[Y]; cntb++)
+		for(int cntc=-repetition[Z]; cntc<=repetition[Z]; cntc++){
+
+			int i = a + cnta*Nkernel[X]/2;
+			int j = b + cntb*Nkernel[Y]/2;
+			int k = c + cntc*Nkernel[Z]/2;
+			int r2_int = i*i+j*j+k*k;
+//			if (r2_int==0.0) continue;    ///include selfpatch?
+
+			if (r2<400.0){
+				float x1 = (i + 0.5f) * FD_cell_size[X];
+				float x2 = (i - 0.5f) * FD_cell_size[X];
+				for (int cnt2=0; cnt2<10; cnt2++){
+					float y = j * FD_cell_size[Y] + qd_P_10[Y][cnt2];
+					for (int cnt3=0; cnt3<10; cnt3++){
+						float z = k * FD_cell_size[Z] + qd_P_10[Z][cnt3];
+						result += FD_cell_size[Y] * FD_cell_size[Z] /4.0f * qd_W_10[cnt2] * qd_W_10[cnt3] *
+							( x1*fpow(x1*x1+y*y+z*z, -1.5) - x2*fpow(x2*x2+y*y+z*z, -1.5));
+					}
+				}
+			}
+			else{
+				int r2_int = (i*FD_cell_size[X])*(i*FD_cell_size[X]) + (j*FD_cell_size[Y])*(j*FD_cell_size[Y]) + (k*FD_cell_size[Z])*(k*FD_cell_size[Z]);
+				result += FD_cell_size[X] * FD_cell_size[Y] * FD_cell_size[Z] * 
+									(1.0f/ fpow(r2,1.5) - 3.0* (i*FD_cell_size[X]) * (i*FD_cell_size[X]) * pow(r2,-2.5));
+			}
+		}
+
+	return( cst*(result) );
+	}
+	
+		if (co1==0 && co2==1){
+		
+		}
+	
+		if (co1==0 && co2==2){
+		
+		}
+		if (co1==1 && co2==1){
+		
+		}
+		if (co1==1 && co2==2){
+		
+		}
+		if (co1==2 && co2==2){
+		
+		}
+	
+	
+}
+
+
+
+
+/*	
 	int cnt;
 
 	gx = NULL;
@@ -196,6 +310,8 @@ void get_Quad_Points(float *gaussQP, float *stdGaussQP, int qOrder, double a, do
 	int i;
 	double A = (b-a)/2.0f; // coefficients for transformation x'= Ax+B
 	double B = (a+b)/2.0f; // where x' is the new integration parameter
+
+	gaussQP = (float *) calloc(qOrder, sizeof(float));
 
 	for(i = 0; i < qOrder; i++)
 		gaussQP[i] = A*stdGaussQP[i]+B;
