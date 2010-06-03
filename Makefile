@@ -20,3 +20,5 @@ test:	all
 	make test -C core
 	make test -C app
 
+doc:
+	make doc -C core
