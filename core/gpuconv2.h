@@ -23,12 +23,19 @@
 
 2.  seriele berekening veldwaarden gunstiger
 	-> 	beter seriele berekening van H_x, H_y, H_z als
+	
 				a. H^FFT = g^FFT_xx* m^FFT_x + g^FFT_xy* m^FFT_y + g^FFT_xz* m^FFT_z
+				
 				b. H_x = inv_FFT(H^FFT)
+				
 				c. H^FFT = g^FFT_xy* m^FFT_x + g^FFT_yy* m^FFT_y + g^FFT_yz* m^FFT_z
+				
 				d. H_y = inv_FFT(H^FFT)
+				
 				e. H^FFT = g^FFT_xz* m^FFT_x + g^FFT_yz* m^FFT_y + g^FFT_zz* m^FFT_z
+				
 				f. H_z = inv_FFT(H^FFT)
+				
 			Op die manier enkel geheugen nodig voor H^FFT (en niet voor elke component H^FFT_x, H^FFT_y, H^FFT_z)
 			Antw: Ik denk dat ik nu slechts even veel geheugen gebruik: Ik houd 3 H^FFT componenten in het geheugen,
 			maar slechts één m^FFT component, jij één H^FFT maar 3 m^FFT's. Of heb ik het mis op? (Arne.)
