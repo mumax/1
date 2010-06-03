@@ -53,6 +53,7 @@ typedef struct{
  * Creates a new FFT plan for transforming the magnetization. 
  * Zero-padding in each dimension is optional, and rows with
  * only zero's are not transformed.
+ * @todo on compute capability < 2.0, the first step is done serially...
  */
 gpu_plan3d_real_input* new_gpu_plan3d_real_input(int N0,	///< size of real input data in x-direction
 						int N1,		    ///< size of real input data  in y-direction
