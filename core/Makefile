@@ -30,7 +30,7 @@ OFILES=\
 	gpuheun.o\
 	gpurk4.o\
 	gpuanal1.o\
-	gpukernel1.o\
+#	gpukernel1.o\
 
 CUDALIBS= -lcudart -lcufft
 
