@@ -77,7 +77,7 @@ int main(int argc, char** argv){
     assert(a->size[i] == b->size[i]);
   }
   
-  for(int i=0; i < tensor_length(a); i++){
+  for(int i=0; i < a->len; i++){
     assert(a->list[i] == b->list[i]);
   }
   
@@ -159,7 +159,7 @@ int main(int argc, char** argv){
   assert(dx->size[1] == 20);
   assert(dx->size[2] == 30);
   // it shares the data with the parent tensor, let's check that:
-  for(int i=0; i<tensor_length(dx); i++){
+  for(int i=0; i<dx->len; i++){
     assert(dx->list[i] == 1.0);
     assert(dy->list[i] == 2.0);
     assert(dz->list[i] == 3.0);

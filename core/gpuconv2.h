@@ -41,7 +41,9 @@
 			maar slechts één m^FFT component, jij één H^FFT maar 3 m^FFT's. Of heb ik het mis op? (Arne.)
 			Opm: misschien kunnen we wel één buffer uitsparen door eerst alle m_i te FFT-en en dan een "in-place"
 			kernel vermenigvuldiging te doen. Per element wordt dan m_x[i], m_y[i], m_z[i] gebufferd in
-			locale variablen, daarna wordt m^FFT element per element overschreven door H^FFT...
+			locale variablen, daarna wordt m^FFT element per element overschreven door H^FFT... (Arne)
+			Opm: We kunnen nog 3N floats uitsparen door H_padded niet te kopieren naar H (unpadded), maar gewoon
+			de H uit de padded arrays te gebruiken voor de time stepping... (Arne).
 			
 	->  H^FFT dient dezelfde dimensies te hebben als andere strided FFT tensoren
 
@@ -78,54 +80,63 @@ extern "C" {
 
 //_________________________________________________________________________________________ convolution
 
+//    int* size;							///< 3D size of the magnetization field
+//    int N;									///< total number of magnetization vectors for linear access
+//    
+/*   int* paddedSize;		///< 3D size of the zero-padded magnetization buffer
+   int paddedN;			///< total number of magnetization vectors in the padded magnetization buffer, for linear access
+ */  
+//   int* paddedStorageSize;	///< 3D size of the zero-padded magnetization buffer, in complex-number format
+  //int paddedComplexN;		///< total number of magnetization vectors in the padded magnetization buffer in complex-number format, for linear access
+//    int len_m;					  ///< total number of floats in the magnetization array
+//    int len_m_comp;			///< total number of floats in each of the m_comp array (1/3 of len_m)
+//    float* ft_m_i;				///< buffer for one componet of m, zero-padded and in complex-format 
+//    int len_ft_m_i;			///< total number of floats in ft_m_i
+// 
+//    float*** ft_kernel;	///< ft_kernel[s][d] gives the d-component of the field of a a unit vector along the s direction (in Fourier space). These components are themselves 3D fields of size paddedComplexSize. 
+//    int len_ft_kernel;
+//    int len_ft_kernel_ij;
+//    int len_kernel_ij;
+//    
+//    int len_h;
+//    int len_h_comp;
+//    float* ft_h;			    ///< buffer for the FFT'ed magnetic field
+//    int len_ft_h;
+//    float** ft_h_comp;		///< points to X, Y and Z components of ft_h
+//    int len_ft_h_comp;
+
 /**
  * 
  */
 typedef struct{
+   
+  gpu_plan3d_real_input* fftplan;
   
-   /*int* size;							///< 3D size of the magnetization field
-   int N;									///< total number of magnetization vectors for linear access
-   
-   int* paddedSize;		///< 3D size of the zero-padded magnetization buffer
-   int paddedN;			///< total number of magnetization vectors in the padded magnetization buffer, for linear access
-   
-   
-   int* paddedStorageSize;	///< 3D size of the zero-padded magnetization buffer, in complex-number format
-  int paddedComplexN;		///< total number of magnetization vectors in the padded magnetization buffer in complex-number format, for linear access*/
-
-   int len_m;					  ///< total number of floats in the magnetization array
-   int len_m_comp;			///< total number of floats in each of the m_comp array (1/3 of len_m)
-   float* ft_m_i;				///< buffer for one componet of m, zero-padded and in complex-format 
-   int len_ft_m_i;			///< total number of floats in ft_m_i
-
-   float*** ft_kernel;	///< ft_kernel[s][d] gives the d-component of the field of a a unit vector along the s direction (in Fourier space). These components are themselves 3D fields of size paddedComplexSize. 
-   int len_ft_kernel;
-   int len_ft_kernel_ij;
-   int len_kernel_ij;
-   
-   int len_h;
-   int len_h_comp;
-   float* ft_h;			    ///< buffer for the FFT'ed magnetic field
-   int len_ft_h;
-   float** ft_h_comp;		///< points to X, Y and Z components of ft_h
-   int len_ft_h_comp;
-   
-   gpu_plan3d_real_input* fftplan;
+  tensor* m;             ///< no space is allocated for m, this is just a pointer the m being convolved at the moment. It's mainly used to store the size of m.
+  tensor* mComp[3];      ///< points to mx, my, mz. again, no space is allocated as this just points into m. each time m->list is set, mComp needs to be updated as well...
+  
+  tensor* h;            ///< no space is allocated for h, this is just a pointer the h being convolved at the moment. It's mainly used to store the size of h.
+  tensor* hComp[3];     ///< points to hx, hy, hz. again, no space is allocated as this just points into h. each time h->list is set, hComp needs to be updated as well...
+  
+  tensor* fft1;         ///< buffer to store and transform the zero-padded magnetization and field
+  tensor* fft1Comp[3];
+  
+  tensor* fft2;         ///< second fft buffer. By default, this one points to fft1, so everything is in-place. However, it can also be separatly allocated so that the FFT's 
+  tensor* fft2Comp[3];
   
 }gpuconv2;
 
 
 
 /**
- * New convolution plan.
+ * New convolution plan with given size of the source vector field and kernel.
+ * If the kernel is larger than the vector field, the field is zero-padded
+ * in the respective dimension to fit the size of the kernel.
  * 
  */
-gpuconv2* new_gpuconv2(int N0,						///< X size of the magnetization vector field
-		       int N1,		            				///< Y size of the magnetization vector field
-		       int N2,  	            				///< Z size of the magnetization vector field
-		       tensor* kernel,	      				///< convolution kernel of size 3 x 3 x 2*N0 x 2*N1 x 2*N2
-		       int* zero_pad          				///< 3 ints, should be 1 or 0, meaning zero-padding or no zero-padding in X,Y,Z respectively
-		       );
+gpuconv2* new_gpuconv2(int* size,             ///< X Y and Z size of the magnetization vector field
+                       tensor* kernel        ///< convolution kernel of at least the size of the vector field
+                       );
 
 /**
  * Executes the convolution plan: convolves the source data with the stored kernel and stores the result in the destination pointer.

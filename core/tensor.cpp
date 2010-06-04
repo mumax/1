@@ -11,52 +11,51 @@ using namespace std;
 
 tensor* new_tensor(int rank, ...){
   
-  tensor* t = (tensor*)safe_malloc(sizeof(tensor));
-  t->rank = rank;
-  t->size = (int*)safe_calloc(rank, sizeof(int));	// we copy the size array to protect from accidental modification
-							// also, if we're a bit lucky, it gets allocated nicely after t and before list,
-							// so we can have good cache efficiency.
+  int* size = (int*)safe_calloc(rank, sizeof(int));
+  
   va_list varargs;
   va_start(varargs, rank);
   
+  int len = 1;
   for(int i=0; i<rank; i++){
-    t->size[i] = va_arg(varargs, int);
+   size[i] = va_arg(varargs, int);
+   len *= size[i];
   }
   va_end(varargs);
   
-  t-> list = (float*)safe_calloc(tensor_length(t), sizeof(float));
-  
-  return t;
+  float* list = (float*)safe_calloc(len, sizeof(float));
+ 
+  return as_tensorN(list, rank, size);
 }
 
 
 tensor* as_tensor(float* list, int rank, ...){
   
-  tensor* t = (tensor*)safe_malloc(sizeof(tensor));
-  t->rank = rank;
-  t->size = (int*)safe_calloc(rank, sizeof(int32_t));	
+  int* size = (int*)safe_calloc(rank, sizeof(int));
   
   va_list varargs;
   va_start(varargs, rank);
   
   for(int i=0; i<rank; i++){
-    t->size[i] = va_arg(varargs, int32_t);
+    size[i] = va_arg(varargs, int);
   }
   va_end(varargs);
   
-  t-> list = list;
-  
-  return t;
+  return as_tensorN(list, rank, size);
 }
 
 tensor* as_tensorN(float* list, int rank, int* size){
   tensor* t = (tensor*)safe_malloc(sizeof(tensor));
   t->rank = rank;
-  t->size = (int*)safe_calloc(rank, sizeof(int32_t));	
+  t->size = (int*)safe_calloc(rank, sizeof(int));	
+  t->len = 1;
+  
   for(int i=0; i<rank; i++){
     t->size[i] = size[i];
+    t->len *= size[i];
   }
-  t-> list = list;
+  t->list = list;
+  t->flags = 0;
   return t;
 }
 

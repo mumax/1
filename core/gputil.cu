@@ -40,22 +40,13 @@ float* new_gpu_array(int size){
   return array;
 }
 
-// tensor* new_gpu_tensor(int rank, ...){
-//   
-//   int* size = (int*)safe_calloc(rank, sizeof(int));
-//   int N = 1;
-//   
-//   va_list varargs;
-//   va_start(varargs, rank);
-//   
-//   for(int i=0; i<rank; i++){
-//     size[i] = va_arg(varargs, int);
-//     N *= size[i];
-//   }
-//   va_end(varargs);
-//   
-//   return as_tensorN(new_gpu_array(N), rank, size);
-// }
+tensor* new_gputensor(int rank, int* size){
+  int len = 1;
+  for(int i=0; i<rank; i++){
+    len *= size[i];
+  }
+  return as_tensorN(new_gpu_array(len), rank, size);
+}
 
 
 float* new_ram_array(int size){

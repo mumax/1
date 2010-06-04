@@ -27,18 +27,19 @@ extern "C" {
  * @see new_ram_array()
  */
 float* new_gpu_array(int size	///< size of the array
-		    );
+                    );
+                    
 /**
  * Creates a new tensor whose data is allocated on the GPU. (rank and size are stored in the host RAM)
  */
-// tensor* new_gpu_tensor(int rank, ...);
+ tensor* new_gputensor(int rank, int* size);
 
 /**
  * Allocates an array of floats in the main RAM.
  * @see new_gpu_array()
  */		    
-float* new_ram_array(int size	///< size of the array
-		    );
+float* new_ram_array(int size       ///< size of the array
+                    );
 
 /**
  * Returns the optimal array stride (in number of floats):

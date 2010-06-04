@@ -84,26 +84,32 @@ units.o:	units.h units.c
 	$(NVCC) -c $(NVCCFLAGS) units.c
 
 test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test
+	./tensor_test
+	./gputil_test
+	./gpufft_test
+	./gpuconv2_test
+	./gpueuler_test testm0.t testkernel.t
+	./gpuheun_test testm0.t testkernel.t
+	./gpuanal1_test testm0.t testkernel.t
+	./gpukernel1_test
 
 tensor_test:	$(OFILES) tensor_test.cpp
 	$(CPP) -c $(CFLAGS) $(LDFLAGS) tensor_test.cpp
 	$(CPP) tensor_test.o core.so -o tensor_test
-	./tensor_test
 
 gpueuler_test:	$(OFILES) gpueuler_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpueuler_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpueuler_test.o -o gpueuler_test
-	./gpueuler_test testm0.t testkernel.t
 
 gpuheun_test:	$(OFILES) gpuheun_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuheun_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpuheun_test.o -o gpuheun_test
-	./gpuheun_test testm0.t testkernel.t
+
 
 gpuanal1_test:	$(OFILES) gpuanal1_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuanal1_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpuanal1_test.o -o gpuanal1_test
-	./gpuanal1_test testm0.t testkernel.t
+
 
 gpusim_test:	$(OFILES) gpusim_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpusim_test.cpp
@@ -113,22 +119,18 @@ gpusim_test:	$(OFILES) gpusim_test.cpp
 gpuconv2_test:	$(OFILES) gpuconv2_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuconv2_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpuconv2_test.o -o gpuconv2_test
-	./gpuconv2_test
 
 gpufft_test:	$(OFILES) gpufft_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpufft_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpufft_test.o -o gpufft_test
-	./gpufft_test
 
 gputil_test: $(OFILES) gputil_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gputil_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gputil_test.o -o gputil_test
-	./gputil_test
 
 gpukernel1_test: $(OFILES) gpukernel1_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpukernel1_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpukernel1_test.o -o gpukernel1_test
-	./gpukernel1_test
 
 
 .PHONY:	clean
