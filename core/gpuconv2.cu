@@ -24,6 +24,23 @@ extern "C" {
 
 //_____________________________________________________________________________________________ convolution
 
+void gpu_copy_pad(tensor* source, tensor* dest){
+  int N0 = conv->fftplan->size[X];
+  int N1 = conv->fftplan->size[Y];
+  int N2 = conv->fftplan->size[Z];
+
+  dim3 gridSize(N0, N1, 1); ///@todo generalize!
+  dim3 blockSize(N2, 1, 1);
+  gpu_checkconf(gridSize, blockSize);
+
+  _gpuconv2_copy_pad<<<gridSize, blockSize>>>(source, dest, N0, N1, N2);
+  cudaThreadSynchronize();
+}
+
+void gpu_copy_unpad(tensor* source, tensor* dest){
+
+}
+
 __global__ void _gpuconv2_copy_pad(float* source, float* dest, int N0, int N1, int N2){
 
   int i = blockIdx.x;
@@ -165,6 +182,8 @@ void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
   assert(kernel5D->size[2+Z] == paddedSize[Z]);
 
   gpu_plan3d_real_input* plan = new_gpu_plan3d_real_input(paddedSize[X], paddedSize[Y], paddedSize[Z], NO_ZERO_PAD);
+
+  
   
 }
 
