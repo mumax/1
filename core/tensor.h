@@ -108,6 +108,7 @@ int tensor_length(tensor* t);
 /**
  * Returns the address of element i,j,k,... inside the tensor.
  * This can be used to set or get elements form the tensor.
+ * The index is checked against the tensor size and the code aborts when the index is out of bounds.
  * Of course, the "manual" way: t->list[i*size + j ...] can still be used as well.
  * @see tensor_get()
  */
@@ -116,6 +117,7 @@ float* tensor_elem(tensor* t, int* index);
 
 /**
  * Same as tensor_elem(), but with varargs for ease of use.
+ * The index is checked against the tensor size and the code aborts when the index is out of bounds.
  * Example:
  * @code
  *  tensor* t = new_tensor(2, 100, 100);
@@ -132,6 +134,7 @@ float* tensor_get(tensor* t, int rank, ...);
  * this function calculates the 1-dimensional
  * index in the corresponding array that stores the tensor data.
  * Thus, tensor_elem(i,j,k) is equivalent to list[tensor_index(i,j,k)].
+ * The index is checked against the tensor size and the code aborts when the index is out of bounds.
  */
 int tensor_index(tensor* t, int* indexarray);
 

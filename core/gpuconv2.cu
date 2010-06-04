@@ -154,6 +154,20 @@ void gpu_kernel_mul2(float* ft_m_i, float* ft_kernel_ij, float* ft_h_comp_j, int
 
 int* NO_ZERO_PAD = (int*)calloc(3, sizeof(int));
 
+void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
+  int* paddedSize = conv->paddedSize;
+  
+  assert(kernel5D->rank == 5);
+  assert(kernel5D->size[0] == 3);
+  assert(kernel5D->size[1] == 3);
+  assert(kernel5D->size[2+X] == paddedSize[X]);
+  assert(kernel5D->size[2+Y] == paddedSize[Y]);
+  assert(kernel5D->size[2+Z] == paddedSize[Z]);
+
+  gpu_plan3d_real_input* plan = new_gpu_plan3d_real_input(paddedSize[X], paddedSize[Y], paddedSize[Z], NO_ZERO_PAD);
+  
+}
+
 // void gpuconv2_loadkernel(gpuconv2* conv, tensor* kernel){
 //   fprintf(stderr, "loadkernel %d x %d x %d\n", kernel->size[2], kernel->size[3], kernel->size[4]);
 //   
@@ -181,38 +195,12 @@ int* NO_ZERO_PAD = (int*)calloc(3, sizeof(int));
 //   //delete_gpu_plan3d_real_input(plan);
 // }
 
-//_____________________________________________________________________________________________ new
 
-// void gpuconv2_init_kernel(gpuconv2* conv, tensor* kernel){
-//   conv->len_kernel_ij = conv->fftplan->paddedN;		//the length of each kernel component K[i][j] (eg: Kxy)
-//   conv->len_ft_kernel_ij = conv->fftplan->paddedStorageN;	//the length of each FFT'ed kernel component ~K[i][j] (eg: ~Kxy)
-//   gpuconv2_alloc_ft_kernel(conv);
-//   gpuconv2_loadkernel(conv, kernel);
-// }
-// 
-// void gpuconv2_init_m(gpuconv2* conv){
-//   conv->len_m = 3 * conv->fftplan->N;
-//   conv->len_m_comp = conv->fftplan->N;
-//   assert(0);
-//   // len_ft_m_i unitialized
-//   conv->ft_m_i = new_gpu_array(conv->len_ft_m_i);
-// }
-// 
-// void gpuconv2_init_h(gpuconv2* conv){
-//   conv->len_h = conv->len_m;
-//   conv->len_h_comp = conv->len_m_comp; 
-//   conv->len_ft_h = 3 * conv->len_ft_m_i;
-//   conv->ft_h = new_gpu_array(conv->len_ft_h);
-//   conv->len_ft_h_comp = conv->len_ft_m_i;
-//   conv->ft_h_comp = (float**)calloc(3, sizeof(float*));
-//   for(int i=0; i<3; i++){ 
-//     conv->ft_h_comp[i] = &(conv->ft_h[i * conv->len_ft_h_comp]); // slice the contiguous ft_h array in 3 equal pieces, one for each component
-//   }
-// }
+
 
 //_____________________________________________________________________________________________ new gpuconv2
 
-gpuconv2* new_gpuconv2(int* size, tensor* kernel5D){
+gpuconv2* new_gpuconv2(int* size, int* kernelSize){
   
   gpuconv2* conv = (gpuconv2*)malloc(sizeof(gpuconv2));
   
@@ -222,10 +210,8 @@ gpuconv2* new_gpuconv2(int* size, tensor* kernel5D){
   size4D[2] = size[Y];
   size4D[3] = size[Z];
   
-  int* paddedSize = new int[3];
-  paddedSize[X] = kernel5D->size[2 + X];  // kernel is 5D: 3 x 3 x Xsize x Ysize x Zsize
-  paddedSize[Y] = kernel5D->size[2 + Y];
-  paddedSize[Z] = kernel5D->size[2 + Z];
+  conv->paddedSize = kernelSize; ///@todo copy, to be sure (goes for all sizes)
+  int* paddedSize = conv->paddedSize;
   
   int* paddedStorageSize = new int[3];  ///@todo obtain from fftplan instead
   paddedStorageSize[X] = paddedSize[X];
@@ -238,7 +224,8 @@ gpuconv2* new_gpuconv2(int* size, tensor* kernel5D){
   paddedStorageSize4D[2] = paddedStorageSize[Y];
   paddedStorageSize4D[3] = paddedStorageSize[Z];
   
- 
+
+  // initialize the FFT plan
   ///@todo generalize !!
   int* zeroPad = new int[3];
   for(int i=0; i<3; i++){
@@ -246,18 +233,36 @@ gpuconv2* new_gpuconv2(int* size, tensor* kernel5D){
   }
   conv->fftplan = new_gpu_plan3d_real_input(size[X], size[Y], size[Z], zeroPad);	// it's important to FIRST initialize the fft plan because it stores the sizes used by other functions.
   
+  
   conv->m = as_tensorN(NULL, 4, size4D);  // m->list will be set to whatever data is convolved at a certain time.
   conv->h = as_tensor(NULL, 4, size4D);  // h->list will be set to whatever convolution destination used at a certain time.
+  
   conv->fft1 = new_gputensor(4, paddedStorageSize4D);
   conv->fft2 = conv->fft1;  // in-place by default
+  
   for(int i=0; i<3; i++){
-    conv->mComp[i] = tensor_component(conv->m, i);
-    conv->mComp[i] = tensor_component(conv->h, i);
+    conv->mComp[i] = as_tensor(NULL, 3, size);
+    conv->hComp[i] = as_tensor(NULL, 3, size);
+    
     conv->fft1Comp[i] = tensor_component(conv->fft1, i);
     conv->fft2Comp[i] = conv->fft1Comp[i]; // in-place by default
   }
+
+  // By default, the kernel is assumed to by symmetric. Should this not be the case, then the sub-diagonal elements should be separately allocated.
+  conv->fftKernel[X][X] = new_gputensor(3, paddedStorageSize);
+  conv->fftKernel[Y][Y] = new_gputensor(3, paddedStorageSize);
+  conv->fftKernel[Z][Z] = new_gputensor(3, paddedStorageSize);
   
+  conv->fftKernel[Y][Z] = new_gputensor(3, paddedStorageSize);
+  conv->fftKernel[X][Z] = new_gputensor(3, paddedStorageSize);
+  conv->fftKernel[X][Y] = new_gputensor(3, paddedStorageSize);
   
+  conv->fftKernel[Z][Y] = conv->fftKernel[Y][Z];
+  conv->fftKernel[Z][X] = conv->fftKernel[X][Z];
+  conv->fftKernel[Y][X] = conv->fftKernel[X][Y];
+
+
+  ///@todo free some sizes
   return conv;
 }
 

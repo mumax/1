@@ -95,20 +95,6 @@ tensor* new_tensorN(int rank, int* size){
 }
 
 
-// tensor* new_cudatensorN(int rank, int* size){
-//   tensor* t = (tensor*)safe_malloc(sizeof(tensor));
-//   t->rank = rank;
-//   t->size = (int*)safe_calloc(rank, sizeof(int32_t));
-//   
-//   for(int i=0; i<rank; i++){
-//     t->size[i] = size[i];
-//   }
-//  
-//   t-> list = (float*)safe_calloc(tensor_length(t), sizeof(float));
-//   
-//   return t;
-// }
-
 
 int tensor_index(tensor* t, int* indexarray){
   int index = indexarray[0];
@@ -321,14 +307,15 @@ tensor* tensor_component(tensor* t, int component){
   for(int i=0; i<t->rank-1; i++){
     size[i] = t->size[i+1];
   }
-  tensor* slice = new_tensorN(t->rank-1, size);
-  delete[] size;
+  
+  //delete[] size;
   int* index = new int[t->rank];
   for(int i=1; i<t->rank; i++){
     index[i] = 0;
   }
   index[0] = component;
-  slice->list = tensor_elem(t, index);
+  
+  tensor* slice = as_tensorN(tensor_elem(t, index), t->rank-1, size);
   delete[] index;
   return slice;
 }

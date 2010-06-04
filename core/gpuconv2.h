@@ -117,12 +117,16 @@ typedef struct{
   
   tensor* h;            ///< no space is allocated for h, this is just a pointer the h being convolved at the moment. It's mainly used to store the size of h.
   tensor* hComp[3];     ///< points to hx, hy, hz. again, no space is allocated as this just points into h. each time h->list is set, hComp needs to be updated as well...
+
+  int* paddedSize;    ///< logical size of the zero-padded data. No tensor actually has this size: fftXComp has about paddedSize, but plus one stride in the Z dimension.
   
   tensor* fft1;         ///< buffer to store and transform the zero-padded magnetization and field
   tensor* fft1Comp[3];
   
   tensor* fft2;         ///< second fft buffer. By default, this one points to fft1, so everything is in-place. However, it can also be separatly allocated so that the FFT's 
   tensor* fft2Comp[3];
+
+  tensor* fftKernel[3][3]; ///< not stored as a rank 5 kernel because the underlying storage is not neccessarily contiguous: we can exploit the kernel symmetry and make K[X][Y] point to K[Y][X], etc.
   
 }gpuconv2;
 
@@ -130,13 +134,23 @@ typedef struct{
 
 /**
  * New convolution plan with given size of the source vector field and kernel.
- * If the kernel is larger than the vector field, the field is zero-padded
+ * If the kernel size is larger than the vector field, the field is zero-padded
  * in the respective dimension to fit the size of the kernel.
- * 
+ * @note After construction, a kernel should still be loaded.
  */
 gpuconv2* new_gpuconv2(int* size,             ///< X Y and Z size of the magnetization vector field
-                       tensor* kernel        ///< convolution kernel of at least the size of the vector field
+                       int* kernel        ///< convolution kernel of at least the size of the vector field
                        );
+
+/**
+ * Loads a kernel into the convolution.
+ * The kernel is not yet FFTed and stored in the 5-dimensional format:
+ * Kernel[SourceDir][DestDir][X][Y][Z].
+ * The kernel is assumed to be symmetric in the first two indices.
+ */
+void gpuconv2_loadkernel5DSymm(gpuconv2* conv,
+                               tensor* kernel5D
+                               );
 
 /**
  * Executes the convolution plan: convolves the source data with the stored kernel and stores the result in the destination pointer.
