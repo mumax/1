@@ -97,7 +97,7 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
   tensor** fft1Comp = conv->fft1Comp;
   tensor** fft2Comp = conv->fft2Comp;
   
-  gpu_zero_tensor(h);
+  gpu_zero_tensor(hComp[0]);
 //   gpu_zero(conv->fft1->list, conv->fft1->len);              // fft1 will now store the zero-padded magnetization
 //   
 //   for(int i=0; i<3; i++){

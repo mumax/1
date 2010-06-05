@@ -114,6 +114,17 @@ void delete_tensor_component(tensor* t);
  */
 void tensor_zero(tensor* t);
 
+/**
+ * Copies source into dest. They should have equal sizes.
+ */
+void tensor_copy(tensor* source, tensor* dest);
+
+/**
+ * Checks whether both tensors have equal rank and size.
+ * @return 1 for equal sizes, 0 otherwise.
+ */
+int tensor_equalsize(tensor* a, tensor* b);
+
 //_____________________________________________________________________________________________________________ access
 
 /** 

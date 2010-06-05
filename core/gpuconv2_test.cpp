@@ -30,9 +30,11 @@ int main(int argc, char** argv){
   gpuconv2_loadkernel5DSymm(conv, kernel);
   
   tensor* h = new_tensorN(4, m->size);
+  for(int i=0; i<h->len; i++)
+    h->list[i]= 1.;
+  
   tensor* hDev = new_gputensor(4, h->size);
-  for(int i=0; i<3; i++)
-    assert(h->size[i] == m->size[i]);
+  tensor_copy_to_gpu(h, hDev);
   
   gpuconv2_exec(conv, mDev, hDev);
   memcpy_from_gpu(hDev->list, h->list, h->len);

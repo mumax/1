@@ -21,6 +21,7 @@
 extern "C" {
 #endif
 
+//_________________________________________________________________________________________ allocation
 
 /**
  * Allocates an array of floats on the GPU and asserts the size is a multiple of 512.
@@ -57,6 +58,7 @@ float* new_ram_array(int size       ///< size of the array
  */
 int gpu_stride_float();
 
+//______________________________________________________________________________________ copy
 
 /**
  * Copies floats from the main RAM to the GPU.
@@ -81,10 +83,33 @@ void memcpy_from_gpu(float* source,	///< source data pointer on the GPU
  * @see memcpy_to_gpu(), memcpy_from_gpu()
  */
 void memcpy_gpu_to_gpu(float* source,	///< source data pointer on the GPU
-		       float* dest, 	///< destination data pointer on the GPU
-		       int nElements	///< number of floats (not bytes) to be copied
-		      );
-		 
+                       float* dest, 	///< destination data pointer on the GPU
+                       int nElements	///< number of floats (not bytes) to be copied
+                       );
+
+/**
+ * Copies the source tensor (in RAM) to the the destination tensor (on the GPU).
+ * They should have equal sizes.
+ * @see tensor_copy_from_gpu(), tensor_copy_gpu_to_gpu()
+ */
+void tensor_copy_to_gpu(tensor* source, tensor* dest);
+
+/**
+ * Copies the source tensor (on the GPU) to the the destination tensor (in RAM).
+ * They should have equal sizes.
+ * @see tensor_copy_to_gpu(), tensor_copy_gpu_to_gpu()
+ */
+void tensor_copy_from_gpu(tensor* source, tensor* dest);
+
+/**
+ * Copies the source tensor to the the destination tensor (both on the GPU).
+ * They should have equal sizes.
+ * @see tensor_copy_to_gpu(), tensor_copy_from_gpu()
+ */
+void tensor_copy_gpu_to_gpu(tensor* source, tensor* dest);
+
+//______________________________________________________________________________________ util
+
 /**
  * Set a range of floats on the GPU to zero.
  */

@@ -88,6 +88,24 @@ void tensor_zero(tensor* t){
   }
 }
 
+void tensor_copy(tensor* source, tensor* dest){
+  assert(tensor_equalsize(source, dest));
+  for(int i=0; i<source->len; i++)
+    dest[i] = source[i];
+}
+
+int tensor_equalsize(tensor* a, tensor* b){
+  if(a->rank != b->rank){
+    return 0;
+  }
+  for(int i=0; i < a->rank; i++){
+    if(a->size[i] != b->size[i]){
+      return 0;
+    }
+  }
+  return 1;
+}
+
 //_________________________________________________________________________________________________ access
 
 float* tensor_get(tensor* t, int r ...){

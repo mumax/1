@@ -110,7 +110,20 @@ void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
   timer_stop("memcpy_gpu_to_gpu");
 }
 
+void tensor_copy_to_gpu(tensor* source, tensor* dest){
+  assert(tensor_equalsize(source, dest));
+  memcpy_to_gpu(source->list, dest->list, source->len);
+}
 
+void tensor_copy_from_gpu(tensor* source, tensor* dest){
+  assert(tensor_equalsize(source, dest));
+  memcpy_from_gpu(source->list, dest->list, source->len);
+}
+
+void tensor_copy_gpu_to_gpu(tensor* source, tensor* dest){
+  assert(tensor_equalsize(source, dest));
+  memcpy_gpu_to_gpu(source->list, dest->list, source->len);
+}
 
 //_____________________________________________________________________________________________ misc
 
