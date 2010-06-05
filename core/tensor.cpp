@@ -8,6 +8,24 @@ extern "C" {
 
 using namespace std;
 
+/// @internal this is the "mother constructor". All other constructors should call this one
+tensor* as_tensorN(float* list, int rank, int* size){
+  assert(rank > 0);
+  
+  tensor* t = (tensor*)safe_malloc(sizeof(tensor));
+  t->rank = rank;
+  t->size = (int*)safe_calloc(rank, sizeof(int));   
+  t->len = 1;
+  
+  for(int i=0; i<rank; i++){
+    t->size[i] = size[i];
+    t->len *= size[i];
+  }
+  t->list = list;
+  t->flags = 0;
+  return t;
+}
+
 
 tensor* new_tensor(int rank, ...){
   
@@ -44,20 +62,22 @@ tensor* as_tensor(float* list, int rank, ...){
   return as_tensorN(list, rank, size);
 }
 
-tensor* as_tensorN(float* list, int rank, int* size){
-  tensor* t = (tensor*)safe_malloc(sizeof(tensor));
-  t->rank = rank;
-  t->size = (int*)safe_calloc(rank, sizeof(int));	
-  t->len = 1;
+tensor* new_tensorN(int rank, int* size){
+  
+  int* tsize = (int*)safe_calloc(rank, sizeof(int));
+  int len = 1;
   
   for(int i=0; i<rank; i++){
-    t->size[i] = size[i];
-    t->len *= size[i];
+    tsize[i] = size[i];
+    len *= size[i];
   }
-  t->list = list;
-  t->flags = 0;
-  return t;
+ 
+  float* list = (float*)safe_calloc(len, sizeof(float));
+  
+  return as_tensorN(list, rank, tsize);
 }
+
+
 
 
 float* tensor_get(tensor* t, int r ...){
@@ -78,22 +98,6 @@ float* tensor_get(tensor* t, int r ...){
   delete[] index;
   return ret;
 }
-
-
-tensor* new_tensorN(int rank, int* size){
-  tensor* t = (tensor*)safe_malloc(sizeof(tensor));
-  t->rank = rank;
-  t->size = (int*)safe_calloc(rank, sizeof(int32_t));
-  
-  for(int i=0; i<rank; i++){
-    t->size[i] = size[i];
-  }
- 
-  t-> list = (float*)safe_calloc(tensor_length(t), sizeof(float));
-  
-  return t;
-}
-
 
 
 int tensor_index(tensor* t, int* indexarray){
@@ -268,9 +272,11 @@ void print_tensor(tensor* t){
 
 // TODO: catch file not found!
 tensor* read_tensor(FILE* in){
-  tensor* t = (tensor*)safe_malloc(sizeof(tensor));
-  read_tensor_pieces(&(t->rank), &(t->size), &(t->list), in);
-  return t;
+  int rank = -1;
+  int* size = NULL;
+  float* list = NULL;
+  read_tensor_pieces(&rank, &size, &list, in);
+  return as_tensorN(list, rank, size);
 }
 
 tensor* read_tensor_fname(char* filename){

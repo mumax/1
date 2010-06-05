@@ -22,13 +22,21 @@ int main(int argc, char** argv){
     m->list[i] = i;
   }
   format_tensor(m, stderr);
-  
-  int* zero_pad = new int[3];
-  zero_pad[X] = zero_pad[Y] = zero_pad[Z] = 1;
+  tensor* mDev = new_gputensor(4, m->size);
+  memcpy_to_gpu(m->list, mDev->list, m->len);
   
   tensor* kernel = new_tensor(5, 3, 3, paddedSize[X], paddedSize[Y], paddedSize[Z]);
   gpuconv2* conv = new_gpuconv2(size, paddedSize);
   gpuconv2_loadkernel5DSymm(conv, kernel);
+  
+  tensor* h = new_tensorN(4, m->size);
+  tensor* hDev = new_gputensor(4, h->size);
+  for(int i=0; i<3; i++)
+    assert(h->size[i] == m->size[i]);
+  
+  gpuconv2_exec(conv, mDev, hDev);
+  memcpy_from_gpu(hDev->list, h->list, h->len);
+  format_tensor(h, stderr);
 
   fprintf(stderr, "PASS\n");
   return 0;

@@ -156,8 +156,8 @@ void gpuconv2_loadkernel5DSymm(gpuconv2* conv,
  * Executes the convolution plan: convolves the source data with the stored kernel and stores the result in the destination pointer.
  */
 void gpuconv2_exec(gpuconv2* plan, 				///< the plan to execute 
-		   float* source, 	           				///< the input vector field (magnetization)
-		   float* dest		             				///< the destination vector field (magnetic field) to store the result in
+		   tensor* source, 	           				///< the input vector field (magnetization)
+		   tensor* dest		             				///< the destination vector field (magnetic field) to store the result in
 		   );
 
 /**

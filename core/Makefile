@@ -91,7 +91,7 @@ test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuanal1_test gpusim_test
 	./gpueuler_test testm0.t testkernel.t
 	./gpuheun_test testm0.t testkernel.t
 	./gpuanal1_test testm0.t testkernel.t
-	./gpukernel1_test
+#	./gpukernel1_test
 
 tensor_test:	$(OFILES) tensor_test.cpp
 	$(CPP) -c $(CFLAGS) $(LDFLAGS) tensor_test.cpp

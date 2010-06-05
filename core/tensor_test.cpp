@@ -18,6 +18,7 @@ int main(int argc, char** argv){
   // and size
   assert(a->size[0] == 30);
   assert(a->size[1] == 40);
+  assert(a->len == 30*40);
   
   int buffer[10];
   // the data is initialized to zero:
@@ -158,6 +159,7 @@ int main(int argc, char** argv){
   assert(dx->size[0] == 10);
   assert(dx->size[1] == 20);
   assert(dx->size[2] == 30);
+  assert(dx->len = 10*20*30);
   // it shares the data with the parent tensor, let's check that:
   for(int i=0; i<dx->len; i++){
     assert(dx->list[i] == 1.0);

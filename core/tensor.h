@@ -9,11 +9,9 @@
  *
  * For an example how to use the tensor type, see tensor_test.cpp
  *
- * @todo introduction of symmetrical (rank 5) tensor for Greens function kernel
- * @todo allocation on the GPU
- * @todo ->len
  * @todo ->array (void*)
  * @todo ->gpu?
+ * @todo zero, copy
  *
  * @author Arne Vansteenkiste
  */
@@ -40,7 +38,7 @@ typedef struct{
    int len;          ///< total number of elements, equal to size[0] * size[1] * ... *size[rank-1]
    float* list;      ///< tensor data, stored as a (contiguous) array of length "len" @todo be careful for a symmetric tensor!
    void* array;      ///< the tensor data represented as a multi-dimensional array. underneath lies the data from "list".
-   int flags;        ///< used to store some additional info like: allocated on RAM/GPU? symmetric? 
+   int flags;        ///< used to store some additional info like: allocated on RAM/GPU? symmetric? @deprecated ?
 }tensor;
 
 

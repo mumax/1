@@ -9,20 +9,7 @@
 extern "C" {
 #endif
 
-/** For debugging: gets tensor from the GPU and prints to screen */
-// void extract(const char* msg, float* data, int* size){
-//   int N0 = size[0];
-//   int N1 = size[1];
-//   int N2 = size[2];
-//   
-//   printf("%s(%d x %d x %d){\n", msg, N0, N1, N2);
-//   tensor* t = new_tensor(3, N0, N1, N2);
-//   memcpy_from_gpu(data, t->list, tensor_length(t));
-//   format_tensor(t, stdout);
-//   printf("}\n\n");
-// }
-
-//_____________________________________________________________________________________________ convolution
+//_____________________________________________________________________________________________ copy/pad
 
 /// @internal Does padding and unpadding, not necessarily by a factor 2
 __global__ void _gpuconv2_copy_pad(float* source, float* dest, 
@@ -39,6 +26,8 @@ __global__ void _gpuconv2_copy_pad(float* source, float* dest,
 
 void gpu_copy_pad(tensor* source, tensor* dest){
   // source must not be larger than dest
+  assert(source->rank == 3);
+  assert(dest->rank == 3);
   for(int i=0; i<3; i++){
     assert(source->size[i] <= dest->size[i]);
   }
@@ -74,75 +63,70 @@ void gpu_copy_unpad(tensor* source, tensor* dest){
 }
 
 
+//_____________________________________________________________________________________________ convolution
 
-// void gpuconv2_copy_pad(gpuconv2* conv, float* source, float* dest){
-//   int N0 = conv->fftplan->size[X];
-//   int N1 = conv->fftplan->size[Y];
-//   int N2 = conv->fftplan->size[Z];
-// 
-//   dim3 gridSize(N0, N1, 1); ///@todo generalize!
-//   dim3 blockSize(N2, 1, 1);
-//   gpu_checkconf(gridSize, blockSize);
-// 
-//   _gpuconv2_copy_pad<<<gridSize, blockSize>>>(source, dest, N0, N1, N2);
-//   cudaThreadSynchronize();
-// }
-// 
-// 
-// __global__ void _gpuconv2_copy_unpad(float* source, float* dest, int N0, int N1, int N2){
-//   int i = blockIdx.x;
-//   int j = blockIdx.y;
-//   int k = threadIdx.x;
-// 
-//   dest[i*N1*N2 + j*N2 + k] = source[i*(2*N1)*(2*N2)* + j*(2*N2) + k];
-// }
-// 
-// void gpuconv2_copy_unpad(gpuconv2* conv, float* source, float* dest){
-//   int N0 = conv->fftplan->size[X];
-//   int N1 = conv->fftplan->size[Y];
-//   int N2 = conv->fftplan->size[Z];
-// 
-//   dim3 gridSize(N0, N1, 1); ///@todo generalize!
-//   dim3 blockSize(N2, 1, 1);
-//   gpu_checkconf(gridSize, blockSize);
-// 
-//   _gpuconv2_copy_unpad<<<gridSize, blockSize>>>(source, dest, N0, N1, N2);
-//   cudaThreadSynchronize();
-// }
-
-void gpuconv2_exec(gpuconv2* conv, float* m, float* h){
-//   // set m and h components
-//   float* m_comp[3];
-//   float* h_comp[3];
-//   for(int i=0; i<3; i++){ 			// slice the contiguous m array in 3 equal pieces, one for each component
-//     m_comp[i] = &(m[i * conv->len_m_comp]); 
-//     h_comp[i] = &(h[i * conv->len_h_comp]); 
-//   }
-  
-  /*
-  gpu_zero(conv->ft_h, conv->len_ft_h);							// zero-out field (h) components
-  for(int i=0; i<3; i++){								// transform and convolve per magnetization component m_i
-    gpu_zero(conv->ft_m_i, conv->len_ft_m_i);						// zero-out the padded magnetization buffer first
-    gpu_copy_pad_r2c(conv->m_comp[i], conv->ft_m_i, conv->size[0], conv->size[1], conv->size[2]);	//copy mi into the padded magnetization buffer, converting to complex format
-    //extract("ft_m_i", conv->ft_m_i, conv->paddedComplexSize);
-		
-		
-    gpu_plan3d_real_input_exec(conv->fftplan, conv->ft_m_i, CUFFT_FORWARD);
-    //extract("ft_m_i (transformed)", conv->ft_m_i, conv->paddedComplexSize);
-    // TODO: asynchronous execution hazard !!
-		
-		
-    for(int j=0; j<3; j++){								// apply kernel multiplication to FFT'ed magnetization and add to FFT'ed H-components
-      gpu_kernel_mul(conv->ft_m_i, conv->ft_kernel[i][j], conv->ft_h_comp[j], conv->len_ft_m_i);
-      //extract("ft_h_j", conv->ft_h_comp[j], conv->paddedComplexSize);
-    }
+void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
+  assert(m->rank == 4);
+  assert(h->rank == 4);
+  fprintf(stderr, "conv->m: %d x %d x %d\nconv->h %d x %d x %d\nm: %d x %d x %d\nh: %d x %d x %d\n", 
+          conv->m->size[1], conv->m->size[2], conv->m->size[3], 
+          conv->h->size[1], conv->h->size[2], conv->h->size[3], 
+          m->size[1], m->size[2], m->size[3], 
+          h->size[1], h->size[2], h->size[3]);
+   fprintf(stderr, "conv->mComp: %d x %d x %d\nconv->hComp: %d x %d x %d\n", 
+          conv->mComp[Z]->size[0], conv->mComp[Z]->size[1], conv->mComp[Z]->size[2], 
+          conv->hComp[Z]->size[0], conv->hComp[Z]->size[1], conv->hComp[Z]->size[2]);
+          
+  for(int i=0; i<4; i++){
+    assert(m->size[i] == conv->m->size[i]);
+    assert(h->size[i] == conv->h->size[i]);
   }
-//  TODO: Save memory by performing gpu_kernel_mul + FFT_inverse + copy_unpad for each component in serie, memory savings are 2*paddedStorageN
+  // mComp and hComp are recycled tensors. We have to set their data each time.
+  // It would be cleaner to have them here as local variables, but this would
+  // mean re-allocating them each time.
+  for(int i=0; i<3; i++){
+    conv->mComp[i]->list = &(m->list[conv->mComp[i]->len * i]);
+    conv->hComp[i]->list = &(h->list[conv->hComp[i]->len * i]);
+  }
+  tensor** mComp = conv->mComp;
+  tensor** hComp = conv->mComp;
+  tensor** fft1Comp = conv->fft1Comp;
+  tensor** fft2Comp = conv->fft2Comp;
+  
+  gpu_zero(conv->fft1->list, conv->fft1->len);              // fft1 will now store the zero-padded magnetization
   
   for(int i=0; i<3; i++){
-    gpu_plan3d_real_input_exec(conv->fftplan, conv->ft_h_comp[i], CUFFT_INVERSE);		// Inplace backtransform of each of the padded h[i]-buffers
-    gpu_copy_unpad_c2r(conv->ft_h_comp[i], conv->h_comp[i], conv->size[0], conv->size[1], conv->size[2]);
-  }*/
+    gpu_copy_pad(mComp[i], fft1Comp[i]);
+  }
+  
+  cudaThreadSynchronize();
+  
+  for(int i=0; i<3; i++){
+    gpu_copy_unpad(fft2Comp[i], hComp[i]);
+  }
+  
+//   for(int i=0; i<3; i++){								// transform and convolve per magnetization component m_i
+//     gpu_zero(conv->ft_m_i, conv->len_ft_m_i);						// zero-out the padded magnetization buffer first
+//     gpu_copy_pad_r2c(conv->m_comp[i], conv->ft_m_i, conv->size[0], conv->size[1], conv->size[2]);	//copy mi into the padded magnetization buffer, converting to complex format
+//     //extract("ft_m_i", conv->ft_m_i, conv->paddedComplexSize);
+// 		
+// 		
+//     gpu_plan3d_real_input_exec(conv->fftplan, conv->ft_m_i, CUFFT_FORWARD);
+//     //extract("ft_m_i (transformed)", conv->ft_m_i, conv->paddedComplexSize);
+//     // TODO: asynchronous execution hazard !!
+// 		
+// 		
+//     for(int j=0; j<3; j++){								// apply kernel multiplication to FFT'ed magnetization and add to FFT'ed H-components
+//       gpu_kernel_mul(conv->ft_m_i, conv->ft_kernel[i][j], conv->ft_h_comp[j], conv->len_ft_m_i);
+//       //extract("ft_h_j", conv->ft_h_comp[j], conv->paddedComplexSize);
+//     }
+//   }
+// //  TODO: Save memory by performing gpu_kernel_mul + FFT_inverse + copy_unpad for each component in serie, memory savings are 2*paddedStorageN
+//   
+//   for(int i=0; i<3; i++){
+//     gpu_plan3d_real_input_exec(conv->fftplan, conv->ft_h_comp[i], CUFFT_INVERSE);		// Inplace backtransform of each of the padded h[i]-buffers
+//     gpu_copy_unpad_c2r(conv->ft_h_comp[i], conv->h_comp[i], conv->size[0], conv->size[1], conv->size[2]);
+//   }
 }
 
 __global__ void _gpu_kernel_mul2(float* ft_m_i, float* ft_kernel_ij, float* ft_h_j){
@@ -245,6 +229,9 @@ void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
 //_____________________________________________________________________________________________ new gpuconv2
 
 gpuconv2* new_gpuconv2(int* size, int* kernelSize){
+  for(int i=0; i<3; i++){
+    assert(size[i] <= kernelSize[i]);
+  }
   
   gpuconv2* conv = (gpuconv2*)malloc(sizeof(gpuconv2));
   
@@ -279,14 +266,14 @@ gpuconv2* new_gpuconv2(int* size, int* kernelSize){
   
   
   conv->m = as_tensorN(NULL, 4, size4D);  // m->list will be set to whatever data is convolved at a certain time.
-  conv->h = as_tensor(NULL, 4, size4D);  // h->list will be set to whatever convolution destination used at a certain time.
+  conv->h = as_tensorN(NULL, 4, size4D);  // h->list will be set to whatever convolution destination used at a certain time.
   
   conv->fft1 = new_gputensor(4, paddedStorageSize4D);
   conv->fft2 = conv->fft1;  // in-place by default
   
   for(int i=0; i<3; i++){
-    conv->mComp[i] = as_tensor(NULL, 3, size);
-    conv->hComp[i] = as_tensor(NULL, 3, size);
+    conv->mComp[i] = as_tensorN(NULL, 3, size); // note: as_tensor instead of as_tensorN did not gave compilation error and was very difficult to debug...
+    conv->hComp[i] = as_tensorN(NULL, 3, size);
     
     conv->fft1Comp[i] = tensor_component(conv->fft1, i);
     conv->fft2Comp[i] = conv->fft1Comp[i]; // in-place by default
