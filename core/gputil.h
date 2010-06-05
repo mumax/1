@@ -89,8 +89,13 @@ void memcpy_gpu_to_gpu(float* source,	///< source data pointer on the GPU
  * Set a range of floats on the GPU to zero.
  */
 void gpu_zero(float* data,	///< data pointer on the GPU
-	      int nElements	///< number of floats (not bytes) to be zeroed
-	      );
+              int nElements	///< number of floats (not bytes) to be zeroed
+              );
+
+/**
+ * Sets all the tensor's elements to zero. The tensor should be allocated on the GPU.
+ */
+void gpu_zero_tensor(tensor* t);
 
 /**
  * This function should be wrapped around cuda functions to check for a non-zero error status.

@@ -59,26 +59,22 @@ float* new_ram_array(int size){
   return array;
 }
 
-__global__ void _gpu_zero(float* list){
-  int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-  list[i] = 0.;
-}
+//_____________________________________________________________________________________________ util
 
-// can probably be replaced by some cudaMemset function,
-// but I just wanted to try out some manual cuda coding.
 void gpu_zero(float* data, int nElements){
   timer_start("gpu_zero");
-  
-  int threadsPerBlock = 512;
-  assert(nElements > 0);
-  int blocks = nElements / threadsPerBlock;
-  
-  gpu_checkconf_int(blocks, threadsPerBlock);
-  _gpu_zero<<<blocks, threadsPerBlock>>>(data);
-  cudaThreadSynchronize();
+
+  gpu_safe( cudaMemset(data, 0, nElements*sizeof(float)) );
   
   timer_stop("gpu_zero");
 }
+
+
+void gpu_zero_tensor(tensor* t){
+  gpu_zero(t->list, t->len);
+}
+
+//_____________________________________________________________________________________________ copy
 
 void memcpy_to_gpu(float* source, float* dest, int nElements){
   assert(nElements > 0);

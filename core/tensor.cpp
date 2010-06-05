@@ -8,9 +8,11 @@ extern "C" {
 
 using namespace std;
 
+//_________________________________________________________________________________________________ new
+
 /// @internal this is the "mother constructor". All other constructors should call this one
 tensor* as_tensorN(float* list, int rank, int* size){
-  assert(rank > 0);
+  assert(rank > -1);
   
   tensor* t = (tensor*)safe_malloc(sizeof(tensor));
   t->rank = rank;
@@ -23,6 +25,7 @@ tensor* as_tensorN(float* list, int rank, int* size){
   }
   t->list = list;
   t->flags = 0;
+  assert(t->len > 0);
   return t;
 }
 
@@ -77,8 +80,15 @@ tensor* new_tensorN(int rank, int* size){
   return as_tensorN(list, rank, tsize);
 }
 
+//_________________________________________________________________________________________________ util
 
+void tensor_zero(tensor* t){
+  for(int i = 0; i < t->len; i++){
+    t->list[i] = 0.;
+  }
+}
 
+//_________________________________________________________________________________________________ access
 
 float* tensor_get(tensor* t, int r ...){
   int* index = new int[t->rank];

@@ -31,16 +31,18 @@ extern "C" {
 #define Y 1
 #define Z 2
 
+//_____________________________________________________________________________________________________________ struct
 
 typedef struct{
    int rank;         ///< the tensor's rank
    int* size;        ///< an array of length rank that stores the dimensions in all directions
    int len;          ///< total number of elements, equal to size[0] * size[1] * ... *size[rank-1]
-   float* list;      ///< tensor data, stored as a (contiguous) array of length "len" @todo be careful for a symmetric tensor!
+   float* list;      ///< tensor data, stored as a (contiguous) array of length "len"
    void* array;      ///< the tensor data represented as a multi-dimensional array. underneath lies the data from "list".
    int flags;        ///< used to store some additional info like: allocated on RAM/GPU? symmetric? @deprecated ?
 }tensor;
 
+//_____________________________________________________________________________________________________________ new
 
 /**
  * Creates a new tensor with given rank and size (as integer varargs).
@@ -84,7 +86,8 @@ tensor* as_tensorN(float* list,  ///< array of data to wrapped in the tensor
                    int* size     ///< sizes in each dimension, as many as rank
                    );
 
-		  
+//_____________________________________________________________________________________________________________ delete
+
 /**
  * Frees the tensor, including its data list.
  * Make sure no pointers to that list exist anymore,
@@ -93,6 +96,35 @@ tensor* as_tensorN(float* list,  ///< array of data to wrapped in the tensor
  */
 void delete_tensor(tensor* t     ///< the tensor to be deleted
 );
+
+
+/** 
+ * Frees the tensor struct and all its members, except "list" (which points to the data array).
+ * Tensors created by tensor_component() should not be freed with delete_tensor() 
+ * but with delete_tensor_component(), as the parent tensor may still be using the data list. 
+ * The same goes for tensors created with as_tensor() if a pointer to the data list still
+ * exists, or for any tensor whose ->list has been stored somewhere.
+ */
+void delete_tensor_component(tensor* t);
+
+//_____________________________________________________________________________________________________________ util
+
+/**
+ * Sets all the tensor's elements to zero.
+ */
+void tensor_zero(tensor* t);
+
+//_____________________________________________________________________________________________________________ access
+
+/** 
+ * Makes a slice of a tensor, sharing the data with the original.
+ * Example
+ @code
+  tensor* t = new_tensor(2, 3, 40); // 3 x 40 matrix
+  tensor* t_row0 = tensor_component(t, 0); // points to row 0 of t
+ @endcode
+ */
+tensor* tensor_component(tensor* t, int component);
 
 
 /**
@@ -136,6 +168,7 @@ float* tensor_get(tensor* t, int rank, ...);
  */
 int tensor_index(tensor* t, int* indexarray);
 
+//_____________________________________________________________________________________________________________ array
 
 /**
  * An easy way to acces tensor's elements is to view it as an N-dimensional array.
@@ -149,6 +182,7 @@ float*** slice_array3D(float* list, int size0, int size1, int size2);
 float**** tensor_array4D(tensor* t);
 float**** slice_array4D(float* list, int size0, int size1, int size2, int size3);
 
+//_____________________________________________________________________________________________________________ I/O
 
 /** 
  * Writes the tensor in binary format:
@@ -193,17 +227,14 @@ void print_tensor(tensor* t);
 void write_int(int i, FILE* out);
 void write_float(float f, FILE* out);
 
-/** Makes a slice of a tensor, sharing the data with the original. */
-tensor* tensor_component(tensor* t, int component);
+//_____________________________________________________________________________________________________________ misc
 
-/** Tensors created by tensor_component() should not be freed with delete_tensor() but with delete_tensor_component(), as the parent tensor may still be using the data list. */
-void delete_tensor_component(tensor* t);
-
-/** A malloc that can print an error message instead of just causing a segfault when unable to allocate. */
+/** A malloc that may print an error message instead of just causing a segfault when unable to allocate. */
 void* safe_malloc(int size);
 
-/** A malloc that can print an error message instead of just causing a segfault when unable to allocate. */
+/** A malloc that may print an error message instead of just causing a segfault when unable to allocate. */
 void* safe_calloc(int length, int elemsize);
+
 
 #ifdef __cplusplus
 }

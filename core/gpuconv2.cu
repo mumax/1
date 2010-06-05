@@ -68,22 +68,26 @@ void gpu_copy_unpad(tensor* source, tensor* dest){
 void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
   assert(m->rank == 4);
   assert(h->rank == 4);
-  fprintf(stderr, "conv->m: %d x %d x %d\nconv->h %d x %d x %d\nm: %d x %d x %d\nh: %d x %d x %d\n", 
-          conv->m->size[1], conv->m->size[2], conv->m->size[3], 
-          conv->h->size[1], conv->h->size[2], conv->h->size[3], 
-          m->size[1], m->size[2], m->size[3], 
-          h->size[1], h->size[2], h->size[3]);
-   fprintf(stderr, "conv->mComp: %d x %d x %d\nconv->hComp: %d x %d x %d\n", 
-          conv->mComp[Z]->size[0], conv->mComp[Z]->size[1], conv->mComp[Z]->size[2], 
-          conv->hComp[Z]->size[0], conv->hComp[Z]->size[1], conv->hComp[Z]->size[2]);
-          
   for(int i=0; i<4; i++){
     assert(m->size[i] == conv->m->size[i]);
     assert(h->size[i] == conv->h->size[i]);
   }
-  // mComp and hComp are recycled tensors. We have to set their data each time.
+  
+//   fprintf(stderr, "conv->m: %d x %d x %d\nconv->h %d x %d x %d\nm: %d x %d x %d\nh: %d x %d x %d\n", 
+//           conv->m->size[1], conv->m->size[2], conv->m->size[3], 
+//           conv->h->size[1], conv->h->size[2], conv->h->size[3], 
+//           m->size[1], m->size[2], m->size[3], 
+//           h->size[1], h->size[2], h->size[3]);
+//    fprintf(stderr, "conv->mComp: %d x %d x %d\nconv->hComp: %d x %d x %d\n", 
+//           conv->mComp[Z]->size[0], conv->mComp[Z]->size[1], conv->mComp[Z]->size[2], 
+//           conv->hComp[Z]->size[0], conv->hComp[Z]->size[1], conv->hComp[Z]->size[2]);
+          
+ 
+  // m, h, mComp and hComp are recycled tensors. We have to set their data each time.
   // It would be cleaner to have them here as local variables, but this would
   // mean re-allocating them each time.
+  conv->m->list = m->list;
+  conv->h->list = h->list;
   for(int i=0; i<3; i++){
     conv->mComp[i]->list = &(m->list[conv->mComp[i]->len * i]);
     conv->hComp[i]->list = &(h->list[conv->hComp[i]->len * i]);
@@ -93,17 +97,20 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
   tensor** fft1Comp = conv->fft1Comp;
   tensor** fft2Comp = conv->fft2Comp;
   
-  gpu_zero(conv->fft1->list, conv->fft1->len);              // fft1 will now store the zero-padded magnetization
-  
-  for(int i=0; i<3; i++){
-    gpu_copy_pad(mComp[i], fft1Comp[i]);
-  }
-  
-  cudaThreadSynchronize();
-  
-  for(int i=0; i<3; i++){
-    gpu_copy_unpad(fft2Comp[i], hComp[i]);
-  }
+  gpu_zero_tensor(h);
+//   gpu_zero(conv->fft1->list, conv->fft1->len);              // fft1 will now store the zero-padded magnetization
+//   
+//   for(int i=0; i<3; i++){
+//     gpu_copy_pad(mComp[i], fft1Comp[i]);
+//   }
+//   
+//   cudaThreadSynchronize();
+//   
+//   for(int i=0; i<3; i++){
+//     gpu_copy_unpad(fft1Comp[i], hComp[i]);
+//   }
+//   
+//   cudaThreadSynchronize();
   
 //   for(int i=0; i<3; i++){								// transform and convolve per magnetization component m_i
 //     gpu_zero(conv->ft_m_i, conv->len_ft_m_i);						// zero-out the padded magnetization buffer first
