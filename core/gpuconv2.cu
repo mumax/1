@@ -24,66 +24,91 @@ extern "C" {
 
 //_____________________________________________________________________________________________ convolution
 
-void gpu_copy_pad(tensor* source, tensor* dest){
-  int N0 = conv->fftplan->size[X];
-  int N1 = conv->fftplan->size[Y];
-  int N2 = conv->fftplan->size[Z];
+/// @internal Does padding and unpadding, not necessarily by a factor 2
+__global__ void _gpuconv2_copy_pad(float* source, float* dest, 
+                                   int S1, int S2,                  ///< source sizes Y and Z
+                                   int D1, int D2                   ///< destination size Y and Z
+                                   ){
+  int i = blockIdx.x;
+  int j = blockIdx.y;
+  int k = threadIdx.x;
 
-  dim3 gridSize(N0, N1, 1); ///@todo generalize!
-  dim3 blockSize(N2, 1, 1);
+  dest[(i*D1 + j)*D2 + k] = source[(i*S1 + j)*S2 + k];
+}
+
+
+void gpu_copy_pad(tensor* source, tensor* dest){
+  // source must not be larger than dest
+  for(int i=0; i<3; i++){
+    assert(source->size[i] <= dest->size[i]);
+  }
+  
+  int S0 = source->size[X];
+  int S1 = source->size[Y];
+  int S2 = source->size[Z];
+
+  dim3 gridSize(S0, S1, 1); ///@todo generalize!
+  dim3 blockSize(S2, 1, 1);
   gpu_checkconf(gridSize, blockSize);
 
-  _gpuconv2_copy_pad<<<gridSize, blockSize>>>(source, dest, N0, N1, N2);
+  _gpuconv2_copy_pad<<<gridSize, blockSize>>>(source->list, dest->list, S1, S2, dest->size[1], dest->size[2]);
   cudaThreadSynchronize();
 }
 
 void gpu_copy_unpad(tensor* source, tensor* dest){
+   // dest must not be larger than source
+  for(int i=0; i<3; i++){
+    assert(source->size[i] >= dest->size[i]);
+  }
+  
+  int D0 = source->size[X];
+  int D1 = source->size[Y];
+  int D2 = source->size[Z];
 
-}
-
-__global__ void _gpuconv2_copy_pad(float* source, float* dest, int N0, int N1, int N2){
-
-  int i = blockIdx.x;
-  int j = blockIdx.y;
-  int k = threadIdx.x;
-
-  dest[i*(2*N1)*(2*N2)* + j*(2*N2) + k] = source[i*N1*N2 + j*N2 + k];
-}
-
-void gpuconv2_copy_pad(gpuconv2* conv, float* source, float* dest){
-  int N0 = conv->fftplan->size[X];
-  int N1 = conv->fftplan->size[Y];
-  int N2 = conv->fftplan->size[Z];
-
-  dim3 gridSize(N0, N1, 1); ///@todo generalize!
-  dim3 blockSize(N2, 1, 1);
+  dim3 gridSize(D0, D1, 1); ///@todo generalize!
+  dim3 blockSize(D2, 1, 1);
   gpu_checkconf(gridSize, blockSize);
 
-  _gpuconv2_copy_pad<<<gridSize, blockSize>>>(source, dest, N0, N1, N2);
+  _gpuconv2_copy_pad<<<gridSize, blockSize>>>(source->list, dest->list, source->size[1], source->size[2], D1, D2);
   cudaThreadSynchronize();
 }
 
 
-__global__ void _gpuconv2_copy_unpad(float* source, float* dest, int N0, int N1, int N2){
-  int i = blockIdx.x;
-  int j = blockIdx.y;
-  int k = threadIdx.x;
 
-  dest[i*N1*N2 + j*N2 + k] = source[i*(2*N1)*(2*N2)* + j*(2*N2) + k];
-}
-
-void gpuconv2_copy_unpad(gpuconv2* conv, float* source, float* dest){
-  int N0 = conv->fftplan->size[X];
-  int N1 = conv->fftplan->size[Y];
-  int N2 = conv->fftplan->size[Z];
-
-  dim3 gridSize(N0, N1, 1); ///@todo generalize!
-  dim3 blockSize(N2, 1, 1);
-  gpu_checkconf(gridSize, blockSize);
-
-  _gpuconv2_copy_unpad<<<gridSize, blockSize>>>(source, dest, N0, N1, N2);
-  cudaThreadSynchronize();
-}
+// void gpuconv2_copy_pad(gpuconv2* conv, float* source, float* dest){
+//   int N0 = conv->fftplan->size[X];
+//   int N1 = conv->fftplan->size[Y];
+//   int N2 = conv->fftplan->size[Z];
+// 
+//   dim3 gridSize(N0, N1, 1); ///@todo generalize!
+//   dim3 blockSize(N2, 1, 1);
+//   gpu_checkconf(gridSize, blockSize);
+// 
+//   _gpuconv2_copy_pad<<<gridSize, blockSize>>>(source, dest, N0, N1, N2);
+//   cudaThreadSynchronize();
+// }
+// 
+// 
+// __global__ void _gpuconv2_copy_unpad(float* source, float* dest, int N0, int N1, int N2){
+//   int i = blockIdx.x;
+//   int j = blockIdx.y;
+//   int k = threadIdx.x;
+// 
+//   dest[i*N1*N2 + j*N2 + k] = source[i*(2*N1)*(2*N2)* + j*(2*N2) + k];
+// }
+// 
+// void gpuconv2_copy_unpad(gpuconv2* conv, float* source, float* dest){
+//   int N0 = conv->fftplan->size[X];
+//   int N1 = conv->fftplan->size[Y];
+//   int N2 = conv->fftplan->size[Z];
+// 
+//   dim3 gridSize(N0, N1, 1); ///@todo generalize!
+//   dim3 blockSize(N2, 1, 1);
+//   gpu_checkconf(gridSize, blockSize);
+// 
+//   _gpuconv2_copy_unpad<<<gridSize, blockSize>>>(source, dest, N0, N1, N2);
+//   cudaThreadSynchronize();
+// }
 
 void gpuconv2_exec(gpuconv2* conv, float* m, float* h){
 //   // set m and h components
