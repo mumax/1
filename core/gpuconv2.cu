@@ -45,14 +45,16 @@ void gpu_copy_pad(tensor* source, tensor* dest){
 }
 
 void gpu_copy_unpad(tensor* source, tensor* dest){
-   // dest must not be larger than source
+  assert(source->rank == 3);
+  assert(dest->rank == 3);
+  // dest must not be larger than source
   for(int i=0; i<3; i++){
     assert(source->size[i] >= dest->size[i]);
   }
   
-  int D0 = source->size[X];
-  int D1 = source->size[Y];
-  int D2 = source->size[Z];
+  int D0 = dest->size[X];
+  int D1 = dest->size[Y];
+  int D2 = dest->size[Z];
 
   dim3 gridSize(D0, D1, 1); ///@todo generalize!
   dim3 blockSize(D2, 1, 1);
@@ -93,24 +95,24 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
     conv->hComp[i]->list = &(h->list[conv->hComp[i]->len * i]);
   }
   tensor** mComp = conv->mComp;
-  tensor** hComp = conv->mComp;
+  tensor** hComp = conv->hComp;
   tensor** fft1Comp = conv->fft1Comp;
   tensor** fft2Comp = conv->fft2Comp;
   
-  gpu_zero_tensor(hComp[0]);
-//   gpu_zero(conv->fft1->list, conv->fft1->len);              // fft1 will now store the zero-padded magnetization
-//   
-//   for(int i=0; i<3; i++){
-//     gpu_copy_pad(mComp[i], fft1Comp[i]);
-//   }
-//   
-//   cudaThreadSynchronize();
-//   
-//   for(int i=0; i<3; i++){
-//     gpu_copy_unpad(fft1Comp[i], hComp[i]);
-//   }
-//   
-//   cudaThreadSynchronize();
+
+  gpu_zero(conv->fft1->list, conv->fft1->len);              // fft1 will now store the zero-padded magnetization
+  
+  for(int i=0; i<3; i++){
+    gpu_copy_pad(mComp[i], fft1Comp[i]);
+  }
+  
+  cudaThreadSynchronize();
+  
+  for(int i=0; i<3; i++){
+    gpu_copy_unpad(fft1Comp[i], hComp[i]);
+  }
+  
+  cudaThreadSynchronize();
   
 //   for(int i=0; i<3; i++){								// transform and convolve per magnetization component m_i
 //     gpu_zero(conv->ft_m_i, conv->len_ft_m_i);						// zero-out the padded magnetization buffer first
@@ -134,6 +136,7 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
 //     gpu_plan3d_real_input_exec(conv->fftplan, conv->ft_h_comp[i], CUFFT_INVERSE);		// Inplace backtransform of each of the padded h[i]-buffers
 //     gpu_copy_unpad_c2r(conv->ft_h_comp[i], conv->h_comp[i], conv->size[0], conv->size[1], conv->size[2]);
 //   }
+  cudaThreadSynchronize();
 }
 
 __global__ void _gpu_kernel_mul2(float* ft_m_i, float* ft_kernel_ij, float* ft_h_j){
