@@ -139,6 +139,8 @@ int gpu_stride_float(){
   gpu_safe( cudaMallocPitch((void**)&devPtr, &pitch, width * sizeof(float), height) );
   gpu_safe( cudaFree(devPtr) );
   return pitch / sizeof(float);
+//   fprintf(stderr, "TODO: gpu_stride_float()\n");
+//   return 2;
 }
 
 //_____________________________________________________________________________________________ check conf

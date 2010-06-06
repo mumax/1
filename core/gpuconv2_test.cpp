@@ -13,13 +13,13 @@
 int main(int argc, char** argv){
   fprintf(stderr, "gpuconv2_test\n");
 
-  int size[3] = {1, 2, 4};
+  int size[3] = {2, 2, 4};
   int paddedSize[3] = {2*size[X], 2*size[Y], 2*size[Z]};
   
 
   tensor* m = new_tensor(4, 3, size[X], size[Y], size[Z]);
   for(int i=0; i<tensor_length(m); i++){
-    m->list[i] = i;
+    m->list[i] = 1/64.;
   }
   format_tensor(m, stderr);
   tensor* mDev = new_gputensor(4, m->size);

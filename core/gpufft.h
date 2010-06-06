@@ -7,6 +7,8 @@
  *   - The CUDA memory access is alligned
  *
  * @todo In place transpose routines
+ * @todo Option for out-of place transforms
+ * @todo Accecpt tensor arguments
  *
  * @see gpuconv1, new_gpuconv2, gpuconv2_exec
  *

@@ -16,8 +16,8 @@ int main(int argc, char** argv){
   print_device_properties(stderr);
   
   int N0 = 2;
-  int N1 = 4;
-  int N2 = 8;
+  int N1 = 2;
+  int N2 = 4;
   
   // make fft plan
   int* zero_pad = new int[3];
@@ -31,12 +31,11 @@ int main(int argc, char** argv){
   tensor* Host_in = new_tensor(3, N0, N1, N2);
   int N = tensor_length(Host_in);
 
-	float*** in = tensor_array3D(Host_in);
+  float*** in = tensor_array3D(Host_in);
   for(int i=0; i<N0; i++)
     for(int j=0; j<N1; j++)
       for(int k=0; k<N2; k++){
 				in[i][j][k] = i + j*0.01 + k*0.00001;
-// 				in[i][j][k] = 1.0f;
       }
   fprintf(stderr, "original:\n");
   format_tensor(Host_in, stderr);
@@ -47,7 +46,7 @@ int main(int argc, char** argv){
   tensor* Host_padded_in = new_tensor(3, plan->paddedStorageSize[X], plan->paddedStorageSize[Y], plan->paddedStorageSize[Z]);
   int N_padded = tensor_length(Host_padded_in);
 
-	float*** padded_in = tensor_array3D(Host_padded_in);
+  float*** padded_in = tensor_array3D(Host_padded_in);
   for(int i=0; i<N0; i++)
     for(int j=0; j<N1; j++)
       for(int k=0; k<N2; k++){
@@ -84,9 +83,9 @@ int main(int argc, char** argv){
 
 // copy result to unpadded tensor ______________________________________	
   tensor* Host_out = new_tensor(3, N0, N1, N2);
-	float*** padded_out = tensor_array3D(Host_padded_out);
+  float*** padded_out = tensor_array3D(Host_padded_out);
 
-	float*** out = tensor_array3D(Host_out);
+  float*** out = tensor_array3D(Host_out);
   for(int i=0; i<N0; i++)
     for(int j=0; j<N1; j++)
       for(int k=0; k<N2; k++){

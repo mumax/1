@@ -75,38 +75,44 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
     assert(h->size[i] == conv->h->size[i]);
   }
   
-//   fprintf(stderr, "conv->m: %d x %d x %d\nconv->h %d x %d x %d\nm: %d x %d x %d\nh: %d x %d x %d\n", 
-//           conv->m->size[1], conv->m->size[2], conv->m->size[3], 
-//           conv->h->size[1], conv->h->size[2], conv->h->size[3], 
-//           m->size[1], m->size[2], m->size[3], 
-//           h->size[1], h->size[2], h->size[3]);
-//    fprintf(stderr, "conv->mComp: %d x %d x %d\nconv->hComp: %d x %d x %d\n", 
-//           conv->mComp[Z]->size[0], conv->mComp[Z]->size[1], conv->mComp[Z]->size[2], 
-//           conv->hComp[Z]->size[0], conv->hComp[Z]->size[1], conv->hComp[Z]->size[2]);
-          
- 
-  // m, h, mComp and hComp are recycled tensors. We have to set their data each time.
-  // It would be cleaner to have them here as local variables, but this would
-  // mean re-allocating them each time.
-  conv->m->list = m->list;
-  conv->h->list = h->list;
-  for(int i=0; i<3; i++){
+  conv->m->list = m->list;                              // m, h, mComp and hComp are recycled tensors. We have to set their data each time.
+  conv->h->list = h->list;                              // It would be cleaner to have them here as local variables, but this would
+  for(int i=0; i<3; i++){                               // mean re-allocating them each time.
     conv->mComp[i]->list = &(m->list[conv->mComp[i]->len * i]);
     conv->hComp[i]->list = &(h->list[conv->hComp[i]->len * i]);
   }
-  tensor** mComp = conv->mComp;
+  tensor** mComp = conv->mComp;                         // shorthand notations
   tensor** hComp = conv->hComp;
+  tensor* fft1 = conv->fft1;
   tensor** fft1Comp = conv->fft1Comp;
   tensor** fft2Comp = conv->fft2Comp;
   
-
   gpu_zero(conv->fft1->list, conv->fft1->len);              // fft1 will now store the zero-padded magnetization
+  gpu_zero_tensor(h);
   
   for(int i=0; i<3; i++){
     gpu_copy_pad(mComp[i], fft1Comp[i]);
   }
   
+  tensor* fft1Host = new_tensorN(4, fft1->size);
+  tensor_copy_from_gpu(fft1, fft1Host);
+  format_tensor(fft1Host, stderr);
+  
+  for(int i=0; i<3; i++){
+    gpu_plan3d_real_input_forward(conv->fftplan, fft1Comp[i]->list);
+  }
+  
+  tensor_copy_from_gpu(fft1, fft1Host);
+  format_tensor(fft1Host, stderr);
+  
   cudaThreadSynchronize();
+  
+  for(int i=0; i<3; i++){
+    gpu_plan3d_real_input_inverse(conv->fftplan, fft1Comp[i]->list);
+  }
+  
+  tensor_copy_from_gpu(fft1, fft1Host);
+  format_tensor(fft1Host, stderr);
   
   for(int i=0; i<3; i++){
     gpu_copy_unpad(fft1Comp[i], hComp[i]);
@@ -240,7 +246,7 @@ void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
 
 gpuconv2* new_gpuconv2(int* size, int* kernelSize){
   for(int i=0; i<3; i++){
-    assert(size[i] <= kernelSize[i]);
+    assert(2*size[i] == kernelSize[i]); // generalize later
   }
   
   gpuconv2* conv = (gpuconv2*)malloc(sizeof(gpuconv2));
@@ -270,7 +276,7 @@ gpuconv2* new_gpuconv2(int* size, int* kernelSize){
   ///@todo generalize !!
   int* zeroPad = new int[3];
   for(int i=0; i<3; i++){
-    zeroPad[i] = 1;
+    zeroPad[i] = 1; // todo !!
   }
   conv->fftplan = new_gpu_plan3d_real_input(size[X], size[Y], size[Z], zeroPad);	// it's important to FIRST initialize the fft plan because it stores the sizes used by other functions.
   
