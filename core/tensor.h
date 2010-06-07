@@ -12,6 +12,7 @@
  * @todo ->array (void*)
  * @todo ->gpu?
  * @todo zero, copy
+ * @todo remove variadic functions, they sometimes give problems.
  *
  * @author Arne Vansteenkiste
  */

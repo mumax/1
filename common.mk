@@ -16,4 +16,5 @@ NVCCFLAGS+=\
   --compiler-options -Werror\
   --compiler-options -fPIC\
   --compiler-options -g\
-
+# --compiler-options -DNDEBUG\
+# uncomment the above line to disable all assert() statements

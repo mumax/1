@@ -10,6 +10,51 @@ extern "C" {
 #endif
 
 
+/**
+ * Creates a new FFT plan for transforming the magnetization. 
+ * Zero-padding in each dimension is optional, and rows with
+ * only zero's are not transformed.
+ * @todo on compute capability < 2.0, the first step is done serially...
+ */
+gpuFFT3dPlan* new_gpuFFT3dPlan(int* size,       ///< size of real input data (3D)
+                               int* kernelsize  ///< size of the kernel (3D). Should be at least the size of the input data. If the kernel is larger, the input data is assumed to be padded with zero's which are efficiently handled by the FFT
+                               );
+
+/**
+ * Forward (real-to-complex) transform.
+ */
+void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan,       ///< the plan to be executed
+                          tensor* input,            ///< input data, it's size should match the strided "half complex" format (=plan->paddedStorageSize)
+                          tensor* output            ///< output data, may be equal to input for in-place transforms.
+                          );
+
+/**
+ * Backward (complex-to-real) transform.
+ */
+void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan,       ///< the plan to be executed
+                          tensor* input,            ///< input data, may be equal to output for in-place transforms.
+                          tensor* output            ///< output data, it's size should match the strided "half complex" format (=plan->paddedStorageSize)
+                          );
+
+/**
+ * @internal
+ * Swaps the Y and Z components of a 3D array of complex numbers.
+ * N0 x N1 x N2/2 complex numbers are stored as N0 x N1 x N2 interleaved real numbers.
+ */
+void gpu_tensor_transposeYZ_complex(tensor* source, ///< source data, size N0 x N1 x (2*N2)
+                                    tensor* dest   ///< destination data, size N0 x N2 x (2*N1)
+                             );
+/**
+ * @internal
+ * @see gpu_transposeYZ_complex()
+ */
+void gpu_tensor_transposeXZ_complex(tensor* source, ///< source data, size N0 x N1 x (2*N2)
+                                    tensor* dest   ///< destination data, size N2 x N1 x (2*N0)
+                             );
+
+                             
+                             
+
 // gpu_plan3d_real_input* new_gpu_plan3d_real_input(int N0, int N1, int N2, int* zero_pad){
 //   assert(N0 > 1);
 //   assert(N1 > 1);

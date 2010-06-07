@@ -22,21 +22,22 @@ int gpu_len(int size){
 
 float* new_gpu_array(int size){
   assert(size > 0);
-  int threadsPerBlock = 512;
-  if(size % threadsPerBlock != 0){
-    fprintf(stderr, "WARNING: new_gpu_array: size %% threadsPerBlock != 0\n");
-  }
+//   int threadsPerBlock = 512;
+//   if(size % threadsPerBlock != 0){
+//     fprintf(stderr, "WARNING: new_gpu_array: size %% threadsPerBlock != 0\n");
+//   }
   float* array = NULL;
-  int status = cudaMalloc((void**)(&array), size * sizeof(float));
-  if(status != cudaSuccess){
-    fprintf(stderr, "CUDA could not allocate %d floats\n", size);
-    gpu_safe(status);
-  }
+  gpu_safe( cudaMalloc((void**)(&array), size * sizeof(float)) );
+//   if(status != cudaSuccess){
+//     fprintf(stderr, "CUDA could not allocate %d floats\n", size);
+//     gpu_safe(status);
+//   }
   assert(array != NULL); // strange: it seems cuda can return 0 as a valid address?? 
-  if(array == 0){
-     fprintf(stderr, "cudaMalloc(%p, %d) returned null without error status, retrying...\n", (void**)(&array), (int)(size * sizeof(float))); // (int) cast to resolve 32-bit vs. 64 bit problem...
-    abort();
-  }
+  gpu_zero(array, size);
+//   if(array == 0){
+//      fprintf(stderr, "cudaMalloc(%p, %d) returned null without error status, retrying...\n", (void**)(&array), (int)(size * sizeof(float))); // (int) cast to resolve 32-bit vs. 64 bit problem...
+//     abort();
+//   }
   return array;
 }
 

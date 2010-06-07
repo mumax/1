@@ -7,18 +7,15 @@
  */
 
 #include "gputil.h"
-#include "gpufft.h"
+#include "gpufft2.h"
+#include "gpuconv2.h"
 #include "tensor.h"
 #include "assert.h"
 
 int main(int argc, char** argv){
   
   print_device_properties(stderr);
-  
-  int N0 = 10;
-  int N1 = 16;
-  int N2 = 4;
-  
+ 
   // make fft plan
   int* zero_pad = new int[3];
   zero_pad[X] = 1;
