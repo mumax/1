@@ -100,6 +100,12 @@ void gpu_transposeXZ_complex(float* source,
 			     int N2
 			     );
 
+///@internal
+__global__ void _gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2);
+
+///@internal
+__global__ void _gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2);
+                 
 /**
  * Frees the FFT plan
  */

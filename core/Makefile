@@ -11,6 +11,7 @@ CUFILES=\
 	gpuconv1.cu\
 	gpuconv2.cu\
 	gpufft.cu\
+	gpufft2.cu\
 	gpueuler.cu\
 	gpuheun.cu\
 	gpurk4.cu\
@@ -26,6 +27,7 @@ OFILES=\
 	gpuconv1.o\
 	gpuconv2.o\
 	gpufft.o\
+	gpufft2.o\
 	gpueuler.o\
 	gpuheun.o\
 	gpurk4.o\
@@ -62,6 +64,9 @@ gpuconv2.o:	gpuconv2.h gpuconv2.cu
 gpufft.o:	gpufft.h gpufft.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpufft.cu
 
+gpufft2.o:	gpufft2.h gpufft2.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpufft2.cu
+
 gpueuler.o:	gpueuler.h gpueuler.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpueuler.cu
 
@@ -83,10 +88,11 @@ timer.o:	timer.h timer.cpp
 units.o:	units.h units.c
 	$(NVCC) -c $(NVCCFLAGS) units.c
 
-test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test
+test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test gpufft2_test
 	./tensor_test
 	./gputil_test
 	./gpufft_test
+	./gpufft2_test
 	./gpuconv2_test
 	./gpueuler_test testm0.t testkernel.t
 	./gpuheun_test testm0.t testkernel.t
@@ -123,6 +129,10 @@ gpuconv2_test:	$(OFILES) gpuconv2_test.cpp
 gpufft_test:	$(OFILES) gpufft_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpufft_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpufft_test.o -o gpufft_test
+
+gpufft2_test:	$(OFILES) gpufft2_test.cpp
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpufft2_test.cpp
+	$(NVCC) $(CUDALIBS) $(OFILES) gpufft2_test.o -o gpufft2_test
 
 gputil_test: $(OFILES) gputil_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gputil_test.cpp
