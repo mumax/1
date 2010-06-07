@@ -13,13 +13,12 @@
 int main(int argc, char** argv){
   fprintf(stderr, "gpuconv2_test\n");
 
-  int size[3] = {2, 2, 4};
+  int size[3] = {2, 2, 2};
   int paddedSize[3] = {2*size[X], 2*size[Y], 2*size[Z]};
-  
 
   tensor* m = new_tensor(4, 3, size[X], size[Y], size[Z]);
   for(int i=0; i<tensor_length(m); i++){
-    m->list[i] = 1/64.;
+    m->list[i] = 1.;
   }
   format_tensor(m, stderr);
   tensor* mDev = new_gputensor(4, m->size);
@@ -38,6 +37,10 @@ int main(int argc, char** argv){
   
   gpuconv2_exec(conv, mDev, hDev);
   memcpy_from_gpu(hDev->list, h->list, h->len);
+  
+  for(int i=0; i<h->len; i++)
+    h->list[i] /= (float)(size[X] * size[Y] * size[Z]);
+  
   format_tensor(h, stderr);
 
   fprintf(stderr, "PASS\n");

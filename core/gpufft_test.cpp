@@ -15,15 +15,15 @@ int main(int argc, char** argv){
   
   print_device_properties(stderr);
   
-  int N0 = 2;
-  int N1 = 2;
+  int N0 = 10;
+  int N1 = 16;
   int N2 = 4;
   
   // make fft plan
   int* zero_pad = new int[3];
-  zero_pad[X] = 0;
-  zero_pad[Y] = 0;
-  zero_pad[Z] = 0;
+  zero_pad[X] = 1;
+  zero_pad[Y] = 1;
+  zero_pad[Z] = 1;
   gpu_plan3d_real_input* plan = new_gpu_plan3d_real_input(N0, N1, N2, zero_pad);
 
 	
@@ -96,15 +96,22 @@ int main(int argc, char** argv){
 // _____________________________________________________________________
 
 // compare input <-> output after forward and inverse transform ________
+  int error = 0;
+  
   for(int i=0; i<N0; i++)
     for(int j=0; j<N1; j++)
       for(int k=0; k<N2; k++){
-				if ( (in[i][j][k] - out[i][j][k]) > 1e-6)
+				if ( (in[i][j][k] - out[i][j][k]) > 1e-5){
 					fprintf(stderr, "error element: %d, %d, %d\n", i, j, k );
+                    error = 1;
+                }
       }
 // _____________________________________________________________________
 
-	fprintf(stderr, "PASS\n");
+	if(error == 0)
+      fprintf(stderr, "PASS\n");
+    else
+      fprintf(stderr, "FAIL\n");
 
-	return 0;
+	return error;
 }

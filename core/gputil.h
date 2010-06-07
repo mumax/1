@@ -54,10 +54,27 @@ float* new_ram_array(int size       ///< size of the array
  * Standard problem 4 ran about 4x faster when using a (3x) 1 x 32 x 128 geometry
  * instead of (3x) 128 x 32 x 1 !
  *
- * @todo We need a "pad up to stride"
  * @todo use cudaGetDeviceProperties for this?
+ * @see gpu_pad_to_stride()
  */
 int gpu_stride_float();
+
+/**
+ * This function takes an array size (in number of floats) and returns an
+ * array size -usually larger- that can store the original array and fits
+ * the GPU stride.
+ * Example (for a stride of 64 floats -- 256 bytes):
+ @code
+ *  1 -> 64
+ *  2 -> 64
+ * ...
+ * 63 -> 64
+ * 64 -> 64
+ * 65 -> 128
+ * ...
+ @endcode
+ */
+int gpu_pad_to_stride(int nFloats);
 
 //______________________________________________________________________________________ copy
 

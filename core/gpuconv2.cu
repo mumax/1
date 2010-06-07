@@ -81,13 +81,14 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
     conv->mComp[i]->list = &(m->list[conv->mComp[i]->len * i]);
     conv->hComp[i]->list = &(h->list[conv->hComp[i]->len * i]);
   }
+ 
   tensor** mComp = conv->mComp;                         // shorthand notations
   tensor** hComp = conv->hComp;
   tensor* fft1 = conv->fft1;
   tensor** fft1Comp = conv->fft1Comp;
   tensor** fft2Comp = conv->fft2Comp;
   
-  gpu_zero(conv->fft1->list, conv->fft1->len);              // fft1 will now store the zero-padded magnetization
+  gpu_zero_tensor(fft1);              // fft1 will now store the zero-padded magnetization
   gpu_zero_tensor(h);
   
   for(int i=0; i<3; i++){
@@ -97,6 +98,9 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
   tensor* fft1Host = new_tensorN(4, fft1->size);
   tensor_copy_from_gpu(fft1, fft1Host);
   format_tensor(fft1Host, stderr);
+  
+  for(int i=0; i<3; i++)
+    assert(conv->fftplan->paddedStorageSize[i] == fft1Comp[0]->size[i]);
   
   for(int i=0; i<3; i++){
     gpu_plan3d_real_input_forward(conv->fftplan, fft1Comp[i]->list);
@@ -118,30 +122,6 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
     gpu_copy_unpad(fft1Comp[i], hComp[i]);
   }
   
-  cudaThreadSynchronize();
-  
-//   for(int i=0; i<3; i++){								// transform and convolve per magnetization component m_i
-//     gpu_zero(conv->ft_m_i, conv->len_ft_m_i);						// zero-out the padded magnetization buffer first
-//     gpu_copy_pad_r2c(conv->m_comp[i], conv->ft_m_i, conv->size[0], conv->size[1], conv->size[2]);	//copy mi into the padded magnetization buffer, converting to complex format
-//     //extract("ft_m_i", conv->ft_m_i, conv->paddedComplexSize);
-// 		
-// 		
-//     gpu_plan3d_real_input_exec(conv->fftplan, conv->ft_m_i, CUFFT_FORWARD);
-//     //extract("ft_m_i (transformed)", conv->ft_m_i, conv->paddedComplexSize);
-//     // TODO: asynchronous execution hazard !!
-// 		
-// 		
-//     for(int j=0; j<3; j++){								// apply kernel multiplication to FFT'ed magnetization and add to FFT'ed H-components
-//       gpu_kernel_mul(conv->ft_m_i, conv->ft_kernel[i][j], conv->ft_h_comp[j], conv->len_ft_m_i);
-//       //extract("ft_h_j", conv->ft_h_comp[j], conv->paddedComplexSize);
-//     }
-//   }
-// //  TODO: Save memory by performing gpu_kernel_mul + FFT_inverse + copy_unpad for each component in serie, memory savings are 2*paddedStorageN
-//   
-//   for(int i=0; i<3; i++){
-//     gpu_plan3d_real_input_exec(conv->fftplan, conv->ft_h_comp[i], CUFFT_INVERSE);		// Inplace backtransform of each of the padded h[i]-buffers
-//     gpu_copy_unpad_c2r(conv->ft_h_comp[i], conv->h_comp[i], conv->size[0], conv->size[1], conv->size[2]);
-//   }
   cudaThreadSynchronize();
 }
 
@@ -207,9 +187,6 @@ void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
   assert(kernel5D->size[2+Z] == paddedSize[Z]);
 
   gpu_plan3d_real_input* plan = new_gpu_plan3d_real_input(paddedSize[X], paddedSize[Y], paddedSize[Z], NO_ZERO_PAD);
-
-  
-  
 }
 
 // void gpuconv2_loadkernel(gpuconv2* conv, tensor* kernel){
@@ -245,9 +222,9 @@ void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
 //_____________________________________________________________________________________________ new gpuconv2
 
 gpuconv2* new_gpuconv2(int* size, int* kernelSize){
-  for(int i=0; i<3; i++){
-    assert(2*size[i] == kernelSize[i]); // generalize later
-  }
+//   for(int i=0; i<3; i++){
+//     assert(2*size[i] == kernelSize[i]); // generalize later
+//   }
   
   gpuconv2* conv = (gpuconv2*)malloc(sizeof(gpuconv2));
   
@@ -263,7 +240,7 @@ gpuconv2* new_gpuconv2(int* size, int* kernelSize){
   int* paddedStorageSize = new int[3];  ///@todo obtain from fftplan instead
   paddedStorageSize[X] = paddedSize[X];
   paddedStorageSize[Y] = paddedSize[Y];
-  paddedStorageSize[Z] = paddedSize[Z] + gpu_stride_float(); // we only need + 2 but we take more to remain aligned in the memory
+  paddedStorageSize[Z] = gpu_pad_to_stride(paddedSize[Z] + 2);
   
   int* paddedStorageSize4D = new int[4];
   paddedStorageSize4D[0] = 3;

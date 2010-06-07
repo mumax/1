@@ -39,7 +39,7 @@ gpu_plan3d_real_input* new_gpu_plan3d_real_input(int N0, int N1, int N2, int* ze
   plan->paddedStorageSize[X] = plan->paddedSize[X];
   plan->paddedStorageSize[Y] = plan->paddedSize[Y];
 //  plan->paddedStorageSize[Z] = plan->paddedSize[Z] +  gpu_stride_float();   ///@todo aanpassen!!
-  plan->paddedStorageSize[Z] = plan->paddedSize[Z] +  2;
+  plan->paddedStorageSize[Z] = gpu_pad_to_stride( plan->paddedSize[Z] +  2 );
   plan->paddedStorageN = paddedStorageSize[X] * paddedStorageSize[Y] * paddedStorageSize[Z];
   
   gpu_safe( cufftPlan1d(&(plan->fwPlanZ), plan->paddedSize[Z], CUFFT_R2C, 1) );

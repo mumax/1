@@ -127,20 +127,41 @@ void tensor_copy_gpu_to_gpu(tensor* source, tensor* dest){
 
 //_____________________________________________________________________________________________ misc
 
+// to avoid having to calculate gpu_stide_float over and over,
+// we cache the result of the first invocation and return it
+// for all subsequent calls.
+// (the function itself is rather expensive)
+int _gpu_stide_float_cache = -1;
+
 /* We test for the optimal array stride by creating a 1x1 matrix and checking
  * the stride returned by CUDA.
  */
 int gpu_stride_float(){
-  size_t width = 1;
-  size_t height = 1;
+      fprintf(stderr, "TODO: gpu_stride_float()\n");
+    return 2;
   
-  float* devPtr;
-  size_t pitch;
-  gpu_safe( cudaMallocPitch((void**)&devPtr, &pitch, width * sizeof(float), height) );
-  gpu_safe( cudaFree(devPtr) );
-  return pitch / sizeof(float);
-//   fprintf(stderr, "TODO: gpu_stride_float()\n");
-//   return 2;
+  if( _gpu_stide_float_cache == -1){
+    size_t width = 1;
+    size_t height = 1;
+    
+    float* devPtr;
+    size_t pitch;
+    gpu_safe( cudaMallocPitch((void**)&devPtr, &pitch, width * sizeof(float), height) );
+    gpu_safe( cudaFree(devPtr) );
+    _gpu_stide_float_cache = pitch / sizeof(float);
+  }
+  return _gpu_stide_float_cache;
+}
+
+int gpu_pad_to_stride(int nFloats){
+  assert(nFloats > 0);
+  int stride = gpu_stride_float();
+  int gpulen = ((nFloats-1)/stride + 1) * stride;
+  
+  assert(gpulen % stride == 0);
+  assert(gpulen > 0);
+  assert(gpulen >= nFloats);
+  return gpulen;
 }
 
 //_____________________________________________________________________________________________ check conf
