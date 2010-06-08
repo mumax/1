@@ -186,13 +186,13 @@ void test_conv(){
   
   
   ///@todo Writes out of bounds !
-//   for(int i=0; i<3; i++){                               
-//     gpuFFT3dPlan_forward(plan, fftComp[i], fftComp[i]);
-//     gpuFFT3dPlan_inverse(plan, fftComp[i], fftComp[i]);
-//   }
+  for(int i=0; i<3; i++){                               
+    gpuFFT3dPlan_forward(plan, fftComp[i], fftComp[i]);
+    gpuFFT3dPlan_inverse(plan, fftComp[i], fftComp[i]);
+  }
   
-   gpuFFT3dPlan_forward(plan, fftComp[0], fftComp[0]);
-   format_gputensor(fft, stderr);
+//    gpuFFT3dPlan_forward(plan, fftComp[0], fftComp[0]);
+//    format_gputensor(fft, stderr);
 //    gpuFFT3dPlan_inverse(plan, fftComp[0], fftComp[0]);
 //    format_gputensor(fft, stderr);
 
@@ -215,8 +215,8 @@ void test_conv(){
 
 int main(int argc, char** argv){
   
-//   test_transpose();
-// test_pad()  
+  test_transpose();
+  test_pad();
   test_conv();
  
   return 0;
