@@ -32,7 +32,7 @@ OFILES=\
 	gpuheun.o\
 	gpurk4.o\
 	gpuanal1.o\
-#	gpukernel1.o\
+	gpukernel1.o\
 #
 # NOTE: use make gpukernel1.o as long as it does not compile, or un-comment this line
 
@@ -88,7 +88,7 @@ timer.o:	timer.h timer.cpp
 units.o:	units.h units.c
 	$(NVCC) -c $(NVCCFLAGS) units.c
 
-test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test gpufft2_test
+test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test gpufft2_test gpukernel1_test
 	./tensor_test
 	./gputil_test
 	./gpufft_test
@@ -97,11 +97,12 @@ test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuanal1_test gpusim_test
 	./gpueuler_test testm0.t testkernel.t
 	./gpuheun_test testm0.t testkernel.t
 	./gpuanal1_test testm0.t testkernel.t
-#	./gpukernel1_test
+	./gpukernel1_test
 
-tensor_test:	$(OFILES) tensor_test.cpp
+# We link against core.so instead of $OFILES so we can use gcc instead of nvcc
+tensor_test:	core.so tensor_test.cpp
 	$(CPP) -c $(CFLAGS) $(LDFLAGS) tensor_test.cpp
-	$(CPP) tensor_test.o $(OFILES) -o tensor_test
+	$(CPP) tensor_test.o core.so -o tensor_test
 
 gpueuler_test:	$(OFILES) gpueuler_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpueuler_test.cpp

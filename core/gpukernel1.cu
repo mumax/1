@@ -58,53 +58,56 @@ void gpu_init_Greens_kernel1(tensor* dev_kernel, int N0, int N1, int N2, int *ze
 /// remark: number of FD cells in a dimension can not be odd if no zero padding!!
 void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *Nkernel, float *FD_cell_size, float cst, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10, gpu_plan3d_real_input* kernel_plan){
 
-	int NkernelStorageN = 2*dev_kernel->size[1];
-
-	float *host_temp = (float *)calloc(NkernelStorageN, sizeof(float));		// temp tensor on host for storage of each component in real + i*complex format
-	float *dev_temp = new_gpu_array(NkernelStorageN);		                  // temp tensor on device for storage of each component in real + i*complex format
-	
-	dim3 gridsize(Nkernel[X]/2, Nkernel[Y]/2, 1);	///@todo generalize!
-  dim3 blocksize(Nkernel[Z]/2, 1, 1);
-  gpu_checkconf(gridsize, blocksize);
-	
-  int threadsPerBlock = 512;
-  int blocks = (NkernelStorageN/2) / threadsPerBlock;
-  gpu_checkconf_int(blocks, threadsPerBlock);
-
-	gpu_zero(dev_temp, NkernelStorageN);
-	cudaThreadSynchronize();
-	_gpu_init_Greens_kernel_elements<<<gridsize, blocksize>>>(dev_temp, Nkernel, co1, co2, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10);
-	cudaThreadSynchronize();
-	
-  memcpy_from_gpu(dev_temp, host_temp, NkernelStorageN);
-	for (int i=0; i<Nkernel[X]; i++)
-		for (int j=0; j<Nkernel[Y]; j++){
-			for (int k=0; k<Nkernel[Z]; k++){
-				fprintf(stderr, "%e ", host_temp[i*Nkernel[Y]*Nkernel[Z] + j*Nkernel[Z] + k);
-			}
-			fprintf(stderr, "\n");
-		}
-// 	int rang1=0;
-// 	for (int co1=0; co1<3; co1++){
-// 		for (int co2=co1; co2<3; co2++){
-// 			gpu_zero(dev_temp, NkernelStorageN);
-// 			cudaThreadSynchronize();
-// 		  _gpu_init_Greens_kernel_elements<<<gridsize, blocksize>>>(dev_temp, Nkernel, co1, co2, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10);
-// 			cudaThreadSynchronize();
-// 		  gpu_plan3d_real_input_forward(kernel_plan, dev_temp);
-// 			cudaThreadSynchronize();
-// 			_gpu_extract_real_parts<<<blocks, threadsPerBlock>>>(dev_kernel->list, dev_temp, rang1, NkernelStorageN/2);
-// 			cudaThreadSynchronize();
-// 			rang1++;
+  // BODY COMMENTED OUT BY ARNE BECAUSE IT CONTAINS COMPILATION ERRORS.
+  // NOW, THE PROJECT COMPILES...
+  
+// 	int NkernelStorageN = 2*dev_kernel->size[1];
+// 
+// 	float *host_temp = (float *)calloc(NkernelStorageN, sizeof(float));		// temp tensor on host for storage of each component in real + i*complex format
+// 	float *dev_temp = new_gpu_array(NkernelStorageN);		                  // temp tensor on device for storage of each component in real + i*complex format
+// 	
+// 	dim3 gridsize(Nkernel[X]/2, Nkernel[Y]/2, 1);	///@todo generalize!
+//   dim3 blocksize(Nkernel[Z]/2, 1, 1);
+//   gpu_checkconf(gridsize, blocksize);
+// 	
+//   int threadsPerBlock = 512;
+//   int blocks = (NkernelStorageN/2) / threadsPerBlock;
+//   gpu_checkconf_int(blocks, threadsPerBlock);
+// 
+// 	gpu_zero(dev_temp, NkernelStorageN);
+// 	cudaThreadSynchronize();
+// 	_gpu_init_Greens_kernel_elements<<<gridsize, blocksize>>>(dev_temp, Nkernel, co1, co2, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10);
+// 	cudaThreadSynchronize();
+// 	
+//   memcpy_from_gpu(dev_temp, host_temp, NkernelStorageN);
+// 	for (int i=0; i<Nkernel[X]; i++)
+// 		for (int j=0; j<Nkernel[Y]; j++){
+// 			for (int k=0; k<Nkernel[Z]; k++){
+// 				fprintf(stderr, "%e ", host_temp[i*Nkernel[Y]*Nkernel[Z] + j*Nkernel[Z] + k);
+// 			}
+// 			fprintf(stderr, "\n");
 // 		}
-// 	}
-
-
-
-	free (host_temp);
-	free (dev_temp);   ///> @todo check how to free a float array on device!
-	
-	return;
+// // 	int rang1=0;
+// // 	for (int co1=0; co1<3; co1++){
+// // 		for (int co2=co1; co2<3; co2++){
+// // 			gpu_zero(dev_temp, NkernelStorageN);
+// // 			cudaThreadSynchronize();
+// // 		  _gpu_init_Greens_kernel_elements<<<gridsize, blocksize>>>(dev_temp, Nkernel, co1, co2, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10);
+// // 			cudaThreadSynchronize();
+// // 		  gpu_plan3d_real_input_forward(kernel_plan, dev_temp);
+// // 			cudaThreadSynchronize();
+// // 			_gpu_extract_real_parts<<<blocks, threadsPerBlock>>>(dev_kernel->list, dev_temp, rang1, NkernelStorageN/2);
+// // 			cudaThreadSynchronize();
+// // 			rang1++;
+// // 		}
+// // 	}
+// 
+// 
+// 
+// 	free (host_temp);
+// 	free (dev_temp);   ///> @todo check how to free a float array on device!
+// 	
+// 	return;
 }
 
 

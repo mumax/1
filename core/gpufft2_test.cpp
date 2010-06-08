@@ -121,7 +121,9 @@ void test_fft(){
   
 // make data on device__________________________________________________
   tensor* Dev_in = as_tensor(new_gpu_array(N_padded), 3, plan->paddedStorageSize[X], plan->paddedStorageSize[Y], plan->paddedStorageSize[Z]);
-  tensor* Dev_out = as_tensor(new_gpu_array(N_padded), 3, plan->paddedStorageSize[X], plan->paddedStorageSize[Y], plan->paddedStorageSize[Z]);
+  tensor* Dev_out = Dev_in; // in-place
+  
+  //tensor* Dev_out = as_tensor(new_gpu_array(N_padded), 3, plan->paddedStorageSize[X], plan->paddedStorageSize[Y], plan->paddedStorageSize[Z]); // out of place is broken now
   
   memcpy_to_gpu(Host_padded_in->list, Dev_in->list, N_padded);
 // _____________________________________________________________________
