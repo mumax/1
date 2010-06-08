@@ -101,7 +101,7 @@ test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuanal1_test gpusim_test
 
 tensor_test:	$(OFILES) tensor_test.cpp
 	$(CPP) -c $(CFLAGS) $(LDFLAGS) tensor_test.cpp
-	$(CPP) tensor_test.o core.so -o tensor_test
+	$(CPP) tensor_test.o $(OFILES) -o tensor_test
 
 gpueuler_test:	$(OFILES) gpueuler_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpueuler_test.cpp

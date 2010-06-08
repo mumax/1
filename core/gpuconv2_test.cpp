@@ -170,26 +170,28 @@ void test_conv(){
   fprintf(stderr, "m:\n");
   format_gputensor(m, stderr);
 
-  for(int i=0; i<3; i++){                               // mean re-allocating them each time.
+  for(int i=0; i<3; i++){                               
     mComp[i]->list = &(m->list[mComp[i]->len * i]);
     hComp[i]->list = &(h->list[hComp[i]->len * i]);
     fprintf(stderr, "m[%d]:\n", i);
     format_gputensor(mComp[i], stderr);
   }
   
-  for(int i=0; i<3; i++){                               // mean re-allocating them each time.
+  for(int i=0; i<3; i++){                               
     gpu_copy_pad(mComp[i], fftComp[i]);
   }
   
   fprintf(stderr, "fft:\n");
   format_gputensor(fft, stderr);
   
-  for(int i=0; i<1; i++){                               // mean re-allocating them each time.
+  
+  ///@todo Writes out of bounds !?
+  for(int i=0; i<1; i++){                               
     gpuFFT3dPlan_forward(plan, fftComp[i], fftComp[i]);
     gpuFFT3dPlan_inverse(plan, fftComp[i], fftComp[i]);
   }
   
-  for(int i=0; i<3; i++){                               // mean re-allocating them each time.
+  for(int i=0; i<3; i++){                               
     gpu_copy_unpad(fftComp[i], hComp[i]);
   }
   
