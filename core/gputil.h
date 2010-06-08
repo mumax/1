@@ -32,6 +32,7 @@ float* new_gpu_array(int size	///< size of the array
                     
 /**
  * Creates a new tensor whose data is allocated on the GPU. (rank and size are stored in the host RAM)
+ * @todo delete_gputensor()
  */
  tensor* new_gputensor(int rank, int* size);
 
@@ -126,6 +127,7 @@ void tensor_copy_from_gpu(tensor* source, tensor* dest);
  */
 void tensor_copy_gpu_to_gpu(tensor* source, tensor* dest);
 
+
 //______________________________________________________________________________________ util
 
 /**
@@ -149,6 +151,13 @@ void gpu_zero_tensor(tensor* t);
  */
 void gpu_safe(int status	///< CUDA return status
 	      );
+
+/**
+ * @internal
+ * Debug function for printing gpu tensors without first having
+ * to copy them to host memory manually. 
+ */
+void format_gputensor(tensor* t, FILE* out);
 
 //______________________________________________________________________________________ check conf
 

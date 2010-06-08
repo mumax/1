@@ -7,6 +7,7 @@
 
 #include "gputil.h"
 #include "gpuconv2.h"
+#include "gpufft2.h"
 #include "tensor.h"
 #include "assert.h"
 
@@ -45,42 +46,138 @@ void test_pad(){
   
 }
 
-int main(int argc, char** argv){
-  fprintf(stderr, "gpuconv2_test\n");
 
-  test_pad();
-  return 0;
+int N3 = 2;
   
-  int size[3] = {N0, N1, N2};
-  int paddedSize[3] = {2*size[X], 2*size[Y], 2*size[Z]};
+void test_transpose(){
 
-  tensor* m = new_tensor(4, 3, size[X], size[Y], size[Z]);
-  for(int i=0; i<tensor_length(m); i++){
-    m->list[i] = 1.;
-  }
-  format_tensor(m, stderr);
-  tensor* mDev = new_gputensor(4, m->size);
-  memcpy_to_gpu(m->list, mDev->list, m->len);
+  int size[3] = {N0, N1, N2*N3};
+    
+  // (untransposed) "magnetization" on the host (CPU)
+  tensor* mHost = new_tensor(3, N0, N1, N2*N3);
   
-  tensor* kernel = new_tensor(5, 3, 3, paddedSize[X], paddedSize[Y], paddedSize[Z]);
-  gpuconv2* conv = new_gpuconv2(size, paddedSize);
-  gpuconv2_loadkernel5DSymm(conv, kernel);
+  // make some initial data
+  float**** m = tensor_array4D(as_tensor(mHost->list, 4, N0, N1, N2, N3));
+  for(int i=0; i<N0; i++)
+    for(int j=0; j<N1; j++)
+      for(int k=0; k<N2; k++){
+    m[i][j][k][0] = i + j*0.01 + k*0.00001;
+    m[i][j][k][1] = -( i + j*0.01 + k*0.00001 );
+      }
+  fprintf(stderr, "original:\n");
+  format_tensor(mHost, stderr);
+       
+  // (untransposed) "magnetization" on the device (gPU)
+  tensor* mDev = new_gputensor(3, size);
+  tensor_copy_to_gpu(mHost, mDev);
   
-  tensor* h = new_tensorN(4, m->size);
-  for(int i=0; i<h->len; i++)
-    h->list[i]= 1.;
+  //________________________________________________________________ transpose YZ
   
-  tensor* hDev = new_gputensor(4, h->size);
-  tensor_copy_to_gpu(h, hDev);
+  // transposed magnetization
+  int sizeT[3] = {N0, N2, N1*N3};
   
-  gpuconv2_exec(conv, mDev, hDev);
-  memcpy_from_gpu(hDev->list, h->list, h->len);
+  tensor* mDevT = new_gputensor(3, sizeT);
+  tensor* mHostT = new_tensor(3, N0, N2, N1*N3); // N1 <-> N2
   
-  for(int i=0; i<h->len; i++)
-    h->list[i] /= (float)(size[X] * size[Y] * size[Z]);
+  gpu_tensor_transposeYZ_complex(mDev, mDevT);
   
-  format_tensor(h, stderr);
-
+  tensor_copy_from_gpu(mDevT, mHostT);
+  format_tensor(mHostT, stderr);
+  
+  float**** mT = tensor_array4D(as_tensor(mHostT->list, 4, N0, N2, N1, N3)); // N1 <-> N2
+  // test if it worked
+  for(int i=0; i<N0; i++)
+    for(int j=0; j<N1; j++)
+      for(int k=0; k<N2; k++)
+    for(int c=0; c<2; c++){
+        assert(m[i][j][k][c] == mT[i][k][j][c]);    // j <-> k
+    }
+  
+  //________________________________________________________________ transpose XZ
+  
+  int sizeT2[3] = {N2, N1, N0*N3};
+  mDevT = new_gputensor(3, sizeT2);
+  gpu_tensor_transposeXZ_complex(mDev, mDevT); 
+  mHostT = new_tensor(3, N2, N1, N0*N3); // N0 <-> N2
+  
+  tensor_copy_from_gpu(mDevT, mHostT);
+  format_tensor(mHostT, stderr);
+  mT = tensor_array4D(as_tensor(mHostT->list, 4, N2, N1, N0, N3)); // N0 <-> N2
+  // test if it worked
+  for(int i=0; i<N0; i++)
+    for(int j=0; j<N1; j++)
+      for(int k=0; k<N2; k++)
+    for(int c=0; c<2; c++){
+        assert(m[i][j][k][c] == mT[k][j][i][c]); // i <-> k
+    }
+    
   fprintf(stderr, "PASS\n");
+}
+
+void test_conv(){
+
+  int size[3]              = {N0, N1, N2};
+  int kernelSize[3]        = {2*N0, 2*N1, 2*N2};
+  int paddedStorageSize[3] = {kernelSize[X], kernelSize[Y], gpu_pad_to_stride(kernelSize[Z] + 2)};
+  int size4D[4]              = {3, size[X], size[Y], size[Z]};
+  int kernelSize4D[4]        = {3, kernelSize[X], kernelSize[Y], kernelSize[Z]};
+  int paddedStorageSize4D[4] = {3, paddedStorageSize[X], paddedStorageSize[Y], paddedStorageSize[Z]};
+
+  tensor* hostM = new_tensorN(4, size4D);
+  tensor* hostMComp[3];
+  for(int i=0; i<3; i++)
+    hostMComp[i] = tensor_component(hostM, i);
+  
+  tensor* m = new_gputensor(4, size4D);
+  tensor* mComp[3];
+  for(int i=0; i<3; i++)
+    mComp[i] = tensor_component(m, i);
+  
+  tensor* devOut = new_gputensor(3, size);
+  tensor* hostOut = new_tensorN(3, size);
+  tensor* fft = new_gputensor(3, paddedStorageSize);
+  gpuFFT3dPlan* plan = new_gpuFFT3dPlan(size, kernelSize);
+    
+  float**** in = tensor_array4D(hostM);
+  for(int c=0; c<3; c++)
+  for(int i=0; i<N0; i++)
+    for(int j=0; j<N1; j++)
+      for(int k=0; k<N2; k++){
+                in[c][i][j][k] = c; //i + j*0.01 + k*0.00001;
+      }
+  fprintf(stderr, "hostM:\n");
+  format_tensor(hostM, stderr);
+  
+  for(int i=0; i<3; i++){
+    fprintf(stderr, "hostMComp[%d]:\n", i);
+    format_tensor(hostMComp[i], stderr);
+  }
+  
+  tensor_copy_to_gpu(hostM, m);
+  fprintf(stderr, "m:\n");
+  format_gputensor(m, stderr);
+
+//   for(int i=0; i<3; i++){                               // mean re-allocating them each time.
+//     conv->mComp[i]->list = &(m->list[conv->mComp[i]->len * i]);
+//     conv->hComp[i]->list = &(h->list[conv->hComp[i]->len * i]);
+//   }
+//   tensor_copy_to_gpu(hostMComp, mComp);
+//   gpu_copy_pad(mComp, fft);
+//   gpuFFT3dPlan_forward(plan, fft, fft);
+//   gpuFFT3dPlan_inverse(plan, fft, fft);
+//   gpu_copy_unpad(fft, devOut);
+//   tensor_copy_from_gpu(devOut, hostOut);
+//   
+//   fprintf(stderr, "out:\n");
+//   format_tensor(hostOut, stderr);
+
+}
+
+int main(int argc, char** argv){
+  
+//   test_transpose();
+// test_pad()  
+  test_conv();
+ 
   return 0;
 }

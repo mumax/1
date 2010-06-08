@@ -75,6 +75,13 @@ void gpu_zero_tensor(tensor* t){
   gpu_zero(t->list, t->len);
 }
 
+void format_gputensor(tensor* t, FILE* out){
+  tensor* host = new_tensorN(t->rank, t->size);
+  tensor_copy_from_gpu(t, host);
+  format_tensor(host, out);
+  delete_tensor(host);
+}
+
 //_____________________________________________________________________________________________ copy
 
 void memcpy_to_gpu(float* source, float* dest, int nElements){
