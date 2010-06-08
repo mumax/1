@@ -45,6 +45,7 @@ gpuFFT3dPlan* new_gpuFFT3dPlan(int* size, int* kernelsize){
   plan->paddedStorageSize[Z] = gpu_pad_to_stride( plan->paddedSize[Z] +  2 );
   plan->paddedStorageN = paddedStorageSize[X] * paddedStorageSize[Y] * paddedStorageSize[Z];
   
+  ///@todo check these sizes !
   gpu_safe( cufftPlan1d(&(plan->fwPlanZ), plan->paddedSize[Z], CUFFT_R2C, 1) );
   gpu_safe( cufftPlan1d(&(plan->planY), plan->paddedSize[Y], CUFFT_C2C, paddedStorageSize[Z] * size[X]) );
   gpu_safe( cufftPlan1d(&(plan->planX), plan->paddedSize[X], CUFFT_C2C, paddedStorageSize[Z] * paddedSize[Y]) );
@@ -55,10 +56,11 @@ gpuFFT3dPlan* new_gpuFFT3dPlan(int* size, int* kernelsize){
   return plan;
 }
 
-
+///@todo seems to write out of bounds, inverse does not
 void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   timer_start("gpu_plan3d_real_input_forward_exec");
 
+  assert(input == output); ///@todo works only in-place for now
   assert(input->rank == 3);
   assert(output->rank == 3);
   for(int i=0; i<3; i++){
@@ -80,7 +82,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
     for(int j=0; j<size[Y]; j++){
       float* rowIn  = &( input->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
       float* rowOut = &(output->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-      gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)rowIn,  (cufftComplex*)rowIn) ); // all stays in data
+      gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)rowIn,  (cufftComplex*)rowIn) ); ///@todo change for out-of-place
     }
   }
   cudaThreadSynchronize();
@@ -101,7 +103,8 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
 
 void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   timer_start("gpu_plan3d_real_input_inverse_exec");
-
+  
+  assert(input == output); ///@todo works only in-place for now
   assert(input->rank == 3);
   assert(output->rank == 3);
   for(int i=0; i<3; i++){

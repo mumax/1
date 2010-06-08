@@ -61,8 +61,8 @@ void test_transpose(){
   for(int i=0; i<N0; i++)
     for(int j=0; j<N1; j++)
       for(int k=0; k<N2; k++){
-    m[i][j][k][0] = i + j*0.01 + k*0.00001;
-    m[i][j][k][1] = -( i + j*0.01 + k*0.00001 );
+        m[i][j][k][0] = i + j*0.01 + k*0.00001;
+        m[i][j][k][1] = -( i + j*0.01 + k*0.00001 );
       }
   fprintf(stderr, "original:\n");
   format_tensor(mHost, stderr);
@@ -185,12 +185,17 @@ void test_conv(){
   format_gputensor(fft, stderr);
   
   
-  ///@todo Writes out of bounds !?
-  for(int i=0; i<1; i++){                               
-    gpuFFT3dPlan_forward(plan, fftComp[i], fftComp[i]);
-    gpuFFT3dPlan_inverse(plan, fftComp[i], fftComp[i]);
-  }
+  ///@todo Writes out of bounds !
+//   for(int i=0; i<3; i++){                               
+//     gpuFFT3dPlan_forward(plan, fftComp[i], fftComp[i]);
+//     gpuFFT3dPlan_inverse(plan, fftComp[i], fftComp[i]);
+//   }
   
+   gpuFFT3dPlan_forward(plan, fftComp[0], fftComp[0]);
+   format_gputensor(fft, stderr);
+//    gpuFFT3dPlan_inverse(plan, fftComp[0], fftComp[0]);
+//    format_gputensor(fft, stderr);
+
   for(int i=0; i<3; i++){                               
     gpu_copy_unpad(fftComp[i], hComp[i]);
   }
