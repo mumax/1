@@ -84,12 +84,9 @@ void test_transpose(){
 
 void test_fft(){
 
-   // make fft plan
-  int* zero_pad = new int[3];
-  zero_pad[X] = 1;
-  zero_pad[Y] = 1;
-  zero_pad[Z] = 1;
-  gpu_plan3d_real_input* plan = new_gpu_plan3d_real_input(N0, N1, N2, zero_pad);
+  int size[3] = {N0, N1, N2};
+  int kernelSize[3] = {2*N0, 2*N1, 2*N2};
+  gpuFFT3dPlan* plan = new_gpuFFT3dPlan(size, kernelSize);
 
     
 // make some host data and initialize _________________________________
@@ -124,6 +121,8 @@ void test_fft(){
   
 // make data on device__________________________________________________
   tensor* Dev_in = as_tensor(new_gpu_array(N_padded), 3, plan->paddedStorageSize[X], plan->paddedStorageSize[Y], plan->paddedStorageSize[Z]);
+  tensor* Dev_out = as_tensor(new_gpu_array(N_padded), 3, plan->paddedStorageSize[X], plan->paddedStorageSize[Y], plan->paddedStorageSize[Z]);
+  
   memcpy_to_gpu(Host_padded_in->list, Dev_in->list, N_padded);
 // _____________________________________________________________________
        
@@ -131,15 +130,17 @@ void test_fft(){
     tensor* Host_padded_out = new_tensor(3, plan->paddedStorageSize[X], plan->paddedStorageSize[Y], plan->paddedStorageSize[Z]);
 
 // test forward ________________________________________________________
-  gpu_plan3d_real_input_forward(plan, Dev_in->list);
+  gpuFFT3dPlan_forward(plan, Dev_in, Dev_out);
+  gpu_zero_tensor(Dev_in);
+  
   memcpy_from_gpu(Dev_in->list, Host_padded_out->list, N_padded);
   fprintf(stderr, "\n\nforward:\n");
   format_tensor(Host_padded_out, stderr);
 // _____________________________________________________________________
 
     
-// test inverse ________________________________________________________
-  gpu_plan3d_real_input_inverse(plan, Dev_in->list);
+// // test inverse ________________________________________________________
+  gpuFFT3dPlan_inverse(plan, Dev_out, Dev_in);
   memcpy_from_gpu(Dev_in->list, Host_padded_out->list, N_padded);
   fprintf(stderr, "\n\ninverse:\n");
   format_tensor(Host_padded_out, stderr);
@@ -186,7 +187,7 @@ int main(int argc, char** argv){
   
   test_transpose();
   
-  //test_fft();
+  test_fft();
  
   return 0;
 }
