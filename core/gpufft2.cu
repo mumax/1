@@ -103,9 +103,9 @@ void gpu_tensor_transposeXZ_complex(tensor* source, ///< source data, size N0 x 
 
 
                              
-void gpu_tensor_transposeXZ_complex(tensor* source, ///< source data, size N0 x N1 x (2*N2)
-                                    tensor* dest   ///< destination data, size N2 x N1 x (2*N0)
-                             );
+// void gpu_tensor_transposeXZ_complex(tensor* source, ///< source data, size N0 x N1 x (2*N2)
+//                                     tensor* dest   ///< destination data, size N2 x N1 x (2*N0)
+//                              );
 
 // 
 // void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2){
@@ -134,8 +134,8 @@ void gpu_tensor_transposeYZ_complex(tensor* source, tensor* dest){
   assert(source != dest);                       // must be out-of-place
   assert(source->rank == 3);
   assert(dest->rank == 3);
-  assert(dest->size[Y] == source->size[Z/2]);   // interleaved complex format
-  assert(dest->size[Z] == source->size[Y*2]);
+  assert(dest->size[Y] == source->size[Z]/2);   // interleaved complex format
+  assert(dest->size[Z] == source->size[Y]*2);
   
   timer_start("transposeYZ");
   
@@ -159,8 +159,8 @@ void gpu_tensor_transposeXZ_complex(tensor* source, tensor* dest){
   assert(source != dest);                       // must be out-of-place
   assert(source->rank == 3);
   assert(dest->rank == 3);
-  assert(dest->size[X] == source->size[Z/2]);   // interleaved complex format
-  assert(dest->size[Z] == source->size[X*2]);
+  assert(dest->size[X] == source->size[Z]/2);   // interleaved complex format
+  assert(dest->size[Z] == source->size[X]*2);
   
   timer_start("transposeXZ");
   
