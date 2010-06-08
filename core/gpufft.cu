@@ -15,7 +15,7 @@ gpu_plan3d_real_input* new_gpu_plan3d_real_input(int N0, int N1, int N2, int* ze
   assert(N1 > 1);
   assert(N2 > 1);
   
-  gpu_plan3d_real_input* plan = (gpu_plan3d_real_input*)malloc(sizeof(gpu_plan3d_real_input));
+  gpu_plan3d_real_input* plan = (gpu_plan3d_real_input*) malloc(sizeof(gpu_plan3d_real_input));
   
   plan->size = (int*)calloc(3, sizeof(int));
   plan->paddedSize = (int*)calloc(3, sizeof(int));

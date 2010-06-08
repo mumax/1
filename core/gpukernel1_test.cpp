@@ -15,25 +15,25 @@ int main(int argc, char** argv){
   
   print_device_properties(stderr);
   
-  int N0 = 2;
-  int N1 = 4;
-  int N2 = 8;
+  int N0 = 4;
+  int N1 = 8;
+  int N2 = 16;
   
   int* zero_pad = new int[3];
-  zero_pad[X] = 0;
-  zero_pad[Y] = 0;
-  zero_pad[Z] = 0;
+  zero_pad[X] = 1;
+  zero_pad[Y] = 1;
+  zero_pad[Z] = 1;
 
   int* repetition = new int[3];
-	repetion[X] = repetition[Y] = repetition[Z] = 0;
+	repetition[X] = repetition[Y] = repetition[Z] = 0;
 
 	float* FD_cell_size = new float[3];
 	FD_cell_size[X] = 1.0;
-	FD_cell_size[Y] = 1.0;
-	FD_cell_size[Z] = 1.0;
+	FD_cell_size[Y] = 1.2;
+	FD_cell_size[Z] = 1.4;
 
-	tensor *kernel;
-	init_Greens_kernel1(kernel, N0, N1, N2, zero_pad, repetition, FD_cell_size);
+	tensor *dev_kernel;
+	gpu_init_Greens_kernel1(dev_kernel, N0, N1, N2, zero_pad, repetition, FD_cell_size);
 
 	fprintf(stderr, "PASS\n");
 
