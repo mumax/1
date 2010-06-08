@@ -10,6 +10,7 @@
 extern "C" {
 #endif
 
+
 void gpu_init_Greens_kernel1(tensor* dev_kernel, int N0, int N1, int N2, int *zero_pad, int *repetition, float *FD_cell_size){
 
 	for (int i=0; i<3; i++){
