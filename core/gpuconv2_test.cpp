@@ -156,7 +156,7 @@ void test_conv(){
   for(int i=0; i<N0; i++)
     for(int j=0; j<N1; j++)
       for(int k=0; k<N2; k++){
-                in[c][i][j][k] = c; //i + j*0.01 + k*0.00001;
+                in[c][i][j][k] = c + 1; //i + j*0.01 + k*0.00001;
       }
   fprintf(stderr, "hostM:\n");
   format_tensor(hostM, stderr);
@@ -184,13 +184,9 @@ void test_conv(){
   fprintf(stderr, "fft:\n");
   format_gputensor(fft, stderr);
   
-  for(int i=0; i<3; i++){                               // mean re-allocating them each time.
+  for(int i=0; i<1; i++){                               // mean re-allocating them each time.
     gpuFFT3dPlan_forward(plan, fftComp[i], fftComp[i]);
-     gpuFFT3dPlan_inverse(plan, fftComp[i], fftComp[i]);
-  }
-  
-  for(int i=0; i<3; i++){                               // mean re-allocating them each time.
-   
+    gpuFFT3dPlan_inverse(plan, fftComp[i], fftComp[i]);
   }
   
   for(int i=0; i<3; i++){                               // mean re-allocating them each time.
