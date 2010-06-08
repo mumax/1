@@ -12,8 +12,8 @@
 #include "assert.h"
 
   int N0 = 2;
-  int N1 = 4;
-  int N2 = 6;
+  int N1 = 3;
+  int N2 = 4;
   
   
 void test_pad(){
@@ -123,19 +123,32 @@ void test_conv(){
   int kernelSize4D[4]        = {3, kernelSize[X], kernelSize[Y], kernelSize[Z]};
   int paddedStorageSize4D[4] = {3, paddedStorageSize[X], paddedStorageSize[Y], paddedStorageSize[Z]};
 
+  
   tensor* hostM = new_tensorN(4, size4D);
   tensor* hostMComp[3];
   for(int i=0; i<3; i++)
     hostMComp[i] = tensor_component(hostM, i);
   
+  tensor* hostH = new_tensorN(4, size4D);
+  tensor* hostHComp[3];
+  for(int i=0; i<3; i++)
+    hostHComp[i] = tensor_component(hostH, i);
+  
   tensor* m = new_gputensor(4, size4D);
   tensor* mComp[3];
   for(int i=0; i<3; i++)
-    mComp[i] = tensor_component(m, i);
+    mComp[i] = as_tensorN(NULL, 3, size);
   
-  tensor* devOut = new_gputensor(3, size);
-  tensor* hostOut = new_tensorN(3, size);
-  tensor* fft = new_gputensor(3, paddedStorageSize);
+  tensor* h = new_gputensor(4, size4D);
+  tensor* hComp[3];
+  for(int i=0; i<3; i++)
+    hComp[i] = as_tensorN(NULL, 3, size);
+  
+  tensor* fft = new_gputensor(4, paddedStorageSize4D);
+  tensor* fftComp[3];
+  for(int i=0; i<3; i++)
+    fftComp[i] = tensor_component(fft, i);
+  
   gpuFFT3dPlan* plan = new_gpuFFT3dPlan(size, kernelSize);
     
   float**** in = tensor_array4D(hostM);
@@ -157,11 +170,35 @@ void test_conv(){
   fprintf(stderr, "m:\n");
   format_gputensor(m, stderr);
 
-//   for(int i=0; i<3; i++){                               // mean re-allocating them each time.
-//     conv->mComp[i]->list = &(m->list[conv->mComp[i]->len * i]);
-//     conv->hComp[i]->list = &(h->list[conv->hComp[i]->len * i]);
-//   }
-//   tensor_copy_to_gpu(hostMComp, mComp);
+  for(int i=0; i<3; i++){                               // mean re-allocating them each time.
+    mComp[i]->list = &(m->list[mComp[i]->len * i]);
+    hComp[i]->list = &(h->list[hComp[i]->len * i]);
+    fprintf(stderr, "m[%d]:\n", i);
+    format_gputensor(mComp[i], stderr);
+  }
+  
+  for(int i=0; i<3; i++){                               // mean re-allocating them each time.
+    gpu_copy_pad(mComp[i], fftComp[i]);
+  }
+  
+  fprintf(stderr, "fft:\n");
+  format_gputensor(fft, stderr);
+  
+  for(int i=0; i<3; i++){                               // mean re-allocating them each time.
+    gpuFFT3dPlan_forward(plan, fftComp[i], fftComp[i]);
+     gpuFFT3dPlan_inverse(plan, fftComp[i], fftComp[i]);
+  }
+  
+  for(int i=0; i<3; i++){                               // mean re-allocating them each time.
+   
+  }
+  
+  for(int i=0; i<3; i++){                               // mean re-allocating them each time.
+    gpu_copy_unpad(fftComp[i], hComp[i]);
+  }
+  
+  format_gputensor(h, stderr);
+
 //   gpu_copy_pad(mComp, fft);
 //   gpuFFT3dPlan_forward(plan, fft, fft);
 //   gpuFFT3dPlan_inverse(plan, fft, fft);
