@@ -52,19 +52,27 @@ void test_convplan(){
                 in[c][i][j][k] = c + 1; //i + j*0.01 + k*0.00001;
       }
   
-  tensor* kernel = new_tensor(5, 3, 3, kernelSize[X], kernelSize[Y], kernelSize[Z] );
-  float***** K = tensor_array5D(kernel);
-  K[X][X][0][0][0] = 1.;
-  tensor* gpuKernel = new_gputensor(5, kernel->size);
-  tensor_copy_to_gpu(kernel, gpuKernel);
-  gpuconv2_loadkernel5DSymm(conv, gpuKernel);
-  
   tensor_copy_to_gpu(hostM, m);
   fprintf(stderr, "m:\n");
   format_gputensor(m, stderr);
 
   gpuconv2* plan = new_gpuconv2(size, kernelSize);
+  
+  tensor* kernel = new_tensor(5, 3, 3, kernelSize[X], kernelSize[Y], kernelSize[Z] );
+  float***** K = tensor_array5D(kernel);
+  K[X][X][0][0][0] = 1.;
+  tensor* gpuKernel = new_gputensor(5, kernel->size);
+  tensor_copy_to_gpu(kernel, gpuKernel);
+  gpuconv2_loadkernel5DSymm(plan, gpuKernel);
+  
+  for(int s=0; s<3; s++){
+    for(int d=0; d<3; d++){
+      format_gputensor(plan->fftKernel[s][d], stderr);
+    }
+  }
+  
   gpuconv2_exec(plan, m, h);
+  
   
   format_gputensor(h, stderr);
   

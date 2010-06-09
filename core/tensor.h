@@ -184,15 +184,33 @@ int tensor_index(tensor* t, int* indexarray);
 
 /**
  * An easy way to acces tensor's elements is to view it as an N-dimensional array.
+ * Given a rank 2 tensor, this function returns a 2-dimensional array containing
+ * the tensor's data. 
  */
 float** tensor_array2D(tensor* t);
+
+/**
+ * @internal wraps the storage of a 1D array in a 2D array of given size.
+ */
 float** slice_array2D(float* list, int size0, int size1);
 
+///@see tensor_array2D()
 float*** tensor_array3D(tensor* t);
+
+///@see slice_array2D()
 float*** slice_array3D(float* list, int size0, int size1, int size2);
 
+///@see tensor_array2D()
 float**** tensor_array4D(tensor* t);
+
+///@see slice_array2D()
 float**** slice_array4D(float* list, int size0, int size1, int size2, int size3);
+
+///@see tensor_array2D()
+float***** tensor_array5D(tensor* t);
+
+///@see slice_array2D()
+float***** slice_array5D(float* list, int size0, int size1, int size2, int size3, int size4);
 
 //_____________________________________________________________________________________________________________ I/O
 

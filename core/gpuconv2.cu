@@ -190,8 +190,9 @@ void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
 
   tensor* fftbuffer = conv->fft1Comp[0];
   int* paddedStorageSize = fftbuffer->size;
-  gpuFFT3dPlan* plan = new_gpuFFT3dPlan_padded(paddedSize, paddedStorageSize);
+  gpuFFT3dPlan* plan = new_gpuFFT3dPlan_padded(paddedSize, paddedSize); ///@todo change to paddedstoragesize when gpufft2 is updated
   
+  // when the kernel is symmetric, this implementation does a bit redundant work
   for(int s=0; s<3; s++){
     for(int d=0; d<3; d++){
       tensor* Ksd = tensor_component(tensor_component(kernel5D, s), d);
