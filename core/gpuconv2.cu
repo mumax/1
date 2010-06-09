@@ -69,6 +69,70 @@ void gpu_copy_unpad(tensor* source, tensor* dest){
   cudaThreadSynchronize();
 }
 
+//_____________________________________________________________________________________________ kernel multiplication
+
+/**
+ * @internal 
+ * Kernel is in interleaved complex format (imaginary part is zero and not read, but still stored),
+ * and assummed symmetric.
+ * The multiplication is in-place, fftMi is overwritten by fftHi
+ */
+__global__ void _gpu_kernel_mul_complex_inplace_symm(float* fftMx,  float* fftMy,  float* fftMz, 
+                                                     float* fftKxx, float* fftKyy, float* fftKzz,
+                                                     float* fftKyz, float* fftKxz, float* fftKxy){
+  
+  int e = 2 * ((blockIdx.x * blockDim.x) + threadIdx.x);
+  
+  // we some shared memory here, which saves an "8N" buffer in the global memory
+  ///@todo coalescale read/writes
+  float reMx = fftMx[e  ];
+  float imMx = fftMx[e+1];
+  
+  float reMy = fftMy[e  ];
+  float imMy = fftMy[e+1];
+  
+  float reMz = fftMz[e  ];
+  float imMz = fftMz[e+1];
+ 
+  float Kxx = fftKxx[e];
+  float Kyy = fftKyy[e];
+  float Kzz = fftKzz[e];
+  
+  float Kyz = fftKyz[e];
+  float Kxz = fftKxz[e];
+  float Kxy = fftKxy[e];
+  
+  fftMx[e  ] = reMx * Kxx + reMy * Kxy + reMz * Kxz;
+  fftMx[e+1] = imMx * Kxx + imMy * Kxy + imMz * Kxz;
+  
+  fftMy[e  ] = reMx * Kxy + reMy * Kyy + reMz * Kyz;
+  fftMy[e+1] = imMx * Kxy + imMy * Kyy + imMz * Kyz;
+ 
+  fftMz[e  ] = reMx * Kxz + reMy * Kyz + reMz * Kzz;
+  fftMz[e+1] = imMx * Kxz + imMy * Kyz + imMz * Kzz;
+   
+}
+
+
+void gpu_kernel_mul_complex_inplace_symm(float* fftMx,  float* fftMy,  float* fftMz, 
+                                         float* fftKxx, float* fftKyy, float* fftKzz,
+                                         float* fftKyz, float* fftKxz, float* fftKxy,
+                                         int nRealNumbers){
+  
+  timer_start("kernel_mul");
+  assert(nRealNumbers > 0);
+  assert(nRealNumbers % 2 == 0);
+  
+  int threadsPerBlock = 512;
+  int blocks = (nRealNumbers/2) / threadsPerBlock;
+  gpu_checkconf_int(blocks, threadsPerBlock);
+  _gpu_kernel_mul_complex_inplace_symm<<<blocks, threadsPerBlock>>>(
+                                      fftMx,  fftMy,  fftMz, 
+                                      fftKxx, fftKyy, fftKzz,
+                                      fftKyz, fftKxz, fftKxy);
+  cudaThreadSynchronize();
+  timer_stop("kernel_mul");
+}
 
 //_____________________________________________________________________________________________ convolution
 
@@ -104,11 +168,18 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
     gpu_copy_pad(mComp[i], fft1Comp[i]);
   }
   
-  cudaThreadSynchronize();
+  cudaThreadSynchronize();  ///@todo many redundant syncs
   
   for(int i=0; i<3; i++){
     gpuFFT3dPlan_forward(conv->fftplan, fft1Comp[i], fft1Comp[i]);  ///@todo out-of-place
   }
+  
+  cudaThreadSynchronize();
+  
+  gpu_kernel_mul_complex_inplace_symm(fft1Comp[X]->list, fft1Comp[Y]->list, fft1Comp[Z]->list,
+                                      conv->fftKernel[X][X]->list, conv->fftKernel[Y][Y]->list, conv->fftKernel[Z][Z]->list, 
+                                      conv->fftKernel[Y][Z]->list, conv->fftKernel[X][Z]->list, conv->fftKernel[X][Y]->list,
+                                      fft1Comp[X]->len);
   
   cudaThreadSynchronize();
   
@@ -125,32 +196,7 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
   cudaThreadSynchronize();
 }
 
-//_____________________________________________________________________________________________ kernel multiplication
 
-__global__ void _gpu_kernel_mul2(float* ft_m_i, float* ft_kernel_ij, float* ft_h_j){
-  /*int e = 2 * ((blockIdx.x * blockDim.x) + threadIdx.x);
-  
-  float rea = ft_m_i[e];
-  float reb = ft_kernel_ij[e];
-  float ima = ft_m_i[e + 1];
-  float imb = ft_kernel_ij[e + 1];
-  ft_h_j[e] 	+=  rea*reb - ima*imb;
-  ft_h_j[e + 1] +=  rea*imb + ima*reb;
-  */  
-}
-
-
-void gpu_kernel_mul2(float* ft_m_i, float* ft_kernel_ij, float* ft_h_comp_j, int nRealNumbers){
-/*  timer_start("gpuconv2_kernel_mul");
-//   assert(nRealNumbers > 0);
-//   assert(nRealNumbers % 2 == 0);
-//   int threadsPerBlock = 512;
-//   int blocks = (nRealNumbers/2) / threadsPerBlock;
-//   gpu_checkconf_int(blocks, threadsPerBlock);
-//   _gpu_kernel_mul<<<blocks, threadsPerBlock>>>(ft_m_i, ft_kernel_ij, ft_h_comp_j);
-//   cudaThreadSynchronize();
-  timer_stop("gpuconv2_kernel_mul");*/
-}
 
 //_____________________________________________________________________________________________ load kernel
 
