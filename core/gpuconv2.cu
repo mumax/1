@@ -196,7 +196,7 @@ void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
     for(int d=0; d<3; d++){
       tensor* Ksd = tensor_component(tensor_component(kernel5D, s), d);
       gpu_copy_pad(Ksd, conv->fftKernel[s][d]);
-      gpuFFT3dPlan_forward(fftKernel[s][d], fftKernel[s][d]);
+      gpuFFT3dPlan_forward(plan, conv->fftKernel[s][d], conv->fftKernel[s][d]);
     }
   }
   

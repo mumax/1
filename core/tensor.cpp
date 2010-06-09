@@ -189,7 +189,7 @@ float**** slice_array4D(float* list, int size0, int size1, int size2, int size3)
   for(int i=0; i<size0; i++){
     for(int j=0; j<size1; j++){
       for(int k=0; k<size2; k++){
-	sliced[i][j][k] = &list[ ((i * size1 + j) *size2 + k) * size3 + 0];
+        sliced[i][j][k] = &list[ ((i * size1 + j) *size2 + k) * size3 + 0];
       }
     }
   }
@@ -224,7 +224,7 @@ float***** slice_array5D(float* list, int size0, int size1, int size2, int size3
     for(int j=0; j<size1; j++){
       for(int k=0; k<size2; k++){
         for(int l=0; l<size3; l++){
-          sliced[i][j][k] = &list[ (((i * size1 + j) *size2 + k) * size3 + l) * size4 + 0];
+          sliced[i][j][k][l] = &list[ (((i * size1 + j) *size2 + k) * size3 + l) * size4 + 0];
         }
       }
     }
