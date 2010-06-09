@@ -63,7 +63,7 @@
 #include "tensor.h"
 #include "gputil.h"
 #include <cufft.h>
-#include "gpufft.h"
+#include "gpufft2.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -101,7 +101,7 @@ extern "C" {
  */
 typedef struct{
    
-  gpu_plan3d_real_input* fftplan;
+  gpuFFT3dPlan* fftplan;
   
   tensor* m;             ///< no space is allocated for m, this is just a pointer the m being convolved at the moment. It's mainly used to store the size of m.
   tensor* mComp[3];      ///< points to mx, my, mz. again, no space is allocated as this just points into m. each time m->list is set, mComp needs to be updated as well...

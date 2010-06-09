@@ -1,4 +1,4 @@
-#include "gpufft.h"
+#include "gpufft2.h"
 #include "gpuconv2.h"
 #include "gputil.h"
 #include "timer.h"
@@ -68,6 +68,7 @@ void gpu_copy_unpad(tensor* source, tensor* dest){
 //_____________________________________________________________________________________________ convolution
 
 void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
+  
   assert(m->rank == 4);
   assert(h->rank == 4);
   for(int i=0; i<4; i++){
@@ -75,6 +76,7 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
     assert(h->size[i] == conv->h->size[i]);
   }
   
+  ///@todo move to setMH()
   conv->m->list = m->list;                              // m, h, mComp and hComp are recycled tensors. We have to set their data each time.
   conv->h->list = h->list;                              // It would be cleaner to have them here as local variables, but this would
   for(int i=0; i<3; i++){                               // mean re-allocating them each time.
@@ -88,6 +90,8 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
   tensor** fft1Comp = conv->fft1Comp;
   tensor** fft2Comp = conv->fft2Comp;
   
+  //_____________________________________________________________________________________________ actual convolution
+  
   gpu_zero_tensor(fft1);              // fft1 will now store the zero-padded magnetization
   gpu_zero_tensor(h);
   
@@ -95,22 +99,19 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
     gpu_copy_pad(mComp[i], fft1Comp[i]);
   }
   
-//   tensor* fft1Host = new_tensorN(4, fft1->size);
-//   tensor_copy_from_gpu(fft1, fft1Host);
-//   format_tensor(fft1Host, stderr);
-  
-  for(int i=0; i<3; i++)
-    assert(conv->fftplan->paddedStorageSize[i] == fft1Comp[0]->size[i]);
+  cudaThreadSynchronize();
   
   for(int i=0; i<3; i++){
-    gpu_plan3d_real_input_forward(conv->fftplan, fft1Comp[i]->list);
+    gpuFFT3dPlan_forward(conv->fftplan, fft1Comp[i], fft1Comp[i]);  ///@todo out-of-place
   }
   
   cudaThreadSynchronize();
   
   for(int i=0; i<3; i++){
-    gpu_plan3d_real_input_inverse(conv->fftplan, fft1Comp[i]->list);
+    gpuFFT3dPlan_inverse(conv->fftplan, fft1Comp[i], fft1Comp[i]);  ///@todo out-of-place
   }
+  
+  cudaThreadSynchronize();
   
   for(int i=0; i<3; i++){
     gpu_copy_unpad(fft1Comp[i], hComp[i]);
@@ -171,16 +172,16 @@ void gpu_kernel_mul2(float* ft_m_i, float* ft_kernel_ij, float* ft_h_comp_j, int
 int* NO_ZERO_PAD = (int*)calloc(3, sizeof(int));
 
 void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
-  int* paddedSize = conv->paddedSize;
-  
-  assert(kernel5D->rank == 5);
-  assert(kernel5D->size[0] == 3);
-  assert(kernel5D->size[1] == 3);
-  assert(kernel5D->size[2+X] == paddedSize[X]);
-  assert(kernel5D->size[2+Y] == paddedSize[Y]);
-  assert(kernel5D->size[2+Z] == paddedSize[Z]);
-
-  gpu_plan3d_real_input* plan = new_gpu_plan3d_real_input(paddedSize[X], paddedSize[Y], paddedSize[Z], NO_ZERO_PAD);
+//   int* paddedSize = conv->paddedSize;
+//   
+//   assert(kernel5D->rank == 5);
+//   assert(kernel5D->size[0] == 3);
+//   assert(kernel5D->size[1] == 3);
+//   assert(kernel5D->size[2+X] == paddedSize[X]);
+//   assert(kernel5D->size[2+Y] == paddedSize[Y]);
+//   assert(kernel5D->size[2+Z] == paddedSize[Z]);
+// 
+//   gpu_plan3d_real_input* plan = new_gpu_plan3d_real_input(paddedSize[X], paddedSize[Y], paddedSize[Z], NO_ZERO_PAD);
 }
 
 // void gpuconv2_loadkernel(gpuconv2* conv, tensor* kernel){
@@ -249,8 +250,7 @@ gpuconv2* new_gpuconv2(int* size, int* kernelSize){
   for(int i=0; i<3; i++){
     zeroPad[i] = 1; // todo !!
   }
-  conv->fftplan = new_gpu_plan3d_real_input(size[X], size[Y], size[Z], zeroPad);	// it's important to FIRST initialize the fft plan because it stores the sizes used by other functions.
-  
+  conv->fftplan = new_gpuFFT3dPlan(size, kernelSize);	// it's important to FIRST initialize the fft plan because it stores the sizes used by other functions.
   
   conv->m = as_tensorN(NULL, 4, size4D);  // m->list will be set to whatever data is convolved at a certain time.
   conv->h = as_tensorN(NULL, 4, size4D);  // h->list will be set to whatever convolution destination used at a certain time.
@@ -265,6 +265,9 @@ gpuconv2* new_gpuconv2(int* size, int* kernelSize){
     conv->fft1Comp[i] = tensor_component(conv->fft1, i);
     conv->fft2Comp[i] = conv->fft1Comp[i]; // in-place by default
   }
+  
+   for(int i=0; i<3; i++)
+    assert(conv->fftplan->paddedStorageSize[i] == conv->fft1Comp[0]->size[i]);
 
   // By default, the kernel is assumed to by symmetric. Should this not be the case, then the sub-diagonal elements should be separately allocated.
   conv->fftKernel[X][X] = new_gputensor(3, paddedStorageSize);
