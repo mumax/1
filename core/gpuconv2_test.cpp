@@ -10,10 +10,11 @@
 #include "gpufft2.h"
 #include "tensor.h"
 #include "assert.h"
+#include "pipes.h"
 
-  int N0 = 2;
-  int N1 = 4;
-  int N2 = 4;
+  int N0 = 8;
+  int N1 = 8;
+  int N2 = 8;
   
 void test_convplan(){
   
@@ -52,8 +53,7 @@ void test_convplan(){
 //                 in[c][i][j][k] = c + 1; //i + j*0.01 + k*0.00001;
 //       }
   in[X][0][0][0] = 1;
-  in[Y][0][0][0] = 2;
-  in[Z][0][0][0] = 3;
+
   
   
   tensor_copy_to_gpu(hostM, m);
@@ -62,11 +62,7 @@ void test_convplan(){
 
   gpuconv2* plan = new_gpuconv2(size, kernelSize);
   
-  tensor* kernel = new_tensor(5, 3, 3, kernelSize[X], kernelSize[Y], kernelSize[Z] );
-  float***** K = tensor_array5D(kernel);
-  K[X][Y][0][0][0] = 1;
-//   for(int i=0; i<kernel->len; i++)
-//      kernel->list[i] = 1;
+  tensor* kernel = pipe_tensor((char*)"kernel --size 8 8 8 --msat 800E3 --aexch 1.3e-11 --cellsize 1e-9 1e-9 1e-9");
   
   tensor* gpuKernel = new_gputensor(5, kernel->size);
   tensor_copy_to_gpu(kernel, gpuKernel);
