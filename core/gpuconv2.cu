@@ -95,9 +95,9 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
     gpu_copy_pad(mComp[i], fft1Comp[i]);
   }
   
-  tensor* fft1Host = new_tensorN(4, fft1->size);
-  tensor_copy_from_gpu(fft1, fft1Host);
-  format_tensor(fft1Host, stderr);
+//   tensor* fft1Host = new_tensorN(4, fft1->size);
+//   tensor_copy_from_gpu(fft1, fft1Host);
+//   format_tensor(fft1Host, stderr);
   
   for(int i=0; i<3; i++)
     assert(conv->fftplan->paddedStorageSize[i] == fft1Comp[0]->size[i]);
@@ -106,17 +106,11 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
     gpu_plan3d_real_input_forward(conv->fftplan, fft1Comp[i]->list);
   }
   
-  tensor_copy_from_gpu(fft1, fft1Host);
-  format_tensor(fft1Host, stderr);
-  
   cudaThreadSynchronize();
   
   for(int i=0; i<3; i++){
     gpu_plan3d_real_input_inverse(conv->fftplan, fft1Comp[i]->list);
   }
-  
-  tensor_copy_from_gpu(fft1, fft1Host);
-  format_tensor(fft1Host, stderr);
   
   for(int i=0; i<3; i++){
     gpu_copy_unpad(fft1Comp[i], hComp[i]);

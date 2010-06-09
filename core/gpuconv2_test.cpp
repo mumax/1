@@ -15,6 +15,54 @@
   int N1 = 3;
   int N2 = 4;
   
+void test_convplan(){
+  
+  int size[3]              = {N0, N1, N2};
+  int kernelSize[3]        = {2*N0, 2*N1, 2*N2};
+  int paddedStorageSize[3] = {kernelSize[X], kernelSize[Y], gpu_pad_to_stride(kernelSize[Z] + 2)};
+  int size4D[4]              = {3, size[X], size[Y], size[Z]};
+  int kernelSize4D[4]        = {3, kernelSize[X], kernelSize[Y], kernelSize[Z]};
+  int paddedStorageSize4D[4] = {3, paddedStorageSize[X], paddedStorageSize[Y], paddedStorageSize[Z]};
+
+  tensor* hostM = new_tensorN(4, size4D);
+  tensor* hostMComp[3];
+  for(int i=0; i<3; i++)
+    hostMComp[i] = tensor_component(hostM, i);
+  
+  tensor* hostH = new_tensorN(4, size4D);
+  tensor* hostHComp[3];
+  for(int i=0; i<3; i++)
+    hostHComp[i] = tensor_component(hostH, i);
+  
+  tensor* m = new_gputensor(4, size4D);
+  tensor* mComp[3];
+  for(int i=0; i<3; i++)
+    mComp[i] = as_tensorN(NULL, 3, size);
+  
+  tensor* h = new_gputensor(4, size4D);
+  tensor* hComp[3];
+  for(int i=0; i<3; i++)
+    hComp[i] = as_tensorN(NULL, 3, size);
+    
+  float**** in = tensor_array4D(hostM);
+  for(int c=0; c<3; c++)
+  for(int i=0; i<N0; i++)
+    for(int j=0; j<N1; j++)
+      for(int k=0; k<N2; k++){
+                in[c][i][j][k] = c + 1; //i + j*0.01 + k*0.00001;
+      }
+  
+  tensor_copy_to_gpu(hostM, m);
+  fprintf(stderr, "m:\n");
+  format_gputensor(m, stderr);
+
+  gpuconv2* plan = new_gpuconv2(size, kernelSize);
+  gpuconv2_exec(plan, m, h);
+  
+  format_gputensor(h, stderr);
+  
+}
+  
   
 void test_pad(){
   
@@ -114,6 +162,9 @@ void test_transpose(){
   fprintf(stderr, "PASS\n");
 }
 
+
+
+
 void test_conv(){
 
   int size[3]              = {N0, N1, N2};
@@ -184,17 +235,10 @@ void test_conv(){
   fprintf(stderr, "fft:\n");
   format_gputensor(fft, stderr);
   
-  
-  ///@todo Writes out of bounds !
   for(int i=0; i<3; i++){                               
     gpuFFT3dPlan_forward(plan, fftComp[i], fftComp[i]);
     gpuFFT3dPlan_inverse(plan, fftComp[i], fftComp[i]);
   }
-  
-//    gpuFFT3dPlan_forward(plan, fftComp[0], fftComp[0]);
-//    format_gputensor(fft, stderr);
-//    gpuFFT3dPlan_inverse(plan, fftComp[0], fftComp[0]);
-//    format_gputensor(fft, stderr);
 
   for(int i=0; i<3; i++){                               
     gpu_copy_unpad(fftComp[i], hComp[i]);
@@ -202,22 +246,14 @@ void test_conv(){
   
   format_gputensor(h, stderr);
 
-//   gpu_copy_pad(mComp, fft);
-//   gpuFFT3dPlan_forward(plan, fft, fft);
-//   gpuFFT3dPlan_inverse(plan, fft, fft);
-//   gpu_copy_unpad(fft, devOut);
-//   tensor_copy_from_gpu(devOut, hostOut);
-//   
-//   fprintf(stderr, "out:\n");
-//   format_tensor(hostOut, stderr);
-
 }
 
 int main(int argc, char** argv){
   
-  test_transpose();
-  test_pad();
-  test_conv();
- 
+//   test_transpose();
+//   test_pad();
+//   test_conv();
+  test_convplan();
+  
   return 0;
 }
