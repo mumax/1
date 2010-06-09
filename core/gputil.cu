@@ -204,7 +204,7 @@ void gpu_checkconf_int(int gridsize, int blocksize){
 
 void check3dconf(dim3 gridSize, dim3 blockSize){
  
-  cudaDeviceProp* prop = gpu_getproperties();
+  cudaDeviceProp* prop = (cudaDeviceProp*)gpu_getproperties();
   int maxThreadsPerBlock = prop->maxThreadsPerBlock;
   int* maxBlockSize = prop->maxThreadsDim;
   int* maxGridSize = prop->maxGridSize;
@@ -231,7 +231,7 @@ void check3dconf(dim3 gridSize, dim3 blockSize){
 void check1dconf(int gridsize, int blocksize){
   assert(gridsize > 0);
   assert(blocksize > 0);
-  assert(blocksize <= gpu_getproperties()->maxThreadsPerBlock);
+  assert(blocksize <= ((cudaDeviceProp*)gpu_getproperties())->maxThreadsPerBlock);
 }
 
 //_____________________________________________________________________________________________ make conf
@@ -255,12 +255,13 @@ void _make1dconf(int N, unsigned int* gridSize, unsigned int* blockSize, int max
 }
 
 void make1dconf(int N, int* gridSize, int* blockSize){
-  _make1dconf(N, (unsigned int*)gridSize, (unsigned int*)blockSize, gpu_getproperties()->maxGridSize[X], gpu_getproperties()->maxThreadsPerBlock);
+  cudaDeviceProp* prop = (cudaDeviceProp*)gpu_getproperties();
+  _make1dconf(N, (unsigned int*)gridSize, (unsigned int*)blockSize, prop->maxGridSize[X], prop->maxThreadsPerBlock);
 }
 
 void make3dconf(int N0, int N1, int N2, dim3* gridSize, dim3* blockSize ){
   
-  cudaDeviceProp* prop = gpu_getproperties();
+  cudaDeviceProp* prop = (cudaDeviceProp*)gpu_getproperties();
   int maxThreadsPerBlock = prop->maxThreadsPerBlock;
   int* maxBlockSize = prop->maxThreadsDim;
   int* maxGridSize = prop->maxGridSize;
@@ -294,7 +295,7 @@ void make3dconf(int N0, int N1, int N2, dim3* gridSize, dim3* blockSize ){
 
 cudaDeviceProp* gpu_device_properties = NULL;
 
-cudaDeviceProp* gpu_getproperties(void){
+void* gpu_getproperties(void){
   if(gpu_device_properties == NULL){
     int device = -1;
     gpu_safe( cudaGetDevice(&device) );

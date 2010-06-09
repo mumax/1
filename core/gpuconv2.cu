@@ -25,9 +25,11 @@ __global__ void _gpuconv2_copy_pad(float* source, float* dest,
 
 
 void gpu_copy_pad(tensor* source, tensor* dest){
-  // source must not be larger than dest
+  
   assert(source->rank == 3);
-  assert(dest->rank == 3);
+  assert(  dest->rank == 3);
+  
+  // source must not be larger than dest
   for(int i=0; i<3; i++){
     assert(source->size[i] <= dest->size[i]);
   }
@@ -44,9 +46,12 @@ void gpu_copy_pad(tensor* source, tensor* dest){
   cudaThreadSynchronize();
 }
 
+
 void gpu_copy_unpad(tensor* source, tensor* dest){
+  
   assert(source->rank == 3);
-  assert(dest->rank == 3);
+  assert(  dest->rank == 3);
+  
   // dest must not be larger than source
   for(int i=0; i<3; i++){
     assert(source->size[i] >= dest->size[i]);
@@ -172,7 +177,9 @@ void gpu_kernel_mul2(float* ft_m_i, float* ft_kernel_ij, float* ft_h_comp_j, int
 int* NO_ZERO_PAD = (int*)calloc(3, sizeof(int));
 
 void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
+  
 //   int* paddedSize = conv->paddedSize;
+//   int* paddedStorageSize = conv->paddedStorageSize;
 //   
 //   assert(kernel5D->rank == 5);
 //   assert(kernel5D->size[0] == 3);
@@ -181,7 +188,8 @@ void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
 //   assert(kernel5D->size[2+Y] == paddedSize[Y]);
 //   assert(kernel5D->size[2+Z] == paddedSize[Z]);
 // 
-//   gpu_plan3d_real_input* plan = new_gpu_plan3d_real_input(paddedSize[X], paddedSize[Y], paddedSize[Z], NO_ZERO_PAD);
+//   
+//   gpuFFT3dPlan* plan = new_gpuFFT3dPlan(paddedStorageSize, paddedStorageSize);
 }
 
 // void gpuconv2_loadkernel(gpuconv2* conv, tensor* kernel){

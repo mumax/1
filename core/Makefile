@@ -33,10 +33,9 @@ OFILES=\
 	gpurk4.o\
 	gpuanal1.o\
 	gpukernel1.o\
-#
-# NOTE: use make gpukernel1.o as long as it does not compile, or un-comment this line
 
-CUDALIBS= -lcudart -lcufft
+#remove the "emu" when not using device emulation
+CUDALIBS= -lcudartemu -lcufftemu
 
 all: core.so core.a doc
 

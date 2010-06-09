@@ -235,9 +235,9 @@ void make3dconf(int N0, 	///< size of 3D array to span
  *
  * Example:
  * @code
-  int gridSize, blockSize;
-  make1dconf(N0, N1, N2, &gridSize, &blockSize);
-  mykernel<<<gridSize, blockSize>>>(arrrrgh);
+ * int gridSize, blockSize;
+ * make1dconf(N0, N1, N2, &gridSize, &blockSize);
+ * mykernel<<<gridSize, blockSize>>>(arrrrgh);
  * @endcode
  */
 void make1dconf(int N, 		///< size of array to span
@@ -247,9 +247,11 @@ void make1dconf(int N, 		///< size of array to span
 
 
 /**
+ * @internal
  * Returns a cudaDeviceProp struct that contains the properties of the
  * used GPU. When there are multiple GPUs present, the active one, used
  * by this thread, is considered.
+ *
  * @warning One global cudaDeviceProp* is stored. The first time this
  * function is called, it gets initialized. All subsequent calls return
  * this cached cudaDeviceProp*. Consequently, the returned pointer
@@ -279,8 +281,13 @@ void make1dconf(int N, 		///< size of array to span
     int computeMode;
     int concurrentKernels;
  * @endcode
+ *
+ * @note I currently return the cudaDeviceProp* as a void*. 
+ * In this way, none of the core functions expose cuda stuff
+ * directly. This makes it easier to link them with external
+ * code (Go, in my case). Arne.
  */
-cudaDeviceProp* gpu_getproperties(void);
+void* gpu_getproperties(void);
 
 /**
  * Prints the properties of the used GPU

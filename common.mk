@@ -13,6 +13,7 @@ CFLAGS+=\
 
 
 NVCCFLAGS+=\
+  --device-emulation\
   --compiler-options -Werror\
   --compiler-options -fPIC\
   --compiler-options -g\
