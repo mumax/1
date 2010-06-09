@@ -12,7 +12,7 @@
 #include "assert.h"
 
   int N0 = 2;
-  int N1 = 3;
+  int N1 = 4;
   int N2 = 4;
   
 void test_convplan(){
@@ -45,12 +45,16 @@ void test_convplan(){
     hComp[i] = as_tensorN(NULL, 3, size);
     
   float**** in = tensor_array4D(hostM);
-  for(int c=0; c<3; c++)
-  for(int i=0; i<N0; i++)
-    for(int j=0; j<N1; j++)
-      for(int k=0; k<N2; k++){
-                in[c][i][j][k] = c + 1; //i + j*0.01 + k*0.00001;
-      }
+//   for(int c=0; c<3; c++)
+//   for(int i=0; i<N0; i++)
+//     for(int j=0; j<N1; j++)
+//       for(int k=0; k<N2; k++){
+//                 in[c][i][j][k] = c + 1; //i + j*0.01 + k*0.00001;
+//       }
+  in[X][0][0][0] = 1;
+  in[Y][0][0][0] = 2;
+  in[Z][0][0][0] = 3;
+  
   
   tensor_copy_to_gpu(hostM, m);
   fprintf(stderr, "m:\n");
@@ -60,13 +64,17 @@ void test_convplan(){
   
   tensor* kernel = new_tensor(5, 3, 3, kernelSize[X], kernelSize[Y], kernelSize[Z] );
   float***** K = tensor_array5D(kernel);
-  K[X][X][0][0][0] = 1.;
+  K[X][Y][0][0][0] = 1;
+//   for(int i=0; i<kernel->len; i++)
+//      kernel->list[i] = 1;
+  
   tensor* gpuKernel = new_gputensor(5, kernel->size);
   tensor_copy_to_gpu(kernel, gpuKernel);
   gpuconv2_loadkernel5DSymm(plan, gpuKernel);
   
   for(int s=0; s<3; s++){
     for(int d=0; d<3; d++){
+      fprintf(stderr, "K%d%d\n", s, d);
       format_gputensor(plan->fftKernel[s][d], stderr);
     }
   }

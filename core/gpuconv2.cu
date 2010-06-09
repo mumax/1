@@ -123,10 +123,14 @@ void gpu_kernel_mul_complex_inplace_symm(float* fftMx,  float* fftMy,  float* ff
   assert(nRealNumbers > 0);
   assert(nRealNumbers % 2 == 0);
   
-  int threadsPerBlock = 512;
-  int blocks = (nRealNumbers/2) / threadsPerBlock;
-  gpu_checkconf_int(blocks, threadsPerBlock);
-  _gpu_kernel_mul_complex_inplace_symm<<<blocks, threadsPerBlock>>>(
+//   int threadsPerBlock = 512;
+//   int blocks = (nRealNumbers/2) / threadsPerBlock;
+//   gpu_checkconf_int(blocks, threadsPerBlock);
+//   
+   int gridSize = -1;
+   int blockSize = -1;
+   make1dconf(nRealNumbers/2, &gridSize, &blockSize);
+  _gpu_kernel_mul_complex_inplace_symm<<<gridSize, blockSize>>>(
                                       fftMx,  fftMy,  fftMz, 
                                       fftKxx, fftKyy, fftKzz,
                                       fftKyz, fftKxz, fftKxy);
@@ -200,28 +204,6 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
 
 //_____________________________________________________________________________________________ load kernel
 
-// void gpuconv2_checksize_kernel(gpuconv2* conv, tensor* kernel){
-//   // kernel should be rank 5 tensor with size 3 x 3 x 2*N0 x 2xN1 x 2xN2 (could be reduced a bit)
-// //   assert(kernel->rank == 5);
-// //   assert(kernel->size[0] == 3);
-// //   assert(kernel->size[1] == 3);
-// //   for(int i=0; i<3; i++){ assert(kernel->size[i+2] == 2 * conv->size[i]); }
-// //   
-// //   assert(kernel->size[2] == conv->paddedSize[0]);
-// //   assert(kernel->size[3] == conv->paddedSize[1]);
-// //   assert(kernel->size[4] == conv->paddedSize[2]);
-// }
-// 
-// void gpuconv2_alloc_ft_kernel(gpuconv2* conv){
-//   conv->ft_kernel = (float***)calloc(3, sizeof(float**));
-//   for(int i=0; i<3; i++){ 
-//     conv->ft_kernel[i] = (float**)calloc(3, sizeof(float*));
-//     for(int j=0; j<3; j++){
-//       conv->ft_kernel[i][j] = new_gpu_array(conv->len_ft_kernel_ij);
-//     }
-//   }
-// }
-
 
 void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
 
@@ -242,6 +224,7 @@ void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
   for(int s=0; s<3; s++){
     for(int d=0; d<3; d++){
       tensor* Ksd = tensor_component(tensor_component(kernel5D, s), d);
+      gpu_zero_tensor(conv->fftKernel[s][d]);
       gpu_copy_pad(Ksd, conv->fftKernel[s][d]);
       gpuFFT3dPlan_forward(plan, conv->fftKernel[s][d], conv->fftKernel[s][d]);
     }
@@ -343,10 +326,10 @@ gpuconv2* new_gpuconv2(int* size, int* kernelSize){
   conv->fftKernel[X][Z] = new_gputensor(3, paddedStorageSize);
   conv->fftKernel[X][Y] = new_gputensor(3, paddedStorageSize);
   
-  conv->fftKernel[Z][Y] = conv->fftKernel[Y][Z];
-  conv->fftKernel[Z][X] = conv->fftKernel[X][Z];
-  conv->fftKernel[Y][X] = conv->fftKernel[X][Y];
-
+  ///@todo not storing the sub-diagonal elements does not work: they are somehow not loaded.
+  conv->fftKernel[Z][Y] = new_gputensor(3, paddedStorageSize);//conv->fftKernel[Y][Z];
+  conv->fftKernel[Z][X] = new_gputensor(3, paddedStorageSize);//conv->fftKernel[X][Z];
+  conv->fftKernel[Y][X] = new_gputensor(3, paddedStorageSize);//conv->fftKernel[X][Y];
 
   ///@todo free some sizes
   return conv;

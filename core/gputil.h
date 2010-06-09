@@ -240,10 +240,10 @@ void make3dconf(int N0, 	///< size of 3D array to span
  * mykernel<<<gridSize, blockSize>>>(arrrrgh);
  * @endcode
  */
-void make1dconf(int N, 		///< size of array to span
-		int* gridSize,  ///< grid size is returned here
-		int* blockSize  ///< block size is returned here
-		);
+void make1dconf(int N,          ///< size of array to span (number of floats)
+                int* gridSize,  ///< grid size is returned here
+                int* blockSize  ///< block size is returned here
+                );
 
 
 /**
