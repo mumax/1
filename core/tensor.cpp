@@ -201,6 +201,43 @@ float**** tensor_array4D(tensor* t){
   return slice_array4D(t->list, t->size[0], t->size[1], t->size[2], t->size[3]);
 }
 
+
+float***** slice_array5D(float* list, int size0, int size1, int size2, int size3, int size4){
+  
+  float***** sliced = (float*****)safe_calloc(size0, sizeof(float*));
+  for(int i=0; i < size0; i++){
+    sliced[i] = (float****)safe_calloc(size1, sizeof(float*));
+  }
+  for(int i=0; i<size0; i++){
+    for(int j=0; j<size1; j++){
+      sliced[i][j] = (float***)safe_calloc(size2, sizeof(float*));
+    }
+  }
+  for(int i=0; i<size0; i++){
+    for(int j=0; j<size1; j++){
+      for(int k=0; k<size2; k++){
+        sliced[i][j][k] = (float**)safe_calloc(size3, sizeof(float*));
+      }
+    }
+  }
+  for(int i=0; i<size0; i++){
+    for(int j=0; j<size1; j++){
+      for(int k=0; k<size2; k++){
+        for(int l=0; l<size3; l++){
+          sliced[i][j][k] = &list[ (((i * size1 + j) *size2 + k) * size3 + l) * size4 + 0];
+        }
+      }
+    }
+  }
+  
+  return sliced;
+}
+
+float***** tensor_array5D(tensor* t){
+  assert(t->rank == 5);
+  return slice_array5D(t->list, t->size[0], t->size[1], t->size[2], t->size[3], t->size[4]);
+}
+
 int tensor_length(tensor* t){
   int length = 1;
   for(int i=0; i < t->rank; i++){

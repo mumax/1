@@ -52,6 +52,8 @@ void test_convplan(){
                 in[c][i][j][k] = c + 1; //i + j*0.01 + k*0.00001;
       }
   
+  tensor* kernel = new_tensor();
+  
   tensor_copy_to_gpu(hostM, m);
   fprintf(stderr, "m:\n");
   format_gputensor(m, stderr);

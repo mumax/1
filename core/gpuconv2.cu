@@ -125,6 +125,8 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
   cudaThreadSynchronize();
 }
 
+//_____________________________________________________________________________________________ kernel multiplication
+
 __global__ void _gpu_kernel_mul2(float* ft_m_i, float* ft_kernel_ij, float* ft_h_j){
   /*int e = 2 * ((blockIdx.x * blockDim.x) + threadIdx.x);
   
@@ -150,7 +152,7 @@ void gpu_kernel_mul2(float* ft_m_i, float* ft_kernel_ij, float* ft_h_comp_j, int
   timer_stop("gpuconv2_kernel_mul");*/
 }
 
-//_____________________________________________________________________________________________ kernel
+//_____________________________________________________________________________________________ load kernel
 
 // void gpuconv2_checksize_kernel(gpuconv2* conv, tensor* kernel){
 //   // kernel should be rank 5 tensor with size 3 x 3 x 2*N0 x 2xN1 x 2xN2 (could be reduced a bit)
@@ -174,22 +176,30 @@ void gpu_kernel_mul2(float* ft_m_i, float* ft_kernel_ij, float* ft_h_comp_j, int
 //   }
 // }
 
-int* NO_ZERO_PAD = (int*)calloc(3, sizeof(int));
 
 void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
+
+  int* paddedSize = conv->paddedSize;
   
-//   int* paddedSize = conv->paddedSize;
-//   int* paddedStorageSize = conv->paddedStorageSize;
-//   
-//   assert(kernel5D->rank == 5);
-//   assert(kernel5D->size[0] == 3);
-//   assert(kernel5D->size[1] == 3);
-//   assert(kernel5D->size[2+X] == paddedSize[X]);
-//   assert(kernel5D->size[2+Y] == paddedSize[Y]);
-//   assert(kernel5D->size[2+Z] == paddedSize[Z]);
-// 
-//   
-//   gpuFFT3dPlan* plan = new_gpuFFT3dPlan_padded(paddedStorageSize, paddedStorageSize);
+  assert(kernel5D->rank == 5);
+  assert(kernel5D->size[0] == 3);
+  assert(kernel5D->size[1] == 3);
+  assert(kernel5D->size[2+X] == paddedSize[X]);
+  assert(kernel5D->size[2+Y] == paddedSize[Y]);
+  assert(kernel5D->size[2+Z] == paddedSize[Z]);
+
+  tensor* fftbuffer = conv->fft1Comp[0];
+  int* paddedStorageSize = fftbuffer->size;
+  gpuFFT3dPlan* plan = new_gpuFFT3dPlan_padded(paddedSize, paddedStorageSize);
+  
+  for(int s=0; s<3; s++){
+    for(int d=0; d<3; d++){
+      tensor* Ksd = tensor_component(tensor_component(kernel5D, s), d);
+      gpu_copy_pad(Ksd, conv->fftKernel[s][d]);
+      gpuFFT3dPlan_forward(fftKernel[s][d], fftKernel[s][d]);
+    }
+  }
+  
 }
 
 // void gpuconv2_loadkernel(gpuconv2* conv, tensor* kernel){
