@@ -86,7 +86,7 @@ void test_fft(){
 
   int size[3] = {N0, N1, N2};
   int kernelSize[3] = {2*N0, 2*N1, 2*N2};
-  gpuFFT3dPlan* plan = new_gpuFFT3dPlan(size, kernelSize);
+  gpuFFT3dPlan* plan = new_gpuFFT3dPlan_padded(size, kernelSize);
 
     
 // make some host data and initialize _________________________________

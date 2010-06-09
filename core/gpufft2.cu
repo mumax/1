@@ -16,7 +16,7 @@ extern "C" {
  * only zero's are not transformed.
  * @todo on compute capability < 2.0, the first step is done serially...
  */
-gpuFFT3dPlan* new_gpuFFT3dPlan(int* size, int* kernelsize){
+gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* kernelsize){
   
   int N0 = size[X]; int N1 = size[Y]; int N2 = size[Z];
   assert(N0 > 1);   assert(N1 > 1);   assert(N2 > 1);
@@ -56,7 +56,12 @@ gpuFFT3dPlan* new_gpuFFT3dPlan(int* size, int* kernelsize){
   return plan;
 }
 
-///@todo seems to write out of bounds, inverse does not
+
+gpuFFT3dPlan* new_gpuFFT3dPlan(int* size){
+  return new_gpuFFT3dPlan_padded(size, size); // when size == paddedsize, there is no padding
+}
+
+
 void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   timer_start("gpu_plan3d_real_input_forward_exec");
 

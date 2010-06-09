@@ -200,7 +200,7 @@ void test_conv(){
   for(int i=0; i<3; i++)
     fftComp[i] = tensor_component(fft, i);
   
-  gpuFFT3dPlan* plan = new_gpuFFT3dPlan(size, kernelSize);
+  gpuFFT3dPlan* plan = new_gpuFFT3dPlan_padded(size, kernelSize);
     
   float**** in = tensor_array4D(hostM);
   for(int c=0; c<3; c++)

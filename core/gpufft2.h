@@ -14,8 +14,8 @@
  * @author Arne Vansteenkiste
  * @author Ben Van de Wiele
  */
-#ifndef GPUFFT2_H
-#define GPUFFT2_H
+#ifndef gpufft2_H
+#define gpufft2_H
 
 #include "tensor.h"
 #include "gputil.h"
@@ -52,14 +52,24 @@ typedef struct{
 
 
 /**
- * Creates a new FFT plan for transforming the magnetization. 
- * Zero-padding in each dimension is optional, and rows with
- * only zero's are not transformed.
- * @todo on compute capability < 2.0, the first step is done serially...
+ * Creates a new real-to-complex 3D FFT plan with efficient handling of padding zeros.
+ * If paddedsize is larger than size, then the additional space is filled with zeros,
+ * but they are efficiently handled during the transform.
  */
-gpuFFT3dPlan* new_gpuFFT3dPlan(int* size,       ///< size of real input data (3D)
-                               int* kernelsize  ///< size of the kernel (3D). Should be at least the size of the input data. If the kernel is larger, the input data is assumed to be padded with zero's which are efficiently handled by the FFT
+gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size,       ///< size of real input data (3D)
+                                      int* paddedsize  ///< size of the padded data (3D). Should be at least the size of the input data. If the kernel is larger, the input data is assumed to be padded with zero's which are efficiently handled by the FFT
+                                      );
+                                      
+/**
+ * Creates a general real-to-complex 3D FFT plan.
+ * @note This is equivalent to
+ * @code
+ * new_gpuFFT3dPlan_padded(size, size);
+ * @endcode
+ */
+gpuFFT3dPlan* new_gpuFFT3dPlan(int* size       ///< size of real input data (3D)
                                );
+                                      
 
 /**
  * Forward (real-to-complex) transform.

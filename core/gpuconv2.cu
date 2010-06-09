@@ -189,7 +189,7 @@ void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
 //   assert(kernel5D->size[2+Z] == paddedSize[Z]);
 // 
 //   
-//   gpuFFT3dPlan* plan = new_gpuFFT3dPlan(paddedStorageSize, paddedStorageSize);
+//   gpuFFT3dPlan* plan = new_gpuFFT3dPlan_padded(paddedStorageSize, paddedStorageSize);
 }
 
 // void gpuconv2_loadkernel(gpuconv2* conv, tensor* kernel){
@@ -258,7 +258,7 @@ gpuconv2* new_gpuconv2(int* size, int* kernelSize){
   for(int i=0; i<3; i++){
     zeroPad[i] = 1; // todo !!
   }
-  conv->fftplan = new_gpuFFT3dPlan(size, kernelSize);	// it's important to FIRST initialize the fft plan because it stores the sizes used by other functions.
+  conv->fftplan = new_gpuFFT3dPlan_padded(size, kernelSize);	// it's important to FIRST initialize the fft plan because it stores the sizes used by other functions.
   
   conv->m = as_tensorN(NULL, 4, size4D);  // m->list will be set to whatever data is convolved at a certain time.
   conv->h = as_tensorN(NULL, 4, size4D);  // h->list will be set to whatever convolution destination used at a certain time.
