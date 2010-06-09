@@ -56,18 +56,24 @@ void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel,  ///< rank 2 te
 
 	 
 __global__ void _gpu_init_Greens_kernel_elements(float *dev_temp, 
-																								 int *Nkernel, 
+																								 int Nkernel_X, 
+																								 int Nkernel_Y, 
+																								 int Nkernel_Z, 
 																								 int co1, 
 																								 int co2, 
 																								 float *FD_cell_size, 
 																								 float cst, 
-																								 int *repetition, 
+																								 int repetition_X, 
+																								 int repetition_Y, 
+																								 int repetition_Z, 
 																								 float *qd_P_10, 
 																								 float *qd_W_10
 																								 );
 
 
-__device__ float _gpu_get_Greens_element(int *Nkernel, 
+__device__ float _gpu_get_Greens_element(int Nkernel_X, 
+																				 int Nkernel_Y, 
+																				 int Nkernel_Z, 
 																				 int co1, 
 																				 int co2, 
 																				 int a, 
@@ -75,7 +81,9 @@ __device__ float _gpu_get_Greens_element(int *Nkernel,
 																				 int c, 
 																				 float *FD_cell_size, 
 																				 float cst, 
-																				 int *repetition, 
+																				 int repetition_X, 
+																				 int repetition_Y, 
+																				 int repetition_Z, 
 																				 float *dev_qd_P_10,
 																				 float *dev_qd_W_10
 																				 );

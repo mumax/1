@@ -13,7 +13,7 @@
 
 int main(int argc, char** argv){
   
-  print_device_properties(stderr);
+//  print_device_properties(stderr);
   
   int N0 = 4;
   int N1 = 8;
@@ -35,7 +35,7 @@ int main(int argc, char** argv){
 	tensor *dev_kernel;
 	gpu_init_Greens_kernel1(dev_kernel, N0, N1, N2, zero_pad, repetition, FD_cell_size);
 
-	fprintf(stderr, "PASS\n");
+	fprintf(stderr, "\nPASS\n");
 
 	return 0;
 }

@@ -14,9 +14,9 @@ extern "C" {
 void gpu_init_Greens_kernel1(tensor* dev_kernel, int N0, int N1, int N2, int *zero_pad, int *repetition, float *FD_cell_size){
 
 	for (int i=0; i<3; i++){
-		if (repetition[i]<=1 && zero_pad[i]!=0){
-			fprintf(stderr, "repetition[%d]= %d, while no periodicity is considered!", i, repetition[i]);
-			fprintf(stderr, "repetition[%d], should be 1", i);
+		if (repetition[i]>1 && zero_pad[i]!=0){
+			fprintf(stderr, "repetition[%d]= %d, while no periodicity is considered!\n", i, repetition[i]);
+			fprintf(stderr, "repetition[%d], should be zero\n", i);
 			return;
 		}
 	}
@@ -61,32 +61,33 @@ void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *Nkernel, f
   // BODY COMMENTED OUT BY ARNE BECAUSE IT CONTAINS COMPILATION ERRORS.
   // NOW, THE PROJECT COMPILES...
   
-// 	int NkernelStorageN = 2*dev_kernel->size[1];
-// 
-// 	float *host_temp = (float *)calloc(NkernelStorageN, sizeof(float));		// temp tensor on host for storage of each component in real + i*complex format
-// 	float *dev_temp = new_gpu_array(NkernelStorageN);		                  // temp tensor on device for storage of each component in real + i*complex format
-// 	
-// 	dim3 gridsize(Nkernel[X]/2, Nkernel[Y]/2, 1);	///@todo generalize!
-//   dim3 blocksize(Nkernel[Z]/2, 1, 1);
-//   gpu_checkconf(gridsize, blocksize);
-// 	
-//   int threadsPerBlock = 512;
-//   int blocks = (NkernelStorageN/2) / threadsPerBlock;
-//   gpu_checkconf_int(blocks, threadsPerBlock);
-// 
-// 	gpu_zero(dev_temp, NkernelStorageN);
-// 	cudaThreadSynchronize();
-// 	_gpu_init_Greens_kernel_elements<<<gridsize, blocksize>>>(dev_temp, Nkernel, co1, co2, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10);
-// 	cudaThreadSynchronize();
-// 	
-//   memcpy_from_gpu(dev_temp, host_temp, NkernelStorageN);
-// 	for (int i=0; i<Nkernel[X]; i++)
-// 		for (int j=0; j<Nkernel[Y]; j++){
-// 			for (int k=0; k<Nkernel[Z]; k++){
-// 				fprintf(stderr, "%e ", host_temp[i*Nkernel[Y]*Nkernel[Z] + j*Nkernel[Z] + k);
-// 			}
-// 			fprintf(stderr, "\n");
-// 		}
+ 	int NkernelStorageN = 2*dev_kernel->size[1];
+	
+ 	float *host_temp = (float *)calloc(NkernelStorageN, sizeof(float));		// temp tensor on host for storage of each component in real + i*complex format (for debugging purposes)
+ 	float *dev_temp = new_gpu_array(NkernelStorageN);		                  	// temp tensor on device for storage of each component in real + i*complex format
+ 	
+	dim3 gridsize(Nkernel[X]/2, Nkernel[Y]/2, 1);	///@todo generalize!
+  dim3 blocksize(Nkernel[Z]/2, 1, 1);				///@todo aan te passen!!  GPU_STRIDE_FLOAT
+  gpu_checkconf(gridsize, blocksize);
+	
+  int threadsPerBlock = 512;
+  int blocks = (NkernelStorageN/2) / threadsPerBlock;
+  gpu_checkconf_int(blocks, threadsPerBlock);
+
+	gpu_zero(dev_temp, NkernelStorageN);
+	cudaThreadSynchronize();
+	_gpu_init_Greens_kernel_elements<<<gridsize, blocksize>>>(dev_temp, Nkernel[X], Nkernel[Y], Nkernel[Z], 0, 0, FD_cell_size, cst, repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
+	cudaThreadSynchronize();
+	
+  memcpy_from_gpu(dev_temp, host_temp, NkernelStorageN);
+	cudaThreadSynchronize();
+/*	for (int i=0; i<Nkernel[X]; i++)
+		for (int j=0; j<Nkernel[Y]; j++){
+			for (int k=0; k<Nkernel[Z]; k++){
+				fprintf(stderr, "%e ", host_temp[i*Nkernel[Y]*Nkernel[Z] + j*Nkernel[Z] + k]);
+			}
+			fprintf(stderr, "\n");
+		}*/
 // // 	int rang1=0;
 // // 	for (int co1=0; co1<3; co1++){
 // // 		for (int co2=co1; co2<3; co2++){
@@ -105,58 +106,62 @@ void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *Nkernel, f
 // 
 // 
 // 	free (host_temp);
-// 	free (dev_temp);   ///> @todo check how to free a float array on device!
+// 	cudaFree (dev_temp);
 // 	
 // 	return;
 }
 
 
 
-__global__ void _gpu_init_Greens_kernel_elements(float *dev_temp, int *Nkernel, int co1, int co2, float *FD_cell_size, float cst, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10){
+__global__ void _gpu_init_Greens_kernel_elements(float *dev_temp, int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int co1, int co2, float *FD_cell_size, float cst, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
    
     int i = blockIdx.x;
     int j = blockIdx.y;
     int k = threadIdx.x;
-
-		int N12 = Nkernel[Y] * (Nkernel[Z] + 2);			///@todo aanpassen!!
-		int N2 = Nkernel[Z] + 2;											///@todo aanpassen!!
-//		int N12 = Nkernel[Y] * (Nkernel[Z] + gpu_stride_float());			///@todo aanpassen!!
-//		int N2 = Nkernel[Z] + gpu_stride_float();											///@todo aanpassen!!
-
 		
-			dev_temp[             i*N12 +              j*N2 +            k] = _gpu_get_Greens_element(Nkernel, co1, co2,  i,  j,  k, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10);
+		
+
+		int N2 = Nkernel_Z + 2;											///@todo aanpassen!!
+		int N12 = Nkernel_Y * N2;			              ///@todo aanpassen!!
+//		int N2 = Nkernel_Z + gpu_stride_float();											///@todo aanpassen!!
+//		int N12 = Nkernel_Y * N2;																			///@todo aanpassen!!
+
+
+			dev_temp[            i*N12 +             j*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j,  k, FD_cell_size, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 		if (i>0)
-			dev_temp[(Nkernel[X]-i)*N12 +              j*N2 +            k] = _gpu_get_Greens_element(Nkernel, co1, co2, -i,  j,  k, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10);
+			dev_temp[(Nkernel_X-i)*N12 +             j*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j,  k, FD_cell_size, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 		if (j>0)
-			dev_temp[             i*N12 + (Nkernel[Y]-j)*N2 +            k] = _gpu_get_Greens_element(Nkernel, co1, co2,  i, -j,  k, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10);
+			dev_temp[            i*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j,  k, FD_cell_size, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 		if (k>0) 
-			dev_temp[             i*N12 +              j*N2 + Nkernel[Z]-k] = _gpu_get_Greens_element(Nkernel, co1, co2,  i,  j, -k, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10);
-		if (i>0 && j>0) 
-			dev_temp[(Nkernel[X]-i)*N12 + (Nkernel[Y]-j)*N2 +            k] = _gpu_get_Greens_element(Nkernel, co1, co2, -i, -j,  k, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10);
+			dev_temp[            i*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j, -k, FD_cell_size, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		if (i>0 && j>0)
+			dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j,  k, FD_cell_size, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 		if (i>0 && k>0) 
-			dev_temp[(Nkernel[X]-i)*N12 +              j*N2 + Nkernel[Z]-k] = _gpu_get_Greens_element(Nkernel, co1, co2, -i,  j, -k, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10);
+			dev_temp[(Nkernel_X-i)*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j, -k, FD_cell_size, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 		if (j>0 && k>0) 
-			dev_temp[             i*N12 + (Nkernel[Y]-j)*N2 + Nkernel[Z]-k] = _gpu_get_Greens_element(Nkernel, co1, co2,  i, -j, -k, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10);
+			dev_temp[            i*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j, -k, FD_cell_size, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 		if (i>0 && j>0 && k>0) 
-			dev_temp[(Nkernel[X]-i)*N12 + (Nkernel[Y]-j)*N2 + Nkernel[Z]-k] = _gpu_get_Greens_element(Nkernel, co1, co2, -i, -j, -k, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10);
+			dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j, -k, FD_cell_size, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+
+	return;
 }
 
-__device__ float _gpu_get_Greens_element(int *Nkernel, int co1, int co2, int a, int b, int c, float *FD_cell_size, float cst, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10){
+__device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int co1, int co2, int a, int b, int c, float *FD_cell_size, float cst, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
 
 	float result = 0.0;
 	float *dev_qd_P_10_X = &dev_qd_P_10[X];
 	float *dev_qd_P_10_Y = &dev_qd_P_10[Y];
 	float *dev_qd_P_10_Z = &dev_qd_P_10[Z];
-
+	
 	if (co1==0 && co2==0){
 
-		for(int cnta=-repetition[X]; cnta<=repetition[X]; cnta++)
-		for(int cntb=-repetition[Y]; cntb<=repetition[Y]; cntb++)
-		for(int cntc=-repetition[Z]; cntc<=repetition[Z]; cntc++){
+		for(int cnta=-repetition_X; cnta<=repetition_X; cnta++)
+		for(int cntb=-repetition_Y; cntb<=repetition_Y; cntb++)
+		for(int cntc=-repetition_Z; cntc<=repetition_Z; cntc++){
 
-			int i = a + cnta*Nkernel[X]/2;
-			int j = b + cntb*Nkernel[Y]/2;
-			int k = c + cntc*Nkernel[Z]/2;
+			int i = a + cnta*Nkernel_X/2;
+			int j = b + cntb*Nkernel_Y/2;
+			int k = c + cntc*Nkernel_Z/2;
 			int r2_int = i*i+j*j+k*k;
 
 			if (r2_int<400){
@@ -177,18 +182,18 @@ __device__ float _gpu_get_Greens_element(int *Nkernel, int co1, int co2, int a, 
 									(1.0f/ __powf(r2,1.5f) - 3.0f* (i*FD_cell_size[X]) * (i*FD_cell_size[X]) * __powf(r2,-2.5f));
 			}
 		}
-		
+		result = 0.0f;
 	}
 	
 	if (co1==0 && co2==1){
 
-		for(int cnta=-repetition[X]; cnta<=repetition[X]; cnta++)
-		for(int cntb=-repetition[Y]; cntb<=repetition[Y]; cntb++)
-		for(int cntc=-repetition[Z]; cntc<=repetition[Z]; cntc++){
+		for(int cnta=-repetition_X; cnta<=repetition_X; cnta++)
+		for(int cntb=-repetition_Y; cntb<=repetition_Y; cntb++)
+		for(int cntc=-repetition_Z; cntc<=repetition_Z; cntc++){
 
-			int i = a + cnta*Nkernel[X]/2;
-			int j = b + cntb*Nkernel[Y]/2;
-			int k = c + cntc*Nkernel[Z]/2;
+			int i = a + cnta*Nkernel_X/2;
+			int j = b + cntb*Nkernel_Y/2;
+			int k = c + cntc*Nkernel_Z/2;
 			int r2_int = i*i+j*j+k*k;
 
 			if (r2_int<400){
@@ -214,13 +219,13 @@ __device__ float _gpu_get_Greens_element(int *Nkernel, int co1, int co2, int a, 
 
 	if (co1==0 && co2==2){
 
-		for(int cnta=-repetition[X]; cnta<=repetition[X]; cnta++)
-		for(int cntb=-repetition[Y]; cntb<=repetition[Y]; cntb++)
-		for(int cntc=-repetition[Z]; cntc<=repetition[Z]; cntc++){
+		for(int cnta=-repetition_X; cnta<=repetition_X; cnta++)
+		for(int cntb=-repetition_Y; cntb<=repetition_Y; cntb++)
+		for(int cntc=-repetition_Z; cntc<=repetition_Z; cntc++){
 
-			int i = a + cnta*Nkernel[X]/2;
-			int j = b + cntb*Nkernel[Y]/2;
-			int k = c + cntc*Nkernel[Z]/2;
+			int i = a + cnta*Nkernel_X/2;
+			int j = b + cntb*Nkernel_Y/2;
+			int k = c + cntc*Nkernel_Z/2;
 			int r2_int = i*i+j*j+k*k;
 
 			if (r2_int<400){
@@ -246,13 +251,13 @@ __device__ float _gpu_get_Greens_element(int *Nkernel, int co1, int co2, int a, 
 	
 	if (co1==1 && co2==1){
 	
-		for(int cnta=-repetition[X]; cnta<=repetition[X]; cnta++)
-		for(int cntb=-repetition[Y]; cntb<=repetition[Y]; cntb++)
-		for(int cntc=-repetition[Z]; cntc<=repetition[Z]; cntc++){
+		for(int cnta=-repetition_X; cnta<=repetition_X; cnta++)
+		for(int cntb=-repetition_Y; cntb<=repetition_Y; cntb++)
+		for(int cntc=-repetition_Z; cntc<=repetition_Z; cntc++){
 
-			int i = a + cnta*Nkernel[X]/2;
-			int j = b + cntb*Nkernel[Y]/2;
-			int k = c + cntc*Nkernel[Z]/2;
+			int i = a + cnta*Nkernel_X/2;
+			int j = b + cntb*Nkernel_Y/2;
+			int k = c + cntc*Nkernel_Z/2;
 			int r2_int = i*i+j*j+k*k;
 
 			if (r2_int<400){
@@ -278,13 +283,13 @@ __device__ float _gpu_get_Greens_element(int *Nkernel, int co1, int co2, int a, 
 
 	if (co1==1 && co2==2){
 	
-		for(int cnta=-repetition[X]; cnta<=repetition[X]; cnta++)
-		for(int cntb=-repetition[Y]; cntb<=repetition[Y]; cntb++)
-		for(int cntc=-repetition[Z]; cntc<=repetition[Z]; cntc++){
+		for(int cnta=-repetition_X; cnta<=repetition_X; cnta++)
+		for(int cntb=-repetition_Y; cntb<=repetition_Y; cntb++)
+		for(int cntc=-repetition_Z; cntc<=repetition_Z; cntc++){
 
-			int i = a + cnta*Nkernel[X]/2;
-			int j = b + cntb*Nkernel[Y]/2;
-			int k = c + cntc*Nkernel[Z]/2;
+			int i = a + cnta*Nkernel_X/2;
+			int j = b + cntb*Nkernel_Y/2;
+			int k = c + cntc*Nkernel_Z/2;
 			int r2_int = i*i+j*j+k*k;
 
 			if (r2_int<400){
@@ -310,13 +315,13 @@ __device__ float _gpu_get_Greens_element(int *Nkernel, int co1, int co2, int a, 
 
 	if (co1==2 && co2==2){
 	
-		for(int cnta=-repetition[X]; cnta<=repetition[X]; cnta++)
-		for(int cntb=-repetition[Y]; cntb<=repetition[Y]; cntb++)
-		for(int cntc=-repetition[Z]; cntc<=repetition[Z]; cntc++){
+		for(int cnta=-repetition_X; cnta<=repetition_X; cnta++)
+		for(int cntb=-repetition_Y; cntb<=repetition_Y; cntb++)
+		for(int cntc=-repetition_Z; cntc<=repetition_Z; cntc++){
 
-			int i = a + cnta*Nkernel[X]/2;
-			int j = b + cntb*Nkernel[Y]/2;
-			int k = c + cntc*Nkernel[Z]/2;
+			int i = a + cnta*Nkernel_X/2;
+			int j = b + cntb*Nkernel_Y/2;
+			int k = c + cntc*Nkernel_Z/2;
 			int r2_int = i*i+j*j+k*k;
 
 			if (r2_int<400){
