@@ -13,9 +13,11 @@ CFLAGS+=\
 
 
 NVCCFLAGS+=\
-  --device-emulation\
   --compiler-options -Werror\
   --compiler-options -fPIC\
   --compiler-options -g\
 # --compiler-options -DNDEBUG\
-# uncomment the above line to disable all assert() statements
+# --device-emulation\
+
+# -DNDEBUG disables all assert() statements
+# --device-emulation allows to run it on a CPU, requires "emu" to be appended to all cuda library names (e.g. -lcudartemu)
