@@ -63,8 +63,9 @@ void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *Nkernel, f
   
  	int NkernelStorageN = 2*dev_kernel->size[1];
 	
- 	float *host_temp = (float *)calloc(NkernelStorageN, sizeof(float));		// temp tensor on host for storage of each component in real + i*complex format (for debugging purposes)
- 	float *dev_temp = new_gpu_array(NkernelStorageN);		                  	// temp tensor on device for storage of each component in real + i*complex format
+	float *host_temp = (float *)calloc(NkernelStorageN, sizeof(float));			// temp array on host for storage of each component in real + i*complex format in serie (only for debugging purposes)
+	float *host_temp2 = (float *)calloc(NkernelStorageN/2, sizeof(float));	// temp array on host for storage of only the real components
+	float *dev_temp = new_gpu_array(NkernelStorageN);		                  	// temp tensor on device for storage of each component in real + i*complex format
  	
 	dim3 gridsize(Nkernel[X]/2, Nkernel[Y]/2, 1);	///@todo generalize!
   dim3 blocksize(Nkernel[Z]/2, 1, 1);				///@todo aan te passen!!  GPU_STRIDE_FLOAT
@@ -76,18 +77,40 @@ void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *Nkernel, f
 
 	gpu_zero(dev_temp, NkernelStorageN);
 	cudaThreadSynchronize();
-	_gpu_init_Greens_kernel_elements<<<gridsize, blocksize>>>(dev_temp, Nkernel[X], Nkernel[Y], Nkernel[Z], 0, 0, FD_cell_size, cst, repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
+	_gpu_init_Greens_kernel_elements<<<gridsize, blocksize>>>(dev_temp, Nkernel[X], Nkernel[Y], Nkernel[Z], 0, 0, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], cst, repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
 	cudaThreadSynchronize();
 	
+	gpu_plan3d_real_input_forward(kernel_plan, dev_temp);
+	cudaThreadSynchronize();
+
   memcpy_from_gpu(dev_temp, host_temp, NkernelStorageN);
 	cudaThreadSynchronize();
-/*	for (int i=0; i<Nkernel[X]; i++)
+	for (int i=0; i<Nkernel[X]; i++){
 		for (int j=0; j<Nkernel[Y]; j++){
-			for (int k=0; k<Nkernel[Z]; k++){
-				fprintf(stderr, "%e ", host_temp[i*Nkernel[Y]*Nkernel[Z] + j*Nkernel[Z] + k]);
+			for (int k=0; k<Nkernel[Z]+2; k++){
+				fprintf(stderr, "%e ", host_temp[i*Nkernel[Y]*(Nkernel[Z]+2) + j*(Nkernel[Z]+2) + k]);
 			}
 			fprintf(stderr, "\n");
-		}*/
+		}
+		fprintf(stderr, "\n");
+	}
+
+	_gpu_extract_real_parts<<<blocks, threadsPerBlock>>>(dev_kernel->list, dev_temp, 0, NkernelStorageN/2);
+	cudaThreadSynchronize();
+  memcpy_from_gpu(&dev_kernel->list[0*NkernelStorageN/2], host_temp2, NkernelStorageN/2);
+	cudaThreadSynchronize();
+		for (int i=0; i<Nkernel[X]; i++){
+		for (int j=0; j<Nkernel[Y]; j++){
+			for (int k=0; k<(Nkernel[Z]+2)/2; k++){
+				fprintf(stderr, "%e ", host_temp2[i*Nkernel[Y]*(Nkernel[Z]+2) + j*(Nkernel[Z]+2) + k]);
+			}
+			fprintf(stderr, "\n");
+		}
+		fprintf(stderr, "\n");
+	}
+
+/// @todo check foutje in regel 123
+
 // // 	int rang1=0;
 // // 	for (int co1=0; co1<3; co1++){
 // // 		for (int co2=co1; co2<3; co2++){
@@ -113,7 +136,7 @@ void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *Nkernel, f
 
 
 
-__global__ void _gpu_init_Greens_kernel_elements(float *dev_temp, int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int co1, int co2, float *FD_cell_size, float cst, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
+__global__ void _gpu_init_Greens_kernel_elements(float *dev_temp, int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int co1, int co2, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, float cst, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
    
     int i = blockIdx.x;
     int j = blockIdx.y;
@@ -127,28 +150,28 @@ __global__ void _gpu_init_Greens_kernel_elements(float *dev_temp, int Nkernel_X,
 //		int N12 = Nkernel_Y * N2;																			///@todo aanpassen!!
 
 
-			dev_temp[            i*N12 +             j*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j,  k, FD_cell_size, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+			dev_temp[            i*N12 +             j*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 		if (i>0)
-			dev_temp[(Nkernel_X-i)*N12 +             j*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j,  k, FD_cell_size, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+			dev_temp[(Nkernel_X-i)*N12 +             j*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 		if (j>0)
-			dev_temp[            i*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j,  k, FD_cell_size, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+			dev_temp[            i*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 		if (k>0) 
-			dev_temp[            i*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j, -k, FD_cell_size, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+			dev_temp[            i*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 		if (i>0 && j>0)
-			dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j,  k, FD_cell_size, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+			dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 		if (i>0 && k>0) 
-			dev_temp[(Nkernel_X-i)*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j, -k, FD_cell_size, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+			dev_temp[(Nkernel_X-i)*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 		if (j>0 && k>0) 
-			dev_temp[            i*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j, -k, FD_cell_size, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+			dev_temp[            i*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 		if (i>0 && j>0 && k>0) 
-			dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j, -k, FD_cell_size, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+			dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 
 	return;
 }
 
-__device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int co1, int co2, int a, int b, int c, float *FD_cell_size, float cst, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
+__device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int co1, int co2, int a, int b, int c, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, float cst, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
 
-	float result = 0.0;
+	float result = 0.0f;
 	float *dev_qd_P_10_X = &dev_qd_P_10[X];
 	float *dev_qd_P_10_Y = &dev_qd_P_10[Y];
 	float *dev_qd_P_10_Z = &dev_qd_P_10[Z];
@@ -165,24 +188,23 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 			int r2_int = i*i+j*j+k*k;
 
 			if (r2_int<400){
-				float x1 = (i + 0.5f) * FD_cell_size[X];
-				float x2 = (i - 0.5f) * FD_cell_size[X];
+				float x1 = (i + 0.5f) * FD_cell_size_X;
+				float x2 = (i - 0.5f) * FD_cell_size_X;
 				for (int cnt2=0; cnt2<10; cnt2++){
-					float y = j * FD_cell_size[Y] + dev_qd_P_10_Y[cnt2];
+					float y = j * FD_cell_size_Y + dev_qd_P_10_Y[cnt2];
 					for (int cnt3=0; cnt3<10; cnt3++){
-						float z = k * FD_cell_size[Z] + dev_qd_P_10_Z[cnt3];
-						result += FD_cell_size[Y] * FD_cell_size[Z] / 4.0f * dev_qd_W_10[cnt2] * dev_qd_W_10[cnt3] *
+						float z = k * FD_cell_size_Z + dev_qd_P_10_Z[cnt3];
+						result += FD_cell_size_Y * FD_cell_size_Z / 4.0f * dev_qd_W_10[cnt2] * dev_qd_W_10[cnt3] *
 							( x1*__powf(x1*x1+y*y+z*z, -1.5f) - x2*__powf(x2*x2+y*y+z*z, -1.5f));
 					}
 				}
 			}
 			else{
-				float r2 = (i*FD_cell_size[X])*(i*FD_cell_size[X]) + (j*FD_cell_size[Y])*(j*FD_cell_size[Y]) + (k*FD_cell_size[Z])*(k*FD_cell_size[Z]);
-				result += FD_cell_size[X] * FD_cell_size[Y] * FD_cell_size[Z] * 
-									(1.0f/ __powf(r2,1.5f) - 3.0f* (i*FD_cell_size[X]) * (i*FD_cell_size[X]) * __powf(r2,-2.5f));
+				float r2 = (i*FD_cell_size_X)*(i*FD_cell_size_X) + (j*FD_cell_size_Y)*(j*FD_cell_size_Y) + (k*FD_cell_size_Z)*(k*FD_cell_size_Z);
+				result += FD_cell_size_X * FD_cell_size_Y * FD_cell_size_Z *
+									(1.0f/ __powf(r2,1.5f) - 3.0f* (i*FD_cell_size_X) * (i*FD_cell_size_X) * __powf(r2,-2.5f));
 			}
 		}
-		result = 0.0f;
 	}
 	
 	if (co1==0 && co2==1){
@@ -197,21 +219,21 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 			int r2_int = i*i+j*j+k*k;
 
 			if (r2_int<400){
-				float x1 = (i + 0.5f) * FD_cell_size[X];
-				float x2 = (i - 0.5f) * FD_cell_size[X];
+				float x1 = (i + 0.5f) * FD_cell_size_X;
+				float x2 = (i - 0.5f) * FD_cell_size_X;
 				for (int cnt2=0; cnt2<10; cnt2++){
-					float y = j * FD_cell_size[Y] + dev_qd_P_10_Y[cnt2];
+					float y = j * FD_cell_size_Y + dev_qd_P_10_Y[cnt2];
 					for (int cnt3=0; cnt3<10; cnt3++){
-						float z = k * FD_cell_size[Z] + dev_qd_P_10_Z[cnt3];
-						result += FD_cell_size[Y] * FD_cell_size[Z] / 4.0f * dev_qd_W_10[cnt2] * dev_qd_W_10[cnt3] *
+						float z = k * FD_cell_size_Z + dev_qd_P_10_Z[cnt3];
+						result += FD_cell_size_Y * FD_cell_size_Z / 4.0f * dev_qd_W_10[cnt2] * dev_qd_W_10[cnt3] *
 							( y*__powf(x1*x1+y*y+z*z, -1.5f) - y*__powf(x2*x2+y*y+z*z, -1.5f));
 					}
 				}
 			}
 			else{
-				float r2 = (i*FD_cell_size[X])*(i*FD_cell_size[X]) + (j*FD_cell_size[Y])*(j*FD_cell_size[Y]) + (k*FD_cell_size[Z])*(k*FD_cell_size[Z]);
-				result += FD_cell_size[X] * FD_cell_size[Y] * FD_cell_size[Z] * 
-									(- 3.0f* (i*FD_cell_size[X]) * (j*FD_cell_size[Y]) * __powf(r2,-2.5f));
+				float r2 = (i*FD_cell_size_X)*(i*FD_cell_size_X) + (j*FD_cell_size_Y)*(j*FD_cell_size_Y) + (k*FD_cell_size_Z)*(k*FD_cell_size_Z);
+				result += FD_cell_size_X * FD_cell_size_Y * FD_cell_size_Z * 
+									(- 3.0f* (i*FD_cell_size_X) * (j*FD_cell_size_Y) * __powf(r2,-2.5f));
 			}
 		}
 
@@ -229,21 +251,21 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 			int r2_int = i*i+j*j+k*k;
 
 			if (r2_int<400){
-				float x1 = (i + 0.5f) * FD_cell_size[X];
-				float x2 = (i - 0.5f) * FD_cell_size[X];
+				float x1 = (i + 0.5f) * FD_cell_size_X;
+				float x2 = (i - 0.5f) * FD_cell_size_X;
 				for (int cnt2=0; cnt2<10; cnt2++){
-					float y = j * FD_cell_size[Y] + dev_qd_P_10_Y[cnt2];
+					float y = j * FD_cell_size_Y + dev_qd_P_10_Y[cnt2];
 					for (int cnt3=0; cnt3<10; cnt3++){
-						float z = k * FD_cell_size[Z] + dev_qd_P_10_Z[cnt3];
-						result += FD_cell_size[Y] * FD_cell_size[Z] / 4.0f * dev_qd_W_10[cnt2] * dev_qd_W_10[cnt3] *
+						float z = k * FD_cell_size_Z + dev_qd_P_10_Z[cnt3];
+						result += FD_cell_size_Y * FD_cell_size_Z / 4.0f * dev_qd_W_10[cnt2] * dev_qd_W_10[cnt3] *
 							( z*__powf(x1*x1+y*y+z*z, -1.5f) - z*__powf(x2*x2+y*y+z*z, -1.5f));
 					}
 				}
 			}
 			else{
-				float r2 = (i*FD_cell_size[X])*(i*FD_cell_size[X]) + (j*FD_cell_size[Y])*(j*FD_cell_size[Y]) + (k*FD_cell_size[Z])*(k*FD_cell_size[Z]);
-				result += FD_cell_size[X] * FD_cell_size[Y] * FD_cell_size[Z] * 
-									(- 3.0f* (i*FD_cell_size[X]) * (k*FD_cell_size[Y]) * __powf(r2,-2.5f));
+				float r2 = (i*FD_cell_size_X)*(i*FD_cell_size_X) + (j*FD_cell_size_Y)*(j*FD_cell_size_Y) + (k*FD_cell_size_Z)*(k*FD_cell_size_Z);
+				result += FD_cell_size_X * FD_cell_size_Y * FD_cell_size_Z * 
+									(- 3.0f* (i*FD_cell_size_X) * (k*FD_cell_size_Y) * __powf(r2,-2.5f));
 			}
 		}
 	
@@ -261,21 +283,21 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 			int r2_int = i*i+j*j+k*k;
 
 			if (r2_int<400){
-				float y1 = (j + 0.5f) * FD_cell_size[Y];
-				float y2 = (j - 0.5f) * FD_cell_size[Y];
+				float y1 = (j + 0.5f) * FD_cell_size_Y;
+				float y2 = (j - 0.5f) * FD_cell_size_Y;
 				for (int cnt1=0; cnt1<10; cnt1++){
-					float x = i * FD_cell_size[X] + dev_qd_P_10_X[cnt1];
+					float x = i * FD_cell_size_X + dev_qd_P_10_X[cnt1];
 					for (int cnt3=0; cnt3<10; cnt3++){
-						float z = k * FD_cell_size[Z] + dev_qd_P_10_Z[cnt3];
-						result += FD_cell_size[X] * FD_cell_size[Z] / 4.0f * dev_qd_W_10[cnt1] * dev_qd_W_10[cnt3] *
+						float z = k * FD_cell_size_Z + dev_qd_P_10_Z[cnt3];
+						result += FD_cell_size_X * FD_cell_size_Z / 4.0f * dev_qd_W_10[cnt1] * dev_qd_W_10[cnt3] *
 							( y1*__powf(x*x+y1*y1+z*z, -1.5f) - y2*__powf(x*x+y2*y2+z*z, -1.5f));
 					}
 				}
 			}
 			else{
-				float r2 = (i*FD_cell_size[X])*(i*FD_cell_size[X]) + (j*FD_cell_size[Y])*(j*FD_cell_size[Y]) + (k*FD_cell_size[Z])*(k*FD_cell_size[Z]);
-				result += FD_cell_size[X] * FD_cell_size[Y] * FD_cell_size[Z] * 
-									(1.0f/ __powf(r2,1.5f) - 3.0f* (j*FD_cell_size[Y]) * (j*FD_cell_size[Y]) * __powf(r2,-2.5f));
+				float r2 = (i*FD_cell_size_X)*(i*FD_cell_size_X) + (j*FD_cell_size_Y)*(j*FD_cell_size_Y) + (k*FD_cell_size_Z)*(k*FD_cell_size_Z);
+				result += FD_cell_size_X * FD_cell_size_Y * FD_cell_size_Z * 
+									(1.0f/ __powf(r2,1.5f) - 3.0f* (j*FD_cell_size_Y) * (j*FD_cell_size_Y) * __powf(r2,-2.5f));
 			}
 		}
 
@@ -293,21 +315,21 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 			int r2_int = i*i+j*j+k*k;
 
 			if (r2_int<400){
-				float y1 = (j + 0.5f) * FD_cell_size[Y];
-				float y2 = (j - 0.5f) * FD_cell_size[Y];
+				float y1 = (j + 0.5f) * FD_cell_size_Y;
+				float y2 = (j - 0.5f) * FD_cell_size_Y;
 				for (int cnt1=0; cnt1<10; cnt1++){
-					float x = i * FD_cell_size[X] + dev_qd_P_10_X[cnt1];
+					float x = i * FD_cell_size_X + dev_qd_P_10_X[cnt1];
 					for (int cnt3=0; cnt3<10; cnt3++){
-						float z = k * FD_cell_size[Z] + dev_qd_P_10_Z[cnt3];
-						result += FD_cell_size[X] * FD_cell_size[Z] / 4.0f * dev_qd_W_10[cnt1] * dev_qd_W_10[cnt3] *
+						float z = k * FD_cell_size_Z + dev_qd_P_10_Z[cnt3];
+						result += FD_cell_size_X * FD_cell_size_Z / 4.0f * dev_qd_W_10[cnt1] * dev_qd_W_10[cnt3] *
 							( z*__powf(x*x+y1*y1+z*z, -1.5f) - z*__powf(x*x+y2*y2+z*z, -1.5f));
 					}
 				}
 			}
 			else{
-				float r2 = (i*FD_cell_size[X])*(i*FD_cell_size[X]) + (j*FD_cell_size[Y])*(j*FD_cell_size[Y]) + (k*FD_cell_size[Z])*(k*FD_cell_size[Z]);
-				result += FD_cell_size[X] * FD_cell_size[Y] * FD_cell_size[Z] * 
-									( - 3.0f* (j*FD_cell_size[Y]) * (k*FD_cell_size[Z]) * __powf(r2,-2.5f));
+				float r2 = (i*FD_cell_size_X)*(i*FD_cell_size_X) + (j*FD_cell_size_Y)*(j*FD_cell_size_Y) + (k*FD_cell_size_Z)*(k*FD_cell_size_Z);
+				result += FD_cell_size_X * FD_cell_size_Y * FD_cell_size_Z * 
+									( - 3.0f* (j*FD_cell_size_Y) * (k*FD_cell_size_Z) * __powf(r2,-2.5f));
 			}
 		}
 
@@ -325,21 +347,21 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 			int r2_int = i*i+j*j+k*k;
 
 			if (r2_int<400){
-				float z1 = (k + 0.5f) * FD_cell_size[Z];
-				float z2 = (k - 0.5f) * FD_cell_size[Z];
+				float z1 = (k + 0.5f) * FD_cell_size_Z;
+				float z2 = (k - 0.5f) * FD_cell_size_Z;
 				for (int cnt1=0; cnt1<10; cnt1++){
-					float x = i * FD_cell_size[X] + dev_qd_P_10_X[cnt1];
+					float x = i * FD_cell_size_X + dev_qd_P_10_X[cnt1];
 					for (int cnt2=0; cnt2<10; cnt2++){
-						float y = j * FD_cell_size[Y] + dev_qd_P_10_Y[cnt2];
-						result += FD_cell_size[X] * FD_cell_size[Y] / 4.0f * dev_qd_W_10[cnt1] * dev_qd_W_10[cnt2] *
+						float y = j * FD_cell_size_Y + dev_qd_P_10_Y[cnt2];
+						result += FD_cell_size_X * FD_cell_size_Y / 4.0f * dev_qd_W_10[cnt1] * dev_qd_W_10[cnt2] *
 							( z1*__powf(x*x+y*y+z1*z1, -1.5f) - z2*__powf(x*x+y*y+z2*z2, -1.5f));
 					}
 				}
 			}
 			else{
-				float r2 = (i*FD_cell_size[X])*(i*FD_cell_size[X]) + (j*FD_cell_size[Y])*(j*FD_cell_size[Y]) + (k*FD_cell_size[Z])*(k*FD_cell_size[Z]);
-				result += FD_cell_size[X] * FD_cell_size[Y] * FD_cell_size[Z] * 
-									(1.0f/ __powf(r2,1.5f) - 3.0f* (k*FD_cell_size[Z]) * (k*FD_cell_size[Z]) * __powf(r2,-2.5f));
+				float r2 = (i*FD_cell_size_X)*(i*FD_cell_size_X) + (j*FD_cell_size_Y)*(j*FD_cell_size_Y) + (k*FD_cell_size_Z)*(k*FD_cell_size_Z);
+				result += FD_cell_size_X * FD_cell_size_Y * FD_cell_size_Z * 
+									(1.0f/ __powf(r2,1.5f) - 3.0f* (k*FD_cell_size_Z) * (k*FD_cell_size_Z) * __powf(r2,-2.5f));
 			}
 		}
 

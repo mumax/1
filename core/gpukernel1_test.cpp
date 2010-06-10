@@ -16,8 +16,8 @@ int main(int argc, char** argv){
 //  print_device_properties(stderr);
   
   int N0 = 4;
-  int N1 = 8;
-  int N2 = 16;
+  int N1 = 4;
+  int N2 = 8;
   
   int* zero_pad = new int[3];
   zero_pad[X] = 1;
