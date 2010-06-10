@@ -8,8 +8,8 @@ import(
  
 
 /** 
-TODO: uses only one point (yet), should be made more accurate!
-Magnetostatic field at position r (integer, number of cellsizes away form source) for a given source magnetization direction m (X, Y, or Z) */
+ * Magnetostatic field at position r (integer, number of cellsizes away form source) for a given source magnetization direction m (X, Y, or Z) 
+ */
 func faceIntegral(B, R *Vector, cellsize[] float, s int){
   n := 8;					// number of integration points = n^2
   u, v, w := s, (s+1)%3, (s+2)%3;		// u = direction of source (s), v & w are the orthogonal directions
@@ -63,26 +63,30 @@ func FaceKernel(unpaddedsize []int, cellsize []float) *Tensor5{
   R := NewVector();
   
   for s:=0; s<3; s++{					// source index Ksdxyz
-    for x:=-(size[X]-1)/2; x<=size[X]/2; x++{		 // in each dimension, go from -(size-1)/2 to size/2, wrapped. 
+    for x:=-(size[X]-1)/2; x<=size[X]/2 -1; x++{		 // in each dimension, go from -(size-1)/2 to size/2, wrapped. 
       xw := wrap(x, size[X]);
-      for y:=-(size[Y]-1)/2; y<=size[Y]/2; y++{
-	yw := wrap(y, size[Y]);
-	for z:=-(size[Z]-1)/2; z<=size[Z]/2; z++{
-	  zw := wrap(z, size[Z]);
-	  R.Set(float(x) * cellsize[X], float(y) * cellsize[Y], float(z) * cellsize[Z]);
-
-	  faceIntegral(B, R, cellsize, s);
-
-	  for d:=0; d<3; d++{				// destination index Ksdxyz
-	    k.Array()[s][d][xw][yw][zw] = B.Component[d]; 
-	  }
-
-	}
+      for y:=-(size[Y]-1)/2; y<=size[Y]/2 -1; y++{
+        yw := wrap(y, size[Y]);
+        for z:=-(size[Z]-1)/2; z<=size[Z]/2 -1; z++{
+          zw := wrap(z, size[Z]);
+          R.Set(float(x) * cellsize[X], float(y) * cellsize[Y], float(z) * cellsize[Z]);
+          
+          faceIntegral(B, R, cellsize, s);
+          
+          for d:=0; d<3; d++{				// destination index Ksdxyz
+            k.Array()[s][d][xw][yw][zw] = B.Component[d]; 
+          }
+        
+          // 	  if(xw == size[X]/2 + 1 || yw == size[Y]/2 + 1 || zw == size[Z]/2 + 1){
+          //         
+          //       }
+          
       }
     }
   }
+}
 
-  return k;
+return k;
 }
 
 

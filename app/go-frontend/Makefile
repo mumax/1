@@ -5,8 +5,8 @@ all:
 	make install -C tensor
 	ln -sf tensor/_obj/tensor.a .
 
-	make -C core
-	make install -C core
+# 	make -C core
+# 	make install -C core
 
 	make -C refsh
 	ln -sf refsh/_obj/refsh.a .
