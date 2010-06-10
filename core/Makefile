@@ -14,6 +14,7 @@ CUFILES=\
 	gpufft2.cu\
 	gpueuler.cu\
 	gpuheun.cu\
+	gpuheun2.cu\
 	gpurk4.cu\
 	gpuanal1.cu\
 	gpukernel1.cu\
@@ -30,6 +31,7 @@ OFILES=\
 	gpufft2.o\
 	gpueuler.o\
 	gpuheun.o\
+#	gpuheun2.o\
 	gpurk4.o\
 	gpuanal1.o\
 	gpukernel1.o\
@@ -71,6 +73,9 @@ gpueuler.o:	gpueuler.h gpueuler.cu
 
 gpuheun.o:	gpuheun.h gpuheun.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuheun.cu
+
+gpuheun2.o:	gpuheun2.h gpuheun2.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuheun2.cu
 
 gpurk4.o:	gpurk4.h gpurk4.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpurk4.cu
