@@ -25,10 +25,8 @@ void gpu_init_Greens_kernel1(tensor* dev_kernel, int N0, int N1, int N2, int *ze
   Nkernel[X] = (1 + zero_pad[X]) * N0; 
   Nkernel[Y] = (1 + zero_pad[Y]) * N1; 
   Nkernel[Z] = (1 + zero_pad[Z]) * N2;
-  int NkernelN = Nkernel[X] * Nkernel[Y] * Nkernel[Z];
   
-	int NkernelStorageN = Nkernel[X] * Nkernel[Y] * (Nkernel[Z] + 2); 									///@todo probably best to define GPU_STRIDE_FLOAT
-//	int NkernelStorageN = Nkernel[X] * Nkernel[Y] * (Nkernel[Z] + gpu_stride_float());  ///@todo probably best to define GPU_STRIDE_FLOAT
+	int NkernelStorageN = Nkernel[X] * Nkernel[Y] * gpu_pad_to_stride(Nkernel[Z]+2);
 	
 	dev_kernel = as_tensor(new_gpu_array(6*NkernelStorageN/2), 2, 6, NkernelStorageN/2);  // only real parts!!
 
@@ -46,92 +44,108 @@ void gpu_init_Greens_kernel1(tensor* dev_kernel, int N0, int N1, int N2, int *ze
 // ______________________________________________________________________________________________
 
 
-//	float cst = Ms/4/Pi/(float)NkernelN;         
-	float cst = 1.0;												///@todo what is the normalized constant?
+	float cst = -1.0f/4.0f/3.14159265f;
 	gpu_init_and_FFT_Greens_kernel_elements(dev_kernel, Nkernel, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10, kernel_plan);
 	
 	return;
 }
 
-
 /// @todo argument defining which Greens function should be added
 /// remark: number of FD cells in a dimension can not be odd if no zero padding!!
 void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *Nkernel, float *FD_cell_size, float cst, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10, gpu_plan3d_real_input* kernel_plan){
 
-  // BODY COMMENTED OUT BY ARNE BECAUSE IT CONTAINS COMPILATION ERRORS.
-  // NOW, THE PROJECT COMPILES...
   
  	int NkernelStorageN = 2*dev_kernel->size[1];
 	
-	float *host_temp = (float *)calloc(NkernelStorageN, sizeof(float));			// temp array on host for storage of each component in real + i*complex format in serie (only for debugging purposes)
-	float *host_temp2 = (float *)calloc(NkernelStorageN/2, sizeof(float));	// temp array on host for storage of only the real components
 	float *dev_temp = new_gpu_array(NkernelStorageN);		                  	// temp tensor on device for storage of each component in real + i*complex format
  	
 	dim3 gridsize(Nkernel[X]/2, Nkernel[Y]/2, 1);	///@todo generalize!
-  dim3 blocksize(Nkernel[Z]/2, 1, 1);				///@todo aan te passen!!  GPU_STRIDE_FLOAT
+  dim3 blocksize(Nkernel[Z]/2, 1, 1);				    ///@todo aan te passen!!  GPU_STRIDE_FLOAT
   gpu_checkconf(gridsize, blocksize);
+
+	int gridsize2, blocksize2;
+	make1dconf(NkernelStorageN/2, &gridsize2, &blocksize2);
+
 	
-  int threadsPerBlock = 512;
-  int blocks = (NkernelStorageN/2) / threadsPerBlock;
-  gpu_checkconf_int(blocks, threadsPerBlock);
+	float *host_temp = (float *)calloc(NkernelStorageN, sizeof(float));			// temp array on host for storage of each component in real + i*complex format in serie (only for debugging purposes)
+	float *host_temp2 = (float *)calloc(NkernelStorageN/2, sizeof(float));	// temp array on host for storage of only the real components
+
+	int testco1 = 0;
+	int testco2 = 0;
+	int testrang = 0;
+	for (int i=0; i<testco1; i++)
+		for (int j=i; j<testco2; j++)
+			testrang ++;
+	fprintf(stderr, "test co: %d, %d, testrang: %d\n\n", testco1, testco2, testrang);
 
 	gpu_zero(dev_temp, NkernelStorageN);
 	cudaThreadSynchronize();
-	_gpu_init_Greens_kernel_elements<<<gridsize, blocksize>>>(dev_temp, Nkernel[X], Nkernel[Y], Nkernel[Z], 0, 0, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], cst, repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
-	cudaThreadSynchronize();
-	
-	gpu_plan3d_real_input_forward(kernel_plan, dev_temp);
+	_gpu_init_Greens_kernel_elements<<<gridsize, blocksize>>>(dev_temp, Nkernel[X], Nkernel[Y], Nkernel[Z], testco1, testco2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], cst, repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
 	cudaThreadSynchronize();
 
   memcpy_from_gpu(dev_temp, host_temp, NkernelStorageN);
 	cudaThreadSynchronize();
+	fprintf(stderr, "\nkernel elements (untransformed), co: %d, %d:\n", testco1, testco2);
 	for (int i=0; i<Nkernel[X]; i++){
 		for (int j=0; j<Nkernel[Y]; j++){
-			for (int k=0; k<Nkernel[Z]+2; k++){
-				fprintf(stderr, "%e ", host_temp[i*Nkernel[Y]*(Nkernel[Z]+2) + j*(Nkernel[Z]+2) + k]);
+			for (int k=0; k<gpu_pad_to_stride(Nkernel[Z]+2); k++){
+				fprintf(stderr, "%e ", host_temp[i*Nkernel[Y]*gpu_pad_to_stride(Nkernel[Z]+2) + j*gpu_pad_to_stride(Nkernel[Z]+2) + k]);
+			}
+			fprintf(stderr, "\n");
+		}
+		fprintf(stderr, "\n");
+	}
+	
+	gpu_plan3d_real_input_forward(kernel_plan, dev_temp);
+	cudaThreadSynchronize();
+	
+  memcpy_from_gpu(dev_temp, host_temp, NkernelStorageN);
+	cudaThreadSynchronize();
+	fprintf(stderr, "\nkernel elements (transformed), co: %d, %d:\n", testco1, testco2);
+	for (int i=0; i<Nkernel[X]; i++){
+		for (int j=0; j<Nkernel[Y]; j++){
+			for (int k=0; k<gpu_pad_to_stride(Nkernel[Z]+2); k++){
+				fprintf(stderr, "%e ", host_temp[i*Nkernel[Y]*gpu_pad_to_stride(Nkernel[Z]+2) + j*gpu_pad_to_stride(Nkernel[Z]+2) + k]);
 			}
 			fprintf(stderr, "\n");
 		}
 		fprintf(stderr, "\n");
 	}
 
-	_gpu_extract_real_parts<<<blocks, threadsPerBlock>>>(dev_kernel->list, dev_temp, 0, NkernelStorageN/2);
+	_gpu_extract_real_parts<<<gridsize2, blocksize2>>>(&dev_kernel->list[testrang*NkernelStorageN/2], dev_temp, 0, NkernelStorageN/2);
 	cudaThreadSynchronize();
-  memcpy_from_gpu(&dev_kernel->list[0*NkernelStorageN/2], host_temp2, NkernelStorageN/2);
+	fprintf(stderr, "\nkernel elements (transformed, real parts), co: %d, %d:\n", testco1, testco2);
+  memcpy_from_gpu(&dev_kernel->list[testrang*NkernelStorageN/2], host_temp2, NkernelStorageN/2);
 	cudaThreadSynchronize();
 		for (int i=0; i<Nkernel[X]; i++){
 		for (int j=0; j<Nkernel[Y]; j++){
-			for (int k=0; k<(Nkernel[Z]+2)/2; k++){
-				fprintf(stderr, "%e ", host_temp2[i*Nkernel[Y]*(Nkernel[Z]+2) + j*(Nkernel[Z]+2) + k]);
+			for (int k=0; k<gpu_pad_to_stride(Nkernel[Z]+2)/2; k++){
+				fprintf(stderr, "%e ", host_temp2[i*Nkernel[Y]*gpu_pad_to_stride(Nkernel[Z]+2)/2 + j*gpu_pad_to_stride(Nkernel[Z]+2)/2 + k]);
 			}
 			fprintf(stderr, "\n");
 		}
 		fprintf(stderr, "\n");
 	}
 
-/// @todo check foutje in regel 123
+	
+	int rang1=0;
+	for (int co1=0; co1<3; co1++){
+		for (int co2=co1; co2<3; co2++){
+			gpu_zero(dev_temp, NkernelStorageN);
+			cudaThreadSynchronize();
+		  _gpu_init_Greens_kernel_elements<<<gridsize, blocksize>>>(dev_temp, Nkernel[X], Nkernel[Y], Nkernel[Z], co1, co2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], cst, repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
+			cudaThreadSynchronize();
+		  gpu_plan3d_real_input_forward(kernel_plan, dev_temp);
+			cudaThreadSynchronize();
+			_gpu_extract_real_parts<<<gridsize2, blocksize2>>>(&dev_kernel->list[rang1*NkernelStorageN/2], dev_temp, rang1, NkernelStorageN/2);
+			cudaThreadSynchronize();
+			rang1++;
+		}
+	}
 
-// // 	int rang1=0;
-// // 	for (int co1=0; co1<3; co1++){
-// // 		for (int co2=co1; co2<3; co2++){
-// // 			gpu_zero(dev_temp, NkernelStorageN);
-// // 			cudaThreadSynchronize();
-// // 		  _gpu_init_Greens_kernel_elements<<<gridsize, blocksize>>>(dev_temp, Nkernel, co1, co2, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10);
-// // 			cudaThreadSynchronize();
-// // 		  gpu_plan3d_real_input_forward(kernel_plan, dev_temp);
-// // 			cudaThreadSynchronize();
-// // 			_gpu_extract_real_parts<<<blocks, threadsPerBlock>>>(dev_kernel->list, dev_temp, rang1, NkernelStorageN/2);
-// // 			cudaThreadSynchronize();
-// // 			rang1++;
-// // 		}
-// // 	}
-// 
-// 
-// 
-// 	free (host_temp);
-// 	cudaFree (dev_temp);
-// 	
-// 	return;
+	cudaFree (dev_temp);
+	
+	return;
 }
 
 
@@ -141,14 +155,10 @@ __global__ void _gpu_init_Greens_kernel_elements(float *dev_temp, int Nkernel_X,
     int i = blockIdx.x;
     int j = blockIdx.y;
     int k = threadIdx.x;
-		
-		
 
-		int N2 = Nkernel_Z + 2;											///@todo aanpassen!!
-		int N12 = Nkernel_Y * N2;			              ///@todo aanpassen!!
-//		int N2 = Nkernel_Z + gpu_stride_float();											///@todo aanpassen!!
-//		int N12 = Nkernel_Y * N2;																			///@todo aanpassen!!
-
+//		int N2 = gpu_pad_to_stride(Nkernel_Z+2);
+		int N2 = Nkernel_Z+2;     ///@todo: a gpu_pad_to_stride() function should also be executable on gpu
+		int N12 = Nkernel_Y * N2;
 
 			dev_temp[            i*N12 +             j*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 		if (i>0)
@@ -177,7 +187,6 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 	float *dev_qd_P_10_Z = &dev_qd_P_10[Z];
 	
 	if (co1==0 && co2==0){
-
 		for(int cnta=-repetition_X; cnta<=repetition_X; cnta++)
 		for(int cntb=-repetition_Y; cntb<=repetition_Y; cntb++)
 		for(int cntc=-repetition_Z; cntc<=repetition_Z; cntc++){
@@ -205,10 +214,17 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 									(1.0f/ __powf(r2,1.5f) - 3.0f* (i*FD_cell_size_X) * (i*FD_cell_size_X) * __powf(r2,-2.5f));
 			}
 		}
+		result *= cst;
+		if (a== 0 && b== 0 && c== 0) 	result -= 2.0f/FD_cell_size_X/FD_cell_size_X + 2.0f/FD_cell_size_Y/FD_cell_size_Y + 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+		if (a== 1 && b== 0 && c== 0)	result += 2.0f/FD_cell_size_X/FD_cell_size_X;
+		if (a==-1 && b== 1 && c== 0)	result += 2.0f/FD_cell_size_X/FD_cell_size_X;
+		if (a== 0 && b== 0 && c== 0)	result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+		if (a== 0 && b==-1 && c== 0)	result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+		if (a== 0 && b== 0 && c== 1)	result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+		if (a== 0 && b== 0 && c==-1)	result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
 	}
 	
 	if (co1==0 && co2==1){
-
 		for(int cnta=-repetition_X; cnta<=repetition_X; cnta++)
 		for(int cntb=-repetition_Y; cntb<=repetition_Y; cntb++)
 		for(int cntc=-repetition_Z; cntc<=repetition_Z; cntc++){
@@ -236,11 +252,10 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 									(- 3.0f* (i*FD_cell_size_X) * (j*FD_cell_size_Y) * __powf(r2,-2.5f));
 			}
 		}
-
+		result *= cst;
 	}
 
 	if (co1==0 && co2==2){
-
 		for(int cnta=-repetition_X; cnta<=repetition_X; cnta++)
 		for(int cntb=-repetition_Y; cntb<=repetition_Y; cntb++)
 		for(int cntc=-repetition_Z; cntc<=repetition_Z; cntc++){
@@ -268,11 +283,10 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 									(- 3.0f* (i*FD_cell_size_X) * (k*FD_cell_size_Y) * __powf(r2,-2.5f));
 			}
 		}
-	
+		result *= cst;
 	}
 	
 	if (co1==1 && co2==1){
-	
 		for(int cnta=-repetition_X; cnta<=repetition_X; cnta++)
 		for(int cntb=-repetition_Y; cntb<=repetition_Y; cntb++)
 		for(int cntc=-repetition_Z; cntc<=repetition_Z; cntc++){
@@ -300,11 +314,17 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 									(1.0f/ __powf(r2,1.5f) - 3.0f* (j*FD_cell_size_Y) * (j*FD_cell_size_Y) * __powf(r2,-2.5f));
 			}
 		}
-
+		result *= cst;
+		if (a== 0 && b== 0 && c== 0) 	result -= 2.0f/FD_cell_size_X/FD_cell_size_X + 2.0f/FD_cell_size_Y/FD_cell_size_Y + 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+		if (a== 1 && b== 0 && c== 0)	result += 2.0f/FD_cell_size_X/FD_cell_size_X;
+		if (a==-1 && b== 1 && c== 0)	result += 2.0f/FD_cell_size_X/FD_cell_size_X;
+		if (a== 0 && b== 0 && c== 0)	result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+		if (a== 0 && b==-1 && c== 0)	result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+		if (a== 0 && b== 0 && c== 1)	result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+		if (a== 0 && b== 0 && c==-1)	result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
 	}
 
 	if (co1==1 && co2==2){
-	
 		for(int cnta=-repetition_X; cnta<=repetition_X; cnta++)
 		for(int cntb=-repetition_Y; cntb<=repetition_Y; cntb++)
 		for(int cntc=-repetition_Z; cntc<=repetition_Z; cntc++){
@@ -332,11 +352,10 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 									( - 3.0f* (j*FD_cell_size_Y) * (k*FD_cell_size_Z) * __powf(r2,-2.5f));
 			}
 		}
-
+		result *= cst;
 	}
 
 	if (co1==2 && co2==2){
-	
 		for(int cnta=-repetition_X; cnta<=repetition_X; cnta++)
 		for(int cntb=-repetition_Y; cntb<=repetition_Y; cntb++)
 		for(int cntc=-repetition_Z; cntc<=repetition_Z; cntc++){
@@ -364,10 +383,17 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 									(1.0f/ __powf(r2,1.5f) - 3.0f* (k*FD_cell_size_Z) * (k*FD_cell_size_Z) * __powf(r2,-2.5f));
 			}
 		}
-
+		result *= cst;
+		if (a== 0 && b== 0 && c== 0) 	result -= 2.0f/FD_cell_size_X/FD_cell_size_X + 2.0f/FD_cell_size_Y/FD_cell_size_Y + 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+		if (a== 1 && b== 0 && c== 0)	result += 2.0f/FD_cell_size_X/FD_cell_size_X;
+		if (a==-1 && b== 1 && c== 0)	result += 2.0f/FD_cell_size_X/FD_cell_size_X;
+		if (a== 0 && b== 0 && c== 0)	result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+		if (a== 0 && b==-1 && c== 0)	result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+		if (a== 0 && b== 0 && c== 1)	result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+		if (a== 0 && b== 0 && c==-1)	result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
 	}
 	
-	return( cst*result );
+	return( result );
 	
 }
 
@@ -381,7 +407,7 @@ __global__ void _gpu_extract_real_parts(float *dev_kernel_array, float *dev_temp
 }
 
 
-// Gauss quadrature functions ___________e_____________________________________
+// Gauss quadrature functions ________________________________________________
 void initialize_Gauss_quadrature_on_gpu(float *dev_qd_W_10, float *dev_qd_P_10, float *FD_cell_size){
 
 	float *std_qd_P_10 = (float*) calloc(10, sizeof(float));
@@ -436,4 +462,8 @@ void get_Quad_Points(float *gaussQP, float *stdGaussQP, int qOrder, double a, do
 #ifdef __cplusplus
 }
 #endif
+
+
+
+// remove the following if code is tested.
 

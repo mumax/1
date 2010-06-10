@@ -23,13 +23,13 @@ extern "C" {
 
 /**
  * Initializes the Greens function kernel.  The kernel is stored as a rank 3 tensor:
- * The i,j element of kernel[i][j][k] contains the contigous Fourier transformed data 
+ * The i,j element of kernel[ij][k] contains the contigous Fourier transformed data 
  * connecting the (Fourier transformed) i-component of the magnetic field with the
  * (Fourier transformed) j-component of the magnetization.
  * The size is addapted to the gpu-memory.
  */
 
-void gpu_init_Greens_kernel1(tensor* dev_kernel,  ///< rank 2 tensor (rank 1: xx, xy, xz, yy, yz, zz parts of symmetrical Greens tensor) containing all contigous Greens function data
+void gpu_init_Greens_kernel1(tensor* dev_kernel,  ///< rank 2 tensor (rank 1: xx, xy, xz, yy, yz, zz parts of symmetrical Greens tensor) containing all contiguous Greens function data
 														 int N0, 							///< size of simulation in x-direction
 														 int N1, 							///< size of simulation in y-direction
 														 int N2, 							///< size of simulation in z-direction
@@ -44,7 +44,7 @@ void gpu_init_Greens_kernel1(tensor* dev_kernel,  ///< rank 2 tensor (rank 1: xx
  * The kernel is only stored at the device.
  */
 
-void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel,  ///< rank 2 tensor (rank 1: xx, xy, xz, yy, yz, zz parts of symmetrical Greens tensor) containing all contigous Greens function data
+void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel,  ///< rank 2 tensor (rank 1: xx, xy, xz, yy, yz, zz parts of symmetrical Greens tensor) containing all contiguous Greens function data
 																						 int *Nkernel, 			  ///< Non-strided size of the kernel data
 																						 float *FD_cell_size, ///< 3 float, size of finite difference cell in X,Y,Z respectively
 																						 float cst, 					///< constant factor preceding the expression of the magnetostatic field

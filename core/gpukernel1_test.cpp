@@ -16,8 +16,8 @@ int main(int argc, char** argv){
 //  print_device_properties(stderr);
   
   int N0 = 4;
-  int N1 = 4;
-  int N2 = 8;
+  int N1 = 8;
+  int N2 = 16;
   
   int* zero_pad = new int[3];
   zero_pad[X] = 1;
@@ -28,9 +28,9 @@ int main(int argc, char** argv){
 	repetition[X] = repetition[Y] = repetition[Z] = 0;
 
 	float* FD_cell_size = new float[3];
-	FD_cell_size[X] = 1.0;
-	FD_cell_size[Y] = 1.2;
-	FD_cell_size[Z] = 1.4;
+	FD_cell_size[X] = 1.0f;
+	FD_cell_size[Y] = 1.2f;
+	FD_cell_size[Z] = 1.4f;
 
 	tensor *dev_kernel;
 	gpu_init_Greens_kernel1(dev_kernel, N0, N1, N2, zero_pad, repetition, FD_cell_size);
