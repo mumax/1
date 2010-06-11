@@ -1,9 +1,9 @@
-#include "tensor.h"
-#include "gpufft.h"
-#include "gputil.h"
-#include "timer.h"
-#include <stdio.h>
-#include <assert.h>
+//#include "tensor.h"
+//#include "gpufft.h"
+//#include "gputil.h"
+//#include "timer.h"
+//#include <stdio.h>
+//#include <assert.h>
 #include "gpukernel1.h"
 
 #ifdef __cplusplus
@@ -16,7 +16,7 @@ void gpu_init_Greens_kernel1(tensor* dev_kernel, int N0, int N1, int N2, int *ze
 	for (int i=0; i<3; i++){
 		if (repetition[i]>1 && zero_pad[i]!=0){
 			fprintf(stderr, "repetition[%d]= %d, while no periodicity is considered!\n", i, repetition[i]);
-			fprintf(stderr, "repetition[%d], should be zero\n", i);
+			fprintf(stderr, "repetition[%d], should be zero if no periodicity is aimed at.\n", i);
 			return;
 		}
 	}

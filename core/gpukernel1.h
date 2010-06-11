@@ -13,6 +13,10 @@
 #include "gputil.h"
 #include <cufft.h>
 #include "gpufft.h"
+#include "assert.h"
+#include "timer.h"
+#include <stdio.h>
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,11 +26,18 @@ extern "C" {
 
 
 /**
- * Initializes the Greens function kernel.  The kernel is stored as a rank 3 tensor:
- * The i,j element of kernel[ij][k] contains the contigous Fourier transformed data 
+ * Initializes the Greens function kernel.  The kernel is stored as a rank 2 tensor:
+ * The i+j element (j>=i) of kernel[i+j][k] contains the contigous Fourier transformed data 
  * connecting the (Fourier transformed) i-component of the magnetic field with the
  * (Fourier transformed) j-component of the magnetization.
  * The size is addapted to the gpu-memory.
+ * 
+ * This function includes:
+ * 		- computation of the elements of the Greens kernel components
+ *		- Fourier transformation of the Greens kernel components
+ *		- in Fourier domain: extraction of the real parts (complex parts are zero due to symmetry)
+ *
+ * note that the correction factor 1/(dimensions FFTs) is already included.
  */
 
 void gpu_init_Greens_kernel1(tensor* dev_kernel,  ///< rank 2 tensor (rank 1: xx, xy, xz, yy, yz, zz parts of symmetrical Greens tensor) containing all contiguous Greens function data

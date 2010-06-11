@@ -5,15 +5,13 @@
  * @author Ben Van de Wiele
  */
 
-#include "gputil.h"
-#include "gpufft.h"
-#include "tensor.h"
+//#include "gputil.h"
+//#include "gpufft.h"
+//#include "tensor.h"
 #include "gpukernel1.h"
-#include "assert.h"
+//#include "assert.h"
 
 int main(int argc, char** argv){
-  
-//  print_device_properties(stderr);
   
   int N0 = 4;
   int N1 = 8;
