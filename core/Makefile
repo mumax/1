@@ -14,10 +14,11 @@ CUFILES=\
 	gpufft2.cu\
 	gpueuler.cu\
 	gpuheun.cu\
-	gpuheun2.cu\
 	gpurk4.cu\
 	gpuanal1.cu\
 	gpukernel1.cu\
+#	gpuheun2.cu\
+# NOTE: commented files must be LAST in the list, otherwise all the rest is also commented out
 
 OFILES=\
 	tensor.o\
@@ -31,10 +32,10 @@ OFILES=\
 	gpufft2.o\
 	gpueuler.o\
 	gpuheun.o\
-#	gpuheun2.o\
 	gpurk4.o\
 	gpuanal1.o\
 	gpukernel1.o\
+#	gpuheun2.o\
 
 #remove the "emu" when not using device emulation
 CUDALIBS= -lcudart -lcufft

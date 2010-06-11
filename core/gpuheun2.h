@@ -24,15 +24,13 @@ typedef struct{
   
   tensor* m;
   tensor* m0;
-  
   tensor* h;
   tensor* torque0;
   
-  tensor* m_comp[3];
-  tensor* m0_comp[3];
-
-  tensor* h_comp[3];
-  tensor* torque0_comp[3];
+  tensor* mComp[3];
+  tensor* m0Comp[3];
+  tensor* hComp[3];
+  tensor* torque0Comp[3];
   
   gpuconv2* convplan;
   
@@ -43,9 +41,9 @@ typedef struct{
 /**
  * Makes a new heun solver.
  */
-gpuheun2* new_gpuheun2(int* size,		///< 3D size of magnetization
-                      tensor* kernel,	///< convolution kernel describing the effective field. size: 2*N0 x 2*N1 x 2*N2
-                      float* hExt	///< external field
+gpuheun2* new_gpuheun2(int* size,           ///< 3D size of magnetization
+                      tensor* kernel,       ///< convolution kernel describing the effective field. size: 2*N0 x 2*N1 x 2*N2
+                      float* hExt           ///< external field
                       );
 
 /**

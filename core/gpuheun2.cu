@@ -1,4 +1,4 @@
-#include "gpuheun.h"
+#include "gpuheun2.h"
 #include "timer.h"
 #include <stdio.h>
 #include <assert.h>
@@ -7,30 +7,36 @@
 extern "C" {
 #endif
 
+///@todo these common functions should be moved to a common file like gpusolver ...
 __global__ void _gpu_normalize2(float* mx , float* my , float* mz){
   int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
-  float norm = rsqrtf(mx[i]*mx[i] + my[i]*my[i] + mz[i]*mz[i]); // inverse square root
+  float norm = rsqrtf(mx[i]*mx[i] + my[i]*my[i] + mz[i]*mz[i]);     // inverse square root
   mx[i] *= norm;
   my[i] *= norm;
   mz[i] *= norm;
 }
 
-void gpuheun2_normalize_m(gpuheun* solver){
-  int threadsPerBlock = 512;
-  int blocks = (solver->convplan->len_m_comp) / threadsPerBlock;
-  gpu_checkconf_int(blocks, threadsPerBlock);
+void gpuheun2_normalize_m(gpuheun2* solver){
+//   int threadsPerBlock = 512;
+//   int blocks = (solver->convplan->len_mComp) / threadsPerBlock;
+//   gpu_checkconf_int(blocks, threadsPerBlock);
+  
+  int gridSize = -1, blockSize = -1;
+  make1dconf(solver->mComp[X]->len, &gridSize, &blockSize);
   
   timer_start("normalize_m");
-  _gpu_normalize<<<blocks, threadsPerBlock>>>(solver->m_comp[X], solver->m_comp[Y], solver->m_comp[Z]);
+  _gpu_normalize2<<<gridSize, blockSize>>>(solver->mComp[X]->list, solver->mComp[Y]->list, solver->mComp[Z]->list);
   cudaThreadSynchronize();
   timer_stop("normalize_m");
 }
 
+
 __global__ void _gpu_heun2step0(float* mx , float* my , float* mz ,
-			       float* hx , float* hy , float* hz ,
-			       float* t0x, float* t0y, float* t0z,
-			       float hExtx, float hExty, float hExtz,
-			       float gilbert_dt, float alpha){
+                                float* hx , float* hy , float* hz ,
+                                float* t0x, float* t0y, float* t0z,
+                                float hExtx, float hExty, float hExtz,
+                                float gilbert_dt, float alpha){
+  
   int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
  
   // H total
@@ -57,12 +63,13 @@ __global__ void _gpu_heun2step0(float* mx , float* my , float* mz ,
   mz[i] += gilbert_dt * t0z[i];
 }
 
+
 __global__ void _gpu_heun2step1(float* mx , float* my , float* mz ,
-			       float* hx , float* hy , float* hz ,
-			       float* t0x, float* t0y, float* t0z,
-			       float* m0x, float* m0y, float* m0z,
-			       float hExtx, float hExty, float hExtz,
-			       float half_gilbert_dt, float alpha){
+                                float* hx , float* hy , float* hz ,
+                                float* t0x, float* t0y, float* t0z,
+                                float* m0x, float* m0y, float* m0z,
+                                float hExtx, float hExty, float hExtz,
+                                float half_gilbert_dt, float alpha){
   
   int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
  
@@ -92,89 +99,103 @@ __global__ void _gpu_heun2step1(float* mx , float* my , float* mz ,
 
 /** @todo gilbert factor */
 void gpuheun2_step(gpuheun2* solver, float dt, float alpha){
-  int threadsPerBlock = 512;
-  int blocks = (solver->convplan->len_m_comp) / threadsPerBlock;
-  gpu_checkconf_int(blocks, threadsPerBlock);
   
-  float** m = solver->m_comp;
-  float** m0 = solver->m0_comp;
-  float** h = solver->h_comp;
-  float** t0 = solver->torque0_comp;
-  float* hExt = solver->hExt;
+  int gridSize = -1, blockSize = -1;
+  make1dconf(solver->mComp[X]->len, &gridSize, &blockSize);
   
-  memcpy_gpu_to_gpu(solver->m, solver->m0, solver->len_m);
+//   tensor** m = solver->mComp;
+//   tensor** m0 = solver->m0_comp;
+//   tensor** h = solver->hComp;
+//   tensor** t0 = solver->torque0_comp;
+//   float* hExt = solver->hExt;
   
-  gpuconv1_exec(solver->convplan, solver->m, solver->h);
+  //memcpy_gpu_to_gpu(solver->m, solver->m0, solver->len_m);
+  tensor_copy_gpu_to_gpu(solver->m, solver->m0);
+  
+  gpuconv2_exec(solver->convplan, solver->m, solver->h);
   
   timer_start("gpuheun_step");
-  _gpu_heunstep0<<<blocks, threadsPerBlock>>>(m[X],m[Y],m[Z],  h[X],h[Y],h[Z],  t0[X],t0[Y],t0[Z], hExt[X],hExt[Y],hExt[Z], dt, alpha);
+  _gpu_heun2step0<<<gridSize, blockSize>>>(solver->      mComp[X]->list,  solver->      mComp[Y]->list,  solver->      mComp[Z]->list,
+                                           solver->      hComp[X]->list,  solver->      hComp[Y]->list,  solver->      hComp[Z]->list,
+                                           solver->torque0Comp[X]->list,  solver->torque0Comp[Y]->list,  solver->torque0Comp[Z]->list,
+                                           solver->       hExt[X],        solver->       hExt[Y],        solver->       hExt[Z],
+                                           dt, alpha);
   cudaThreadSynchronize();
   timer_stop("gpuheun_step");
-  gpuheun_normalize_m(solver);
+  gpuheun2_normalize_m(solver);
    
-  gpuconv1_exec(solver->convplan, solver->m, solver->h);
+  gpuconv2_exec(solver->convplan, solver->m, solver->h);
   
   timer_start("gpuheun_step");
-  _gpu_heunstep1<<<blocks, threadsPerBlock>>>(m[X],m[Y],m[Z],  h[X],h[Y],h[Z],  t0[X],t0[Y],t0[Z], m0[X], m0[Y], m0[Z], hExt[X],hExt[Y],hExt[Z], 0.5f*dt, alpha);
+  _gpu_heun2step1<<<gridSize, blockSize>>>(solver->      mComp[X]->list,  solver->      mComp[Y]->list,  solver->      mComp[Z]->list,
+                                           solver->      hComp[X]->list,  solver->      hComp[Y]->list,  solver->      hComp[Z]->list,
+                                           solver->torque0Comp[X]->list,  solver->torque0Comp[Y]->list,  solver->torque0Comp[Z]->list,
+                                           solver->     m0Comp[X]->list,  solver->     m0Comp[Y]->list,  solver->     m0Comp[Z]->list,
+                                           solver->       hExt[X],             solver->  hExt[Y],             solver->  hExt[Z],
+                                           0.5f*dt, alpha);
+  
+  
+  
+  (m[X],m[Y],m[Z],  h[X],h[Y],h[Z],  t0[X],t0[Y],t0[Z], m0[X], m0[Y], m0[Z], hExt[X],hExt[Y],hExt[Z], 0.5f*dt, alpha);
   cudaThreadSynchronize();
   timer_stop("gpuheun_step");
-  gpuheun_normalize_m(solver);
+  gpuheun2_normalize_m(solver);
 }
 
-void gpuheun2_checksize_m(gpuheun* sim, tensor* m){
+void gpuheun2_checksize_m(gpuheun2* sim, tensor* m){
    // m should be a rank 4 tensor with size 3 x N0 x N1 x N2
   assert(m->rank == 4);
   assert(m->size[0] == 3); 
   for(int i=0; i<3; i++){ assert(m->size[i+1] == sim->size[i]); }
 }
 
-void gpuheun2_loadm(gpuheun* heun, tensor* m){
+void gpuheun2_loadm(gpuheun2* heun, tensor* m){
   gpuheun_checksize_m(heun, m); 
   memcpy_to_gpu(m->list, heun->m, heun->len_m);
 }
 
-void gpuheun2_storem(gpuheun* heun, tensor* m){
+void gpuheun2_storem(gpuheun2* heun, tensor* m){
   gpuheun_checksize_m(heun, m); 
   memcpy_from_gpu(heun->m, m->list, heun->len_m);
 }
 
-void gpuheun2_storeh(gpuheun* heun, tensor* h){
+void gpuheun2_storeh(gpuheun2* heun, tensor* h){
   gpuheun_checksize_m(heun, h); 
   memcpy_from_gpu(heun->h, h->list, heun->len_m);
 }
 
-void gpuheun2_init_sizes(gpuheun* heun, int N0, int N1, int N2){
+void gpuheun2_init_sizes(gpuheun2* heun, int N0, int N1, int N2){
   heun->size = (int*)calloc(3, sizeof(int));
   heun->size[0] = N0; heun->size[1] = N1; heun->size[2] = N2;
   heun->N = N0 * N1 * N2;
 }
 
 
-void gpuheun2_init_m(gpuheun* heun){
+void gpuheun2_init_m(gpuheun2* heun){
   heun->len_m = 3 * heun->N;
-  heun->len_m_comp = heun->N;
+  heun->len_mComp = heun->N;
   heun->m = new_gpu_array(heun->len_m);
   heun->m0 = new_gpu_array(heun->len_m);
-  heun->m_comp = (float**)calloc(3, sizeof(float*));
+  heun->mComp = (float**)calloc(3, sizeof(float*));
   heun->m0_comp = (float**)calloc(3, sizeof(float*));
   for(int i=0; i<3; i++){
-    heun->m_comp [i] = &(heun->m [i * heun->len_m_comp]);
-    heun->m0_comp[i] = &(heun->m0[i * heun->len_m_comp]);
+    heun->mComp [i] = &(heun->m [i * heun->len_mComp]);
+    heun->m0_comp[i] = &(heun->m0[i * heun->len_mComp]);
   }
 }
 
-void gpuheun2_init_h(gpuheun* heun){
+void gpuheun2_init_h(gpuheun2* heun){
   heun->h = new_gpu_array(heun->len_m);
   heun->torque0 = new_gpu_array(heun->len_m);
-  heun->h_comp = (float**)calloc(3, sizeof(float*));
+  heun->hComp = (float**)calloc(3, sizeof(float*));
   heun->torque0_comp = (float**)calloc(3, sizeof(float*));
   for(int i=0; i<3; i++){
-    heun->h_comp[i] = &(heun->h[i * heun->len_m_comp]);
-    heun->torque0_comp[i] = &(heun->torque0[i * heun->len_m_comp]);
+    heun->hComp[i] = &(heun->h[i * heun->len_mComp]);
+    heun->torque0_comp[i] = &(heun->torque0[i * heun->len_mComp]);
   }
 }
 
-void gpuheun2_init_hExt(gpuheun* solver, float* hExt){
+void gpuheun2_init_hExt(gpuheun2* solver, float* hExt){
   solver->hExt = (float*)calloc(3, sizeof(float));
   for(int i=0; i<3; i++){
     solver->hExt[i] = hExt[i];
@@ -184,11 +205,11 @@ void gpuheun2_init_hExt(gpuheun* solver, float* hExt){
 gpuheun2* new_gpuheun2(int* size, tensor* kernel, float* hExt){
   gpuheun2* heun = (gpuheun2*)malloc(sizeof(gpuheun));
   
-  gpuheun_init_sizes(heun, N0, N1, N2);
-  gpuheun_init_m(heun);
-  gpuheun_init_h(heun);
+  gpuheun2_init_sizes(heun, N0, N1, N2);
+  gpuheun2_init_m(heun);
+  gpuheun2_init_h(heun);
   heun->convplan = new_gpuconv2(size, kernelSize);
-  gpuheun_init_hExt(heun, hExt);
+  gpuheun2_init_hExt(heun, hExt);
   fprintf(stderr, "hExt: %f %f %f\n", heun->hExt[X], heun->hExt[Y], heun->hExt[Z]);
   return heun;
 }
