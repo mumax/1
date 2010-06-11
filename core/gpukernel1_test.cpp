@@ -5,11 +5,7 @@
  * @author Ben Van de Wiele
  */
 
-//#include "gputil.h"
-//#include "gpufft.h"
-//#include "tensor.h"
 #include "gpukernel1.h"
-//#include "assert.h"
 
 int main(int argc, char** argv){
   
