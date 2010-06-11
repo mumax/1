@@ -128,7 +128,7 @@ void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *Nkernel, f
 	}
 
 	
-	int rang1=0;
+	int rang0=0;
 	for (int co1=0; co1<3; co1++){
 		for (int co2=co1; co2<3; co2++){
 			gpu_zero(dev_temp, NkernelStorageN);
@@ -137,9 +137,9 @@ void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *Nkernel, f
 			cudaThreadSynchronize();
 		  gpu_plan3d_real_input_forward(kernel_plan, dev_temp);
 			cudaThreadSynchronize();
-			_gpu_extract_real_parts<<<gridsize2, blocksize2>>>(&dev_kernel->list[rang1*NkernelStorageN/2], dev_temp, rang1, NkernelStorageN/2);
+			_gpu_extract_real_parts<<<gridsize2, blocksize2>>>(&dev_kernel->list[rang0*NkernelStorageN/2], dev_temp, rang0, NkernelStorageN/2);
 			cudaThreadSynchronize();
-			rang1++;
+			rang0++;
 		}
 	}
 
@@ -215,13 +215,13 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 			}
 		}
 		result *= cst;
-		if (a== 0 && b== 0 && c== 0) 	result -= 2.0f/FD_cell_size_X/FD_cell_size_X + 2.0f/FD_cell_size_Y/FD_cell_size_Y + 2.0f/FD_cell_size_Z/FD_cell_size_Z;
-		if (a== 1 && b== 0 && c== 0)	result += 2.0f/FD_cell_size_X/FD_cell_size_X;
-		if (a==-1 && b== 1 && c== 0)	result += 2.0f/FD_cell_size_X/FD_cell_size_X;
-		if (a== 0 && b== 0 && c== 0)	result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-		if (a== 0 && b==-1 && c== 0)	result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-		if (a== 0 && b== 0 && c== 1)	result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
-		if (a== 0 && b== 0 && c==-1)	result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+//		if (a== 0 && b== 0 && c== 0) 	result += 4.0f/FD_cell_size_X/FD_cell_size_X + 4.0f/FD_cell_size_Y/FD_cell_size_Y + 4.0f/FD_cell_size_Z/FD_cell_size_Z;
+		if (a== 1 && b== 0 && c== 0)	result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
+		if (a==-1 && b== 1 && c== 0)	result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
+		if (a== 0 && b== 0 && c== 0)	result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+		if (a== 0 && b==-1 && c== 0)	result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+		if (a== 0 && b== 0 && c== 1)	result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+		if (a== 0 && b== 0 && c==-1)	result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
 	}
 	
 	if (co1==0 && co2==1){
@@ -315,13 +315,13 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 			}
 		}
 		result *= cst;
-		if (a== 0 && b== 0 && c== 0) 	result -= 2.0f/FD_cell_size_X/FD_cell_size_X + 2.0f/FD_cell_size_Y/FD_cell_size_Y + 2.0f/FD_cell_size_Z/FD_cell_size_Z;
-		if (a== 1 && b== 0 && c== 0)	result += 2.0f/FD_cell_size_X/FD_cell_size_X;
-		if (a==-1 && b== 1 && c== 0)	result += 2.0f/FD_cell_size_X/FD_cell_size_X;
-		if (a== 0 && b== 0 && c== 0)	result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-		if (a== 0 && b==-1 && c== 0)	result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-		if (a== 0 && b== 0 && c== 1)	result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
-		if (a== 0 && b== 0 && c==-1)	result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+//		if (a== 0 && b== 0 && c== 0) 	result += 4.0f/FD_cell_size_X/FD_cell_size_X + 4.0f/FD_cell_size_Y/FD_cell_size_Y + 4.0f/FD_cell_size_Z/FD_cell_size_Z;
+		if (a== 1 && b== 0 && c== 0)	result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
+		if (a==-1 && b== 1 && c== 0)	result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
+		if (a== 0 && b== 0 && c== 0)	result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+		if (a== 0 && b==-1 && c== 0)	result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+		if (a== 0 && b== 0 && c== 1)	result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+		if (a== 0 && b== 0 && c==-1)	result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
 	}
 
 	if (co1==1 && co2==2){
@@ -384,24 +384,24 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 			}
 		}
 		result *= cst;
-		if (a== 0 && b== 0 && c== 0) 	result -= 2.0f/FD_cell_size_X/FD_cell_size_X + 2.0f/FD_cell_size_Y/FD_cell_size_Y + 2.0f/FD_cell_size_Z/FD_cell_size_Z;
-		if (a== 1 && b== 0 && c== 0)	result += 2.0f/FD_cell_size_X/FD_cell_size_X;
-		if (a==-1 && b== 1 && c== 0)	result += 2.0f/FD_cell_size_X/FD_cell_size_X;
-		if (a== 0 && b== 0 && c== 0)	result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-		if (a== 0 && b==-1 && c== 0)	result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-		if (a== 0 && b== 0 && c== 1)	result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
-		if (a== 0 && b== 0 && c==-1)	result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+//		if (a== 0 && b== 0 && c== 0) 	result += 4.0f/FD_cell_size_X/FD_cell_size_X + 4.0f/FD_cell_size_Y/FD_cell_size_Y + 4.0f/FD_cell_size_Z/FD_cell_size_Z;
+		if (a== 1 && b== 0 && c== 0)	result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
+		if (a==-1 && b== 1 && c== 0)	result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
+		if (a== 0 && b== 0 && c== 0)	result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+		if (a== 0 && b==-1 && c== 0)	result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+		if (a== 0 && b== 0 && c== 1)	result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+		if (a== 0 && b== 0 && c==-1)	result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
 	}
 	
 	return( result );
 	
 }
 
-__global__ void _gpu_extract_real_parts(float *dev_kernel_array, float *dev_temp, int rang1, int size1){
+__global__ void _gpu_extract_real_parts(float *dev_kernel_array, float *dev_temp, int rang0, int size1){
 
   int e = ((blockIdx.x * blockDim.x) + threadIdx.x);
 
-	dev_kernel_array[rang1*size1 + e] = dev_temp[2*e];
+	dev_kernel_array[rang0*size1 + e] = dev_temp[2*e];
 
 	return;
 }

@@ -145,7 +145,7 @@ int _gpu_stide_float_cache = -1;
  * the stride returned by CUDA.
  */
 int gpu_stride_float(){
-      fprintf(stderr, "TODO: gpu_stride_float()\n");
+//      fprintf(stderr, "TODO: gpu_stride_float()\n");
     return 2;
   
   if( _gpu_stide_float_cache == -1){
