@@ -126,6 +126,16 @@ void tensor_copy(tensor* source, tensor* dest);
  */
 int tensor_equalsize(tensor* a, tensor* b);
 
+/**
+ * @internal Takes an array of 4 integers {3, N0, N1, N2} and returns the array {N0, N1, N2}
+ */
+int* tensor_size3D(int* size4D);
+
+/**
+ * @internal Takes an array of 3 integers {N0, N1, N2} and returns the array {3, N0, N1, N2}
+ */
+int* tensor_size4D(int* size3D);
+
 //_____________________________________________________________________________________________________________ access
 
 /** 

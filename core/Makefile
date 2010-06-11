@@ -17,7 +17,7 @@ CUFILES=\
 	gpurk4.cu\
 	gpuanal1.cu\
 	gpukernel1.cu\
-#	gpuheun2.cu\
+	gpuheun2.cu\
 # NOTE: commented files must be LAST in the list, otherwise all the rest is also commented out
 
 OFILES=\
@@ -35,7 +35,7 @@ OFILES=\
 	gpurk4.o\
 	gpuanal1.o\
 	gpukernel1.o\
-#	gpuheun2.o\
+	gpuheun2.o\
 
 #remove the "emu" when not using device emulation
 CUDALIBS= -lcudart -lcufft

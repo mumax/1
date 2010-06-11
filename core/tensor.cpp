@@ -10,7 +10,7 @@ using namespace std;
 
 //_________________________________________________________________________________________________ new
 
-/// @internal this is the "mother constructor". All other constructors should call this one
+/// @note this is the "master constructor". All other constructors should call this one
 tensor* as_tensorN(float* list, int rank, int* size){
   assert(rank > -1);
   
@@ -104,6 +104,22 @@ int tensor_equalsize(tensor* a, tensor* b){
     }
   }
   return 1;
+}
+
+int* tensor_size3D(int* size4D){
+  assert(size4D[0] == 3);
+  int* size3D = (int*)safe_calloc(3, sizeof(int));
+  size3D[X] = size4D[1];
+  size3D[Y] = size4D[2];
+  size3D[Z] = size4D[3];
+}
+
+int* tensor_size4D(int* size3D){
+  int* size4D = (int*)safe_calloc(4, sizeof(int));
+  size4D[0] = 3;
+  size4D[1] = size3D[X];
+  size4D[2] = size3D[Y];
+  size4D[3] = size3D[Z];
 }
 
 //_________________________________________________________________________________________________ access

@@ -1,4 +1,5 @@
 #include "gpuheun2.h"
+#include "gputil.h"
 #include "timer.h"
 #include <stdio.h>
 #include <assert.h>
@@ -133,84 +134,92 @@ void gpuheun2_step(gpuheun2* solver, float dt, float alpha){
                                            solver->     m0Comp[X]->list,  solver->     m0Comp[Y]->list,  solver->     m0Comp[Z]->list,
                                            solver->       hExt[X],             solver->  hExt[Y],             solver->  hExt[Z],
                                            0.5f*dt, alpha);
+  //(m[X],m[Y],m[Z],  h[X],h[Y],h[Z],  t0[X],t0[Y],t0[Z], m0[X], m0[Y], m0[Z], hExt[X],hExt[Y],hExt[Z], 0.5f*dt, alpha);
   
-  
-  
-  (m[X],m[Y],m[Z],  h[X],h[Y],h[Z],  t0[X],t0[Y],t0[Z], m0[X], m0[Y], m0[Z], hExt[X],hExt[Y],hExt[Z], 0.5f*dt, alpha);
   cudaThreadSynchronize();
   timer_stop("gpuheun_step");
   gpuheun2_normalize_m(solver);
 }
 
-void gpuheun2_checksize_m(gpuheun2* sim, tensor* m){
-   // m should be a rank 4 tensor with size 3 x N0 x N1 x N2
-  assert(m->rank == 4);
-  assert(m->size[0] == 3); 
-  for(int i=0; i<3; i++){ assert(m->size[i+1] == sim->size[i]); }
-}
+// void gpuheun2_checksize_m(gpuheun2* sim, tensor* m){
+//    // m should be a rank 4 tensor with size 3 x N0 x N1 x N2
+//   assert(m->rank == 4);
+//   assert(m->size[0] == 3); 
+//   for(int i=0; i<3; i++){ assert(m->size[i+1] == sim->size[i]); }
+// }
 
 void gpuheun2_loadm(gpuheun2* heun, tensor* m){
-  gpuheun_checksize_m(heun, m); 
-  memcpy_to_gpu(m->list, heun->m, heun->len_m);
+  tensor_copy_to_gpu(m, heun->m);       //checks the sizes too
 }
 
 void gpuheun2_storem(gpuheun2* heun, tensor* m){
-  gpuheun_checksize_m(heun, m); 
-  memcpy_from_gpu(heun->m, m->list, heun->len_m);
+  tensor_copy_from_gpu(heun->m, m);
 }
 
 void gpuheun2_storeh(gpuheun2* heun, tensor* h){
-  gpuheun_checksize_m(heun, h); 
-  memcpy_from_gpu(heun->h, h->list, heun->len_m);
+   tensor_copy_from_gpu(heun->h, h);
 }
 
-void gpuheun2_init_sizes(gpuheun2* heun, int N0, int N1, int N2){
-  heun->size = (int*)calloc(3, sizeof(int));
-  heun->size[0] = N0; heun->size[1] = N1; heun->size[2] = N2;
-  heun->N = N0 * N1 * N2;
-}
-
-
-void gpuheun2_init_m(gpuheun2* heun){
-  heun->len_m = 3 * heun->N;
-  heun->len_mComp = heun->N;
-  heun->m = new_gpu_array(heun->len_m);
-  heun->m0 = new_gpu_array(heun->len_m);
-  heun->mComp = (float**)calloc(3, sizeof(float*));
-  heun->m0_comp = (float**)calloc(3, sizeof(float*));
-  for(int i=0; i<3; i++){
-    heun->mComp [i] = &(heun->m [i * heun->len_mComp]);
-    heun->m0_comp[i] = &(heun->m0[i * heun->len_mComp]);
-  }
-}
-
-void gpuheun2_init_h(gpuheun2* heun){
-  heun->h = new_gpu_array(heun->len_m);
-  heun->torque0 = new_gpu_array(heun->len_m);
-  heun->hComp = (float**)calloc(3, sizeof(float*));
-  heun->torque0_comp = (float**)calloc(3, sizeof(float*));
-  for(int i=0; i<3; i++){
-    heun->hComp[i] = &(heun->h[i * heun->len_mComp]);
-    heun->torque0_comp[i] = &(heun->torque0[i * heun->len_mComp]);
-  }
-}
-
-void gpuheun2_init_hExt(gpuheun2* solver, float* hExt){
-  solver->hExt = (float*)calloc(3, sizeof(float));
-  for(int i=0; i<3; i++){
-    solver->hExt[i] = hExt[i];
-  }
-}
+// void gpuheun2_init_m(gpuheun2* heun){
+// 
+//   heun->m = new_gputensor(heun->len_m);
+//   heun->m0 = new_gpu_array(heun->len_m);
+//   heun->mComp = (float**)calloc(3, sizeof(float*));
+//   heun->m0_comp = (float**)calloc(3, sizeof(float*));
+//   for(int i=0; i<3; i++){
+//     heun->mComp [i] = &(heun->m [i * heun->len_mComp]);
+//     heun->m0_comp[i] = &(heun->m0[i * heun->len_mComp]);
+//   }
+// }
+// 
+// void gpuheun2_init_h(gpuheun2* heun){
+//   heun->h = new_gpu_array(heun->len_m);
+//   heun->torque0 = new_gpu_array(heun->len_m);
+//   heun->hComp = (float**)calloc(3, sizeof(float*));
+//   heun->torque0_comp = (float**)calloc(3, sizeof(float*));
+//   for(int i=0; i<3; i++){
+//     heun->hComp[i] = &(heun->h[i * heun->len_mComp]);
+//     heun->torque0_comp[i] = &(heun->torque0[i * heun->len_mComp]);
+//   }
+// }
+// 
+// void gpuheun2_init_hExt(gpuheun2* solver, float* hExt){
+//   solver->hExt = (float*)calloc(3, sizeof(float));
+//   for(int i=0; i<3; i++){
+//     solver->hExt[i] = hExt[i];
+//   }
+// }
 
 gpuheun2* new_gpuheun2(int* size, tensor* kernel, float* hExt){
-  gpuheun2* heun = (gpuheun2*)malloc(sizeof(gpuheun));
+  gpuheun2* heun = (gpuheun2*)malloc(sizeof(gpuheun2));
+
+  int* size4D = tensor_size4D(size);
+  int* kernelSize = (int*)safe_calloc(3, sizeof(int));
+  kernelSize[X] = kernel->size[2+X];
+  kernelSize[Y] = kernel->size[2+Y];
+  kernelSize[Z] = kernel->size[2+Z];
   
-  gpuheun2_init_sizes(heun, N0, N1, N2);
-  gpuheun2_init_m(heun);
-  gpuheun2_init_h(heun);
+  
+  heun->m       = new_gputensor(4, size4D);
+  heun->m0      = new_gputensor(4, size4D);
+  heun->h       = new_gputensor(4, size4D);
+  heun->torque0 = new_gputensor(4, size4D);
+  
+  for(int i=0; i<3; i++){
+    heun->      mComp[i] = tensor_component(heun->m,       i);
+    heun->     m0Comp[i] = tensor_component(heun->m0,      i);
+    heun->      hComp[i] = tensor_component(heun->h,       i);
+    heun->torque0Comp[i] = tensor_component(heun->torque0, i);
+  }
+  
   heun->convplan = new_gpuconv2(size, kernelSize);
-  gpuheun2_init_hExt(heun, hExt);
+  
+  heun->hExt = (float*)calloc(3, sizeof(float));
+  for(int i=0; i<3; i++){
+    heun->hExt[i] = hExt[i];
+  }
   fprintf(stderr, "hExt: %f %f %f\n", heun->hExt[X], heun->hExt[Y], heun->hExt[Z]);
+  
   return heun;
 }
 
