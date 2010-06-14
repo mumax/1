@@ -31,7 +31,7 @@ tensor* as_tensorN(float* list, int rank, int* size){
 
 
 tensor* new_tensor(int rank, ...){
-  
+  fprintf(stderr, "WARNING: new_tensor() is deprecated, use new_tensorN() instead\n");
   int* size = (int*)safe_calloc(rank, sizeof(int));
   
   va_list varargs;

@@ -50,6 +50,7 @@ typedef struct{
  * Allocates the neccesary space for the elements.
  * Initializes with zeros.
  * @see new_tensorN()
+ * @deprecated No compliation error arises when used with an int* as second argument.
  */
 tensor* new_tensor(int rank,        ///< rank of the new tensor
                    ...              ///< sizes in each dimension, as many as rank

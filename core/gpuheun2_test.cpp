@@ -20,8 +20,8 @@ int main(int argc, char** argv){
   
   int size[3];
   size[X] = 64;
-  size[Y] = 64;
-  size[Z] = 8;
+  size[Y] = 32;
+  size[Z] = 4;
 
   float hExt[3];
   hExt[X] = 0.f;
@@ -29,34 +29,20 @@ int main(int argc, char** argv){
   hExt[Z] = 0.f;
   
   
-  tensor* kernel = pipe_tensor((char*)"kernel --size 64 64 8 --msat 800E3 --aexch 1.3e-11 --cellsize 1e-9 1e-9 1e-9");
+  tensor* kernel = pipe_tensor((char*)"kernel --size 64 32 4 --msat 800E3 --aexch 1.3e-11 --cellsize 1e-9 1e-9 1e-9");
   gpuheun2* solver = new_gpuheun2(size, kernel, hExt);
+
+  tensor* m = new_tensorN(4, tensor_size4D(size));
+  for(int i=0; i<m->len; i++)
+    m->list[i] = i;
   
-//   
-//   assert(argc == 3);
-//   
-//   FILE* mfile = fopen(argv[1], "rb");
-//   tensor* m = read_tensor(mfile);
-//   fclose(mfile);
-//   
-//   int N0 = m->size[1];
-//   int N1 = m->size[2];
-//   int N2 = m->size[3];
-//   printf("read m: %d x %d x %d\n", N0, N1, N2);
-//   
-//   // todo: need safe_fopen
-//   FILE* kernelfile = fopen(argv[2], "rb");
-//   tensor* kernel = read_tensor(kernelfile);
-//   fclose(kernelfile);
-//   printf("read kernel: %d x %d x %d\n", kernel->size[2], kernel->size[3], kernel->size[4]);
-//   
-//   float* hExt = new float[3];
-//   hExt[X] = hExt[Y] = hExt[Z] = 0.;
-//   
-//   gpuheun* heun = new_gpuheun(N0, N1, N2, kernel, hExt);
-//   
-//   gpuheun_loadm(heun, m);
-//   
+  gpuheun2_loadm(solver, m);
+
+  tensor_zero(m);
+  gpuheun2_storem(solver, m);
+  for(int i=0; i<m->len; i++)
+    assert(m->list[i] == i);
+  
 //   float alpha = 1.0;
 //   for(int i=0; i<100; i++){
 //     gpuheun_step(heun, 1E-5, alpha);

@@ -149,14 +149,20 @@ void gpuheun2_step(gpuheun2* solver, float dt, float alpha){
 // }
 
 void gpuheun2_loadm(gpuheun2* heun, tensor* m){
+  assert(m->rank == 4);
+  assert(m->size[0] == 3);
   tensor_copy_to_gpu(m, heun->m);       //checks the sizes too
 }
 
 void gpuheun2_storem(gpuheun2* heun, tensor* m){
+  assert(m->rank == 4);
+  assert(m->size[0] == 3);
   tensor_copy_from_gpu(heun->m, m);
 }
 
 void gpuheun2_storeh(gpuheun2* heun, tensor* h){
+   assert(h->rank == 4);
+   assert(h->size[0] == 3);
    tensor_copy_from_gpu(heun->h, h);
 }
 
@@ -191,16 +197,17 @@ void gpuheun2_storeh(gpuheun2* heun, tensor* h){
 // }
 
 gpuheun2* new_gpuheun2(int* size, tensor* kernel, float* hExt){
-  fprintf(stderr, "new_gpuheun2()\n");
   
   gpuheun2* heun = (gpuheun2*)malloc(sizeof(gpuheun2));
 
   int* size4D = tensor_size4D(size);
+  assert(size4D[0] == 3);
   int* kernelSize = (int*)safe_calloc(3, sizeof(int));
   kernelSize[X] = kernel->size[2+X];
   kernelSize[Y] = kernel->size[2+Y];
   kernelSize[Z] = kernel->size[2+Z];
-  
+
+  fprintf(stderr, "new_gpuheun2([%d x %d x %d],[%d x %d x %d],[%g, %g, %g])\n", size[X], size[Y], size[Z], kernelSize[X], kernelSize[Y], kernelSize[Z], hExt[X], hExt[Y], hExt[Z]);
   
   heun->m       = new_gputensor(4, size4D);
   heun->m0      = new_gputensor(4, size4D);

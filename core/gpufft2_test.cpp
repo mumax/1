@@ -169,7 +169,7 @@ void test_fft(){
   for(int i=0; i<N0; i++)
     for(int j=0; j<N1; j++)
       for(int k=0; k<N2; k++){
-                if ( (in[i][j][k] - out[i][j][k]) > 1e-5){
+                if ( (in[i][j][k] - out[i][j][k]) > 1e-4){
                     fprintf(stderr, "error element: %d, %d, %d\n", i, j, k );
                     error = 1;
                 }

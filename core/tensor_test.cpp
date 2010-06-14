@@ -204,7 +204,26 @@ int main(int argc, char** argv){
   //     buffer[2] = 0;
   //     float z = *tensor_elem(x, buffer);
   //     format_tensor(x, stdout);
-  //    
+  //
+
+  // some internal routines
+
+  int size[3];
+  size[X] = 11;
+  size[Y] = 22;
+  size[Z] = 33;
+  int* size4D = tensor_size4D(size);
+  assert(size4D[0] == 3);
+  assert(size4D[1] == 11);
+  assert(size4D[2] == 22);
+  assert(size4D[3] == 33);
+  int* size3D = tensor_size3D(size4D);
+  assert(size3D[X] == 11);
+  assert(size3D[Y] == 22);
+  assert(size3D[Z] == 33);
+  
+
+  
   printf("PASS\n");
   return 0;
 }
