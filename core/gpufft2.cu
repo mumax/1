@@ -18,8 +18,12 @@ extern "C" {
  */
 gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* kernelsize){
   
-  int N0 = size[X]; int N1 = size[Y]; int N2 = size[Z];
-  assert(N0 > 1);   assert(N1 > 1);   assert(N2 > 1);
+  int N0 = size[X];
+  int N1 = size[Y];
+  int N2 = size[Z];
+  assert(N0 > 0);
+  assert(N1 > 1);
+  assert(N2 > 1);
   
   gpuFFT3dPlan* plan = (gpuFFT3dPlan*)malloc(sizeof(gpuFFT3dPlan));
   
@@ -96,11 +100,13 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   
   gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data2,  (cufftComplex*)data2, CUFFT_FORWARD) ); // it's now again in data
   cudaThreadSynchronize();
-  
-  gpu_transposeXZ_complex(data2, data, N0, N2, N1*N3); // size has changed due to previous transpose! // it's now in data2
-  gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)output->list, CUFFT_FORWARD) ); // it's now again in data
-  cudaThreadSynchronize();
-  
+
+  // support for 2D transforms: do not transform if first dimension has size 1
+  if(N0 > 1){
+    gpu_transposeXZ_complex(data2, data, N0, N2, N1*N3); // size has changed due to previous transpose! // it's now in data2
+    gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)output->list, CUFFT_FORWARD) ); // it's now again in data
+    cudaThreadSynchronize();
+  }
   timer_stop("gpu_plan3d_real_input_forward_exec");
 }
 
@@ -127,12 +133,14 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   float* data = input->list;
   float* data2 = plan->transp; // both the transpose and FFT are out-of-place between data and data2
 
+  if (N0 > 1){
  // input data is XZ transpozed and stored in data, FFTs on X-arrays out of place towards data2
   gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) ); // it's now in data2
   cudaThreadSynchronize();
 //  gpu_transposeXZ_complex(data2, data, N0, N2, N1*N3); // size has changed due to previous transpose! // it's now in data
   gpu_transposeXZ_complex(data2, data, N1, N2, N0*N3); // size has changed due to previous transpose! // it's now in data
-  
+  }
+
   gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) ); // it's now again in data2
   cudaThreadSynchronize();
 //  gpu_transposeYZ_complex(data2, data, N0, N1, N2*N3);                 // it's now in data

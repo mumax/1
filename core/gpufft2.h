@@ -8,8 +8,9 @@
  *   - No FFTs on the zeros in the padded magnetization buffers
  *   - The CUDA memory access is aligned
  *
- * @todo In place transpose routines
+ * @todo In place transpose routines: swap if sourceIndex > destIndex
  * @todo Option for out-of place transforms
+ * @todo normalization_factor();
  *
  * @author Arne Vansteenkiste
  * @author Ben Van de Wiele

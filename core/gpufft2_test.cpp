@@ -12,7 +12,7 @@
 #include "tensor.h"
 #include "assert.h"
 
-  int N0 = 2;
+  int N0 = 1; // MUST ALSO WORK FOR 2D
   int N1 = 4;
   int N2 = 8;
   int N3 = 2; // real and imag part
@@ -35,7 +35,7 @@ void test_transpose(){
   fprintf(stderr, "original:\n");
   format_tensor(mHost, stderr);
        
-  // (untransposed) "magnetization" on the device (gPU)
+  // (untransposed) "magnetization" on the device (GPU)
   tensor* mDev = new_gputensor(3, size);
   tensor_copy_to_gpu(mHost, mDev);
   
@@ -84,105 +84,104 @@ void test_transpose(){
 
 void test_fft(){
 
-  int size[3] = {N0, N1, N2};
-  int kernelSize[3] = {2*N0, 2*N1, 2*N2};
+  int size[3]              = {N0, N1, N2};
+  int kernelSize[3]        = {2*N0, 2*N1, 2*N2};
+  int paddedStorageSize[3] = {kernelSize[X], kernelSize[Y], gpu_pad_to_stride(kernelSize[Z] + 2)};
+  int size4D[4]              = {3, size[X], size[Y], size[Z]};
+  int kernelSize4D[4]        = {3, kernelSize[X], kernelSize[Y], kernelSize[Z]};
+  int paddedStorageSize4D[4] = {3, paddedStorageSize[X], paddedStorageSize[Y], paddedStorageSize[Z]};
+
+
+  tensor* hostM = new_tensorN(4, size4D);
+  tensor* hostMComp[3];
+  for(int i=0; i<3; i++)
+    hostMComp[i] = tensor_component(hostM, i);
+
+  tensor* hostH = new_tensorN(4, size4D);
+  tensor* hostHComp[3];
+  for(int i=0; i<3; i++)
+    hostHComp[i] = tensor_component(hostH, i);
+
+  tensor* m = new_gputensor(4, size4D);
+  tensor* mComp[3];
+  for(int i=0; i<3; i++)
+    mComp[i] = as_tensorN(NULL, 3, size);
+
+  tensor* h = new_gputensor(4, size4D);
+  tensor* hComp[3];
+  for(int i=0; i<3; i++)
+    hComp[i] = as_tensorN(NULL, 3, size);
+
+  tensor* fft = new_gputensor(4, paddedStorageSize4D);
+  tensor* fftComp[3];
+  for(int i=0; i<3; i++)
+    fftComp[i] = tensor_component(fft, i);
+
   gpuFFT3dPlan* plan = new_gpuFFT3dPlan_padded(size, kernelSize);
 
-    
-// make some host data and initialize _________________________________
-  tensor* Host_in = new_tensor(3, N0, N1, N2);
-  int N = tensor_length(Host_in);
-
-  float*** in = tensor_array3D(Host_in);
+  float**** in = tensor_array4D(hostM);
+  for(int c=0; c<3; c++)
   for(int i=0; i<N0; i++)
     for(int j=0; j<N1; j++)
       for(int k=0; k<N2; k++){
-                in[i][j][k] = i + j*0.01 + k*0.00001;
+                in[c][i][j][k] = c + 1; //i + j*0.01 + k*0.00001;
       }
-  fprintf(stderr, "original:\n");
-  format_tensor(Host_in, stderr);
-// _____________________________________________________________________
+//   fprintf(stderr, "hostM:\n");
+//   format_tensor(hostM, stderr);
 
-    
-// copy host data in zero-padded tensor ________________________________
-  tensor* Host_padded_in = new_tensor(3, plan->paddedStorageSize[X], plan->paddedStorageSize[Y], plan->paddedStorageSize[Z]);
-  int N_padded = tensor_length(Host_padded_in);
+  for(int i=0; i<3; i++){
+    fprintf(stderr, "hostMComp[%d]:\n", i);
+    format_tensor(hostMComp[i], stderr);
+  }
 
-  float*** padded_in = tensor_array3D(Host_padded_in);
-  for(int i=0; i<N0; i++)
-    for(int j=0; j<N1; j++)
-      for(int k=0; k<N2; k++){
-                padded_in[i][j][k] = in[i][j][k];
-      }
+  tensor_copy_to_gpu(hostM, m);
+  fprintf(stderr, "m:\n");
+  format_gputensor(m, stderr);
 
-    fprintf(stderr, "original, padded:\n");
-  format_tensor(Host_padded_in, stderr);
-// _____________________________________________________________________
+  for(int i=0; i<3; i++){
+    mComp[i]->list = &(m->list[mComp[i]->len * i]);
+    hComp[i]->list = &(h->list[hComp[i]->len * i]);
+    fprintf(stderr, "m[%d]:\n", i);
+    format_gputensor(mComp[i], stderr);
+  }
+
+  for(int i=0; i<3; i++){
+    gpu_copy_pad(mComp[i], fftComp[i]);
+  }
+
+  fprintf(stderr, "fft:\n");
+  format_gputensor(fft, stderr);
+
+  for(int i=0; i<3; i++){
+    gpuFFT3dPlan_forward(plan, fftComp[i], fftComp[i]);
+  }
+
+  for(int i=0; i<3; i++){
+    gpuFFT3dPlan_inverse(plan, fftComp[i], fftComp[i]);
+  }
   
-// make data on device__________________________________________________
-  tensor* Dev_in = as_tensor(new_gpu_array(N_padded), 3, plan->paddedStorageSize[X], plan->paddedStorageSize[Y], plan->paddedStorageSize[Z]);
-  tensor* Dev_out = Dev_in; // in-place
+  for(int i=0; i<3; i++){
+    gpu_copy_unpad(fftComp[i], hComp[i]);
+  }
+
+  float N = kernelSize[X] * kernelSize[Y] * kernelSize[Z];
   
-  //tensor* Dev_out = as_tensor(new_gpu_array(N_padded), 3, plan->paddedStorageSize[X], plan->paddedStorageSize[Y], plan->paddedStorageSize[Z]); // out of place is broken now
+  tensor_copy_from_gpu(h, hostH);
+  for(int i=0; i<hostH->len; i++){
+    hostH->list[i] /= N;
+  }
+
+  format_tensor(hostH, stderr);
   
-  memcpy_to_gpu(Host_padded_in->list, Dev_in->list, N_padded);
-// _____________________________________________________________________
-       
-
-    tensor* Host_padded_out = new_tensor(3, plan->paddedStorageSize[X], plan->paddedStorageSize[Y], plan->paddedStorageSize[Z]);
-
-// test forward ________________________________________________________
-  gpuFFT3dPlan_forward(plan, Dev_in, Dev_out);
-  gpu_zero_tensor(Dev_in);
-  
-  memcpy_from_gpu(Dev_in->list, Host_padded_out->list, N_padded);
-  fprintf(stderr, "\n\nforward:\n");
-  format_tensor(Host_padded_out, stderr);
-// _____________________________________________________________________
-
-    
-// // test inverse ________________________________________________________
-  gpuFFT3dPlan_inverse(plan, Dev_out, Dev_in);
-  memcpy_from_gpu(Dev_in->list, Host_padded_out->list, N_padded);
-  fprintf(stderr, "\n\ninverse:\n");
-  format_tensor(Host_padded_out, stderr);
-// _____________________________________________________________________
-
-
-// copy result to unpadded tensor ______________________________________    
-  tensor* Host_out = new_tensor(3, N0, N1, N2);
-  float*** padded_out = tensor_array3D(Host_padded_out);
-
-  float*** out = tensor_array3D(Host_out);
-  for(int i=0; i<N0; i++)
-    for(int j=0; j<N1; j++)
-      for(int k=0; k<N2; k++){
-                out[i][j][k] = padded_out[i][j][k]/(float)plan->paddedN;
-      }
-  fprintf(stderr, "Output:\n");
-  format_tensor(Host_out, stderr);
-// _____________________________________________________________________
-
-// compare input <-> output after forward and inverse transform ________
-  int error = 0;
-  
-  for(int i=0; i<N0; i++)
-    for(int j=0; j<N1; j++)
-      for(int k=0; k<N2; k++){
-                if ( (in[i][j][k] - out[i][j][k]) > 1e-4){
-                    fprintf(stderr, "error element: %d, %d, %d\n", i, j, k );
-                    error = 1;
-                }
-      }
-// _____________________________________________________________________
-
-    if(error == 0)
-      fprintf(stderr, "PASS\n");
-    else{
-      fprintf(stderr, "FAIL\n");
-      exit(error);
+  float maxError = 0.0;
+  for(int i=0; i<hostH->len; i++){
+    if(fabs(hostM->list[i] - hostH->list[i]) > maxError){
+      maxError = fabs(hostM->list[i] - hostH->list[i]);
     }
-  
+  }
+
+  printf("FFT max error: %g\n", maxError);
+  assert(maxError < 1E-5);
 }
 
 int main(int argc, char** argv){
