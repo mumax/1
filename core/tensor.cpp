@@ -112,6 +112,7 @@ int* tensor_size3D(int* size4D){
   size3D[X] = size4D[1];
   size3D[Y] = size4D[2];
   size3D[Z] = size4D[3];
+  return size3D;
 }
 
 int* tensor_size4D(int* size3D){
@@ -120,6 +121,7 @@ int* tensor_size4D(int* size3D){
   size4D[1] = size3D[X];
   size4D[2] = size3D[Y];
   size4D[3] = size3D[Z];
+  return size4D;
 }
 
 //_________________________________________________________________________________________________ access
