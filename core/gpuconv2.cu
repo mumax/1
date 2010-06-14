@@ -206,7 +206,7 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
 
 
 void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
-
+  printf("TODO: normalize kernel!!!\n\n");
   int* paddedSize = conv->paddedSize;
   
   assert(kernel5D->rank == 5);

@@ -1,3 +1,5 @@
+# todo: we need to express the depencies between the packages
+
 include ../../common.mk
 
 all:
@@ -5,8 +7,8 @@ all:
 	make install -C tensor
 	ln -sf tensor/_obj/tensor.a .
 
-# 	make -C core
-# 	make install -C core
+	make -C core
+	make install -C core
 
 	make -C refsh
 	ln -sf refsh/_obj/refsh.a .
@@ -30,6 +32,9 @@ clean:
 	make clean -C config-main
 	make clean -C draw
 	make clean -C main
+	rm -f $(GOROOT)/pkg/$(GOOS)_$(GOARCH)/core.a
+	rm -f $(GOROOT)/pkg/$(GOOS)_$(GOARCH)/core.so
+
 
 test:	all
 	make test -C tensor

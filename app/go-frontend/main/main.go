@@ -37,7 +37,7 @@ func run(){
   size := units.Size;
 
   if kernel == nil { makeKernel() };
-  if solver == nil { solver = NewGpuHeun(size[0], size[1], size[2], kernel, hExt) };
+  if solver == nil { solver = NewGpuHeun(size, kernel, hExt) };
 
   solver.LoadM(m);
   t = savem; // to trigger output for t=0

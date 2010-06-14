@@ -12,9 +12,9 @@
 #include "assert.h"
 #include "pipes.h"
 
-  int N0 = 8;
-  int N1 = 8;
-  int N2 = 8;
+  int N0 = 16;
+  int N1 = 16;
+  int N2 = 2;
   
 void test_convplan(){
   
@@ -52,7 +52,7 @@ void test_convplan(){
 //       for(int k=0; k<N2; k++){
 //                 in[c][i][j][k] = c + 1; //i + j*0.01 + k*0.00001;
 //       }
-  in[X][0][0][0] = 1;
+  in[X][7][7][0] = 1;
 
   
   
@@ -62,7 +62,7 @@ void test_convplan(){
 
   gpuconv2* plan = new_gpuconv2(size, kernelSize);
   
-  tensor* kernel = pipe_tensor((char*)"kernel --size 8 8 8 --msat 800E3 --aexch 1.3e-11 --cellsize 1e-9 1e-9 1e-9");
+  tensor* kernel = pipe_tensor((char*)"kernel --size 16 16 2 --msat 800E3 --aexch 1.3e-11 --cellsize 1e-9 1e-9 1e-9");
   
   tensor* gpuKernel = new_gputensor(5, kernel->size);
   tensor_copy_to_gpu(kernel, gpuKernel);
@@ -76,9 +76,15 @@ void test_convplan(){
   }
   
   gpuconv2_exec(plan, m, h);
+
+  tensor_copy_from_gpu(h, hostH);
+  format_tensor(hostH, stderr);
   
   
-  format_gputensor(h, stderr);
+  FILE* out;
+  out = fopen ("h.t" , "wb");
+  write_tensor(hostH, out);
+  fclose (out);
   
 }
   
