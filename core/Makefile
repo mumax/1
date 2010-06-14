@@ -93,13 +93,14 @@ timer.o:	timer.h timer.cpp
 units.o:	units.h units.c
 	$(NVCC) -c $(NVCCFLAGS) units.c
 
-test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test gpukernel1_test
+test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuheun2_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test gpukernel1_test
 	./tensor_test
 	./gputil_test
 	./gpufft_test
 	./gpuconv2_test
 	./gpueuler_test testm0.t testkernel.t
 	./gpuheun_test testm0.t testkernel.t
+	./gpuheun2_test
 	./gpuanal1_test testm0.t testkernel.t
 	./gpukernel1_test
 

@@ -43,13 +43,13 @@ int main(int argc, char** argv){
   for(int i=0; i<m->len; i++)
     assert(m->list[i] == i);
   
-//   float alpha = 1.0;
-//   for(int i=0; i<100; i++){
-//     gpuheun_step(heun, 1E-5, alpha);
-//   }
-//   gpuheun_storem(heun, m);
+  float alpha = 1.0;
+  for(int i=0; i<100; i++){
+    gpuheun2_step(solver, 1E-5, alpha);
+  }
+  gpuheun2_storem(solver, m);
 //   
-//   printf("%f\nPASS\n", *tensor_get(m, 4, 0, 0, 0, 0));
+  printf("PASS\n");
 //   assert(fabs(*tensor_get(m, 4, 0, 0, 0, 0) - 0.578391) < 1E-6);
 //   timer_printdetail();
 
