@@ -1,3 +1,8 @@
+/**
+ * @file
+ * A simple simulation main program
+ * @author Arne Vansteenkiste
+ */
 #include "tensor.h"
 #include "gpuheun.h"
 #include "timer.h"
@@ -9,16 +14,12 @@
 int main(int argc, char** argv){
   printf("gpusim_test\n");
   
-//   assert(argc == 3);
-//   
-//   FILE* mfile = fopen(argv[1], "rb");
-//   tensor* m = read_tensor(mfile);
-//   fclose(mfile);
-//   
-//   int N0 = m->size[1];
-//   int N1 = m->size[2];
-//   int N2 = m->size[3];
-//   printf("read m: %d x %d x %d\n", N0, N1, N2);
+
+  
+  int N0 = 64;
+  int N1 = 64;
+  int N2 = 8;
+  printf("read m: %d x %d x %d\n", N0, N1, N2);
   
   // todo: need safe_fopen
 //   FILE* kernelfile = fopen(argv[2], "rb");

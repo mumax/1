@@ -117,6 +117,9 @@ gpuheun_test:	$(OFILES) gpuheun_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuheun_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpuheun_test.o -o gpuheun_test
 
+gpuheun2_test:	$(OFILES) gpuheun2_test.cpp
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuheun2_test.cpp
+	$(NVCC) $(CUDALIBS) $(OFILES) gpuheun2_test.o -o gpuheun2_test
 
 gpuanal1_test:	$(OFILES) gpuanal1_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuanal1_test.cpp

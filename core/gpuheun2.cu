@@ -191,6 +191,8 @@ void gpuheun2_storeh(gpuheun2* heun, tensor* h){
 // }
 
 gpuheun2* new_gpuheun2(int* size, tensor* kernel, float* hExt){
+  fprintf(stderr, "new_gpuheun2()\n");
+  
   gpuheun2* heun = (gpuheun2*)malloc(sizeof(gpuheun2));
 
   int* size4D = tensor_size4D(size);
@@ -219,7 +221,7 @@ gpuheun2* new_gpuheun2(int* size, tensor* kernel, float* hExt){
     heun->hExt[i] = hExt[i];
   }
   fprintf(stderr, "hExt: %f %f %f\n", heun->hExt[X], heun->hExt[Y], heun->hExt[Z]);
-  
+  fprintf(stderr, "new_gpuheun2(): OK\n");
   return heun;
 }
 
