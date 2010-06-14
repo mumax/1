@@ -164,7 +164,7 @@ void test_fft(){
     gpu_copy_unpad(fftComp[i], hComp[i]);
   }
 
-  float N = kernelSize[X] * kernelSize[Y] * kernelSize[Z];
+  float N = gpuFFT3dPlan_normalization(plan);
   
   tensor_copy_from_gpu(h, hostH);
   for(int i=0; i<hostH->len; i++){

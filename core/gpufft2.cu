@@ -134,16 +134,16 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   float* data2 = plan->transp; // both the transpose and FFT are out-of-place between data and data2
 
   if (N0 > 1){
- // input data is XZ transpozed and stored in data, FFTs on X-arrays out of place towards data2
-  gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) ); // it's now in data2
-  cudaThreadSynchronize();
-//  gpu_transposeXZ_complex(data2, data, N0, N2, N1*N3); // size has changed due to previous transpose! // it's now in data
-  gpu_transposeXZ_complex(data2, data, N1, N2, N0*N3); // size has changed due to previous transpose! // it's now in data
+    // input data is XZ transpozed and stored in data, FFTs on X-arrays out of place towards data2
+    gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) ); // it's now in data2
+    cudaThreadSynchronize();
+    //  gpu_transposeXZ_complex(data2, data, N0, N2, N1*N3); // size has changed due to previous transpose! // it's now in data
+    gpu_transposeXZ_complex(data2, data, N1, N2, N0*N3); // size has changed due to previous transpose! // it's now in data
   }
 
   gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) ); // it's now again in data2
   cudaThreadSynchronize();
-//  gpu_transposeYZ_complex(data2, data, N0, N1, N2*N3);                 // it's now in data
+  //  gpu_transposeYZ_complex(data2, data, N0, N1, N2*N3);                 // it's now in data
   gpu_transposeYZ_complex(data2, data, N0, N2, N1*N3);                   // it's now in data
 
   for(int i=0; i<size[X]; i++){
@@ -159,7 +159,9 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
 }
 
 
-
+int gpuFFT3dPlan_normalization(gpuFFT3dPlan* plan){
+  return plan->paddedSize[X] * plan->paddedSize[Y] * plan->paddedSize[Z];
+}
 
 //_____________________________________________________________________________________________ transpose
 

@@ -88,6 +88,12 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan,       ///< the plan to be executed
                           tensor* input,            ///< input data, may be equal to output for in-place transforms.
                           tensor* output            ///< output data, it's size should match the strided "half complex" format (=plan->paddedStorageSize)
                           );
+/**
+ * FFT normalization factor.
+ * After forward + inverse transforming, the data will be multiplied by this factor.
+ * It is equal to kernelSize[X] * kernelSize[Y] * kernelSize[Z];
+ */
+int gpuFFT3dPlan_normalization(gpuFFT3dPlan* plan);
 
 /**
  * @internal
