@@ -38,6 +38,6 @@ clean:
 
 test:	all
 	make test -C tensor
-#	make test -C core
+	make test -C core
 
 
