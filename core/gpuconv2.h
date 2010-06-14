@@ -140,7 +140,7 @@ gpuconv2* new_gpuconv2(int* size,             ///< X Y and Z size of the magneti
  * The kernel is assumed to be symmetric in the first two indices.
  */
 void gpuconv2_loadkernel5DSymm(gpuconv2* conv,
-                               tensor* kernel5D
+                               tensor* kernel5D     ///< Kernel on Host
                                );
 
 /**

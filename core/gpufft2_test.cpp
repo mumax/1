@@ -12,7 +12,7 @@
 #include "tensor.h"
 #include "assert.h"
 
-  int N0 = 1; // MUST ALSO WORK FOR 2D
+  int N0 = 2; // MUST ALSO WORK FOR 2D
   int N1 = 4;
   int N2 = 8;
   int N3 = 2; // real and imag part
@@ -84,6 +84,11 @@ void test_transpose(){
 
 void test_fft(){
 
+  N0 = 2; // MUST ALSO WORK FOR 2D
+  N1 = 4;
+  N2 = 8;
+  N3 = 2; // real and imag part
+  
   int size[3]              = {N0, N1, N2};
   int kernelSize[3]        = {2*N0, 2*N1, 2*N2};
   int paddedStorageSize[3] = {kernelSize[X], kernelSize[Y], gpu_pad_to_stride(kernelSize[Z] + 2)};
@@ -182,6 +187,7 @@ void test_fft(){
 
   printf("FFT max error: %g\n", maxError);
   assert(maxError < 1E-5);
+  printf("PASS");
 }
 
 int main(int argc, char** argv){
