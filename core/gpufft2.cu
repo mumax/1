@@ -93,14 +93,14 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
     for(int j=0; j<size[Y]; j++){
       float* rowIn  = &( input->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
       float* rowOut = &(output->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-      gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)rowIn,  (cufftComplex*)rowIn) ); ///@todo change for out-of-place
+      gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)rowIn,  (cufftComplex*)rowOut) );
     }
   }
   cudaThreadSynchronize();
   
   gpu_transposeYZ_complex(data, data2, N0, N1, N2*N3);                  // it's now in data2
   
-  gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data2,  (cufftComplex*)data2, CUFFT_FORWARD) ); // it's now again in data
+  gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data2,  (cufftComplex*)data2, CUFFT_FORWARD) ); 
   cudaThreadSynchronize();
 
   // support for 2D transforms: do not transform if first dimension has size 1
@@ -136,23 +136,22 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   float* data2 = plan->transp; // both the transpose and FFT are out-of-place between data and data2
 
   if (N0 > 1){
-    // input data is XZ transpozed and stored in data, FFTs on X-arrays out of place towards data2
+    // input data is XZ transposed and stored in data, FFTs on X-arrays out of place towards data2
     gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) ); // it's now in data2
     cudaThreadSynchronize();
-    //  gpu_transposeXZ_complex(data2, data, N0, N2, N1*N3); // size has changed due to previous transpose! // it's now in data
     gpu_transposeXZ_complex(data2, data, N1, N2, N0*N3); // size has changed due to previous transpose! // it's now in data
   }
 
   gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) ); // it's now again in data2
   cudaThreadSynchronize();
-  //  gpu_transposeYZ_complex(data2, data, N0, N1, N2*N3);                 // it's now in data
-  gpu_transposeYZ_complex(data2, data, N0, N2, N1*N3);                   // it's now in data
+
+  gpu_transposeYZ_complex(data2, data, N0, N2, N1*N3);                 
 
   for(int i=0; i<size[X]; i++){
     for(int j=0; j<size[Y]; j++){
       float* rowIn  = &( input->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
       float* rowOut = &(output->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-      gpu_safe( cufftExecC2R(plan->invPlanZ, (cufftComplex*)rowIn, (cufftReal*)rowOut) ); // all stays in data
+      gpu_safe( cufftExecC2R(plan->invPlanZ, (cufftComplex*)rowIn, (cufftReal*)rowOut) ); 
     }
   }
   cudaThreadSynchronize();
@@ -181,7 +180,7 @@ void gpu_tensor_transposeYZ_complex(tensor* source, tensor* dest){
   int N0 = source->size[X];
   int N1 = source->size[Y];
   int N2 = source->size[Z] / 2;
-  int N3 = 2;
+  //int N3 = 2; // not used
   
   dim3 gridsize(N0, N1, 1);  ///@todo generalize!
   dim3 blocksize(N2, 1, 1);
@@ -206,7 +205,7 @@ void gpu_tensor_transposeXZ_complex(tensor* source, tensor* dest){
   int N0 = source->size[X];
   int N1 = source->size[Y];
   int N2 = source->size[Z] / 2;
-  int N3 = 2;
+  //int N3 = 2; // not used
   
   dim3 gridsize(N0, N1, 1);  ///@todo generalize!
   dim3 blocksize(N2, 1, 1);

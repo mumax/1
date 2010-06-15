@@ -154,6 +154,7 @@ int gpu_stride_float(){
     gpu_safe( cudaMallocPitch((void**)&devPtr, &pitch, width * sizeof(float), height) );
     gpu_safe( cudaFree(devPtr) );
     _gpu_stide_float_cache = pitch / sizeof(float);
+    fprintf(stderr, "GPU stride: %d floats\n", _gpu_stide_float_cache);
   }
   return _gpu_stide_float_cache;
 }

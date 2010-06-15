@@ -16,6 +16,7 @@ NVCCFLAGS+=\
   --compiler-options -Werror\
   --compiler-options -fPIC\
   --compiler-options -g\
+  -G
 # --compiler-options -DNDEBUG\
 # --device-emulation\
 

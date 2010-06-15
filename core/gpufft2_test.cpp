@@ -187,7 +187,7 @@ void test_fft(){
 
   printf("FFT max error: %g\n", maxError);
   assert(maxError < 1E-5);
-  printf("PASS");
+  printf("PASS\n");
 }
 
 int main(int argc, char** argv){
