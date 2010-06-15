@@ -28,67 +28,42 @@ param* new_param(){
     p->demagCoarse[i] = 1;    
   }
 
-  p->solverType = SOLVER_NONE;    
-  p->maxDt = 0.;       
+  p->solverType = SOLVER_NONE;
+  p->maxDt = 0.;
   p->maxDelta = 0.;
   p->maxError = 0.;
   
   return p;
 }
-// 
-// double plength(param* u){
-//   return sqrt(2. * u->aexch / (u->mu0 * u->msat*u->msat) );
-// }
-// 
-// double ptime(param* u){
-//   return 1.0 / (u->gamma0 * u->msat);
-// }
-// 
-// double pfield(param* u){
-//   return u->mu0 * u->msat;
-// }
-// 
-// double penergy(param* u){
-//   return u->aexch * plength(u);
-// }
-// 
-// void printparam(param* u){
-//   printf("msat      :\t%g A/m\n",   u->msat);
-//   printf("aexch     :\t%g J/m\n",   u->aexch);
-//   printf("mu0       :\t%g N/A^2\n", u->mu0);
-//   printf("gamma0    :\t%g m/As\n",  u->gamma0);
-//   printf("plength:\t%g m\n",     plength(u));
-//   printf("ptime  :\t%g s\n",     ptime(u));
-//   printf("penergy:\t%g J\n",     penergy(u));
-//   printf("pfield :\t%g T\n",     pfield(u));
-// }
 
-//   fmt.Fprintln(out, "Material parameters");
-//   fmt.Fprintln(out, "AExch      : \t", param.AExch, " J/m");
-//   fmt.Fprintln(out, "MSat       : \t", param.MSat, " A/m");
-//   fmt.Fprintln(out, "Gamma0      : \t", param.Gamma0, " m/As");
-//   fmt.Fprintln(out, "Mu0     : \t", param.Mu0, " N/A^2");
-//   fmt.Fprintln(out, "exch length: \t", param.UnitLength(), " m");
-//   fmt.Fprintln(out, "p time  : \t", param.UnitTime(), " s");
-//   fmt.Fprintln(out, "p energy: \t", param.UnitEnergy(), " J");
-//   fmt.Fprintln(out, "p field: \t", param.UnitField(), " T");
-//   fmt.Fprintln(out, "Geometry");
-//   fmt.Fprintln(out, "Grid Size  : \t", param.Size);
-//   fmt.Fprint(out, "Cell Size  : \t");
-//   for i:=range(param.CellSize){
-//     fmt.Fprint(out, param.UnitLength() * param.CellSize[i], " ");
-//   }
-//   fmt.Fprint(out, "(m), (");
-//    for i:=range(param.CellSize){
-//     fmt.Fprint(out, param.CellSize[i], " ");
-//   }
-//   fmt.Fprintln(out, "exch. lengths)");
-//
-//   fmt.Fprint(out, "Sim Size   : \t ");
-//   for i:=range(param.Size){
-//     fmt.Fprint(out, float(param.Size[i]) * param.UnitLength() * param.CellSize[i], " ");
-//   }
-//   fmt.Fprintln(out, "(m)");
+double unitlength(param* u){
+  return sqrt(2. * u->aexch / (u->mu0 * u->msat*u->msat) );
+}
+
+double unittime(param* u){
+  return 1.0 / (u->gamma0 * u->msat);
+}
+
+double unitfield(param* u){
+  return u->mu0 * u->msat;
+}
+
+double unitenergy(param* u){
+  return u->aexch * unitlength(u);
+}
+
+void printparam(FILE* out, param* u){
+  fprintf(out, "msat      :\t%g A/m\n",   u->msat);
+  fprintf(out, "aexch     :\t%g J/m\n",   u->aexch);
+  fprintf(out, "mu0       :\t%g N/A^2\n", u->mu0);
+  fprintf(out, "gamma0    :\t%g m/As\n",  u->gamma0);
+  fprintf(out, "unitlength:\t%g m\n",     unitlength(u));
+  fprintf(out, "unittime  :\t%g s\n",     unittime(u));
+  fprintf(out, "unitenergy:\t%g J\n",     unitenergy(u));
+  fprintf(out, "unitfield :\t%g T\n",     unitfield(u));
+}
+
+
 
 #ifdef __cplusplus
 }

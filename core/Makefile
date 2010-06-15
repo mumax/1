@@ -4,7 +4,6 @@ CPPFILES=\
 	tensor.cpp\
 	pipes.cpp\
 	timer.cpp\
-	units.c\
 	param.cpp\
 
 CUFILES=\
@@ -26,7 +25,6 @@ OFILES=\
 	param.o\
 	pipes.o\
 	timer.o\
-	units.o\
 	gputil.o\
 	gpuconv1.o\
 	gpuconv2.o\
@@ -94,9 +92,6 @@ gpukernel1.o:	gpukernel1.h gpukernel1.cu
 
 timer.o:	timer.h timer.cpp
 	$(NVCC) -c $(NVCCFLAGS) timer.cpp
-
-units.o:	units.h units.c
-	$(NVCC) -c $(NVCCFLAGS) units.c
 
 test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuheun2_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test gpufft2_test gpukernel1_test
 	./tensor_test
