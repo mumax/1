@@ -145,9 +145,6 @@ int _gpu_stide_float_cache = -1;
  * the stride returned by CUDA.
  */
 int gpu_stride_float(){
-//      fprintf(stderr, "TODO: gpu_stride_float()\n");
-    return 2;
-  
   if( _gpu_stide_float_cache == -1){
     size_t width = 1;
     size_t height = 1;
@@ -159,6 +156,13 @@ int gpu_stride_float(){
     _gpu_stide_float_cache = pitch / sizeof(float);
   }
   return _gpu_stide_float_cache;
+}
+
+
+void gpu_override_stride(int nFloats){
+  assert(nFloats > -2);
+  fprintf(stderr, "GPU stride overridden to %d floats\n", nFloats);
+  _gpu_stide_float_cache = nFloats;
 }
 
 int gpu_pad_to_stride(int nFloats){

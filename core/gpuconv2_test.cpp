@@ -12,9 +12,9 @@
 #include "assert.h"
 #include "pipes.h"
 
-  int N0 = 64;
-  int N1 = 64;
-  int N2 = 8;
+  int N0 = 16;
+  int N1 = 16;
+  int N2 = 4;
   
 void test_convplan(){
   
@@ -67,7 +67,7 @@ void test_convplan(){
   gpuconv2* plan = new_gpuconv2(size, kernelSize);
 
   float N = 2*N0 * 2*N1 * 2*N2;
-  tensor* kernel = pipe_tensor((char*)"kernel --size 64 64 8 --msat 800E3 --aexch 1.3e-11 --cellsize 1e-9 1e-9 1e-9");
+  tensor* kernel = pipe_tensor((char*)"kernel --size 16 16 4 --msat 800E3 --aexch 1.3e-11 --cellsize 1e-9 1e-9 1e-9");
   for(int i=0; i<kernel->len; i++)
     kernel->list[i] /= N;
   

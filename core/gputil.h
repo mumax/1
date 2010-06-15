@@ -77,6 +77,14 @@ int gpu_stride_float();
  */
 int gpu_pad_to_stride(int nFloats);
 
+/**
+ * @internal For debugging, it is handy to use a smaller-than-optimal stride;
+ * this prevents small test data to be padded to huge proportions. To reset
+ * to the intrinsic machine stride, set the value to -1.
+ */
+void gpu_override_stride(int nFloats    ///< The stride (in number of floats) to use instead of the real, GPU-dependent stride.
+                        );
+
 //______________________________________________________________________________________ copy
 
 /**
