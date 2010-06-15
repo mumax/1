@@ -5,6 +5,7 @@ CPPFILES=\
 	pipes.cpp\
 	timer.cpp\
 	units.c\
+	param.c\
 
 CUFILES=\
 	gputil.cu\
@@ -22,6 +23,7 @@ CUFILES=\
 
 OFILES=\
 	tensor.o\
+	param.o\
 	pipes.o\
 	timer.o\
 	units.o\
@@ -50,6 +52,9 @@ core.a:	$(OFILES)
 
 tensor.o:	tensor.h tensor.cpp
 	$(NVCC) -c $(NVCCFLAGS) tensor.cpp
+
+param.o:	param.h param.c
+	$(NVCC) -c $(NVCCFLAGS) param.c
 
 pipes.o:	pipes.h pipes.cpp
 	$(NVCC) -c $(NVCCFLAGS) pipes.cpp

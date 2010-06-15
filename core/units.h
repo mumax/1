@@ -1,6 +1,8 @@
 /**
  * @file
- * 
+ *
+ * @deprecated Superseeded by param.h
+ *
  * The simulations internally use program units, which are adapted to the intrinsic scale of the problem. 
  * This avoids having to deal with extremely large or small quantities, which may lead to numerical errors. 
  * Our program units are chosen so that the values of the following four quantities become one:
