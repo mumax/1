@@ -41,6 +41,7 @@
 #ifndef PARAM_H
 #define PARAM_H
 
+#include <stdio.h>
 #define PI 3.14159265
 
 #ifdef __cplusplus
@@ -48,11 +49,11 @@ extern "C" {
 #endif
 
 
-/**
- * Stores the material parameters
- */
+
 typedef struct{
 
+  //Material parameters
+ 
   double aexch;     ///< Exchange constant in J/m
   double msat;      ///< Saturation magnetization in A/m
   double mu0;       ///< Mu0 in N/A^2
@@ -62,105 +63,88 @@ typedef struct{
   int anisType;     ///< Identifies the anisotropy type (see typedefs ANIS_NONE, ANIS_UNIAXIAL, ...)
   float* anisK;     ///< Anisotropy constants, as many as needed by the anisotropy type
   int anisN;        ///< Number of ansiotropy constants stored in anisK
-    
-}Material;
 
 
-/// Possible value for material.anisType. Means no anisotropy.
-#define ANIS_NONE 0
-
-/// Possible value for material.anisType. Means uniaxial anisotropy.
-#define ANIS_UNIAXIAL 1
-
-/// Possible value for material.anisType. Means cubic anisotropy.
-#define ANIS_CUBIC 2
-
-/// Possible value for material.anisType. Means shape anisotropy.
-#define ANIS_EDGE 3
-
-
-
-/**
- *  Stores the FD geometry
- */
-typedef struct{
+  // FD geometry
 
   int size[3];          ///< Number of cells in each direction. For 2D sims, the FIRST size should be 1
   float cellSize[3];    ///< Size of the FD cells (internal units)
+
+
+  // demag settings
+
+  int demagPeriodic[3];   ///< Periodic boundary conditions in each of the directions? 0 means no periodicity, a positive number means repeat N times in the respective direction.
+  int demagCoarse[3];     ///< Combine N cells in each respective direction into a larger cell, for a faster, coarser evaluation of the demag field. {1, 1, 1} means full resolution.
+
+
+  // time stepping
+
+  int solverType;     ///< Identifies the solver type (see typedefs SOLVER_EULER, SOLVER_HEUN, SOLVER_ANAL, ...)
+  float maxDt;        ///< Time step (internal units). This can be set manually for solvers with a fixed time step, while adaptive solvers should update this value to report the used time step.
+  float maxDelta;
+  float maxError;
   
-}Geometry;
+}param;
 
 
+// Anisotropy types
 
-/**
- * Stores the demag settings
- */
-typedef struct{
-  int periodic[3];    ///< Periodic boundary conditions in each of the directions? 0 means no periodicity, a positive number means repeat N times in the respective direction.
-  int combine[3];     ///< Combine N cells in each respective direction into a larger cell, for a faster, coarser evaluation of the demag field. {1, 1, 1} means full resolution.
-}Demag;
+/// Possible value for anisType. Means no anisotropy.
+#define ANIS_NONE 0
 
+/// Possible value for anisType. Means uniaxial anisotropy.
+#define ANIS_UNIAXIAL 1
 
+/// Possible value for anisType. Means cubic anisotropy.
+#define ANIS_CUBIC 2
 
-/**
- * Stores the time stepping settings
- */
-typedef struct{
-  int solverType;   ///< Identifies the solver type (see typedefs SOLVER_EULER, SOLVER_HEUN, SOLVER_ANAL, ...)
-  double t;         ///< Total elapsed simulation time (internal units)
-  double dt;        ///< Time step (internal units). This can be set manually for solvers with a fixed time step, while adaptive solvers should update this value to report the used time step.
-}Time;
+/// Possible value for anisType. Means shape anisotropy.
+#define ANIS_EDGE 3
 
 
-/// Possible value for time.solverType. Means no solver is set.
+// Solver types
+
+/// Possible value for solverType. Means no solver is set.
 #define SOLVER_NONE 0
 
-/// Possible value for time.solverType. Simple Euler method
+/// Possible value for solverType. Simple Euler method
 #define SOLVER_EULER 1
 
-/// Possible value for time.solverType. 2nd order Heun method
+/// Possible value for solverType. 2nd order Heun method
 #define SOLVER_HEUN 2
 
-/// Possible value for time.solverType. 4th order Runge-Kutta
+/// Possible value for solverType. 4th order Runge-Kutta
 #define SOLVER_RK4 4
 
-/// Possible value for time.solverType. 5th order Dormand-Prince with adaptive step size
+/// Possible value for solverType. 5th order Dormand-Prince with adaptive step size
 #define SOLVER_DP45 45
 
-/// Possible value for time.solverType. Ben Van de Wiele's semi-analytical solver
+/// Possible value for solverType. Ben Van de Wiele's semi-analytical solver
 #define SOLVER_ANAL 128
 
 
-/**
- * Grand unification of the above
- */
-typedef struct{
-  
-  Material material;
-  Geometry geometry;
-  Demag demag;
-  Time time;
-  
-}Param;
+// Methods
 
+/// New param with default values.
+param* new_param();
 
-/** New units with zero msat and aexch, default values for mu0 and gamma0. */
-// units* new_units();
+/// Frees everything. @todo implement
+void delete_param(param* p);
 
-/** The internal unit of length, expressed in meters. */
-// double unitlength(units* u);
+/// The internal unit of length, expressed in meters.
+double unitlength(param* p);
 
-/** The internal unit of time, expressed in seconds. */
-// double unittime(units* u);
+/// The internal unit of time, expressed in seconds.
+double unittime(param* p);
 
-/** The internal unit of field, expressed in tesla. */
-// double unitfield(units* u);
+/// The internal unit of field, expressed in tesla.
+double unitfield(param* p);
 
-/** The internal unit of energy, expressed in J. */
-// double unitenergy(units* u);
+/// The internal unit of energy, expressed in J.
+double unitenergy(param* p);
 
-/** Prints the material parameters and units to stderr */
-// void printunits(units* u);
+/// Prints the parameters
+void param_print(FILE* out, param* p);
 
 #ifdef __cplusplus
 }
