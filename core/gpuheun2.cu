@@ -222,12 +222,15 @@ gpuheun2* new_gpuheun2(int* size, tensor* kernel, float* hExt){
   }
   
   heun->convplan = new_gpuconv2(size, kernelSize);
+  gpuconv2_loadkernel5DSymm(heun->convplan, kernel);
   
   heun->hExt = (float*)calloc(3, sizeof(float));
   for(int i=0; i<3; i++){
     heun->hExt[i] = hExt[i];
   }
   fprintf(stderr, "hExt: %f %f %f\n", heun->hExt[X], heun->hExt[Y], heun->hExt[Z]);
+
+  
   fprintf(stderr, "new_gpuheun2(): OK\n");
   return heun;
 }

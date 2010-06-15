@@ -204,9 +204,11 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
 
 //_____________________________________________________________________________________________ load kernel
 
-
+/**
+ * the kernel gets normalized
+ */
 void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
-  printf("TODO: normalize kernel!!!\n\n");
+  
   int* paddedSize = conv->paddedSize;
   
   assert(kernel5D->rank == 5);
@@ -217,15 +219,23 @@ void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
   assert(kernel5D->size[2+Z] == paddedSize[Z]);
 
   tensor* fftbuffer = conv->fft1Comp[0];
+  tensor* KsdDev = new_gputensor(3, paddedSize); /// temp buffer, @todo: free! @todo: not a nice solution
   int* paddedStorageSize = fftbuffer->size;
   gpuFFT3dPlan* plan = new_gpuFFT3dPlan_padded(paddedSize, paddedSize); ///@todo change to paddedstoragesize when gpufft2 is updated
+
+  float N = gpuFFT3dPlan_normalization(plan);
   
   // when the kernel is symmetric, this implementation does a bit redundant work
   for(int s=0; s<3; s++){
     for(int d=0; d<3; d++){
       tensor* Ksd = tensor_component(tensor_component(kernel5D, s), d);
+
+      for(int i=0; i<Ksd->len; i++)
+        Ksd->list[i] /= N;
+      tensor_copy_to_gpu(Ksd, KsdDev);
+      
       gpu_zero_tensor(conv->fftKernel[s][d]);
-      gpu_copy_pad(Ksd, conv->fftKernel[s][d]);
+      gpu_copy_pad(KsdDev, conv->fftKernel[s][d]);
       gpuFFT3dPlan_forward(plan, conv->fftKernel[s][d], conv->fftKernel[s][d]);
     }
   }

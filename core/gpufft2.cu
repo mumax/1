@@ -15,15 +15,17 @@ extern "C" {
  * Zero-padding in each dimension is optional, and rows with
  * only zero's are not transformed.
  * @todo on compute capability < 2.0, the first step is done serially...
+ * @todo rename kernelsize -> paddedsize
  */
-gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* kernelsize){
+gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
   
   int N0 = size[X];
   int N1 = size[Y];
   int N2 = size[Z];
-  assert(N0 > 0);
-  assert(N1 > 1);
-  assert(N2 > 1);
+  
+  assert(paddedSize[X] > 0);
+  assert(paddedSize[Y] > 1);
+  assert(paddedSize[Z] > 1);
   
   gpuFFT3dPlan* plan = (gpuFFT3dPlan*)malloc(sizeof(gpuFFT3dPlan));
   
@@ -31,7 +33,7 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* kernelsize){
   plan->paddedSize = (int*)calloc(3, sizeof(int));
   plan->paddedStorageSize = (int*)calloc(3, sizeof(int));
   
-  int* paddedSize = plan->paddedSize;
+//   int* paddedSize = plan->paddedSize;
   int* paddedStorageSize = plan->paddedStorageSize;
   
   plan->size[0] = N0; 
@@ -39,9 +41,9 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* kernelsize){
   plan->size[2] = N2;
   plan->N = N0 * N1 * N2;
   
-  plan->paddedSize[X] = kernelsize[X];
-  plan->paddedSize[Y] = kernelsize[Y];
-  plan->paddedSize[Z] = kernelsize[Z];
+  plan->paddedSize[X] = paddedSize[X];
+  plan->paddedSize[Y] = paddedSize[Y];
+  plan->paddedSize[Z] = paddedSize[Z];
   plan->paddedN = plan->paddedSize[0] * plan->paddedSize[1] * plan->paddedSize[2];
   
   plan->paddedStorageSize[X] = plan->paddedSize[X];

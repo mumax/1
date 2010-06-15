@@ -12,9 +12,9 @@
 #include "assert.h"
 #include "pipes.h"
 
-  int N0 = 16;
-  int N1 = 16;
-  int N2 = 2;
+  int N0 = 64;
+  int N1 = 64;
+  int N2 = 8;
   
 void test_convplan(){
   
@@ -51,9 +51,13 @@ void test_convplan(){
 //     for(int j=0; j<N1; j++)
 //       for(int k=0; k<N2; k++){
 //                 in[c][i][j][k] = c + 1; //i + j*0.01 + k*0.00001;
-//       }
-  in[X][7][7][0] = 1;
 
+//       }
+//   in[X][7][7][0] = 1;
+  tensor* mz = tensor_component(hostM, Z);
+  for(int i=0; i<mz->len; i++){
+    mz->list[i] = 1.;
+  }
   
   
   tensor_copy_to_gpu(hostM, m);
@@ -61,12 +65,15 @@ void test_convplan(){
   format_gputensor(m, stderr);
 
   gpuconv2* plan = new_gpuconv2(size, kernelSize);
+
+  float N = 2*N0 * 2*N1 * 2*N2;
+  tensor* kernel = pipe_tensor((char*)"kernel --size 64 64 8 --msat 800E3 --aexch 1.3e-11 --cellsize 1e-9 1e-9 1e-9");
+  for(int i=0; i<kernel->len; i++)
+    kernel->list[i] /= N;
   
-  tensor* kernel = pipe_tensor((char*)"kernel --size 16 16 2 --msat 800E3 --aexch 1.3e-11 --cellsize 1e-9 1e-9 1e-9");
-  
-  tensor* gpuKernel = new_gputensor(5, kernel->size);
-  tensor_copy_to_gpu(kernel, gpuKernel);
-  gpuconv2_loadkernel5DSymm(plan, gpuKernel);
+//   tensor* gpuKernel = new_gputensor(5, kernel->size);
+//   tensor_copy_to_gpu(kernel, gpuKernel);
+  gpuconv2_loadkernel5DSymm(plan, kernel);
   
   for(int s=0; s<3; s++){
     for(int d=0; d<3; d++){
