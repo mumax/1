@@ -103,7 +103,8 @@ void gpu_transposeXZ_complex(float* source,
 
 /**
  * @internal
- * @see gpu_transposeYZ_complex() 
+ * @see gpu_transposeYZ_complex()
+ * @todo does not yet seem to work
  */
 void gpu_transposeYZ_complex_inplace(float* source, ///< source data, size N0 x N1 x N2
                                      int N0,        ///< source size X
@@ -113,6 +114,7 @@ void gpu_transposeYZ_complex_inplace(float* source, ///< source data, size N0 x 
 /**
  * @internal
  * @see gpu_transposeYZ_complex()
+ * @todo does not yet seem to work
  */
 void gpu_transposeXZ_complex_inplace(float* source,
                                      int N0,

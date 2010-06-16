@@ -70,11 +70,11 @@ __global__ void _gpu_transposeXZ_complex(float* source, float* dest, int N0, int
 void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2){
   timer_start("transposeXZ"); /// @todo section is double-timed with FFT exec
 
-  assert(source != dest); // must be out-of-place
+  if(source != dest){ // must be out-of-place
 
   // we treat the complex array as a N0 x N1 x N2 x 2 real array
   // after transposing it becomes N0 x N2 x N1 x 2
-  N2 /= 2;
+  N2 /= 2;  ///@todo: should have new variable here!
   //int N3 = 2;
 
   dim3 gridsize(N0, N1, 1); ///@todo generalize!
@@ -83,6 +83,10 @@ void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2)
   _gpu_transposeXZ_complex<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
   cudaThreadSynchronize();
 
+  }
+  else{
+    gpu_transposeXZ_complex_inplace(source, N0, N1, N2*2); ///@todo see above
+  }
   timer_stop("transposeXZ");
 }
 
@@ -111,7 +115,7 @@ __global__ void _gpu_transposeYZ_complex(float* source, float* dest, int N0, int
 void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
   timer_start("transposeYZ");
 
-  assert(source != dest); // must be out-of-place
+  if(source != dest){ // must be out-of-place
 
   // we treat the complex array as a N0 x N1 x N2 x 2 real array
   // after transposing it becomes N0 x N2 x N1 x 2
@@ -123,7 +127,10 @@ void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2)
   gpu_checkconf(gridsize, blocksize);
   _gpu_transposeYZ_complex<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
   cudaThreadSynchronize();
-
+  }
+  else{
+    gpu_transposeYZ_complex_inplace(source, N0, N1, N2*2); ///@todo see above
+  }
   timer_stop("transposeYZ");
 }
 
@@ -155,6 +162,8 @@ __global__ void _gpu_transposeXZ_complex_inplace(float* source, int N0, int N1, 
 }
 
 void gpu_transposeXZ_complex_inplace(float* source, int N0, int N1, int N2){
+  abort(); //avoid accidental use, does not work yet
+  
   timer_start("transposeXZ_inplace"); /// @todo section is double-timed with FFT exec
 
   // we treat the complex array as a N0 x N1 x N2 x 2 real array
@@ -200,6 +209,8 @@ __global__ void _gpu_transposeYZ_complex_inplace(float* source, int N0, int N1, 
 }
 
 void gpu_transposeYZ_complex_inplace(float* source, int N0, int N1, int N2){
+  abort(); //avoid accidental use, does not work yet
+  
   timer_start("transposeYZ_inplace");
 
   // we treat the complex array as a N0 x N1 x N2 x 2 real array
