@@ -96,14 +96,14 @@ timer.o:	timer.h timer.cpp
 test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuheun2_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test gpufft2_test gpukernel1_test
 	./tensor_test
 	./gputil_test
-	./gpufft_test
-	./gpufft2_test
-	./gpuconv2_test
 	./gpueuler_test testm0.t testkernel.t
 	./gpuheun_test testm0.t testkernel.t
 	./gpuheun2_test
 	./gpuanal1_test testm0.t testkernel.t
 	./gpukernel1_test
+	./gpufft_test
+	./gpufft2_test
+	./gpuconv2_test
 
 # We link against core.so instead of $OFILES so we can use gcc instead of nvcc
 tensor_test:	core.so tensor_test.cpp

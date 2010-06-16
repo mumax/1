@@ -103,18 +103,18 @@ typedef struct{
    
   gpuFFT3dPlan* fftplan;
   
-  tensor* m;             ///< no space is allocated for m, this is just a pointer the m being convolved at the moment. It's mainly used to store the size of m.
-  tensor* mComp[3];      ///< points to mx, my, mz. again, no space is allocated as this just points into m. each time m->list is set, mComp needs to be updated as well...
+  tensor* m;               ///< no space is allocated for m, this is just a pointer the m being convolved at the moment. It's mainly used to store the size of m.
+  tensor* mComp[3];        ///< points to mx, my, mz. again, no space is allocated as this just points into m. each time m->list is set, mComp needs to be updated as well...
   
-  tensor* h;            ///< no space is allocated for h, this is just a pointer the h being convolved at the moment. It's mainly used to store the size of h.
-  tensor* hComp[3];     ///< points to hx, hy, hz. again, no space is allocated as this just points into h. each time h->list is set, hComp needs to be updated as well...
+  tensor* h;               ///< no space is allocated for h, this is just a pointer the h being convolved at the moment. It's mainly used to store the size of h.
+  tensor* hComp[3];        ///< points to hx, hy, hz. again, no space is allocated as this just points into h. each time h->list is set, hComp needs to be updated as well...
 
-  int* paddedSize;    ///< logical size of the zero-padded data. No tensor actually has this size: fftXComp has about paddedSize, but plus one stride in the Z dimension.
+  int* paddedSize;         ///< logical size of the zero-padded data. No tensor actually has this size: fftXComp has about paddedSize, but plus one stride in the Z dimension.
   
-  tensor* fft1;         ///< buffer to store and transform the zero-padded magnetization and field
+  tensor* fft1;            ///< buffer to store and transform the zero-padded magnetization and field
   tensor* fft1Comp[3];
   
-  tensor* fft2;         ///< second fft buffer. By default, this one points to fft1, so everything is in-place. However, it can also be separatly allocated so that the FFT's 
+  tensor* fft2;            ///< second fft buffer. By default, this one points to fft1, so everything is in-place. However, it can also be separatly allocated so that the FFT's 
   tensor* fft2Comp[3];
 
   tensor* fftKernel[3][3]; ///< not stored as a rank 5 kernel because the underlying storage is not neccessarily contiguous: we can exploit the kernel symmetry and make K[X][Y] point to K[Y][X], etc.
@@ -130,7 +130,7 @@ typedef struct{
  * @note After construction, a kernel should still be loaded.
  */
 gpuconv2* new_gpuconv2(int* size,             ///< X Y and Z size of the magnetization vector field
-                       int* kernel        ///< convolution kernel of at least the size of the vector field
+                       int* kernel            ///< convolution kernel of at least the size of the vector field
                        );
 
 /**

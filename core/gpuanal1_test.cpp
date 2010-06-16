@@ -36,8 +36,9 @@ int main(int argc, char** argv){
   
   gpuanal1_loadm(anal1, m);
   
+  float alpha = 1.0;
   for(int i=0; i<100; i++){
-    gpuanal1_step(anal1, 1E-7);
+		gpuanal1_step(anal1, 1E-7, alpha);
   }
   gpuanal1_storem(anal1, m);
  
