@@ -89,8 +89,8 @@ typedef struct{
   // time stepping
 
   int solverType;       ///< Identifies the solver type (see typedefs SOLVER_EULER, SOLVER_HEUN, SOLVER_ANAL, ...)
-  float maxDt;          ///< Time step (internal units). This applies only for solvers with a fixed time step, others may ignore it or use it as an absolute maximum step.
-  float maxDelta;       ///< The maximum "change" an adaptive step solver may make per step. Depending on the solver this may be, e.g., delta_m, delta_phi, ...
+  float maxDt;          ///< Time step (internal units). This applies only for solvers with a fixed time step, other solvers may ignore it or use it as an absolute maximum step.
+  float maxDelta;       ///< The maximum "change" an adaptive step solver may make per step. Depending on the solver this may be, e.g., delta_m, delta_phi, ... Other solvers may ignore this.
   float maxError;       ///< The maximum error per step, for adaptive solvers. Others may ignore this.
 
 

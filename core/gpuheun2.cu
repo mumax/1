@@ -98,8 +98,8 @@ __global__ void _gpu_heun2step1(float* mx , float* my , float* mz ,
   mz[i] = m0z[i] + half_gilbert_dt * (t0z[i] + torquez);
 }
 
-/** @todo gilbert factor */
-void gpuheun2_step(gpuheun2* solver, float dt, float alpha){
+
+void gpuheun2_step_old(gpuheun2* solver, float dt, float alpha){
   
   int gridSize = -1, blockSize = -1;
   make1dconf(solver->mComp[X]->len, &gridSize, &blockSize);
@@ -139,6 +139,10 @@ void gpuheun2_step(gpuheun2* solver, float dt, float alpha){
   cudaThreadSynchronize();
   timer_stop("gpuheun_step");
   gpuheun2_normalize_m(solver);
+}
+
+void gpuheun2_step(gpuheun2* solver){
+  gpuheun2_step_old(solver, solver->params->maxDt, solver->params->alpha); ///@todo get rid of _old
 }
 
 // void gpuheun2_checksize_m(gpuheun2* sim, tensor* m){
@@ -196,7 +200,7 @@ void gpuheun2_storeh(gpuheun2* heun, tensor* h){
 //   }
 // }
 
-gpuheun2* new_gpuheun2_param(param* p){
+gpuheun2* new_gpuheun2_param(param* p, tensor* kernel){
   
   gpuheun2* heun = (gpuheun2*)malloc(sizeof(gpuheun2));
 
@@ -221,7 +225,7 @@ gpuheun2* new_gpuheun2_param(param* p){
   }
 
   heun->convplan = new_gpuconv2(p->size, p->demagKernelSize);
-  //gpuconv2_loadkernel5DSymm(heun->convplan, kernel);
+  gpuconv2_loadkernel5DSymm(heun->convplan, kernel);
 
   heun->hExt = p->hExt; 
   fprintf(stderr, "hExt: %f %f %f\n", heun->hExt[X], heun->hExt[Y], heun->hExt[Z]);

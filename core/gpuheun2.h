@@ -50,7 +50,9 @@ gpuheun2* new_gpuheun2(int* size,           ///< 3D size of magnetization
                       );
 
                       
-gpuheun2* new_gpuheun2_param(param* p);
+gpuheun2* new_gpuheun2_param(param* p,       ///< contains all the simulation parameters
+                             tensor* kernel ///< todo: remove and use param for this?
+                             );
 
 /**
  * Copies a magnetization configuration in the solver, e.g. the initial magnetization.
@@ -74,10 +76,9 @@ void gpuheun2_storeh(gpuheun2* heun, tensor* h);
 /**
  * Takes one time step
  */
-void gpuheun2_step(gpuheun2* solver,        ///< the solver to step
-                   float dt,                ///< time step (internal units)
-                   float alpha              ///< damping
-                   );
+void gpuheun2_step(gpuheun2* solver);
+
+      
 
 #ifdef __cplusplus
 }

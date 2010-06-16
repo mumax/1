@@ -13,7 +13,7 @@ Y=1.953125E-9
 Z=3E-9
 
 all:	m_init.t
-	gosim --alpha 0.02  --msat 800E3 --aexch 1.3e-11 --size $(N0) $(N1) $(N2) --cellsize $(Z) $(Y) $(X) --loadm m_init.t --dt 0.1E-12 --hext 0 4.3E-3 -24.6E-3 --autosavem 1E-12 --steps 10000
+	gosim --alpha 0.02  --msat 800E3 --aexch 1.3e-11 --size $(N0) $(N1) $(N2) --cellsize $(Z) $(Y) $(X) --loadm m_init.t --dt 0.05E-12 --hext 0 4.3E-3 -24.6E-3 --autosavem 1E-12 --steps 50000
 	make plot
 	make movie
 
@@ -29,7 +29,7 @@ movie.avi:
 	bash -c 'for i in m*.t; do tensor --read $$i --component Z --transpose X Z  --slice Z 0 | draw > $$i.png; done; movie.sh *.png'
 m_init.t:
 	tensor --new 3 $(N0) $(N1) $(N2) --setall 1.0 --normalize 0 > m0.t
-	gosim --alpha 1.0 --msat 800E3 --aexch 1.3e-11 --size $(N0) $(N1) $(N2) --cellsize $(Z) $(Y) $(X) --loadm m0.t --dt 0.5E-12 --steps 4000 --storem m_init.t
+	gosim --alpha 1.0 --msat 800E3 --aexch 1.3e-11 --size $(N0) $(N1) $(N2) --cellsize $(Z) $(Y) $(X) --loadm m0.t --dt 0.25E-12 --steps 4000 --storem m_init.t
 
 .PHONY:	clean
 clean:

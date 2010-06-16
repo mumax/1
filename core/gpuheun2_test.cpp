@@ -33,37 +33,39 @@ int main(int argc, char** argv){
   p->cellSize[X] = 1E-9 / L;
   p->cellSize[Y] = 1E-9 / L;
   p->cellSize[Z] = 1E-9 / L;
-  
-  
-  tensor* kernel = pipe_tensor((char*)"kernel --size 64 32 4 --msat 800E3 --aexch 1.3e-11 --cellsize 1e-9 1e-9 1e-9");
 
+  p->demagKernelSize[X] = 2*p->size[X];
+  p->demagKernelSize[Y] = 2*p->size[Y];
+  p->demagKernelSize[Z] = 2*p->size[Z];
+
+  double T = unittime(p);
+  p->maxDt = 1E-15 / T;
+  
   param_print(stdout, p);
   
-  gpuheun2* solver = new_gpuheun2_param(p);
-
+  tensor* kernel = pipe_tensor((char*)"kernel --size 64 32 4 --msat 800E3 --aexch 1.3e-11 --cellsize 1e-9 1e-9 1e-9");
+  gpuheun2* solver = new_gpuheun2_param(p, kernel);
+  
   tensor* m = new_tensorN(4, tensor_size4D(p->size));
   tensor* mz = tensor_component(m, Z);
   for(int i=0; i<mz->len; i++){
     mz->list[i] = 1.;
   }
-
   gpuheun2_loadm(solver, m);
+
+
+  
+  for(int i=0; i<10; i++){
+    gpuheun2_step(solver);
+  }
 
   tensor_zero(m);
   gpuheun2_storem(solver, m);
-  
-//   for(int i=0; i<m->len; i++)
-//     assert(m->list[i] == i);
-  
-  float alpha = 1.0;
-  for(int i=0; i<10; i++){
-    gpuheun2_step(solver, 1E-5, alpha);
-  }
-  gpuheun2_storem(solver, m);
-//   
+   
   printf("PASS\n");
 //   assert(fabs(*tensor_get(m, 4, 0, 0, 0, 0) - 0.578391) < 1E-6);
-//   timer_printdetail();
+
+  timer_printdetail();
 
   return 0;
 }

@@ -1,7 +1,7 @@
 include ../common.mk
 
 all:
-	make -C cpp-frontend
+#	make -C cpp-frontend
 	make -C go-frontend
 
 clean:

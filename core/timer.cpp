@@ -65,7 +65,7 @@ void timer_printdetail(){
   fprintf(stderr, " (%5.2lf %%)\n", 100.0 * (elapsed - acc) / elapsed);
   
   if(acc > elapsed){
-    fprintf(stderr, "Warning: the total measured CPU time is larger than the elapsed CPU time, this means portions of the code have been included in more than one timing loop.");
+    fprintf(stderr, "Warning: the total measured CPU time is larger than the elapsed CPU time, this means portions of the code have been included in more than one timing loop.\n");
   }
 }
 
