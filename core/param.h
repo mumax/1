@@ -82,7 +82,7 @@ typedef struct{
 
 
   // exchange settings;
-  int exchType;         ///< Type of exchange model. Can be EXCH_NONE when the exchange is allready included in the demag kernel.
+  int exchType;          ///< Type of exchange model. Can be EXCH_NONE when the exchange is allready included in the demag kernel.
   // more to come here
 
   

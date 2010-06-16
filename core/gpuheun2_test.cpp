@@ -8,6 +8,7 @@
  *
  */
 #include "tensor.h"
+#include "param.h"
 #include "gpuheun2.h"
 #include "timer.h"
 #include "pipes.h"
@@ -17,23 +18,30 @@
 int main(int argc, char** argv){
 
   printf("gpuheun2_test\n");
-  
-  int size[3];
-  size[X] = 64;
-  size[Y] = 32;
-  size[Z] = 4;
 
-  float hExt[3];
-  hExt[X] = 0.f;
-  hExt[Y] = 0.f;
-  hExt[Z] = 0.f;
+  param* p = new_param();
+  
+  p->aexch = 1.3E-11;
+  p->msat = 800E3;
+  p->alpha = 1.0;
+  
+  p->size[X] = 64;
+  p->size[Y] = 32;
+  p->size[Z] =  4;
+
+  double L = unitlength(p);
+  p->cellSize[X] = 1E-9 / L;
+  p->cellSize[Y] = 1E-9 / L;
+  p->cellSize[Z] = 1E-9 / L;
   
   
   tensor* kernel = pipe_tensor((char*)"kernel --size 64 32 4 --msat 800E3 --aexch 1.3e-11 --cellsize 1e-9 1e-9 1e-9");
-  
-  gpuheun2* solver = new_gpuheun2(size, kernel, hExt);
 
-  tensor* m = new_tensorN(4, tensor_size4D(size));
+  param_print(stdout, p);
+  
+  gpuheun2* solver = new_gpuheun2_param(p);
+
+  tensor* m = new_tensorN(4, tensor_size4D(p->size));
   tensor* mz = tensor_component(m, Z);
   for(int i=0; i<mz->len; i++){
     mz->list[i] = 1.;
