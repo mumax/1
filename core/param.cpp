@@ -56,15 +56,26 @@ double unitenergy(param* u){
   return u->aexch * unitlength(u);
 }
 
-void printparam(FILE* out, param* u){
-  fprintf(out, "msat      :\t%g A/m\n",   u->msat);
-  fprintf(out, "aexch     :\t%g J/m\n",   u->aexch);
-  fprintf(out, "mu0       :\t%g N/A^2\n", u->mu0);
-  fprintf(out, "gamma0    :\t%g m/As\n",  u->gamma0);
-  fprintf(out, "unitlength:\t%g m\n",     unitlength(u));
-  fprintf(out, "unittime  :\t%g s\n",     unittime(u));
-  fprintf(out, "unitenergy:\t%g J\n",     unitenergy(u));
-  fprintf(out, "unitfield :\t%g T\n",     unitfield(u));
+void param_print(FILE* out, param* p){
+  fprintf(out, "msat      :\t%g A/m\n",   p->msat);
+  fprintf(out, "aexch     :\t%g J/m\n",   p->aexch);
+  fprintf(out, "mu0       :\t%g N/A^2\n", p->mu0);
+  fprintf(out, "gamma0    :\t%g m/As\n",  p->gamma0);
+  fprintf(out, "alpha     :\t%g\n",       p->alpha);
+
+  fprintf(out, "anisType  :\t%d\n",       p->anisType);
+  fprintf(out, "anisK     :\t[");
+  for(int i=0; i<p->anisN; i++){
+    fprintf(out, "%g ", p->anisK[i]);
+  }
+  fprintf(out, "]\n");
+  
+  fprintf(out, "unitlength:\t%g m\n",     unitlength(p));
+  fprintf(out, "unittime  :\t%g s\n",     unittime(p));
+  fprintf(out, "unitenergy:\t%g J\n",     unitenergy(p));
+  fprintf(out, "unitfield :\t%g T\n",     unitfield(p));
+
+  
 }
 
 
