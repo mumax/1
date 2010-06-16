@@ -1,6 +1,6 @@
 /**
  * @file
- * This test program runs a small simulation using gpuconv1 and gpuheun.
+ * This test program runs a small simulation using gpuconv2 and gpuheun2.
  * The initial magnetization and demag tensor are read from testm0.t and testkernel.t.
  * A few time steps are taken and one spin of the result is compared with its known solution.
  *

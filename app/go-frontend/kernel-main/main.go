@@ -16,7 +16,7 @@ func main() {
   for i:=range(units.CellSize){
     units.CellSize[i] /= units.UnitLength();
   }
-  units.PrintInfo(os.Stderr);
+  //units.PrintInfo(os.Stderr);
   makeKernel();
 }
 
