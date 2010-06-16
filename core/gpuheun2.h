@@ -10,6 +10,7 @@
 #define GPUHEUN2_H
 
 #include "tensor.h"
+#include "param.h"
 #include "gpuconv2.h"
 
 #ifdef __cplusplus
@@ -21,6 +22,8 @@ extern "C" {
  * @see new_gpuheun2
  */
 typedef struct{
+
+  param* params;
   
   tensor* m;
   tensor* m0;
@@ -34,7 +37,7 @@ typedef struct{
   
   gpuconv2* convplan;
   
-  float* hExt;
+  float* hExt;  ///@todo remove, is stored in param
   
 }gpuheun2;
 
@@ -45,6 +48,9 @@ gpuheun2* new_gpuheun2(int* size,           ///< 3D size of magnetization
                       tensor* kernel,       ///< convolution kernel describing the effective field. size: 2*N0 x 2*N1 x 2*N2
                       float* hExt           ///< external field
                       );
+
+                      
+gpuheun2* new_gpuheun2_param(param* p);
 
 /**
  * Copies a magnetization configuration in the solver, e.g. the initial magnetization.

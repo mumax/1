@@ -196,10 +196,48 @@ void gpuheun2_storeh(gpuheun2* heun, tensor* h){
 //   }
 // }
 
+gpuheun2* new_gpuheun2_param(param* p){
+  
+  gpuheun2* heun = (gpuheun2*)malloc(sizeof(gpuheun2));
+
+  heun->params = p;
+  
+  int* size4D = tensor_size4D(p->size);
+  assert(size4D[0] == 3);
+  int* kernelSize = p->demagKernelSize;
+
+  //fprintf(stderr, "new_gpuheun2([%d x %d x %d],[%d x %d x %d],[%g, %g, %g])\n", p->size[X], p->size[Y], p->size[Z], kernelSize[X], kernelSize[Y], kernelSize[Z], p->hExt[X], p->hExt[Y], p->hExt[Z]);
+
+  heun->m       = new_gputensor(4, size4D);
+  heun->m0      = new_gputensor(4, size4D);
+  heun->h       = new_gputensor(4, size4D);
+  heun->torque0 = new_gputensor(4, size4D);
+
+  for(int i=0; i<3; i++){
+    heun->      mComp[i] = tensor_component(heun->m,       i);
+    heun->     m0Comp[i] = tensor_component(heun->m0,      i);
+    heun->      hComp[i] = tensor_component(heun->h,       i);
+    heun->torque0Comp[i] = tensor_component(heun->torque0, i);
+  }
+
+  heun->convplan = new_gpuconv2(p->size, p->demagKernelSize);
+  //gpuconv2_loadkernel5DSymm(heun->convplan, kernel);
+
+  heun->hExt = p->hExt; 
+  fprintf(stderr, "hExt: %f %f %f\n", heun->hExt[X], heun->hExt[Y], heun->hExt[Z]);
+
+
+  fprintf(stderr, "new_gpuheun2(): OK\n");
+  return heun;
+}
+
+
 gpuheun2* new_gpuheun2(int* size, tensor* kernel, float* hExt){
   
   gpuheun2* heun = (gpuheun2*)malloc(sizeof(gpuheun2));
 
+  heun->params = NULL;
+  
   int* size4D = tensor_size4D(size);
   assert(size4D[0] == 3);
   int* kernelSize = (int*)safe_calloc(3, sizeof(int));

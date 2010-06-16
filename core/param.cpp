@@ -25,13 +25,17 @@ param* new_param(){
     p->size[i] = 0;
     p->cellSize[i] = 0.;
     p->demagPeriodic[i] = 0;
-    p->demagCoarse[i] = 1;    
+    p->demagCoarse[i] = 1;
+    p->hExt[i] = 0;
+    p->diffHExt[i] = 0;
   }
 
   p->solverType = SOLVER_NONE;
   p->maxDt = 0.;
   p->maxDelta = 0.;
   p->maxError = 0.;
+
+  p->exchType = EXCH_NONE;
   
   return p;
 }

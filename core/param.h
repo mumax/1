@@ -49,20 +49,22 @@ extern "C" {
 #endif
 
 
-
+/**
+ * 
+ */
 typedef struct{
 
   //Material parameters
  
-  double aexch;     ///< Exchange constant in J/m
-  double msat;      ///< Saturation magnetization in A/m
-  double mu0;       ///< Mu0 in N/A^2
-  double gamma0;    ///< Gyromagnetic ratio in m/As
-  double alpha;     ///< Damping constant (dimensionless)
+  double aexch;         ///< Exchange constant in J/m
+  double msat;          ///< Saturation magnetization in A/m
+  double mu0;           ///< Mu0 in N/A^2
+  double gamma0;        ///< Gyromagnetic ratio in m/As
+  double alpha;         ///< Damping constant (dimensionless)
 
-  int anisType;     ///< Identifies the anisotropy type (see typedefs ANIS_NONE, ANIS_UNIAXIAL, ...)
-  float* anisK;     ///< Anisotropy constants, as many as needed by the anisotropy type
-  int anisN;        ///< Number of ansiotropy constants stored in anisK
+  int anisType;         ///< Identifies the anisotropy type (see typedefs ANIS_NONE, ANIS_UNIAXIAL, ...)
+  float* anisK;         ///< Anisotropy constants, as many as needed by the anisotropy type
+  int anisN;            ///< Number of ansiotropy constants stored in anisK
 
 
   // FD geometry
@@ -75,15 +77,28 @@ typedef struct{
 
   int demagPeriodic[3];   ///< Periodic boundary conditions in each of the directions? 0 means no periodicity, a positive number means repeat N times in the respective direction.
   int demagCoarse[3];     ///< Combine N cells in each respective direction into a larger cell, for a faster, coarser evaluation of the demag field. {1, 1, 1} means full resolution.
+  int demagKernelSize[3]; ///< Size of the convolution kernel. In principle it can be derived from demagPeriodic and demagCoarse, but we store it anyway for convienience.
+  ///@todo add demag kernel here too?
 
 
+  // exchange settings;
+  int exchType;         ///< Type of exchange model. Can be EXCH_NONE when the exchange is allready included in the demag kernel.
+  // more to come here
+
+  
   // time stepping
 
-  int solverType;     ///< Identifies the solver type (see typedefs SOLVER_EULER, SOLVER_HEUN, SOLVER_ANAL, ...)
-  float maxDt;        ///< Time step (internal units). This can be set manually for solvers with a fixed time step, while adaptive solvers should update this value to report the used time step.
-  float maxDelta;
-  float maxError;
+  int solverType;       ///< Identifies the solver type (see typedefs SOLVER_EULER, SOLVER_HEUN, SOLVER_ANAL, ...)
+  float maxDt;          ///< Time step (internal units). This applies only for solvers with a fixed time step, others may ignore it or use it as an absolute maximum step.
+  float maxDelta;       ///< The maximum "change" an adaptive step solver may make per step. Depending on the solver this may be, e.g., delta_m, delta_phi, ...
+  float maxError;       ///< The maximum error per step, for adaptive solvers. Others may ignore this.
+
+
+  // field
   
+  float hExt[3];        ///< The externally applied field (internal units)
+  float diffHExt[3];    ///< Time derivative of the applied field (internal units). Most solvers ignore this, it should only be set for some special solver I have in mind.
+
 }param;
 
 
@@ -121,6 +136,16 @@ typedef struct{
 
 /// Possible value for solverType. Ben Van de Wiele's semi-analytical solver
 #define SOLVER_ANAL 128
+
+
+// Exchange types
+
+/// Possible value for exchType. Means the exchange interaction is either absent or already included in the demag kernel
+#define EXCH_NONE 0
+
+/// Possible value for exchType. 6-neighbour exchange.
+#define EXCH_6NGBR 6
+
 
 
 // Methods
