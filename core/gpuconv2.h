@@ -138,9 +138,23 @@ gpuconv2* new_gpuconv2(int* size,             ///< X Y and Z size of the magneti
  * The kernel is not yet FFTed and stored in the 5-dimensional format:
  * Kernel[SourceDir][DestDir][X][Y][Z].
  * The kernel is assumed to be symmetric in the first two indices.
+ * @note for use with Arne's kernels.
  */
 void gpuconv2_loadkernel5DSymm(gpuconv2* conv,
-                               tensor* kernel5D     ///< Kernel on Host
+                               tensor* kernel5D     ///< Kernel on Host, not yet normalized
+                               );
+
+/**
+ * Loads a kernel into the convolution.
+ * The kernel is FFTed and stored in a 2-dimensional format:
+ * Kernel[SourceDir][index].
+ * The kernel has the format discribed in gpukernel1.h
+ * @see gpukernel1.h
+ * @note for use with Ben's kernels
+ * @todo not yet implemented
+ */                               
+void gpuconv2_loadkernel2DSymm(gpuconv2* conv,
+                               tensor* kernel2D     ///< Kernel on Device, normalized
                                );
 
 /**
