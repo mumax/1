@@ -93,18 +93,46 @@ void gpu_transposeYZ_complex(float* source, ///< source data, size N0 x N1 x N2
  * @internal
  * @see gpu_transposeYZ_complex()
  */
-void gpu_transposeXZ_complex(float* source, 
-			     float* dest, 
-			     int N0, 
-			     int N1, 
-			     int N2
-			     );
+void gpu_transposeXZ_complex(float* source,
+                             float* dest,
+                             int N0,
+                             int N1,
+                             int N2
+                             );
 
+
+/**
+ * @internal
+ * @see gpu_transposeYZ_complex() 
+ */
+void gpu_transposeYZ_complex_inplace(float* source, ///< source data, size N0 x N1 x N2
+                                     int N0,        ///< source size X
+                                     int N1,        ///< source size Z
+                                     int N2         ///< number of floats (!) in the Z-direction, thus 2x the number of complex numbers in Z.
+                                     );
+/**
+ * @internal
+ * @see gpu_transposeYZ_complex()
+ */
+void gpu_transposeXZ_complex_inplace(float* source,
+                                     int N0,
+                                     int N1,
+                                     int N2
+                                     );
+
+                             
 ///@internal
 __global__ void _gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2);
 
 ///@internal
 __global__ void _gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2);
+
+///@internal
+__global__ void _gpu_transposeYZ_complex_inplace(float* source, int N0, int N1, int N2);
+
+///@internal
+__global__ void _gpu_transposeXZ_complex_inplace(float* source, int N0, int N1, int N2);
+
                  
 /**
  * Frees the FFT plan
