@@ -82,6 +82,24 @@ void format_gputensor(tensor* t, FILE* out){
   delete_tensor(host);
 }
 
+
+float* _host_array = NULL;
+float* _device_array = NULL;
+
+void assertHost(float* pointer){
+  if(_host_array == NULL){
+    _host_array = new_ram_array(1);
+  }
+  _host_array[0] = pointer[0]; // may throw segfault
+}
+
+void assertDevice(float* pointer){
+  if(_device_array == NULL){
+    _device_array = new_gpu_array(1);
+  }
+  memcpy_gpu_to_gpu(pointer, _device_array, 1); // may throw segfault
+}
+
 //_____________________________________________________________________________________________ copy
 
 void memcpy_to_gpu(float* source, float* dest, int nElements){

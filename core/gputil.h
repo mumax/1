@@ -167,6 +167,12 @@ void gpu_safe(int status	///< CUDA return status
  */
 void format_gputensor(tensor* t, FILE* out);
 
+
+void assertHost(float* pointer);
+
+void assertDevice(float* pointer);
+
+
 //______________________________________________________________________________________ check conf
 
 /**
