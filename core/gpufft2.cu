@@ -89,17 +89,23 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   float* data = input->list;
   float* data2 = plan->transp; // both the transpose and FFT are out-of-place between data and data2
   
-  for(int i=0; i<size[X]; i++){
+  printf("gpufft2, fw1\n");
+	for(int i=0; i<size[X]; i++){
     for(int j=0; j<size[Y]; j++){
       float* rowIn  = &( input->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
       float* rowOut = &(output->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
+/*      float* rowIn  = &( input->list[0]);
+      float* rowOut = &(output->list[0]);*/
       gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)rowIn,  (cufftComplex*)rowOut) );
+ 			printf("i: %d, j: %d, index: %d\n", i, j, i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]);
     }
   }
   cudaThreadSynchronize();
   
+	printf("gpufft2, fw2\n");
   gpu_transposeYZ_complex(data, data2, N0, N1, N2*N3);                  // it's now in data2
   
+	printf("gpufft2, fw3\n");
   gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data2,  (cufftComplex*)data2, CUFFT_FORWARD) ); 
   cudaThreadSynchronize();
 
@@ -109,6 +115,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
     gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)output->list, CUFFT_FORWARD) ); // it's now again in data
     cudaThreadSynchronize();
   }
+  cudaThreadSynchronize();
   timer_stop("gpu_plan3d_real_input_forward_exec");
 }
 
@@ -135,6 +142,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   float* data = input->list;
   float* data2 = plan->transp; // both the transpose and FFT are out-of-place between data and data2
 
+	printf("gpufft2, inv3\n");
   if (N0 > 1){
     // input data is XZ transposed and stored in data, FFTs on X-arrays out of place towards data2
     gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) ); // it's now in data2
@@ -142,12 +150,14 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
     gpu_transposeXZ_complex(data2, data, N1, N2, N0*N3); // size has changed due to previous transpose! // it's now in data
   }
 
-  gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) ); // it's now again in data2
+	printf("gpufft2, inv2\n");
+	gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) ); // it's now again in data2
   cudaThreadSynchronize();
 
   gpu_transposeYZ_complex(data2, data, N0, N2, N1*N3);                 
 
-  for(int i=0; i<size[X]; i++){
+	printf("gpufft2, inv1\n");
+	for(int i=0; i<size[X]; i++){
     for(int j=0; j<size[Y]; j++){
       float* rowIn  = &( input->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
       float* rowOut = &(output->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
@@ -167,6 +177,7 @@ int gpuFFT3dPlan_normalization(gpuFFT3dPlan* plan){
 //_____________________________________________________________________________________________ transpose
 
 void gpu_tensor_transposeYZ_complex(tensor* source, tensor* dest){
+	
   assert(source != dest);                       // must be out-of-place
   assert(source->rank == 3);
   assert(dest->rank == 3);

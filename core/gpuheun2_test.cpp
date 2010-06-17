@@ -53,8 +53,7 @@ int main(int argc, char** argv){
   }
   gpuheun2_loadm(solver, m);
 
-
-  
+ 
   for(int i=0; i<10; i++){
     gpuheun2_step(solver);
   }

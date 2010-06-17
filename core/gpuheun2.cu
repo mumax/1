@@ -112,7 +112,8 @@ void gpuheun2_step_old(gpuheun2* solver, float dt, float alpha){
   
   //memcpy_gpu_to_gpu(solver->m, solver->m0, solver->len_m);
   tensor_copy_gpu_to_gpu(solver->m, solver->m0);
-  
+
+	printf("gpuheun2: Been here1\n");
   gpuconv2_exec(solver->convplan, solver->m, solver->h);
   
   timer_start("gpuheun_step");
@@ -125,6 +126,7 @@ void gpuheun2_step_old(gpuheun2* solver, float dt, float alpha){
   timer_stop("gpuheun_step");
   gpuheun2_normalize_m(solver);
    
+	printf("gpuheun2: Been here2\n");
   gpuconv2_exec(solver->convplan, solver->m, solver->h);
   
   timer_start("gpuheun_step");

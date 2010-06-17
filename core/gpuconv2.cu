@@ -174,12 +174,14 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
   
   cudaThreadSynchronize();  ///@todo many redundant syncs
   
+  printf("conv2: Been here1\n");
   for(int i=0; i<3; i++){
     gpuFFT3dPlan_forward(conv->fftplan, fft1Comp[i], fft1Comp[i]);  ///@todo out-of-place
   }
   
   cudaThreadSynchronize();
   
+  printf("conv2: Been here2\n");
   gpu_kernel_mul_complex_inplace_symm(fft1Comp[X]->list, fft1Comp[Y]->list, fft1Comp[Z]->list,
                                       conv->fftKernel[X][X]->list, conv->fftKernel[Y][Y]->list, conv->fftKernel[Z][Z]->list, 
                                       conv->fftKernel[Y][Z]->list, conv->fftKernel[X][Z]->list, conv->fftKernel[X][Y]->list,
@@ -187,6 +189,7 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
   
   cudaThreadSynchronize();
   
+  printf("conv2: Been here3\n");
   for(int i=0; i<3; i++){
     gpuFFT3dPlan_inverse(conv->fftplan, fft1Comp[i], fft1Comp[i]);  ///@todo out-of-place
   }
