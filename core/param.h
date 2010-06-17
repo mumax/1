@@ -109,10 +109,13 @@ typedef struct{
 }param;
 
 
-// Anisotropy types
 
-/// Possible value for anisType. Means no anisotropy.
-#define ANIS_NONE 0
+
+/// Possible value for any type (anisotropy, solver, exchange, ...)
+#define NONE 0
+
+
+// Anisotropy types
 
 /// Possible value for anisType. Means uniaxial anisotropy.
 #define ANIS_UNIAXIAL 1
@@ -126,8 +129,6 @@ typedef struct{
 
 // Solver types
 
-/// Possible value for solverType. Means no solver is set.
-#define SOLVER_NONE 0
 
 /// Possible value for solverType. Simple Euler method
 #define SOLVER_EULER 1
@@ -147,8 +148,6 @@ typedef struct{
 
 // Exchange types
 
-/// Possible value for exchType. Means the exchange interaction is either absent or already included in the demag kernel
-#define EXCH_NONE 0
 
 /// Possible value for exchType. 6-neighbour exchange.
 #define EXCH_6NGBR 6
