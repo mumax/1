@@ -5,6 +5,9 @@ CPPFILES=\
 	pipes.cpp\
 	timer.cpp\
 	param.cpp\
+	field.cpp\
+	timestep.cpp\
+	kernel.cpp\
 
 CUFILES=\
 	gputil.cu\
@@ -36,6 +39,9 @@ OFILES=\
 	gpuanal1.o\
 	gpukernel1.o\
 	gpuheun2.o\
+	field.o\
+	timestep.o\
+	kernel.o\
 
 
 all: core.so core.a doc
@@ -90,6 +96,15 @@ gpukernel1.o:	gpukernel1.h gpukernel1.cu
 
 timer.o:	timer.h timer.cpp
 	$(NVCC) -c $(NVCCFLAGS) timer.cpp
+
+field.o:	field.h field.cpp
+	$(NVCC) -c $(NVCCFLAGS) field.cpp
+
+timestep.o:	timestep.h timestep.cpp
+	$(NVCC) -c $(NVCCFLAGS) timestep.cpp
+
+kernel.o:	kernel.h kernel.cpp
+	$(NVCC) -c $(NVCCFLAGS) kernel.cpp
 
 test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuheun2_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test gpufft2_test gpukernel1_test
 	./tensor_test

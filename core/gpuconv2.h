@@ -130,7 +130,7 @@ typedef struct{
  * @note After construction, a kernel should still be loaded.
  */
 gpuconv2* new_gpuconv2(int* size,             ///< X Y and Z size of the magnetization vector field
-                       int* kernel            ///< convolution kernel of at least the size of the vector field
+                       int* kernelSize            ///< convolution kernel size of at least the size of the vector field
                        );
 
 /**

@@ -18,7 +18,7 @@ param* new_param(){
   p->gamma0 = 2.211E5;
   p->alpha = 0.;
 
-  p->anisType = ANIS_NONE;
+  p->anisType = NONE;
   p->anisK = NULL;
   p->anisN = 0;
 
@@ -31,12 +31,12 @@ param* new_param(){
     p->diffHExt[i] = 0;
   }
 
-  p->solverType = SOLVER_NONE;
+  p->solverType = NONE;
   p->maxDt = 0.;
   p->maxDelta = 0.;
   p->maxError = 0.;
 
-  p->exchType = EXCH_NONE;
+  p->exchType = NONE;
   
   return p;
 }

@@ -28,7 +28,7 @@ typedef struct{
 
 void field_evaluation(field_plan *plan, tensor *m, tensor *h);
 
-field_plan *new_fieldplan(param *);
+field_plan *new_fieldplan(param *, tensor* kernel);
 
 #ifdef __cplusplus
 }

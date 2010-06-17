@@ -82,6 +82,8 @@ typedef struct{
 
   // demag settings
 
+  int kernelType;
+  
   int demagPeriodic[3];   ///< Periodic boundary conditions in each of the directions? 0 means no periodicity, a positive number means repeat N times in the positive and negative direction along the respective axis.
   int demagCoarse[3];     ///< Combine N cells in each respective direction into a larger cell, for a faster, coarser evaluation of the demag field. {1, 1, 1} means full resolution.
   int demagKernelSize[3]; ///< Size of the convolution kernel. In principle it can be derived from demagPeriodic and demagCoarse, but we store it anyway for convienience.
@@ -151,6 +153,18 @@ typedef struct{
 
 /// Possible value for exchType. 6-neighbour exchange.
 #define EXCH_6NGBR 6
+
+
+
+// Kernel types
+
+#define KERNEL_DIPOLE 1
+
+/// Possible value for kernelType. Quantities only dependent on Y and Z coordinate, invariance in X direction. Includes exchange
+#define KERNEL_MICROMAG2D 2
+
+/// Possible value for kernelType. Classical 3D micromagnetic kernel. Can also be used for 2D simulations (1 cell in X). Includes exchange.
+#define KERNEL_MICROMAG3D 3
 
 
 
