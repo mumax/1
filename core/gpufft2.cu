@@ -92,12 +92,12 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   float* data = input->list;
   float* data2 = plan->transp; // both the transpose and FFT are out-of-place between data and data2
   
-  printf("gpufft2, fw1\n");
+/*  printf("gpufft2, fw1\n");
 	for(int i=0; i<size[X]; i++){
     for(int j=0; j<size[Y]; j++){
       float* rowIn  = &( input->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
       float* rowOut = &(output->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-      gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)rowIn,  (cufftComplex*)rowOut) );
+       gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)rowIn,  (cufftComplex*)rowOut) );
     }
   }
   cudaThreadSynchronize();
@@ -106,7 +106,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   gpu_transposeYZ_complex(data, data2, N0, N1, N2*N3);                  // it's now in data2
   
 	printf("gpufft2, fw3\n");
-  gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data2,  (cufftComplex*)data2, CUFFT_FORWARD) ); 
+  gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data2,  (cufftComplex*)data2, CUFFT_FORWARD) ); */
   cudaThreadSynchronize();
 
   // support for 2D transforms: do not transform if first dimension has size 1
@@ -164,7 +164,8 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
     for(int j=0; j<size[Y]; j++){
       float* rowIn  = &( input->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
       float* rowOut = &(output->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-      gpu_safe( cufftExecC2R(plan->invPlanZ, (cufftComplex*)rowIn, (cufftReal*)rowOut) ); 
+      printf("%p, %p\n", plan, (void*)(plan->invPlanZ));
+//       gpu_safe( cufftExecC2R(plan->invPlanZ, (cufftComplex*)rowIn, (cufftReal*)rowOut) ); 
     }
   }
   cudaThreadSynchronize();

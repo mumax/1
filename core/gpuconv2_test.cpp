@@ -61,8 +61,8 @@ void test_convplan(){
   
   
   tensor_copy_to_gpu(hostM, m);
-  fprintf(stderr, "m:\n");
-  format_gputensor(m, stderr);
+//   fprintf(stderr, "m:\n");
+//   format_gputensor(m, stderr);
 
   gpuconv2* plan = new_gpuconv2(size, kernelSize);
 
@@ -75,17 +75,17 @@ void test_convplan(){
 //   tensor_copy_to_gpu(kernel, gpuKernel);
   gpuconv2_loadkernel5DSymm(plan, kernel);
   
-  for(int s=0; s<3; s++){
+/*  for(int s=0; s<3; s++){
     for(int d=0; d<3; d++){
       fprintf(stderr, "K%d%d\n", s, d);
       format_gputensor(plan->fftKernel[s][d], stderr);
     }
-  }
+  }*/
   
   gpuconv2_exec(plan, m, h);
 
   tensor_copy_from_gpu(h, hostH);
-  format_tensor(hostH, stderr);
+//   format_tensor(hostH, stderr);
   
   
   FILE* out;
@@ -107,7 +107,7 @@ void test_pad(){
   }
   tensor* smallDev = new_gputensor(3, size);
   tensor_copy_to_gpu(small, smallDev);
-  format_tensor(small, stderr);
+//   format_tensor(small, stderr);
   
   tensor* large = new_tensor(3, 2*N0, 2*N1, 2*N2);
   tensor* largeDev = new_gputensor(3, paddedSize);
@@ -115,14 +115,14 @@ void test_pad(){
   gpu_copy_pad(smallDev, largeDev);
   
   tensor_copy_from_gpu(largeDev, large);
-  format_tensor(large, stderr);
+//   format_tensor(large, stderr);
   
   gpu_zero_tensor(smallDev);
   tensor_zero(small);
   
   gpu_copy_unpad(largeDev, smallDev);
   tensor_copy_from_gpu(smallDev, small);
-  format_tensor(small, stderr);
+//   format_tensor(small, stderr);
   
 }
 
