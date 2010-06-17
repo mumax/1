@@ -168,8 +168,19 @@ void gpu_safe(int status	///< CUDA return status
 void format_gputensor(tensor* t, FILE* out);
 
 
+/**
+ * @internal
+ * Checks if the data resides on the host by copying one float from host to host.
+ * A segmentation fault is thrown when the data resides on the GPU device.
+ */
 void assertHost(float* pointer);
 
+
+/**
+ * @internal
+ * Checks if the data resides on the GPU device by copying one float from device to device.
+ * A segmentation fault is thrown when the data resides on the host.
+ */
 void assertDevice(float* pointer);
 
 

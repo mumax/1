@@ -83,6 +83,7 @@ void format_gputensor(tensor* t, FILE* out){
 }
 
 
+
 float* _host_array = NULL;
 float* _device_array = NULL;
 

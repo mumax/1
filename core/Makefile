@@ -37,8 +37,6 @@ OFILES=\
 	gpukernel1.o\
 	gpuheun2.o\
 
-#remove the "emu" when not using device emulation
-CUDALIBS= -lcudart -lcufft
 
 all: core.so core.a doc
 

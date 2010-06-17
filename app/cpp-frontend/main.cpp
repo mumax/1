@@ -41,13 +41,17 @@ int main(int argc, char** argv){
 
   //tensor* kernel = ...
   gpuconv2* conv = new_gpuconv2(p->size, p->demagKernelSize);   ///@todo just pass p
+  //gpuconv2_loadKernel5DSymm(kernel);
+  
   gpuheun2* solver = new_gpuheun2_param(p, kernel); // _param will dissapear soon
+  double t = 0.0;
   
   // this is how it should be to avoid making a huge amount of cross-products between solvers and field plans:
   for(int i=0; i<1000; i++){
-//     gpuconv2_exec(conv,   m, h);
-//     gpuheun2_step(solver, m, h);
-  }
+    gpuconv2_exec(conv,   m, h);
+    gpuheun2_step(solver, m, h, &t);    //the solver (and not we) must update t: advanced solvers may, e.g., even go back in time to undo a bad step.
+  } 
+
   
   printf("\n*** Timing ***\n");
   timer_printdetail();
