@@ -70,6 +70,9 @@ gpuFFT3dPlan* new_gpuFFT3dPlan(int* size){
 
 void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   timer_start("gpu_plan3d_real_input_forward_exec");
+  
+  assertDevice(input->list);
+  assertDevice(output->list);
 
   assert(input == output); ///@todo works only in-place for now
   assert(input->rank == 3);
@@ -94,10 +97,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
     for(int j=0; j<size[Y]; j++){
       float* rowIn  = &( input->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
       float* rowOut = &(output->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-/*      float* rowIn  = &( input->list[0]);
-      float* rowOut = &(output->list[0]);*/
       gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)rowIn,  (cufftComplex*)rowOut) );
- 			printf("i: %d, j: %d, index: %d\n", i, j, i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]);
     }
   }
   cudaThreadSynchronize();
@@ -124,6 +124,9 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
 void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   timer_start("gpu_plan3d_real_input_inverse_exec");
   
+  assertDevice(input->list);
+  assertDevice(output->list);
+
   assert(input == output); ///@todo works only in-place for now
   assert(input->rank == 3);
   assert(output->rank == 3);

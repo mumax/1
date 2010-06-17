@@ -142,6 +142,9 @@ void gpu_kernel_mul_complex_inplace_symm(float* fftMx,  float* fftMy,  float* ff
 
 void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
   
+  assertDevice(m->list);
+  assertDevice(h->list);
+
   assert(m->rank == 4);
   assert(h->rank == 4);
   for(int i=0; i<4; i++){
