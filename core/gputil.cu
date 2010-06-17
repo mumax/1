@@ -341,6 +341,8 @@ void print_device_properties(FILE* out){
   fprintf(out, "      Compute mode: %d\n", prop.computeMode);
   fprintf(out, "    Device overlap: %d\n", prop.deviceOverlap);
   fprintf(out, "Concurrent kernels: %d\n", prop.concurrentKernels);
+  fprintf(out, "        Integrated: %d\n", prop.integrated);
+  fprintf(out, "  Can map host mem: %d\n", prop.canMapHostMemory);
   
 }
 

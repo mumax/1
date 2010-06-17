@@ -1,11 +1,18 @@
 /**
  * @file
  *
- * The params struct stores all the simulation parameters like
+ * The params struct stores simulation parameters like
  *  - material constants
  *  - simulation size
  *  - demag type
  *  - time stepping parameters
+ * By convention, these parameters are only changed by the user,
+ * @em not by the simulation itself (e.g.: a solver itself must not
+ * change the maxDt parameter, etc.).
+ *
+ * Should there be a need for a central place to store all variables
+ * that @em are changed during the simulation (like m, h, time, ...),
+ * then a second struct can be made for this.
  *
  * @warning Unless otherwise noted, all values represent internal units.
  * Conversion from SI units is typically done right after the input file is read,
