@@ -38,7 +38,7 @@ void gpu_init_Greens_kernel1(tensor* dev_kernel, int N0, int N1, int N2, int *ze
 	// initialization Gauss quadrature points for integrations + copy to gpu ________________________
 		float *dev_qd_W_10 = new_gpu_array(10);
 		float *dev_qd_P_10 = new_gpu_array(3*10);
-		initialize_Gauss_quadrature_on_gpu(dev_qd_W_10, dev_qd_P_10, FD_cell_size);
+		initialize_Gauss_quadrature_on_gpu_1(dev_qd_W_10, dev_qd_P_10, FD_cell_size);
 	// ______________________________________________________________________________________________
 	
 	
@@ -51,7 +51,7 @@ void gpu_init_Greens_kernel1(tensor* dev_kernel, int N0, int N1, int N2, int *ze
 
 	// Initialize the kernel ________________________________________________________________________		
 		float cst = -1.0f/4.0f/3.14159265f;
-		gpu_init_and_FFT_Greens_kernel_elements(dev_kernel, Nkernel, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10, kernel_plan);
+		gpu_init_and_FFT_Greens_kernel_elements_1(dev_kernel, Nkernel, FD_cell_size, cst, repetition, dev_qd_P_10, dev_qd_W_10, kernel_plan);
 	// ______________________________________________________________________________________________	
 	
 	return;
@@ -59,7 +59,7 @@ void gpu_init_Greens_kernel1(tensor* dev_kernel, int N0, int N1, int N2, int *ze
 
 /// @todo argument defining which Greens function should be added
 /// remark: number of FD cells in a dimension can not be odd if no zero padding!!
-void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *Nkernel, float *FD_cell_size, float cst, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10, gpu_plan3d_real_input* kernel_plan){
+void gpu_init_and_FFT_Greens_kernel_elements_1(tensor *dev_kernel, int *Nkernel, float *FD_cell_size, float cst, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10, gpu_plan3d_real_input* kernel_plan){
 
   
  	int NkernelStorageN = 2*dev_kernel->size[1];				// size of kernel component in real + i*complex format
@@ -82,13 +82,13 @@ void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *Nkernel, f
 				gpu_zero(dev_temp, NkernelStorageN);		 
 				cudaThreadSynchronize();
 					// Fill in the elements.
-				_gpu_init_Greens_kernel_elements<<<gridsize1, blocksize1>>>(dev_temp, Nkernel[X], Nkernel[Y], Nkernel[Z], co1, co2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], cst, repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
+				_gpu_init_Greens_kernel_elements_1<<<gridsize1, blocksize1>>>(dev_temp, Nkernel[X], Nkernel[Y], Nkernel[Z], co1, co2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], cst, repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
 				cudaThreadSynchronize();
 					// Fourier transform the kernel component.
 				gpu_plan3d_real_input_forward(kernel_plan, dev_temp);
 				cudaThreadSynchronize();
 					// Copy the real parts to the corresponding place in the dev_kernel tensor.
-				_gpu_extract_real_parts<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*NkernelStorageN/2], dev_temp, rank0, NkernelStorageN/2);
+				_gpu_extract_real_parts_1<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*NkernelStorageN/2], dev_temp, rank0, NkernelStorageN/2);
 				cudaThreadSynchronize();
 				rank0++;																				// get ready for next component
 			}
@@ -102,7 +102,7 @@ void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *Nkernel, f
 
 
 
-__global__ void _gpu_init_Greens_kernel_elements(float *dev_temp, int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int co1, int co2, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, float cst, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
+__global__ void _gpu_init_Greens_kernel_elements_1(float *dev_temp, int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int co1, int co2, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, float cst, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
    
 	int i = blockIdx.x;
 	int j = blockIdx.y;
@@ -111,28 +111,28 @@ __global__ void _gpu_init_Greens_kernel_elements(float *dev_temp, int Nkernel_X,
 	int N2 = Nkernel_Z+2;     ///@todo: a gpu_pad_to_stride() function also executable on gpu should be used here
 	int N12 = Nkernel_Y * N2;
 
-		dev_temp[            i*N12 +             j*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		dev_temp[            i*N12 +             j*N2 +           k] = _gpu_get_Greens_element_1(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 	if (i>0)
-		dev_temp[(Nkernel_X-i)*N12 +             j*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		dev_temp[(Nkernel_X-i)*N12 +             j*N2 +           k] = _gpu_get_Greens_element_1(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 	if (j>0)
-		dev_temp[            i*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		dev_temp[            i*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element_1(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 	if (k>0) 
-		dev_temp[            i*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		dev_temp[            i*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_1(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 	if (i>0 && j>0)
-		dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element_1(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 	if (i>0 && k>0) 
-		dev_temp[(Nkernel_X-i)*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		dev_temp[(Nkernel_X-i)*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_1(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 	if (j>0 && k>0) 
-		dev_temp[            i*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		dev_temp[            i*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_1(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 	if (i>0 && j>0 && k>0) 
-		dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_1(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, cst, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 
 	return;
 }
 
 
 
-__device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int co1, int co2, int a, int b, int c, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, float cst, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
+__device__ float _gpu_get_Greens_element_1(int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int co1, int co2, int a, int b, int c, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, float cst, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
 
 	float result = 0.0f;
 	float *dev_qd_P_10_X = &dev_qd_P_10[X];
@@ -369,7 +369,7 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 
 
 
-__global__ void _gpu_extract_real_parts(float *dev_kernel_array, float *dev_temp, int rank0, int size1){
+__global__ void _gpu_extract_real_parts_1(float *dev_kernel_array, float *dev_temp, int rank0, int size1){
 
   int e = ((blockIdx.x * blockDim.x) + threadIdx.x);
 
@@ -380,7 +380,7 @@ __global__ void _gpu_extract_real_parts(float *dev_kernel_array, float *dev_temp
 
 
 
-void initialize_Gauss_quadrature_on_gpu(float *dev_qd_W_10, float *dev_qd_P_10, float *FD_cell_size){
+void initialize_Gauss_quadrature_on_gpu_1(float *dev_qd_W_10, float *dev_qd_P_10, float *FD_cell_size){
 
 	// initilize standard order 10 Gauss quadrature points and weights ______________________________
 		float *std_qd_P_10 = (float*) calloc(10, sizeof(float));
@@ -405,9 +405,9 @@ void initialize_Gauss_quadrature_on_gpu(float *dev_qd_W_10, float *dev_qd_P_10, 
 
 	// Map the standard Gauss quadrature points to the used integration boundaries __________________
 		float *host_qd_P_10 =  (float *) calloc (3*10, sizeof(float));
-		get_Quad_Points(&host_qd_P_10[X*10], std_qd_P_10, 10, -0.5f*FD_cell_size[X], 0.5f*FD_cell_size[X]);
-		get_Quad_Points(&host_qd_P_10[Y*10], std_qd_P_10, 10, -0.5f*FD_cell_size[Y], 0.5f*FD_cell_size[Y]);
-		get_Quad_Points(&host_qd_P_10[Z*10], std_qd_P_10, 10, -0.5f*FD_cell_size[Z], 0.5f*FD_cell_size[Z]);
+		get_Quad_Points_1(&host_qd_P_10[X*10], std_qd_P_10, 10, -0.5f*FD_cell_size[X], 0.5f*FD_cell_size[X]);
+		get_Quad_Points_1(&host_qd_P_10[Y*10], std_qd_P_10, 10, -0.5f*FD_cell_size[Y], 0.5f*FD_cell_size[Y]);
+		get_Quad_Points_1(&host_qd_P_10[Z*10], std_qd_P_10, 10, -0.5f*FD_cell_size[Z], 0.5f*FD_cell_size[Z]);
 	// ______________________________________________________________________________________________
 
 	// copy to the quadrature points and weights to the device ______________________________________
@@ -422,7 +422,7 @@ void initialize_Gauss_quadrature_on_gpu(float *dev_qd_W_10, float *dev_qd_P_10, 
 	return;
 }
 
-void get_Quad_Points(float *gaussQP, float *stdGaussQP, int qOrder, double a, double b){
+void get_Quad_Points_1(float *gaussQP, float *stdGaussQP, int qOrder, double a, double b){
 
 	int i;
 	double A = (b-a)/2.0f; // coefficients for transformation x'= Ax+B

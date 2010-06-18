@@ -42,8 +42,8 @@ OFILES=\
 	timestep.o\
 	kernel.o\
 	gpu_micromag3d_kernel.o\
+	gpukernel1.o\
 #	gpuheun2.o\
-#	gpukernel1.o\
 
 all: core.so core.a doc
 
@@ -107,8 +107,8 @@ timestep.o:	timestep.h timestep.cpp
 kernel.o:	kernel.h kernel.cpp
 	$(NVCC) -c $(NVCCFLAGS) kernel.cpp
 
-#gpukernel1.o:	gpukernel1.h gpukernel1.cu
-#	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpukernel1.cu
+gpukernel1.o:	gpukernel1.h gpukernel1.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpukernel1.cu
 
 
 test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuheun2_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test gpufft2_test gpukernel1_test
@@ -121,7 +121,7 @@ test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuheun2_test gpuanal1_te
 	./gpufft_test
 	./gpufft2_test
 	./gpuconv2_test
-#	./gpukernel1_test
+	./gpukernel1_test
 
 # We link against core.so instead of $OFILES so we can use gcc instead of nvcc
 tensor_test:	core.so tensor_test.cpp
@@ -170,9 +170,9 @@ gpu_micromag3d_kernel_test: $(OFILES) gpu_micromag3d_kernel_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpu_micromag3d_kernel_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpu_micromag3d_kernel_test.o -o gpu_micromag3d_kernel_test
 
-#gpukernel1_test: $(OFILES) gpukernel1_test.cpp
-#	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpukernel1_test.cpp
-#	$(NVCC) $(CUDALIBS) $(OFILES) gpukernel1_test.o -o gpukernel1_test
+gpukernel1_test: $(OFILES) gpukernel1_test.cpp
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpukernel1_test.cpp
+	$(NVCC) $(CUDALIBS) $(OFILES) gpukernel1_test.o -o gpukernel1_test
 
 
 .PHONY:	clean
