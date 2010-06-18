@@ -3,10 +3,6 @@ extern "C" {
 #endif
 
 #include "param.h"
-#include "tensor.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 
 
 param* new_param(){
@@ -39,6 +35,21 @@ param* new_param(){
   p->exchType = NONE;
   
   return p;
+}
+
+void check_param(param *p){
+
+  assert(p->size[X]>0);
+  assert(p->size[Y]>1);
+  assert(p->size[Z]>1);
+  
+  for (int i=0; i<3; i++){
+    assert( p->cellSize[i]>0.0f);
+    assert( p->demagCoarse[i]>0);
+    assert( p->size[i]>p->demagCoarse[i] && p->size[i]%p->demagCoarse[i] == 0);
+  }
+
+  return;
 }
 
 double unitlength(param* u){

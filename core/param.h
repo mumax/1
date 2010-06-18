@@ -48,6 +48,11 @@
 #ifndef PARAM_H
 #define PARAM_H
 
+#include "assert.h"
+#include "tensor.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 #include <stdio.h>
 #define PI 3.14159265
 
@@ -111,7 +116,10 @@ typedef struct{
 }param;
 
 
-
+/**
+ * checks if the parameter list has acceptable values. 
+ */
+void check_param(param *p);
 
 /// Possible value for any type (anisotropy, solver, exchange, ...)
 #define NONE 0

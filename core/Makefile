@@ -21,6 +21,7 @@ CUFILES=\
 	gpuanal1.cu\
 	gpukernel1.cu\
 	gpuheun2.cu\
+	gpu_micromag3d_kernel.cu\
 # NOTE: commented files must be LAST in the list, otherwise all the rest is also commented out
 
 OFILES=\
@@ -37,11 +38,12 @@ OFILES=\
 	gpuheun.o\
 	gpurk4.o\
 	gpuanal1.o\
-	gpukernel1.o\
 	gpuheun2.o\
 	field.o\
 	timestep.o\
 	kernel.o\
+	gpu_micromag3d_kernel.o\
+#	gpukernel1.o\
 
 all: core.so core.a doc
 
@@ -90,8 +92,8 @@ gpurk4.o:	gpurk4.h gpurk4.cu
 gpuanal1.o:	gpuanal1.h gpuanal1.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuanal1.cu
 
-gpukernel1.o:	gpukernel1.h gpukernel1.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpukernel1.cu
+gpu_micromag3d_kernel.o:	gpu_micromag3d_kernel.h gpu_micromag3d_kernel.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_micromag3d_kernel.cu
 
 timer.o:	timer.h timer.cpp
 	$(NVCC) -c $(NVCCFLAGS) timer.cpp
@@ -105,6 +107,10 @@ timestep.o:	timestep.h timestep.cpp
 kernel.o:	kernel.h kernel.cpp
 	$(NVCC) -c $(NVCCFLAGS) kernel.cpp
 
+#gpukernel1.o:	gpukernel1.h gpukernel1.cu
+#	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpukernel1.cu
+
+
 test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuheun2_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test gpufft2_test gpukernel1_test
 	./tensor_test
 	./gputil_test
@@ -112,10 +118,10 @@ test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuheun2_test gpuanal1_te
 	./gpuheun_test testm0.t testkernel.t
 	./gpuheun2_test
 	./gpuanal1_test testm0.t testkernel.t
-	./gpukernel1_test
 	./gpufft_test
 	./gpufft2_test
 	./gpuconv2_test
+#	./gpukernel1_test
 
 # We link against core.so instead of $OFILES so we can use gcc instead of nvcc
 tensor_test:	core.so tensor_test.cpp
@@ -160,9 +166,13 @@ gputil_test: $(OFILES) gputil_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gputil_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gputil_test.o -o gputil_test
 
-gpukernel1_test: $(OFILES) gpukernel1_test.cpp
-	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpukernel1_test.cpp
-	$(NVCC) $(CUDALIBS) $(OFILES) gpukernel1_test.o -o gpukernel1_test
+gpu_micromag3d_kernel_test: $(OFILES) gpu_micromag3d_kernel_test.cpp
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpu_micromag3d_kernel_test.cpp
+	$(NVCC) $(CUDALIBS) $(OFILES) gpu_micromag3d_kernel_test.o -o gpu_micromag3d_kernel_test
+
+#gpukernel1_test: $(OFILES) gpukernel1_test.cpp
+#	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpukernel1_test.cpp
+#	$(NVCC) $(CUDALIBS) $(OFILES) gpukernel1_test.o -o gpukernel1_test
 
 
 .PHONY:	clean
