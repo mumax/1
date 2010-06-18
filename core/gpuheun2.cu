@@ -227,7 +227,7 @@ void gpuheun2_storeh(gpuheun2* heun, tensor* h){
 //   }
 // }
 
-gpuheun2* new_gpuheun2_param(param* p){
+gpuheun2* new_gpuheun2(param* p){
   
   gpuheun2* heun = (gpuheun2*)malloc(sizeof(gpuheun2));
 

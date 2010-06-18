@@ -48,7 +48,7 @@ typedef struct{
 /**
  * Makes a new heun solver.
  */                      
-gpuheun2* new_gpuheun2_param(param* p);
+gpuheun2* new_gpuheun2(param* p);
 
 /**
  * Copies a magnetization configuration in the solver, e.g. the initial magnetization.

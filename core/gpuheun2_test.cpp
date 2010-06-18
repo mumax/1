@@ -44,7 +44,7 @@ int main(int argc, char** argv){
   param_print(stdout, p);
   
   tensor* kernel = pipe_tensor((char*)"kernel --size 64 32 4 --msat 800E3 --aexch 1.3e-11 --cellsize 1e-9 1e-9 1e-9");
-  gpuheun2* solver = new_gpuheun2_param(p, kernel);
+  gpuheun2* solver = new_gpuheun2(p, kernel);
   
   tensor* m = new_tensorN(4, tensor_size4D(p->size));
   tensor* mz = tensor_component(m, Z);
