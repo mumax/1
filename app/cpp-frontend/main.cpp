@@ -44,20 +44,32 @@ param* read_param(){
   p->aexch = 1.1E-13;
   p->alpha = 1.0;
 
-  p->size[X] = 1;
-  p->size[Y] = 32;
-  p->size[Z] = 128;
+  p->size[X] = 4;
+  p->size[Y] = 4;
+  p->size[Z] = 8;
 
   double L = unitlength(p);
   p->cellSize[X] = 1E-9 / L;
   p->cellSize[Y] = 1E-9 / L;
   p->cellSize[Z] = 1E-9 / L;
 
-  p->kernelType = KERNEL_MICROMAG3D;
-  p->kernelSize[X] = 2*p->size[X];
-  p->kernelSize[Y] = 2*p->size[Y];
-  p->kernelSize[Z] = 2*p->size[Z];
+  p->demagCoarse[X] = 1;
+  p->demagCoarse[Y] = 1;
+  p->demagCoarse[Z] = 1;
+  
+  p->demagPeriodic[X] = 0;
+  p->demagPeriodic[Y] = 0;
+  p->demagPeriodic[Z] = 0;
 
+  int zero_pad[3];
+  for (int i=0; i<3; i++){
+    zero_pad[i] = (!p->demagPeriodic[i]) ? 1:0;
+    p->kernelSize[i] = (1 + zero_pad[i]) * p->size[i]/p->demagCoarse[i]; 
+  }
+  if (p->size[X]==1) 
+    p->kernelSize[X] = 1;
+  
+  p->kernelType = KERNEL_MICROMAG3D;
   p->solverType = SOLVER_HEUN;
 
   return p;

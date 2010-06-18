@@ -10,4 +10,6 @@
 
 param* read_param();
 
+void check_param(param *p);
+
 #endif
