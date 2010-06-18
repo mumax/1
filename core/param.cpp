@@ -51,7 +51,7 @@ void check_param(param *p){
     assert( p->size[i]>p->demagCoarse[i] && p->size[i]%p->demagCoarse[i] == 0);
   }
 
-  // only 1 (possibly coarse level) cell thickness in x-direction together with periodicity in this direction is not allowed.
+    // only 1 (possibly coarse level) cell thickness in x-direction combined with periodicity in this direction is not allowed.
   assert(  !(p->size[X]/p->demagCoarse[X]==1 && p->demagPeriodic[X])  );     
   return;
 }
