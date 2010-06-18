@@ -43,7 +43,6 @@ OFILES=\
 	timestep.o\
 	kernel.o\
 
-
 all: core.so core.a doc
 
 core.so: $(OFILES)
@@ -169,6 +168,7 @@ gpukernel1_test: $(OFILES) gpukernel1_test.cpp
 .PHONY:	clean
 clean:	
 	rm -f *.o *.so *.a iotest *_test
+	chmod u+x make-emu.sh
 
 doc:
 	doxygen doxygen.cfg

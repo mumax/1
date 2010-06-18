@@ -1,5 +1,4 @@
-# Common code for all makefiles
-# Should be included in each makefile
+# Can be included in a makefile (instead of common.mk) to enable device emulation
 
 CC=gcc
 CPP=g++
@@ -17,7 +16,7 @@ NVCCFLAGS+=\
   --compiler-options -fPIC\
   --compiler-options -g\
   -G\
-#  --device-emulation\
+  --device-emulation\
 # --compiler-options -DNDEBUG\
 
 
@@ -25,5 +24,5 @@ NVCCFLAGS+=\
 # --device-emulation allows to run it on a CPU, requires "emu" to be appended to all cuda library names (e.g. -lcudartemu)
 
 
-# append "emu" to each lib when using device emulation
-CUDALIBS= -lcudart -lcufft
+#remove the "emu" when not using device emulation
+CUDALIBS= -lcudartemu -lcufftemu
