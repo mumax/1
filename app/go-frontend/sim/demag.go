@@ -63,7 +63,7 @@ func FaceKernel(unpaddedsize []int, cellsize []float) *Tensor5{
   R := NewVector();
   
   for s:=0; s<3; s++{					// source index Ksdxyz
-    for x:=-(size[X]-1)/2; x<=size[X]/2 -1; x++{		 // in each dimension, go from -(size-1)/2 to size/2, wrapped. 
+    for x:=-(size[X]-1)/2; x<=size[X]/2 -1; x++{		 // in each dimension, go from -(size-1)/2 to size/2 -1, wrapped. It's crucial that the unused rows remain zero, otherwise the FFT'ed kernel is not purely real anymore.
       xw := wrap(x, size[X]);
       for y:=-(size[Y]-1)/2; y<=size[Y]/2 -1; y++{
         yw := wrap(y, size[Y]);

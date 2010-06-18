@@ -1,6 +1,6 @@
 /**
  * @file
- * This test program runs a small simulation using gpuconv2 and gpuheun2.
+ * This test program runs a small simulation using gpuconv2 and gpuheun.
  * The initial magnetization and demag tensor are read from testm0.t and testkernel.t.
  * A few time steps are taken and one spin of the result is compared with its known solution.
  *
@@ -9,7 +9,7 @@
  */
 #include "tensor.h"
 #include "param.h"
-#include "gpuheun2.h"
+#include "gpuheun.h"
 #include "timer.h"
 #include "pipes.h"
 #include <assert.h>
@@ -17,7 +17,7 @@
 
 int main(int argc, char** argv){
 
-  printf("gpuheun2_test\n");
+  printf("gpuheun_test\n");
 
   param* p = new_param();
   
@@ -44,22 +44,22 @@ int main(int argc, char** argv){
   param_print(stdout, p);
   
   tensor* kernel = pipe_tensor((char*)"kernel --size 64 32 4 --msat 800E3 --aexch 1.3e-11 --cellsize 1e-9 1e-9 1e-9");
-  gpuheun2* solver = new_gpuheun2(p, kernel);
+  gpuheun* solver = new_gpuheun(p, kernel);
   
   tensor* m = new_tensorN(4, tensor_size4D(p->size));
   tensor* mz = tensor_component(m, Z);
   for(int i=0; i<mz->len; i++){
     mz->list[i] = 1.;
   }
-  gpuheun2_loadm(solver, m);
+  gpuheun_loadm(solver, m);
 
  
   for(int i=0; i<10; i++){
-    gpuheun2_step(solver);
+    gpuheun_step(solver);
   }
 
   tensor_zero(m);
-  gpuheun2_storem(solver, m);
+  gpuheun_storem(solver, m);
    
   printf("PASS\n");
 //   assert(fabs(*tensor_get(m, 4, 0, 0, 0, 0) - 0.578391) < 1E-6);

@@ -19,7 +19,7 @@ extern "C" {
 
 /**
  * The internal data of the solver.
- * @see new_gpuheun2
+ * @see new_gpuheun
  */
 typedef struct{
 
@@ -37,42 +37,39 @@ typedef struct{
 
   int stage;
   
-}gpuheun2;
+}gpuheun;
 
-
-// gpuheun2* new_gpuheun2(int* size,           ///< 3D size of magnetization
-//                       tensor* kernel,       ///< convolution kernel describing the effective field. size: 2*N0 x 2*N1 x 2*N2
-//                       float* hExt           ///< external field
-//                       );
 
 /**
  * Makes a new heun solver.
  */                      
-gpuheun2* new_gpuheun2(param* p);
+gpuheun* new_gpuheun(param* p);
+
 
 /**
  * Copies a magnetization configuration in the solver, e.g. the initial magnetization.
  * @see: gpuheun_storem
  */
-void gpuheun2_loadm(gpuheun2* heun, tensor* m);
+//void gpuheun_loadm(gpuheun* heun, tensor* m);
+
 
 /**
  * Copies a magnetization configuration from the solver to the RAM, e.g. the magnetization after a number of time steps.
  * @see: gpuheun_loadm, gpuheun_storeh
  */
-void gpuheun2_storem(gpuheun2* heun, tensor* m);
+//void gpuheun_storem(gpuheun* heun, tensor* m);
 
 /**
  * Copies the last magnetic field from the solver to the RAM.
  * @see: gpuheun_storem
  */
-void gpuheun2_storeh(gpuheun2* heun, tensor* h);
+//void gpuheun_storeh(gpuheun* heun, tensor* h);
 
 
 /**
  * Takes one time step
  */
-void gpuheun2_step(gpuheun2* solver, tensor* m, tensor* h, double* totalTime);
+void gpuheun_step(gpuheun* solver, tensor* m, tensor* h, double* totalTime);
 
       
 

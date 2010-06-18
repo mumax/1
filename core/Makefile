@@ -20,7 +20,6 @@ CUFILES=\
 	gpurk4.cu\
 	gpuanal1.cu\
 	gpukernel1.cu\
-	gpuheun2.cu\
 	gpu_micromag3d_kernel.cu\
 # NOTE: commented files must be LAST in the list, otherwise all the rest is also commented out
 
@@ -38,7 +37,6 @@ OFILES=\
 	gpuheun.o\
 	gpurk4.o\
 	gpuanal1.o\
-	gpuheun2.o\
 	field.o\
 	timestep.o\
 	kernel.o\
@@ -82,9 +80,6 @@ gpueuler.o:	gpueuler.h gpueuler.cu
 
 gpuheun.o:	gpuheun.h gpuheun.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuheun.cu
-
-gpuheun2.o:	gpuheun2.h gpuheun2.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuheun2.cu
 
 gpurk4.o:	gpurk4.h gpurk4.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpurk4.cu
