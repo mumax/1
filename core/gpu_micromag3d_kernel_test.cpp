@@ -54,8 +54,11 @@ param* read_param(){
   int zero_pad[3];
   for (int i=0; i<3; i++){
     zero_pad[i] = (!p->demagPeriodic[i]) ? 1:0;
-    p->demagKernelSize[i] = (1 + zero_pad[i]) * p->size[i]/p->demagCoarse[i]; 
+    p->kernelSize[i] = (1 + zero_pad[i]) * p->size[i]/p->demagCoarse[i]; 
   }
+  if (p->size[X]==1) 
+    p->kernelSize[X] = 1;
+  
 
   p->kernelType = KERNEL_MICROMAG3D;
   

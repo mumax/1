@@ -21,6 +21,7 @@ CUFILES=\
 	gpuanal1.cu\
 	gpukernel1.cu\
 	gpu_micromag3d_kernel.cu\
+#	gpuheun2.cu\
 # NOTE: commented files must be LAST in the list, otherwise all the rest is also commented out
 
 OFILES=\
@@ -41,6 +42,7 @@ OFILES=\
 	timestep.o\
 	kernel.o\
 	gpu_micromag3d_kernel.o\
+#	gpuheun2.o\
 #	gpukernel1.o\
 
 all: core.so core.a doc
@@ -81,6 +83,9 @@ gpueuler.o:	gpueuler.h gpueuler.cu
 gpuheun.o:	gpuheun.h gpuheun.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuheun.cu
 
+#gpuheun2.o:	gpuheun2.h gpuheun2.cu
+#	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuheun2.cu
+
 gpurk4.o:	gpurk4.h gpurk4.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpurk4.cu
 
@@ -111,7 +116,7 @@ test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuheun2_test gpuanal1_te
 	./gputil_test
 	./gpueuler_test testm0.t testkernel.t
 	./gpuheun_test testm0.t testkernel.t
-	./gpuheun2_test
+#	./gpuheun2_test
 	./gpuanal1_test testm0.t testkernel.t
 	./gpufft_test
 	./gpufft2_test
@@ -131,9 +136,9 @@ gpuheun_test:	$(OFILES) gpuheun_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuheun_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpuheun_test.o -o gpuheun_test
 
-gpuheun2_test:	$(OFILES) gpuheun2_test.cpp
-	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuheun2_test.cpp
-	$(NVCC) $(CUDALIBS) $(OFILES) gpuheun2_test.o -o gpuheun2_test
+#gpuheun2_test:	$(OFILES) gpuheun2_test.cpp
+#	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuheun2_test.cpp
+#	$(NVCC) $(CUDALIBS) $(OFILES) gpuheun2_test.o -o gpuheun2_test
 
 gpuanal1_test:	$(OFILES) gpuanal1_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuanal1_test.cpp

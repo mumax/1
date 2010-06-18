@@ -9,8 +9,12 @@ tensor *gpu_micromag3d_kernel(param* p){
 	
   // check input + allocate tensor on device ______________________________________________________
     check_param(p);
-    int kernelStorageN = p->demagKernelSize[X] * p->demagKernelSize[Y] * gpu_pad_to_stride(p->demagKernelSize[Z]+2);
-		tensor *dev_kernel = as_tensor(new_gpu_array(6*kernelStorageN/2), 2, 6, kernelStorageN/2);  // only real parts!!
+    int kernelStorageN = p->kernelSize[X] * p->kernelSize[Y] * gpu_pad_to_stride(p->kernelSize[Z]+2);
+    tensor *dev_kernel;
+    if (p->size[X]==0)
+      dev_kernel = as_tensor(new_gpu_array(4*kernelStorageN/2), 2, 4, kernelStorageN/2);  // only real parts!!
+    else
+      dev_kernel = as_tensor(new_gpu_array(6*kernelStorageN/2), 2, 6, kernelStorageN/2);  // only real parts!!
 	// ______________________________________________________________________________________________
 
 
@@ -24,12 +28,12 @@ tensor *gpu_micromag3d_kernel(param* p){
 	// Plan initialization for FFTs Greens kernel elements __________________________________________
 		int* zero_pad_kernel = (int*)calloc(3, sizeof(int));
 		zero_pad_kernel[X] = zero_pad_kernel[Y] = zero_pad_kernel[Z] = 0; 
-		gpu_plan3d_real_input* kernel_plan = new_gpu_plan3d_real_input(p->demagKernelSize[X], p->demagKernelSize[Y], p->demagKernelSize[Z], zero_pad_kernel);
+		gpu_plan3d_real_input* kernel_plan = new_gpu_plan3d_real_input(p->kernelSize[X], p->kernelSize[Y], p->kernelSize[Z], zero_pad_kernel);
 	// ______________________________________________________________________________________________
 
 
 	// Initialize the kernel ________________________________________________________________________		
-		gpu_init_and_FFT_Greens_kernel_elements(dev_kernel, p->demagKernelSize, p->cellSize, p->demagPeriodic, dev_qd_P_10, dev_qd_W_10, kernel_plan);
+		gpu_init_and_FFT_Greens_kernel_elements(dev_kernel, p->kernelSize, p->cellSize, p->demagPeriodic, dev_qd_P_10, dev_qd_W_10, kernel_plan);
 	// ______________________________________________________________________________________________	
 	
 	return (dev_kernel);
@@ -44,8 +48,11 @@ void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *demagKerne
 	float *dev_temp = new_gpu_array(kernelStorageN);		// temp tensor on device for storage of each component in real + i*complex format
  	
 	// Define gpugrids and blocks ___________________________________________________________________
-		dim3 gridsize1(demagKernelSize[X]/2, demagKernelSize[Y]/2, 1);	///@todo generalize!
-		dim3 blocksize1(demagKernelSize[Z]/2, 1, 1);				    ///@todo aan te passen!!  GPU_STRIDE_FLOAT
+    dim3 gridsize1(demagKernelSize[X]/2, demagKernelSize[Y]/2, 1);  ///@todo generalize!
+    if (demagKernelSize[X]==1)  //overwrites last line if simulation with thickness = 1 FD cell
+      dim3 gridsize1(1, demagKernelSize[Y]/2, 1);	                  ///@todo generalize!
+
+    dim3 blocksize1(demagKernelSize[Z]/2, 1, 1);				         ///@todo aan te passen!!  GPU_STRIDE_FLOAT
 		gpu_checkconf(gridsize1, blocksize1);
 		int gridsize2, blocksize2;
 		make1dconf(kernelStorageN/2, &gridsize2, &blocksize2);
@@ -54,8 +61,9 @@ void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *demagKerne
 
 	// Main function operations _____________________________________________________________________
 		int rank0 = 0;																			// defines the first rank of the Greens kernel [xx, xy, xz, yy, yz, zz]
-		for (int co1=0; co1<3; co1++){											// for a Greens kernel component [co1,co2]:
-			for (int co2=co1; co2<3; co2++){
+    int max_co = (demagKernelSize[X]==1)? 2:3;
+    for (int co1=0; co1<max_co; co1++){											// for a Greens kernel component [co1,co2]:
+			for (int co2=co1; co2<max_co; co2++){
 					// Put all elements in 'dev_temp' to zero.
 				gpu_zero(dev_temp, kernelStorageN);		 
 				cudaThreadSynchronize();

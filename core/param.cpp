@@ -39,6 +39,7 @@ param* new_param(){
 
 void check_param(param *p){
 
+  // thickness 1 only allowed in x-direction
   assert(p->size[X]>0);
   assert(p->size[Y]>1);
   assert(p->size[Z]>1);
@@ -46,9 +47,12 @@ void check_param(param *p){
   for (int i=0; i<3; i++){
     assert( p->cellSize[i]>0.0f);
     assert( p->demagCoarse[i]>0);
+      // the coarse level mesh should fit the low level mesh:
     assert( p->size[i]>p->demagCoarse[i] && p->size[i]%p->demagCoarse[i] == 0);
   }
 
+  // only 1 (possibly coarse level) cell thickness in x-direction together with periodicity in this direction is not allowed.
+  assert(  !(p->size[X]/p->demagCoarse[X]==1 && p->demagPeriodic[X])  );     
   return;
 }
 

@@ -15,9 +15,9 @@ timestepper *new_timestepper(param *params, fieldplan* field){
   if(solverType == SOLVER_EULER){
     //ts->solver = new_gpueuler(params);
   }
-  else if(solverType == SOLVER_HEUN){
-    ts->solver = new_gpuheun(params);
-  }
+//  else if(solverType == SOLVER_HEUN){
+//    ts->solver = new_gpuheun2(params);
+//  }
   else{
     fprintf(stderr, "Unknown solver type: %d\n", ts->params->solverType);
     abort();
@@ -34,10 +34,10 @@ void timestep(timestepper *ts, tensor *m, double *totalTime){
     gpueuler* euler = (gpueuler*)ts->solver;
     //gpueuler_step(euler, m, h, totalTime);
   }
-  else if(solverType == SOLVER_HEUN){
+/*  else if(solverType == SOLVER_HEUN){
     gpuheun* heun = (gpuheun*)ts->solver;
     gpuheun_step(heun, m, ts->h, totalTime);
-  }
+  }*/
   else{
     fprintf(stderr, "Unknown solver type: %d\n", ts->params->solverType);
     abort();
