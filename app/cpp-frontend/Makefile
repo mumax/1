@@ -6,11 +6,10 @@ CPPFILES=\
 OFILES=\
 	main.o\
 
-CUDALIBS= -lcudart -lcufft
 
 all:	main.cpp
-	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) -I ../../core main.cpp
-	$(NVCC) $(CUDALIBS) $(OFILES) ../../core/core.a -o main
+	$(CPP) -c $(CFLAGS) -I ../../core main.cpp
+	$(CPP) $(LDFLAGS) $(OFILES) ../../core/core.so -o main
 	ln -sf $(CURDIR)/main ../../bin/cppsim 
 
 .PHONY:	clean
