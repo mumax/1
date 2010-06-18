@@ -5,15 +5,15 @@ extern "C" {
 #endif
 
 
-field_plan *new_fieldplan(param *params, tensor* kernel){
-  field_plan* field = (field_plan*)malloc(sizeof(field_plan));
+fieldplan *new_fieldplan(param *params, tensor* kernel){
+  fieldplan* field = (fieldplan*)malloc(sizeof(fieldplan));
   field->params = params;  
-  //field->convplan = new_gpuconv2(params->size, params->demagKernelSize, kernel); ///@todo for Arne.
+  //field->convplan = new_gpuconv2(params->size, params->kernelSize, kernel); ///@todo for Arne.
   return field;
 }
 
 
-void field_evaluation(field_plan *plan, tensor *m, tensor *h){
+void field_evaluation(fieldplan *plan, tensor *m, tensor *h){
 
   gpuconv2_exec(plan->convplan, m, h);
 

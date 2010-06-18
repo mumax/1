@@ -12,7 +12,7 @@ extern "C" {
 
 typedef struct{
 
-  field_plan *field;
+  fieldplan *field;
   param* params;
   void* solver;
   
@@ -23,7 +23,7 @@ typedef struct{
 void timestep(timestepper *ts, tensor *m, tensor *h, double *total_time);
 
 
-timestepper *new_timestepper(param *, field_plan* field);
+timestepper *new_timestepper(param *, fieldplan* field);
 
 #ifdef __cplusplus
 }

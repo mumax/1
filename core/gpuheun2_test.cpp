@@ -34,9 +34,9 @@ int main(int argc, char** argv){
   p->cellSize[Y] = 1E-9 / L;
   p->cellSize[Z] = 1E-9 / L;
 
-  p->demagKernelSize[X] = 2*p->size[X];
-  p->demagKernelSize[Y] = 2*p->size[Y];
-  p->demagKernelSize[Z] = 2*p->size[Z];
+  p->kernelSize[X] = 2*p->size[X];
+  p->kernelSize[Y] = 2*p->size[Y];
+  p->kernelSize[Z] = 2*p->size[Z];
 
   double T = unittime(p);
   p->maxDt = 1E-15 / T;

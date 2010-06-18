@@ -22,13 +22,13 @@ typedef struct{
   param* params;
   gpuconv2* convplan;
   
-}field_plan;
+}fieldplan;
 
 
 
-void field_evaluation(field_plan *plan, tensor *m, tensor *h);
+void field_evaluation(fieldplan *plan, tensor *m, tensor *h);
 
-field_plan *new_fieldplan(param *, tensor* kernel);
+fieldplan *new_fieldplan(param *, tensor* kernel);
 
 #ifdef __cplusplus
 }

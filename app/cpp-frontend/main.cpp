@@ -1,6 +1,5 @@
 #include "main.h"
 
-
 int main(int argc, char** argv){
   
   printf("*** Device properties ***\n");
@@ -12,11 +11,19 @@ int main(int argc, char** argv){
 
   
   int* size4D = tensor_size4D(p->size);
+
+  tensor* mHost = new_tensorN(4, size4D);
+    for(int i=0; i<mHost->len; i++){
+    mHost->list[i] = 1.;
+  }
+  
   tensor* m = new_gputensor(4, size4D);    //size4D puts a 3 in front of a size
+  tensor_copy_to_gpu(mHost, m);
+  
   tensor* h = new_gputensor(4, size4D);
 
   tensor* kernel = init_kernel(p);
-  field_plan* field = new_field_plan(p, kernel);
+  fieldplan* field = new_fieldplan(p, kernel);
   timestepper* ts = new_timestepper(p, field);
 
   double totalTime = 0.;
@@ -48,10 +55,11 @@ param* read_param(){
   p->cellSize[Y] = 1E-9 / L;
   p->cellSize[Z] = 1E-9 / L;
 
-  p->demagKernelSize[X] = 2*p->size[X];
-  p->demagKernelSize[Y] = 2*p->size[Y];
-  p->demagKernelSize[Z] = 2*p->size[Z];
+  p->kernelSize[X] = 2*p->size[X];
+  p->kernelSize[Y] = 2*p->size[Y];
+  p->kernelSize[Z] = 2*p->size[Z];
 
+  p->kernelType = KERNEL_MICROMAG3D;
 
   return p;
 

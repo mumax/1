@@ -210,7 +210,7 @@ gpuheun2* new_gpuheun2_param(param* p, tensor* kernel){
   
   int* size4D = tensor_size4D(p->size);
   assert(size4D[0] == 3);
-  int* kernelSize = p->demagKernelSize;
+  int* kernelSize = p->kernelSize;
 
   //fprintf(stderr, "new_gpuheun2([%d x %d x %d],[%d x %d x %d],[%g, %g, %g])\n", p->size[X], p->size[Y], p->size[Z], kernelSize[X], kernelSize[Y], kernelSize[Z], p->hExt[X], p->hExt[Y], p->hExt[Z]);
 
@@ -226,7 +226,7 @@ gpuheun2* new_gpuheun2_param(param* p, tensor* kernel){
     heun->torque0Comp[i] = tensor_component(heun->torque0, i);
   }
 
-  heun->convplan = new_gpuconv2(p->size, p->demagKernelSize);
+  heun->convplan = new_gpuconv2(p->size, p->kernelSize);
   gpuconv2_loadkernel5DSymm(heun->convplan, kernel);
 
   heun->hExt = p->hExt; 

@@ -23,7 +23,7 @@ void timestep(timestepper *ts, tensor *m, tensor *h, double *total_time){
 }
 
 
-timestepper *new_timestepper(param *params, field_plan* field){
+timestepper *new_timestepper(param *params, fieldplan* field){
   timestepper* ts = (timestepper*)malloc(sizeof(timestepper));
   ts->params = params;
   ts->field = field;

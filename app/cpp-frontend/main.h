@@ -5,7 +5,7 @@
 #include "kernel.h"
 #include "field.h"
 #include "timestep.h"
-
+#include "timer.h"
 
 
 param* read_param();
