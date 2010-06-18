@@ -76,6 +76,7 @@ void param_print(FILE* out, param* p){
   fprintf(out, "size         :\t[%d x %d x %d] cells\n", p->size[X], p->size[Y], p->size[Z]);
   fprintf(out, "cellsize     :\t[%g m x %g m x %g m]\n", p->cellSize[X]*L, p->cellSize[Y]*L, p->cellSize[Z]*L);
 
+  fprintf(out, "kernelType   :\t%d\n",       p->kernelType);
   fprintf(out, "demagPeriodic:\t[%d, %d, %d] repeats\n", p->demagPeriodic  [X], p->demagPeriodic[  Y], p->demagPeriodic  [Z]);
   fprintf(out, "demagCoarse  :\t[%d x %d x %d] cells\n", p->demagCoarse    [X], p->demagCoarse    [Y], p->demagCoarse    [Z]);
   fprintf(out, "demagKernel  :\t[%d x %d x %d] cells\n", p->kernelSize[X], p->kernelSize[Y], p->kernelSize[Z]);

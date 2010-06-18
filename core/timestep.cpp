@@ -13,10 +13,11 @@ void timestep(timestepper *ts, tensor *m, tensor *h, double *total_time){
     //gpueuler_step(euler, m, h, total_time);
   }
   else if(solverType == SOLVER_HEUN){
-    //...
+    gpuheun2* heun = (gpuheun2*)ts->solver;
+    gpuheun2_step(heun, m, h, total_time);
   }
   else{
-    fprintf(stderr, "unknown solver tuype: %d\n", ts->params->solverType);
+    fprintf(stderr, "Unknown solver type: %d\n", ts->params->solverType);
     abort();
   }
   
@@ -36,7 +37,7 @@ timestepper *new_timestepper(param *params, fieldplan* field){
     //ts->solver = new_gpuheun(params);
   }
   else{
-    fprintf(stderr, "unknown solver tuype: %d\n", ts->params->solverType);
+    fprintf(stderr, "Unknown solver type: %d\n", ts->params->solverType);
     abort();
   }
 

@@ -34,10 +34,8 @@ typedef struct{
   tensor* m0Comp[3];
   tensor* hComp[3];
   tensor* torque0Comp[3];
-  
-  gpuconv2* convplan;
-  
-  float* hExt;  ///@todo remove, is stored in param
+
+  int stage;
   
 }gpuheun2;
 
@@ -76,7 +74,7 @@ void gpuheun2_storeh(gpuheun2* heun, tensor* h);
 /**
  * Takes one time step
  */
-void gpuheun2_step(gpuheun2* solver);
+void gpuheun2_step(gpuheun2* solver, tensor* m, tensor* h, double* totalTime);
 
       
 

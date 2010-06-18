@@ -5,6 +5,7 @@
 #include "param.h"
 #include "field.h"
 #include "gpueuler.h"
+#include "gpuheun2.h"
 
 #ifdef __cplusplus
 extern "C" {

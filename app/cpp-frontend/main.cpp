@@ -55,11 +55,12 @@ param* read_param(){
   p->cellSize[Y] = 1E-9 / L;
   p->cellSize[Z] = 1E-9 / L;
 
+  p->kernelType = KERNEL_MICROMAG3D;
   p->kernelSize[X] = 2*p->size[X];
   p->kernelSize[Y] = 2*p->size[Y];
   p->kernelSize[Z] = 2*p->size[Z];
 
-  p->kernelType = KERNEL_MICROMAG3D;
+  p->solverType = SOLVER_HEUN;
 
   return p;
 
