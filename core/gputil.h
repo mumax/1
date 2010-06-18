@@ -261,7 +261,7 @@ void make3dconf(int N0, 	///< size of 3D array to span
  * Example:
  * @code
  * int gridSize, blockSize;
- * make1dconf(N0, N1, N2, &gridSize, &blockSize);
+ * make1dconf(arraySize, &gridSize, &blockSize);
  * mykernel<<<gridSize, blockSize>>>(arrrrgh);
  * @endcode
  */

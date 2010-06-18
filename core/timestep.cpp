@@ -5,6 +5,27 @@ extern "C" {
 #endif
 
 
+timestepper *new_timestepper(param *params, fieldplan* field){
+  timestepper* ts = (timestepper*)malloc(sizeof(timestepper));
+  ts->params = params;
+  ts->field = field;
+  
+  int solverType = ts->params->solverType;
+  if(solverType == SOLVER_EULER){
+    //ts->solver = new_gpueuler(params);
+  }
+  else if(solverType == SOLVER_HEUN){
+    ts->solver = new_gpuheun2_param(params);
+  }
+  else{
+    fprintf(stderr, "Unknown solver type: %d\n", ts->params->solverType);
+    abort();
+  }
+
+  return ts;
+}
+
+
 void timestep(timestepper *ts, tensor *m, tensor *h, double *total_time){
 
   int solverType = ts->params->solverType;
@@ -24,25 +45,7 @@ void timestep(timestepper *ts, tensor *m, tensor *h, double *total_time){
 }
 
 
-timestepper *new_timestepper(param *params, fieldplan* field){
-  timestepper* ts = (timestepper*)malloc(sizeof(timestepper));
-  ts->params = params;
-  ts->field = field;
-  
-  int solverType = ts->params->solverType;
-  if(solverType == SOLVER_EULER){
-    //ts->solver = new_gpueuler(params);
-  }
-  else if(solverType == SOLVER_HEUN){
-    //ts->solver = new_gpuheun(params);
-  }
-  else{
-    fprintf(stderr, "Unknown solver type: %d\n", ts->params->solverType);
-    abort();
-  }
 
-  return ts;
-}
 
 
 #ifdef __cplusplus

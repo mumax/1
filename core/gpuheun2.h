@@ -39,18 +39,16 @@ typedef struct{
   
 }gpuheun2;
 
+
+// gpuheun2* new_gpuheun2(int* size,           ///< 3D size of magnetization
+//                       tensor* kernel,       ///< convolution kernel describing the effective field. size: 2*N0 x 2*N1 x 2*N2
+//                       float* hExt           ///< external field
+//                       );
+
 /**
  * Makes a new heun solver.
- */
-gpuheun2* new_gpuheun2(int* size,           ///< 3D size of magnetization
-                      tensor* kernel,       ///< convolution kernel describing the effective field. size: 2*N0 x 2*N1 x 2*N2
-                      float* hExt           ///< external field
-                      );
-
-                      
-gpuheun2* new_gpuheun2_param(param* p,       ///< contains all the simulation parameters
-                             tensor* kernel ///< todo: remove and use param for this?
-                             );
+ */                      
+gpuheun2* new_gpuheun2_param(param* p);
 
 /**
  * Copies a magnetization configuration in the solver, e.g. the initial magnetization.
