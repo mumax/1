@@ -9,20 +9,21 @@ int main(int argc, char** argv){
   printf("\n*** Simulation parameters ***\n");
   param_print(stdout, p);
 
-  
+  // this will be replaced by some routine that reads/creates an initial magnetization
   int* size4D = tensor_size4D(p->size);
-
   tensor* mHost = new_tensorN(4, size4D);
     for(int i=0; i<mHost->len; i++){
     mHost->list[i] = 1.;
   }
-  
   tensor* m = new_gputensor(4, size4D);    //size4D puts a 3 in front of a size
   tensor_copy_to_gpu(mHost, m);
   
+  
+  // start of the actual simulation
+  
   tensor* kernel = init_kernel(p);
-  fieldplan* field = new_fieldplan(p, kernel);
-  timestepper* ts = new_timestepper(p, field);
+  fieldplan* field = new_fieldplan(p, kernel); 
+  timestepper* ts = new_timestepper(p, field);  // allocates space for h internally
 
   double totalTime = 0.;
   
@@ -38,6 +39,7 @@ int main(int argc, char** argv){
 
 param* read_param(){
   
+  // this will be replaced by a routine that reads a file or something.
   param* p = new_param();
 
   p->msat = 800E3;
@@ -72,6 +74,7 @@ param* read_param(){
   p->kernelType = KERNEL_MICROMAG3D;
   p->solverType = SOLVER_HEUN;
 
+  check_param(p);
   return p;
 
 }
