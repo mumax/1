@@ -34,10 +34,10 @@ void timestep(timestepper *ts, tensor *m, double *totalTime){
     gpueuler* euler = (gpueuler*)ts->solver;
     //gpueuler_step(euler, m, h, totalTime);
   }
-/*  else if(solverType == SOLVER_HEUN){
+  else if(solverType == SOLVER_HEUN){
     gpuheun* heun = (gpuheun*)ts->solver;
     gpuheun_step(heun, m, ts->h, totalTime);
-  }*/
+  }
   else{
     fprintf(stderr, "Unknown solver type: %d\n", ts->params->solverType);
     abort();

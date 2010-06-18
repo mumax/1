@@ -39,6 +39,15 @@ param* new_param(){
 
 void check_param(param *p){
 
+  // there must be a valid unit system
+  assert(p->msat > 0.);
+  assert(p->aexch > 0.);
+  assert(p->mu0 > 0.);
+  assert(p->gamma0 > 0.);
+  
+  // no negative damping
+  assert(p->alpha >= 0.);
+  
   // thickness 1 only allowed in x-direction
   assert(p->size[X]>0);
   assert(p->size[Y]>1);
@@ -47,29 +56,29 @@ void check_param(param *p){
   for (int i=0; i<3; i++){
     assert( p->cellSize[i]>0.0f);
     assert( p->demagCoarse[i]>0);
-      // the coarse level mesh should fit the low level mesh:
+    // the coarse level mesh should fit the low level mesh:
     assert( p->size[i]>p->demagCoarse[i] && p->size[i]%p->demagCoarse[i] == 0);
   }
 
-    // only 1 (possibly coarse level) cell thickness in x-direction combined with periodicity in this direction is not allowed.
+  // only 1 (possibly coarse level) cell thickness in x-direction combined with periodicity in this direction is not allowed.
   assert(  !(p->size[X]/p->demagCoarse[X]==1 && p->demagPeriodic[X])  );     
   return;
 }
 
-double unitlength(param* u){
-  return sqrt(2. * u->aexch / (u->mu0 * u->msat*u->msat) );
+double unitlength(param* p){
+  return sqrt(2. * p->aexch / (p->mu0 * p->msat*p->msat) );
 }
 
-double unittime(param* u){
-  return 1.0 / (u->gamma0 * u->msat);
+double unittime(param* p){
+  return 1.0 / (p->gamma0 * p->msat);
 }
 
-double unitfield(param* u){
-  return u->mu0 * u->msat;
+double unitfield(param* p){
+  return p->mu0 * p->msat;
 }
 
-double unitenergy(param* u){
-  return u->aexch * unitlength(u);
+double unitenergy(param* p){
+  return p->aexch * unitlength(p);
 }
 
 void param_print(FILE* out, param* p){

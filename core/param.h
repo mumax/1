@@ -42,7 +42,7 @@
  *
  * @note gamma0 and mu0 are set to their default values, but can be changed if desired.
  *
- * @author Arne Vansteenkiste
+ * @author Arne Vansteenkiste, Ben Van de Wiele
  *
  */
 #ifndef PARAM_H

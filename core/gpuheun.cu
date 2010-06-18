@@ -235,6 +235,7 @@ void gpuheun_step(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
 
 gpuheun* new_gpuheun(param* p){
   
+  check_param(p);
   gpuheun* heun = (gpuheun*)malloc(sizeof(gpuheun));
 
   heun->stage = 0;
