@@ -20,8 +20,6 @@ int main(int argc, char** argv){
   tensor* m = new_gputensor(4, size4D);    //size4D puts a 3 in front of a size
   tensor_copy_to_gpu(mHost, m);
   
-  tensor* h = new_gputensor(4, size4D);
-
   tensor* kernel = init_kernel(p);
   fieldplan* field = new_fieldplan(p, kernel);
   timestepper* ts = new_timestepper(p, field);
@@ -29,7 +27,7 @@ int main(int argc, char** argv){
   double totalTime = 0.;
   
   for(int i=0; i<1000; i++){
-    timestep(ts, m, h, &totalTime);
+    timestep(ts, m, &totalTime);
   }
   
   printf("\n*** Timing ***\n");
