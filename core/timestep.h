@@ -19,6 +19,7 @@
 #include "tensor.h"
 #include "param.h"
 #include "field.h"
+#include "gpunormalize.h"
 #include "gpueuler.h"
 #include "gpuheun.h"
 
@@ -26,13 +27,14 @@
 extern "C" {
 #endif
 
-
+///@internal
 typedef struct{
 
-  fieldplan* field;
-  tensor* h;
+  fieldplan* field;     ///< plan to update h, called each time before a solver is asked to step.
+  tensor* h;            ///< stores the effective field. The user does not need to worry about allocating it etc.
   param* params;
-  void* solver;
+  int totalSteps;       ///< total number of time steps (stages actually) taken. Used to normalize m once every "normalizeEvery" steps
+  void* solver;         ///< can point to many types of solvers. params->solverType tells which (e.g.: euler, heun, ...)
   
 }timestepper;
 

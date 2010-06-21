@@ -41,7 +41,14 @@ void timestep(timestepper *ts, tensor *m, double *totalTime){
   else if(solverType == SOLVER_HEUN){
     
     gpuheun* heun = (gpuheun*)ts->solver;
-    gpuheun_step(heun, m, ts->h, totalTime);
+    for(int i=0; i<2; i++){                     // heun has two stages
+      field_evaluation(ts->field, m, ts->h);
+      gpuheun_step(heun, m, ts->h, totalTime);  // difference between stage 0 and 1 is taken care of internally by heun
+      ts->totalSteps++;
+      if(ts->totalSteps % ts->params->normalizeEvery == 0){
+        gpu_normalize(ts->params, m);
+      }
+    }
     
   }
   else{
