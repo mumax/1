@@ -19,6 +19,7 @@
 #define PIPES_H
 
 #include "tensor.h"
+#include "param.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,6 +30,8 @@ extern "C" {
  * The tensor should be passed in the standard tensor format (see tensor.h).
  */
 tensor* pipe_tensor(char* command);
+
+tensor* pipe_kernel(param* params);
 
 #ifdef __cplusplus
 }

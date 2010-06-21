@@ -8,7 +8,8 @@ extern "C" {
 fieldplan *new_fieldplan(param *params, tensor* kernel){
   fieldplan* field = (fieldplan*)malloc(sizeof(fieldplan));
   field->params = params;  
-  //field->convplan = new_gpuconv2(params->size, params->kernelSize, kernel); ///@todo for Arne.
+  field->convplan = new_gpuconv2(params->size, params->kernelSize);
+  gpuconv2_loadkernel5DSymm(field->convplan, kernel);
   return field;
 }
 

@@ -249,35 +249,6 @@ void gpuconv2_loadkernel5DSymm(gpuconv2* conv, tensor* kernel5D){
   
 }
 
-// void gpuconv2_loadkernel(gpuconv2* conv, tensor* kernel){
-//   fprintf(stderr, "loadkernel %d x %d x %d\n", kernel->size[2], kernel->size[3], kernel->size[4]);
-//   
-//   gpuconv2_checksize_kernel(conv, kernel);
-//   gpu_plan3d_real_input* plan = new_gpu_plan3d_real_input(kernel->size[2], kernel->size[3], kernel->size[4], NO_ZERO_PAD);
-//   float norm = 1.0/float(conv->fftplan->paddedN);
-//   float* complex_kernel_ij = new_ram_array(conv->len_ft_kernel_ij);
-//   for(int i=0; i<3; i++){
-//       for(int j=0; j<3; j++){
-// 	
-// 	/// @todo !!!!!!!!!!!!!!!!!!!!!!! 
-// 	//memcpy_r2c(tensor_get(kernel, 5, i, j, 0, 0, 0), complex_kernel_ij, conv->len_kernel_ij);
-// 	
-// 	//normalize
-// 	for(int e=0; e<conv->len_ft_kernel_ij; e++){
-// 	  complex_kernel_ij[e] *= norm;
-// 	}
-// 	memcpy_to_gpu(complex_kernel_ij, conv->ft_kernel[i][j], conv->len_ft_kernel_ij);
-// 	//extract("kernel_ij", conv->ft_kernel[i][j], conv->paddedComplexSize);
-// 	gpu_plan3d_real_input_forward(plan, conv->ft_kernel[i][j]);
-// 	//extract("ft_kernel_ij", conv->ft_kernel[i][j], conv->paddedComplexSize);
-//     }
-//   }
-//   free(complex_kernel_ij);
-//   //delete_gpu_plan3d_real_input(plan);
-// }
-
-
-
 
 //_____________________________________________________________________________________________ new gpuconv2
 

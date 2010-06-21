@@ -23,7 +23,7 @@ int main(int argc, char** argv){
   
   // start of the actual simulation
   
-  tensor* kernel = init_kernel(p);
+  tensor* kernel = pipe_tensor((char*)"");//init_kernel(p);
   fieldplan* field = new_fieldplan(p, kernel); 
   timestepper* ts = new_timestepper(p, field);  // allocates space for h internally
 
