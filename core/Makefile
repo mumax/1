@@ -145,7 +145,7 @@ gpuanal1_test:	$(OFILES) gpuanal1_test.cpp
 gpusim_test:	$(OFILES) gpusim_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpusim_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpusim_test.o -o gpusim_test
-	ln -sf $(CURDIR)/gpusim_test ../../../bin/gpusim_test
+#	ln -sf $(CURDIR)/gpusim_test ../../../bin/gpusim_test
 
 gpuconv2_test:	$(OFILES) gpuconv2_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuconv2_test.cpp
