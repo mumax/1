@@ -186,10 +186,10 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
   cudaThreadSynchronize();
   
   printf("conv2: Been here2\n");
-  gpu_kernel_mul_complex_inplace_symm(fft1Comp[X]->list, fft1Comp[Y]->list, fft1Comp[Z]->list,
-                                      conv->fftKernel[X][X]->list, conv->fftKernel[Y][Y]->list, conv->fftKernel[Z][Z]->list, 
-                                      conv->fftKernel[Y][Z]->list, conv->fftKernel[X][Z]->list, conv->fftKernel[X][Y]->list,
-                                      fft1Comp[X]->len);
+//   gpu_kernel_mul_complex_inplace_symm(fft1Comp[X]->list, fft1Comp[Y]->list, fft1Comp[Z]->list,
+//                                       conv->fftKernel[X][X]->list, conv->fftKernel[Y][Y]->list, conv->fftKernel[Z][Z]->list, 
+//                                       conv->fftKernel[Y][Z]->list, conv->fftKernel[X][Z]->list, conv->fftKernel[X][Y]->list,
+//                                       fft1Comp[X]->len);
 
   cudaThreadSynchronize();
   
