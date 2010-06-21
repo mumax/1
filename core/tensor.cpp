@@ -281,6 +281,17 @@ void write_tensor(tensor* t, FILE* out){
 }
 
 
+void write_tensor_fname(tensor* t, char* filename){
+  FILE* file = fopen(filename, "wb");
+  if(file == NULL){
+    fprintf(stderr, "Could not write file: %s", filename);
+    abort();
+  }
+  write_tensor(t, file);
+  fclose(file);
+}
+
+
 void write_tensor_pieces(int rank, int* size, float* list, FILE* out){
   int length = 1;
   for(int i=0; i<rank; i++){
@@ -368,8 +379,9 @@ tensor* read_tensor_fname(char* filename){
     fprintf(stderr, "Could not read file: %s", filename);
     abort();
   }
-  return read_tensor(file);
+  tensor* t = read_tensor(file);
   fclose(file);
+  return t;
 }
 
 

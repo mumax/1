@@ -15,6 +15,8 @@ int main(int argc, char** argv){
     for(int i=0; i<mHost->len; i++){
     mHost->list[i] = 1.;
   }
+  
+  
   tensor* m = new_gputensor(4, size4D);    //size4D puts a 3 in front of a size
   tensor_copy_to_gpu(mHost, m);
   
@@ -38,12 +40,12 @@ int main(int argc, char** argv){
 
 
 param* read_param(){
-  
+
   // this will be replaced by a routine that reads a file or something.
   param* p = new_param();
 
   p->msat = 800E3;
-  p->aexch = 1.1E-13;
+  p->aexch = 1.3E-11;
   p->alpha = 1.0;
 
   p->size[X] = 4;
@@ -74,6 +76,9 @@ param* read_param(){
   p->kernelType = KERNEL_MICROMAG3D;
   p->solverType = SOLVER_HEUN;
 
+  double T = unittime(p);
+  p->maxDt = 0.1E-12 / T;
+  
   check_param(p);
   return p;
 

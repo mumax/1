@@ -237,6 +237,11 @@ float***** slice_array5D(float* list, int size0, int size1, int size2, int size3
 void write_tensor(tensor* t, FILE* out);
 
 /**
+ * Writes to a file referenced by name instead of FILE*
+ */
+void write_tensor_fname(tensor* t, char* filename);
+
+/**
  * Can be used as an alternative for write_tensor() if you don't want to use the tensor struct.
  */
 void write_tensor_pieces(int rank, int* size, float* data, FILE* out);
@@ -246,6 +251,10 @@ void write_tensor_pieces(int rank, int* size, float* data, FILE* out);
  * Reads the tensor from binary format.
  */
 tensor* read_tensor(FILE* in);
+
+/**
+ * Reads from a file referenced by name instead of FILE*
+ */
 tensor* read_tensor_fname(char* filename);
 
 /** Can be used as an alternative for read_tensor() if you don't want to use the tensor struct. */
