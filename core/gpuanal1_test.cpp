@@ -14,6 +14,7 @@
 
 int main(int argc, char** argv){
   printf("gpuanal1_test\n");
+  //gpu_override_stride(1); //does not fix the timeout, is thrown in gpuconv1 (1!)
   
   assert(argc == 3);
   
