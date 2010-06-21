@@ -13,11 +13,11 @@ timestepper *new_timestepper(param *params, fieldplan* field){
   
   int solverType = ts->params->solverType;
   if(solverType == SOLVER_EULER){
-    //ts->solver = new_gpueuler(params);
+    ts->solver = new_gpueuler(params);
   }
-//  else if(solverType == SOLVER_HEUN){
-//    ts->solver = new_gpuheun2(params);
-//  }
+  else if(solverType == SOLVER_HEUN){
+    ts->solver = new_gpuheun(params);
+  }
   else{
     fprintf(stderr, "Unknown solver type: %d\n", ts->params->solverType);
     abort();
