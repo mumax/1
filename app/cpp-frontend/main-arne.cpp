@@ -2,6 +2,8 @@
 
 int main(int argc, char** argv){
   
+  gpu_override_stride(1);
+  
   printf("*** Device properties ***\n");
   print_device_properties(stdout);
 

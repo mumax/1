@@ -122,10 +122,6 @@ void gpu_kernel_mul_complex_inplace_symm(float* fftMx,  float* fftMy,  float* ff
   assert(nRealNumbers > 0);
   assert(nRealNumbers % 2 == 0);
   
-/*  int threadsPerBlock = 512;
-  int blocks = (nRealNumbers/2) / threadsPerBlock;
-  gpu_checkconf_int(blocks, threadsPerBlock);*/
-  
    int gridSize = -1;
    int blockSize = -1;
    make1dconf(nRealNumbers/2, &gridSize, &blockSize);
@@ -178,22 +174,19 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
   
   cudaThreadSynchronize();  ///@todo many redundant syncs
   
-  printf("conv2: Been here1\n");
   for(int i=0; i<3; i++){
     gpuFFT3dPlan_forward(conv->fftplan, fft1Comp[i], fft1Comp[i]);  ///@todo out-of-place
   }
 
   cudaThreadSynchronize();
   
-  printf("conv2: Been here2\n");
-//   gpu_kernel_mul_complex_inplace_symm(fft1Comp[X]->list, fft1Comp[Y]->list, fft1Comp[Z]->list,
-//                                       conv->fftKernel[X][X]->list, conv->fftKernel[Y][Y]->list, conv->fftKernel[Z][Z]->list, 
-//                                       conv->fftKernel[Y][Z]->list, conv->fftKernel[X][Z]->list, conv->fftKernel[X][Y]->list,
-//                                       fft1Comp[X]->len);
+  gpu_kernel_mul_complex_inplace_symm(fft1Comp[X]->list, fft1Comp[Y]->list, fft1Comp[Z]->list,
+                                      conv->fftKernel[X][X]->list, conv->fftKernel[Y][Y]->list, conv->fftKernel[Z][Z]->list, 
+                                      conv->fftKernel[Y][Z]->list, conv->fftKernel[X][Z]->list, conv->fftKernel[X][Y]->list,
+                                      fft1Comp[X]->len);
 
   cudaThreadSynchronize();
   
-  printf("conv2: Been here3\n");
   for(int i=0; i<3; i++){
     gpuFFT3dPlan_inverse(conv->fftplan, fft1Comp[i], fft1Comp[i]);  ///@todo out-of-place
   }
