@@ -58,12 +58,21 @@ void check_param(param *p){
   assert(p->size[Y]>1);
   assert(p->size[Z]>1);
   
+  // checks related with convolution ________________________________________________
   for (int i=0; i<3; i++){
     assert( p->cellSize[i]>0.0f);
     assert( p->demagCoarse[i]>0);
-    // the coarse level mesh should fit the low level mesh:
+      // the coarse level mesh should fit the low level mesh:
     assert( p->size[i]>=p->demagCoarse[i] && p->size[i]%p->demagCoarse[i] == 0);
   }
+  if (p->kernelType==KERNEL_MICROMAG2D){
+    assert(p->kernelSize[X]==1);
+    if (p->demagCoarse[X]!=1)  fprintf(stderr,"parameter demagCoarse[X] = %d is ignored in this 2D simulation\n", p->demagCoarse[X]);
+    if (p->demagPeriodic[X]!=0)  fprintf(stderr,"parameter demagPeriodic[X] = %d is ignored in this 2D simulation\n", p->demagPeriodic[X]);
+    if (p->exchInConv[X]!=0)  fprintf(stderr,"parameter exchInConv[X] = %d is ignored in this 2D simulation\n", p->exchInConv[X]);
+  }
+  // ________________________________________________________________________________
+
 
   // only 1 (possibly coarse level) cell thickness in x-direction combined with periodicity in this direction is not allowed.
   assert(  !(p->size[X]/p->demagCoarse[X]==1 && p->demagPeriodic[X])  );
@@ -75,6 +84,8 @@ void check_param(param *p){
       assert(p->msatMap->size[i] == p->size[i]);
     }
   }
+  
+    
   return;
 }
 
