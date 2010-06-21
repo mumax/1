@@ -11,7 +11,7 @@ tensor* init_kernel(param* params){
   
    int kernelType = params->kernelType;
    if(kernelType == KERNEL_MICROMAG3D){
-      kernel = gpu_micromag3d_kernel(params);
+      //kernel = gpu_micromag3d_kernel(params);
    }
    else if(kernelType == KERNEL_MICROMAG2D){
       //..

@@ -21,8 +21,7 @@ CUFILES=\
 	gpuanal1.cu\
 	gpunormalize.cu\
 	gpukernel1.cu\
-	gpu_micromag3d_kernel.cu\
-#	gpuheun2.cu\
+#	gpu_micromag3d_kernel.cu\
 # NOTE: commented files must be LAST in the list, otherwise all the rest is also commented out
 
 OFILES=\
@@ -42,9 +41,9 @@ OFILES=\
 	field.o\
 	timestep.o\
 	kernel.o\
-	gpu_micromag3d_kernel.o\
 	gpukernel1.o\
 	gpueuler.o\
+#	gpu_micromag3d_kernel.o\
 
 all: core.so core.a doc
 

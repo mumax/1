@@ -261,17 +261,17 @@ void check1dconf(int gridsize, int blocksize){
 //_____________________________________________________________________________________________ make conf
 
 void _make1dconf(int N, unsigned int* gridSize, unsigned int* blockSize, int maxGridSize, int maxBlockSize){
-  if(N >= maxBlockSize){
+  //if(N >= maxBlockSize){
     *blockSize = maxBlockSize;
     while(N % (*blockSize) != 0){
-      (*blockSize)--;
+      (*blockSize)/=2;
     }
     *gridSize = N / *blockSize;
-  }
-  else{ // N < maxBlockSize
-    *blockSize = N;
-    *gridSize = 1;
-  }
+//   }
+//   else{ // N < maxBlockSize
+//     *blockSize = N;
+//     *gridSize = 1;
+//   }
   check1dconf(*gridSize, *blockSize);
   assert((*blockSize) * (*gridSize) == N);
   assert(*blockSize <= maxBlockSize);
