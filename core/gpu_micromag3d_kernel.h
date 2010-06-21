@@ -4,6 +4,7 @@
  * This kernel contains the demag and exchange contribution and is adapted to the FFT dimensions 
  * of gpufft.cu. The Kernel components are Fourier transformed and only the real parts are stored 
  * on the device. The correction factor 1/(dimensions FFTs) is included.
+ * Depending on the input parameters, the kernel can be defined on a coarser discretization level.
  * 
  * @author Ben Van de Wiele
  */
@@ -13,7 +14,6 @@
 #include "tensor.h"
 #include "gputil.h"
 #include "param.h"
-//#include <cufft.h>
 #include "gpufft2.h"
 #include "assert.h"
 #include "timer.h"
@@ -28,15 +28,18 @@ extern "C" {
 
 
 /**
- * Returns the Initialized micromagnetic 3D kernel.  The kernel is stored as a rank 2 tensor:
- * The i+j element (j>=i) of kernel[i+j][k] contains the contigous Fourier transformed data 
- * connecting the (Fourier transformed) i-component of the magnetic field with the
- * (Fourier transformed) j-component of the magnetization.
+ * Returns the Initialized micromagnetic 3D kernel.  The kernel is stored as a rank 2 tensor.
+ * For a 3D simulation with thickness > 1 FD cell, the first rank contains the Kernel elements:
+ * [xx, xy, xz, yy, yz, zz], for a 3D simulation with thickness = 1 FD cell (only possible in 
+ * X-direction!) the first rank contains only the non-zero elements: [xx, yy, yz, zz].
+ * The second rank contains the contiguous Fourier transformed data of each element.  For instants: 
+ * the contiguous xy-data maps the x-component of the (Fourier transformed) magnetic field 
+ * with the y-component of the (Fourier transformed) magnetization.
  * 
  * This function includes:
  * 		- computation of the elements of the Greens kernel components
  *		- Fourier transformation of the Greens kernel components
- *		- in Fourier domain: extraction of the real parts (complex parts are zero due to symmetry)
+ *		- extraction of the real parts in the Fourier domain (complex parts are zero due to symmetry)
  * 
  * Demag, exchange as well as the correction factor 1/(dimensions FFTs) are included.
  */
@@ -49,7 +52,7 @@ tensor *gpu_micromag3d_kernel(param *p              ///< parameter list
  * The kernel is only stored at the device.
  */
 void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel,  			///< rank 2 tensor; rank 0: xx, xy, xz, yy, yz, zz parts of symmetrical Greens tensor, rank 1: all data of a Greens kernel component contiguously
-																						 int *demagKernelSize, 			///< Non-strided size of the kernel data
+																						 int *kernelSize, 			    ///< Non-strided size of the kernel data
 																						 float *FD_cell_size, 			///< 3 float, size of finite difference cell in X,Y,Z respectively
 																						 int *repetition, 					///< 3 ints, for periodicity: e.g. 2*repetition[0]+1 is the number of periods considered the x-direction ([0,0,0] means no periodic repetition)
 																						 float *dev_qd_P_10,  			///< float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device)
@@ -64,7 +67,8 @@ __global__ void _gpu_init_Greens_kernel_elements(float *dev_temp, 			///< pointe
 																								 int Nkernel_X, 				///< Non-strided size of the kernel data (x-direction)
 																								 int Nkernel_Y, 				///< Non-strided size of the kernel data (y-direction) 
 																								 int Nkernel_Z,  				///< Non-strided size of the kernel data (z-direction) 
-																								 int co1, 							///< co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy
+																								 int Nkernel_storage_Z, ///
+                                                 int co1, 							///< co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy
 																								 int co2, 							///< co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy
 																								 float FD_cell_size_X, 	///< Size of the used FD cells in the x direction
 																				 				 float FD_cell_size_Y, 	///< Size of the used FD cells in the y direction 

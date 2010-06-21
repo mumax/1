@@ -193,8 +193,7 @@ int gpu_pad_to_stride(int nFloats){
   assert(gpulen % stride == 0);
   assert(gpulen > 0);
   assert(gpulen >= nFloats);
-//  return gpulen;
-  return nFloats;
+  return gpulen;
 }
 
 //_____________________________________________________________________________________________ check conf
