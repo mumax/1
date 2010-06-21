@@ -19,6 +19,7 @@ CUFILES=\
 	gpuheun.cu\
 	gpurk4.cu\
 	gpuanal1.cu\
+	gpunormalize.cu\
 	gpukernel1.cu\
 	gpu_micromag3d_kernel.cu\
 #	gpuheun2.cu\
@@ -38,6 +39,7 @@ OFILES=\
 	gpuheun.o\
 	gpurk4.o\
 	gpuanal1.o\
+	gpunormalize.o\
 	field.o\
 	timestep.o\
 	kernel.o\
@@ -83,14 +85,14 @@ gpueuler.o:	gpueuler.h gpueuler.cu
 gpuheun.o:	gpuheun.h gpuheun.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuheun.cu
 
-#gpuheun2.o:	gpuheun2.h gpuheun2.cu
-#	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuheun2.cu
-
 gpurk4.o:	gpurk4.h gpurk4.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpurk4.cu
 
 gpuanal1.o:	gpuanal1.h gpuanal1.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuanal1.cu
+
+gpunormalize.o:	gpunormalize.h gpunormalize.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpunormalize.cu
 
 gpu_micromag3d_kernel.o:	gpu_micromag3d_kernel.h gpu_micromag3d_kernel.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_micromag3d_kernel.cu

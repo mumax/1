@@ -6,9 +6,12 @@
  * @author Arne Vansteenkiste
  *
  */
-#ifndef NORMALIZE_H
-#define NORMALIZE_H
+#ifndef GPUNORMALIZE_H
+#define GPUNORMALIZE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 #ifdef __cplusplus

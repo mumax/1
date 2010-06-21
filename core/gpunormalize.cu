@@ -1,4 +1,4 @@
-#include "normalize.h"
+#include "gpunormalize.h"
 
 #ifdef __cplusplus
 extern "C" {
