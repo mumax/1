@@ -17,10 +17,11 @@ tensor* pipe_tensor(char* command){
 tensor* pipe_kernel(param* p){
   char command[1024];
 
+  double L = unitlength(p);
   sprintf(command, "kernel --size %d %d %d --msat %g --aexch %g --cellsize %g %g %g \n",
           p->size[X], p->size[Y], p->size[Z],
           p->msat, p->aexch,
-          p->cellSize[X], p->cellSize[Y], p->cellSize[Z]);
+          p->cellSize[X] * L, p->cellSize[Y] * L, p->cellSize[Z] * L);
           
   fprintf(stderr, "%s", command);
   return pipe_tensor(command);
