@@ -25,6 +25,7 @@ param* new_param(){
     p->demagCoarse[i] = 1;
     p->hExt[i] = 0;
     p->diffHExt[i] = 0;
+    p->exchInConv[i] = -1;
   }
 
   p->solverType = NONE;
@@ -36,6 +37,7 @@ param* new_param(){
   p->msatMap = NULL;
   
   p->exchType = NONE;
+  
   
   return p;
 }

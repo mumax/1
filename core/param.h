@@ -97,7 +97,8 @@ typedef struct{
 
   // exchange settings;
   int exchType;          ///< Type of exchange model. Can be EXCH_NONE when the exchange is allready included in the demag kernel.
-  // more to come here
+  int exchInConv[3];     ///< flag that reports if exchange is included in the convolution for a corresponding direction. 
+// more to come here
 
   
   // time stepping

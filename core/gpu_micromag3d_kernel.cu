@@ -27,7 +27,7 @@ tensor *gpu_micromag3d_kernel(param* p){
 	
 	// Plan initialization of FFTs and initialization of the kernel _________________________________
     gpuFFT3dPlan* kernel_plan = new_gpuFFT3dPlan_padded(p->kernelSize, p->kernelSize);
-		gpu_init_and_FFT_Greens_kernel_elements(dev_kernel, p->kernelSize, p->demagCoarse, p->cellSize, p->demagPeriodic, dev_qd_P_10, dev_qd_W_10, kernel_plan);
+		gpu_init_and_FFT_Greens_kernel_elements(dev_kernel, p->kernelSize, p->exchInConv, p->cellSize, p->demagPeriodic, dev_qd_P_10, dev_qd_W_10, kernel_plan);
 	// ______________________________________________________________________________________________	
 	
 	return (dev_kernel);
@@ -35,7 +35,7 @@ tensor *gpu_micromag3d_kernel(param* p){
 
 /// @todo argument defining which Greens function should be added
 /// remark: number of FD cells in a dimension can not be odd if no zero padding!!
-void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *kernelSize, int *demagCoarse, float *FD_cell_size, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10, gpuFFT3dPlan* kernel_plan){
+void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *kernelSize, int *exchInConv, float *FD_cell_size, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10, gpuFFT3dPlan* kernel_plan){
 
   
  	int kernelStorageN = 2*dev_kernel->size[1];				  // size of kernel component in real + i*complex format
@@ -68,7 +68,7 @@ void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *kernelSize
 				gpu_zero(dev_temp, kernelStorageN);		 
 				cudaThreadSynchronize();
 				// Fill in the elements.
-				_gpu_init_Greens_kernel_elements<<<gridsize1, blocksize1>>>(dev_temp, kernelSize[X], kernelSize[Y], kernelSize[Z], kernelStorageSize[Z], demagCoarse[X], demagCoarse[Y], demagCoarse[Z], co1, co2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
+				_gpu_init_Greens_kernel_elements<<<gridsize1, blocksize1>>>(dev_temp, kernelSize[X], kernelSize[Y], kernelSize[Z], kernelStorageSize[Z], exchInConv[X], exchInConv[Y], exchInConv[Z], co1, co2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
 				cudaThreadSynchronize();
         // Fourier transform the kernel component.
         gpuFFT3dPlan_forward(kernel_plan, FFT_input, FFT_output); 
@@ -89,7 +89,7 @@ void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *kernelSize
 
 
 
-__global__ void _gpu_init_Greens_kernel_elements(float *dev_temp, int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int Nkernel_storage_Z, int demagCoarse_X, int demagCoarse_Y, int demagCoarse_Z, int co1, int co2, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
+__global__ void _gpu_init_Greens_kernel_elements(float *dev_temp, int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int Nkernel_storage_Z, int exchInConv_X, int exchInConv_Y, int exchInConv_Z, int co1, int co2, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
   
   int i = blockIdx.x;
 	int j = blockIdx.y;
@@ -99,28 +99,28 @@ __global__ void _gpu_init_Greens_kernel_elements(float *dev_temp, int Nkernel_X,
   int N2 = Nkernel_storage_Z;
 	int N12 = Nkernel_Y * N2;
 
-		dev_temp[            i*N12 +             j*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, demagCoarse_X, demagCoarse_Y, demagCoarse_Z, co1, co2,  i,  j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		dev_temp[            i*N12 +             j*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2,  i,  j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 	if (i>0)
-		dev_temp[(Nkernel_X-i)*N12 +             j*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, demagCoarse_X, demagCoarse_Y, demagCoarse_Z, co1, co2, -i,  j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		dev_temp[(Nkernel_X-i)*N12 +             j*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2, -i,  j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 	if (j>0)
-		dev_temp[            i*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, demagCoarse_X, demagCoarse_Y, demagCoarse_Z, co1, co2,  i, -j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		dev_temp[            i*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2,  i, -j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 	if (k>0) 
-		dev_temp[            i*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, demagCoarse_X, demagCoarse_Y, demagCoarse_Z, co1, co2,  i,  j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		dev_temp[            i*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2,  i,  j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 	if (i>0 && j>0)
-		dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, demagCoarse_X, demagCoarse_Y, demagCoarse_Z, co1, co2, -i, -j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2, -i, -j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 	if (i>0 && k>0) 
-		dev_temp[(Nkernel_X-i)*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, demagCoarse_X, demagCoarse_Y, demagCoarse_Z, co1, co2, -i,  j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		dev_temp[(Nkernel_X-i)*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2, -i,  j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 	if (j>0 && k>0) 
-		dev_temp[            i*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, demagCoarse_X, demagCoarse_Y, demagCoarse_Z, co1, co2,  i, -j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		dev_temp[            i*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2,  i, -j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 	if (i>0 && j>0 && k>0) 
-		dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, demagCoarse_X, demagCoarse_Y, demagCoarse_Z, co1, co2, -i, -j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+		dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element(Nkernel_X, Nkernel_Y, Nkernel_Z, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2, -i, -j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 
 	return;
 }
 
 
 
-__device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int demagCoarse_X, int demagCoarse_Y, int demagCoarse_Z, int co1, int co2, int a, int b, int c, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
+__device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int exchInConv_X, int exchInConv_Y, int exchInConv_Z, int co1, int co2, int a, int b, int c, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
 
 	float result = 0.0f;
 	float *dev_qd_P_10_X = &dev_qd_P_10[X];
@@ -159,13 +159,12 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 			}
       result *= -1.0f/4.0f/3.14159265f;
 
-        //exchange contribution only when no coarse level evaluation in the considered direction 
-      if (a== 1 && b== 0 && c== 0 && demagCoarse_X==1)  result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
-      if (a==-1 && b== 0 && c== 0 && demagCoarse_X==1)  result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
-      if (a== 0 && b== 1 && c== 0 && demagCoarse_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-      if (a== 0 && b==-1 && c== 0 && demagCoarse_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-      if (a== 0 && b== 0 && c== 1 && demagCoarse_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
-      if (a== 0 && b== 0 && c==-1 && demagCoarse_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+      if (a== 1 && b== 0 && c== 0 && exchInConv_X==1)  result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
+      if (a==-1 && b== 0 && c== 0 && exchInConv_X==1)  result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
+      if (a== 0 && b== 1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+      if (a== 0 && b==-1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+      if (a== 0 && b== 0 && c== 1 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+      if (a== 0 && b== 0 && c==-1 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
 		}
 	// ______________________________________________________________________________________________
 
@@ -269,13 +268,12 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 			}
       result *= -1.0f/4.0f/3.14159265f;
 
-        //exchange contribution only when no coarse level evaluation in the considered direction 
-      if (a== 1 && b== 0 && c== 0 && demagCoarse_X==1)  result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
-      if (a==-1 && b== 0 && c== 0 && demagCoarse_X==1)  result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
-      if (a== 0 && b== 1 && c== 0 && demagCoarse_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-      if (a== 0 && b==-1 && c== 0 && demagCoarse_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-      if (a== 0 && b== 0 && c== 1 && demagCoarse_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
-      if (a== 0 && b== 0 && c==-1 && demagCoarse_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+      if (a== 1 && b== 0 && c== 0 && exchInConv_X==1)  result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
+      if (a==-1 && b== 0 && c== 0 && exchInConv_X==1)  result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
+      if (a== 0 && b== 1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+      if (a== 0 && b==-1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+      if (a== 0 && b== 0 && c== 1 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+      if (a== 0 && b== 0 && c==-1 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
 		}
 	// ______________________________________________________________________________________________
 
@@ -345,13 +343,12 @@ __device__ float _gpu_get_Greens_element(int Nkernel_X, int Nkernel_Y, int Nkern
 			}
       result *= -1.0f/4.0f/3.14159265f;
 
-        //exchange contribution only when no coarse level evaluation in the considered direction 
-      if (a== 1 && b== 0 && c== 0 && demagCoarse_X==1)  result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
-      if (a==-1 && b== 0 && c== 0 && demagCoarse_X==1)  result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
-      if (a== 0 && b== 1 && c== 0 && demagCoarse_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-      if (a== 0 && b==-1 && c== 0 && demagCoarse_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-      if (a== 0 && b== 0 && c== 1 && demagCoarse_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
-      if (a== 0 && b== 0 && c==-1 && demagCoarse_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+      if (a== 1 && b== 0 && c== 0 && exchInConv_X==1)  result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
+      if (a==-1 && b== 0 && c== 0 && exchInConv_X==1)  result -= 2.0f/FD_cell_size_X/FD_cell_size_X;
+      if (a== 0 && b== 1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+      if (a== 0 && b==-1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+      if (a== 0 && b== 0 && c== 1 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+      if (a== 0 && b== 0 && c==-1 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
 		}
 	// ______________________________________________________________________________________________
 	

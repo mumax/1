@@ -58,6 +58,9 @@ param* read_param(){
   }
   if (p->size[X]==1) 
     p->kernelSize[X] = 1;
+
+  for (int i=0; i<3; i++)
+    p->exchInConv[i] = (demagCoarse[i]==1) ? 1:0;
   
   p->kernelType = KERNEL_MICROMAG3D;
   
