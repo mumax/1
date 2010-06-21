@@ -35,7 +35,6 @@ OFILES=\
 	gpuconv2.o\
 	gpufft.o\
 	gpufft2.o\
-	gpueuler.o\
 	gpuheun.o\
 	gpurk4.o\
 	gpuanal1.o\
@@ -45,7 +44,7 @@ OFILES=\
 	kernel.o\
 	gpu_micromag3d_kernel.o\
 	gpukernel1.o\
-#	gpuheun2.o\
+#	gpueuler.o\\
 
 all: core.so core.a doc
 

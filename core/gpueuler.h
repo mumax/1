@@ -10,59 +10,47 @@
 #define GPUEULER_H
 
 #include "tensor.h"
-#include "gpuconv1.h"
+#include "param.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
+ * @internal
  * The internal data of the solver.
  * @see new_gpueuler
  */
 typedef struct{
-  
+
   int* size;
   int N;
-  
+
   float* m;
   int len_m;
-  
+
   float* h;
   int len_h;
-  
-  gpuconv1* convplan;
-  
+
 }gpueuler;
+
 
 /**
  * Makes a new euler solver.
  */
-gpueuler* new_gpueuler(int N0,		///< X-size of magnetization
-		       int N1,		///< Y-size of magnetization
-		       int N2, 		///< Z-size of magnetization
-		       tensor* kernel	///< convolution kernel describing the effective field. size: 2*N0 x 2*N1 x 2*N2
-		       );
+gpueuler* new_gpueuler(param* params);
 
-/**
- * Copies a magnetization configuration in the solver, e.g. the initial magnetization.
- * @see: gpueuler_storem
- */
-void gpueuler_loadm(gpueuler* euler, tensor* m);
-
-/**
- * Copies a magnetization configuration from the solver to the RAM, e.g. the magnetization after a number of time steps.
- * @see: gpueuler_loadm
- */
-void gpueuler_storem(gpueuler* euler, tensor* m);
 
 /**
  * Takes one time step
  */
-void gpueuler_step(gpueuler* solver,	///< the solver to step
-		   float dt		///< time step (internal units).
-		   );
+void gpueuler_step(gpueuler* solver,	    ///< the solver to step
+                   tensor* m,		        ///< magnetization
+                   tensor* h,               ///< effective field corresponding to m
+                   double* totalTime        ///< pointer to the total time, is updated by the solver (deltaT is added to it)
+                   );
 
+                   
 #ifdef __cplusplus
 }
 #endif
