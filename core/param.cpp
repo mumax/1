@@ -74,7 +74,7 @@ void check_param(param *p){
       assert( p->demagCoarse[i]>0);
       assert( p->size[i]>=p->demagCoarse[i] && p->size[i]%p->demagCoarse[i] == 0);            // the coarse level mesh should fit the low level mesh:
     }
-    if (p->cellSize[X]!=0.0f)   fprintf(stderr,"parameter cellSize[X] = %d is ignored in this 2D simulation\n", p->cellSize[X]);
+    if (p->cellSize[X]!=0.0f)   fprintf(stderr,"parameter cellSize[X] = %g is ignored in this 2D simulation\n", p->cellSize[X]);
     if (p->demagCoarse[X]!=1)   fprintf(stderr,"parameter demagCoarse[X] = %d is ignored in this 2D simulation\n", p->demagCoarse[X]);
     if (p->demagPeriodic[X]!=0) fprintf(stderr,"parameter demagPeriodic[X] = %d is ignored in this 2D simulation\n", p->demagPeriodic[X]);
     if (p->exchInConv[X]!=0)    fprintf(stderr,"parameter exchInConv[X] = %d is ignored in this 2D simulation\n", p->exchInConv[X]);
