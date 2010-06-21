@@ -15,7 +15,7 @@ int main(int argc, char** argv){
     for(int i=0; i<mHost->len; i++){
     mHost->list[i] = 1.;
   }
-  
+  write_tensor_fname(mHost, (char*)"m_init.t");
   
   tensor* m = new_gputensor(4, size4D);    //size4D puts a 3 in front of a size
   tensor_copy_to_gpu(mHost, m);

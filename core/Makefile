@@ -44,7 +44,7 @@ OFILES=\
 	kernel.o\
 	gpu_micromag3d_kernel.o\
 	gpukernel1.o\
-#	gpueuler.o\\
+	gpueuler.o\
 
 all: core.so core.a doc
 

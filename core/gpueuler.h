@@ -11,6 +11,7 @@
 
 #include "tensor.h"
 #include "param.h"
+#include "gputil.h"
 
 #ifdef __cplusplus
 extern "C" {

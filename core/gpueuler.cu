@@ -36,15 +36,15 @@ __global__ void _gpu_eulerstep(float* mx, float* my, float* mz, float* hx, float
   mz[i] *= norm;
 }
 
-void gpueuler_step(gpueuler* solver, float dt){
-  int threadsPerBlock = 512;
-  gpuconv1_exec(solver->convplan, solver->m, solver->h);
-  int blocks = (solver->convplan->len_m_comp) / threadsPerBlock;
-  gpu_checkconf_int(blocks, threadsPerBlock);
-  timer_start("gpueuler_step");
-  _gpu_eulerstep<<<blocks, threadsPerBlock>>>(solver->convplan->m_comp[0], solver->convplan->m_comp[1], solver->convplan->m_comp[2], solver->convplan->h_comp[0], solver->convplan->h_comp[1], solver->convplan->h_comp[2], dt);
-  cudaThreadSynchronize();
-  timer_stop("gpueuler_step");
+void gpueuler_step(gpueuler* solver, tensor* m, tensor* h, double* dt){
+//   int threadsPerBlock = 512;
+//   gpuconv1_exec(solver->convplan, solver->m, solver->h);
+//   int blocks = (solver->convplan->len_m_comp) / threadsPerBlock;
+//   gpu_checkconf_int(blocks, threadsPerBlock);
+//   timer_start("gpueuler_step");
+//   _gpu_eulerstep<<<blocks, threadsPerBlock>>>(solver->convplan->m_comp[0], solver->convplan->m_comp[1], solver->convplan->m_comp[2], solver->convplan->h_comp[0], solver->convplan->h_comp[1], solver->convplan->h_comp[2], dt);
+//   cudaThreadSynchronize();
+//   timer_stop("gpueuler_step");
 }
 
 void gpueuler_checksize_m(gpueuler* sim, tensor* m){
@@ -80,13 +80,13 @@ void gpueuler_init_h(gpueuler* euler){
   euler->h = new_gpu_array(euler->len_h);
 }
 
-gpueuler* new_gpueuler(int N0, int N1, int N2, tensor* kernel){
-  gpueuler* euler = (gpueuler*)malloc(sizeof(gpueuler));
-  gpueuler_init_sizes(euler, N0, N1, N2);
-  gpueuler_init_m(euler);
-  gpueuler_init_h(euler);
-  euler->convplan = new_gpuconv1(N0, N1, N2, kernel);
-  return euler;
+gpueuler* new_gpueuler(param* p){
+//   gpueuler* euler = (gpueuler*)malloc(sizeof(gpueuler));
+//   gpueuler_init_sizes(euler, N0, N1, N2);
+//   gpueuler_init_m(euler);
+//   gpueuler_init_h(euler);
+//   euler->convplan = new_gpuconv1(N0, N1, N2, kernel);
+//   return euler;
 }
 
 #ifdef __cplusplus
