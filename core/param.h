@@ -108,6 +108,11 @@ typedef struct{
   float maxError;       ///< The maximum error per step, for adaptive solvers. Others may ignore this.
 
 
+  //normalization
+
+  int normalizeEvery;   ///< Normalize the magnetization vectors after every N (partial) time steps
+  tensor* msatMap;      ///< Space-dependent magenetization norm, typically contains numbers between 0 and 1. NULL means msat is uniform over space
+
   // field
   
   float hExt[3];        ///< The externally applied field (internal units)

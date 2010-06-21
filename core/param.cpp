@@ -32,6 +32,9 @@ param* new_param(){
   p->maxDelta = 0.;
   p->maxError = 0.;
 
+  p->normalizeEvery = 1;
+  p->msatMap = NULL;
+  
   p->exchType = NONE;
   
   return p;
@@ -61,7 +64,15 @@ void check_param(param *p){
   }
 
   // only 1 (possibly coarse level) cell thickness in x-direction combined with periodicity in this direction is not allowed.
-  assert(  !(p->size[X]/p->demagCoarse[X]==1 && p->demagPeriodic[X])  );     
+  assert(  !(p->size[X]/p->demagCoarse[X]==1 && p->demagPeriodic[X])  );
+
+  assert(p->normalizeEvery > 0);
+  if(p->msatMap != NULL){
+    assert(p->msatMap->rank == 3);
+    for(int i=0; i<3; i++){
+      assert(p->msatMap->size[i] == p->size[i]);
+    }
+  }
   return;
 }
 
