@@ -54,6 +54,8 @@
  *
  * @see gpuconv1, new_gpuconv2, gpuconv2_exec
  *
+ * @todo when NO=1, gxy and gxz are zero
+ *
  * @author Arne Vansteenkiste
  * @author Ben Van de Wiele
  */

@@ -112,11 +112,11 @@ gpukernel1.o:	gpukernel1.h gpukernel1.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpukernel1.cu
 
 
-test:	$(OFILES) tensor_test gpueuler_test gpuheun_test gpuheun2_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test gpufft2_test gpukernel1_test
+test:	$(OFILES) tensor_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test gpufft2_test gpukernel1_test
 	./tensor_test
 	./gputil_test
-	./gpueuler_test testm0.t testkernel.t
-	./gpuheun_test testm0.t testkernel.t
+#	./gpueuler_test testm0.t testkernel.t
+#	./gpuheun_test testm0.t testkernel.t
 #	./gpuheun2_test
 	./gpuanal1_test testm0.t testkernel.t
 	./gpufft_test
@@ -136,10 +136,6 @@ gpueuler_test:	$(OFILES) gpueuler_test.cpp
 gpuheun_test:	$(OFILES) gpuheun_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuheun_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpuheun_test.o -o gpuheun_test
-
-#gpuheun2_test:	$(OFILES) gpuheun2_test.cpp
-#	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuheun2_test.cpp
-#	$(NVCC) $(CUDALIBS) $(OFILES) gpuheun2_test.o -o gpuheun2_test
 
 gpuanal1_test:	$(OFILES) gpuanal1_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuanal1_test.cpp
