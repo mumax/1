@@ -62,7 +62,8 @@ param* read_param(){
   for (int i=0; i<3; i++)
     p->exchInConv[i] = (p->demagCoarse[i]==1) ? 1:0;
   
-  p->kernelType = KERNEL_MICROMAG3D;
+  p->kernelType = KERNEL_MICROMAG2D;
+    
   
   return p;
 

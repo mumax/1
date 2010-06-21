@@ -74,7 +74,7 @@ param* read_param(){
     p->kernelSize[X] = 1;
   
   for (int i=0; i<3; i++)
-    p->exchInConv[i] = (demagCoarse[i]==1) ? 1:0;     // default: exchange included in convolution if no coarse level demag evaluation in considered direction
+    p->exchInConv[i] = (p->demagCoarse[i]==1) ? 1:0;     // default: exchange included in convolution if no coarse level demag evaluation in considered direction
   
   p->kernelType = KERNEL_MICROMAG3D;
   p->solverType = SOLVER_HEUN;

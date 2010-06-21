@@ -123,9 +123,9 @@ __global__ void _gpu_init_Greens_kernel_elements_micromag3d(float *dev_temp, int
 __device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int exchInConv_X, int exchInConv_Y, int exchInConv_Z, int co1, int co2, int a, int b, int c, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
 
 	float result = 0.0f;
-	float *dev_qd_P_10_X = &dev_qd_P_10[X];
-	float *dev_qd_P_10_Y = &dev_qd_P_10[Y];
-	float *dev_qd_P_10_Z = &dev_qd_P_10[Z];
+	float *dev_qd_P_10_X = &dev_qd_P_10[X*10];
+	float *dev_qd_P_10_Y = &dev_qd_P_10[Y*10];
+	float *dev_qd_P_10_Z = &dev_qd_P_10[Z*10];
 	float dim_inverse = 1.0f/( (float) Nkernel_X*Nkernel_Y*Nkernel_Z  );
 	
 	// for elements in Kernel component gxx _________________________________________________________
