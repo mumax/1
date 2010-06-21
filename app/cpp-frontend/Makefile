@@ -1,17 +1,15 @@
 include ../../common.mk
 
-CPPFILES=\
-	main.cpp
 
-OFILES=\
-	main.o\
-
-
-all:	main.cpp
+main:	main.cpp
 	$(CPP) -c $(CFLAGS) -I ../../core main.cpp
-	$(CPP) $(LDFLAGS) $(OFILES) ../../core/core.so -o main
-	ln -sf $(CURDIR)/main ../../bin/cppsim 
+	$(CPP) $(LDFLAGS) main.o ../../core/core.so -o main
+
+main-arne:	main-arne.cpp
+	$(CPP) -c $(CFLAGS) -I ../../core main-arne.cpp
+	$(CPP) $(LDFLAGS) main-arne.o ../../core/core.so -o main-arne
+
 
 .PHONY:	clean
 clean:	
-	rm -f *.o main ../../bin/cppsim
+	rm -f *.o main main-arne
