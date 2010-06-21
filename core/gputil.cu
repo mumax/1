@@ -158,13 +158,13 @@ void tensor_copy_gpu_to_gpu(tensor* source, tensor* dest){
 // we cache the result of the first invocation and return it
 // for all subsequent calls.
 // (the function itself is rather expensive)
-int _gpu_stide_float_cache = -1;
+int _gpu_stride_float_cache = -1;
 
 /* We test for the optimal array stride by creating a 1x1 matrix and checking
  * the stride returned by CUDA.
  */
 int gpu_stride_float(){
-  if( _gpu_stide_float_cache == -1){
+  if( _gpu_stride_float_cache == -1){
     size_t width = 1;
     size_t height = 1;
     
@@ -172,17 +172,17 @@ int gpu_stride_float(){
     size_t pitch;
     gpu_safe( cudaMallocPitch((void**)&devPtr, &pitch, width * sizeof(float), height) );
     gpu_safe( cudaFree(devPtr) );
-    _gpu_stide_float_cache = pitch / sizeof(float);
-    fprintf(stderr, "GPU stride: %d floats\n", _gpu_stide_float_cache);
+    _gpu_stride_float_cache = pitch / sizeof(float);
+    fprintf(stderr, "GPU stride: %d floats\n", _gpu_stride_float_cache);
   }
-  return _gpu_stide_float_cache;
+  return _gpu_stride_float_cache;
 }
 
 
 void gpu_override_stride(int nFloats){
   assert(nFloats > -2);
   fprintf(stderr, "GPU stride overridden to %d floats\n", nFloats);
-  _gpu_stide_float_cache = nFloats;
+  _gpu_stride_float_cache = nFloats;
 }
 
 int gpu_pad_to_stride(int nFloats){
@@ -193,7 +193,8 @@ int gpu_pad_to_stride(int nFloats){
   assert(gpulen % stride == 0);
   assert(gpulen > 0);
   assert(gpulen >= nFloats);
-  return gpulen;
+//  return gpulen;
+  return nFloats;
 }
 
 //_____________________________________________________________________________________________ check conf

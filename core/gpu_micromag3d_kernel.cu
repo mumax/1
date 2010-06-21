@@ -11,9 +11,9 @@ tensor *gpu_micromag3d_kernel(param* p){
     check_param(p);
     int kernelStorageN = p->kernelSize[X] * p->kernelSize[Y] * gpu_pad_to_stride(p->kernelSize[Z]+2);
     tensor *dev_kernel;
-    if (p->size[X]==0)
+/*    if (p->size[X]==1)
       dev_kernel = as_tensor(new_gpu_array(4*kernelStorageN/2), 2, 4, kernelStorageN/2);  // only real parts!!
-    else
+    else*/
       dev_kernel = as_tensor(new_gpu_array(6*kernelStorageN/2), 2, 6, kernelStorageN/2);  // only real parts!!
 	// ______________________________________________________________________________________________
 
@@ -25,14 +25,8 @@ tensor *gpu_micromag3d_kernel(param* p){
 	// ______________________________________________________________________________________________
 	
 	
-	// Plan initialization for FFTs Greens kernel elements __________________________________________
-		int* zero_pad_kernel = (int*)calloc(3, sizeof(int));
-		zero_pad_kernel[X] = zero_pad_kernel[Y] = zero_pad_kernel[Z] = 0; 
-		gpu_plan3d_real_input* kernel_plan = new_gpu_plan3d_real_input(p->kernelSize[X], p->kernelSize[Y], p->kernelSize[Z], zero_pad_kernel);
-	// ______________________________________________________________________________________________
-
-
-	// Initialize the kernel ________________________________________________________________________		
+	// Plan initialization of FFTs and initialization of the kernel _________________________________
+    gpuFFT3dPlan* kernel_plan = new_gpuFFT3dPlan_padded(p->kernelSize, p->kernelSize);
 		gpu_init_and_FFT_Greens_kernel_elements(dev_kernel, p->kernelSize, p->cellSize, p->demagPeriodic, dev_qd_P_10, dev_qd_W_10, kernel_plan);
 	// ______________________________________________________________________________________________	
 	
@@ -41,47 +35,122 @@ tensor *gpu_micromag3d_kernel(param* p){
 
 /// @todo argument defining which Greens function should be added
 /// remark: number of FD cells in a dimension can not be odd if no zero padding!!
-void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *demagKernelSize, float *FD_cell_size, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10, gpu_plan3d_real_input* kernel_plan){
+void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel, int *kernelSize, float *FD_cell_size, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10, gpuFFT3dPlan* kernel_plan){
 
   
- 	int kernelStorageN = 2*dev_kernel->size[1];				// size of kernel component in real + i*complex format
+ 	int kernelStorageN = 2*dev_kernel->size[1];				  // size of kernel component in real + i*complex format
 	float *dev_temp = new_gpu_array(kernelStorageN);		// temp tensor on device for storage of each component in real + i*complex format
  	
 	// Define gpugrids and blocks ___________________________________________________________________
-    dim3 gridsize1(demagKernelSize[X]/2, demagKernelSize[Y]/2, 1);  ///@todo generalize!
-    if (demagKernelSize[X]==1)  //overwrites last line if simulation with thickness = 1 FD cell
-      dim3 gridsize1(1, demagKernelSize[Y]/2, 1);	                  ///@todo generalize!
-
-    dim3 blocksize1(demagKernelSize[Z]/2, 1, 1);				         ///@todo aan te passen!!  GPU_STRIDE_FLOAT
+    dim3 gridsize1((kernelSize[X]+1)/2, kernelSize[Y]/2, 1);    ///@todo generalize!
+      // 'kernelSize[X]+1': +1 to fit for kernelSize[X] = 1, in other cases kernelSize is always even so '+1' has no effect then.
+    dim3 blocksize1(kernelSize[Z]/2, 1, 1);				              ///@todo aan te passen!!  GPU_STRIDE_FLOAT
 		gpu_checkconf(gridsize1, blocksize1);
 		int gridsize2, blocksize2;
 		make1dconf(kernelStorageN/2, &gridsize2, &blocksize2);
 	// ______________________________________________________________________________________________
 	
+  // Define input tensors and input sizes for FFT forward routine _________________________________
+    int *kernelStorageSize = (int *) calloc (3, sizeof(int));
+    kernelStorageSize[X] = kernelSize[X];
+    kernelStorageSize[Y] = kernelSize[Y];
+    kernelStorageSize[Z] = gpu_pad_to_stride(kernelSize[Z]+2);
+    tensor *FFT_input = as_tensorN(dev_temp, 3, kernelStorageSize);
+    tensor *FFT_output = FFT_input;
+  // ______________________________________________________________________________________________
+
 
 	// Main function operations _____________________________________________________________________
-		int rank0 = 0;																			// defines the first rank of the Greens kernel [xx, xy, xz, yy, yz, zz]
-    int max_co = (demagKernelSize[X]==1)? 2:3;
+/*		int rank0 = 0;																			// defines the first rank of the Greens kernel [xx, xy, xz, yy, yz, zz]
+//    int max_co = (kernelSize[X]==1)? 2:3;
+    int max_co = 3;
     for (int co1=0; co1<max_co; co1++){											// for a Greens kernel component [co1,co2]:
 			for (int co2=co1; co2<max_co; co2++){
 					// Put all elements in 'dev_temp' to zero.
 				gpu_zero(dev_temp, kernelStorageN);		 
 				cudaThreadSynchronize();
 					// Fill in the elements.
-				_gpu_init_Greens_kernel_elements<<<gridsize1, blocksize1>>>(dev_temp, demagKernelSize[X], demagKernelSize[Y], demagKernelSize[Z], co1, co2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
+				_gpu_init_Greens_kernel_elements<<<gridsize1, blocksize1>>>(dev_temp, kernelSize[X], kernelSize[Y], kernelSize[Z], co1, co2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
 				cudaThreadSynchronize();
 					// Fourier transform the kernel component.
-				gpu_plan3d_real_input_forward(kernel_plan, dev_temp);
-				cudaThreadSynchronize();
+          // gpu_plan3d_real_input_forward(kernel_plan, dev_temp);
+          gpuFFT3dPlan_forward(kernel_plan, FFT_input, FFT_output); 
+          cudaThreadSynchronize();
 					// Copy the real parts to the corresponding place in the dev_kernel tensor.
 				_gpu_extract_real_parts<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*kernelStorageN/2], dev_temp, rank0, kernelStorageN/2);
 				cudaThreadSynchronize();
 				rank0++;																				// get ready for next component
 			}
-		}
+		}*/
+		
+      
+  float *host_temp = (float *)calloc(kernelStorageN, sizeof(float));      // temp array on host for storage of each component in real + i*complex format in serie (only for debugging purposes)
+  float *host_temp2 = (float *)calloc(kernelStorageN/2, sizeof(float));   // temp array on host for storage of only the real components
+
+  int testco1 = 0;
+  int testco2 = 2;
+  int testrang = 0;
+  for (int i=0; i<testco1; i++)
+    for (int j=i; j<testco2; j++)
+      testrang ++;
+  fprintf(stderr, "test co: %d, %d, testrang: %d\n\n", testco1, testco2, testrang);
+
+  gpu_zero(dev_temp, kernelStorageN);
+  cudaThreadSynchronize();
+//  _gpu_init_Greens_kernel_elements<<<gridsize1, blocksize1>>>(dev_temp, Nkernel[X], Nkernel[Y], Nkernel[Z], testco1, testco2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], cst, repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
+  _gpu_init_Greens_kernel_elements<<<gridsize1, blocksize1>>>(dev_temp, kernelSize[X], kernelSize[Y], kernelSize[Z], testco1, testco2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
+  cudaThreadSynchronize();
+
+  memcpy_from_gpu(dev_temp, host_temp, kernelStorageN);
+  cudaThreadSynchronize();
+  fprintf(stderr, "\nkernel elements (untransformed), co: %d, %d:\n", testco1, testco2);
+  for (int i=0; i<kernelStorageSize[X]; i++){
+    for (int j=0; j<kernelStorageSize[Y]; j++){
+      for (int k=0; k<kernelStorageSize[Z]; k++){
+        fprintf(stderr, "%e ", host_temp[i*kernelStorageSize[Y]*kernelStorageSize[Z] + j*kernelStorageSize[Z] + k]);
+      }
+      fprintf(stderr, "\n");
+    }
+    fprintf(stderr, "\n");
+  }
+  
+
+  gpuFFT3dPlan_forward(kernel_plan, FFT_input, FFT_output); 
+  cudaThreadSynchronize();
+  
+  memcpy_from_gpu(dev_temp, host_temp, kernelStorageN);
+  cudaThreadSynchronize();
+  fprintf(stderr, "\nkernel elements (transformed), co: %d, %d:\n", testco1, testco2);
+  for (int i=0; i<kernelStorageSize[X]; i++){
+    for (int j=0; j<kernelStorageSize[Y]; j++){
+      for (int k=0; k<kernelStorageSize[Z]; k++){
+        fprintf(stderr, "%e ", host_temp[i*kernelStorageSize[Y]*kernelStorageSize[Z] + j*kernelStorageSize[Z] + k]);
+      }
+      fprintf(stderr, "\n");
+    }
+    fprintf(stderr, "\n");
+  }
+
+  _gpu_extract_real_parts<<<gridsize2, blocksize2>>>(&dev_kernel->list[testrang*kernelStorageN/2], dev_temp, 0, kernelStorageN/2);
+  cudaThreadSynchronize();
+  fprintf(stderr, "\nkernel elements (transformed, real parts), co: %d, %d:\n", testco1, testco2);
+  memcpy_from_gpu(&dev_kernel->list[testrang*kernelStorageN/2], host_temp2, kernelStorageN/2);
+  cudaThreadSynchronize();
+
+  for (int i=0; i<kernelStorageSize[X]; i++){
+    for (int j=0; j<kernelStorageSize[Y]; j++){
+      for (int k=0; k<kernelStorageSize[Z]/2; k++){
+        fprintf(stderr, "%e ", host_temp2[i*kernelStorageSize[Y]*kernelStorageSize[Z]/2 + j*kernelStorageSize[Z]/2 + k]);
+      }
+      fprintf(stderr, "\n");
+    }
+    fprintf(stderr, "\n");
+  }
+	
 	// ______________________________________________________________________________________________
 
 	cudaFree (dev_temp);
+  free (kernelStorageSize);
 	
 	return;
 }
@@ -368,7 +437,7 @@ __global__ void _gpu_extract_real_parts(float *dev_kernel_array, float *dev_temp
 
 void initialize_Gauss_quadrature_on_gpu(float *dev_qd_W_10, float *dev_qd_P_10, float *FD_cell_size){
 
-	// initilize standard order 10 Gauss quadrature points and weights ______________________________
+	// initialize standard order 10 Gauss quadrature points and weights _____________________________
 		float *std_qd_P_10 = (float*) calloc(10, sizeof(float));
 		std_qd_P_10[0] = -0.97390652851717197f;
 		std_qd_P_10[1] = -0.86506336668898498f;

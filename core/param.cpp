@@ -60,7 +60,7 @@ void check_param(param *p){
     assert( p->cellSize[i]>0.0f);
     assert( p->demagCoarse[i]>0);
     // the coarse level mesh should fit the low level mesh:
-    assert( p->size[i]>p->demagCoarse[i] && p->size[i]%p->demagCoarse[i] == 0);
+    assert( p->size[i]>=p->demagCoarse[i] && p->size[i]%p->demagCoarse[i] == 0);
   }
 
   // only 1 (possibly coarse level) cell thickness in x-direction combined with periodicity in this direction is not allowed.

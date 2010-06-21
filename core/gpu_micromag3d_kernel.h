@@ -13,8 +13,8 @@
 #include "tensor.h"
 #include "gputil.h"
 #include "param.h"
-#include <cufft.h>
-#include "gpufft.h"
+//#include <cufft.h>
+#include "gpufft2.h"
 #include "assert.h"
 #include "timer.h"
 #include <stdio.h>
@@ -48,13 +48,13 @@ tensor *gpu_micromag3d_kernel(param *p              ///< parameter list
  * the real parts from the data. (imaginary parts are zero in due to the symmetry)
  * The kernel is only stored at the device.
  */
-void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel,  								///< rank 2 tensor; rank 0: xx, xy, xz, yy, yz, zz parts of symmetrical Greens tensor, rank 1: all data of a Greens kernel component contiguously
-																						 int *demagKernelSize, 			  				///< Non-strided size of the kernel data
-																						 float *FD_cell_size, 								///< 3 float, size of finite difference cell in X,Y,Z respectively
-																						 int *repetition, 										///< 3 ints, for periodicity: e.g. 2*repetition[0]+1 is the number of periods considered the x-direction ([0,0,0] means no periodic repetition)
-																						 float *dev_qd_P_10,  								///< float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device)
-																						 float *dev_qd_W_10,  								///< float array (10 floats) containing the 10 Gauss quadrature weights (on device)
-																						 gpu_plan3d_real_input* kernel_plan   /// FFT plan for the execution of the forward FFT of the kernel.
+void gpu_init_and_FFT_Greens_kernel_elements(tensor *dev_kernel,  			///< rank 2 tensor; rank 0: xx, xy, xz, yy, yz, zz parts of symmetrical Greens tensor, rank 1: all data of a Greens kernel component contiguously
+																						 int *demagKernelSize, 			///< Non-strided size of the kernel data
+																						 float *FD_cell_size, 			///< 3 float, size of finite difference cell in X,Y,Z respectively
+																						 int *repetition, 					///< 3 ints, for periodicity: e.g. 2*repetition[0]+1 is the number of periods considered the x-direction ([0,0,0] means no periodic repetition)
+																						 float *dev_qd_P_10,  			///< float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device)
+																						 float *dev_qd_W_10,  			///< float array (10 floats) containing the 10 Gauss quadrature weights (on device)
+																						 gpuFFT3dPlan* kernel_plan  /// FFT plan for the execution of the forward FFT of the kernel.
 																						 );
 
 /**
