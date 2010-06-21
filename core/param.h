@@ -91,7 +91,7 @@ typedef struct{
   
   int demagPeriodic[3];   ///< Periodic boundary conditions in each of the directions? 0 means no periodicity, a positive number means repeat N times in the positive and negative direction along the respective axis.
   int demagCoarse[3];     ///< Combine N cells in each respective direction into a larger cell, for a faster, coarser evaluation of the demag field. {1, 1, 1} means full resolution.
-  int kernelSize[3]; ///< Size of the convolution kernel. In principle it can be derived from demagPeriodic and demagCoarse, but we store it anyway for convienience.
+  int kernelSize[3];      ///< Size of the convolution kernel. In principle it can be derived from demagPeriodic and demagCoarse, but we store it anyway for convienience.
   ///@todo add demag kernel here too?
 
 
