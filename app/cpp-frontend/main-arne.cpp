@@ -17,6 +17,7 @@ int main(int argc, char** argv){
     for(int i=0; i<mHost->len; i++){
     mHost->list[i] = 1.;
   }
+  // save m_init
   write_tensor_fname(mHost, (char*)"m_init.t");
   
   tensor* m = new_gputensor(4, size4D);    //size4D puts a 3 in front of a size
@@ -29,12 +30,19 @@ int main(int argc, char** argv){
   
   timestepper* ts = new_timestepper(p, field);  // allocates space for h internally
 
-
-  
   double totalTime = 0.;
+  char* fname = new char[1000];
   
-  for(int i=0; i<1000; i++){
-    timestep(ts, m, &totalTime);
+  for(int i=0; i<100; i++){
+
+    tensor_copy_from_gpu(m, mHost);
+    sprintf(fname, "m%010d.t", i);
+    write_tensor_fname(mHost, fname);
+    
+    
+    for(int j=0; j<10; j++){
+      timestep(ts, m, &totalTime);
+    }
   }
   
   printf("\n*** Timing ***\n");
