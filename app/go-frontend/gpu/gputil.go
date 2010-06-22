@@ -36,6 +36,11 @@ func MemcpyOn(source, dest unsafe.Pointer, nFloats int){
   C.memcpy_gpu_to_gpu((*_C_float)(source), (*_C_float)(dest), _C_int(nFloats));
 }
 
+/// Gets one float from a GPU array
+func Get(array unsafe.Pointer, index int) float{
+  return float(C.gpu_get((*_C_float)(array), _C_int(index)));
+}
+
 //_______________________________________________________________________________ tensor
 
 type Tensor struct{
@@ -44,12 +49,12 @@ type Tensor struct{
 }
 
 func (t *Tensor) Size() []int{
-  return size;
+  return t.size;
 }
 
 func (t *Tensor) Get(index []int) float{
   i := tensor.Index(t.size, index);
-  
+  return Get(t.data, i);
 }
 
 //_______________________________________________________________________________ stride

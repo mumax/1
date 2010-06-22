@@ -2,7 +2,12 @@ package gpu
 
 import(
   "testing"
+  "tensor"
 )
+
+func TestTensor(t *testing.T){
+  
+}
 
 func TestStride(t *testing.T){
   s := Stride()
