@@ -4,6 +4,7 @@ PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 
 TARG=gpu
 CGOFILES=\
+	cgoutil.go\
 	gputil.go\
 
 

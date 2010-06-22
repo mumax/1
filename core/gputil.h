@@ -114,6 +114,9 @@ void memcpy_gpu_to_gpu(float* source,	///< source data pointer on the GPU
                        int nElements	///< number of floats (not bytes) to be copied
                        );
 
+/// @internal Reads one float from the GPU, not extremely efficient.
+float gpu_get(float* dataptr, int index);
+
 /**
  * Copies the source tensor (in RAM) to the the destination tensor (on the GPU).
  * They should have equal sizes.

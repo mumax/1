@@ -122,7 +122,6 @@ void memcpy_from_gpu(float* source, float* dest, int nElements){
   }
 }
 
-// does not seem to work.. 
 void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
   timer_start("memcpy_gpu_to_gpu");
   
@@ -135,6 +134,12 @@ void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
   cudaThreadSynchronize();
   
   timer_stop("memcpy_gpu_to_gpu");
+}
+
+float gpu_get(float* dataptr, int index){
+  float result = 666.0;
+  memcpy_from_gpu(&(dataptr[index]), &result, 1);
+  return result;
 }
 
 void tensor_copy_to_gpu(tensor* source, tensor* dest){
