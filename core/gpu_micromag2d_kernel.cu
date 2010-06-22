@@ -40,7 +40,7 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(tensor *dev_kernel, int 
   
   // Define gpugrids and blocks ___________________________________________________________________
     int gridsize1 = 1;
-    dim3 blocksize1(kernelSize[Y]/2, kernelSize[Z]/2)
+    dim3 blocksize1(kernelSize[Y]/2, kernelSize[Z]/2);
     gpu_checkconf(gridsize1, blocksize1);
     int gridsize2, blocksize2;
     make1dconf(kernelStorageN/2, &gridsize2, &blocksize2);
@@ -85,7 +85,7 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(tensor *dev_kernel, int 
 
 
 
-__global__ void _gpu_init_Greens_kernel_elements_micromag2d(float *dev_temp, int Nkernel_Y, int Nkernel_Z, int Nkernel_storage_Z, int exchInConv_X, int exchInConv_Y, int exchInConv_Z, int co1, int co2, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
+__global__ void _gpu_init_Greens_kernel_elements_micromag2d(float *dev_temp, int Nkernel_Y, int Nkernel_Z, int Nkernel_storage_Z, int exchInConv_Y, int exchInConv_Z, int co1, int co2, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
   
   int j = threadIdx.x;
   int k = threadIdx.y;
@@ -106,7 +106,7 @@ __global__ void _gpu_init_Greens_kernel_elements_micromag2d(float *dev_temp, int
 
 
 
-__device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z, int exchInConv_Y, int exchInConv_Z, int co1, int co2, int a, int b, int c, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
+__device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z, int exchInConv_Y, int exchInConv_Z, int co1, int co2, int b, int c, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
 
   float result = 0.0f;
   float *dev_qd_P_10_Y = &dev_qd_P_10[ 0];
@@ -129,22 +129,22 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z
             for (int cnt3=0; cnt3<10; cnt3++){
               float z = k * FD_cell_size_Z + dev_qd_P_10_Z[cnt3];
               result += FD_cell_size_Y * FD_cell_size_Z / 4.0f * dev_qd_W_10[cnt2] * dev_qd_W_10[cnt3] *
-                ( 1.0f/(y*y+z*z) - 2.0f*y*y/(y*y+z*z)/(y*y+z*z);
+                ( 1.0f/(y*y+z*z) - 2.0f*y*y/(y*y+z*z)/(y*y+z*z) );
             }
           }
         }
         else{
           float r2 = (j*FD_cell_size_Y)*(j*FD_cell_size_Y) + (k*FD_cell_size_Z)*(k*FD_cell_size_Z);
           result += FD_cell_size_Y * FD_cell_size_Z * 
-                    (1.0f/ r2 - 2.0f* (j*FD_cell_size_Y) * (j*FD_cell_size_Y)/r2/r2);
+                    (1.0f/ r2 - 2.0f* (j*FD_cell_size_Y) * (j*FD_cell_size_Y)/r2/r2 );
         }
       }
       result *= -1.0f/2.0f/3.14159265f;
 
-      if (a== 0 && b== 1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-      if (a== 0 && b==-1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-      if (a== 0 && b== 0 && c== 1 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
-      if (a== 0 && b== 0 && c==-1 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+      if (b== 1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+      if (b==-1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+      if (b== 0 && c== 1 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+      if (b== 0 && c==-1 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
     }
   // ______________________________________________________________________________________________
 
@@ -164,7 +164,7 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z
             for (int cnt3=0; cnt3<10; cnt3++){
               float z = k * FD_cell_size_Z + dev_qd_P_10_Z[cnt3];
               result += FD_cell_size_Y * FD_cell_size_Z / 4.0f * dev_qd_W_10[cnt2] * dev_qd_W_10[cnt3] *
-                ( - 2.0f*y*z/(y*y+z*z)/(y*y+z*z);
+                ( - 2.0f*y*z/(y*y+z*z)/(y*y+z*z) );
             }
           }
         }
@@ -195,7 +195,7 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z
             for (int cnt3=0; cnt3<10; cnt3++){
               float z = k * FD_cell_size_Z + dev_qd_P_10_Z[cnt3];
               result += FD_cell_size_Y * FD_cell_size_Z / 4.0f * dev_qd_W_10[cnt2] * dev_qd_W_10[cnt3] *
-                ( 1.0f/(y*y+z*z) - 2.0f*z*z/(y*y+z*z)/(y*y+z*z);
+                ( 1.0f/(y*y+z*z) - 2.0f*z*z/(y*y+z*z)/(y*y+z*z) );
             }
           }
         }
@@ -207,10 +207,10 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z
       }
       result *= -1.0f/2.0f/3.14159265f;
 
-      if (a== 0 && b== 1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-      if (a== 0 && b==-1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-      if (a== 0 && b== 0 && c== 1 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
-      if (a== 0 && b== 0 && c==-1 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+      if (b== 1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+      if (b==-1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+      if (b== 0 && c== 1 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+      if (b== 0 && c==-1 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
     }
   // ______________________________________________________________________________________________
   
@@ -219,7 +219,7 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z
 
 
 
-__global__ void _gpu_extract_real_parts(float *dev_kernel_array, float *dev_temp, int rank0, int size1){
+__global__ void _gpu_extract_real_parts_micromag2d(float *dev_kernel_array, float *dev_temp, int rank0, int size1){
 
   int e = ((blockIdx.x * blockDim.x) + threadIdx.x);
 

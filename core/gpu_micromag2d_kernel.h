@@ -91,8 +91,8 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y,           ///
                                                     int exchInConv_Z,        ///< 1 if exchange is to be included in the z-direction
                                                     int co1,                 ///< co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy
                                                     int co2,                 ///< co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy
-                                                    int a,                   ///< [a,b] defines the cartesian vector pointing to the source FD cell to the receiver FD cell (in units FD cell size) 
-                                                    int b,                   ///< [a,b] defines the cartesian vector pointing to the source FD cell to the receiver FD cell (in units FD cell size) 
+                                                    int b,                   ///< [b,c] defines the cartesian vector pointing to the source FD cell to the receiver FD cell (in units FD cell size) 
+                                                    int c,                   ///< [b,c] defines the cartesian vector pointing to the source FD cell to the receiver FD cell (in units FD cell size) 
                                                     float FD_cell_size_Y,    ///< Size of the used FD cells in the y direction
                                                     float FD_cell_size_Z,    ///< Size of the used FD cells in the z direction
                                                     int repetition_Y,        ///< 2*repetition_Y+1 is the number of periods considered the y-direction (repetition_Y=0 means no repetion in y direction)
@@ -104,7 +104,7 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y,           ///
 
 /**
  * Extracts the 'size1' real numbers from the array 'dev_temp' and 
- * stores them in the 'dev_kernel_array' starting from 'dev_kernel_array[rank0*size1]'.
+ * stores them in the 'dev_kernel_array' starting from '&dev_kernel_array[rank0*size1]'.
  */
 __global__ void _gpu_extract_real_parts_micromag2d(float *dev_kernel_array,  ///< rank 2 tensor; rank 0: yy, yz, zz parts of symmetrical Greens tensor, rank 1: all data of a Greens kernel component contiguously
                                                    float *dev_temp,          ///< pointer to the temporary memory space on the device to store all elements of a given Greens tensor component

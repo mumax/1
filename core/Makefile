@@ -21,7 +21,8 @@ CUFILES=\
 	gpuanal1.cu\
 	gpunormalize.cu\
 	gpukernel1.cu\
-#	gpu_micromag3d_kernel.cu\
+	gpu_micromag3d_kernel.cu\
+	gpu_micromag2d_kernel.cu\
 # NOTE: commented files must be LAST in the list, otherwise all the rest is also commented out
 
 OFILES=\
@@ -43,7 +44,8 @@ OFILES=\
 	kernel.o\
 	gpukernel1.o\
 	gpueuler.o\
-#	gpu_micromag3d_kernel.o\
+	gpu_micromag3d_kernel.o\
+	gpu_micromag2d_kernel.o\
 
 all: core.so core.a doc
 
@@ -94,6 +96,9 @@ gpunormalize.o:	gpunormalize.h gpunormalize.cu
 
 gpu_micromag3d_kernel.o:	gpu_micromag3d_kernel.h gpu_micromag3d_kernel.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_micromag3d_kernel.cu
+
+gpu_micromag2d_kernel.o:	gpu_micromag2d_kernel.h gpu_micromag2d_kernel.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_micromag2d_kernel.cu
 
 timer.o:	timer.h timer.cpp
 	$(NVCC) -c $(NVCCFLAGS) timer.cpp
@@ -165,6 +170,10 @@ gputil_test: $(OFILES) gputil_test.cpp
 gpu_micromag3d_kernel_test: $(OFILES) gpu_micromag3d_kernel_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpu_micromag3d_kernel_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpu_micromag3d_kernel_test.o -o gpu_micromag3d_kernel_test
+
+gpu_micromag2d_kernel_test: $(OFILES) gpu_micromag2d_kernel_test.cpp
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpu_micromag2d_kernel_test.cpp
+	$(NVCC) $(CUDALIBS) $(OFILES) gpu_micromag2d_kernel_test.o -o gpu_micromag2d_kernel_test
 
 gpukernel1_test: $(OFILES) gpukernel1_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpukernel1_test.cpp
