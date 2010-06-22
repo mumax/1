@@ -4,9 +4,24 @@ import(
   "testing"
 )
 
+func TestStride(t *testing.T){
+  s := Stride();
+  OverrideStride(10);
+  if Stride() != 10 { t.Fail() }
+
+  for i:=1; i<100; i++{
+    if PadToStride(i) % Stride() != 0 { t.Fail() }
+  }
+  
+  OverrideStride(-1);
+  if Stride() != s { t.Fail() }
+}
+
+
 func TestMisc(t *testing.T){
   PrintProperties()
 }
+
 
 func TestMemory(t *testing.T){
   N := 100

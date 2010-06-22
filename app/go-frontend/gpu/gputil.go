@@ -7,6 +7,7 @@ package gpu
 import "C"
 import "unsafe"
 
+//_______________________________________________________________________________ memory
 
 /**
  * Allocates an array of floats on the GPU.
@@ -45,6 +46,7 @@ func OverrideStride(nFloats int){
   C.gpu_override_stride(_C_int(nFloats));
 }
 
+//_______________________________________________________________________________ misc
 
 func PrintProperties(){
   C.print_device_properties_stdout();
