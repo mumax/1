@@ -10,6 +10,8 @@ all:
 # 	make -C core
 # 	make install -C core
 
+	make install -C gpu
+
 	make -C refsh
 	ln -sf refsh/_obj/refsh.a .
 
@@ -26,6 +28,7 @@ all:
 clean:
 	make clean -C tensor
 	make clean -C core
+	make clean -C gpu
 	make clean -C sim
 	make clean -C tensor-main
 	make clean -C kernel-main
