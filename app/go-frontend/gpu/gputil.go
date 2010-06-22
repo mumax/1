@@ -46,7 +46,11 @@ func OverrideStride(nFloats int){
   C.gpu_override_stride(_C_int(nFloats));
 }
 
-//_______________________________________________________________________________ misc
+//_______________________________________________________________________________ util
+
+func Zero(data unsafe.Pointer, nFloats int){
+  C.gpu_zero((*_C_float)(data), _C_int(nFloats));
+}
 
 func PrintProperties(){
   C.print_device_properties_stdout();
