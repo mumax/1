@@ -148,11 +148,16 @@ void param_print(FILE* out, param* p){
   double B = unitfield(p);
   fprintf(out, "hExt         :\t[%g, %g, %g] T\n", p->hExt[X]*B, p->hExt[Y]*B, p->hExt[Z]*B);
   fprintf(out, "diffHExt     :\t[%g, %g, %g] T/s\n", p->diffHExt[X]*(B/T), p->diffHExt[Y]*(B/T), p->diffHExt[Z]*(B/T));
+
+  fprintf(out, "msatMap      :\t%p\n",       p->msatMap);
   
   fprintf(out, "unitlength   :\t%g m\n",     unitlength(p));
   fprintf(out, "unittime     :\t%g s\n",     unittime(p));
   fprintf(out, "unitenergy   :\t%g J\n",     unitenergy(p));
   fprintf(out, "unitfield    :\t%g T\n",     unitfield(p));
+
+  
+
   
 }
 

@@ -5,18 +5,23 @@ extern "C" {
 #endif
 
 
-timestepper *new_timestepper(param *params, fieldplan* field){
+timestepper *new_timestepper(param* params, fieldplan* field){
+  printf("ST: %d\n", params->solverType);
   timestepper* ts = (timestepper*)malloc(sizeof(timestepper));
   ts->params = params;
   ts->field = field;
   ts->h = new_gputensor(4, tensor_size4D(params->size));
+  ts->totalSteps = 0;
+  ts->solver = NULL;
   
   int solverType = ts->params->solverType;
+  printf("ST: %d\n", params->solverType);
   
   if(solverType == SOLVER_EULER){
     ts->solver = new_gpueuler(params);
   }
   else if(solverType == SOLVER_HEUN){
+    printf("ST: %d\n", params->solverType);
     ts->solver = new_gpuheun(params);
   }
   else{

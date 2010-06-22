@@ -8,8 +8,6 @@ int main(int argc, char** argv){
   print_device_properties(stdout);
 
   param* p = read_param();
-  printf("\n*** Simulation parameters ***\n");
-  param_print(stdout, p);
 
   // this will be replaced by some routine that reads/creates an initial magnetization
   int* size4D = tensor_size4D(p->size);
@@ -26,9 +24,16 @@ int main(int argc, char** argv){
   // start of the actual simulation
   
   tensor* kernel = pipe_kernel(p);//init_kernel(p);
-  fieldplan* field = new_fieldplan(p, kernel); 
+  fieldplan* field = new_fieldplan(p, kernel);
+
+
+  printf("\n*** Simulation parameters ***\n");
+  param_print(stdout, p);
+  
   timestepper* ts = new_timestepper(p, field);  // allocates space for h internally
 
+
+  
   double totalTime = 0.;
   
   for(int i=0; i<1000; i++){
