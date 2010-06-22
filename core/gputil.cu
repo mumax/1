@@ -366,6 +366,10 @@ void print_device_properties(FILE* out){
   
 }
 
+void print_device_properties_stdout(){
+  print_device_properties(stdout);
+}
+
 			     
 void gpu_safe(int status){
   if(status != cudaSuccess){

@@ -318,7 +318,9 @@ void* gpu_getproperties(void);
  * Prints the properties of the used GPU
  */
 void print_device_properties(FILE* out	///< stream to print to
-			     );
+);
+
+void print_device_properties_stdout();
 
 #ifdef __cplusplus
 }
