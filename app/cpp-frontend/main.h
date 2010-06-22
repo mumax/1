@@ -1,6 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include "debug.h"
 #include "gputil.h"
 #include "kernel.h"
 #include "field.h"
