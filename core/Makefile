@@ -1,6 +1,7 @@
 include ../common.mk
 
 CPPFILES=\
+	debug.cpp\
 	tensor.cpp\
 	pipes.cpp\
 	timer.cpp\
@@ -26,6 +27,7 @@ CUFILES=\
 # NOTE: commented files must be LAST in the list, otherwise all the rest is also commented out
 
 OFILES=\
+	debug.o\
 	tensor.o\
 	param.o\
 	pipes.o\
@@ -54,6 +56,9 @@ core.so: $(OFILES)
 
 core.a:	$(OFILES)
 	ar rcs core.a $(OFILES)
+
+debug.o:	debug.h debug.cpp
+	$(CPP) -c $(CFLAGS) debug.cpp
 
 tensor.o:	tensor.h tensor.cpp
 	$(NVCC) -c $(NVCCFLAGS) tensor.cpp
