@@ -86,27 +86,27 @@ __global__ void _gpu_kernel_mul_complex_inplace_symm(float* fftMx,  float* fftMy
   ///@todo coalescale read/writes
   float reMx = fftMx[e  ];
   float imMx = fftMx[e+1];
-  
+
   float reMy = fftMy[e  ];
   float imMy = fftMy[e+1];
-  
+
   float reMz = fftMz[e  ];
   float imMz = fftMz[e+1];
- 
+
   float Kxx = fftKxx[e];
   float Kyy = fftKyy[e];
   float Kzz = fftKzz[e];
-  
+
   float Kyz = fftKyz[e];
   float Kxz = fftKxz[e];
   float Kxy = fftKxy[e];
   
   fftMx[e  ] = reMx * Kxx + reMy * Kxy + reMz * Kxz;
   fftMx[e+1] = imMx * Kxx + imMy * Kxy + imMz * Kxz;
-  
+
   fftMy[e  ] = reMx * Kxy + reMy * Kyy + reMz * Kyz;
   fftMy[e+1] = imMx * Kxy + imMy * Kyy + imMz * Kyz;
- 
+
   fftMz[e  ] = reMx * Kxz + reMy * Kyz + reMz * Kzz;
   fftMz[e+1] = imMx * Kxz + imMy * Kyz + imMz * Kzz;
 
@@ -125,6 +125,13 @@ void gpu_kernel_mul_complex_inplace_symm(float* fftMx,  float* fftMy,  float* ff
    int gridSize = -1;
    int blockSize = -1;
    make1dconf(nRealNumbers/2, &gridSize, &blockSize);
+
+   ///////////////////////////////:   HACK! ///////////////////:
+   //using less threads per block seems to do the trick
+/*   
+   blockSize /= 4;
+   gridSize *= 4;*/
+   
    printf("gridsize = %d, blockSize = %d\n", gridSize, blockSize);
    
   _gpu_kernel_mul_complex_inplace_symm<<<gridSize, blockSize>>>(
@@ -179,6 +186,18 @@ void gpuconv2_exec(gpuconv2* conv, tensor* m, tensor* h){
   }
 
   cudaThreadSynchronize();
+
+
+  printf("fftcomp: %d, kernel: %d\n", fft1Comp[X]->len, conv->fftKernel[X][X]->len);
+//   format_gputensor(fft1Comp[X], stderr);
+//   format_gputensor(fft1Comp[Y], stderr);
+//   format_gputensor(fft1Comp[Z], stderr);
+// 
+//   format_gputensor(conv->fftKernel[Y][Y], stderr);
+//   format_gputensor(conv->fftKernel[Z][Z], stderr);
+//   format_gputensor(conv->fftKernel[Y][Z], stderr);
+//   format_gputensor(conv->fftKernel[X][Z], stderr);
+//   format_gputensor(conv->fftKernel[X][Y], stderr);
   
   gpu_kernel_mul_complex_inplace_symm(fft1Comp[X]->list, fft1Comp[Y]->list, fft1Comp[Z]->list,
                                       conv->fftKernel[X][X]->list, conv->fftKernel[Y][Y]->list, conv->fftKernel[Z][Z]->list, 

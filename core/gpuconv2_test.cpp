@@ -12,9 +12,9 @@
 #include "assert.h"
 #include "pipes.h"
 
-  int N0 = 16;
-  int N1 = 16;
-  int N2 = 4;
+  int N0 = 4;
+  int N1 = 32;
+  int N2 = 64;
   
 void test_convplan(){
   
@@ -25,6 +25,11 @@ void test_convplan(){
   int kernelSize4D[4]        = {3, kernelSize[X], kernelSize[Y], kernelSize[Z]};
   int paddedStorageSize4D[4] = {3, paddedStorageSize[X], paddedStorageSize[Y], paddedStorageSize[Z]};
 
+  printf("size: %d %d %d\n", size[X], size[Y], size[Z]);
+  printf("kernelSize: %d %d %d\n", kernelSize[X], kernelSize[Y], kernelSize[Z]);
+  printf("paddedStorageSize: %d %d %d\n", paddedStorageSize[X], paddedStorageSize[Y], paddedStorageSize[Z]);
+
+  
   tensor* hostM = new_tensorN(4, size4D);
   tensor* hostMComp[3];
   for(int i=0; i<3; i++)
@@ -67,7 +72,7 @@ void test_convplan(){
   gpuconv2* plan = new_gpuconv2(size, kernelSize);
 
   float N = 2*N0 * 2*N1 * 2*N2;
-  tensor* kernel = pipe_tensor((char*)"kernel --size 16 16 4 --msat 800E3 --aexch 1.3e-11 --cellsize 1e-9 1e-9 1e-9");
+  tensor* kernel = pipe_tensor((char*)"kernel --size 4 32 64 --msat 800E3 --aexch 1.3e-11 --cellsize 1e-9 1e-9 1e-9");
   for(int i=0; i<kernel->len; i++)
     kernel->list[i] /= N;
   
@@ -281,10 +286,10 @@ void test_conv(){
 }
 
 int main(int argc, char** argv){
-  
-//   test_transpose();
-//   test_pad();
-//   test_conv();
+  //gpu_override_stride(1);
+  test_transpose();
+  test_pad();
+  test_conv();
   test_convplan();
   
   return 0;

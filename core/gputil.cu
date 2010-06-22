@@ -266,6 +266,14 @@ void check1dconf(int gridsize, int blocksize){
 //_____________________________________________________________________________________________ make conf
 
 void _make1dconf(int N, unsigned int* gridSize, unsigned int* blockSize, int maxGridSize, int maxBlockSize){
+
+  ///// HACK ////
+  if(maxBlockSize > 128){
+    fprintf(stderr, "WARING: using 128 as max block size! \n");
+    maxBlockSize = 128;
+  }
+
+  
   //if(N >= maxBlockSize){
     *blockSize = maxBlockSize;
     while(N % (*blockSize) != 0){

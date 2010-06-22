@@ -122,7 +122,7 @@ test:	$(OFILES) tensor_test gpuanal1_test gpusim_test gputil_test gpuconv2_test 
 #	./gpueuler_test testm0.t testkernel.t
 #	./gpuheun_test testm0.t testkernel.t
 #	./gpuheun2_test
-	./gpuanal1_test testm0.t testkernel.t
+#	./gpuanal1_test testm0.t testkernel.t
 	./gpufft_test
 	./gpufft2_test
 	./gpuconv2_test
