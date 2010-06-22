@@ -119,30 +119,27 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z
       for(int cntb=-repetition_Y; cntb<=repetition_Y; cntb++)
       for(int cntc=-repetition_Z; cntc<=repetition_Z; cntc++){
 
-        int i = a + cnta*Nkernel_X/2;
         int j = b + cntb*Nkernel_Y/2;
         int k = c + cntc*Nkernel_Z/2;
-        int r2_int = i*i+j*j+k*k;
+        int r2_int = j*j+k*k;
 
         if (r2_int<400){
-          float y1 = (j + 0.5f) * FD_cell_size_Y;
-          float y2 = (j - 0.5f) * FD_cell_size_Y;
-          for (int cnt1=0; cnt1<10; cnt1++){
-            float x = i * FD_cell_size_X + dev_qd_P_10_X[cnt1];
+          for (int cnt2=0; cnt2<10; cnt2++){
+            float y = j * FD_cell_size_Y + dev_qd_P_10_Y[cnt2];
             for (int cnt3=0; cnt3<10; cnt3++){
               float z = k * FD_cell_size_Z + dev_qd_P_10_Z[cnt3];
-              result += FD_cell_size_X * FD_cell_size_Z / 4.0f * dev_qd_W_10[cnt1] * dev_qd_W_10[cnt3] *
-                ( y1*__powf(x*x+y1*y1+z*z, -1.5f) - y2*__powf(x*x+y2*y2+z*z, -1.5f));
+              result += FD_cell_size_Y * FD_cell_size_Z / 4.0f * dev_qd_W_10[cnt2] * dev_qd_W_10[cnt3] *
+                ( 1.0f/(y*y+z*z) - 2.0f*y*y/(y*y+z*z)/(y*y+z*z);
             }
           }
         }
         else{
-          float r2 = (i*FD_cell_size_X)*(i*FD_cell_size_X) + (j*FD_cell_size_Y)*(j*FD_cell_size_Y) + (k*FD_cell_size_Z)*(k*FD_cell_size_Z);
-          result += FD_cell_size_X * FD_cell_size_Y * FD_cell_size_Z * 
-                    (1.0f/ __powf(r2,1.5f) - 3.0f* (j*FD_cell_size_Y) * (j*FD_cell_size_Y) * __powf(r2,-2.5f));
+          float r2 = (j*FD_cell_size_Y)*(j*FD_cell_size_Y) + (k*FD_cell_size_Z)*(k*FD_cell_size_Z);
+          result += FD_cell_size_Y * FD_cell_size_Z * 
+                    (1.0f/ r2 - 2.0f* (j*FD_cell_size_Y) * (j*FD_cell_size_Y)/r2/r2);
         }
       }
-      result *= -1.0f/4.0f/3.14159265f;
+      result *= -1.0f/2.0f/3.14159265f;
 
       if (a== 0 && b== 1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
       if (a== 0 && b==-1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
@@ -157,31 +154,29 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z
       for(int cntb=-repetition_Y; cntb<=repetition_Y; cntb++)
       for(int cntc=-repetition_Z; cntc<=repetition_Z; cntc++){
 
-        int i = a + cnta*Nkernel_X/2;
         int j = b + cntb*Nkernel_Y/2;
         int k = c + cntc*Nkernel_Z/2;
-        int r2_int = i*i+j*j+k*k;
+        int r2_int = j*j+k*k;
 
         if (r2_int<400){
-          float y1 = (j + 0.5f) * FD_cell_size_Y;
-          float y2 = (j - 0.5f) * FD_cell_size_Y;
-          for (int cnt1=0; cnt1<10; cnt1++){
-            float x = i * FD_cell_size_X + dev_qd_P_10_X[cnt1];
+          for (int cnt2=0; cnt2<10; cnt2++){
+            float y = j * FD_cell_size_Y + dev_qd_P_10_Y[cnt2];
             for (int cnt3=0; cnt3<10; cnt3++){
               float z = k * FD_cell_size_Z + dev_qd_P_10_Z[cnt3];
-              result += FD_cell_size_X * FD_cell_size_Z / 4.0f * dev_qd_W_10[cnt1] * dev_qd_W_10[cnt3] *
-                ( z*__powf(x*x+y1*y1+z*z, -1.5f) - z*__powf(x*x+y2*y2+z*z, -1.5f));
+              result += FD_cell_size_Y * FD_cell_size_Z / 4.0f * dev_qd_W_10[cnt2] * dev_qd_W_10[cnt3] *
+                ( - 2.0f*y*z/(y*y+z*z)/(y*y+z*z);
             }
           }
         }
         else{
-          float r2 = (i*FD_cell_size_X)*(i*FD_cell_size_X) + (j*FD_cell_size_Y)*(j*FD_cell_size_Y) + (k*FD_cell_size_Z)*(k*FD_cell_size_Z);
-          result += FD_cell_size_X * FD_cell_size_Y * FD_cell_size_Z * 
-                    ( - 3.0f* (j*FD_cell_size_Y) * (k*FD_cell_size_Z) * __powf(r2,-2.5f));
+          float r2 = (j*FD_cell_size_Y)*(j*FD_cell_size_Y) + (k*FD_cell_size_Z)*(k*FD_cell_size_Z);
+          result += FD_cell_size_Y * FD_cell_size_Z * 
+                    (- 2.0f* (j*FD_cell_size_Y) * (k*FD_cell_size_Y)/r2/r2);
         }
       }
-      result *= -1.0f/4.0f/3.14159265f;
-    }
+      result *= -1.0f/2.0f/3.14159265f;
+
+   }
   // ______________________________________________________________________________________________
 
 
@@ -190,30 +185,27 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z
       for(int cntb=-repetition_Y; cntb<=repetition_Y; cntb++)
       for(int cntc=-repetition_Z; cntc<=repetition_Z; cntc++){
 
-        int i = a + cnta*Nkernel_X/2;
         int j = b + cntb*Nkernel_Y/2;
         int k = c + cntc*Nkernel_Z/2;
-        int r2_int = i*i+j*j+k*k;
+        int r2_int = j*j+k*k;
 
         if (r2_int<400){
-          float z1 = (k + 0.5f) * FD_cell_size_Z;
-          float z2 = (k - 0.5f) * FD_cell_size_Z;
-          for (int cnt1=0; cnt1<10; cnt1++){
-            float x = i * FD_cell_size_X + dev_qd_P_10_X[cnt1];
-            for (int cnt2=0; cnt2<10; cnt2++){
-              float y = j * FD_cell_size_Y + dev_qd_P_10_Y[cnt2];
-              result += FD_cell_size_X * FD_cell_size_Y / 4.0f * dev_qd_W_10[cnt1] * dev_qd_W_10[cnt2] *
-                ( z1*__powf(x*x+y*y+z1*z1, -1.5f) - z2*__powf(x*x+y*y+z2*z2, -1.5f));
+          for (int cnt2=0; cnt2<10; cnt2++){
+            float y = j * FD_cell_size_Y + dev_qd_P_10_Y[cnt2];
+            for (int cnt3=0; cnt3<10; cnt3++){
+              float z = k * FD_cell_size_Z + dev_qd_P_10_Z[cnt3];
+              result += FD_cell_size_Y * FD_cell_size_Z / 4.0f * dev_qd_W_10[cnt2] * dev_qd_W_10[cnt3] *
+                ( 1.0f/(y*y+z*z) - 2.0f*z*z/(y*y+z*z)/(y*y+z*z);
             }
           }
         }
         else{
-          float r2 = (i*FD_cell_size_X)*(i*FD_cell_size_X) + (j*FD_cell_size_Y)*(j*FD_cell_size_Y) + (k*FD_cell_size_Z)*(k*FD_cell_size_Z);
-          result += FD_cell_size_X * FD_cell_size_Y * FD_cell_size_Z * 
-                    (1.0f/ __powf(r2,1.5f) - 3.0f* (k*FD_cell_size_Z) * (k*FD_cell_size_Z) * __powf(r2,-2.5f));
+          float r2 = (j*FD_cell_size_Y)*(j*FD_cell_size_Y) + (k*FD_cell_size_Z)*(k*FD_cell_size_Z);
+          result += FD_cell_size_Y * FD_cell_size_Z * 
+                    (1.0f/ r2 - 2.0f* (k*FD_cell_size_Y) * (k*FD_cell_size_Y)/r2/r2);
         }
       }
-      result *= -1.0f/4.0f/3.14159265f;
+      result *= -1.0f/2.0f/3.14159265f;
 
       if (a== 0 && b== 1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
       if (a== 0 && b==-1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
