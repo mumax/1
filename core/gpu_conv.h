@@ -10,7 +10,7 @@
 #include "gputil.h"
 #include "tensor.h"
 #include "param.h"
-//#include "kernel.h"
+#include "kernel.h"
 #include "gpufft2.h"
 #include "assert.h"
 #include "timer.h"

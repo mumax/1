@@ -21,10 +21,10 @@ CUFILES=\
 	gpurk4.cu\
 	gpuanal1.cu\
 	gpunormalize.cu\
-	gpukernel1.cu\
 	gpu_micromag3d_kernel.cu\
 	gpu_micromag2d_kernel.cu\
 	gpu_conv.cu\
+#	gpukernel1.cu\
 # NOTE: commented files must be LAST in the list, otherwise all the rest is also commented out
 
 OFILES=\
@@ -43,11 +43,11 @@ OFILES=\
 	field.o\
 	timestep.o\
 	kernel.o\
-	gpukernel1.o\
 	gpueuler.o\
 	gpu_micromag3d_kernel.o\
 	gpu_micromag2d_kernel.o\
 	gpu_conv.o\
+#	gpukernel1.o\
 
 all: core.so core.a doc
 
@@ -120,11 +120,11 @@ timestep.o:	timestep.h timestep.cpp
 kernel.o:	kernel.h kernel.cpp
 	$(NVCC) -c $(NVCCFLAGS) kernel.cpp
 
-gpukernel1.o:	gpukernel1.h gpukernel1.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpukernel1.cu
+#gpukernel1.o:	gpukernel1.h gpukernel1.cu
+#	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpukernel1.cu
 
 
-test:	$(OFILES) tensor_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test gpufft2_test gpukernel1_test
+test:	$(OFILES) tensor_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test gpufft2_test
 	./tensor_test
 	./gputil_test
 #	./gpueuler_test testm0.t testkernel.t
