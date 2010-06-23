@@ -66,7 +66,7 @@
 #include "gputil.h"
 #include <cufft.h>
 #include "gpufft2.h"
-#include "gpu_convutil.h"
+//#include "gpu_convutil.h"
 
 #ifdef __cplusplus
 extern "C" {

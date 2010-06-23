@@ -49,13 +49,14 @@ func (fft *FFT) PhysicSize() []int{
   return PhysicSize(fft.logicSize[0:]);
 }
 
-/// @todo get rid of ToCTensor, re-allocates each time!
 func (fft *FFT) Forward(in, out *Tensor){
-  C.gpuFFT3dPlan_forward((*_C_gpuFFT3dPlan)(fft.plan), ToCGPUTensor(in), ToCGPUTensor(out));
+//   tensor.AssertEqualSize(fft.logicSize, in.size);
+//   tensor.AssertEqualSize(fft.logicSize, out.size);
+  C.gpuFFT3dPlan_forward_unsafe( (*_C_gpuFFT3dPlan)(fft.plan), (*_C_float)(in->data), (*_C_float)(out->data) )
 }
 
 func (fft *FFT) Inverse(in, out *Tensor){
-  C.gpuFFT3dPlan_inverse((*_C_gpuFFT3dPlan)(fft.plan), ToCGPUTensor(in), ToCGPUTensor(out));
+  //C.gpuFFT3dPlan_inverse_unsafe((*_C_gpuFFT3dPlan)(fft.plan), );
 }
 
 
