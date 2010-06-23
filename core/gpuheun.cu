@@ -130,7 +130,7 @@ __global__ void _gpu_heunstage1(float* mx , float* my , float* mz ,
 // }
 
 void gpuheun_stage0(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
-  
+  debugvv((char*)"heun_stage0");
   int gridSize = -1, blockSize = -1;
   make1dconf(solver->mComp[X]->len, &gridSize, &blockSize); ///@todo cache in heun struct
 
@@ -148,7 +148,7 @@ void gpuheun_stage0(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
 }
 
 void gpuheun_stage1(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
-  
+  debugvv((char*)"heun_stage1");
   int gridSize = -1, blockSize = -1;
   make1dconf(solver->mComp[X]->len, &gridSize, &blockSize); ///@todo cache in heun struct
   
@@ -167,9 +167,22 @@ void gpuheun_stage1(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
 
 
 void gpuheun_step(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
+  debugvv((char*)"heun_step");
+  fprintf(stderr, "dt: %g\n", solver->params->maxDt);
+
+  solver->m->list = m->list;
+  solver->h->list = h->list;
+  for(int i=0; i<3; i++){
+    solver->mComp[i]->list = &(solver->m->list[i * solver->mComp[X]->len]);
+    solver->hComp[i]->list = &(solver->h->list[i * solver->hComp[X]->len]);
+  }
+  
+  
   if(solver->stage == 0){
+    tensor_copy_gpu_to_gpu(solver->m, solver->m0);
     gpuheun_stage0(solver, m, h, totalTime);
     *totalTime += 0.5 * solver->params->maxDt;
+    solver->stage++;
   }
   else{
     gpuheun_stage1(solver, m, h, totalTime);
@@ -247,9 +260,9 @@ gpuheun* new_gpuheun(param* p){
 
   //fprintf(stderr, "new_gpuheun([%d x %d x %d],[%d x %d x %d],[%g, %g, %g])\n", p->size[X], p->size[Y], p->size[Z], kernelSize[X], kernelSize[Y], kernelSize[Z], p->hExt[X], p->hExt[Y], p->hExt[Z]);
 
-  heun->m       = new_gputensor(4, size4D);
+  heun->m       = as_tensorN(NULL, 4, size4D);
   heun->m0      = new_gputensor(4, size4D);
-  heun->h       = new_gputensor(4, size4D);
+  heun->h       = as_tensorN(NULL, 4, size4D);
   heun->torque0 = new_gputensor(4, size4D);
 
   for(int i=0; i<3; i++){

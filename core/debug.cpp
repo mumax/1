@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-int _debug_verbosity = 1;
+int _debug_verbosity = 3;
 
 void debug_verbosity(int level){
   assert(level >= 0 && level <= 3);

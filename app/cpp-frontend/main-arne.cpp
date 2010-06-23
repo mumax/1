@@ -38,7 +38,11 @@ int main(int argc, char** argv){
     tensor_copy_from_gpu(m, mHost);
     sprintf(fname, "m%010d.t", i);
     write_tensor_fname(mHost, fname);
-    
+
+    tensor_copy_from_gpu(ts->h, mHost);
+    sprintf(fname, "h%010d.t", i);
+    write_tensor_fname(mHost, fname);
+
     
     for(int j=0; j<10; j++){
       timestep(ts, m, &totalTime);

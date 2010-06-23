@@ -9,6 +9,7 @@
 #ifndef GPUHEUN2_H
 #define GPUHEUN2_H
 
+#include "debug.h"
 #include "tensor.h"
 #include "param.h"
 #include "gpuconv2.h"
@@ -25,14 +26,14 @@ typedef struct{
 
   param* params;
   
-  tensor* m;
+  tensor* m; // todo: get rid of
   tensor* m0;
-  tensor* h;
+  tensor* h; // todo: get rid of
   tensor* torque0;
   
-  tensor* mComp[3];
+  tensor* mComp[3]; // todo: get rid of
   tensor* m0Comp[3];
-  tensor* hComp[3];
+  tensor* hComp[3]; // todo: get rid of
   tensor* torque0Comp[3];
 
   int stage;
