@@ -74,7 +74,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   assertDevice(input->list);
   assertDevice(output->list);
 
-  assert(input == output); ///@todo works only in-place for now
+  assert(input->list == output->list); ///@todo works only in-place for now
   assert(input->rank == 3);
   assert(output->rank == 3);
   for(int i=0; i<3; i++){
@@ -124,7 +124,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   assertDevice(input->list);
   assertDevice(output->list);
 
-  assert(input == output); ///@todo works only in-place for now
+  assert(input->list == output->list); ///@todo works only in-place for now
   assert(input->rank == 3);
   assert(output->rank == 3);
   for(int i=0; i<3; i++){
