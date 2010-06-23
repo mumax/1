@@ -1,8 +1,7 @@
 #include "main-arne.h"
 
 int main(int argc, char** argv){
-  beenhere();
-  abort();
+
   gpu_override_stride(1);
   
   printf("*** Device properties ***\n");
