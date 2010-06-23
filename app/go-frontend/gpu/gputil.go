@@ -75,6 +75,28 @@ func (t *Tensor) Get(index []int) float{
   return Get(t.data, i)
 }
 
+/// copies between two Tensors on the gpu
+func TensorCpyOn(source, dest *Tensor){
+  assert(tensor.EqualSize(source.size, dest.size))
+  MemcpyOn(source.data, dest.data, tensor.Len(source));
+}
+
+/// copies a tensor to the GPU
+func TensorCpyTo(source tensor.StoredTensor, dest *Tensor){
+  ///@todo gpu.Set(), allow tensor.Tensor source, type switch for efficient copying
+  ///@todo TensorCpy() with type switch for auto On/To/From
+  assert(tensor.EqualSize(source.Size(), dest.size))
+  MemcpyTo(&(source.List()[0]), dest.data, tensor.Len(source));
+}
+
+/// copies a tensor to the GPU
+func TensorCpyFrom(source *Tensor, dest tensor.StoredTensor){
+  ///@todo gpu.Set(), allow tensor.Tensor source, type switch for efficient copying
+  ///@todo TensorCpy() with type switch for auto On/To/From
+  assert(tensor.EqualSize(source.Size(), dest.Size()))
+  MemcpyFrom(source.data, &(dest.List()[0]), tensor.Len(source));
+}
+
 //_______________________________________________________________________________ stride
 
 /// The GPU stride in number of floats (!)

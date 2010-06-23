@@ -22,14 +22,18 @@ type Tensor interface {
 
 func Rank(t Tensor) int { return len(t.Size()) }
 
-
+/// @deprecated use Len
 func N(t Tensor) int {
-	n := 1
-	size := t.Size()
-	for i := range (size) {
-		n *= size[i]
-	}
-	return n
+  return Len(t)
+}
+
+func Len(t Tensor) int{
+    n := 1
+    size := t.Size()
+    for i := range (size) {
+        n *= size[i]
+    }
+    return n
 }
 
 /** Variadic get, utility method. */
