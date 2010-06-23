@@ -66,6 +66,7 @@
 #include "gputil.h"
 #include <cufft.h>
 #include "gpufft2.h"
+#include "gpu_convutil.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -176,17 +177,6 @@ void gpuconv2_copy_unpad(gpuconv2* conv,	///< this convolution plan contains the
 			 float* dest	 											///< source data on GPU, should have size: conv->size
 			 );
 
-/**
- * @internal
- *
- */
-void gpu_copy_pad(tensor* source, tensor* dest);
-
-/**
- * @internal
- *
- */
-void gpu_copy_unpad(tensor* source, tensor* dest); 
 
 #ifdef __cplusplus
 }

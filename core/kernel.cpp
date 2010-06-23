@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 
-tensor* init_kernel(param* params){
+tensor* new_kernel(param* params){
 
    tensor* kernel = NULL;
   

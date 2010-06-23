@@ -114,7 +114,9 @@ double unitenergy(param* p){
 }
 
 void param_print(FILE* out, param* p){
-  
+
+  fprintf(out, "\n*** Simulation parameters ***\n");
+
   fprintf(out, "msat         :\t%g A/m\n",   p->msat);
   fprintf(out, "aexch        :\t%g J/m\n",   p->aexch);
   fprintf(out, "mu0          :\t%g N/A^2\n", p->mu0);

@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 
-tensor* init_kernel(param*);
+tensor* new_kernel(param*);
 
 
 #ifdef __cplusplus
