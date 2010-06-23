@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 
+
 /**
  * Setting the verbosity controls how many debug messages are displayed.
  *
@@ -23,29 +24,44 @@ extern "C" {
  * which may cause a huge amount of output.
  *  - Level 0 means be silent, show no messages at all.
  *
+ * Example:
+ * @code
+    debugv( fprintf(stderr, "size = %d \n", size) );
+    beenhere();     // Prints: "Been here: file XXX.c, line YYY (only for verbosity 3)
+ * @endcode
+ *
  * @note Do not worry about performance. When compiling with NDEBUG defined,
  * all debug messages are suppressed and the compiler should throw away
- * the calls to empty functions.
+ * the calls to empty functions. (todo)
  */
 void debug_verbosity(int level);
+
+int debug_getverbosity();
+
+extern int _debug_verbosity;
 
 /**
  *  Prints a debug message that is considered generally useful and displayed by default
  */
-void debug(char* message);
+#define     debug(cmd)       { if(_debug_verbosity > 0){ cmd; } }
 
 /**
  * Prints a debug message that is only useful when we are specifically debugging.
  * It is not displayed by default, but only when the verbosity level is at 2 or higher
  */
-void debugv(char* message);
+#define     debugv(cmd)       { if(_debug_verbosity > 1){ cmd; } }
 
 /**
  * Prints a debug message that is annoying or printed a lot, like inside a loop.
  * It is not displayed by default, but only when the verbosity level is at 3 or higher
  */
-void debugvv(char* message);
+#define     debugvv(cmd)       { if(_debug_verbosity > 2){ cmd; } }
 
+/**
+ * Prints "Been here: " with the corresponding file and line number.
+ * Only for verbosity 3.
+ */
+#define    beenhere()         { if(_debug_verbosity > 2){ fprintf(stderr, "Been here: %s line %d\n", __FILE__, __LINE__); } }
 #ifdef __cplusplus
 }
 #endif
