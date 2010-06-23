@@ -15,6 +15,10 @@ func ToCTensor(t tensor.StoredTensor) *_C_tensor{
   return C.as_tensorN((*_C_float)(unsafe.Pointer(&(t.List()[0]))), (_C_int)(tensor.Rank(t)), (*_C_int)(unsafe.Pointer(&(t.Size()[0]))) );
 }
 
+func ToCGPUTensor(t *Tensor) *_C_tensor{
+  return C.as_tensorN((*_C_float)(t.data), (_C_int)(tensor.Rank(t)), (*_C_int)(unsafe.Pointer(&(t.Size()[0]))) );
+}
+
 func assert(b bool){
   if !b{
     log.Crash("assertion failed");

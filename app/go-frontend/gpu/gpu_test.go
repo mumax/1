@@ -2,11 +2,21 @@ package gpu
 
 import(
   "testing"
-  "tensor"
+  //"tensor"
 )
 
 func TestTensor(t *testing.T){
   
+}
+
+func TestFFT(t *testing.T){
+  size := []int{4, 8, 16}
+  fft := NewFFT(size)
+  in := NewTensor(fft.PhysicSize())
+  out := in // in place for now
+  fft.Forward(in, out)
+
+  fft.Inverse(in, out)
 }
 
 func TestStride(t *testing.T){

@@ -43,18 +43,36 @@ func Get(array unsafe.Pointer, index int) float{
 
 //_______________________________________________________________________________ tensor
 
+const(
+  X = 0
+  Y = 1
+  Z = 2
+)
+
 type Tensor struct{
   size []int
-  data unsafe.Pointer
+  data unsafe.Pointer   // points to float array on the GPU
+}
+
+func NewTensor(size []int) *Tensor{
+  t := new(Tensor)
+  t.size = make([]int, len(size))
+  length := 1
+  for i:= range size {
+    t.size[i] = size[i]
+    length *= size[i]
+  }
+  t.data = NewArray(length)
+  return t
 }
 
 func (t *Tensor) Size() []int{
-  return t.size;
+  return t.size
 }
 
 func (t *Tensor) Get(index []int) float{
-  i := tensor.Index(t.size, index);
-  return Get(t.data, i);
+  i := tensor.Index(t.size, index)
+  return Get(t.data, i)
 }
 
 //_______________________________________________________________________________ stride

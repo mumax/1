@@ -6,7 +6,7 @@ TARG=gpu
 CGOFILES=\
 	cgoutil.go\
 	gputil.go\
-
+	gpufft.go\
 
 
 CGO_LDFLAGS+=$(CURDIR)/../../../core/core.so
