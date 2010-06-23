@@ -88,6 +88,25 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan,       ///< the plan to be executed
                           tensor* input,            ///< input data, may be equal to output for in-place transforms.
                           tensor* output            ///< output data, it's size should match the strided "half complex" format (=plan->paddedStorageSize)
                           );
+
+/**
+ * @internal
+ * Forward (real-to-complex) transform.
+ */
+void gpuFFT3dPlan_forward_unsafe(gpuFFT3dPlan* plan,       ///< the plan to be executed
+                                 float* input,            ///< input data, it's size should match the strided "half complex" format (=plan->paddedStorageSize)
+                                 float* output            ///< output data, may be equal to input for in-place transforms.
+                                 );
+
+/**
+ * @internal
+ * Backward (complex-to-real) transform.
+ */
+void gpuFFT3dPlan_inverse_unsafe(gpuFFT3dPlan* plan,       ///< the plan to be executed
+                                 float* input,            ///< input data, may be equal to output for in-place transforms.
+                                 float* output            ///< output data, it's size should match the strided "half complex" format (=plan->paddedStorageSize)
+                                 );
+                          
 /**
  * FFT normalization factor.
  * After forward + inverse transforming, the data will be multiplied by this factor.

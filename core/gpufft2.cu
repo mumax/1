@@ -67,13 +67,9 @@ gpuFFT3dPlan* new_gpuFFT3dPlan(int* size){
   return new_gpuFFT3dPlan_padded(size, size); // when size == paddedsize, there is no padding
 }
 
-
 void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
-  timer_start("gpu_plan3d_real_input_forward_exec");
-  
   assertDevice(input->list);
   assertDevice(output->list);
-
   assert(input->list == output->list); ///@todo works only in-place for now
   assert(input->rank == 3);
   assert(output->rank == 3);
@@ -82,6 +78,12 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
     assert(output->size[i] == plan->paddedStorageSize[i]);
   }
   
+  gpuFFT3dPlan_forward_unsafe(plan, input->list, output->list);
+}
+
+void gpuFFT3dPlan_forward_unsafe(gpuFFT3dPlan* plan, float* input, float* output){
+  timer_start("gpu_plan3d_real_input_forward_exec");
+  
   int* size = plan->size;
   int* pSSize = plan->paddedStorageSize;
   int N0 = pSSize[X];
@@ -89,13 +91,13 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   int N2 = pSSize[Z]/2; // we treat the complex data as an N0 x N1 x N2 x 2 array
   int N3 = 2;
   
-  float* data = input->list;
+  float* data = input;
   float* data2 = plan->transp; // both the transpose and FFT are out-of-place between data and data2
   
 	for(int i=0; i<size[X]; i++){
     for(int j=0; j<size[Y]; j++){
-      float* rowIn  = &( input->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-      float* rowOut = &(output->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
+      float* rowIn  = &( input[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
+      float* rowOut = &(output[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
        gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)rowIn,  (cufftComplex*)rowOut) );
     }
   }
@@ -109,7 +111,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   // support for 2D transforms: do not transform if first dimension has size 1
   if(N0 > 1){
     gpu_transposeXZ_complex(data2, data, N0, N2, N1*N3); // size has changed due to previous transpose! // it's now in data2
-    gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)output->list, CUFFT_FORWARD) ); // it's now again in data
+    gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)output, CUFFT_FORWARD) ); // it's now again in data
     cudaThreadSynchronize();
   }
   cudaThreadSynchronize();
@@ -117,13 +119,9 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
 }
 
 
-
 void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
-  timer_start("gpu_plan3d_real_input_inverse_exec");
-  
   assertDevice(input->list);
   assertDevice(output->list);
-
   assert(input->list == output->list); ///@todo works only in-place for now
   assert(input->rank == 3);
   assert(output->rank == 3);
@@ -131,6 +129,11 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
     assert( input->size[i] == plan->paddedStorageSize[i]);
     assert(output->size[i] == plan->paddedStorageSize[i]);
   }
+  gpuFFT3dPlan_inverse_unsafe(plan, input->list, output->list);
+}
+
+void gpuFFT3dPlan_inverse_unsafe(gpuFFT3dPlan* plan, float* input, float* output){
+  timer_start("gpu_plan3d_real_input_inverse_exec");
   
   int* size = plan->size;
   int* pSSize = plan->paddedStorageSize;
@@ -139,7 +142,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   int N2 = pSSize[Z]/2; // we treat the complex data as an N0 x N1 x N2 x 2 array
   int N3 = 2;
   
-  float* data = input->list;
+  float* data = input;
   float* data2 = plan->transp; // both the transpose and FFT are out-of-place between data and data2
 
   if (N0 > 1){
@@ -156,8 +159,8 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
 
 	for(int i=0; i<size[X]; i++){
     for(int j=0; j<size[Y]; j++){
-      float* rowIn  = &( input->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-      float* rowOut = &(output->list[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
+      float* rowIn  = &( input[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
+      float* rowOut = &(output[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
       gpu_safe( cufftExecC2R(plan->invPlanZ, (cufftComplex*)rowIn, (cufftReal*)rowOut) ); 
     }
   }
