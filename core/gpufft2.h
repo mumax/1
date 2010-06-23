@@ -75,6 +75,8 @@ gpuFFT3dPlan* new_gpuFFT3dPlan(int* size       ///< size of real input data (3D)
 
 /**
  * Forward (real-to-complex) transform.
+ * Tensor sizes are checked.
+ * @see gpuFFT3dPlan_forward_unsafe()
  */
 void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan,       ///< the plan to be executed
                           tensor* input,            ///< input data, it's size should match the strided "half complex" format (=plan->paddedStorageSize)
@@ -83,6 +85,8 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan,       ///< the plan to be executed
 
 /**
  * Backward (complex-to-real) transform.
+ * Tensor sizes are checked.
+ * @see gpuFFT3dPlan_inverse_unsafe()
  */
 void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan,       ///< the plan to be executed
                           tensor* input,            ///< input data, may be equal to output for in-place transforms.
@@ -92,6 +96,8 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan,       ///< the plan to be executed
 /**
  * @internal
  * Forward (real-to-complex) transform.
+ * Sizes are not checked.
+ * @see gpuFFT3dPlan_forward()
  */
 void gpuFFT3dPlan_forward_unsafe(gpuFFT3dPlan* plan,       ///< the plan to be executed
                                  float* input,            ///< input data, it's size should match the strided "half complex" format (=plan->paddedStorageSize)
@@ -101,6 +107,8 @@ void gpuFFT3dPlan_forward_unsafe(gpuFFT3dPlan* plan,       ///< the plan to be e
 /**
  * @internal
  * Backward (complex-to-real) transform.
+ * Sizes are not checked.
+ * @see gpuFFT3dPlan_inverse()
  */
 void gpuFFT3dPlan_inverse_unsafe(gpuFFT3dPlan* plan,       ///< the plan to be executed
                                  float* input,            ///< input data, may be equal to output for in-place transforms.
