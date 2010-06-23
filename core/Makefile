@@ -46,8 +46,8 @@ OFILES=\
 	gpueuler.o\
 	gpu_micromag3d_kernel.o\
 	gpu_micromag2d_kernel.o\
-#	gpufft.o\
-#	gpuconv2.o\
+	gpufft.o\
+	gpuconv2.o\
 
 all: core.so core.a doc
 
