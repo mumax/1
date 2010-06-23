@@ -12,6 +12,7 @@
 #include "tensor.h"
 #include "param.h"
 #include "gpu_micromag3d_kernel.h"
+#include "gpu_micromag2d_kernel.h"
 
 #ifdef __cplusplus
 extern "C" {

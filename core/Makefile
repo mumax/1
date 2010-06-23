@@ -24,6 +24,7 @@ CUFILES=\
 	gpukernel1.cu\
 	gpu_micromag3d_kernel.cu\
 	gpu_micromag2d_kernel.cu\
+	gpu_conv.cu\
 # NOTE: commented files must be LAST in the list, otherwise all the rest is also commented out
 
 OFILES=\
@@ -46,8 +47,7 @@ OFILES=\
 	gpueuler.o\
 	gpu_micromag3d_kernel.o\
 	gpu_micromag2d_kernel.o\
-	gpufft.o\
-	gpuconv2.o\
+	gpu_conv.o\
 
 all: core.so core.a doc
 
@@ -104,6 +104,9 @@ gpu_micromag3d_kernel.o:	gpu_micromag3d_kernel.h gpu_micromag3d_kernel.cu
 
 gpu_micromag2d_kernel.o:	gpu_micromag2d_kernel.h gpu_micromag2d_kernel.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_micromag2d_kernel.cu
+
+gpu_conv.o:	gpu_conv.h gpu_conv.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_conv.cu
 
 timer.o:	timer.h timer.cpp
 	$(NVCC) -c $(NVCCFLAGS) timer.cpp
@@ -183,6 +186,10 @@ gpu_micromag2d_kernel_test: $(OFILES) gpu_micromag2d_kernel_test.cpp
 gpukernel1_test: $(OFILES) gpukernel1_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpukernel1_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpukernel1_test.o -o gpukernel1_test
+
+gpu_conv_test: $(OFILES) gpu_conv_test.cpp
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpu_conv_test.cpp
+	$(NVCC) $(CUDALIBS) $(OFILES) gpu_conv_test.o -o gpu_conv_test
 
 
 .PHONY:	clean

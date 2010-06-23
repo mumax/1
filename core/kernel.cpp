@@ -11,10 +11,10 @@ tensor* new_kernel(param* params){
   
    int kernelType = params->kernelType;
    if(kernelType == KERNEL_MICROMAG3D){
-      //kernel = gpu_micromag3d_kernel(params);
+      kernel = gpu_micromag3d_kernel(params);
    }
    else if(kernelType == KERNEL_MICROMAG2D){
-      //..
+      kernel = gpu_micromag2d_kernel(params);
    }
    else{
       fprintf(stderr, "Unknown kernel type: %d\n", kernelType);
