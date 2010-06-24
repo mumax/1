@@ -22,7 +22,6 @@ git branch -a
 git checkout -b ben origin/ben
 git checkout -b arne origin/arne
 
-
 * CUDA
 cuda 3.0 + devdriver
 compute-exclusive mode?
