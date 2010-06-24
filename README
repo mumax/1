@@ -17,9 +17,9 @@ git svn dcommit
 git svn rebase
 
 * Git
-git clone dynamag.ugent.be/home/sim/git .
+git clone dynamag.ugent.be/home/arne/git .
 git branch -a
-git checkout -b ben origin/ben
+git checkout -b ben-svn origin/ben-svn
 git checkout -b arne origin/arne
 
 * CUDA
