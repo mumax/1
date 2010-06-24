@@ -35,8 +35,6 @@ OFILES=\
 	timer.o\
 	gputil.o\
 	gpuconv1.o\
-	gpuconv2.o\
-	gpufft.o\
 	gpufft2.o\
 	gpuheun.o\
 	gpurk4.o\
@@ -195,7 +193,7 @@ gpu_conv_test: $(OFILES) gpu_conv_test.cpp
 
 
 .PHONY:	clean
-clean:
+clean:	
 	rm -f *.o *.so *.a iotest *_test
 	chmod u+x make-emu.sh
 
