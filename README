@@ -68,7 +68,7 @@ automount win partition:
 ln -s /media/xp /home/XXX/My\ Documents
 
 purge network-manager-kde
-install network-manager-gnome 
+install network-manager-gnome
 
 install network-manager-vpnc
 nm-applet: add cisco compatible
