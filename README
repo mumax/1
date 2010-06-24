@@ -6,8 +6,8 @@ simlink /var/www/user
 sftp access to sim/$user, home: add entry to "places" in dolphin
 install kdesvn
 
-* Git
-install git-svn
+* Git-svn
+install git-svn gitk
 git svn clone -s svn+ssh://dynamag.ugent.be/home/sim/svn/multiscale .
 git svn rebase
 git diff --color
@@ -15,6 +15,13 @@ git add ...
 git commit -a
 git svn dcommit
 git svn rebase
+
+* Git
+git clone dynamag.ugent.be/home/sim/git .
+git branch -a
+git checkout -b ben origin/ben
+git checkout -b arne origin/arne
+
 
 * CUDA
 cuda 3.0 + devdriver
