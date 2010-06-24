@@ -10,16 +10,21 @@ int main(int argc, char** argv){
   print_device_properties(stdout);
   param* p = read_param();
   param_print(stdout, p);
+
   
   int size4d[4] = {3, p->size[X], p->size[Y], p->size[Z]};
   tensor *m = new_gputensor(4, size4d);
   tensor *h = new_gputensor(4, size4d);
 
-
+    // initialization of kernel
   tensor* kernel = new_kernel(p);
+    // initialization of convolution
   conv_data *conv = new_conv_data(p, kernel);
   
+    //evaluating a convolution
   evaluate_convolution(m, h, conv, p);
+  
+  printf("PASS\n");
 
   return 0;
 }
@@ -61,7 +66,7 @@ param* read_param(){
   for (int i=0; i<3; i++)
     p->exchInConv[i] = (p->demagCoarse[i]==1) ? 1:0;
   
-  p->kernelType = KERNEL_MICROMAG2D;
+  p->kernelType = KERNEL_MICROMAG3D;
     
   
   return p;

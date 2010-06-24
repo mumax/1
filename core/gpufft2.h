@@ -138,6 +138,14 @@ void gpu_tensor_transposeXZ_complex(tensor* source, ///< source data, size N0 x 
                                     tensor* dest   ///< destination data, size N2 x N1 x (2*N0)
                              );
 
+                             
+                             
+void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2);
+__global__ void _gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2);
+void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2);
+__global__ void _gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2);
+
+
 #ifdef __cplusplus
 }
 #endif
