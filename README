@@ -6,15 +6,21 @@ simlink /var/www/user
 sftp access to sim/$user, home: add entry to "places" in dolphin
 install kdesvn
 
-* Git
-install git-svn
-git svn clone -s svn+ssh://dynamag.ugent.be/home/sim/arne/git .
+* Git-svn
+install git-svn gitk
+git svn clone -s svn+ssh://dynamag.ugent.be/home/sim/svn/multiscale .
 git svn rebase
 git diff --color
 git add ...
 git commit -a
 git svn dcommit
 git svn rebase
+
+* Git
+git clone dynamag.ugent.be/home/arne/git .
+git branch -a
+git checkout -b ben-svn origin/ben-svn
+git checkout -b arne origin/arne
 
 * CUDA
 cuda 3.0 + devdriver
@@ -62,7 +68,7 @@ automount win partition:
 ln -s /media/xp /home/XXX/My\ Documents
 
 purge network-manager-kde
-install network-manager-gnome
+install network-manager-gnome 
 
 install network-manager-vpnc
 nm-applet: add cisco compatible

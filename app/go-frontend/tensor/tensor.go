@@ -38,10 +38,10 @@ func Len(t Tensor) int{
 
 /** Variadic get, utility method. */
 
-// func Get(t Tensor, index_vararg ...) float {
-// 	indexarr := ToIntArray(index_vararg)
-// 	return t.Get(indexarr)
-// }
+func Get(t Tensor, index_vararg ... int) float {
+	indexarr := ToIntArray(index_vararg)
+	return t.Get(indexarr)
+}
 
 
 /** Converts vararg to int array. */
