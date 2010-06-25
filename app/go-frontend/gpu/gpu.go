@@ -10,12 +10,22 @@ package gpu
 import "C"
 import "unsafe"
 
+/**
+ * This single file intefaces all the relevant CUDA functions with go
+ * 
+ * @note cgo does not seem to like many cgofiles, so I put everything together here.
+ * @author Arne Vansteenkiste
+ */
+
 import(
   "tensor"
   "log"
 )
 
-// from gpuconv2.h
+//___________________________________________________________________________________________________ Kernel multiplication
+
+//
+// from gpuconv2.h:
 // void gpu_kernel_mul_complex_inplace_symm(float* fftMx,  float* fftMy,  float* fftMz,
 //                                          float* fftKxx, float* fftKyy, float* fftKzz,
 //                                          float* fftKyz, float* fftKxz, float* fftKxy,
@@ -29,7 +39,9 @@ func KernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNum
         _C_int(nRealNumbers))
 }
 
-///@todo belongs in gpupad.go, but does not compile there
+//___________________________________________________________________________________________________ Copy-pad
+
+
 ///Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
 func CopyPad(source, dest *Tensor){
   C.gpu_copy_pad_unsafe((*_C_float)(source.data), (*_C_float)(dest.data),
@@ -37,7 +49,7 @@ func CopyPad(source, dest *Tensor){
                         _C_int(  dest.size[0]), _C_int(  dest.size[1]), _C_int(  dest.size[2]))
 }
 
-///@todo belongs in gpupad.go, but does not compile there
+
 ///Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
 func CopyUnpad(source, dest *Tensor){
   C.gpu_copy_unpad_unsafe((*_C_float)(source.data), (*_C_float)(dest.data),
@@ -45,6 +57,7 @@ func CopyUnpad(source, dest *Tensor){
                         _C_int(  dest.size[0]), _C_int(  dest.size[1]), _C_int(  dest.size[2]))
 }
 
+//___________________________________________________________________________________________________ FFT
 
 /// 3D real-to-complex / complex-to-real transform. Handles zero-padding efficiently (if applicable)
 type FFT struct{
@@ -108,9 +121,7 @@ func (fft *FFT) Normalization() int{
 }
 
 
-
-
-//_______________________________________________________________________________ memory
+//_______________________________________________________________________________ GPU memory allocation
 
 /**
  * Allocates an array of floats on the GPU.
@@ -141,7 +152,7 @@ func Get(array unsafe.Pointer, index int) float{
   return float(C.gpu_get((*_C_float)(array), _C_int(index)));
 }
 
-//_______________________________________________________________________________ tensor
+//_______________________________________________________________________________ GPU tensor
 
 const(
   X = 0
@@ -149,6 +160,7 @@ const(
   Z = 2
 )
 
+/// a Tensor whose data resides on the GPU, implements tensor.Tensor.
 type Tensor struct{
   size []int
   data unsafe.Pointer   // points to float array on the GPU
@@ -197,7 +209,7 @@ func TensorCpyFrom(source *Tensor, dest tensor.StoredTensor){
   MemcpyFrom(source.data, &(dest.List()[0]), tensor.Len(source));
 }
 
-//_______________________________________________________________________________ stride
+//___________________________________________________________________________________________________ GPU Stride
 
 /// The GPU stride in number of floats (!)
 func Stride() int{
