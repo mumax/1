@@ -37,6 +37,7 @@ OFILES=\
 	gputil.o\
 	gpupad.o\
 	gpuconv1.o\
+	gpuconv2.o\
 	gpufft2.o\
 	gpuheun.o\
 	gpurk4.o\
