@@ -6,6 +6,7 @@
  */
 
 #include "gputil.h"
+#include "gpupad.h"
 #include "gpuconv2.h"
 #include "gpufft2.h"
 #include "tensor.h"
