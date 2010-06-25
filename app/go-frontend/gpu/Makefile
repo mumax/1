@@ -4,9 +4,7 @@ PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 
 TARG=gpu
 CGOFILES=\
-	cgoutil.go\
-	gputil.go\
-	gpufft.go\
+	gpu.go\
 
 
 CGO_LDFLAGS+=$(CURDIR)/../../../core/core.so
