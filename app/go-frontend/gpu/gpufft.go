@@ -3,6 +3,7 @@ package gpu
 /*
 #include "../../../core/gpufft2.h"
 #include "../../../core/gpupad.h"
+#include "../../../core/gpuconv2.h"
 */
 import "C"
 import "unsafe"
@@ -10,6 +11,20 @@ import "unsafe"
 import(
 //   "tensor"
 )
+
+// from gpuconv2.h
+// void gpu_kernel_mul_complex_inplace_symm(float* fftMx,  float* fftMy,  float* fftMz,
+//                                          float* fftKxx, float* fftKyy, float* fftKzz,
+//                                          float* fftKyz, float* fftKxz, float* fftKxy,
+//                                          int nRealNumbers);
+
+func KernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int){
+  C.gpu_kernel_mul_complex_inplace_symm(
+        (*_C_float)(mx), (*_C_float)(my), (*_C_float)(mz),
+        (*_C_float)(kxx), (*_C_float)(kyy), (*_C_float)(kzz),
+        (*_C_float)(kyz), (*_C_float)(kxz), (*_C_float)(kxy),
+        _C_int(nRealNumbers))
+}
 
 ///@todo belongs in gpupad.go, but does not compile there
 ///Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
