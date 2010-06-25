@@ -12,6 +12,7 @@ CPPFILES=\
 
 CUFILES=\
 	gputil.cu\
+	gpupad.cu\
 	gpuconv1.cu\
 	gpuconv2.cu\
 	gpufft.cu\
@@ -34,6 +35,7 @@ OFILES=\
 	pipes.o\
 	timer.o\
 	gputil.o\
+	gpupad.o\
 	gpuconv1.o\
 	gpufft2.o\
 	gpuheun.o\
@@ -71,6 +73,9 @@ pipes.o:	pipes.h pipes.cpp
 
 gputil.o:	gputil.h gputil.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gputil.cu
+
+gpupad.o:	gpupad.h gpupad.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpupad.cu
 
 gpuconv1.o:	gpuconv1.h gpuconv1.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuconv1.cu

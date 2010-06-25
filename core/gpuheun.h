@@ -6,8 +6,8 @@
  * @author Arne Vansteenkiste
  *
  */
-#ifndef GPUHEUN2_H
-#define GPUHEUN2_H
+#ifndef GPUHEUN_H
+#define GPUHEUN_H
 
 #include "debug.h"
 #include "tensor.h"
