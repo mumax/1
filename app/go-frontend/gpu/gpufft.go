@@ -11,12 +11,21 @@ import(
 //   "tensor"
 )
 
+///@todo belongs in gpupad.go, but does not compile there
+///Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
 func CopyPad(source, dest *Tensor){
   C.gpu_copy_pad_unsafe((*_C_float)(source.data), (*_C_float)(dest.data),
                         _C_int(source.size[0]), _C_int(source.size[1]), _C_int(source.size[2]),
                         _C_int(  dest.size[0]), _C_int(  dest.size[1]), _C_int(  dest.size[2]))
 }
 
+///@todo belongs in gpupad.go, but does not compile there
+///Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
+func CopyUnpad(source, dest *Tensor){
+  C.gpu_copy_unpad_unsafe((*_C_float)(source.data), (*_C_float)(dest.data),
+                        _C_int(source.size[0]), _C_int(source.size[1]), _C_int(source.size[2]),
+                        _C_int(  dest.size[0]), _C_int(  dest.size[1]), _C_int(  dest.size[2]))
+}
 
 
 /// 3D real-to-complex / complex-to-real transform. Handles zero-padding efficiently (if applicable)
