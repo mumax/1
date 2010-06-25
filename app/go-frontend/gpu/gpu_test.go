@@ -29,6 +29,7 @@ func TestFFT(t *testing.T){
   
   size := []int{4, 8, 4}
   fft := NewFFT(size)
+  fmt.Println(fft)
   physicSize := fft.PhysicSize()
 
   dev1 := NewTensor(physicSize);//, NewTensor(physicSize)
