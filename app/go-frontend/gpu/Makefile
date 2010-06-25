@@ -6,7 +6,6 @@ TARG=gpu
 CGOFILES=\
 	cgoutil.go\
 	gputil.go\
-	gpupad.go\
 	gpufft.go\
 
 
