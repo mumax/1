@@ -158,6 +158,14 @@ void gpu_kernel_mul2(float* ft_m_i,		    ///< multiplication input 1
 		     int nRealNumbers									///< the number of floats(!) in each of the arrays, thus twice the number of complex's in them.
 		     );
 
+             
+///@internal
+void gpu_kernel_mul_complex_inplace_symm(float* fftMx,  float* fftMy,  float* fftMz,
+                                         float* fftKxx, float* fftKyy, float* fftKzz,
+                                         float* fftKyz, float* fftKxz, float* fftKxy,
+                                         int nRealNumbers);
+
+             
 /**
  * @internal
  * Copies 3D data to a zero-padded, strided destination. Runs on the GPU.
