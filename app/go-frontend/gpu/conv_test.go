@@ -13,7 +13,8 @@ func TestConv(t *testing.T){
   kernelSize := []int{8, 16, 32}
   
   conv := NewConv(size, kernelSize)
-  conv.LoadKernel6(sim.FaceKernel6(size))
+  kernel := sim.FaceKernel6(size, []float{1., 1., 1.})
+  conv.LoadKernel6(kernel)
   
   for i:=range(conv.kernel){
     fmt.Println(i)

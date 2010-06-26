@@ -17,7 +17,7 @@ package sim
  */
 
 import(
-  . "../tensor";
+  . "tensor";
   . "math";
 )
 

@@ -1,7 +1,7 @@
 package sim
 
 import(
-  . "../tensor";
+  . "tensor";
   . "math";
 )
 
@@ -64,7 +64,7 @@ const(
 )
 
 /// converts from the full "rank-5" kernel format to the symmetric "array-of-rank3-tensors" format
-func FaceKernel6(unpaddedsize []int, cellsize []float) []*Tensor3{
+func FaceKernel6(unpaddedsize []int, cellsize []float) []*Tensor3 {
   k9 := FaceKernel(unpaddedsize, cellsize)
   k9X := k9.Component(X)
   k9Y := k9.Component(Y)

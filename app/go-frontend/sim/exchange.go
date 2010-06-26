@@ -2,7 +2,7 @@ package sim
 
 import(
   //. "../assert";
-  . "../tensor";
+  . "tensor";
   //. "../fft";
   //. "math";
   //. "fmt";

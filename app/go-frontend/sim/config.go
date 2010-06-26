@@ -1,7 +1,7 @@
 package sim
 
 import(
-  . "../tensor"
+  . "tensor"
 )
 
 func Uniform(m *Tensor4, x, y, z float){

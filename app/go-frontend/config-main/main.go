@@ -6,8 +6,8 @@ package main
  */
   
 import( 
-  . "../tensor";
-  . "../sim";
+  . "tensor";
+  . "sim";
   "os";
   "fmt";
 )

@@ -47,7 +47,7 @@ func (conv *Conv) PhysicSize() []int{
 }
 
 
-func (conv *Conv) LoadKernel6(kernel []tensor.StoredTensor){
+func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
   // size checks
   
   buffer := tensor.NewTensorN(conv.KernelSize())

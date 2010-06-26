@@ -1,7 +1,7 @@
 package main
   
 import( 
-  . "../tensor";
+  . "tensor";
   . "image";
   "image/png";
   //"../refsh";
