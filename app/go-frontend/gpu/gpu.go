@@ -62,8 +62,8 @@ func CopyUnpad(source, dest *Tensor){
 /// 3D real-to-complex / complex-to-real transform. Handles zero-padding efficiently (if applicable)
 type FFT struct{
   plan unsafe.Pointer           ///< points to the gpuFFT3dPlan struct that does the actual FFT
-  logicSize  [3]int             ///< logical size of the FFT, including padding: number of reals in each dimension
   dataSize   [3]int             ///< size of the non-zero data inside the logic input data. Must be <= logicSize
+  logicSize  [3]int             ///< logical size of the FFT, including padding: number of reals in each dimension
   physicSize [3]int             ///< The input data needs to be padded with zero's to physicSize, in order to accomodate for the extra complex number in the last dimension needed by real-to-complex FFTS. Additionally, even extra zero's are probably going to be added to fit the gpu stride.
 }
 
@@ -99,20 +99,28 @@ func NewFFTPadded(logicSize, dataSize []int) *FFT{
 /**
  * Returns the physical size (needed for storage) corresponding to this
  * FFT's logical size. It is at least 2 floats larger in the Z dimension,
- * and probably even more due to GPU striding.
+ * and usually even more due to GPU striding.
  */
 func (fft *FFT) PhysicSize() []int{
   return fft.physicSize[0:]
 }
 
+func (fft *FFT) LogicSize() []int{
+  return fft.logicSize[0:]
+}
+
+func (fft *FFT) DataSize() []int{
+  return fft.dataSize[0:]
+}
+
 
 func (fft *FFT) Forward(in, out *Tensor){
-
+  ///@todo check sizes
   C.gpuFFT3dPlan_forward_unsafe((*_C_gpuFFT3dPlan)(fft.plan), (*_C_float)(in.data), (*_C_float)(out.data))
 }
 
 func (fft *FFT) Inverse(in, out *Tensor){
-
+  ///@todo check sizes
   C.gpuFFT3dPlan_inverse_unsafe((*_C_gpuFFT3dPlan)(fft.plan), (*_C_float)(in.data), (*_C_float)(out.data));
 }
 
@@ -148,8 +156,12 @@ func MemcpyOn(source, dest unsafe.Pointer, nFloats int){
 }
 
 /// Gets one float from a GPU array
-func Get(array unsafe.Pointer, index int) float{
-  return float(C.gpu_get((*_C_float)(array), _C_int(index)));
+func ArrayGet(array unsafe.Pointer, index int) float{
+  return float(C.gpu_array_get((*_C_float)(array), _C_int(index)));
+}
+
+func ArraySet(array unsafe.Pointer, index int, value float){
+  C.gpu_array_set((*_C_float)(array), _C_int(index), _C_float(value))
 }
 
 //_______________________________________________________________________________ GPU tensor
@@ -184,17 +196,25 @@ func (t *Tensor) Size() []int{
 
 func (t *Tensor) Get(index []int) float{
   i := tensor.Index(t.size, index)
-  return Get(t.data, i)
+  return ArrayGet(t.data, i)
+}
+
+func Len(size []int) int{
+  length := 1
+  for i:=range size{
+    length *= size[i]
+  }
+  return length
 }
 
 /// copies between two Tensors on the gpu
-func TensorCpyOn(source, dest *Tensor){
+func TensorCopyOn(source, dest *Tensor){
   assert(tensor.EqualSize(source.size, dest.size))
   MemcpyOn(source.data, dest.data, tensor.Len(source));
 }
 
 /// copies a tensor to the GPU
-func TensorCpyTo(source tensor.StoredTensor, dest *Tensor){
+func TensorCopyTo(source tensor.StoredTensor, dest *Tensor){
   ///@todo gpu.Set(), allow tensor.Tensor source, type switch for efficient copying
   ///@todo TensorCpy() with type switch for auto On/To/From
   assert(tensor.EqualSize(source.Size(), dest.size))
@@ -202,7 +222,7 @@ func TensorCpyTo(source tensor.StoredTensor, dest *Tensor){
 }
 
 /// copies a tensor to the GPU
-func TensorCpyFrom(source *Tensor, dest tensor.StoredTensor){
+func TensorCopyFrom(source *Tensor, dest tensor.StoredTensor){
   ///@todo gpu.Set(), allow tensor.Tensor source, type switch for efficient copying
   ///@todo TensorCpy() with type switch for auto On/To/From
   assert(tensor.EqualSize(source.Size(), dest.Size()))
