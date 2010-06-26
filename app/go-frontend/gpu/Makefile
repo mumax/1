@@ -12,7 +12,7 @@ GOFILES=\
 CGO_LDFLAGS+=$(CURDIR)/../../../core/core.so
 
 # files to be removed by make clean
-CLEANFILES+=$(PKGDIR)/$(TARG).a
+CLEANFILES+=$(PKGDIR)/$(TARG).a $(PKGDIR)/$(TARG).so
 
 include $(GOROOT)/src/Make.pkg
 

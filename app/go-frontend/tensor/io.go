@@ -83,11 +83,15 @@ func Print(out io.Writer, t Tensor){
 
 /** Prints the tensor in ASCII with some row/column formatting to make it easier to read for humans. */
 func Format(out io.Writer, t Tensor){
-//   fmt.Fprintln(out, Rank(t));
-//   
-//   for i:=range(t.Size()){
-//     fmt.Fprintln(out, t.Size()[i]);
-//   }
+  if t == nil{
+    fmt.Fprintln(out, "nil")
+    return
+  }
+  
+  for i:=range(t.Size()){
+    fmt.Fprint(out, t.Size()[i], " ");
+  }
+  fmt.Fprintln(out);
   
   for i:=NewIterator(t); i.HasNext(); i.Next(){
     //fmt.Fprintf(out, "%f ", i.Get()); // %15f

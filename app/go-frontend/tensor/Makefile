@@ -1,4 +1,5 @@
 include $(GOROOT)/src/Make.$(GOARCH)
+PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 
 TARG=tensor
 CGOFILES=native.go
@@ -16,7 +17,7 @@ GOFILES=\
 
 
 # files to be removed by make clean
-CLEANFILES+=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)/tensor_native.so iotest
+CLEANFILES+=$(PKGDIR)/$(TARG).a $(PKGDIR)/$(TARG).so iotest
 
 include $(GOROOT)/src/Make.pkg
 
