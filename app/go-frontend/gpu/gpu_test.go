@@ -18,11 +18,11 @@ func TestPad(t *testing.T){
     host1.List()[i] = float(i)
   }
 
-  TensorCpyTo(host1, dev1)
+  TensorCopyTo(host1, dev1)
   CopyPad(dev1, dev2)
   ZeroTensor(dev1)
   CopyUnpad(dev2, dev1)
-  TensorCpyFrom(dev1, host2)
+  TensorCopyFrom(dev1, host2)
 
   assert(tensor.Equals(host1, host2))
 }
@@ -36,9 +36,9 @@ func TestTensor(t *testing.T){
     host1.List()[i] = float(i)
   }
   
-  TensorCpyTo(host1, dev1)
-  TensorCpyOn(dev1, dev2)
-  TensorCpyFrom(dev2, host2)
+  TensorCopyTo(host1, dev1)
+  TensorCopyOn(dev1, dev2)
+  TensorCopyFrom(dev2, host2)
 
   assert(tensor.Equals(host1, host2))
 }
@@ -59,7 +59,7 @@ func TestFFT(t *testing.T){
     host1.List()[i] = float(i)
   }
 
-  TensorCpyTo(host1, devLog)
+  TensorCopyTo(host1, devLog)
   CopyPad(devLog, devPhys)
   tensor.Format(os.Stdout, devPhys)
   fft.Forward(devPhys, devPhys)
@@ -68,7 +68,7 @@ func TestFFT(t *testing.T){
   tensor.Format(os.Stdout, devPhys)
   CopyUnpad(devPhys, devLog)
   tensor.Format(os.Stdout, devLog)
-  TensorCpyFrom(devLog, host2)
+  TensorCopyFrom(devLog, host2)
 
   N := float(fft.Normalization());
   var maxError float = 0
