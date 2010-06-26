@@ -156,8 +156,12 @@ func MemcpyOn(source, dest unsafe.Pointer, nFloats int){
 }
 
 /// Gets one float from a GPU array
-func Get(array unsafe.Pointer, index int) float{
-  return float(C.gpu_get((*_C_float)(array), _C_int(index)));
+func ArrayGet(array unsafe.Pointer, index int) float{
+  return float(C.gpu_array_get((*_C_float)(array), _C_int(index)));
+}
+
+func ArraySet(array unsafe.Pointer, index int, value float){
+  C.gpu_array_set((*_C_float)(array), _C_int(index), _C_float(value))
 }
 
 //_______________________________________________________________________________ GPU tensor
@@ -192,7 +196,7 @@ func (t *Tensor) Size() []int{
 
 func (t *Tensor) Get(index []int) float{
   i := tensor.Index(t.size, index)
-  return Get(t.data, i)
+  return ArrayGet(t.data, i)
 }
 
 /// copies between two Tensors on the gpu
