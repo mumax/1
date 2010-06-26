@@ -3,21 +3,15 @@
 include ../../common.mk
 
 all:
-	make -C tensor
 	make install -C tensor
-	ln -sf tensor/_obj/tensor.a .
-
+	
 # 	make -C core
 # 	make install -C core
 
 	make install -C gpu
-
-	make -C refsh
-	ln -sf refsh/_obj/refsh.a .
-
-	make -C sim
-	ln -sf sim/_obj/sim.a .
-
+	make install -C refsh
+	make install -C sim
+	
 	make -C tensor-main
 	make -C kernel-main
 	make -C config-main
