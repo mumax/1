@@ -47,17 +47,21 @@ func (conv *Conv) PhysicSize() []int{
 }
 
 
-func (conv *Conv) LoadKernel6(kernel []tensor.Tensor){
+func (conv *Conv) LoadKernel6(kernel []tensor.StoredTensor){
   // size checks
   
-  buffer := tensor.NewTensorN(conv.PhysicSize())
+  buffer := tensor.NewTensorN(conv.KernelSize())
+  devbuf := NewTensor(conv.KernelSize())
   
   fft := NewFFT(conv.KernelSize())
   for i:= range conv.kernel{
     if kernel[i] != nil{
-      //tensor.CopyInto(kernel[i], buffer)
       conv.kernel[i] = NewTensor(conv.PhysicSize())
-      TensorCopyTo(buffer, conv.kernel[i])
+
+      tensor.CopyTo(kernel[i], buffer)
+      TensorCopyTo(buffer, devbuf)
+      CopyPad(devbuf, conv.kernel[i])   ///@todo padding should be done on host, not device, to save gpu memory / avoid fragmentation
+      
       fft.Forward(conv.kernel[i], conv.kernel[i])
     }
   }
