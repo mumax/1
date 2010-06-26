@@ -199,14 +199,22 @@ func (t *Tensor) Get(index []int) float{
   return ArrayGet(t.data, i)
 }
 
+func Len(size []int) int{
+  length := 1
+  for i:=range size{
+    length *= size[i]
+  }
+  return length
+}
+
 /// copies between two Tensors on the gpu
-func TensorCpyOn(source, dest *Tensor){
+func TensorCopyOn(source, dest *Tensor){
   assert(tensor.EqualSize(source.size, dest.size))
   MemcpyOn(source.data, dest.data, tensor.Len(source));
 }
 
 /// copies a tensor to the GPU
-func TensorCpyTo(source tensor.StoredTensor, dest *Tensor){
+func TensorCopyTo(source tensor.StoredTensor, dest *Tensor){
   ///@todo gpu.Set(), allow tensor.Tensor source, type switch for efficient copying
   ///@todo TensorCpy() with type switch for auto On/To/From
   assert(tensor.EqualSize(source.Size(), dest.size))
@@ -214,7 +222,7 @@ func TensorCpyTo(source tensor.StoredTensor, dest *Tensor){
 }
 
 /// copies a tensor to the GPU
-func TensorCpyFrom(source *Tensor, dest tensor.StoredTensor){
+func TensorCopyFrom(source *Tensor, dest tensor.StoredTensor){
   ///@todo gpu.Set(), allow tensor.Tensor source, type switch for efficient copying
   ///@todo TensorCpy() with type switch for auto On/To/From
   assert(tensor.EqualSize(source.Size(), dest.Size()))

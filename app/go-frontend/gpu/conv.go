@@ -6,11 +6,7 @@ import(
 
 
 type Conv struct{
-//   dataSize   [3]int                 ///< size of the magnetization and field, this becomes the FFT dataSize
-//   logicSize  [3]int                 ///< size of magnetization + padding zeros, this becomes the FFT logicSize
-//   physicSize [3]int                 ///< logic size + even more padding zeros
-
-  kernel     [6]*Tensor                 ///< should have logicSize
+  kernel     [6]*Tensor
   fft       *FFT;
 }
 
@@ -23,6 +19,7 @@ const(
   XY = 5
 )
 
+
 func NewConv(dataSize, kernelSize []int) *Conv{
   ///@todo size check
   
@@ -31,19 +28,40 @@ func NewConv(dataSize, kernelSize []int) *Conv{
   return conv
 }
 
+
+/// size of the magnetization and field, this is the FFT dataSize
 func (conv *Conv) DataSize() []int{
   return conv.fft.DataSize()
 }
 
+
+/// size of magnetization + padding zeros, this is the FFT logicSize
 func (conv *Conv) KernelSize() []int{
   return conv.fft.LogicSize()
 }
 
-func (conv *Conv) LoadKernel9(kernel tensor.Tensor){
-//   fft := NewFFT(conv.KernelSize())
-//   for i:= range conv.kernel{
-//     conv.kernel[i] = NewArray(conv.fft.physicSize);
-//   }
+
+/// size of magnetization + padding zeros + striding zeros, this is the FFT logicSize
+func (conv *Conv) PhysicSize() []int{
+  return conv.fft.PhysicSize()
+}
+
+
+func (conv *Conv) LoadKernel6(kernel []tensor.Tensor){
+  // size checks
+  
+  buffer := tensor.NewTensorN(conv.PhysicSize())
+  
+  fft := NewFFT(conv.KernelSize())
+  for i:= range conv.kernel{
+    if kernel[i] != nil{
+      //tensor.CopyInto(kernel[i], buffer)
+      conv.kernel[i] = NewTensor(conv.PhysicSize())
+      TensorCopyTo(buffer, conv.kernel[i])
+      fft.Forward(conv.kernel[i], conv.kernel[i])
+    }
+  }
+  
 }
 
 
