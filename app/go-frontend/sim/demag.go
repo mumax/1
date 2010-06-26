@@ -53,7 +53,34 @@ func faceIntegral(B, R *Vector, cellsize[] float, s int){
   B.Scale(1./(float(n*n))); // n^2 integration points
 }
 
+// copied from gpu/conv.go
+const(
+  XX = 0
+  YY = 1
+  ZZ = 2
+  YZ = 3
+  XZ = 4
+  XY = 5
+)
 
+/// converts from the full "rank-5" kernel format to the symmetric "array-of-rank3-tensors" format
+func FaceKernel6(unpaddedsize []int, cellsize []float) []*Tensor3{
+  k9 := FaceKernel(unpaddedsize, cellsize)
+  k9X := k9.Component(X)
+  k9Y := k9.Component(Y)
+  k9Z := k9.Component(Z)
+  
+  k6 := make([]*Tensor3, 6)
+  
+  k6[XX] = k9X.Component(X)
+  k6[YY] = k9Y.Component(Y)
+  k6[ZZ] = k9Z.Component(Z)
+  k6[YZ] = k9Y.Component(Z)
+  k6[XZ] = k9X.Component(Z)
+  k6[XY] = k9X.Component(Y)
+  
+  return k6;
+}
 
 /** Integrates the demag field based on multiple points per face. */
 func FaceKernel(unpaddedsize []int, cellsize []float) *Tensor5{
