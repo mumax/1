@@ -45,6 +45,8 @@ func (conv *Conv) Exec(source, dest *Tensor){
   
   // initialize mComp, hComp, re-using them from conv to avoid repeated allocation
   mComp, hComp := conv.mComp, conv.hComp
+  buffer := conv.buffer
+  kernel := conv.kernel
   mLen := Len(mComp[0].size)
   for i:=0; i<3; i++{
     mComp[i].data = ArrayOffset(source.data, i*mLen)
@@ -52,9 +54,27 @@ func (conv *Conv) Exec(source, dest *Tensor){
   }
   
   for i:=0; i<3; i++{
-    CopyPad(mComp[i], conv.buffer[i])
+    CopyPad(mComp[i], buffer[i])
   }
   
+  //Sync
+  
+  for i:=0; i<3; i++{
+    conv.fft.Forward(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
+  }
+  
+  KernelMul(buffer[X].data,  buffer[Y].data,   buffer[Z].data,
+            kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
+            kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
+            Len(buffer[X].size)/2)
+            
+  for i:=0; i<3; i++{
+    conv.fft.Inverse(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
+  } 
+  
+  for i:=0; i<3; i++{
+    CopyUnpad(buffer[i], hComp[i])
+  }
 }
 
 
