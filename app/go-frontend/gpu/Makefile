@@ -7,6 +7,7 @@ CGOFILES=\
 	gpu.go\
 
 GOFILES=\
+	tensor.go\
 	fft.go\
 	conv.go\
 
