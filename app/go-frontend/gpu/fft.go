@@ -2,7 +2,74 @@ package gpu
 
 import(
   "fmt"
+  "unsafe"
+  "tensor"
 )
+
+
+/// 3D real-to-complex / complex-to-real transform. Handles zero-padding efficiently (if applicable)
+type FFT struct{
+  plan unsafe.Pointer           ///< points to the gpuFFT3dPlan struct that does the actual FFT
+  dataSize   [3]int             ///< size of the non-zero data inside the logic input data. Must be <= logicSize
+  logicSize  [3]int             ///< logical size of the FFT, including padding: number of reals in each dimension
+  physicSize [3]int             ///< The input data needs to be padded with zero's to physicSize, in order to accomodate for the extra complex number in the last dimension needed by real-to-complex FFTS. Additionally, even extra zero's are probably going to be added to fit the gpu stride.
+}
+
+
+/// logicSize is the size of the real input data.
+func NewFFT(logicSize []int) *FFT{
+  return NewFFTPadded(logicSize, logicSize)
+}
+
+
+/**
+ * logicSize is the size of the real input data, but this may contain a lot of zeros.
+ * dataSize is the portion of logicSize that is non-zero (typically half as large as logicSize).
+ */
+func NewFFTPadded(dataSize, logicSize []int) *FFT{
+  assert(len(logicSize) == 3)
+  assert(len(dataSize) == 3)
+  for i:=range dataSize{
+    assert(dataSize[i] <= logicSize[i])
+  }
+
+  fft := new(FFT)
+  for i:=range logicSize {
+    fft.logicSize [i] = logicSize[i]
+    fft.dataSize  [i] = dataSize[i]
+    fft.physicSize[i] = fft.logicSize[i] // Z will be overwritten
+  }
+  fft.physicSize[Z] = PadToStride(logicSize[Z] + 2)
+  fft.plan = NewFFTPlan(dataSize, logicSize)
+  
+  return fft
+}
+
+
+func (fft *FFT) Forward(in, out *Tensor){
+  // size checks
+  assert(tensor.Rank(in) == 3)
+  assert(tensor.Rank(out) == 3)
+  for i,s := range fft.physicSize{
+    assert(  in.size[i] == s)
+    assert( out.size[i] == s)
+  }
+  // actual fft
+  FFTForward(fft.plan, in, out);
+}
+
+
+func (fft *FFT) Inverse(in, out *Tensor){
+  // size checks
+  assert(tensor.Rank(in) == 3)
+  assert(tensor.Rank(out) == 3)
+  for i,s := range fft.physicSize{
+    assert(  in.size[i] == s)
+    assert( out.size[i] == s)
+  }
+  // actual fft
+  FFTInverse(fft.plan, in, out)
+}
 
 
 /**
