@@ -76,9 +76,12 @@ func NewFFT(logicSize []int) *FFT{
  * logicSize is the size of the real input data, but this may contain a lot of zeros.
  * dataSize is the portion of logicSize that is non-zero (typically half as large as logicSize).
  */
-func NewFFTPadded(logicSize, dataSize []int) *FFT{
+func NewFFTPadded(dataSize, logicSize []int) *FFT{
   assert(len(logicSize) == 3)
   assert(len(dataSize) == 3)
+  for i:=range dataSize{
+    assert(dataSize[i] <= logicSize[i])
+  }
 
   fft := new(FFT)
 
