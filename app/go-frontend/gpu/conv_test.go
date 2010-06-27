@@ -9,7 +9,8 @@ import(
 )
 
 func TestConv(t *testing.T){
-  size := []int{4, 8, 16}
+  size4D := []int{3, 4, 8, 16}
+  size := size4D[1:]
   kernelSize := []int{8, 16, 32}
   
   conv := NewConv(size, kernelSize)
@@ -31,4 +32,8 @@ func TestConv(t *testing.T){
       tensor.Format(os.Stdout, conv.kernel[i])
     }
   }
+
+  m, h := NewTensor(size4D), NewTensor(size4D)
+  
+  conv.Exec(m, h)
 }
