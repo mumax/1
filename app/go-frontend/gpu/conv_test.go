@@ -19,6 +19,7 @@ func TestConv(t *testing.T){
     fmt.Println("kernel", i, k.Size())
   }
   fmt.Println("conv", conv.KernelSize())
+  fmt.Println("conv.fft", conv.fft)
   
   conv.LoadKernel6(kernel)
   
