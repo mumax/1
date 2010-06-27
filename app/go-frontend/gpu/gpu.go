@@ -145,9 +145,7 @@ func Zero(data unsafe.Pointer, nFloats int){
   C.gpu_zero((*_C_float)(data), _C_int(nFloats));
 }
 
-func ZeroTensor(t *Tensor){
-  Zero(t.data, tensor.Len(t));
-}
+
 
 /// Print the GPU properties to stdout
 func PrintProperties(){
