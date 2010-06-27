@@ -10,6 +10,39 @@ type Conv struct{
   fft       *FFT;
 }
 
+func NewConv(dataSize, kernelSize []int) *Conv{
+  assert(len(dataSize) == 3)
+  assert(len(kernelSize) == 3)
+  for i:=range dataSize{
+    assert(dataSize[i] <= kernelSize[i])
+  }
+
+  conv := new(Conv)
+  conv.fft = NewFFTPadded(dataSize, kernelSize)
+  return conv
+}
+
+func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
+  // size checks
+
+  buffer := tensor.NewTensorN(conv.KernelSize())
+  devbuf := NewTensor(conv.KernelSize())
+
+  fft := NewFFT(conv.KernelSize())
+  for i:= range conv.kernel{
+    if kernel[i] != nil{
+      conv.kernel[i] = NewTensor(conv.PhysicSize())
+
+      tensor.CopyTo(kernel[i], buffer)
+      TensorCopyTo(buffer, devbuf)
+      CopyPad(devbuf, conv.kernel[i])   ///@todo padding should be done on host, not device, to save gpu memory / avoid fragmentation
+
+      fft.Forward(conv.kernel[i], conv.kernel[i])
+    }
+  }
+}
+
+
 const(
   XX = 0
   YY = 1
@@ -20,13 +53,6 @@ const(
 )
 
 
-func NewConv(dataSize, kernelSize []int) *Conv{
-  ///@todo size check
-  
-  conv := new(Conv)
-  conv.fft = NewFFTPadded(dataSize, kernelSize)
-  return conv
-}
 
 
 /// size of the magnetization and field, this is the FFT dataSize
@@ -47,26 +73,7 @@ func (conv *Conv) PhysicSize() []int{
 }
 
 
-func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
-  // size checks
-  
-  buffer := tensor.NewTensorN(conv.KernelSize())
-  devbuf := NewTensor(conv.KernelSize())
-  
-  fft := NewFFT(conv.KernelSize())
-  for i:= range conv.kernel{
-    if kernel[i] != nil{
-      conv.kernel[i] = NewTensor(conv.PhysicSize())
 
-      tensor.CopyTo(kernel[i], buffer)
-      TensorCopyTo(buffer, devbuf)
-      CopyPad(devbuf, conv.kernel[i])   ///@todo padding should be done on host, not device, to save gpu memory / avoid fragmentation
-      
-      fft.Forward(conv.kernel[i], conv.kernel[i])
-    }
-  }
-  
-}
 
 
 
