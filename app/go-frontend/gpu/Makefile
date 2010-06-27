@@ -7,6 +7,7 @@ CGOFILES=\
 	gpu.go\
 
 GOFILES=\
+	fft.go\
 	conv.go\
 
 CGO_LDFLAGS+=$(CURDIR)/../../../core/core.so
