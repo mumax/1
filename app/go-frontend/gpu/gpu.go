@@ -101,12 +101,26 @@ func NewFFTPadded(dataSize, logicSize []int) *FFT{
 
 
 func (fft *FFT) Forward(in, out *Tensor){
-  ///@todo check sizes
+  // size checks
+  assert(tensor.Rank(in) == 3)
+  assert(tensor.Rank(out) == 3)
+  for i,s := range fft.physicSize{
+    assert(  in.size[i] == s)
+    assert( out.size[i] == s)
+  }
+  // actual fft
   C.gpuFFT3dPlan_forward_unsafe((*_C_gpuFFT3dPlan)(fft.plan), (*_C_float)(in.data), (*_C_float)(out.data))
 }
 
 func (fft *FFT) Inverse(in, out *Tensor){
-  ///@todo check sizes
+  // size checks
+  assert(tensor.Rank(in) == 3)
+  assert(tensor.Rank(out) == 3)
+  for i,s := range fft.physicSize{
+    assert(  in.size[i] == s)
+    assert( out.size[i] == s)
+  }
+  // actual fft
   C.gpuFFT3dPlan_inverse_unsafe((*_C_gpuFFT3dPlan)(fft.plan), (*_C_float)(in.data), (*_C_float)(out.data));
 }
 
