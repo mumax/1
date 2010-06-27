@@ -2,6 +2,7 @@ package gpu
 
 import(
   "tensor"
+  "unsafe"
 )
 
 
@@ -25,10 +26,10 @@ func NewConv(dataSize, kernelSize []int) *Conv{
   conv.fft = NewFFTPadded(dataSize, kernelSize)
   
   ///@todo do not allocate for infinite2D problem
-  for i:=range conv.buffer{
+  for i:=0; i<3; i++{
     conv.buffer[i] = NewTensor(conv.PhysicSize())
-//     mComp[i] = &Tensor{ dataSize, }
-//     hComp[i] = &Tensor{ dataSize, }
+    conv.mComp[i] = &Tensor{ dataSize, unsafe.Pointer(nil) }
+    conv.hComp[i] = &Tensor{ dataSize, unsafe.Pointer(nil) }
   }
   return conv
 }
@@ -42,10 +43,17 @@ func (conv *Conv) Exec(source, dest *Tensor){
     assert(  dest.size[i+1] == s)
   }
   
+  // initialize mComp, hComp, re-using them from conv to avoid repeated allocation
+  mComp, hComp := conv.mComp, conv.hComp
+  mLen := Len(mComp[0].size)
+  for i:=0; i<3; i++{
+    mComp[i].data = ArrayOffset(source.data, i*mLen)
+    hComp[i].data = ArrayOffset(  dest.data, i*mLen)
+  }
   
-//   for i:=0; i<3; i++{
-//     CopyPad()
-//   }
+  for i:=0; i<3; i++{
+    CopyPad(mComp[i], conv.buffer[i])
+  }
   
 }
 
