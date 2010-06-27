@@ -97,8 +97,6 @@ func NewFFTPadded(logicSize, dataSize []int) *FFT{
 }
 
 
-
-
 func (fft *FFT) Forward(in, out *Tensor){
   ///@todo check sizes
   C.gpuFFT3dPlan_forward_unsafe((*_C_gpuFFT3dPlan)(fft.plan), (*_C_float)(in.data), (*_C_float)(out.data))
