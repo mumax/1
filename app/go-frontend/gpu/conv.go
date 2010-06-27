@@ -27,8 +27,8 @@ func (conv *Conv) Exec(source, dest *Tensor){
   assert(len(source.size) == 4)
   assert(len(  dest.size) == 4)
   for i,s:= range conv.DataSize(){
-    assert(source.size[i] == s)
-    assert(  dest.size[i] == s)
+    assert(source.size[i+1] == s)
+    assert(  dest.size[i+1] == s)
   }
 }
 
