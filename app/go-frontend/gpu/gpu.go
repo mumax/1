@@ -6,6 +6,10 @@ package gpu
 #include "../../../core/gpufft2.h"
 #include "../../../core/gpupad.h"
 #include "../../../core/gpuconv2.h"
+
+float* gpu_array_offset(float* array, int index){
+    return &array[index];
+}
 */
 import "C"
 import "unsafe"
@@ -120,6 +124,9 @@ func ArraySet(array unsafe.Pointer, index int, value float){
   C.gpu_array_set((*_C_float)(array), _C_int(index), _C_float(value))
 }
 
+func ArrayOffset(array unsafe.Pointer, index int) unsafe.Pointer{
+  return unsafe.Pointer(C.gpu_array_offset((*_C_float)(array), _C_int(index)))
+} 
 
 //___________________________________________________________________________________________________ GPU Stride
 
@@ -145,9 +152,7 @@ func Zero(data unsafe.Pointer, nFloats int){
   C.gpu_zero((*_C_float)(data), _C_int(nFloats));
 }
 
-func ZeroTensor(t *Tensor){
-  Zero(t.data, tensor.Len(t));
-}
+
 
 /// Print the GPU properties to stdout
 func PrintProperties(){

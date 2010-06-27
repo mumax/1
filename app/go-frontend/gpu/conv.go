@@ -2,11 +2,15 @@ package gpu
 
 import(
   "tensor"
+  "unsafe"
 )
 
 
 type Conv struct{
   kernel     [6]*Tensor
+  buffer     [3]*Tensor
+  mComp      [3]*Tensor
+  hComp      [3]*Tensor
   fft       *FFT;
 }
 
@@ -20,8 +24,16 @@ func NewConv(dataSize, kernelSize []int) *Conv{
 
   conv := new(Conv)
   conv.fft = NewFFTPadded(dataSize, kernelSize)
+  
+  ///@todo do not allocate for infinite2D problem
+  for i:=0; i<3; i++{
+    conv.buffer[i] = NewTensor(conv.PhysicSize())
+    conv.mComp[i] = &Tensor{ dataSize, unsafe.Pointer(nil) }
+    conv.hComp[i] = &Tensor{ dataSize, unsafe.Pointer(nil) }
+  }
   return conv
 }
+
 
 func (conv *Conv) Exec(source, dest *Tensor){
   assert(len(source.size) == 4)
@@ -29,6 +41,39 @@ func (conv *Conv) Exec(source, dest *Tensor){
   for i,s:= range conv.DataSize(){
     assert(source.size[i+1] == s)
     assert(  dest.size[i+1] == s)
+  }
+  
+  // initialize mComp, hComp, re-using them from conv to avoid repeated allocation
+  mComp, hComp := conv.mComp, conv.hComp
+  buffer := conv.buffer
+  kernel := conv.kernel
+  mLen := Len(mComp[0].size)
+  for i:=0; i<3; i++{
+    mComp[i].data = ArrayOffset(source.data, i*mLen)
+    hComp[i].data = ArrayOffset(  dest.data, i*mLen)
+  }
+  
+  for i:=0; i<3; i++{
+    CopyPad(mComp[i], buffer[i])
+  }
+  
+  //Sync
+  
+  for i:=0; i<3; i++{
+    conv.fft.Forward(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
+  }
+  
+  KernelMul(buffer[X].data,  buffer[Y].data,   buffer[Z].data,
+            kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
+            kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
+            Len(buffer[X].size)/2)
+            
+  for i:=0; i<3; i++{
+    conv.fft.Inverse(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
+  } 
+  
+  for i:=0; i<3; i++{
+    CopyUnpad(buffer[i], hComp[i])
   }
 }
 

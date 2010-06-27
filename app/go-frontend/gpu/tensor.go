@@ -67,3 +67,9 @@ func TensorCopyFrom(source *Tensor, dest tensor.StoredTensor){
   assert(tensor.EqualSize(source.Size(), dest.Size()))
   MemcpyFrom(source.data, &(dest.List()[0]), tensor.Len(source));
 }
+
+
+func ZeroTensor(t *Tensor){
+  Zero(t.data, tensor.Len(t));
+}
+
