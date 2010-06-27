@@ -7,6 +7,9 @@ import(
 
 type Conv struct{
   kernel     [6]*Tensor
+  buffer     [3]*Tensor
+  mComp      [3]*Tensor
+  hComp      [3]*Tensor
   fft       *FFT;
 }
 
@@ -20,8 +23,16 @@ func NewConv(dataSize, kernelSize []int) *Conv{
 
   conv := new(Conv)
   conv.fft = NewFFTPadded(dataSize, kernelSize)
+  
+  ///@todo do not allocate for infinite2D problem
+  for i:=range conv.buffer{
+    conv.buffer[i] = NewTensor(conv.PhysicSize())
+//     mComp[i] = &Tensor{ dataSize, }
+//     hComp[i] = &Tensor{ dataSize, }
+  }
   return conv
 }
+
 
 func (conv *Conv) Exec(source, dest *Tensor){
   assert(len(source.size) == 4)
@@ -30,6 +41,12 @@ func (conv *Conv) Exec(source, dest *Tensor){
     assert(source.size[i+1] == s)
     assert(  dest.size[i+1] == s)
   }
+  
+  
+//   for i:=0; i<3; i++{
+//     CopyPad()
+//   }
+  
 }
 
 
