@@ -12,7 +12,9 @@ import "unsafe"
 
 /**
  * This single file intefaces all the relevant CUDA functions with go
- * 
+ * It only wraps the functions, higher level constructs and assetions
+ * are in separate files like fft.go, ...
+ *
  * @note cgo does not seem to like many cgofiles, so I put everything together here.
  * @author Arne Vansteenkiste
  */
@@ -72,6 +74,12 @@ func NewFFT(logicSize []int) *FFT{
   return NewFFTPadded(logicSize, logicSize)
 }
 
+func NewFFTPlan(dataSize, logicSize []int) unsafe.Pointer{
+  Csize := (*_C_int)(unsafe.Pointer(&dataSize[0]))
+  CpaddedSize := (*_C_int)(unsafe.Pointer(&logicSize[0]))
+  return unsafe.Pointer( C.new_gpuFFT3dPlan_padded( Csize, CpaddedSize ) )
+}
+
 /**
  * logicSize is the size of the real input data, but this may contain a lot of zeros.
  * dataSize is the portion of logicSize that is non-zero (typically half as large as logicSize).
@@ -84,21 +92,20 @@ func NewFFTPadded(dataSize, logicSize []int) *FFT{
   }
 
   fft := new(FFT)
-
   for i:=range logicSize {
     fft.logicSize [i] = logicSize[i]
     fft.dataSize  [i] = dataSize[i]
     fft.physicSize[i] = fft.logicSize[i] // Z will be overwritten
   }
   fft.physicSize[Z] = PadToStride(logicSize[Z] + 2)
-
-  Csize := (*_C_int)(unsafe.Pointer(&fft.dataSize[0]))
-  CpaddedSize := (*_C_int)(unsafe.Pointer(&fft.logicSize[0]))
-  fft.plan = unsafe.Pointer( C.new_gpuFFT3dPlan_padded( Csize, CpaddedSize ) )
-
+  fft.plan = NewFFTPlan(dataSize, logicSize)
   return fft
+  
 }
 
+func FFTForward(plan unsafe.Pointer, in, out *Tensor){
+  C.gpuFFT3dPlan_forward_unsafe((*_C_gpuFFT3dPlan)(plan), (*_C_float)(in.data), (*_C_float)(out.data))
+}
 
 func (fft *FFT) Forward(in, out *Tensor){
   // size checks
@@ -109,7 +116,7 @@ func (fft *FFT) Forward(in, out *Tensor){
     assert( out.size[i] == s)
   }
   // actual fft
-  C.gpuFFT3dPlan_forward_unsafe((*_C_gpuFFT3dPlan)(fft.plan), (*_C_float)(in.data), (*_C_float)(out.data))
+  FFTForward(fft.plan, in, out);
 }
 
 func (fft *FFT) Inverse(in, out *Tensor){
@@ -121,7 +128,11 @@ func (fft *FFT) Inverse(in, out *Tensor){
     assert( out.size[i] == s)
   }
   // actual fft
-  C.gpuFFT3dPlan_inverse_unsafe((*_C_gpuFFT3dPlan)(fft.plan), (*_C_float)(in.data), (*_C_float)(out.data));
+  FFTInverse(fft.plan, in, out)
+}
+
+func FFTInverse(plan unsafe.Pointer, in, out *Tensor){
+  C.gpuFFT3dPlan_inverse_unsafe((*_C_gpuFFT3dPlan)(plan), (*_C_float)(in.data), (*_C_float)(out.data))
 }
 
 func (fft *FFT) Normalization() int{
