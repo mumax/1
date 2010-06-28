@@ -5,6 +5,6 @@ import(
 )
 
 type Solver struct{
-  M, H *Tensor
+  m, h *Tensor
   dt, alpha float
 }
