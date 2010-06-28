@@ -14,8 +14,14 @@ func NewEuler(field *Field, dt, alpha float){
 }
 
 func (this *Euler) Step(){
-  this.Convolve(this.m, this.h)
+  m, h := this.m, this.h
+  alpha, dt := this.alpha, this.dt
   
+  this.Convolve(m, h)
+  Torque(m, h, alpha, dt/(1+alpha*alpha))
+  torque := h
+
+  EulerStage(m, torque)
 }
 
 
