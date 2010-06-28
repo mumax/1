@@ -14,7 +14,7 @@ func NewEuler(field *Field, dt, alpha float){
 }
 
 func (this *Euler) Step(){
-  this.Exec(this.m, this.h)
+  this.Convolve(this.m, this.h)
 }
 
 

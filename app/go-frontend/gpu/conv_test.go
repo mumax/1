@@ -45,7 +45,7 @@ func TestConv(t *testing.T){
 
   m.Set([]int{0, 7, 7, 0}, 1.)
   tensor.WriteFile("m.t", m)
-  conv.Exec(m, h)
+  conv.Convolve(m, h)
   tensor.WriteFile("h.t", h)
   OverrideStride(-1)
 }

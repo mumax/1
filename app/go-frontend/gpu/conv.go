@@ -37,7 +37,7 @@ func NewConv(dataSize, kernelSize []int) *Conv{
 }
 
 
-func (conv *Conv) Exec(source, dest *Tensor){
+func (conv *Conv) Convolve(source, dest *Tensor){
 
   assert(len(source.size) == 4)             // size checks
   assert(len(  dest.size) == 4)
