@@ -33,21 +33,21 @@ import(
 
 //___________________________________________________________________________________________________ Time stepping
 
-func Torque(m, h unsafe.Pointer, alpha, dtGilbert float, N int){
+func TorqueUnsafe(m, h unsafe.Pointer, alpha, dtGilbert float, N int){
   C.gpu_torque((*_C_float)(m), (*_C_float)(h), _C_float(alpha), _C_float(dtGilbert), _C_int(N))
 }
 
 
-func Normalize(m unsafe.Pointer, N int){
+func NormalizeUnsafe(m unsafe.Pointer, N int){
   C.gpu_normalize_uniform((*_C_float)(m), _C_int(N))
 }
 
-func NormalizeMap(m, normMap unsafe.Pointer, N int){
+func NormalizeMapUnsafe(m, normMap unsafe.Pointer, N int){
   C.gpu_normalize_map((*_C_float)(m), (*_C_float)(normMap), _C_int(N))
 }
 
 
-func EulerStage(m, torque unsafe.Pointer, N int){
+func EulerStageUnsafe(m, torque unsafe.Pointer, N int){
   C.gpu_euler_stage((*_C_float)(m), (*_C_float)(torque), _C_int(N))
 }
 
