@@ -3,6 +3,7 @@ package gpu
 import(
   "testing"
   "tensor"
+  "fmt"
 )
 
 
@@ -24,6 +25,7 @@ func TestCopy(t *testing.T){
 
 func TestGetSet(t *testing.T){
   tens := NewTensor([]int{5, 6, 7})
+  fmt.Println(tens)
   tens.Set([]int{4, 5, 6}, 3.14)
   if tens.Get([]int{4, 5, 6}) != 3.14 { t.Fail() }
 }

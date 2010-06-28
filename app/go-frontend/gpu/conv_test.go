@@ -32,6 +32,6 @@ func TestConv(t *testing.T){
 
   m, h := NewTensor(size4D), NewTensor(size4D)
 
-  m.Set([]int{0, 0, 0}, 0.)
+  m.Set([]int{0, 0, 0, 0}, 1.)
   conv.Exec(m, h)
 }
