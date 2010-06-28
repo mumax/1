@@ -6,7 +6,7 @@ import(
 
 type Solver struct{
   m, h *Tensor
-  dt, alpha float
+  alpha, dt float
   Field
 }
 

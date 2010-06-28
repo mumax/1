@@ -8,8 +8,10 @@ type Euler struct{
   
 }
 
-func NewEuler(field *Field, dt, alpha float){
+func NewEuler(field *Field, alpha, dt float){
   euler := new(Euler)
+  euler.Field = *field
+  euler.alpha = alpha
   euler.dt = dt
 }
 
@@ -25,3 +27,25 @@ func (this *Euler) Step(){
 }
 
 
+// embedding tree:
+
+// Euler{
+//   Solver{
+//     Field{
+//       Material;
+//       Conv{
+//         FFT{
+//           size
+//           Device{  //gpu.Device or cpu.Device
+//             // low-level, unsafe simulation primitives
+//             NewTensor
+//             FFT,
+//             Copy,
+//             Torque,
+//             ...
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
