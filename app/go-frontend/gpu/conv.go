@@ -9,14 +9,11 @@ import(
 
 
 type Conv struct{
+  FFT
   kernel     [6]*Tensor
   buffer     [3]*Tensor
   mComp      [3]*Tensor
   hComp      [3]*Tensor
-  fft       *FFT;
-
-  // transform [3]bool
-  // kmul type 9 - 6 - 4 - 3
 }
 
 
@@ -28,7 +25,7 @@ func NewConv(dataSize, kernelSize []int) *Conv{
   }
 
   conv := new(Conv)
-  conv.fft = NewFFTPadded(dataSize, kernelSize)
+  conv.FFT = *NewFFTPadded(dataSize, kernelSize)
   
   ///@todo do not allocate for infinite2D problem
   for i:=0; i<3; i++{
@@ -69,7 +66,7 @@ func (conv *Conv) Exec(source, dest *Tensor){
   //Sync
   
   for i:=0; i<3; i++{
-    conv.fft.Forward(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
+    conv.Forward(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
 //     fmt.Println("fftm", i)
 //     tensor.Format(os.Stdout, buffer[i])
   }
@@ -85,7 +82,7 @@ func (conv *Conv) Exec(source, dest *Tensor){
   }
             
   for i:=0; i<3; i++{
-    conv.fft.Inverse(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
+    conv.Inverse(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
   } 
   
   for i:=0; i<3; i++{
@@ -128,21 +125,21 @@ func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
 
 
 /// size of the magnetization and field, this is the FFT dataSize
-func (conv *Conv) DataSize() []int{
-  return conv.fft.DataSize()
-}
+// func (conv *Conv) DataSize() []int{
+//   return conv.fft.DataSize()
+// }
 
 
-/// size of magnetization + padding zeros, this is the FFT logicSize
+/// size of magnetization + padding zeros, this is the FFT logicSize /// todo remove in favor of embedded LogicSize()
 func (conv *Conv) KernelSize() []int{
-  return conv.fft.LogicSize()
+  return conv.LogicSize()
 }
 
 
 /// size of magnetization + padding zeros + striding zeros, this is the FFT logicSize
-func (conv *Conv) PhysicSize() []int{
-  return conv.fft.PhysicSize()
-}
+// func (conv *Conv) PhysicSize() []int{
+//   return conv.fft.PhysicSize()
+// }
 
 const(
   XX = 0
