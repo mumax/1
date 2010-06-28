@@ -71,7 +71,7 @@ func (conv *Conv) Convolve(source, dest *Tensor){
 //     tensor.Format(os.Stdout, buffer[i])
   }
   
-  KernelMul(buffer[X].data,  buffer[Y].data,   buffer[Z].data,
+  kernelMul(buffer[X].data,  buffer[Y].data,   buffer[Z].data,
             kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
             kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
             Len(buffer[X].size))  // nRealNumbers 

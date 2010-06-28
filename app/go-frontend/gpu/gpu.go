@@ -33,21 +33,21 @@ import(
 
 //___________________________________________________________________________________________________ Time stepping
 
-func TorqueUnsafe(m, h unsafe.Pointer, alpha, dtGilbert float, N int){
+func torque(m, h unsafe.Pointer, alpha, dtGilbert float, N int){
   C.gpu_torque((*_C_float)(m), (*_C_float)(h), _C_float(alpha), _C_float(dtGilbert), _C_int(N))
 }
 
 
-func NormalizeUnsafe(m unsafe.Pointer, N int){
+func normalize(m unsafe.Pointer, N int){
   C.gpu_normalize_uniform((*_C_float)(m), _C_int(N))
 }
 
-func NormalizeMapUnsafe(m, normMap unsafe.Pointer, N int){
+func normalizeMap(m, normMap unsafe.Pointer, N int){
   C.gpu_normalize_map((*_C_float)(m), (*_C_float)(normMap), _C_int(N))
 }
 
 
-func EulerStageUnsafe(m, torque unsafe.Pointer, N int){
+func eulerStage(m, torque unsafe.Pointer, N int){
   C.gpu_euler_stage((*_C_float)(m), (*_C_float)(torque), _C_int(N))
 }
 
@@ -60,7 +60,7 @@ func EulerStageUnsafe(m, torque unsafe.Pointer, N int){
 //                                          float* fftKyz, float* fftKxz, float* fftKxy,
 //                                          int nRealNumbers);
 
-func KernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int){
+func kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int){
   C.gpu_kernel_mul_complex_inplace_symm(
         (*_C_float)(mx), (*_C_float)(my), (*_C_float)(mz),
         (*_C_float)(kxx), (*_C_float)(kyy), (*_C_float)(kzz),

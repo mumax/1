@@ -16,7 +16,7 @@ func Torque(m, h *Tensor, alpha, dtGilbert float){
   assert(tensor.EqualSize(m.size, h.size))
   
   N := m.size[1] * m.size[2] * m.size[3]
-  TorqueUnsafe(m.data, h.data, alpha, dtGilbert, N)
+  torque(m.data, h.data, alpha, dtGilbert, N)
 }
 
 
@@ -24,7 +24,7 @@ func Normalize(m *Tensor){
   assert(len(m.size) == 4)
 
   N := m.size[1] * m.size[2] * m.size[3]
-  NormalizeUnsafe(m.data, N)
+  normalize(m.data, N)
 }
 
 
@@ -33,7 +33,7 @@ func EulerStage(m, torque *Tensor){
   assert(tensor.EqualSize(m.size, torque.size))
 
   N := m.size[1] * m.size[2] * m.size[3]
-  EulerStageUnsafe(m.data, torque.data, N)
+  eulerStage(m.data, torque.data, N)
  
 }
 
