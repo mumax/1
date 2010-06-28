@@ -4,9 +4,9 @@ import(
 )
 
 type Euler struct{
-  dt float
+  dt, alpha float
 }
 
 func (solver *Euler) Step(m, h *Tensor){
-  
+
 }
