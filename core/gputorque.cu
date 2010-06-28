@@ -1,0 +1,49 @@
+#include "gputorque.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+__global__ void _gpu_torque(float* mx, float* my, float* mz, float* hx, float* hy, float* hz, float alpha){
+
+  int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
+
+  // - m cross H
+  float _mxHx = -my[i] * hz[i] + hy[i] * mz[i];
+  float _mxHy =  mx[i] * hz[i] - hx[i] * mz[i];
+  float _mxHz = -mx[i] * hy[i] + hx[i] * my[i];
+
+  // - m cross (m cross H)
+  float _mxmxHx =  my[i] * _mxHz - _mxHy * mz[i];
+  float _mxmxHy = -mx[i] * _mxHz + _mxHx * mz[i];
+  float _mxmxHz =  mx[i] * _mxHy - _mxHx * my[i];
+
+  hx[i] = (_mxHx + _mxmxHx * alpha);
+  hy[i] = (_mxHy + _mxmxHy * alpha);
+  hz[i] = (_mxHz + _mxmxHz * alpha);
+  
+}
+
+void gpu_torque(float* m, float* h, float alpha, int N){
+
+  int gridSize = -1, blockSize = -1;
+  make1dconf(N, &gridSize, &blockSize);
+
+  float* mx = &(m[0*N]);
+  float* my = &(m[1*N]);
+  float* mz = &(m[2*N]);
+
+  float* hx = &(h[0*N]);
+  float* hy = &(h[1*N]);
+  float* hz = &(h[2*N]);
+
+  
+  timer_start("torque");
+  _gpu_torque<<<gridSize, blockSize>>>(mx, my, mz, hx, hy, hz, alpha);
+  cudaThreadSynchronize();
+  timer_stop("normalize");
+}
+
+#ifdef __cplusplus
+}
+#endif
