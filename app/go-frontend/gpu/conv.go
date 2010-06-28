@@ -12,6 +12,9 @@ type Conv struct{
   mComp      [3]*Tensor
   hComp      [3]*Tensor
   fft       *FFT;
+
+  // transform [3]bool
+  // kmul type 9 - 6 - 4 - 3
 }
 
 
@@ -79,14 +82,18 @@ func (conv *Conv) Exec(source, dest *Tensor){
 
 
 func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
-  // size checks
+  for _,k:=range kernel{
+    if k != nil{
+      assert( tensor.EqualSize(k.Size(), conv.KernelSize()) )
+    }
+  }
 
   buffer := tensor.NewTensorN(conv.KernelSize())
   devbuf := NewTensor(conv.KernelSize())
 
   fft := NewFFT(conv.KernelSize())
   for i:= range conv.kernel{
-    if kernel[i] != nil{
+    if kernel[i] != nil{                    // nil means it would contain only zeros so we don't store it.
       conv.kernel[i] = NewTensor(conv.PhysicSize())
 
       tensor.CopyTo(kernel[i], buffer)
