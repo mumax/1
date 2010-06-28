@@ -6,6 +6,9 @@ package gpu
 #include "../../../core/gpufft2.h"
 #include "../../../core/gpupad.h"
 #include "../../../core/gpuconv2.h"
+#include "../../../core/gputorque.h"
+#include "../../../core/gpueuler.h"
+#include "../../../core/gpunormalize.h"
 
 float* gpu_array_offset(float* array, int index){
     return &array[index];
@@ -27,6 +30,12 @@ import(
   "tensor"
   "log"
 )
+
+//___________________________________________________________________________________________________ Time stepping
+
+func Torque(m, h unsafe.Pointer, alpha float, N int){
+  C.gpu_torque((*_C_float)(m), (*_C_float)(h), _C_float(alpha), _C_int(N))
+}
 
 //___________________________________________________________________________________________________ Kernel multiplication
 
