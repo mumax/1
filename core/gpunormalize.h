@@ -25,6 +25,12 @@ void gpu_normalize(param* p,    ///< parameters indicate whether normalization i
                    tensor* m    ///< 3 x N0 x N1 x N2 tensor to normalize
                    );
 
+///@internal
+void gpu_normalize_uniform(float* m, int N);
+
+///@internal
+void gpu_normalize_map(float* m, float* map, int N);
+
 
 /// @internal uniform normalization
 __global__ void _gpu_normalize(float* mx , float* my , float* mz);
