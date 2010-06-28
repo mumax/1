@@ -33,8 +33,8 @@ import(
 
 //___________________________________________________________________________________________________ Time stepping
 
-func Torque(m, h unsafe.Pointer, alpha float, N int){
-  C.gpu_torque((*_C_float)(m), (*_C_float)(h), _C_float(alpha), _C_int(N))
+func Torque(m, h unsafe.Pointer, alpha, dtGilbert float, N int){
+  C.gpu_torque((*_C_float)(m), (*_C_float)(h), _C_float(alpha), _C_float(dtGilbert), _C_int(N))
 }
 
 

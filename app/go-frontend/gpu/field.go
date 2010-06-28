@@ -5,5 +5,6 @@ import(
 )
 
 type Field struct{
-  Conv conv
+  Conv
 }
+

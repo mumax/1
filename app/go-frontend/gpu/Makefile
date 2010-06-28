@@ -10,6 +10,9 @@ GOFILES=\
 	tensor.go\
 	fft.go\
 	conv.go\
+	field.go\
+	solver.go\
+	euler.go\
 
 CGO_LDFLAGS+=$(CURDIR)/../../../core/core.so
 
