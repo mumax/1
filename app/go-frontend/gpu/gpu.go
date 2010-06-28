@@ -46,6 +46,11 @@ func NormalizeMap(m, normMap unsafe.Pointer, N int){
   C.gpu_normalize_map((*_C_float)(m), (*_C_float)(normMap), _C_int(N))
 }
 
+
+func EulerStage(m, torque unsafe.Pointer, N int){
+  C.gpu_euler_stage((*_C_float)(m), (*_C_float)(torque), _C_int(N))
+}
+
 //___________________________________________________________________________________________________ Kernel multiplication
 
 //

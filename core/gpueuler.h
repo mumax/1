@@ -53,7 +53,7 @@ void gpueuler_step(gpueuler* solver,	    ///< the solver to step
 
 
 ///@internal                   
-void gpueuler_stage(float* m, float* torque, int N);
+void gpu_euler_stage(float* m, float* torque, int N);
 
                    
 #ifdef __cplusplus

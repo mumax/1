@@ -21,7 +21,7 @@ __global__ void _gpu_euler_stage(float* mx, float* my, float* mz,
   
 }
 
-void gpueuler_stage(float* m, float* torque, int N){
+void gpu_euler_stage(float* m, float* torque, int N){
 
   int gridSize = -1, blockSize = -1;
   make1dconf(N, &gridSize, &blockSize);
