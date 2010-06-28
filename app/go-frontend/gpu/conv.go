@@ -3,6 +3,8 @@ package gpu
 import(
   "tensor"
   "unsafe"
+  "os"
+  "fmt"
 )
 
 
@@ -39,7 +41,8 @@ func NewConv(dataSize, kernelSize []int) *Conv{
 
 
 func (conv *Conv) Exec(source, dest *Tensor){
-  assert(len(source.size) == 4)
+
+  assert(len(source.size) == 4)             // size checks
   assert(len(  dest.size) == 4)
   for i,s:= range conv.DataSize(){
     assert(source.size[i+1] == s)
@@ -58,18 +61,28 @@ func (conv *Conv) Exec(source, dest *Tensor){
   
   for i:=0; i<3; i++{
     CopyPad(mComp[i], buffer[i])
+//     fmt.Println("mPadded", i)
+//     tensor.Format(os.Stdout, buffer[i])
   }
+
   
   //Sync
   
   for i:=0; i<3; i++{
     conv.fft.Forward(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
+//     fmt.Println("fftm", i)
+//     tensor.Format(os.Stdout, buffer[i])
   }
   
   KernelMul(buffer[X].data,  buffer[Y].data,   buffer[Z].data,
             kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
             kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
-            Len(buffer[X].size)/2)
+            Len(buffer[X].size))  // nRealNumbers 
+
+  for i:=0; i<3; i++{
+    fmt.Println("mulM", i)
+    tensor.Format(os.Stdout, buffer[i])
+  }
             
   for i:=0; i<3; i++{
     conv.fft.Inverse(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
