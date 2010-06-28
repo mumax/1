@@ -92,11 +92,18 @@ func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
   devbuf := NewTensor(conv.KernelSize())
 
   fft := NewFFT(conv.KernelSize())
+  N := 1.0 / float(fft.Normalization())
+  
   for i:= range conv.kernel{
     if kernel[i] != nil{                    // nil means it would contain only zeros so we don't store it.
       conv.kernel[i] = NewTensor(conv.PhysicSize())
 
       tensor.CopyTo(kernel[i], buffer)
+
+      for i:=range buffer.List(){
+        buffer.List()[i] *= N
+      }
+      
       TensorCopyTo(buffer, devbuf)
       CopyPad(devbuf, conv.kernel[i])   ///@todo padding should be done on host, not device, to save gpu memory / avoid fragmentation
 
