@@ -38,6 +38,12 @@ func (t *Tensor) Get(index []int) float{
   return ArrayGet(t.data, i)
 }
 
+func (t *Tensor) Set(index []int, value float){
+  i := tensor.Index(t.size, index)
+  ArraySet(t.data, i, value)
+}
+
+
 func Len(size []int) int{
   length := 1
   for i:=range size{

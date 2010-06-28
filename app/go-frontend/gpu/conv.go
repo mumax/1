@@ -3,6 +3,8 @@ package gpu
 import(
   "tensor"
   "unsafe"
+  "os"
+  "fmt"
 )
 
 
@@ -12,6 +14,9 @@ type Conv struct{
   mComp      [3]*Tensor
   hComp      [3]*Tensor
   fft       *FFT;
+
+  // transform [3]bool
+  // kmul type 9 - 6 - 4 - 3
 }
 
 
@@ -36,7 +41,8 @@ func NewConv(dataSize, kernelSize []int) *Conv{
 
 
 func (conv *Conv) Exec(source, dest *Tensor){
-  assert(len(source.size) == 4)
+
+  assert(len(source.size) == 4)             // size checks
   assert(len(  dest.size) == 4)
   for i,s:= range conv.DataSize(){
     assert(source.size[i+1] == s)
@@ -55,18 +61,28 @@ func (conv *Conv) Exec(source, dest *Tensor){
   
   for i:=0; i<3; i++{
     CopyPad(mComp[i], buffer[i])
+//     fmt.Println("mPadded", i)
+//     tensor.Format(os.Stdout, buffer[i])
   }
+
   
   //Sync
   
   for i:=0; i<3; i++{
     conv.fft.Forward(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
+//     fmt.Println("fftm", i)
+//     tensor.Format(os.Stdout, buffer[i])
   }
   
   KernelMul(buffer[X].data,  buffer[Y].data,   buffer[Z].data,
             kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
             kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
-            Len(buffer[X].size)/2)
+            Len(buffer[X].size))  // nRealNumbers 
+
+  for i:=0; i<3; i++{
+    fmt.Println("mulM", i)
+    tensor.Format(os.Stdout, buffer[i])
+  }
             
   for i:=0; i<3; i++{
     conv.fft.Inverse(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
@@ -79,17 +95,28 @@ func (conv *Conv) Exec(source, dest *Tensor){
 
 
 func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
-  // size checks
+  for _,k:=range kernel{
+    if k != nil{
+      assert( tensor.EqualSize(k.Size(), conv.KernelSize()) )
+    }
+  }
 
   buffer := tensor.NewTensorN(conv.KernelSize())
   devbuf := NewTensor(conv.KernelSize())
 
   fft := NewFFT(conv.KernelSize())
+  N := 1.0 / float(fft.Normalization())
+  
   for i:= range conv.kernel{
-    if kernel[i] != nil{
+    if kernel[i] != nil{                    // nil means it would contain only zeros so we don't store it.
       conv.kernel[i] = NewTensor(conv.PhysicSize())
 
       tensor.CopyTo(kernel[i], buffer)
+
+      for i:=range buffer.List(){
+        buffer.List()[i] *= N
+      }
+      
       TensorCopyTo(buffer, devbuf)
       CopyPad(devbuf, conv.kernel[i])   ///@todo padding should be done on host, not device, to save gpu memory / avoid fragmentation
 
