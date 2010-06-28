@@ -2,9 +2,6 @@ package gpu
 
 import(
    "testing"
-   "tensor"
-    "os"
-    "fmt"
     "sim"
 )
 
@@ -16,24 +13,25 @@ func TestConv(t *testing.T){
   conv := NewConv(size, kernelSize)
   kernel := sim.FaceKernel6(size, []float{1., 1., 1.})
   
-  for i,k:= range kernel{
-    fmt.Println("kernel", i, k.Size())
-  }
-  fmt.Println("conv", conv.KernelSize())
-  fmt.Println("conv.fft", conv.fft)
+//   for i,k:= range kernel{
+//     fmt.Println("kernel", i, k.Size())
+//   }
+//   fmt.Println("conv", conv.KernelSize())
+//   fmt.Println("conv.fft", conv.fft)
   
   conv.LoadKernel6(kernel)
   
-  for i:=range(conv.kernel){
-    fmt.Println(i)
-    if conv.kernel[i] == nil {
-      fmt.Println("(nil)")
-    }else{
-      tensor.Format(os.Stdout, conv.kernel[i])
-    }
-  }
+//   for i:=range(conv.kernel){
+//     fmt.Println(i)
+//     if conv.kernel[i] == nil {
+//       fmt.Println("(nil)")
+//     }else{
+//       tensor.Format(os.Stdout, conv.kernel[i])
+//     }
+//   }
 
   m, h := NewTensor(size4D), NewTensor(size4D)
-  
+
+  m.Set([]int{0, 0, 0}, 0.)
   conv.Exec(m, h)
 }
