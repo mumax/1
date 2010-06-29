@@ -8,6 +8,14 @@ type Backend struct{
   Device
 }
 
+//_________________________________________________________________________ safe wrappers for Device methods
+
+func(b Backend) OverrideStride(stride int){
+  assert(stride > 0 || stride == -1)
+  b.overrideStride(stride)
+}
+
+//________________________________________________________________________ derived methods
 
 func(b Backend)  NewTensor(size []int) *Tensor{
   t := new(Tensor)
@@ -44,11 +52,9 @@ func(b Backend)  TensorCopyFrom(source *Tensor, dest tensor.StoredTensor){
   b.memcpyFrom(source.data, &(dest.List()[0]), tensor.N(source));
 }
 
-
 func(b Backend)  ZeroTensor(t *Tensor){
   b.zero(t.data, tensor.N(t));
 }
-
 
 func (b Backend) CopyPad(source, dest *Tensor){
   b.copyPad(source.data, dest.data, source.size, dest.size)

@@ -2,14 +2,13 @@ package sim
 
 import(
    "testing"
-    "sim/gpu"
     "tensor"
     "fmt"
     "os"
 )
 
 func TestConv(t *testing.T){
-  backend := Backend{gpu.Device{}}
+  backend := Backend{Gpu{}}
   
   backend.OverrideStride(1)
   size4D := []int{3, 32, 32, 2}

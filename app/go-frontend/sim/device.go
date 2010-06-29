@@ -5,27 +5,32 @@ import(
 )
 
 /**
- * The Device interface makes an abstraction from a computing device
+ * The Device interface makes an abstraction from a library with
+ * basic simulation functions for a specific computing device
  * like a GPU or CPU (or possibly even a cluster).
  *
  * The interface specifies quite a number of simulation primitives
  * like fft's, torque(), memory allocation... where all higher-level
  * simulation functions can be derived from.
  *
- * gpu.Device is the primary implementation of the Device interface:
+ * Gpu is the primary implementation of the Device interface:
  * eachs of its functions calls a corresponding C function that does
  * the actual work with CUDA.
  *
  * The GPU implementation can be easily translated to a CPU alternative
  * by just putting the CUDA kernels inside (openMP) for-loops instead of
  * kernel launches. This straightforward translation is wrapped in
- * cpu.Device.
+ * Cpu
  *
  * The first layer of higher-level functions is provided by the Backend
  * struct, which embeds a Device. Backend does not need to know whether
  * it uses a gpu.Device or cpu.Device, and so the code for both is
  * identical from this point on.
  *
+ * By convention, the methods in the Device interface are unsafe
+ * and therefore package private. They have safe, public wrappers
+ * derived methods in Backend. This allows the safety checks to
+ * be implemented only once in Backend and not for each Device.
  * 
  */
 type Device interface{
