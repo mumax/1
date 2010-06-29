@@ -18,8 +18,8 @@ type FFT struct{
 
 
 /// logicSize is the size of the real input data.
-func NewFFT(dev Device, logicSize []int) *FFT{
-  return NewFFTPadded(dev, logicSize, logicSize)
+func NewFFT(b Backend, logicSize []int) *FFT{
+  return NewFFTPadded(b, logicSize, logicSize)
 }
 
 
@@ -27,7 +27,7 @@ func NewFFT(dev Device, logicSize []int) *FFT{
  * logicSize is the size of the real input data, but this may contain a lot of zeros.
  * dataSize is the portion of logicSize that is non-zero (typically half as large as logicSize).
  */
-func NewFFTPadded(dev Device, dataSize, logicSize []int) *FFT{
+func NewFFTPadded(b Backend, dataSize, logicSize []int) *FFT{
   assert(len(logicSize) == 3)
   assert(len(dataSize) == 3)
   for i:=range dataSize{
@@ -35,7 +35,7 @@ func NewFFTPadded(dev Device, dataSize, logicSize []int) *FFT{
   }
 
   fft := new(FFT)
-  fft.Backend = Backend{dev}
+  fft.Backend = b
   for i:=range logicSize {
     fft.logicSize [i] = logicSize[i]
     fft.dataSize  [i] = dataSize[i]

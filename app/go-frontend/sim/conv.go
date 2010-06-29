@@ -17,7 +17,7 @@ type Conv struct{
 }
 
 
-func NewConv(dev Device, dataSize, kernelSize []int) *Conv{
+func NewConv(backend Backend, dataSize, kernelSize []int) *Conv{
   assert(len(dataSize) == 3)
   assert(len(kernelSize) == 3)
   for i:=range dataSize{
@@ -25,7 +25,7 @@ func NewConv(dev Device, dataSize, kernelSize []int) *Conv{
   }
 
   conv := new(Conv)
-  conv.FFT = *NewFFTPadded(dev, dataSize, kernelSize)
+  conv.FFT = *NewFFTPadded(backend, dataSize, kernelSize)
   
   ///@todo do not allocate for infinite2D problem
   for i:=0; i<3; i++{
@@ -101,7 +101,7 @@ func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
   buffer := tensor.NewTensorN(conv.KernelSize())
   devbuf := conv.NewTensor(conv.KernelSize())
 
-  fft := NewFFT(conv.Device, conv.KernelSize())
+  fft := NewFFT(conv.Backend, conv.KernelSize())
   N := 1.0 / float(fft.Normalization())
   
   for i:= range conv.kernel{

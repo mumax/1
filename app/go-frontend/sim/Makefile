@@ -3,6 +3,9 @@ PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 
 TARG=sim
 
+CGOFILES=\
+	gpu.go
+
 GOFILES=\
 	device.go\
 	tensor.go\

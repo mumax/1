@@ -88,6 +88,6 @@ type Device interface{
   zero(data unsafe.Pointer, nFloats int)
 
   /// Print the GPU properties to stdout
-  PrintProperties()
+  printProperties()
 
 }
