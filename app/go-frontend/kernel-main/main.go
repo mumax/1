@@ -1,8 +1,8 @@
 package main
   
 import( 
-  . "tensor";
-  . "sim";
+  "tensor";
+  "sim";
   "os";
   "fmt";
 )
@@ -21,13 +21,13 @@ func main() {
 }
 
 func makeKernel(){
- demag := FaceKernel(units.Size, units.CellSize);
- exch := Exch6NgbrKernel(units.Size, units.CellSize);
- kernel := Add(exch, demag);
- Write(os.Stdout, kernel);
+ demag := sim.FaceKernel(units.Size, units.CellSize);
+ exch := sim.Exch6NgbrKernel(units.Size, units.CellSize);
+ kernel := tensor.Add(exch, demag);
+ tensor.Write(os.Stdout, kernel);
 }
 
-var units Units = *NewUnits();
+var units sim.Units = *sim.NewUnits();
 
 var demagtype string = "cuboid";
 var exchtype string = "exch6";

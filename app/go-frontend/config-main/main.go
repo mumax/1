@@ -6,14 +6,19 @@ package main
  */
   
 import( 
-  . "tensor";
-  . "sim";
+  "tensor";
+  "sim";
   "os";
   "fmt";
 )
 
+const(
+  X = iota
+  Y
+  Z
+)
 
-var units Units = *NewUnits();
+var units sim.Units = *sim.NewUnits();
 
 func init(){
   units.CellSize = []float{1., 1., 1.};
@@ -27,17 +32,17 @@ func main() {
 //   for i:=range(units.CellSize){
 //     units.CellSize[i] /= units.UnitLength();
 //   }
-  Write(os.Stdout, m);
+  tensor.Write(os.Stdout, m);
 }
 
-var m *Tensor4;
+var m *tensor.Tensor4;
 
 
 func exec(command string, args []string){
   switch command{
     case "--size":
 	units.Size = parseSize(args);
-	m = NewTensor4([]int{3, units.Size[X], units.Size[Y], units.Size[Z]});
+	m = tensor.NewTensor4([]int{3, units.Size[X], units.Size[Y], units.Size[Z]});
     case "--cellsize":
 	units.CellSize = parseCellSize(args);
     case "--aexch":
@@ -48,7 +53,7 @@ func exec(command string, args []string){
 	 units.MSat = Atof(args[0]);
     case "--uniform":
 	 argCount(command, args, 3, 3);
-	 Uniform(m, Atof(args[X]), Atof(args[Y]), Atof(args[Z]));
+	 sim.Uniform(m, Atof(args[X]), Atof(args[Y]), Atof(args[Z]));   // a package sim/config would be nice
     default:
       fmt.Fprintln(os.Stderr, "unknown command:", command);
       os.Exit(-1);
