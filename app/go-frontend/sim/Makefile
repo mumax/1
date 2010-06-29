@@ -22,6 +22,8 @@ GOFILES=\
 	config.go\
 	assert.go\
 
+CGO_LDFLAGS+=$(CURDIR)/../../../core/core.so
+
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 	
 include $(GOROOT)/src/Make.pkg
