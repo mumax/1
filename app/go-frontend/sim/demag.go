@@ -53,7 +53,7 @@ func faceIntegral(B, R *Vector, cellsize[] float, s int){
   B.Scale(1./(float(n*n))); // n^2 integration points
 }
 
-// copied from gpu/conv.go
+// copied from sim/conv.go
 const(
   XX = 0
   YY = 1

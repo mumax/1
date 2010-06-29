@@ -1,4 +1,4 @@
-package gpu
+package sim
 
 import(
   "unsafe"
@@ -52,7 +52,7 @@ func Len(size []int) int{
   return length
 }
 
-/// copies between two Tensors on the gpu
+/// copies between two Tensors on the sim
 func TensorCopyOn(source, dest *Tensor){
   assert(tensor.EqualSize(source.size, dest.size))
   MemcpyOn(source.data, dest.data, tensor.Len(source));
@@ -60,7 +60,7 @@ func TensorCopyOn(source, dest *Tensor){
 
 /// copies a tensor to the GPU
 func TensorCopyTo(source tensor.StoredTensor, dest *Tensor){
-  ///@todo gpu.Set(), allow tensor.Tensor source, type switch for efficient copying
+  ///@todo sim.Set(), allow tensor.Tensor source, type switch for efficient copying
   ///@todo TensorCpy() with type switch for auto On/To/From
   assert(tensor.EqualSize(source.Size(), dest.size))
   MemcpyTo(&(source.List()[0]), dest.data, tensor.Len(source));
@@ -68,7 +68,7 @@ func TensorCopyTo(source tensor.StoredTensor, dest *Tensor){
 
 /// copies a tensor to the GPU
 func TensorCopyFrom(source *Tensor, dest tensor.StoredTensor){
-  ///@todo gpu.Set(), allow tensor.Tensor source, type switch for efficient copying
+  ///@todo sim.Set(), allow tensor.Tensor source, type switch for efficient copying
   ///@todo TensorCpy() with type switch for auto On/To/From
   assert(tensor.EqualSize(source.Size(), dest.Size()))
   MemcpyFrom(source.data, &(dest.List()[0]), tensor.Len(source));

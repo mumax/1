@@ -1,4 +1,4 @@
-package gpu
+package sim
 
 import(
   "tensor"
@@ -115,7 +115,7 @@ func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
       }
       
       TensorCopyTo(buffer, devbuf)
-      CopyPad(devbuf, conv.kernel[i])   ///@todo padding should be done on host, not device, to save gpu memory / avoid fragmentation
+      CopyPad(devbuf, conv.kernel[i])   ///@todo padding should be done on host, not device, to save sim memory / avoid fragmentation
 
       fft.Forward(conv.kernel[i], conv.kernel[i])
     }

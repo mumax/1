@@ -1,4 +1,4 @@
-package gpu
+package sim
 
 import(
 )
@@ -36,7 +36,7 @@ func (this *Euler) Step(){
 //       Conv{
 //         FFT{
 //           size
-//           Device{  //gpu.Device or cpu.Device
+//           Device{  //sim.Device or cpu.Device
 //             // low-level, unsafe simulation primitives
 //             NewTensor
 //             FFT,

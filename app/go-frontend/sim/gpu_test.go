@@ -1,4 +1,4 @@
-package gpu
+package sim
 
 import(
   "testing"
