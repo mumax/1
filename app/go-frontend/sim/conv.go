@@ -17,7 +17,7 @@ type Conv struct{
 }
 
 
-func NewConv(dataSize, kernelSize []int) *Conv{
+func NewConv(dev Device, dataSize, kernelSize []int) *Conv{
   assert(len(dataSize) == 3)
   assert(len(kernelSize) == 3)
   for i:=range dataSize{
@@ -25,13 +25,13 @@ func NewConv(dataSize, kernelSize []int) *Conv{
   }
 
   conv := new(Conv)
-  conv.FFT = *NewFFTPadded(dataSize, kernelSize)
+  conv.FFT = *NewFFTPadded(dev, dataSize, kernelSize)
   
   ///@todo do not allocate for infinite2D problem
   for i:=0; i<3; i++{
-    conv.buffer[i] = NewTensor(conv.PhysicSize())
-    conv.mComp[i] = &Tensor{ dataSize, unsafe.Pointer(nil) }
-    conv.hComp[i] = &Tensor{ dataSize, unsafe.Pointer(nil) }
+    conv.buffer[i] = conv.NewTensor(conv.PhysicSize())
+    conv.mComp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil) }
+    conv.hComp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil) }
   }
   return conv
 }
@@ -52,12 +52,12 @@ func (conv *Conv) Convolve(source, dest *Tensor){
   kernel := conv.kernel
   mLen := Len(mComp[0].size)
   for i:=0; i<3; i++{
-    mComp[i].data = ArrayOffset(source.data, i*mLen)
-    hComp[i].data = ArrayOffset(  dest.data, i*mLen)
+    mComp[i].data = conv.arrayOffset(source.data, i*mLen)
+    hComp[i].data = conv.arrayOffset(  dest.data, i*mLen)
   }
   
   for i:=0; i<3; i++{
-    CopyPad(mComp[i], buffer[i])
+    conv.CopyPad(mComp[i], buffer[i])
 //     fmt.Println("mPadded", i)
 //     tensor.Format(os.Stdout, buffer[i])
   }
@@ -71,10 +71,10 @@ func (conv *Conv) Convolve(source, dest *Tensor){
 //     tensor.Format(os.Stdout, buffer[i])
   }
   
-  kernelMul(buffer[X].data,  buffer[Y].data,   buffer[Z].data,
-            kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
-            kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
-            Len(buffer[X].size))  // nRealNumbers 
+  conv.kernelMul(buffer[X].data,  buffer[Y].data,   buffer[Z].data,
+                 kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
+                 kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
+                 Len(buffer[X].size))  // nRealNumbers
 
   for i:=0; i<3; i++{
     fmt.Println("mulM", i)
@@ -86,7 +86,7 @@ func (conv *Conv) Convolve(source, dest *Tensor){
   } 
   
   for i:=0; i<3; i++{
-    CopyUnpad(buffer[i], hComp[i])
+    conv.CopyUnpad(buffer[i], hComp[i])
   }
 }
 
@@ -99,14 +99,14 @@ func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
   }
 
   buffer := tensor.NewTensorN(conv.KernelSize())
-  devbuf := NewTensor(conv.KernelSize())
+  devbuf := conv.NewTensor(conv.KernelSize())
 
-  fft := NewFFT(conv.KernelSize())
+  fft := NewFFT(conv.Device, conv.KernelSize())
   N := 1.0 / float(fft.Normalization())
   
   for i:= range conv.kernel{
     if kernel[i] != nil{                    // nil means it would contain only zeros so we don't store it.
-      conv.kernel[i] = NewTensor(conv.PhysicSize())
+      conv.kernel[i] = conv.NewTensor(conv.PhysicSize())
 
       tensor.CopyTo(kernel[i], buffer)
 
@@ -114,8 +114,8 @@ func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
         buffer.List()[i] *= N
       }
       
-      TensorCopyTo(buffer, devbuf)
-      CopyPad(devbuf, conv.kernel[i])   ///@todo padding should be done on host, not device, to save sim memory / avoid fragmentation
+      conv.TensorCopyTo(buffer, devbuf)
+      conv.CopyPad(devbuf, conv.kernel[i])   ///@todo padding should be done on host, not device, to save sim memory / avoid fragmentation
 
       fft.Forward(conv.kernel[i], conv.kernel[i])
     }

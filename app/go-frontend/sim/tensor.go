@@ -11,36 +11,27 @@ const(
   Z = 2
 )
 
-/// a Tensor whose data resides on the GPU, implements tensor.Tensor.
+
 type Tensor struct{
+  Backend               ///< wraps the Device where the Tensor resides on (GPU/CPU/...)
   size []int
-  data unsafe.Pointer   // points to float array on the GPU
+  data unsafe.Pointer   // points to float array on the GPU/CPU
 }
 
-func NewTensor(size []int) *Tensor{
-  t := new(Tensor)
-  t.size = make([]int, len(size))
-  length := 1
-  for i:= range size {
-    t.size[i] = size[i]
-    length *= size[i]
-  }
-  t.data = NewArray(length)
-  return t
+
+func(t *Tensor) Get(index []int) float{
+  i := tensor.Index(t.size, index)
+  return t.arrayGet(t.data, i)
 }
 
-func (t *Tensor) Size() []int{
+
+func(t *Tensor) Set(index []int, value float){
+  i := tensor.Index(t.size, index)
+  t.arraySet(t.data, i, value)
+}
+
+func(t *Tensor) Size() []int{
   return t.size
-}
-
-func (t *Tensor) Get(index []int) float{
-  i := tensor.Index(t.size, index)
-  return ArrayGet(t.data, i)
-}
-
-func (t *Tensor) Set(index []int, value float){
-  i := tensor.Index(t.size, index)
-  ArraySet(t.data, i, value)
 }
 
 
@@ -52,30 +43,23 @@ func Len(size []int) int{
   return length
 }
 
-/// copies between two Tensors on the sim
-func TensorCopyOn(source, dest *Tensor){
-  assert(tensor.EqualSize(source.size, dest.size))
-  MemcpyOn(source.data, dest.data, tensor.Len(source));
+
+func assertEqualSize(sizeA, sizeB []int){
+  assert(len(sizeA) == len(sizeB));
+  for i:=range(sizeA){
+    assert(sizeA[i] == sizeB[i]);
+  }
 }
 
-/// copies a tensor to the GPU
-func TensorCopyTo(source tensor.StoredTensor, dest *Tensor){
-  ///@todo sim.Set(), allow tensor.Tensor source, type switch for efficient copying
-  ///@todo TensorCpy() with type switch for auto On/To/From
-  assert(tensor.EqualSize(source.Size(), dest.size))
-  MemcpyTo(&(source.List()[0]), dest.data, tensor.Len(source));
-}
+//___________________________________________________________________________________________________ go utilities
 
-/// copies a tensor to the GPU
-func TensorCopyFrom(source *Tensor, dest tensor.StoredTensor){
-  ///@todo sim.Set(), allow tensor.Tensor source, type switch for efficient copying
-  ///@todo TensorCpy() with type switch for auto On/To/From
-  assert(tensor.EqualSize(source.Size(), dest.Size()))
-  MemcpyFrom(source.data, &(dest.List()[0]), tensor.Len(source));
-}
+// ToCTensor(t tensor.StoredTensor) *_C_tensor{
+//   return C.as_tensorN((*_C_float)(unsafe.Pointer(&(t.List()[0]))), (_C_int)(tensor.Rank(t)), (*_C_int)(unsafe.Pointer(&(t.Size()[0]))) );
+// }
+//
+// ToCGPUTensor(t *Tensor) *_C_tensor{
+//   return C.as_tensorN((*_C_float)(t.data), (_C_int)(tensor.Rank(t)), (*_C_int)(unsafe.Pointer(&(t.Size()[0]))) );
+// }
 
 
-func ZeroTensor(t *Tensor){
-  Zero(t.data, tensor.Len(t));
-}
 

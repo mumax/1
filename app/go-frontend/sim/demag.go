@@ -1,7 +1,7 @@
 package sim
 
 import(
-  . "tensor";
+  "tensor";
   . "math";
 )
 
@@ -10,11 +10,11 @@ import(
 /** 
  * Magnetostatic field at position r (integer, number of cellsizes away form source) for a given source magnetization direction m (X, Y, or Z) 
  */
-func faceIntegral(B, R *Vector, cellsize[] float, s int){
+func faceIntegral(B, R *tensor.Vector, cellsize[] float, s int){
   n := 8;					// number of integration points = n^2
   u, v, w := s, (s+1)%3, (s+2)%3;		// u = direction of source (s), v & w are the orthogonal directions
-  R2 := NewVector();
-  pole := NewVector();				// position of point charge on the surface
+  R2 := tensor.NewVector();
+  pole := tensor.NewVector();				// position of point charge on the surface
   
 
   surface := cellsize[v] * cellsize[w]; 	// the two directions perpendicular to direction s
@@ -53,24 +53,14 @@ func faceIntegral(B, R *Vector, cellsize[] float, s int){
   B.Scale(1./(float(n*n))); // n^2 integration points
 }
 
-// copied from sim/conv.go
-const(
-  XX = 0
-  YY = 1
-  ZZ = 2
-  YZ = 3
-  XZ = 4
-  XY = 5
-)
-
 /// converts from the full "rank-5" kernel format to the symmetric "array-of-rank3-tensors" format
-func FaceKernel6(unpaddedsize []int, cellsize []float) []*Tensor3 {
+func FaceKernel6(unpaddedsize []int, cellsize []float) []*tensor.Tensor3 {
   k9 := FaceKernel(unpaddedsize, cellsize)
   k9X := k9.Component(X)
   k9Y := k9.Component(Y)
   k9Z := k9.Component(Z)
   
-  k6 := make([]*Tensor3, 6)
+  k6 := make([]*tensor.Tensor3, 6)
   
   k6[XX] = k9X.Component(X)
   k6[YY] = k9Y.Component(Y)
@@ -83,11 +73,11 @@ func FaceKernel6(unpaddedsize []int, cellsize []float) []*Tensor3 {
 }
 
 /** Integrates the demag field based on multiple points per face. */
-func FaceKernel(unpaddedsize []int, cellsize []float) *Tensor5{
+func FaceKernel(unpaddedsize []int, cellsize []float) *tensor.Tensor5{
   size := PadSize(unpaddedsize);
-  k := NewTensor5([]int{3, 3, size[0], size[1], size[2]});
-  B := NewVector();
-  R := NewVector();
+  k := tensor.NewTensor5([]int{3, 3, size[0], size[1], size[2]});
+  B := tensor.NewVector();
+  R := tensor.NewVector();
   
   for s:=0; s<3; s++{					// source index Ksdxyz
     for x:=-(size[X]-1)/2; x<=size[X]/2 -1; x++{		 // in each dimension, go from -(size-1)/2 to size/2 -1, wrapped. It's crucial that the unused rows remain zero, otherwise the FFT'ed kernel is not purely real anymore.

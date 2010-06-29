@@ -20,10 +20,10 @@ func (this *Euler) Step(){
   alpha, dt := this.alpha, this.dt
   
   this.Convolve(m, h)
-  Torque(m, h, alpha, dt/(1+alpha*alpha))
+  this.Torque(m, h, alpha, dt/(1+alpha*alpha))
   torque := h
 
-  EulerStage(m, torque)
+  this.EulerStage(m, torque)
 }
 
 

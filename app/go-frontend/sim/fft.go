@@ -6,13 +6,10 @@ import(
   "tensor"
 )
 
-type Device interface{
-  Malloc()
-}
 
 /// 3D real-to-complex / complex-to-real transform. Handles zero-padding efficiently (if applicable)
 type FFT struct{
-  Device
+  Backend
   plan unsafe.Pointer           ///< points to the simFFT3dPlan struct that does the actual FFT
   dataSize   [3]int             ///< size of the non-zero data inside the logic input data. Must be <= logicSize
   logicSize  [3]int             ///< logical size of the FFT, including padding: number of reals in each dimension
@@ -21,8 +18,8 @@ type FFT struct{
 
 
 /// logicSize is the size of the real input data.
-func NewFFT(logicSize []int) *FFT{
-  return NewFFTPadded(logicSize, logicSize)
+func NewFFT(dev Device, logicSize []int) *FFT{
+  return NewFFTPadded(dev, logicSize, logicSize)
 }
 
 
@@ -30,7 +27,7 @@ func NewFFT(logicSize []int) *FFT{
  * logicSize is the size of the real input data, but this may contain a lot of zeros.
  * dataSize is the portion of logicSize that is non-zero (typically half as large as logicSize).
  */
-func NewFFTPadded(dataSize, logicSize []int) *FFT{
+func NewFFTPadded(dev Device, dataSize, logicSize []int) *FFT{
   assert(len(logicSize) == 3)
   assert(len(dataSize) == 3)
   for i:=range dataSize{
@@ -38,13 +35,14 @@ func NewFFTPadded(dataSize, logicSize []int) *FFT{
   }
 
   fft := new(FFT)
+  fft.Backend = Backend{dev}
   for i:=range logicSize {
     fft.logicSize [i] = logicSize[i]
     fft.dataSize  [i] = dataSize[i]
     fft.physicSize[i] = fft.logicSize[i] // Z will be overwritten
   }
-  fft.physicSize[Z] = PadToStride(logicSize[Z] + 2)
-  fft.plan = NewFFTPlan(dataSize, logicSize)
+  fft.physicSize[Z] = fft.PadToStride(logicSize[Z] + 2)
+  fft.plan = fft.newFFTPlan(dataSize, logicSize)
   
   return fft
 }
@@ -59,7 +57,7 @@ func (fft *FFT) Forward(in, out *Tensor){
     assert( out.size[i] == s)
   }
   // actual fft
-  FFTForward(fft.plan, in, out);
+  fft.fftForward(fft.plan, in.data, out.data);
 }
 
 
@@ -72,7 +70,7 @@ func (fft *FFT) Inverse(in, out *Tensor){
     assert( out.size[i] == s)
   }
   // actual fft
-  FFTInverse(fft.plan, in, out)
+  fft.fftInverse(fft.plan, in.data, out.data)
 }
 
 
@@ -102,6 +100,10 @@ func (fft *FFT) DataSize() []int{
   return fft.dataSize[0:]
 }
 
+
+func (fft *FFT) Normalization() int{
+  return fft.logicSize[X] * fft.logicSize[Y] * fft.logicSize[Z]
+}
 
 func (fft *FFT) String() string{
   return fmt.Sprint("FFT{ dataSize", fft.dataSize, "logicSize", fft.logicSize, "physicSize", fft.physicSize, "}");

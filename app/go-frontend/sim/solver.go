@@ -11,29 +11,29 @@ type Solver struct{
 }
 
 
-func Torque(m, h *Tensor, alpha, dtGilbert float){
+func(s *Solver) Torque(m, h *Tensor, alpha, dtGilbert float){
   assert(len(m.size) == 4)
   assert(tensor.EqualSize(m.size, h.size))
   
   N := m.size[1] * m.size[2] * m.size[3]
-  torque(m.data, h.data, alpha, dtGilbert, N)
+  s.torque(m.data, h.data, alpha, dtGilbert, N)
 }
 
 
-func Normalize(m *Tensor){
+func(s *Solver) Normalize(m *Tensor){
   assert(len(m.size) == 4)
 
   N := m.size[1] * m.size[2] * m.size[3]
-  normalize(m.data, N)
+  s.normalize(m.data, N)
 }
 
 
-func EulerStage(m, torque *Tensor){
+func(s *Solver) EulerStage(m, torque *Tensor){
   assert(len(m.size) == 4)
   assert(tensor.EqualSize(m.size, torque.size))
 
   N := m.size[1] * m.size[2] * m.size[3]
-  eulerStage(m.data, torque.data, N)
+  s.eulerStage(m.data, torque.data, N)
  
 }
 

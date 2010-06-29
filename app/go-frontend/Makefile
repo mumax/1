@@ -22,7 +22,7 @@ all:
 clean:
 	make clean -C tensor
 	make clean -C core
-	make clean -C gpu
+	make clean -C sim/gpu
 	make clean -C sim
 	make clean -C tensor-main
 	make clean -C kernel-main

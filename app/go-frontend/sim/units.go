@@ -1,10 +1,9 @@
 package sim
 
 import(
-  . "math";
-  "fmt";
-  "io";
-  "log";
+  . "math"
+  "fmt"
+  "io"
 )
 
 /**
@@ -108,9 +107,3 @@ func (unit *Units) AssertValid(){
   assert(unit.Valid());
 }
 
-/** Crashes the program when the test is false. */
-func assert(test bool){
-  if !test{
-    log.Crash("Assertion failed");
-  }
-}
