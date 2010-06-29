@@ -10,9 +10,10 @@ type Field struct{
   // exchange, ...
 }
 
-// func NewField() *Field{
-//   
-// }
+func NewField() *Field{
+  ///@todo
+  return nil
+}
 
 
 

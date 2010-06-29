@@ -31,7 +31,8 @@ import(
  * and therefore package private. They have safe, public wrappers
  * derived methods in Backend. This allows the safety checks to
  * be implemented only once in Backend and not for each Device.
- * 
+ * The few methods that are already safe are accessible through
+ * Backend thanks to embedding.
  */
 type Device interface{
 
@@ -84,7 +85,7 @@ type Device interface{
   arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer
 
   /// The GPU stride in number of floats (!)
-  stride() int
+  Stride() int
 
   /// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
   overrideStride(nFloats int)
@@ -93,6 +94,6 @@ type Device interface{
   zero(data unsafe.Pointer, nFloats int)
 
   /// Print the GPU properties to stdout
-  printProperties()
+  PrintProperties()
 
 }

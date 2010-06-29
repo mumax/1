@@ -9,31 +9,32 @@ import(
 
 
 func TestFFT(t *testing.T){
-
-  OverrideStride(1)
+  backend := GPU
+  
+  backend.OverrideStride(1)
 
   size := []int{4, 8, 4}
-  fft := NewFFT(size)
+  fft := NewFFT(backend, size)
   fmt.Println(fft)
   physicSize := fft.PhysicSize()
 
-  devLog, devPhys := NewTensor(size), NewTensor(physicSize)
+  devLog, devPhys := backend.NewTensor(size), backend.NewTensor(physicSize)
   host1, host2 := tensor.NewTensorN(size), tensor.NewTensorN(size)
 
   for i:=0; i<4; i++ {
     host1.List()[i] = float(i)
   }
 
-  TensorCopyTo(host1, devLog)
-  CopyPad(devLog, devPhys)
+  backend.TensorCopyTo(host1, devLog)
+  backend.CopyPad(devLog, devPhys)
   tensor.Format(os.Stdout, devPhys)
   fft.Forward(devPhys, devPhys)
   tensor.Format(os.Stdout, devPhys)
   fft.Inverse(devPhys, devPhys)
   tensor.Format(os.Stdout, devPhys)
-  CopyUnpad(devPhys, devLog)
+  backend.CopyUnpad(devPhys, devLog)
   tensor.Format(os.Stdout, devLog)
-  TensorCopyFrom(devLog, host2)
+  backend.TensorCopyFrom(devLog, host2)
 
   N := float(fft.Normalization());
   var maxError float = 0
@@ -47,7 +48,7 @@ func TestFFT(t *testing.T){
   fmt.Println("FFT error:", maxError);
   if maxError > 1E-5 { t.Fail() }
 
-  OverrideStride(-1)
+  backend.OverrideStride(-1)
 }
 
 

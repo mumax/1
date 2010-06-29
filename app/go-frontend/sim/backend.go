@@ -15,6 +15,7 @@ func(b Backend) OverrideStride(stride int){
   b.overrideStride(stride)
 }
 
+
 //________________________________________________________________________ derived methods
 
 func(b Backend)  NewTensor(size []int) *Tensor{
@@ -66,7 +67,7 @@ func (b Backend) CopyUnpad(source, dest *Tensor){
 
 // Takes an array size and returns the smallest multiple of Stride() where the array size fits in
 func(b Backend)  PadToStride(nFloats int) int{
-  stride := b.stride()
+  stride := b.Stride()
   gpulen := ((nFloats-1)/stride + 1) * stride;
 
   assert(gpulen % stride == 0)

@@ -30,6 +30,8 @@ import(
 
 )
 
+var GPU Backend = Backend{Gpu{}}
+
 type Gpu struct{
   // intentionally empty, but the methods implement sim.Gpu
 }
@@ -158,7 +160,7 @@ func(d Gpu)  arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer{
 //___________________________________________________________________________________________________ GPU Stride
 
 /// The GPU stride in number of floats (!)
-func(d Gpu)  stride() int{
+func(d Gpu) Stride() int{
   return int(C.gpu_stride_float());
 }
 
@@ -168,21 +170,21 @@ func(d Gpu)  stride() int{
 // }
 
 /// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
-func(d Gpu)  overrideStride(nFloats int){
+func(d Gpu) overrideStride(nFloats int){
   C.gpu_override_stride(_C_int(nFloats));
 }
 
 //___________________________________________________________________________________________________ tensor utilities
 
 /// Overwrite n floats with zeros
-func(d Gpu)  zero(data unsafe.Pointer, nFloats int){
+func(d Gpu) zero(data unsafe.Pointer, nFloats int){
   C.gpu_zero((*_C_float)(data), _C_int(nFloats));
 }
 
 
 
 /// Print the GPU properties to stdout
-func(d Gpu)  printProperties(){
+func(d Gpu) PrintProperties(){
   C.print_device_properties_stdout();
 }
 

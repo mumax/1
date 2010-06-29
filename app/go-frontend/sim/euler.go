@@ -8,11 +8,12 @@ type Euler struct{
   
 }
 
-func NewEuler(field *Field, alpha, dt float){
+func NewEuler(field *Field, alpha, dt float) *Euler{
   euler := new(Euler)
   euler.Field = *field
   euler.alpha = alpha
   euler.dt = dt
+  return euler
 }
 
 func (this *Euler) Step(){
@@ -29,6 +30,7 @@ func (this *Euler) Step(){
 
 // embedding tree:
 
+// Simulation{ ? to avoid typing backend backend backend...(but sim. sim. sim.)
 // Euler{
 //   Solver{
 //     Field{
@@ -49,4 +51,4 @@ func (this *Euler) Step(){
 //     }
 //   }
 // }
-
+//}

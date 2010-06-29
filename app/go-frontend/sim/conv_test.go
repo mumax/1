@@ -15,8 +15,8 @@ func TestConv(t *testing.T){
   size := size4D[1:]
   kernelSize := []int{2*size[X], 2*size[Y], 2*size[Z]}
   
-  conv := NewConv(size, kernelSize)
-  kernel := sim.FaceKernel6(size, []float{1., 1., 1.})
+  conv := NewConv(backend, size, kernelSize)
+  kernel := FaceKernel6(size, []float{1., 1., 1.})
 
   // unit kernel
 //   kernel := make([]*tensor.Tensor3, 6)
@@ -42,11 +42,11 @@ func TestConv(t *testing.T){
     }
   }
 
-  m, h := NewTensor(size4D), NewTensor(size4D)
+  m, h := backend.NewTensor(size4D), backend.NewTensor(size4D)
 
   m.Set([]int{0, 7, 7, 0}, 1.)
   tensor.WriteFile("m.t", m)
   conv.Convolve(m, h)
   tensor.WriteFile("h.t", h)
-  OverrideStride(-1)
+  backend.OverrideStride(-1)
 }
