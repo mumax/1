@@ -5,11 +5,14 @@ import(
 )
 
 type Field struct{
-  Material
+  //Material
   Conv
   // exchange, ...
 }
 
-func NewField() *Field{
-  
-}
+// func NewField() *Field{
+//   
+// }
+
+
+

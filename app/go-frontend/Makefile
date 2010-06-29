@@ -8,7 +8,7 @@ all:
 # 	make -C core
 # 	make install -C core
 
-	make install -C gpu
+	make install -C sim/gpu
 	make install -C refsh
 	make install -C sim
 	

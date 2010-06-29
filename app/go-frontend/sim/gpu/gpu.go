@@ -1,14 +1,14 @@
 package gpu
 
 /*
-#include "../../../core/tensor.h"
-#include "../../../core/gputil.h"
-#include "../../../core/gpufft2.h"
-#include "../../../core/gpupad.h"
-#include "../../../core/gpuconv2.h"
-#include "../../../core/gputorque.h"
-#include "../../../core/gpueuler.h"
-#include "../../../core/gpunormalize.h"
+#include "../../../../core/tensor.h"
+#include "../../../../core/gputil.h"
+#include "../../../../core/gpufft2.h"
+#include "../../../../core/gpupad.h"
+#include "../../../../core/gpuconv2.h"
+#include "../../../../core/gputorque.h"
+#include "../../../../core/gpueuler.h"
+#include "../../../../core/gpunormalize.h"
 
 float* gpu_array_offset(float* array, int index){
     return &array[index];
@@ -27,7 +27,6 @@ import "unsafe"
  */
 
 import(
-  "tensor"
   "log"
 )
 
@@ -72,18 +71,18 @@ func kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNum
 
 
 ///Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
-func CopyPad(source, dest *Tensor){
-  C.gpu_copy_pad_unsafe((*_C_float)(source.data), (*_C_float)(dest.data),
-                        _C_int(source.size[0]), _C_int(source.size[1]), _C_int(source.size[2]),
-                        _C_int(  dest.size[0]), _C_int(  dest.size[1]), _C_int(  dest.size[2]))
+func copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int){
+  C.gpu_copy_pad_unsafe((*_C_float)(source), (*_C_float)(dest),
+                        _C_int(sourceSize[0]), _C_int(sourceSize[1]), _C_int(sourceSize[2]),
+                        _C_int(  destSize[0]), _C_int(  destSize[1]), _C_int(  destSize[2]))
 }
 
 
-///Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
-func CopyUnpad(source, dest *Tensor){
-  C.gpu_copy_unpad_unsafe((*_C_float)(source.data), (*_C_float)(dest.data),
-                        _C_int(source.size[0]), _C_int(source.size[1]), _C_int(source.size[2]),
-                        _C_int(  dest.size[0]), _C_int(  dest.size[1]), _C_int(  dest.size[2]))
+//Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
+func copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int){
+ C.gpu_copy_unpad_unsafe((*_C_float)(source), (*_C_float)(dest),
+                        _C_int(sourceSize[0]), _C_int(sourceSize[1]), _C_int(sourceSize[2]),
+                        _C_int(  destSize[0]), _C_int(  destSize[1]), _C_int(  destSize[2]))
 }
 
 //___________________________________________________________________________________________________ FFT
@@ -96,20 +95,20 @@ func NewFFTPlan(dataSize, logicSize []int) unsafe.Pointer{
 }
 
 /// unsafe FFT
-func FFTForward(plan unsafe.Pointer, in, out *Tensor){
-  C.gpuFFT3dPlan_forward_unsafe((*_C_gpuFFT3dPlan)(plan), (*_C_float)(in.data), (*_C_float)(out.data))
+func FFTForward(plan unsafe.Pointer, in, out unsafe.Pointer){
+  C.gpuFFT3dPlan_forward_unsafe((*_C_gpuFFT3dPlan)(plan), (*_C_float)(in), (*_C_float)(out))
 }
 
 
 /// unsafe FFT
-func FFTInverse(plan unsafe.Pointer, in, out *Tensor){
-  C.gpuFFT3dPlan_inverse_unsafe((*_C_gpuFFT3dPlan)(plan), (*_C_float)(in.data), (*_C_float)(out.data))
+func FFTInverse(plan unsafe.Pointer, in, out unsafe.Pointer){
+  C.gpuFFT3dPlan_inverse_unsafe((*_C_gpuFFT3dPlan)(plan), (*_C_float)(in), (*_C_float)(out))
 }
 
 
-func (fft *FFT) Normalization() int{
-  return int(C.gpuFFT3dPlan_normalization((*_C_gpuFFT3dPlan)(fft.plan)))
-}
+// func (fft *FFT) Normalization() int{
+//   return int(C.gpuFFT3dPlan_normalization((*_C_gpuFFT3dPlan)(fft.plan)))
+// }
 
 
 //_______________________________________________________________________________ GPU memory allocation
@@ -185,13 +184,13 @@ func PrintProperties(){
 
 //___________________________________________________________________________________________________ go utilities
 
-func ToCTensor(t tensor.StoredTensor) *_C_tensor{
-  return C.as_tensorN((*_C_float)(unsafe.Pointer(&(t.List()[0]))), (_C_int)(tensor.Rank(t)), (*_C_int)(unsafe.Pointer(&(t.Size()[0]))) );
-}
-
-func ToCGPUTensor(t *Tensor) *_C_tensor{
-  return C.as_tensorN((*_C_float)(t.data), (_C_int)(tensor.Rank(t)), (*_C_int)(unsafe.Pointer(&(t.Size()[0]))) );
-}
+// func ToCTensor(t tensor.StoredTensor) *_C_tensor{
+//   return C.as_tensorN((*_C_float)(unsafe.Pointer(&(t.List()[0]))), (_C_int)(tensor.Rank(t)), (*_C_int)(unsafe.Pointer(&(t.Size()[0]))) );
+// }
+// 
+// func ToCGPUTensor(t *Tensor) *_C_tensor{
+//   return C.as_tensorN((*_C_float)(t.data), (_C_int)(tensor.Rank(t)), (*_C_int)(unsafe.Pointer(&(t.Size()[0]))) );
+// }
 
 func assert(b bool){
   if !b{

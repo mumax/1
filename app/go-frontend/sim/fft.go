@@ -6,9 +6,13 @@ import(
   "tensor"
 )
 
+type Device interface{
+  Malloc()
+}
 
 /// 3D real-to-complex / complex-to-real transform. Handles zero-padding efficiently (if applicable)
 type FFT struct{
+  Device
   plan unsafe.Pointer           ///< points to the gpuFFT3dPlan struct that does the actual FFT
   dataSize   [3]int             ///< size of the non-zero data inside the logic input data. Must be <= logicSize
   logicSize  [3]int             ///< logical size of the FFT, including padding: number of reals in each dimension
