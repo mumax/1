@@ -8,8 +8,8 @@ CGOFILES=\
 
 GOFILES=\
 	device.go\
-	tensor.go\
 	backend.go\
+	tensor.go\
 	fft.go\
 	conv.go\
 	field.go\
@@ -18,7 +18,8 @@ GOFILES=\
 	kernel.go\
 	demag.go\
 	exchange.go\
-	units.go\
+	material.go\
+	magnet.go\
 	config.go\
 	assert.go\
 

@@ -5,16 +5,18 @@ import(
 )
 
 type Field struct{
-  //Material
+  Magnet
   Conv
   // exchange, ...
 }
 
-func NewField(b Backend) *Field{
-//   field := new(Field)
-//   field.Conv = 
-//   return field
-  return nil
+
+
+func NewField(b Backend, m Magnet) *Field{
+  field := new(Field)
+  field.Magnet = m
+  //field.Conv = 
+  return field
 }
 
 
