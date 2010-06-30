@@ -20,7 +20,7 @@ type Tensor struct{
 
 func NewTensor(b Backend, size []int) *Tensor{
   t := new(Tensor)
-  
+  t.Backend = b
   t.size = make([]int, len(size))
   length := 1
   for i:= range size {
