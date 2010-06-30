@@ -8,7 +8,7 @@ all:
 # 	make -C core
 # 	make install -C core
 
-	make install -C gpu
+	make install -C sim
 	make install -C refsh
 	make install -C sim
 	
@@ -22,7 +22,6 @@ all:
 clean:
 	make clean -C tensor
 	make clean -C core
-	make clean -C gpu
 	make clean -C sim
 	make clean -C tensor-main
 	make clean -C kernel-main

@@ -4,11 +4,11 @@ import (
 	"reflect"
 )
 
-const (
-	X = 0
-	Y = 1
-	Z = 2
-)
+// const (
+// 	X = 0
+// 	Y = 1
+// 	Z = 2
+// )
 
 /** The tensor interface: get size and data */
 
@@ -24,17 +24,22 @@ func Rank(t Tensor) int { return len(t.Size()) }
 
 /// @deprecated use Len
 func N(t Tensor) int {
-  return Len(t)
-}
-
-func Len(t Tensor) int{
-    n := 1
+   n := 1
     size := t.Size()
     for i := range (size) {
         n *= size[i]
     }
     return n
 }
+
+// func Len(t Tensor) int{
+//     n := 1
+//     size := t.Size()
+//     for i := range (size) {
+//         n *= size[i]
+//     }
+//     return n
+// }
 
 /** Variadic get, utility method. */
 

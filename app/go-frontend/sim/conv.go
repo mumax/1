@@ -1,4 +1,4 @@
-package gpu
+package sim
 
 import(
   "tensor"
@@ -9,18 +9,16 @@ import(
 
 
 type Conv struct{
+  FFT
   kernel     [6]*Tensor
   buffer     [3]*Tensor
   mComp      [3]*Tensor
   hComp      [3]*Tensor
-  fft       *FFT;
-
-  // transform [3]bool
-  // kmul type 9 - 6 - 4 - 3
 }
 
 
-func NewConv(dataSize, kernelSize []int) *Conv{
+func NewConv(backend Backend, dataSize []int, kernel []tensor.StoredTensor) *Conv{
+  kernelSize := kernel[XX].Size()
   assert(len(dataSize) == 3)
   assert(len(kernelSize) == 3)
   for i:=range dataSize{
@@ -28,19 +26,21 @@ func NewConv(dataSize, kernelSize []int) *Conv{
   }
 
   conv := new(Conv)
-  conv.fft = NewFFTPadded(dataSize, kernelSize)
+  conv.FFT = *NewFFTPadded(backend, dataSize, kernelSize)
   
   ///@todo do not allocate for infinite2D problem
   for i:=0; i<3; i++{
-    conv.buffer[i] = NewTensor(conv.PhysicSize())
-    conv.mComp[i] = &Tensor{ dataSize, unsafe.Pointer(nil) }
-    conv.hComp[i] = &Tensor{ dataSize, unsafe.Pointer(nil) }
+    conv.buffer[i] = NewTensor(conv.Backend, conv.PhysicSize())
+    conv.mComp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil) }
+    conv.hComp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil) }
   }
+  conv.LoadKernel6(kernel)
+  
   return conv
 }
 
 
-func (conv *Conv) Exec(source, dest *Tensor){
+func (conv *Conv) Convolve(source, dest *Tensor){
 
   assert(len(source.size) == 4)             // size checks
   assert(len(  dest.size) == 4)
@@ -55,8 +55,8 @@ func (conv *Conv) Exec(source, dest *Tensor){
   kernel := conv.kernel
   mLen := Len(mComp[0].size)
   for i:=0; i<3; i++{
-    mComp[i].data = ArrayOffset(source.data, i*mLen)
-    hComp[i].data = ArrayOffset(  dest.data, i*mLen)
+    mComp[i].data = conv.arrayOffset(source.data, i*mLen)
+    hComp[i].data = conv.arrayOffset(  dest.data, i*mLen)
   }
   
   for i:=0; i<3; i++{
@@ -69,15 +69,15 @@ func (conv *Conv) Exec(source, dest *Tensor){
   //Sync
   
   for i:=0; i<3; i++{
-    conv.fft.Forward(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
+    conv.Forward(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
 //     fmt.Println("fftm", i)
 //     tensor.Format(os.Stdout, buffer[i])
   }
   
-  KernelMul(buffer[X].data,  buffer[Y].data,   buffer[Z].data,
-            kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
-            kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
-            Len(buffer[X].size))  // nRealNumbers 
+  conv.kernelMul(buffer[X].data,  buffer[Y].data,   buffer[Z].data,
+                 kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
+                 kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
+                 Len(buffer[X].size))  // nRealNumbers
 
   for i:=0; i<3; i++{
     fmt.Println("mulM", i)
@@ -85,7 +85,7 @@ func (conv *Conv) Exec(source, dest *Tensor){
   }
             
   for i:=0; i<3; i++{
-    conv.fft.Inverse(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
+    conv.Inverse(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
   } 
   
   for i:=0; i<3; i++{
@@ -94,7 +94,7 @@ func (conv *Conv) Exec(source, dest *Tensor){
 }
 
 
-func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
+func (conv *Conv) LoadKernel6(kernel []tensor.StoredTensor){
   for _,k:=range kernel{
     if k != nil{
       assert( tensor.EqualSize(k.Size(), conv.KernelSize()) )
@@ -102,14 +102,14 @@ func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
   }
 
   buffer := tensor.NewTensorN(conv.KernelSize())
-  devbuf := NewTensor(conv.KernelSize())
+  devbuf := NewTensor(conv.Backend, conv.KernelSize())
 
-  fft := NewFFT(conv.KernelSize())
+  fft := NewFFT(conv.Backend, conv.KernelSize())
   N := 1.0 / float(fft.Normalization())
   
   for i:= range conv.kernel{
     if kernel[i] != nil{                    // nil means it would contain only zeros so we don't store it.
-      conv.kernel[i] = NewTensor(conv.PhysicSize())
+      conv.kernel[i] = NewTensor(conv.Backend, conv.PhysicSize())
 
       tensor.CopyTo(kernel[i], buffer)
 
@@ -118,7 +118,7 @@ func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
       }
       
       TensorCopyTo(buffer, devbuf)
-      CopyPad(devbuf, conv.kernel[i])   ///@todo padding should be done on host, not device, to save gpu memory / avoid fragmentation
+      CopyPad(devbuf, conv.kernel[i])   ///@todo padding should be done on host, not device, to save sim memory / avoid fragmentation
 
       fft.Forward(conv.kernel[i], conv.kernel[i])
     }
@@ -128,21 +128,21 @@ func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
 
 
 /// size of the magnetization and field, this is the FFT dataSize
-func (conv *Conv) DataSize() []int{
-  return conv.fft.DataSize()
-}
+// func (conv *Conv) DataSize() []int{
+//   return conv.fft.DataSize()
+// }
 
 
-/// size of magnetization + padding zeros, this is the FFT logicSize
+/// size of magnetization + padding zeros, this is the FFT logicSize /// todo remove in favor of embedded LogicSize()
 func (conv *Conv) KernelSize() []int{
-  return conv.fft.LogicSize()
+  return conv.LogicSize()
 }
 
 
 /// size of magnetization + padding zeros + striding zeros, this is the FFT logicSize
-func (conv *Conv) PhysicSize() []int{
-  return conv.fft.PhysicSize()
-}
+// func (conv *Conv) PhysicSize() []int{
+//   return conv.fft.PhysicSize()
+// }
 
 const(
   XX = 0

@@ -1,20 +1,64 @@
 package sim
 
 import(
-  . "tensor";
+  "tensor";
   . "math";
 )
 
- 
+
+/// converts from the full "rank-5" kernel format to the symmetric "array-of-rank3-tensors" format
+func FaceKernel6(unpaddedsize []int, cellsize []float) []tensor.StoredTensor {
+  k9 := FaceKernel(unpaddedsize, cellsize)
+  return toSymmetric(k9)
+}
+
+
+
+
+/// Integrates the demag field based on multiple points per face.
+func FaceKernel(unpaddedsize []int, cellsize []float) *tensor.Tensor5{
+  size := PadSize(unpaddedsize);
+  k := tensor.NewTensor5([]int{3, 3, size[0], size[1], size[2]});
+  B := tensor.NewVector();
+  R := tensor.NewVector();
+
+  for s:=0; s<3; s++{         // source index Ksdxyz
+    for x:=-(size[X]-1)/2; x<=size[X]/2 -1; x++{     // in each dimension, go from -(size-1)/2 to size/2 -1, wrapped. It's crucial that the unused rows remain zero, otherwise the FFT'ed kernel is not purely real anymore.
+      xw := wrap(x, size[X]);
+      for y:=-(size[Y]-1)/2; y<=size[Y]/2 -1; y++{
+        yw := wrap(y, size[Y]);
+        for z:=-(size[Z]-1)/2; z<=size[Z]/2 -1; z++{
+          zw := wrap(z, size[Z]);
+          R.Set(float(x) * cellsize[X], float(y) * cellsize[Y], float(z) * cellsize[Z]);
+
+          faceIntegral(B, R, cellsize, s);
+
+          for d:=0; d<3; d++{       // destination index Ksdxyz
+            k.Array()[s][d][xw][yw][zw] = B.Component[d];
+          }
+
+          //    if(xw == size[X]/2 + 1 || yw == size[Y]/2 + 1 || zw == size[Z]/2 + 1){
+            //
+            //       }
+
+        }
+      }
+    }
+  }
+
+  return k;
+}
+
+
 
 /** 
  * Magnetostatic field at position r (integer, number of cellsizes away form source) for a given source magnetization direction m (X, Y, or Z) 
  */
-func faceIntegral(B, R *Vector, cellsize[] float, s int){
+func faceIntegral(B, R *tensor.Vector, cellsize[] float, s int){
   n := 8;					// number of integration points = n^2
   u, v, w := s, (s+1)%3, (s+2)%3;		// u = direction of source (s), v & w are the orthogonal directions
-  R2 := NewVector();
-  pole := NewVector();				// position of point charge on the surface
+  R2 := tensor.NewVector();
+  pole := tensor.NewVector();				// position of point charge on the surface
   
 
   surface := cellsize[v] * cellsize[w]; 	// the two directions perpendicular to direction s
@@ -53,162 +97,3 @@ func faceIntegral(B, R *Vector, cellsize[] float, s int){
   B.Scale(1./(float(n*n))); // n^2 integration points
 }
 
-// copied from gpu/conv.go
-const(
-  XX = 0
-  YY = 1
-  ZZ = 2
-  YZ = 3
-  XZ = 4
-  XY = 5
-)
-
-/// converts from the full "rank-5" kernel format to the symmetric "array-of-rank3-tensors" format
-func FaceKernel6(unpaddedsize []int, cellsize []float) []*Tensor3 {
-  k9 := FaceKernel(unpaddedsize, cellsize)
-  k9X := k9.Component(X)
-  k9Y := k9.Component(Y)
-  k9Z := k9.Component(Z)
-  
-  k6 := make([]*Tensor3, 6)
-  
-  k6[XX] = k9X.Component(X)
-  k6[YY] = k9Y.Component(Y)
-  k6[ZZ] = k9Z.Component(Z)
-  k6[YZ] = k9Y.Component(Z)
-  k6[XZ] = k9X.Component(Z)
-  k6[XY] = k9X.Component(Y)
-  
-  return k6;
-}
-
-/** Integrates the demag field based on multiple points per face. */
-func FaceKernel(unpaddedsize []int, cellsize []float) *Tensor5{
-  size := PadSize(unpaddedsize);
-  k := NewTensor5([]int{3, 3, size[0], size[1], size[2]});
-  B := NewVector();
-  R := NewVector();
-  
-  for s:=0; s<3; s++{					// source index Ksdxyz
-    for x:=-(size[X]-1)/2; x<=size[X]/2 -1; x++{		 // in each dimension, go from -(size-1)/2 to size/2 -1, wrapped. It's crucial that the unused rows remain zero, otherwise the FFT'ed kernel is not purely real anymore.
-      xw := wrap(x, size[X]);
-      for y:=-(size[Y]-1)/2; y<=size[Y]/2 -1; y++{
-        yw := wrap(y, size[Y]);
-        for z:=-(size[Z]-1)/2; z<=size[Z]/2 -1; z++{
-          zw := wrap(z, size[Z]);
-          R.Set(float(x) * cellsize[X], float(y) * cellsize[Y], float(z) * cellsize[Z]);
-          
-          faceIntegral(B, R, cellsize, s);
-          
-          for d:=0; d<3; d++{				// destination index Ksdxyz
-            k.Array()[s][d][xw][yw][zw] = B.Component[d]; 
-          }
-        
-          // 	  if(xw == size[X]/2 + 1 || yw == size[Y]/2 + 1 || zw == size[Z]/2 + 1){
-          //         
-          //       }
-          
-      }
-    }
-  }
-}
-
-return k;
-}
-
-
-/** DEBUG: 'integrates' the magnetostatic field out of just one point per face. */
-// func PointKernel(unpaddedsize []int, cellsize []float) *Tensor5{
-//   size := PadSize(unpaddedsize);
-//   k := NewTensor5([]int{3, 3, size[0], size[1], size[2]});
-// 
-//   B := NewVector();
-//   R := NewVector();
-//   
-//   pole := make([]*Vector, 2);
-//   
-//   for s:=0; s<3; s++{	// source index Ksdxyz
-// 
-//     surface := cellsize[(s+1)%3] * cellsize[(s+2)%3]; 	// the two directions perpendicular to direction s
-//     charge := surface;					// unit charge density on surface
-//     pole[0] = UnitVector(s);
-//     pole[0].Scale(cellsize[s]/2.);
-//     pole[1] = UnitVector(s);
-//     pole[1].Scale(-cellsize[s]/2.);
-// 
-//     // in each dimension, go from -(size-1)/2 to size/2, wrapped. 
-//     for x:=-(size[X]-1)/2; x<=size[X]/2; x++{
-//       xw := wrap(x, size[X]);
-//       for y:=-(size[Y]-1)/2; y<=size[Y]/2; y++{
-// 	yw := wrap(y, size[Y]);
-// 	for z:=-(size[Z]-1)/2; z<=size[Z]/2; z++{
-// 	  zw := wrap(z, size[Z]);
-// 	  
-// 	  B.Set(0., 0., 0.);
-// 	  for p:=0; p<2; p++{
-// 	    R.Set(float(x) * cellsize[X], float(y) * cellsize[Y], float(z) * cellsize[Z]);
-// 	    R.Sub(pole[p]);
-// 	    r := R.Norm();
-// 	    R.Normalize();
-// 	    R.Scale(charge / (4*Pi*r*r));
-// 	    if p == 1 {R.Scale(-1.)};
-// 	    B.Add(R); 
-// 	  }
-// 	  for d:=0; d<3; d++{	// destination index Ksdxyz
-// 	    k.Array()[s][d][xw][yw][zw] = B.Component[d]; 
-// 	  }
-// 
-// 	}
-//       }
-//     }
-//   }
-// 
-//   return k;
-// }
-
-
-/** Todo: calculate in double precession and only round in the end? */
-// func DipoleKernel(unpaddedsize []int) *Tensor5{
-//   size := PadSize(unpaddedsize);
-//   k := NewTensor5([]int{3, 3, size[0], size[1], size[2]});
-//     
-//   R := NewVector();
-//   B := NewVector();
-// 
-//   for s:=0; s<3; s++{	// source index Ksdxyz
-//   m:=UnitVector(s);	// unit vector along the source axis, e.g.: x.
-//   
-//   // in each dimension, go from -(size-1)/2 to size/2, wrapped. 
-//   for x:=-(size[X]-1)/2; x<=size[X]/2; x++{
-//     xw := wrap(x, size[X]);
-//     for y:=-(size[Y]-1)/2; y<=size[Y]/2; y++{
-//       yw := wrap(y, size[Y]);
-//       for z:=-(size[Z]-1)/2; z<=size[Z]/2; z++{
-// 	zw := wrap(z, size[Z]);
-// 	if !(xw==0 && yw==0 && zw==0){ // exclude self-contribution
-// 	  // B = \mu_0 / (4 \pi r^3) * (3(m \dot \hat r)\hat r -m)
-// 	  //B = \frac {\mu_0} {4\pi r^3}  ( 3 ( m \dot \hat{r}) \hat{r} - m)
-// 	  R.Set(float(x), float(y), float(z));
-// 	  r := R.Norm();
-// 	  R.Normalize();
-// 	  B.SetTo(R);
-// 	  B.Scale(3.* m.Dot(R));
-// 	  B.Sub(m);
-// 	  B.Scale(1./(4.*Pi*r*r*r));
-// 	  for d:=0; d<3; d++{	// destination index Ksdxyz
-// 	    k.Array()[s][d][xw][yw][zw] = B.Component[d]; 
-// 	  }
-// 	}
-//       }
-//     }
-// 
-//   }
-//   }
-// 
-//   // self-contributions (does not matter as it is parallel to m)
-//   for i:=0; i<3; i++{
-//     k.Array()[i][i][0][0][0] = -1. 
-//   }
-// 
-//   return k;
-// }
