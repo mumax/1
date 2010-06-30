@@ -10,9 +10,9 @@
 #
 # @author Arne Vansteenkiste 
 
-grep --color $1 *.h *.c *.cpp *.cu;
+grep --color $1 *.h *.c *.cpp *.cu *.go;
 
-for i in *.h *.c *.cpp *.cu; do
+for i in *.h *.c *.cpp *.cu *.go; do
   NUM=$(grep $1 $i | wc -l)
   if (( $NUM > 0 )); then
     cat $i | sed 's/'$1'/'$2'/g' > refactor-tmp;

@@ -44,7 +44,7 @@ int main(int argc, char** argv){
     write_tensor_fname(mHost, fname);
 
     
-    for(int j=0; j<10; j++){
+    for(int j=0; j<100; j++){
       timestep(ts, m, &totalTime);
     }
   }

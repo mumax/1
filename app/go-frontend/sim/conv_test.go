@@ -1,21 +1,23 @@
-package gpu
+package sim
 
 import(
    "testing"
-    "sim"
     "tensor"
     "fmt"
     "os"
 )
 
 func TestConv(t *testing.T){
-  OverrideStride(1)
+  backend := Backend{Gpu{}}
+  
+  backend.OverrideStride(1)
   size4D := []int{3, 32, 32, 2}
   size := size4D[1:]
-  kernelSize := []int{2*size[X], 2*size[Y], 2*size[Z]}
+  //kernelSize := []int{2*size[X], 2*size[Y], 2*size[Z]}
+
+  kernel := FaceKernel6(size, []float{1., 1., 1.})
+  conv := NewConv(backend, size, kernel)
   
-  conv := NewConv(size, kernelSize)
-  kernel := sim.FaceKernel6(size, []float{1., 1., 1.})
 
   // unit kernel
 //   kernel := make([]*tensor.Tensor3, 6)
@@ -41,11 +43,11 @@ func TestConv(t *testing.T){
     }
   }
 
-  m, h := NewTensor(size4D), NewTensor(size4D)
+  m, h := NewTensor(backend, size4D), NewTensor(backend, size4D)
 
   m.Set([]int{0, 7, 7, 0}, 1.)
   tensor.WriteFile("m.t", m)
-  conv.Exec(m, h)
+  conv.Convolve(m, h)
   tensor.WriteFile("h.t", h)
-  OverrideStride(-1)
+  backend.OverrideStride(-1)
 }

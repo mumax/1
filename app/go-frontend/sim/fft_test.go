@@ -1,4 +1,4 @@
-package gpu
+package sim
 
 import(
   "testing"
@@ -9,15 +9,16 @@ import(
 
 
 func TestFFT(t *testing.T){
-
-  OverrideStride(1)
+  backend := GPU
+  
+  backend.OverrideStride(1)
 
   size := []int{4, 8, 4}
-  fft := NewFFT(size)
+  fft := NewFFT(backend, size)
   fmt.Println(fft)
   physicSize := fft.PhysicSize()
 
-  devLog, devPhys := NewTensor(size), NewTensor(physicSize)
+  devLog, devPhys := NewTensor(backend, size), NewTensor(backend, physicSize)
   host1, host2 := tensor.NewTensorN(size), tensor.NewTensorN(size)
 
   for i:=0; i<4; i++ {
@@ -47,7 +48,7 @@ func TestFFT(t *testing.T){
   fmt.Println("FFT error:", maxError);
   if maxError > 1E-5 { t.Fail() }
 
-  OverrideStride(-1)
+  backend.OverrideStride(-1)
 }
 
 

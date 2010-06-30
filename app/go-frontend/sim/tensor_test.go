@@ -1,4 +1,4 @@
-package gpu
+package sim
 
 import(
   "testing"
@@ -6,10 +6,11 @@ import(
   "fmt"
 )
 
+var backend Backend = GPU
 
 func TestCopy(t *testing.T){
   size := []int{4, 8, 16}
-  dev1, dev2 := NewTensor(size), NewTensor(size)
+  dev1, dev2 := NewTensor(backend, size), NewTensor(backend, size)
   host1, host2 := tensor.NewTensorN(size), tensor.NewTensorN(size)
 
   for i:=range host1.List() {
@@ -24,7 +25,7 @@ func TestCopy(t *testing.T){
 }
 
 func TestGetSet(t *testing.T){
-  tens := NewTensor([]int{5, 6, 7})
+  tens := NewTensor(backend, []int{5, 6, 7})
   fmt.Println(tens)
   tens.Set([]int{4, 5, 6}, 3.14)
   if tens.Get([]int{4, 5, 6}) != 3.14 { t.Fail() }

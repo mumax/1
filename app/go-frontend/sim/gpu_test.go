@@ -1,4 +1,4 @@
-package gpu
+package sim
 
 import(
   "testing"
@@ -9,7 +9,7 @@ func TestPad(t *testing.T){
   small := []int{4, 8, 16}
   big := []int{6, 12, 32}
   
-  dev1, dev2 := NewTensor(small), NewTensor(big)
+  dev1, dev2 := NewTensor(GPU, small), NewTensor(GPU, big)
   host1, host2 := tensor.NewTensorN(small), tensor.NewTensorN(small)
 
   for i:=range host1.List() {
@@ -27,36 +27,36 @@ func TestPad(t *testing.T){
 
 
 func TestStride(t *testing.T){
-  s := Stride()
-  OverrideStride(10)
-  if Stride() != 10 { t.Fail() }
+  s := GPU.Stride()
+  GPU.OverrideStride(10)
+  if GPU.Stride() != 10 { t.Fail() }
 
   for i:=1; i<100; i++{
-    if PadToStride(i) % Stride() != 0 { t.Fail() }
+    if GPU.PadToStride(i) % GPU.Stride() != 0 { t.Fail() }
   }
   
-  OverrideStride(-1)
-  if Stride() != s { t.Fail() }
+  GPU.OverrideStride(-1)
+  if GPU.Stride() != s { t.Fail() }
 }
 
 
 func TestMisc(t *testing.T){
-  PrintProperties()
+  GPU.PrintProperties()
 }
 
 
 func TestZero(t *testing.T){
   N := 100
   host := make([]float, N)
-  dev := NewArray(N)
+  dev := GPU.newArray(N)
 
   for i:=range(host){
     host[i] = float(i);
   }
 
-  MemcpyTo(&host[0], dev, N)
-  Zero(dev, N/2)
-  MemcpyFrom(dev, &host[0], N)
+  GPU.memcpyTo(&host[0], dev, N)
+  GPU.zero(dev, N/2)
+  GPU.memcpyFrom(dev, &host[0], N)
 
   for i:=0; i<N/2; i++{
     if host[i] != 0. { t.Fail() }
@@ -70,15 +70,15 @@ func TestZero(t *testing.T){
 func TestMemory(t *testing.T){
   N := 100
   host1, host2 := make([]float, N), make([]float, N)
-  dev1, dev2 := NewArray(N), NewArray(N)
+  dev1, dev2 := GPU.newArray(N), GPU.newArray(N)
 
   for i:=range(host1){
     host1[i] = float(i);
   }
   
-  MemcpyTo(&host1[0], dev1, N)
-  MemcpyOn(dev1, dev2, N)
-  MemcpyFrom(dev2, &host2[0], N)
+  GPU.memcpyTo(&host1[0], dev1, N)
+  GPU.memcpyOn(dev1, dev2, N)
+  GPU.memcpyFrom(dev2, &host2[0], N)
 
   for i:=range(host1){
     if host1[i] != host2[i] { t.Fail() }
