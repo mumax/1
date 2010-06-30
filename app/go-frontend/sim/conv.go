@@ -17,7 +17,8 @@ type Conv struct{
 }
 
 
-func NewConv(backend Backend, dataSize, kernelSize []int) *Conv{
+func NewConv(backend Backend, dataSize []int, kernel []*tensor.Tensor3) *Conv{
+  kernelSize := kernel[XX].Size()
   assert(len(dataSize) == 3)
   assert(len(kernelSize) == 3)
   for i:=range dataSize{
@@ -33,6 +34,8 @@ func NewConv(backend Backend, dataSize, kernelSize []int) *Conv{
     conv.mComp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil) }
     conv.hComp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil) }
   }
+  conv.LoadKernel6(kernel)
+  
   return conv
 }
 

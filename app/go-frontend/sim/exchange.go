@@ -46,25 +46,3 @@ func Exch6NgbrKernel(unpaddedsize []int, cellsize []float) *tensor.Tensor5{
   return k;
 }
 
-
-// func Exch6NgbrKernelCubic(unpaddedsize []int, cubesize float) *Tensor5{
-//   size := PadSize(unpaddedsize);
-//   k := NewTensor5([]int{3, 3, size[0], size[1], size[2]});
-//   
-//   for s:=0; s<3; s++{	// source index Ksdxyz
-//   k.Array()[s][s][0][0][0] = -6./(cubesize*cubesize);
-//   
-//     for dir :=X; dir <=Z; dir++{
-//       for side := -1; side <=1; side+=2{
-// 	index := make([]int, 5);
-// 	index[0] = s;
-// 	index[1] = s;
-// 	index[dir+2] = wrap(side, size[dir]);
-// 	tensor.Set(k, index, 1./(cubesize*cubesize));
-//       }
-//     }
-//   
-//   }
-// 
-//   return k;
-// }

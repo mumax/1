@@ -6,16 +6,26 @@ import(
 
 type Field struct{
   Magnet
+  
   Conv
-  // exchange, ...
+  // Exchange
+  // Anis
+  // ...
 }
 
 
 
-func NewField(b Backend, m Magnet) *Field{
+func NewField(dev Backend, m Magnet) *Field{
+  
   field := new(Field)
+  
   field.Magnet = m
-  //field.Conv = 
+
+  demag := FaceKernel(field.Size(), field.CellSize())
+  exch := Exch6Ngbr(field.Size(), field.CellSize())
+  kernel := toSymmetric(tensor.Buffer(tensor.Add(demag, exch)))
+  field.Conv = NewConv(dev, field.Size(), kernel)
+  
   return field
 }
 

@@ -34,6 +34,23 @@ func UnitKernel(unpaddedsize []int) tensor.StoredTensor{
 
 /* --------- Internal functions --------- */
 
+func toSymmetric(k9 tensor.StoredTensor) []tensor.StoredTensor{
+  k9X := tensor.Component(k9, X)
+  k9Y := tensor.Component(k9, Y)
+  k9Z := tensor.Component(k9, Z)
+
+  k6 := make([]tensor.StoredTensor, 6)
+
+  k6[XX] = tensor.Buffer(tensor.Component(k9X, X))
+  k6[YY] = tensor.Buffer(tensor.Component(k9Y, Y))
+  k6[ZZ] = tensor.Buffer(tensor.Component(k9Z, Z))
+  k6[YZ] = tensor.Buffer(tensor.Component(k9Y, Z))
+  k6[XZ] = tensor.Buffer(tensor.Component(k9X, Z))
+  k6[XY] = tensor.Buffer(tensor.Component(k9X, Y))
+
+  return k6;
+}
+
 func wrap(number, max int) int{
   for number < 0{
     number += max;

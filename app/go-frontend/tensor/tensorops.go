@@ -13,6 +13,10 @@ func Slice(t Tensor, dim, value int) *TensorSlice {
 	return &TensorSlice{t, dim, value, nil}
 }
 
+func Component(t Tensor, component int) *TensorSlice{
+  return Slice(t, 0, component)
+}
+
 type TensorSlice struct {
 	Tensor         // the original tensor
 	dim, value int // the dimension to slice away by fixing it to a value
