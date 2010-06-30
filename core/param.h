@@ -158,9 +158,11 @@ void check_param(param *p);
 /// Possible value for solverType. 5th order Dormand-Prince with adaptive step size
 #define SOLVER_DP45 45
 
-/// Possible value for solverType. Ben Van de Wiele's semi-analytical solver
-#define SOLVER_ANAL 128
+/// Possible value for solverType. Ben Van de Wiele's forward semi-analytical solver
+#define SOLVER_ANAL_FW 128
 
+/// Possible value for solverType. Ben Van de Wiele's predictor/corrector semi-analytical solver
+#define SOLVER_ANAL_PC 256
 
 // Exchange types
 

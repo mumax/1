@@ -54,7 +54,7 @@ void evaluate_micromag3d_conv(tensor *m, tensor *h, conv_data *conv){
       //Fourier transforming of fft_mi
     gpuFFT3dPlan_forward_unsafe(conv->fftplan, fft1_comp[i], fft1_comp[i]);  ///@todo out-of-place
   }
-
+  
     // kernel multiplication
   gpu_kernel_mul_micromag3d(conv->fft1, conv->kernel);
 
@@ -108,12 +108,12 @@ __global__ void _gpu_kernel_mul_micromag3d(float* fftMx,  float* fftMy,  float* 
   float reMz = fftMz[e  ];
   float imMz = fftMz[e+1];
 
-  float Kxx = fftKxx[e];
-  float Kxy = fftKxy[e];
-  float Kxz = fftKxz[e];
-  float Kyy = fftKyy[e];
-  float Kyz = fftKyz[e];
-  float Kzz = fftKzz[e];
+  float Kxx = fftKxx[e/2];
+  float Kxy = fftKxy[e/2];
+  float Kxz = fftKxz[e/2];
+  float Kyy = fftKyy[e/2];
+  float Kyz = fftKyz[e/2];
+  float Kzz = fftKzz[e/2];
   
   fftMx[e  ] = Kxx*reMx + Kxy*reMy + Kxz*reMz;
   fftMx[e+1] = Kxx*imMx + Kxy*imMy + Kxz*imMz;
@@ -349,7 +349,7 @@ __global__ void _gpu_copy_pad(float* source, float* dest,
 }
 
 
-void gpu_copy_to_pad(float* source, float* dest, int *unpad_size4d, int *pad_size4d){        //for padding of the tensor, 2d and 3d applicable
+void gpu_copy_to_pad(float* source, float* dest, int *unpad_size4d, int *pad_size4d){          //for padding of the tensor, 2d and 3d applicable
   
   int S0 = unpad_size4d[1];
   int S1 = unpad_size4d[2];

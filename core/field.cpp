@@ -13,10 +13,21 @@ fieldplan *new_fieldplan(param *params, tensor* kernel){
   return field;
 }
 
+fieldplan *new_fieldplan_ben(param *params, conv_data *conv){
 
-void field_evaluation(fieldplan *plan, tensor *m, tensor *h){
+  fieldplan* field = (fieldplan*)malloc(sizeof(fieldplan));
+ 
+  field->params = params;  
+  field->conv = conv;
+
+  return field;
+}
+
+
+void evaluate_field(fieldplan *plan, tensor *m, tensor *h){
 
 //  gpuconv2_exec(plan->convplan, m, h);
+  evaluate_convolution(m, h, plan->conv, plan->params);
 
   float* hExt = plan->params->hExt;
   if(hExt[X] != 0. && hExt[Y] != 0. && hExt[Z] != 0.){

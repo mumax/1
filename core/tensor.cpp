@@ -349,14 +349,15 @@ void format_tensor(tensor* t, FILE* out){
       // calc. the length in that dimension
       int size = 1;
       for(int k=j; k < t->rank; k++){
-	size *= t->size[k];
+        size *= t->size[k];
       }
-      // if we are at the end of the dimesion, print the newline.
+      // if we are at the end of the dimension, print the newline.
       if((i+1) % size == 0){
-	fprintf(out, "\n");
+        fprintf(out, "\n");
       }
     }
   }
+  
 }
 
 

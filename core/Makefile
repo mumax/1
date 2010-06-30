@@ -9,6 +9,7 @@ CPPFILES=\
 	field.cpp\
 	timestep.cpp\
 	kernel.cpp\
+	main-ben.cpp\
 
 CUFILES=\
 	gputil.cu\
@@ -20,7 +21,7 @@ CUFILES=\
 	gpueuler.cu\
 	gpuheun.cu\
 	gpurk4.cu\
-	gpuanal1.cu\
+	gpu_anal.cu\
 	gpunormalize.cu\
 	gpu_micromag3d_kernel.cu\
 	gpu_micromag2d_kernel.cu\
@@ -41,7 +42,7 @@ OFILES=\
 	gpufft2.o\
 	gpuheun.o\
 	gpurk4.o\
-	gpuanal1.o\
+	gpu_anal.o\
 	gpunormalize.o\
 	field.o\
 	timestep.o\
@@ -99,9 +100,6 @@ gpuheun.o:	gpuheun.h gpuheun.cu
 gpurk4.o:	gpurk4.h gpurk4.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpurk4.cu
 
-gpuanal1.o:	gpuanal1.h gpuanal1.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpuanal1.cu
-
 gpunormalize.o:	gpunormalize.h gpunormalize.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpunormalize.cu
 
@@ -110,6 +108,9 @@ gpu_micromag3d_kernel.o:	gpu_micromag3d_kernel.h gpu_micromag3d_kernel.cu
 
 gpu_micromag2d_kernel.o:	gpu_micromag2d_kernel.h gpu_micromag2d_kernel.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_micromag2d_kernel.cu
+
+gpu_anal.o:	gpu_anal.h gpu_anal.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_anal.cu
 
 gpu_conv.o:	gpu_conv.h gpu_conv.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_conv.cu
@@ -126,17 +127,19 @@ timestep.o:	timestep.h timestep.cpp
 kernel.o:	kernel.h kernel.cpp
 	$(NVCC) -c $(NVCCFLAGS) kernel.cpp
 
+main-ben.o:	main-ben.h main-ben.cpp
+	$(NVCC) -c $(NVCCFLAGS) main-ben.cpp
+
 #gpukernel1.o:	gpukernel1.h gpukernel1.cu
 #	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpukernel1.cu
 
 
-test:	$(OFILES) tensor_test gpuanal1_test gpusim_test gputil_test gpuconv2_test gpufft_test gpufft2_test
+test:	$(OFILES) tensor_test gpusim_test gputil_test gpuconv2_test gpufft_test gpufft2_test
 	./tensor_test
 	./gputil_test
 #	./gpueuler_test testm0.t testkernel.t
 #	./gpuheun_test testm0.t testkernel.t
 #	./gpuheun2_test
-#	./gpuanal1_test testm0.t testkernel.t
 	./gpufft_test
 	./gpufft2_test
 	./gpuconv2_test
@@ -154,10 +157,6 @@ gpueuler_test:	$(OFILES) gpueuler_test.cpp
 gpuheun_test:	$(OFILES) gpuheun_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuheun_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpuheun_test.o -o gpuheun_test
-
-gpuanal1_test:	$(OFILES) gpuanal1_test.cpp
-	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpuanal1_test.cpp
-	$(NVCC) $(CUDALIBS) $(OFILES) gpuanal1_test.o -o gpuanal1_test
 
 
 gpusim_test:	$(OFILES) gpusim_test.cpp
@@ -196,6 +195,10 @@ gpukernel1_test: $(OFILES) gpukernel1_test.cpp
 gpu_conv_test: $(OFILES) gpu_conv_test.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) gpu_conv_test.cpp
 	$(NVCC) $(CUDALIBS) $(OFILES) gpu_conv_test.o -o gpu_conv_test
+
+main-ben: $(OFILES) main-ben.cpp
+	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) main-ben.cpp
+	$(NVCC) $(CUDALIBS) $(OFILES) main-ben.o -o main-ben
 
 
 .PHONY:	clean

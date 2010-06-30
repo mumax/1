@@ -114,10 +114,8 @@ __device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, 					///< Non
  * Extracts the 'size1' real numbers from the array 'dev_temp' and 
  * stores them in the 'dev_kernel_array' starting from 'dev_kernel_array[rank0*size1]'.
  */
-__global__ void _gpu_extract_real_parts_micromag3d(float *dev_kernel_array, 	///< rank 2 tensor; if N0>1, rank1: [xx, xy, xz, yy, yz, zz] parts of symmetrical Greens tensor, if N0=1, rank1: [xx, yy, yz, zz] non zero parts of symmetrical Greens tensor rank 2: all data of a Greens kernel component contiguously
-                                                   float *dev_temp, 					///< pointer to the temporary memory space on the device to store all elements of a given Greens tensor component
-                                                   int rank0,								///< int defining the rank 0 number: xx=0, xy=1, xz=2, etc.
-                                                   int size1									///< length of a Fourier transformed Greens kernel component (only real parts).
+__global__ void _gpu_extract_real_parts_micromag3d(float *dev_kernel_array, 	///< pointer to the first kernel element of the considered tensor element
+                                                   float *dev_temp  					///< pointer to the temporary memory space on the device to store all elements of a given Greens tensor component
                                                    );
 																				 
 																				 
@@ -137,9 +135,9 @@ void initialize_Gauss_quadrature_on_gpu_micromag3d(float *dev_qd_W_10,  ///< flo
  *Get the quadrature points for integration between a and b
  */
 void get_Quad_Points_micromag3d(float *gaussQP, 			///< float array containing the requested Gauss quadrature points
-                                float *stdgaussQ,		///< standard Gauss quadrature points between -1 and +1
+                                float *stdgaussQ,		  ///< standard Gauss quadrature points between -1 and +1
                                 int qOrder, 					///< Gauss quadrature order
-                                double a,  					///< integration lower bound
+                                double a,  					  ///< integration lower bound
                                 double b							///< integration upper bound
                                 );
 

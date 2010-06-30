@@ -70,7 +70,7 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(tensor *dev_kernel, int 
         gpuFFT3dPlan_forward(kernel_plan, FFT_input, FFT_output); 
         cudaThreadSynchronize();
         // Copy the real parts to the corresponding place in the dev_kernel tensor.
-        _gpu_extract_real_parts_micromag2d<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*kernelStorageN/2], dev_temp, rank0, kernelStorageN/2);
+        _gpu_extract_real_parts_micromag2d<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*kernelStorageN/2], dev_temp);
         cudaThreadSynchronize();
         rank0++;                                        // get ready for next component
       }
@@ -90,7 +90,6 @@ __global__ void _gpu_init_Greens_kernel_elements_micromag2d(float *dev_temp, int
   int j = threadIdx.x;
   int k = threadIdx.y;
 
-//  int N2 = Nkernel_Z+2;     ///@todo: a gpu_pad_to_stride() function also executable on gpu should be used here
   int N2 = Nkernel_storage_Z;
 
     dev_temp[            j*N2 +           k] = _gpu_get_Greens_element_micromag2d(Nkernel_Y, Nkernel_Z, exchInConv_Y, exchInConv_Z, co1, co2,  j,  k, FD_cell_size_Y, FD_cell_size_Z, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
@@ -219,11 +218,11 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z
 
 
 
-__global__ void _gpu_extract_real_parts_micromag2d(float *dev_kernel_array, float *dev_temp, int rank0, int size1){
+__global__ void _gpu_extract_real_parts_micromag2d(float *dev_kernel_array, float *dev_temp){
 
   int e = ((blockIdx.x * blockDim.x) + threadIdx.x);
 
-  dev_kernel_array[rank0*size1 + e] = dev_temp[2*e];
+  dev_kernel_array[e] = dev_temp[2*e];
 
   return;
 }
@@ -276,8 +275,6 @@ void get_Quad_Points_micromag2d(float *gaussQP, float *stdGaussQP, int qOrder, d
   int i;
   double A = (b-a)/2.0f; // coefficients for transformation x'= Ax+B
   double B = (a+b)/2.0f; // where x' is the new integration parameter
-
-  gaussQP = (float *) calloc(qOrder, sizeof(float));
 
   for(i = 0; i < qOrder; i++)
     gaussQP[i] = A*stdGaussQP[i]+B;

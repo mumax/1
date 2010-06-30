@@ -166,7 +166,7 @@ void gpuheun_stage1(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
 }
 
 
-void gpuheun_step(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
+void gpu_heun_step(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
   debugvv((char*)"heun_step");
   fprintf(stderr, "dt: %g\n", solver->params->maxDt);
 

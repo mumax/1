@@ -135,8 +135,8 @@ void param_print(FILE* out, param* p){
   fprintf(out, "cellsize     :\t[%g m x %g m x %g m]\n", p->cellSize[X]*L, p->cellSize[Y]*L, p->cellSize[Z]*L);
 
   fprintf(out, "kernelType   :\t%d\n",       p->kernelType);
-  fprintf(out, "demagPeriodic:\t[%d, %d, %d] repeats\n", p->demagPeriodic  [X], p->demagPeriodic[  Y], p->demagPeriodic  [Z]);
-  fprintf(out, "demagCoarse  :\t[%d x %d x %d] cells\n", p->demagCoarse    [X], p->demagCoarse    [Y], p->demagCoarse    [Z]);
+  fprintf(out, "demagPeriodic:\t[%d, %d, %d] repeats\n", p->demagPeriodic[X], p->demagPeriodic[Y], p->demagPeriodic[Z]);
+  fprintf(out, "demagCoarse  :\t[%d x %d x %d] cells\n", p->demagCoarse[X], p->demagCoarse[Y], p->demagCoarse[Z]);
   fprintf(out, "demagKernel  :\t[%d x %d x %d] cells\n", p->kernelSize[X], p->kernelSize[Y], p->kernelSize[Z]);
 
   fprintf(out, "exchType     :\t%d\n",       p->exchType);
@@ -158,9 +158,7 @@ void param_print(FILE* out, param* p){
   fprintf(out, "unitenergy   :\t%g J\n",     unitenergy(p));
   fprintf(out, "unitfield    :\t%g T\n",     unitfield(p));
 
-  
-
-  
+  return;
 }
 
 

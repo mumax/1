@@ -106,10 +106,8 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y,           ///
  * Extracts the 'size1' real numbers from the array 'dev_temp' and 
  * stores them in the 'dev_kernel_array' starting from '&dev_kernel_array[rank0*size1]'.
  */
-__global__ void _gpu_extract_real_parts_micromag2d(float *dev_kernel_array,  ///< rank 2 tensor; rank 0: yy, yz, zz parts of symmetrical Greens tensor, rank 1: all data of a Greens kernel component contiguously
-                                                   float *dev_temp,          ///< pointer to the temporary memory space on the device to store all elements of a given Greens tensor component
-                                                   int rank0,                ///< int defining the rank 0 number: yy=0, yz=1, zz=2.
-                                                   int size1                 ///< length of a Fourier transformed Greens kernel component (only real parts).
+__global__ void _gpu_extract_real_parts_micromag2d(float *dev_kernel_array,  ///< pointer to the first kernel element of the considered tensor element
+                                                   float *dev_temp          ///< pointer to the temporary memory space on the device to store all elements of a given Greens tensor component
                                                    );
                                          
                                          

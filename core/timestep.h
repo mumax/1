@@ -16,12 +16,11 @@
 #ifndef TIMESTEP_H
 #define TIMESTEP_H
 
-#include "tensor.h"
-#include "param.h"
 #include "field.h"
 #include "gpunormalize.h"
 #include "gpueuler.h"
 #include "gpuheun.h"
+#include "gpu_anal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,13 +38,6 @@ typedef struct{
 }timestepper;
 
 /**
- * Creates a new timestepper
- */
-timestepper *new_timestepper(param* params,         ///< The type of solver and its parameters are taken from here
-                             fieldplan* field       ///< Plan used to update the effective field
-                             );
-
-/**
  *  Takes one full time step
  */
 void timestep(timestepper *ts,                      ///< timestepper to used
@@ -54,6 +46,24 @@ void timestep(timestepper *ts,                      ///< timestepper to used
               );
 
 
+void evaluate_heun_step(timestepper *ts, tensor *m, double *totalTime);
+
+
+void evaluate_euler_step(timestepper *ts, tensor *m, double *totalTime);
+
+void evaluate_anal_fw_step(timestepper *ts, tensor *m, double *totalTime);
+void evaluate_anal_pc_step(timestepper *ts, tensor *m, double *totalTime);
+
+              
+/**
+ * Creates a new timestepper
+ */
+timestepper *new_timestepper(param* params,         ///< The type of solver and its parameters are taken from here
+                             fieldplan* field       ///< Plan used to update the effective field
+                             );
+
+              
+              
 #ifdef __cplusplus
 }
 #endif

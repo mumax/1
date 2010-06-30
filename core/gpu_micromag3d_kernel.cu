@@ -10,6 +10,7 @@ tensor *gpu_micromag3d_kernel(param* p){
   // check input + allocate tensor on device ______________________________________________________
     check_param(p);
     int kernelStorageN = p->kernelSize[X] * p->kernelSize[Y] * gpu_pad_to_stride(p->kernelSize[Z]+2);
+
     tensor *dev_kernel;
     if (p->size[X]==1)
       dev_kernel = as_tensor(new_gpu_array(4*kernelStorageN/2), 2, 4, kernelStorageN/2);  // only real parts!!
@@ -42,9 +43,8 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int 
 	float *dev_temp = new_gpu_array(kernelStorageN);		// temp tensor on device for storage of each component in real + i*complex format
  	
 	// Define gpugrids and blocks ___________________________________________________________________
-    dim3 gridsize1((kernelSize[X]+1)/2, kernelSize[Y]/2, 1);    // '+1' to fit for kernelSize[X] = 1, in other cases kernelSize is always even so '+1' has no effect then.
-    dim3 blocksize1(kernelSize[Z]/2, 1, 1);				              /// @todo generalize!
-		gpu_checkconf(gridsize1, blocksize1);
+    dim3 gridsize1, blocksize1;
+    make3dconf((kernelSize[X]+1)/2, kernelSize[Y]/2, kernelSize[Z]/2, &gridsize1, &blocksize1);
 		int gridsize2, blocksize2;
 		make1dconf(kernelStorageN/2, &gridsize2, &blocksize2);
 	// ______________________________________________________________________________________________
@@ -74,12 +74,13 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int 
         gpuFFT3dPlan_forward(kernel_plan, FFT_input, FFT_output); 
         cudaThreadSynchronize();
   			// Copy the real parts to the corresponding place in the dev_kernel tensor.
-				_gpu_extract_real_parts_micromag3d<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*kernelStorageN/2], dev_temp, rank0, kernelStorageN/2);
+				_gpu_extract_real_parts_micromag3d<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*kernelStorageN/2], dev_temp);
 				cudaThreadSynchronize();
 				rank0++;																				// get ready for next component
       }
     }	
 	// ______________________________________________________________________________________________
+
 
 	cudaFree (dev_temp);
   free (kernelStorageSize);
@@ -91,9 +92,12 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int 
 
 __global__ void _gpu_init_Greens_kernel_elements_micromag3d(float *dev_temp, int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int Nkernel_storage_Z, int exchInConv_X, int exchInConv_Y, int exchInConv_Z, int co1, int co2, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
   
-  int i = blockIdx.x;
+/*  int i = blockIdx.x;
 	int j = blockIdx.y;
-	int k = threadIdx.x;
+	int k = threadIdx.x;*/
+  int i = threadIdx.x;
+  int j = threadIdx.y;
+  int k = threadIdx.z;
 
 //	int N2 = Nkernel_Z+2;     ///@todo: a gpu_pad_to_stride() function also executable on gpu should be used here
   int N2 = Nkernel_storage_Z;
@@ -130,6 +134,7 @@ __device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, int Nkernel_Y
 	
 	// for elements in Kernel component gxx _________________________________________________________
 		if (co1==0 && co2==0){
+
 			for(int cnta=-repetition_X; cnta<=repetition_X; cnta++)
 			for(int cntb=-repetition_Y; cntb<=repetition_Y; cntb++)
 			for(int cntc=-repetition_Z; cntc<=repetition_Z; cntc++){
@@ -357,11 +362,12 @@ __device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, int Nkernel_Y
 
 
 
-__global__ void _gpu_extract_real_parts_micromag3d(float *dev_kernel_array, float *dev_temp, int rank0, int size1){
+__global__ void _gpu_extract_real_parts_micromag3d(float *dev_kernel_array, float *dev_temp){
+  
 
-  int e = ((blockIdx.x * blockDim.x) + threadIdx.x);
+  int e = blockIdx.x * blockDim.x + threadIdx.x;
 
-	dev_kernel_array[rank0*size1 + e] = dev_temp[2*e];
+  dev_kernel_array[e] = dev_temp[2*e];
 
 	return;
 }
@@ -390,7 +396,6 @@ void initialize_Gauss_quadrature_on_gpu_micromag3d(float *dev_qd_W_10, float *de
 		host_qd_W_10[4] = host_qd_W_10[5] = 0.29552422471475298f;
 	// ______________________________________________________________________________________________
 
-
 	// Map the standard Gauss quadrature points to the used integration boundaries __________________
 		float *host_qd_P_10 =  (float *) calloc (3*10, sizeof(float));
 		get_Quad_Points_micromag3d(&host_qd_P_10[X*10], std_qd_P_10, 10, -0.5f*FD_cell_size[X], 0.5f*FD_cell_size[X]);
@@ -415,9 +420,7 @@ void get_Quad_Points_micromag3d(float *gaussQP, float *stdGaussQP, int qOrder, d
 	int i;
 	double A = (b-a)/2.0f; // coefficients for transformation x'= Ax+B
 	double B = (a+b)/2.0f; // where x' is the new integration parameter
-
-	gaussQP = (float *) calloc(qOrder, sizeof(float));
-
+	
 	for(i = 0; i < qOrder; i++)
 		gaussQP[i] = A*stdGaussQP[i]+B;
 

@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-__global__ void _gpu_anal1step (float *mx, float *my, float *mz, float *hx, float *hy, float *hz, float dt, float alpha){
+__global__ void _gpu_analfw_step (float *mx, float *my, float *mz, float *hx, float *hy, float *hz, float dt, float alpha){
 	
 	int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
 	float hxy_r, hxyz_r;
@@ -68,32 +68,26 @@ __global__ void _gpu_anal1step (float *mx, float *my, float *mz, float *hx, floa
 	my[i] = mx_rotnw*rot3 + my_rotnw*rot4 + mz_rotnw*rot5;
 	mz[i] = mx_rotnw*rot6 + mz_rotnw*rot8;
 // -----------------------------------
-// note from Arne: on my GPU, the launch timeout even occurs with the above code commented out, so it
-// seems to be a more general problem
 
-	//correction on possible accumulating errors on amplitude M, should not be done frequently
-	float norm = rsqrtf(mx[i]*mx[i] + my[i]*my[i] + mz[i]*mz[i]);
-//   mx[i] *= norm;
-//   my[i] *= norm;
-//   mz[i] *= norm;
 
 	return;
 }
 
 
+void gpu_anal_fw_step(gpuanalfw *anal_fw, tensor *m, tensor *h, double *totalTime);
 
-void gpuanal1_step(gpuanal1 *solver, float dt, float alpha){
+  int length = m->len/3;
+  param *p = anal_fw->params;
+  
+  int gridSize = -1, blockSize = -1;
+  make1dconf(length, &gridSize, &blockSize); ///@todo cache in heun struct
 
-	int threadsPerBlock = 512;
-  gpuconv1_exec(solver->convplan, solver->m, solver->h);
-	printf("comp, length: %d\n", solver->convplan->len_m_comp);
-
-	int blocks = (solver->convplan->len_m_comp) / threadsPerBlock;
-  gpu_checkconf_int(blocks, threadsPerBlock);
-  timer_start("gpuanal1_step");
-  _gpu_anal1step<<<blocks, threadsPerBlock>>>(solver->convplan->m_comp[0], solver->convplan->m_comp[1], solver->convplan->m_comp[2], solver->convplan->h_comp[0], solver->convplan->h_comp[1], solver->convplan->h_comp[2], dt, alpha);
+  timer_start("gpu_anal_fw_step");
+  _gpu_analfw_step<<<blocks, threadsPerBlock>>>(&m[X*length], &m[Y*length], &m[Z*length], &h[X*length], &h[Y*length], &h[Z*length], p->maxDt, p->alpha);
   cudaThreadSynchronize();
-  timer_stop("gpuanal1_step");
+  timer_stop("gpu_anal_fw_step");
+  
+  *totalTime += p->maxDt;
 
 	return;
 }
@@ -101,6 +95,15 @@ void gpuanal1_step(gpuanal1 *solver, float dt, float alpha){
 
 
 
+
+gpuanalfw* new_gpuheun(param* p){
+  
+  check_param(p);
+  gpuanalfw* analfw = (gpuanalfw*)malloc(sizeof(gpuanalfw));
+  analfw->params = p;
+  
+  return heun;
+}
 
 
 

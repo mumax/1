@@ -70,7 +70,7 @@ gpuheun* new_gpuheun(param* p);
 /**
  * Takes one time step
  */
-void gpuheun_step(gpuheun* solver, tensor* m, tensor* h, double* totalTime);
+void gpu_heun_step(gpuheun* solver, tensor* m, tensor* h, double* totalTime);
 
       
 
