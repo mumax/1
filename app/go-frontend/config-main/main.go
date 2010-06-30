@@ -18,7 +18,7 @@ const(
   Z
 )
 
-var units sim.Units = *sim.NewUnits();
+var units *Units = NewUnits();
 
 func init(){
   units.CellSize = []float{1., 1., 1.};
