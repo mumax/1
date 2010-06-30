@@ -1,7 +1,7 @@
 package main
   
 import( 
-  . "../tensor";
+  . "tensor";
   . "image";
   "image/png";
   //"../refsh";
@@ -9,6 +9,12 @@ import(
   "os";
   "fmt";
   "io";
+)
+
+const(
+  X = iota
+  Y
+  Z
 )
 
 

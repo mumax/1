@@ -51,6 +51,10 @@ void gpueuler_step(gpueuler* solver,	    ///< the solver to step
                    double* totalTime        ///< pointer to the total time, is updated by the solver (deltaT is added to it)
                    );
 
+
+///@internal                   
+void gpu_euler_stage(float* m, float* torque, int N);
+
                    
 #ifdef __cplusplus
 }

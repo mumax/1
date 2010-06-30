@@ -41,8 +41,8 @@ func NewTensor(size []int) StoredTensor{
 /** Converts multi-dimensional index to integer index in row-major order. Includes range checks. */
 
 func Index(size, indexarray []int) int{
-  //size := t.Size();
-  assert(len(size) == len(indexarray));
+  
+  assertMsg(len(size) == len(indexarray), "Tensor index does not have same rank as tensor size");
 
   index := indexarray[0];
   assertMsg(! (indexarray[0] < 0 || indexarray[0] >= size[0]), "Index out of range");

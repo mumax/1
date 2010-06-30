@@ -1,8 +1,9 @@
+//
 package main
-  
-import( 
-  . "../tensor";
-  . "../sim";
+
+import(
+  "tensor";
+  "sim";
   "os";
   "fmt";
 )
@@ -21,10 +22,10 @@ func main() {
 }
 
 func makeKernel(){
- demag := FaceKernel(units.Size, units.CellSize);
- exch := Exch6NgbrKernel(units.Size, units.CellSize);
- kernel := Add(exch, demag);
- Write(os.Stdout, kernel);
+ demag := sim.FaceKernel(units.Size, units.CellSize);
+ exch := sim.Exch6NgbrKernel(units.Size, units.CellSize);
+ kernel := tensor.Add(exch, demag);
+ tensor.Write(os.Stdout, kernel);
 }
 
 var units Units = *NewUnits();
@@ -36,24 +37,24 @@ var exchtype string = "exch6";
 func exec(command string, args []string){
   switch command{
     case "--size":
-	units.Size = parseSize(args);
+  units.Size = parseSize(args);
     case "--cellsize":
-	units.CellSize = parseCellSize(args);
+  units.CellSize = parseCellSize(args);
     case "--aexch":
-	 argCount(command, args, 1, 1);
-	 units.AExch = Atof(args[0]);
+   argCount(command, args, 1, 1);
+   units.AExch = Atof(args[0]);
     case "--msat":
          argCount(command, args, 1, 1);
-	 units.MSat = Atof(args[0]);
+   units.MSat = Atof(args[0]);
     case "--dipole":
-	 demagtype = "dipole";
+   demagtype = "dipole";
     case "--cuboid":
-	 demagtype = "cuboid";
+   demagtype = "cuboid";
     default:
       fmt.Fprintln(os.Stderr, "unknown command:", command);
       os.Exit(-1);
   }
-  
+
 }
 
 func parseSize(args []string) []int{

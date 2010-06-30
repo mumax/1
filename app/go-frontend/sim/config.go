@@ -1,10 +1,10 @@
 package sim
 
 import(
-  . "../tensor"
+  "tensor"
 )
 
-func Uniform(m *Tensor4, x, y, z float){
+func Uniform(m *tensor.Tensor4, x, y, z float){
   a := m.Array();
   for i:=range(a[0]){
     for j:=range(a[0][i]){

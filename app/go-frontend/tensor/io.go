@@ -83,11 +83,17 @@ func Print(out io.Writer, t Tensor){
 
 /** Prints the tensor in ASCII with some row/column formatting to make it easier to read for humans. */
 func Format(out io.Writer, t Tensor){
-//   fmt.Fprintln(out, Rank(t));
+//   fmt.Fprintln(out, t)
 //   
-//   for i:=range(t.Size()){
-//     fmt.Fprintln(out, t.Size()[i]);
+//   if t == nil{                       // seems not to work on interfaces
+//     fmt.Fprintln(out, "(nil)")
+//     return
 //   }
+  
+  for i:=range(t.Size()){
+    fmt.Fprint(out, t.Size()[i], " ");
+  }
+  fmt.Fprintln(out);
   
   for i:=NewIterator(t); i.HasNext(); i.Next(){
     //fmt.Fprintf(out, "%f ", i.Get()); // %15f
@@ -107,9 +113,9 @@ func Format(out io.Writer, t Tensor){
 /** Prints an unstructured field of vectors (3 co-ordinates and 3 vector components per line), suitable for Gnuplot 'plot with vectors' */
 func PrintVectors(out io.Writer, t Tensor){
   assertMsg(t.Size()[0]==3, "Needs first dimension of size 3 (vector components)");
-  xcomp := Slice(t, 0, X);
-  ycomp := Slice(t, 0, Y);
-  zcomp := Slice(t, 0, Z);
+  xcomp := Slice(t, 0, 0);//X
+  ycomp := Slice(t, 0, 1);//Y
+  zcomp := Slice(t, 0, 2);//Z
 
   for it := NewIterator(xcomp); it.HasNext(); it.Next(){
     index := it.Index();

@@ -136,10 +136,15 @@ void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
   timer_stop("memcpy_gpu_to_gpu");
 }
 
-float gpu_get(float* dataptr, int index){
+float gpu_array_get(float* dataptr, int index){
   float result = 666.0;
   memcpy_from_gpu(&(dataptr[index]), &result, 1);
   return result;
+}
+
+
+void gpu_array_set(float* dataptr, int index, float value){
+  memcpy_to_gpu(&value, &(dataptr[index]), 1);
 }
 
 void tensor_copy_to_gpu(tensor* source, tensor* dest){
