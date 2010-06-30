@@ -22,6 +22,7 @@ CUFILES=\
 	gpurk4.cu\
 	gpuanal1.cu\
 	gpunormalize.cu\
+	gputorque.cu\
 	gpu_micromag3d_kernel.cu\
 	gpu_micromag2d_kernel.cu\
 	gpu_conv.cu\
@@ -43,6 +44,7 @@ OFILES=\
 	gpurk4.o\
 	gpuanal1.o\
 	gpunormalize.o\
+	gputorque.o\
 	field.o\
 	timestep.o\
 	kernel.o\
@@ -104,6 +106,9 @@ gpuanal1.o:	gpuanal1.h gpuanal1.cu
 
 gpunormalize.o:	gpunormalize.h gpunormalize.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpunormalize.cu
+
+gputorque.o:	gputorque.h gputorque.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gputorque.cu
 
 gpu_micromag3d_kernel.o:	gpu_micromag3d_kernel.h gpu_micromag3d_kernel.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_micromag3d_kernel.cu

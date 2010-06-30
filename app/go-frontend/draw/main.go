@@ -11,6 +11,12 @@ import(
   "io";
 )
 
+const(
+  X = iota
+  Y
+  Z
+)
+
 
 func main() {
   t := Read(os.Stdin);

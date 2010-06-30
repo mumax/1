@@ -17,14 +17,14 @@ package sim
  */
 
 import(
-  . "tensor";
+  "tensor";
   . "math";
 )
 
 /** Unit kernel, for debugging. */
-func UnitKernel(unpaddedsize []int) StoredTensor{
+func UnitKernel(unpaddedsize []int) tensor.StoredTensor{
   size := PadSize(unpaddedsize);
-  k := NewTensor5([]int{3, 3, size[0], size[1], size[2]});
+  k := tensor.NewTensor5([]int{3, 3, size[0], size[1], size[2]});
   for c:=0; c<3; c++{
 	k.Array()[c][c][0][0][0] = 1.;
   }
@@ -33,6 +33,23 @@ func UnitKernel(unpaddedsize []int) StoredTensor{
 
 
 /* --------- Internal functions --------- */
+
+func toSymmetric(k9 tensor.StoredTensor) []tensor.StoredTensor{
+  k9X := tensor.Component(k9, X)
+  k9Y := tensor.Component(k9, Y)
+  k9Z := tensor.Component(k9, Z)
+
+  k6 := make([]tensor.StoredTensor, 6)
+
+  k6[XX] = tensor.Buffer(tensor.Component(k9X, X))
+  k6[YY] = tensor.Buffer(tensor.Component(k9Y, Y))
+  k6[ZZ] = tensor.Buffer(tensor.Component(k9Z, Z))
+  k6[YZ] = tensor.Buffer(tensor.Component(k9Y, Z))
+  k6[XZ] = tensor.Buffer(tensor.Component(k9X, Z))
+  k6[XY] = tensor.Buffer(tensor.Component(k9X, Y))
+
+  return k6;
+}
 
 func wrap(number, max int) int{
   for number < 0{

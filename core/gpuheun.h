@@ -48,31 +48,15 @@ gpuheun* new_gpuheun(param* p);
 
 
 /**
- * Copies a magnetization configuration in the solver, e.g. the initial magnetization.
- * @see: gpuheun_storem
- */
-//void gpuheun_loadm(gpuheun* heun, tensor* m);
-
-
-/**
- * Copies a magnetization configuration from the solver to the RAM, e.g. the magnetization after a number of time steps.
- * @see: gpuheun_loadm, gpuheun_storeh
- */
-//void gpuheun_storem(gpuheun* heun, tensor* m);
-
-/**
- * Copies the last magnetic field from the solver to the RAM.
- * @see: gpuheun_storem
- */
-//void gpuheun_storeh(gpuheun* heun, tensor* h);
-
-
-/**
  * Takes one time step
  */
 void gpuheun_step(gpuheun* solver, tensor* m, tensor* h, double* totalTime);
 
-      
+///@internal
+void gpuheun_stage0_(float* m, float* torque, int N);
+
+///@internal
+void gpuheun_stage1_(float* m, float* torque, int N);
 
 #ifdef __cplusplus
 }

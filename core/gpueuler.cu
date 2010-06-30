@@ -9,6 +9,46 @@ extern "C" {
 
 #define alpha 1.0f
 
+
+__global__ void _gpu_euler_stage(float* mx, float* my, float* mz,
+                                 float*tx, float* ty, float* tz){
+
+  int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
+
+  mx[i] += tx[i];
+  my[i] += ty[i];
+  mz[i] += tz[i];
+  
+}
+
+void gpu_euler_stage(float* m, float* torque, int N){
+
+  int gridSize = -1, blockSize = -1;
+  make1dconf(N, &gridSize, &blockSize);
+
+  float* mx = &(m[0*N]);
+  float* my = &(m[1*N]);
+  float* mz = &(m[2*N]);
+
+  float* tqx = &(torque[0*N]);
+  float* tqy = &(torque[1*N]);
+  float* tqz = &(torque[2*N]);
+
+
+  timer_start("euler_stage");
+  _gpu_euler_stage<<<gridSize, blockSize>>>(mx, my, mz, tqx, tqy, tqz);
+  cudaThreadSynchronize();
+  timer_stop("euler_stage");
+  
+}
+
+
+
+
+
+
+
+
 __global__ void _gpu_eulerstep(float* mx, float* my, float* mz, float* hx, float* hy, float* hz, float dt){
   int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
  
