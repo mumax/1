@@ -10,8 +10,10 @@ type Field struct{
   // exchange, ...
 }
 
-func NewField() *Field{
-  ///@todo
+func NewField(b Backend) *Field{
+//   field := new(Field)
+//   field.Conv = 
+//   return field
   return nil
 }
 
