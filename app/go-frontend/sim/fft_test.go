@@ -18,23 +18,23 @@ func TestFFT(t *testing.T){
   fmt.Println(fft)
   physicSize := fft.PhysicSize()
 
-  devLog, devPhys := backend.NewTensor(size), backend.NewTensor(physicSize)
+  devLog, devPhys := NewTensor(backend, size), NewTensor(backend, physicSize)
   host1, host2 := tensor.NewTensorN(size), tensor.NewTensorN(size)
 
   for i:=0; i<4; i++ {
     host1.List()[i] = float(i)
   }
 
-  backend.TensorCopyTo(host1, devLog)
-  backend.CopyPad(devLog, devPhys)
+  TensorCopyTo(host1, devLog)
+  CopyPad(devLog, devPhys)
   tensor.Format(os.Stdout, devPhys)
   fft.Forward(devPhys, devPhys)
   tensor.Format(os.Stdout, devPhys)
   fft.Inverse(devPhys, devPhys)
   tensor.Format(os.Stdout, devPhys)
-  backend.CopyUnpad(devPhys, devLog)
+  CopyUnpad(devPhys, devLog)
   tensor.Format(os.Stdout, devLog)
-  backend.TensorCopyFrom(devLog, host2)
+  TensorCopyFrom(devLog, host2)
 
   N := float(fft.Normalization());
   var maxError float = 0

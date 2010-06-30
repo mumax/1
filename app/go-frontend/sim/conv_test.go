@@ -42,7 +42,7 @@ func TestConv(t *testing.T){
     }
   }
 
-  m, h := backend.NewTensor(size4D), backend.NewTensor(size4D)
+  m, h := NewTensor(backend, size4D), NewTensor(backend, size4D)
 
   m.Set([]int{0, 7, 7, 0}, 1.)
   tensor.WriteFile("m.t", m)

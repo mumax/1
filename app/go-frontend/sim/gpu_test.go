@@ -9,18 +9,18 @@ func TestPad(t *testing.T){
   small := []int{4, 8, 16}
   big := []int{6, 12, 32}
   
-  dev1, dev2 := GPU.NewTensor(small), GPU.NewTensor(big)
+  dev1, dev2 := NewTensor(GPU, small), NewTensor(GPU, big)
   host1, host2 := tensor.NewTensorN(small), tensor.NewTensorN(small)
 
   for i:=range host1.List() {
     host1.List()[i] = float(i)
   }
 
-  GPU.TensorCopyTo(host1, dev1)
-  GPU.CopyPad(dev1, dev2)
-  GPU.ZeroTensor(dev1)
-  GPU.CopyUnpad(dev2, dev1)
-  GPU.TensorCopyFrom(dev1, host2)
+  TensorCopyTo(host1, dev1)
+  CopyPad(dev1, dev2)
+  ZeroTensor(dev1)
+  CopyUnpad(dev2, dev1)
+  TensorCopyFrom(dev1, host2)
 
   assert(tensor.Equals(host1, host2))
 }

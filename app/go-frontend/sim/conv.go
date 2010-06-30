@@ -29,7 +29,7 @@ func NewConv(backend Backend, dataSize, kernelSize []int) *Conv{
   
   ///@todo do not allocate for infinite2D problem
   for i:=0; i<3; i++{
-    conv.buffer[i] = conv.NewTensor(conv.PhysicSize())
+    conv.buffer[i] = NewTensor(conv.Backend, conv.PhysicSize())
     conv.mComp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil) }
     conv.hComp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil) }
   }
@@ -57,7 +57,7 @@ func (conv *Conv) Convolve(source, dest *Tensor){
   }
   
   for i:=0; i<3; i++{
-    conv.CopyPad(mComp[i], buffer[i])
+    CopyPad(mComp[i], buffer[i])
 //     fmt.Println("mPadded", i)
 //     tensor.Format(os.Stdout, buffer[i])
   }
@@ -86,7 +86,7 @@ func (conv *Conv) Convolve(source, dest *Tensor){
   } 
   
   for i:=0; i<3; i++{
-    conv.CopyUnpad(buffer[i], hComp[i])
+    CopyUnpad(buffer[i], hComp[i])
   }
 }
 
@@ -99,14 +99,14 @@ func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
   }
 
   buffer := tensor.NewTensorN(conv.KernelSize())
-  devbuf := conv.NewTensor(conv.KernelSize())
+  devbuf := NewTensor(conv.Backend, conv.KernelSize())
 
   fft := NewFFT(conv.Backend, conv.KernelSize())
   N := 1.0 / float(fft.Normalization())
   
   for i:= range conv.kernel{
     if kernel[i] != nil{                    // nil means it would contain only zeros so we don't store it.
-      conv.kernel[i] = conv.NewTensor(conv.PhysicSize())
+      conv.kernel[i] = NewTensor(conv.Backend, conv.PhysicSize())
 
       tensor.CopyTo(kernel[i], buffer)
 
@@ -114,8 +114,8 @@ func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
         buffer.List()[i] *= N
       }
       
-      conv.TensorCopyTo(buffer, devbuf)
-      conv.CopyPad(devbuf, conv.kernel[i])   ///@todo padding should be done on host, not device, to save sim memory / avoid fragmentation
+      TensorCopyTo(buffer, devbuf)
+      CopyPad(devbuf, conv.kernel[i])   ///@todo padding should be done on host, not device, to save sim memory / avoid fragmentation
 
       fft.Forward(conv.kernel[i], conv.kernel[i])
     }
