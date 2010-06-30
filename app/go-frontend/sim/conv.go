@@ -17,7 +17,7 @@ type Conv struct{
 }
 
 
-func NewConv(backend Backend, dataSize []int, kernel []*tensor.Tensor3) *Conv{
+func NewConv(backend Backend, dataSize []int, kernel []tensor.StoredTensor) *Conv{
   kernelSize := kernel[XX].Size()
   assert(len(dataSize) == 3)
   assert(len(kernelSize) == 3)
@@ -94,7 +94,7 @@ func (conv *Conv) Convolve(source, dest *Tensor){
 }
 
 
-func (conv *Conv) LoadKernel6(kernel []*tensor.Tensor3){
+func (conv *Conv) LoadKernel6(kernel []tensor.StoredTensor){
   for _,k:=range kernel{
     if k != nil{
       assert( tensor.EqualSize(k.Size(), conv.KernelSize()) )

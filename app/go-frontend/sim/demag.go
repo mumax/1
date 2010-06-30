@@ -7,7 +7,7 @@ import(
 
 
 /// converts from the full "rank-5" kernel format to the symmetric "array-of-rank3-tensors" format
-func FaceKernel6(unpaddedsize []int, cellsize []float) []*tensor.Tensor3 {
+func FaceKernel6(unpaddedsize []int, cellsize []float) []tensor.StoredTensor {
   k9 := FaceKernel(unpaddedsize, cellsize)
   return toSymmetric(k9)
 }

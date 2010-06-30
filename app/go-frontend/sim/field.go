@@ -1,7 +1,7 @@
 package sim
 
 import(
-
+  "tensor"
 )
 
 type Field struct{
@@ -22,9 +22,9 @@ func NewField(dev Backend, m Magnet) *Field{
   field.Magnet = m
 
   demag := FaceKernel(field.Size(), field.CellSize())
-  exch := Exch6Ngbr(field.Size(), field.CellSize())
+  exch := Exch6NgbrKernel(field.Size(), field.CellSize())
   kernel := toSymmetric(tensor.Buffer(tensor.Add(demag, exch)))
-  field.Conv = NewConv(dev, field.Size(), kernel)
+  field.Conv = *NewConv(dev, field.Size(), kernel)
   
   return field
 }
