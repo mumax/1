@@ -6,8 +6,19 @@ import(
 
 type Solver struct{
   m, h *Tensor
-  alpha, dt float
+  dt float
   Field
+}
+
+
+func NewSolver(dev Backend, mag *Magnet) *Solver{
+  solver := new(Solver)
+
+  solver.m = NewTensor(dev, mag.Size())
+  solver.h = NewTensor(dev, mag.Size())
+  solver.Field = *NewField(dev, mag)
+
+  return solver
 }
 
 

@@ -15,11 +15,11 @@ type Field struct{
 
 
 
-func NewField(dev Backend, m Magnet) *Field{
+func NewField(dev Backend, mag *Magnet) *Field{
   
   field := new(Field)
   
-  field.Magnet = m
+  field.Magnet = *mag
 
   demag := FaceKernel(field.Size(), field.CellSize())
   exch := Exch6NgbrKernel(field.Size(), field.CellSize())

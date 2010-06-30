@@ -11,7 +11,7 @@ import(
 func TestFFT(t *testing.T){
   backend := GPU
   
-  backend.OverrideStride(1)
+  //backend.OverrideStride(1)
 
   size := []int{4, 8, 4}
   fft := NewFFT(backend, size)
@@ -48,7 +48,7 @@ func TestFFT(t *testing.T){
   fmt.Println("FFT error:", maxError);
   if maxError > 1E-5 { t.Fail() }
 
-  backend.OverrideStride(-1)
+  //backend.OverrideStride(-1)
 }
 
 
