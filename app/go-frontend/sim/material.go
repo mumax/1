@@ -8,11 +8,12 @@ import(
 
 type Material struct{
   
-  AExch   float;      ///< Exchange constant in J/m
-  MSat    float;       ///<Saturation magnetization in A/m
-  Mu0     float;        ///< Mu0 in N/A^2
-  Gamma0  float;     ///< Gyromagnetic ratio in m/As
-
+  AExch   float      ///< Exchange constant in J/m
+  MSat    float      ///< Saturation magnetization in A/m
+  Mu0     float      ///< Mu0 in N/A^2
+  Gamma0  float      ///< Gyromagnetic ratio in m/As
+  Alpha   float      ///< Damping parameter
+  
 }
 
 /** All parameters passed in SI units. Program units are used only internally. */

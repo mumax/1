@@ -10,7 +10,7 @@ import(
 func TestConv(t *testing.T){
   backend := Backend{Gpu{}}
   
-  backend.OverrideStride(1)
+  //backend.OverrideStride(1)
   size4D := []int{3, 32, 32, 2}
   size := size4D[1:]
   //kernelSize := []int{2*size[X], 2*size[Y], 2*size[Z]}
@@ -49,5 +49,5 @@ func TestConv(t *testing.T){
   tensor.WriteFile("m.t", m)
   conv.Convolve(m, h)
   tensor.WriteFile("h.t", h)
-  backend.OverrideStride(-1)
+  //backend.OverrideStride(-1)
 }

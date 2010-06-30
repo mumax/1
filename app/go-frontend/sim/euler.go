@@ -8,17 +8,18 @@ type Euler struct{
   
 }
 
-func NewEuler(field *Field, alpha, dt float) *Euler{
+func NewEuler(dev Backend, mag *Magnet, dt float) *Euler{
   euler := new(Euler)
-  euler.Field = *field
-  euler.alpha = alpha
+  
+  euler.Solver = *NewSolver(dev, mag)
   euler.dt = dt
+  
   return euler
 }
 
 func (this *Euler) Step(){
   m, h := this.m, this.h
-  alpha, dt := this.alpha, this.dt
+  alpha, dt := this.Alpha, this.dt
   
   this.Convolve(m, h)
   this.Torque(m, h, alpha, dt/(1+alpha*alpha))
