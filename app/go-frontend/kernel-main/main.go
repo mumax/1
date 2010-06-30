@@ -2,7 +2,7 @@ package main
   
 import( 
   . "tensor";
-  . "sim";
+  "sim";
   "os";
   "fmt";
 )
@@ -21,8 +21,8 @@ func main() {
 }
 
 func makeKernel(){
- demag := FaceKernel(units.Size, units.CellSize);
- exch := Exch6NgbrKernel(units.Size, units.CellSize);
+ demag := sim.FaceKernel(units.Size, units.CellSize);
+ exch := sim.Exch6NgbrKernel(units.Size, units.CellSize);
  kernel := Add(exch, demag);
  Write(os.Stdout, kernel);
 }
