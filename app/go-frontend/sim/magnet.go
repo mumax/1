@@ -14,6 +14,11 @@ type Magnet struct{
 
 }
 
+
+func NewMagnet(mat Material, size []int, cellSize []float) *Magnet{
+  return &Magnet{mat, size, cellSize}
+}
+
 func(mag Magnet) Size() []int {
   return mag.size
 }

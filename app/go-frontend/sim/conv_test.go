@@ -13,10 +13,11 @@ func TestConv(t *testing.T){
   backend.OverrideStride(1)
   size4D := []int{3, 32, 32, 2}
   size := size4D[1:]
-  kernelSize := []int{2*size[X], 2*size[Y], 2*size[Z]}
-  
-  conv := NewConv(backend, size, kernelSize)
+  //kernelSize := []int{2*size[X], 2*size[Y], 2*size[Z]}
+
   kernel := FaceKernel6(size, []float{1., 1., 1.})
+  conv := NewConv(backend, size, kernel)
+  
 
   // unit kernel
 //   kernel := make([]*tensor.Tensor3, 6)
