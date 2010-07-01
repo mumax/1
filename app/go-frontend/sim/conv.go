@@ -3,8 +3,8 @@ package sim
 import(
   "tensor"
   "unsafe"
-  "os"
-  "fmt"
+//   "os"
+//   "fmt"
 )
 
 
@@ -64,25 +64,22 @@ func (conv *Conv) Convolve(source, dest *Tensor){
 //     fmt.Println("mPadded", i)
 //     tensor.Format(os.Stdout, buffer[i])
   }
-
-  
   //Sync
-  
   for i:=0; i<3; i++{
     conv.Forward(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
 //     fmt.Println("fftm", i)
 //     tensor.Format(os.Stdout, buffer[i])
   }
-  
+
   conv.kernelMul6(buffer[X].data,  buffer[Y].data,   buffer[Z].data,
                  kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
                  kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
                  Len(buffer[X].size))  // nRealNumbers
 
-  for i:=0; i<3; i++{
-    fmt.Println("mulM", i)
-    tensor.Format(os.Stdout, buffer[i])
-  }
+//   for i:=0; i<3; i++{
+//     fmt.Println("mulM", i)
+//     tensor.Format(os.Stdout, buffer[i])
+//   }
             
   for i:=0; i<3; i++{
     conv.Inverse(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)

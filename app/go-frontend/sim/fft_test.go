@@ -27,13 +27,13 @@ func TestFFT(t *testing.T){
 
   TensorCopyTo(host1, devLog)
   CopyPad(devLog, devPhys)
-  tensor.Format(os.Stdout, devPhys)
+  //tensor.Format(os.Stdout, devPhys)
   fft.Forward(devPhys, devPhys)
-  tensor.Format(os.Stdout, devPhys)
+  //tensor.Format(os.Stdout, devPhys)
   fft.Inverse(devPhys, devPhys)
-  tensor.Format(os.Stdout, devPhys)
+  //tensor.Format(os.Stdout, devPhys)
   CopyUnpad(devPhys, devLog)
-  tensor.Format(os.Stdout, devLog)
+  //tensor.Format(os.Stdout, devLog)
   TensorCopyFrom(devLog, host2)
 
   N := float(fft.Normalization());
