@@ -1,14 +1,14 @@
 package sim
 
 import(
-  //. "../assert";
-  "tensor";
-  //. "../fft";
-  //. "math";
-  //. "fmt";
+  "tensor"
 )
 
+
+
 /**
+ * 6-Neighbor exchange kernel
+ *
  * Note on self-contributions and the energy density:
  *
  * Contributions to H_eff that are parallel to m do not matter. 
@@ -23,7 +23,6 @@ import(
  * term compared to the usual - M . H. Outputting H_eff becomes less useful however,
  * it's better to look at torques. Away from the boundaries, H_eff is correct.
  */
-
 func Exch6NgbrKernel(unpaddedsize []int, cellsize []float) *tensor.Tensor5{
   size := PadSize(unpaddedsize);
   k := tensor.NewTensor5([]int{3, 3, size[0], size[1], size[2]});
@@ -42,7 +41,6 @@ func Exch6NgbrKernel(unpaddedsize []int, cellsize []float) *tensor.Tensor5{
     }
   
   }
-
   return k;
 }
 

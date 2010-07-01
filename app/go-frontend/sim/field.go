@@ -4,17 +4,18 @@ import(
   "tensor"
 )
 
+// Field contains everything neccesary to calculate the effective field H_eff
 type Field struct{
   Magnet
   
-  Conv
+  *Conv
   // Exchange
   // Anis
   // ...
 }
 
-
-
+// Takes the parameters from a Magnet struct and
+// initializes everything.
 func NewField(dev Backend, mag *Magnet) *Field{
   
   field := new(Field)
@@ -24,10 +25,14 @@ func NewField(dev Backend, mag *Magnet) *Field{
   demag := FaceKernel(field.Size(), field.CellSize())
   exch := Exch6NgbrKernel(field.Size(), field.CellSize())
   kernel := toSymmetric(tensor.Buffer(tensor.Add(demag, exch)))
-  field.Conv = *NewConv(dev, field.Size(), kernel)
+  field.Conv = NewConv(dev, field.Size(), kernel)
   
   return field
 }
 
 
+// Calculates the effective field of m and stores it in h
+func(f *Field) CalcHeff(m, h *Tensor){
+  //TODO
+} 
 

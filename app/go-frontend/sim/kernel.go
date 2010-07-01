@@ -1,7 +1,6 @@
 package sim
 
-/* 
- *
+/** 
  * A kernel is a rank 5 Tensor: K[S][D][x][y][z].
  * S and D are source and destination directions, ranging from 0 (X) to 2 (Z).
  * K[S][D][x][y][z] is the D-the component of the magnetic field at position
