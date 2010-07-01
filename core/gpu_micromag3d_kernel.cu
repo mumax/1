@@ -34,7 +34,6 @@ tensor *gpu_micromag3d_kernel(param* p){
 	return (dev_kernel);
 }
 
-/// @todo argument defining which Greens function should be added
 /// remark: number of FD cells in a dimension can not be odd if no zero padding!!
 void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int *kernelSize, int *exchInConv, float *FD_cell_size, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10, gpuFFT3dPlan* kernel_plan){
 
@@ -43,11 +42,15 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int 
 	float *dev_temp = new_gpu_array(kernelStorageN);		// temp tensor on device for storage of each component in real + i*complex format
  	
 	// Define gpugrids and blocks ___________________________________________________________________
-    dim3 gridsize1, blocksize1;
-    make3dconf((kernelSize[X]+1)/2, kernelSize[Y]/2, kernelSize[Z]/2, &gridsize1, &blocksize1);
+    /// @todo use 'make3dconf' here when this function is working properly!
+    dim3 gridsize1((kernelSize[X]+1)/2,kernelSize[Y]/2, 1);
+    dim3 blocksize1(1, 1, kernelSize[Z]/2);
+    check3dconf(gridsize1, blocksize1);
+//    dim3 gridsize1, blocksize1;
+//    make3dconf((kernelSize[X]+1)/2, kernelSize[Y]/2, kernelSize[Z]/2, &gridsize1, &blocksize1);
 		int gridsize2, blocksize2;
 		make1dconf(kernelStorageN/2, &gridsize2, &blocksize2);
-	// ______________________________________________________________________________________________
+  // ______________________________________________________________________________________________
 	
   // Define input tensors and input sizes for FFT forward routine _________________________________
     int *kernelStorageSize = (int *) calloc (3, sizeof(int));
@@ -92,15 +95,17 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int 
 
 
 __global__ void _gpu_init_Greens_kernel_elements_micromag3d(float *dev_temp, int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int Nkernel_storage_Z, int exchInConv_X, int exchInConv_Y, int exchInConv_Z, int co1, int co2, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
-  
-/*  int i = blockIdx.x;
-	int j = blockIdx.y;
-	int k = threadIdx.x;*/
-  int i = threadIdx.x;
-  int j = threadIdx.y;
-  int k = threadIdx.z;
 
-//	int N2 = Nkernel_Z+2;     ///@todo: a gpu_pad_to_stride() function also executable on gpu should be used here
+  /// @todo possible redeclaration of threadparameters required when using 'make3dconf' for thread launching.
+
+  int i = blockIdx.x;
+  int j = blockIdx.y;
+  int k = threadIdx.x; 
+
+//   int i = threadIdx.x;
+//   int j = threadIdx.y;
+//   int k = threadIdx.z;
+
   int N2 = Nkernel_storage_Z;
 	int N12 = Nkernel_Y * N2;
 

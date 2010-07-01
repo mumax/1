@@ -23,10 +23,10 @@ CUFILES=\
 	gpurk4.cu\
 	gpu_anal.cu\
 	gpunormalize.cu\
-	gputorque.cu\
 	gpu_micromag3d_kernel.cu\
 	gpu_micromag2d_kernel.cu\
 	gpu_conv.cu\
+	gputorque.cu\
 #	gpukernel1.cu\
 # NOTE: commented files must be LAST in the list, otherwise all the rest is also commented out
 
@@ -45,7 +45,6 @@ OFILES=\
 	gpurk4.o\
 	gpu_anal.o\
 	gpunormalize.o\
-	gputorque.o\
 	field.o\
 	timestep.o\
 	kernel.o\
@@ -53,6 +52,7 @@ OFILES=\
 	gpu_micromag3d_kernel.o\
 	gpu_micromag2d_kernel.o\
 	gpu_conv.o\
+	gputorque.o\
 #	gpukernel1.o\
 
 all: core.so core.a doc
