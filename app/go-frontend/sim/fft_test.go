@@ -10,45 +10,49 @@ import(
 
 func TestFFT(t *testing.T){
   backend := GPU
-  
+
   //backend.OverrideStride(1)
 
-  size := []int{4, 8, 4}
-  fft := NewFFT(backend, size)
-  fmt.Println(fft)
-  physicSize := fft.PhysicSize()
+  sizes := [][]int{
+    []int{1, 64, 64},
+    []int{2, 64, 64}}
 
-  devLog, devPhys := NewTensor(backend, size), NewTensor(backend, physicSize)
-  host1, host2 := tensor.NewTensorN(size), tensor.NewTensorN(size)
+    for _, size := range sizes{
+      fft := NewFFT(backend, size)
+      fmt.Println(fft)
+      physicSize := fft.PhysicSize()
 
-  for i:=0; i<4; i++ {
-    host1.List()[i] = float(i)
-  }
+      devLog, devPhys := NewTensor(backend, size), NewTensor(backend, physicSize)
+      host1, host2 := tensor.NewTensorN(size), tensor.NewTensorN(size)
 
-  TensorCopyTo(host1, devLog)
-  CopyPad(devLog, devPhys)
-  //tensor.Format(os.Stdout, devPhys)
-  fft.Forward(devPhys, devPhys)
-  //tensor.Format(os.Stdout, devPhys)
-  fft.Inverse(devPhys, devPhys)
-  //tensor.Format(os.Stdout, devPhys)
-  CopyUnpad(devPhys, devLog)
-  //tensor.Format(os.Stdout, devLog)
-  TensorCopyFrom(devLog, host2)
+      for i:=0; i<tensor.N(host1); i++ {
+        host1.List()[i] = float(i % 100) / 100
+      }
 
-  N := float(fft.Normalization());
-  var maxError float = 0
-  for i:=range host2.List() {
-    host2.List()[i] /= N;
-    if abs(host2.List()[i] - host1.List()[i]) > maxError {
-      maxError = abs(host2.List()[i] - host1.List()[i])
+      TensorCopyTo(host1, devLog)
+      CopyPad(devLog, devPhys)
+      //tensor.Format(os.Stdout, devPhys)
+      fft.Forward(devPhys, devPhys)
+      //tensor.Format(os.Stdout, devPhys)
+      fft.Inverse(devPhys, devPhys)
+      //tensor.Format(os.Stdout, devPhys)
+      CopyUnpad(devPhys, devLog)
+      //tensor.Format(os.Stdout, devLog)
+      TensorCopyFrom(devLog, host2)
+
+      N := float(fft.Normalization());
+      var maxError float = 0
+      for i:=range host2.List() {
+        host2.List()[i] /= N;
+        if abs(host2.List()[i] - host1.List()[i]) > maxError {
+          maxError = abs(host2.List()[i] - host1.List()[i])
+        }
+      }
+      tensor.Format(os.Stdout, host2)
+      fmt.Println("FFT error:", maxError);
+      if maxError > 1E-4 { t.Fail() }
     }
-  }
-  tensor.Format(os.Stdout, host2)
-  fmt.Println("FFT error:", maxError);
-  if maxError > 1E-5 { t.Fail() }
-
-  //backend.OverrideStride(-1)
+    //backend.OverrideStride(-1)
 }
 
 

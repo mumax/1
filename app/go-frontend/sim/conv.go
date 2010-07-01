@@ -3,8 +3,6 @@ package sim
 import(
   "tensor"
   "unsafe"
-//   "os"
-//   "fmt"
 )
 
 

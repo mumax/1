@@ -89,6 +89,7 @@ type Device interface{
   * Allocates an array of floats on the GPU.
   * By convention, GPU arrays are represented by an unsafe.Pointer,
   * while host arrays are *float's.
+  * Initialized with zeros
   */
   newArray(nFloats int) unsafe.Pointer
 
