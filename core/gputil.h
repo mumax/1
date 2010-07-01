@@ -247,6 +247,15 @@ void check1dconf(int gridsize, ///< 1D size of the thread grid
   dim3 gridSize, blockSize;
   make3dconf(N0, N1, N2, &gridSize, &blockSize);
   mykernel<<<gridSize, blockSize>>>(arrrrgh);
+  
+  __global__ void mykernel(aaarghs){
+    
+    int i = ((blockIdx.x * blockDim.x) + threadIdx.x)
+    int j = ((blockIdx.y * blockDim.y) + threadIdx.y)
+    int k = ((blockIdx.z * blockDim.z) + threadIdx.z)
+    
+    ...
+  }
  * @endcode
  */
 void make3dconf(int N0, 	///< size of 3D array to span
