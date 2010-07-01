@@ -19,7 +19,8 @@ int main(int argc, char** argv){
   param_print(stdout, p);
 
   
-  tensor* kernel = init_kernel(p);
+//  tensor* kernel = init_kernel(p);
+  tensor* kernel = new_kernel(p);
 
 
   return 0;
