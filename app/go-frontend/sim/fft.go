@@ -61,6 +61,11 @@ func (fft *FFT) Forward(in, out *Tensor){
 }
 
 
+func(fft *FFT) ForwardInplace(data *Tensor){
+  fft.Forward(data, data)
+}
+
+
 func (fft *FFT) Inverse(in, out *Tensor){
   // size checks
   assert(tensor.Rank(in) == 3)
@@ -71,6 +76,11 @@ func (fft *FFT) Inverse(in, out *Tensor){
   }
   // actual fft
   fft.fftInverse(fft.plan, in.data, out.data)
+}
+
+
+func(fft *FFT) InverseInplace(data *Tensor){
+  fft.Inverse(data, data)
 }
 
 
