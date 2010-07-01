@@ -3,6 +3,8 @@ package sim
 import(
 )
 
+
+// 1st order Euler method
 type Euler struct{
   Solver
   

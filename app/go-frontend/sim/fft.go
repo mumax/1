@@ -7,7 +7,7 @@ import(
 )
 
 
-/// 3D real-to-complex / complex-to-real transform. Handles zero-padding efficiently (if applicable)
+// 3D real-to-complex / complex-to-real transform. Handles zero-padding efficiently (if applicable)
 type FFT struct{
   Backend
   plan unsafe.Pointer           ///< points to the simFFT3dPlan struct that does the actual FFT
@@ -17,7 +17,7 @@ type FFT struct{
 }
 
 
-/// logicSize is the size of the real input data.
+// logicSize is the size of the real input data.
 func NewFFT(b Backend, logicSize []int) *FFT{
   return NewFFTPadded(b, logicSize, logicSize)
 }

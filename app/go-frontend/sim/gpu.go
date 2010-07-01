@@ -10,6 +10,7 @@ package sim
 #include "../../../core/gpueuler.h"
 #include "../../../core/gpunormalize.h"
 
+// to allow some (evil but neccesary) pointer arithmetic in go
 float* gpu_array_offset(float* array, int index){
     return &array[index];
 }
@@ -59,14 +60,8 @@ func(d Gpu)  eulerStage(m, torque unsafe.Pointer, N int){
 
 //___________________________________________________________________________________________________ Kernel multiplication
 
-//
-// from gpuconv2.h:
-// void gpu_kernel_mul_complex_inplace_symm(float* fftMx,  float* fftMy,  float* fftMz,
-//                                          float* fftKxx, float* fftKyy, float* fftKzz,
-//                                          float* fftKyz, float* fftKxz, float* fftKxy,
-//                                          int nRealNumbers);
 
-func(d Gpu)  kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int){
+func(d Gpu)  kernelMul6(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int){
   C.gpu_kernel_mul_complex_inplace_symm(
         (*_C_float)(mx), (*_C_float)(my), (*_C_float)(mz),
         (*_C_float)(kxx), (*_C_float)(kyy), (*_C_float)(kzz),

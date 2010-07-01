@@ -44,21 +44,45 @@ type Device interface{
 
   eulerStage(m, torque unsafe.Pointer, N int)
 
-  kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int)
+  // In-place kernel multiplication (m gets overwritten by h).
+  // The kernel is symmetric so only 6 of the 9 components need to be passed (xx, yy, zz, yz, xz, xy).
+  // The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
+  // This is the typical situation for a 3D micromagnetic problem
+  kernelMul6(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int)
 
-  ///Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
+  
+  // In-place kernel multiplication (m gets overwritten by h).
+  // The kernel is symmetric and contains no mixing between x and (y, z),
+  // so only 4 of the 9 components need to be passed (xx, yy, zz, yz).
+  // The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
+  // This is the typical situation for a finite 2D micromagnetic problem
+  // TODO
+  // kernelMul4(mx, my, mz, kxx, kyy, kzz, kyz unsafe.Pointer, nRealNumbers int)
+
+  
+  // In-place kernel multiplication (m gets overwritten by h).
+  // The kernel is symmetric and contains no x contributions.
+  // so only 3 of the 9 components need to be passed (yy, zz, yz).
+  // The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
+  // This is the typical situation for a infinitely thick 2D micromagnetic problem,
+  // which has no demag effects in the out-of-plane direction
+  // TODO
+  // kernelMul3(my, mz, kyy, kzz, kyz unsafe.Pointer, nRealNumbers int)
+
+
+  // Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
   copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int)
 
   //Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
   copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int)
 
-  /// unsafe creation of C fftPlan
+  // unsafe creation of C fftPlan
   newFFTPlan(dataSize, logicSize []int) unsafe.Pointer
 
-  /// unsafe FFT
+  // unsafe FFT
   fftForward(plan unsafe.Pointer, in, out unsafe.Pointer)
 
-  /// unsafe FFT
+  // unsafe FFT
   fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer)
 
   /**

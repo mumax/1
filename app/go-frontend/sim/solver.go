@@ -4,6 +4,8 @@ import(
   "tensor"
 )
 
+// Solver contains common code of all concrete solvers,
+// who embed it
 type Solver struct{
   m, h *Tensor
   dt float
@@ -21,7 +23,7 @@ func NewSolver(dev Backend, mag *Magnet) *Solver{
   return solver
 }
 
-
+// TODO do not pass alpha
 func(s *Solver) Torque(m, h *Tensor, alpha, dtGilbert float){
   assert(len(m.size) == 4)
   assert(tensor.EqualSize(m.size, h.size))
