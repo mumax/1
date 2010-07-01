@@ -49,6 +49,7 @@ void evaluate_anal_fw_step(timestepper *ts, tensor *m, double *totalTime){
 
   gpuanalfw* anal_fw = (gpuanalfw*)ts->solver;
   evaluate_field(ts->field, m, ts->h);
+
   gpu_anal_fw_step(anal_fw, m, ts->h, totalTime);
   ts->totalSteps++;
   

@@ -65,6 +65,14 @@ void evaluate_micromag3d_conv(tensor *m, tensor *h, conv_data *conv){
     gpu_copy_to_unpad(fft1_comp[i], h_comp[i], conv->fft1->size, m->size);
   }
 
+//     int* size4d_h = tensor_size4D(h->size);
+//     tensor* hHost = new_tensorN(4, size4d_h);
+//     FILE *temp_h = fopen("temp_h", "w");
+//     tensor_copy_from_gpu(h, hHost);
+//     format_tensor(hHost, temp_h);
+//     fclose(temp_h);
+//     delete_tensor (hHost);
+
   return;
 }
 

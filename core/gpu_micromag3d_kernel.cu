@@ -59,6 +59,7 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int 
   // ______________________________________________________________________________________________
 
 
+
 	// Main function operations _____________________________________________________________________
     int rank0 = 0;																			// defines the first rank of the Greens kernel, N0>1: [xx, xy, xz, yy, yz, zz], N1=1: [xx, yy, yz, zz]
     for (int co1=0; co1<3; co1++){											// for a Greens kernel component [co1,co2]:
@@ -450,7 +451,7 @@ void get_Quad_Points_micromag3d(float *gaussQP, float *stdGaussQP, int qOrder, d
 //   gpu_zero(dev_temp, kernelStorageN);
 //   cudaThreadSynchronize();
 // //  _gpu_init_Greens_kernel_elements<<<gridsize1, blocksize1>>>(dev_temp, Nkernel[X], Nkernel[Y], Nkernel[Z], testco1, testco2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], cst, repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
-//   _gpu_init_Greens_kernel_elements<<<gridsize1, blocksize1>>>(dev_temp, kernelSize[X], kernelSize[Y], kernelSize[Z], kernelStorageSize[Z], testco1, testco2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
+//   _gpu_init_Greens_kernel_elements_micromag3d<<<gridsize1, blocksize1>>>(dev_temp, kernelSize[X], kernelSize[Y], kernelSize[Z], kernelStorageSize[Z], exchInConv[X], exchInConv[Y], exchInConv[Z], testco1, testco2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
 //   cudaThreadSynchronize();
 // 
 //   memcpy_from_gpu(dev_temp, host_temp, kernelStorageN);
@@ -483,7 +484,7 @@ void get_Quad_Points_micromag3d(float *gaussQP, float *stdGaussQP, int qOrder, d
 //     fprintf(stderr, "\n");
 //   }
 // 
-//   _gpu_extract_real_parts<<<gridsize2, blocksize2>>>(&dev_kernel->list[testrang*kernelStorageN/2], dev_temp, 0, kernelStorageN/2);
+//   _gpu_extract_real_parts_micromag3d<<<gridsize2, blocksize2>>>(&dev_kernel->list[testrang*kernelStorageN/2], dev_temp);
 //   cudaThreadSynchronize();
 //   fprintf(stderr, "\nkernel elements (transformed, real parts), co: %d, %d:\n", testco1, testco2);
 //   memcpy_from_gpu(&dev_kernel->list[testrang*kernelStorageN/2], host_temp2, kernelStorageN/2);
@@ -498,3 +499,4 @@ void get_Quad_Points_micromag3d(float *gaussQP, float *stdGaussQP, int qOrder, d
 //     }
 //     fprintf(stderr, "\n");
 //   }
+// 
