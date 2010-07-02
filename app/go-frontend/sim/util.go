@@ -4,14 +4,14 @@ import(
   "log"
 )
 
-
-func assert(b bool){
-  if !b{
+// crashes if the test is false
+func assert(test bool){
+  if !test{
     log.Crash("assertion failed");
   }
 }
 
-
+// puts a 3 in front of the array
 func Size4D(size3D []int) []int{
   assert(len(size3D) == 3)
   size4D := make([]int, 4)
@@ -20,5 +20,16 @@ func Size4D(size3D []int) []int{
     size4D[i+1] = size3D[i]
   }
   return size4D
+}
+
+// removes the 3 in front of the array
+func Size3D(size4D []int) []int{
+  assert(len(size4D) == 4)
+  assert(size4D[0] == 3)
+  size3D := make([]int, 3)
+  for i:=range size3D{
+    size3D[i] = size4D[i+1]
+  }
+  return size3D
 }
 

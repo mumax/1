@@ -23,7 +23,7 @@ func main(){
   
   solver := NewEuler(dev, magnet, dt)
 
-  for i:=0; i<10; i++{
+  for i:=0; i<1000; i++{
     solver.Step()
   }
   TimerPrintDetail()
