@@ -9,8 +9,8 @@ import(
 type Magnet struct{
 
   Material
-  size []int;   ///< Mesh Size, e.g. 4x64x64
-  cellSize []float;  ///< Cell Size in exchange lengths, e.g. 0.5 x 0.5 x 1.2
+  size []int        // Mesh Size, e.g. 4x64x64
+  cellSize []float  // Cell Size in exchange lengths, e.g. 0.5 x 0.5 x 1.2
 
 }
 
@@ -19,17 +19,17 @@ func NewMagnet(mat *Material, size []int, cellSize []float) *Magnet{
   return &Magnet{*mat, size, cellSize}
 }
 
-func(mag Magnet) Size() []int {
+func(mag *Magnet) Size() []int {
   return mag.size
 }
 
 
-func(mag Magnet) CellSize() []float {
+func(mag *Magnet) CellSize() []float {
   return mag.cellSize
 }
 
 
-func(mag Magnet) PrintGeom(out io.Writer){   ///@todo String()
+func(mag *Magnet) PrintGeom(out io.Writer){   ///@todo String()
   //fmt.Fprintln(out, "Geometry");
   fmt.Fprintln(out, "Grid Size  : \t", mag.size);
   fmt.Fprint(out, "Cell Size  : \t");

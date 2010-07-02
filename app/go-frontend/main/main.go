@@ -2,6 +2,8 @@ package main
 
 import(
   . "sim"
+  "tensor"
+  "strconv"
 )
 
 func main(){
@@ -23,9 +25,21 @@ func main(){
   
   solver := NewEuler(dev, magnet, dt)
 
-  for i:=0; i<1000; i++{
-    solver.Step()
+  m := tensor.NewTensorN(Size4D(magnet.Size()))
+  for i:=range m.List(){
+    m.List()[i] = 1.
   }
+  TensorCopyTo(m, solver.M())
+  
+  for i:=0; i<100; i++{
+    TensorCopyFrom(solver.M(), m)
+    fname := "m" + strconv.Itoa(i) + ".t"
+    tensor.WriteFile(fname, m)
+    for j:=0; j<100; j++{
+      solver.Step()
+    }
+  }
+  
   TimerPrintDetail()
 }
 

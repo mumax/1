@@ -6,6 +6,7 @@ import(
 
 // Solver contains common code of all concrete solvers,
 // who embed it
+// TODO perhaps we should pull m, h up so they can stay when the solver is changed for another one
 type Solver struct{
   m, h *Tensor
   dt float
@@ -23,13 +24,18 @@ func NewSolver(dev Backend, mag *Magnet) *Solver{
   return solver
 }
 
+
+func(s *Solver) M() *Tensor{
+  return s.m
+}
+
 // TODO do not pass alpha
-func(s *Solver) Torque(m, h *Tensor, alpha, dtGilbert float){
+func(s *Solver) Torque(m, h *Tensor, dtGilbert float){
   assert(len(m.size) == 4)
   assert(tensor.EqualSize(m.size, h.size))
   
   N := m.size[1] * m.size[2] * m.size[3]
-  s.torque(m.data, h.data, alpha, dtGilbert, N)
+  s.torque(m.data, h.data, s.Alpha, dtGilbert, N)
 }
 
 
