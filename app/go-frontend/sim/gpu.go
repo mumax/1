@@ -9,6 +9,7 @@ package sim
 #include "../../../core/gputorque.h"
 #include "../../../core/gpueuler.h"
 #include "../../../core/gpunormalize.h"
+#include "../../../core/timer.h"
 
 // to allow some (evil but neccesary) pointer arithmetic in go
 float* gpu_array_offset(float* array, int index){
@@ -126,22 +127,22 @@ func(d Gpu)  newArray(nFloats int) unsafe.Pointer{
 
 /// Copies a number of floats from host to GPU
 func(d Gpu)  memcpyTo(source *float, dest unsafe.Pointer, nFloats int){
-  C.memcpy_to_gpu((*_C_float)(unsafe.Pointer(source)), (*_C_float)(dest), _C_int(nFloats));
+  C.memcpy_to_gpu((*_C_float)(unsafe.Pointer(source)), (*_C_float)(dest), _C_int(nFloats))
 }
 
 /// Copies a number of floats from GPU to host
 func(d Gpu)  memcpyFrom(source unsafe.Pointer, dest *float, nFloats int){
-  C.memcpy_from_gpu((*_C_float)(source), (*_C_float)(unsafe.Pointer(dest)), _C_int(nFloats));
+  C.memcpy_from_gpu((*_C_float)(source), (*_C_float)(unsafe.Pointer(dest)), _C_int(nFloats))
 }
 
 /// Copies a number of floats from GPU to GPU
 func(d Gpu)  memcpyOn(source, dest unsafe.Pointer, nFloats int){
-  C.memcpy_gpu_to_gpu((*_C_float)(source), (*_C_float)(dest), _C_int(nFloats));
+  C.memcpy_gpu_to_gpu((*_C_float)(source), (*_C_float)(dest), _C_int(nFloats))
 }
 
 /// Gets one float from a GPU array
 func(d Gpu)  arrayGet(array unsafe.Pointer, index int) float{
-  return float(C.gpu_array_get((*_C_float)(array), _C_int(index)));
+  return float(C.gpu_array_get((*_C_float)(array), _C_int(index)))
 }
 
 func(d Gpu)  arraySet(array unsafe.Pointer, index int, value float){
@@ -156,7 +157,7 @@ func(d Gpu)  arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer{
 
 /// The GPU stride in number of floats (!)
 func(d Gpu) Stride() int{
-  return int(C.gpu_stride_float());
+  return int(C.gpu_stride_float())
 }
 
 /// Takes an array size and returns the smallest multiple of Stride() where the array size fits in
@@ -166,23 +167,29 @@ func(d Gpu) Stride() int{
 
 /// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
 func(d Gpu) overrideStride(nFloats int){
-  C.gpu_override_stride(_C_int(nFloats));
+  C.gpu_override_stride(_C_int(nFloats))
 }
 
 //___________________________________________________________________________________________________ tensor utilities
 
 /// Overwrite n floats with zeros
 func(d Gpu) zero(data unsafe.Pointer, nFloats int){
-  C.gpu_zero((*_C_float)(data), _C_int(nFloats));
+  C.gpu_zero((*_C_float)(data), _C_int(nFloats))
 }
 
 
 
 /// Print the GPU properties to stdout
 func(d Gpu) PrintProperties(){
-  C.print_device_properties_stdout();
+  C.print_device_properties_stdout()
 }
 
+//___________________________________________________________________________________________________ misc
+
+// TODO does not really belong here but not worth making a new cgo file
+func PrintTimer(){
+  C.timer_printdetail()
+}
 
 //___________________________________________________________________________________________________ go utilities
 

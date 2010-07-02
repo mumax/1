@@ -43,36 +43,40 @@ extern "C" {
 
 /** Starts the timer for the tag */
 void timer_start(const char* tag	///< identifies what is being timed
-		 );
+);
+
 /** Stops the timer for the tag */
 void timer_stop (const char* tag	///< identifies what is being timed
-		);
+);
+
 /** Returns the time in seconds. timer_stop() should be called first. */
 double timer_get(const char* tag	///< identifies what is being timed
-		);
+);
+
 /** Prints the time to stderr with format: "tag: xxx s" */
 void timer_print(const char* tag	///< identifies what is being timed
-		);
+);
+
 /** Prints all the timers that are registered */
 void timer_printall(void);
 
 /**
- * Like timer_printall(), but also prints percentages of the total time.
- */
+* Like timer_printall(), but also prints percentages of the total time.
+*/
 void timer_printdetail(void);
 
 /** 
- * The time elapsed between the first timer_start() and the last timer_stop() call.
- * If all went well, this should be approximately equal to timer_accumulatedtime().
- */
+* The time elapsed between the first timer_start() and the last timer_stop() call.
+* If all went well, this should be approximately equal to timer_accumulatedtime().
+*/
 double timer_elapsedtime(void);
 
 /** 
- * The sum of registered times by all tags.
- * If all went well, this should be approximately equal to timer_totaltime().
- * If it is significantly smaller, important portions of the code have probably not been timed,
- * if it is significantly larger, portions may have been double-timed.
- */
+* The sum of registered times by all tags.
+* If all went well, this should be approximately equal to timer_totaltime().
+* If it is significantly smaller, important portions of the code have probably not been timed,
+* if it is significantly larger, portions may have been double-timed.
+*/
 double timer_accumulatedtime(void);
 
 #ifdef __cplusplus
