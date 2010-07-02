@@ -21,8 +21,11 @@ func main(){
   
   dt := 0.1E-15 / mat.UnitTime()
   
-  _ = NewEuler(dev, magnet, dt)
-  
+  solver := NewEuler(dev, magnet, dt)
+
+  for i:=0; i<10; i++{
+    solver.Step()
+  }
   TimerPrintDetail()
 }
 

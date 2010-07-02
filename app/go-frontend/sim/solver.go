@@ -16,8 +16,8 @@ type Solver struct{
 func NewSolver(dev Backend, mag *Magnet) *Solver{
   solver := new(Solver)
 
-  solver.m = NewTensor(dev, mag.Size())
-  solver.h = NewTensor(dev, mag.Size())
+  solver.m = NewTensor(dev, Size4D(mag.Size()))
+  solver.h = NewTensor(dev, Size4D(mag.Size()))
   solver.Field = *NewField(dev, mag)
 
   return solver

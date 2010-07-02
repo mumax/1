@@ -21,7 +21,7 @@ GOFILES=\
 	material.go\
 	magnet.go\
 	config.go\
-	assert.go\
+	util.go\
 
 CGO_LDFLAGS+=$(CURDIR)/../../../core/core.so
 
