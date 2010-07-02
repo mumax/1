@@ -39,6 +39,6 @@ func(f *Field) CalcHeff(m, h *Tensor){
 
 
 func(f *Field) String() string{
-  return "Field\n"
+  return "Field:\n" + f.Magnet.String()
 }
 

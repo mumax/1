@@ -35,22 +35,22 @@ func Size3D(size4D []int) []int{
   return size3D
 }
 
-var verbosity int = 3
+var Verbosity int = 3
 
 func Debug(msg ... interface{}){
-  if verbosity > 0 {
+  if Verbosity > 0 {
     fmt.Fprintln(os.Stderr, msg)
   }
 }
 
 func Debugv(msg ... interface{}){
-  if verbosity > 1{
+  if Verbosity > 1{
     Debug(msg)
   }
 }
 
 func Debugvv(msg ... interface{}){
-    if verbosity > 2{
+    if Verbosity > 2{
     Debug(msg)
   }
 }

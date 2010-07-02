@@ -2,6 +2,7 @@ package sim
 
 import(
   "tensor"
+  "fmt"
 )
 
 // Solver contains common code of all concrete solvers,
@@ -24,17 +25,13 @@ func NewSolver(dev Backend, mag *Magnet) *Solver{
   return solver
 }
 
-
-func(s *Solver) String() string{
-  return "Solver\n" + s.Field.String()
-}
-
 func(s *Solver) M() *Tensor{
   return s.m
 }
 
 // TODO do not pass alpha
 func(s *Solver) Torque(m, h *Tensor, dtGilbert float){
+  Debugvv( "Solver.Torque()" )
   assert(len(m.size) == 4)
   assert(tensor.EqualSize(m.size, h.size))
   
@@ -44,6 +41,7 @@ func(s *Solver) Torque(m, h *Tensor, dtGilbert float){
 
 
 func(s *Solver) Normalize(m *Tensor){
+  Debugvv( "Solver.Normalize()" )
   assert(len(m.size) == 4)
 
   N := m.size[1] * m.size[2] * m.size[3]
@@ -52,6 +50,7 @@ func(s *Solver) Normalize(m *Tensor){
 
 
 func(s *Solver) EulerStage(m, torque *Tensor){
+  Debugvv( "Solver.EulerStage()" )
   assert(len(m.size) == 4)
   assert(tensor.EqualSize(m.size, torque.size))
 
@@ -60,3 +59,10 @@ func(s *Solver) EulerStage(m, torque *Tensor){
  
 }
 
+func(s *Solver) String() string{
+  str := "Solver:\n"
+  str += fmt.Sprintln("dt:", s.dt * s.UnitTime(), "s")
+  str += s.Field.String()
+  str += "--\n"
+  return str
+}

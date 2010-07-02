@@ -2,7 +2,6 @@ package sim
 
 import(
   "fmt"
-  "io"
 )
 
 
@@ -19,6 +18,7 @@ func NewMagnet(mat *Material, size []int, cellSize []float) *Magnet{
   return &Magnet{*mat, size, cellSize}
 }
 
+
 func(mag *Magnet) Size() []int {
   return mag.size
 }
@@ -29,24 +29,24 @@ func(mag *Magnet) CellSize() []float {
 }
 
 
-func(mag *Magnet) PrintGeom(out io.Writer){   ///@todo String()
-  //fmt.Fprintln(out, "Geometry");
-  fmt.Fprintln(out, "Grid Size  : \t", mag.size);
-  fmt.Fprint(out, "Cell Size  : \t");
+func(mag *Magnet) String() string{
+  s := "Magnet:\n"
+  s += mag.Material.String()
+  s += fmt.Sprintln("Grid Size  : \t", mag.size);
+  s += fmt.Sprint("Cell Size  : \t");
   for i:=range(mag.cellSize){
-    fmt.Fprint(out, mag.UnitLength() * mag.cellSize[i], " ");
+    s += fmt.Sprint(mag.UnitLength() * mag.cellSize[i], " ");
   }
-  fmt.Fprint(out, "(m), (");
+  s += fmt.Sprint("(m), (");
    for i:=range(mag.cellSize){
-    fmt.Fprint(out, mag.cellSize[i], " ");
+    s += fmt.Sprint(mag.cellSize[i], " ");
   }
-  fmt.Fprintln(out, "exch. lengths)");
+  s += fmt.Sprintln("exch. lengths)");
 
-  fmt.Fprint(out, "Sim Size   : \t ");
+  s += fmt.Sprint("Sim Size   : \t ");
   for i:=range(mag.size){
-    fmt.Fprint(out, float(mag.size[i]) * mag.UnitLength() * mag.cellSize[i], " ");
+    s += fmt.Sprint(float(mag.size[i]) * mag.UnitLength() * mag.cellSize[i], " ");
   }
-  fmt.Fprintln(out, "(m)");
+  s += fmt.Sprintln("(m)");
+  return s
 }
-
-

@@ -3,7 +3,6 @@ package sim
 import(
   . "math"
   "fmt"
-  "io"
 )
 
 type Material struct{
@@ -26,16 +25,17 @@ func NewMaterial() *Material{
 }
 
 /** Prints some human-readable information to the screen. */
-func (mat *Material) String(out io.Writer) {
-  //fmt.Fprintln(out, "Material parameters");
-  fmt.Fprintln(out, "AExch      : \t", mat.AExch, " J/m")
-  fmt.Fprintln(out, "MSat       : \t", mat.MSat, " A/m")
-  fmt.Fprintln(out, "Gamma0      : \t", mat.Gamma0, " m/As")
-  fmt.Fprintln(out, "Mu0     : \t", mat.Mu0, " N/A^2")
-  fmt.Fprintln(out, "exch length: \t", mat.UnitLength(), " m")
-  fmt.Fprintln(out, "unit time  : \t", mat.UnitTime(), " s")
-  fmt.Fprintln(out, "unit energy: \t", mat.UnitEnergy(), " J")
-  fmt.Fprintln(out, "unit field: \t", mat.UnitField(), " T")
+func (mat *Material) String() string{
+  s := "Material:\n"
+  s += fmt.Sprintln("AExch      : \t", mat.AExch, " J/m")
+  s += fmt.Sprintln("MSat       : \t", mat.MSat, " A/m")
+  s += fmt.Sprintln("Gamma0     : \t", mat.Gamma0, " m/As")
+  s += fmt.Sprintln("Mu0        : \t", mat.Mu0, " N/A^2")
+  s += fmt.Sprintln("exch length: \t", mat.UnitLength(), " m")
+  s += fmt.Sprintln("unit time  : \t", mat.UnitTime(), " s")
+  s += fmt.Sprintln("unit energy: \t", mat.UnitEnergy(), " J")
+  s += fmt.Sprintln("unit field : \t", mat.UnitField(), " T")
+  return s
 }
 
 /*
