@@ -25,6 +25,7 @@ type Backend struct{
 
 
 func(b Backend) OverrideStride(stride int){
+  Debugv( "Backend.OverrideStride(", stride, ")" )
   assert(stride > 0 || stride == -1)
   b.overrideStride(stride)
 }

@@ -37,19 +37,19 @@ func Size3D(size4D []int) []int{
 
 var verbosity int = 3
 
-func Debug(msg string){
+func Debug(msg ... interface{}){
   if verbosity > 0 {
-    fmt.Println(os.Stderr, msg)
+    fmt.Fprintln(os.Stderr, msg)
   }
 }
 
-func Debugv(msg string){
+func Debugv(msg ... interface{}){
   if verbosity > 1{
     Debug(msg)
   }
 }
 
-func Debugvv(msg string){
+func Debugvv(msg ... interface{}){
     if verbosity > 2{
     Debug(msg)
   }

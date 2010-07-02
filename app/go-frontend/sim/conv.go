@@ -39,7 +39,7 @@ func NewConv(backend Backend, dataSize []int, kernel []tensor.StoredTensor) *Con
 
 
 func (conv *Conv) Convolve(source, dest *Tensor){
-
+  Debugvv( "Conv.Convolve()" )
   assert(len(source.size) == 4)             // size checks
   assert(len(  dest.size) == 4)
   for i,s:= range conv.DataSize(){
