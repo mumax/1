@@ -3,7 +3,7 @@ package main
 import(
   . "sim"
   "tensor"
-  "strconv"
+  "fmt"
 )
 
 func main(){
@@ -21,7 +21,7 @@ func main(){
 
   magnet := NewMagnet(mat, size, cellsize)
   
-  dt := 0.1E-15 / mat.UnitTime()
+  dt := 0.01E-15 / mat.UnitTime()
   
   solver := NewEuler(dev, magnet, dt)
 
@@ -33,7 +33,7 @@ func main(){
   
   for i:=0; i<100; i++{
     TensorCopyFrom(solver.M(), m)
-    fname := "m" + strconv.Itoa(i) + ".t"
+    fname := "m" + fmt.Sprintf("%06d", i) + ".t"
     tensor.WriteFile(fname, m)
     for j:=0; j<100; j++{
       solver.Step()

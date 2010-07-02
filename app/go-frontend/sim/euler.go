@@ -7,7 +7,10 @@ import(
 // 1st order Euler method
 type Euler struct{
   Solver
-  
+}
+
+func(this *Euler) String(){
+  return "Euler\n" + this.Solver.String()
 }
 
 func NewEuler(dev Backend, mag *Magnet, dt float) *Euler{
@@ -29,6 +32,7 @@ func (this *Euler) Step(){
   torque := h
 
   this.EulerStage(m, torque)
+    this.Normalize(m)
 }
 
 
