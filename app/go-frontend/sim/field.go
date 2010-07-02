@@ -33,6 +33,7 @@ func NewField(dev Backend, mag *Magnet) *Field{
 
 // Calculates the effective field of m and stores it in h
 func(f *Field) CalcHeff(m, h *Tensor){
+  Debugvv("Field.CalcHeff()")
   f.Convolve(m, h)
 } 
 
