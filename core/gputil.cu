@@ -266,7 +266,7 @@ void _make1dconf(int N, unsigned int* gridSize, unsigned int* blockSize, int max
 
   ///// HACK ////
   if(maxBlockSize > 128){
-    fprintf(stderr, "WARING: using 128 as max block size! \n");
+    debugvv( fprintf(stderr, "WARNING: using 128 as max block size! \n") );
     maxBlockSize = 128;
   }
 

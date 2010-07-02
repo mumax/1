@@ -70,14 +70,6 @@ void gpu_kernel_mul_complex_inplace_symm(float* fftMx,  float* fftMy,  float* ff
    int blockSize = -1;
    make1dconf(nRealNumbers/2, &gridSize, &blockSize);
 
-   ///////////////////////////////:   HACK! ///////////////////:
-   //using less threads per block seems to do the trick
-/*   
-   blockSize /= 4;
-   gridSize *= 4;*/
-   
-   printf("gridsize = %d, blockSize = %d\n", gridSize, blockSize);
-   
   _gpu_kernel_mul_complex_inplace_symm<<<gridSize, blockSize>>>(
                                       fftMx,  fftMy,  fftMz, 
                                       fftKxx, fftKyy, fftKzz,
