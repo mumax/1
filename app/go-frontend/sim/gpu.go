@@ -186,6 +186,10 @@ func(d Gpu) PrintProperties(){
 
 //___________________________________________________________________________________________________ misc
 
+func(d Gpu) String() string{
+  return "GPU\n"
+}
+
 // TODO does not really belong here but not worth making a new cgo file
 func TimerPrintDetail(){
   C.timer_printdetail()

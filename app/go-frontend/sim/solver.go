@@ -25,6 +25,10 @@ func NewSolver(dev Backend, mag *Magnet) *Solver{
 }
 
 
+func(s *Solver) String() string{
+  return "Solver\n" + s.Field.String()
+}
+
 func(s *Solver) M() *Tensor{
   return s.m
 }

@@ -121,4 +121,5 @@ type Device interface{
   /// Print the GPU properties to stdout
   PrintProperties()
 
+  String() string
 }

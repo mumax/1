@@ -9,7 +9,7 @@ type Euler struct{
   Solver
 }
 
-func(this *Euler) String(){
+func(this *Euler) String() string{
   return "Euler\n" + this.Solver.String()
 }
 

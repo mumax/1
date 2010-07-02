@@ -43,3 +43,4 @@ func(b Backend)  PadToStride(nFloats int) int{
   assert(gpulen >= nFloats)
   return gpulen
 }
+
