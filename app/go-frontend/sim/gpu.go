@@ -187,7 +187,7 @@ func(d Gpu) PrintProperties(){
 //___________________________________________________________________________________________________ misc
 
 // TODO does not really belong here but not worth making a new cgo file
-func PrintTimer(){
+func TimerPrintDetail(){
   C.timer_printdetail()
 }
 
