@@ -2,6 +2,8 @@ package sim
 
 import(
   "log"
+  "os"
+  "fmt"
 )
 
 // crashes if the test is false
@@ -33,3 +35,6 @@ func Size3D(size4D []int) []int{
   return size3D
 }
 
+func Debug(msg string){
+  fmt.Println(os.Stderr, msg)
+}
