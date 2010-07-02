@@ -58,11 +58,14 @@ func (conv *Conv) Convolve(source, dest *Tensor){
   }
   
   for i:=0; i<3; i++{
+    ZeroTensor(buffer[i])
     CopyPad(mComp[i], buffer[i])
 //     fmt.Println("mPadded", i)
 //     tensor.Format(os.Stdout, buffer[i])
   }
+  
   //Sync
+  
   for i:=0; i<3; i++{
     conv.Forward(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
 //     fmt.Println("fftm", i)
@@ -106,12 +109,15 @@ func (conv *Conv) LoadKernel6(kernel []tensor.StoredTensor){
     if kernel[i] != nil{                    // nil means it would contain only zeros so we don't store it.
       conv.kernel[i] = NewTensor(conv.Backend, conv.PhysicSize())
 
+      
       tensor.CopyTo(kernel[i], buffer)
 
       for i:=range buffer.List(){
         buffer.List()[i] *= N
       }
-      
+
+      ZeroTensor(devbuf)
+      ZeroTensor(conv.kernel[i])
       TensorCopyTo(buffer, devbuf)
       CopyPad(devbuf, conv.kernel[i])   ///@todo padding should be done on host, not device, to save sim memory / avoid fragmentation
 
