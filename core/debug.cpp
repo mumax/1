@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-int _debug_verbosity = 3;   ///@todo default should be 1
+int _debug_verbosity = 1;   /// default is 1
 
 int debug_getverbosity(){
   return _debug_verbosity;

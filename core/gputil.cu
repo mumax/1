@@ -1,5 +1,6 @@
 #include "gputil.h"
 #include "timer.h"
+#include "debug.h"
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -20,26 +21,17 @@ int gpu_len(int size){
   return gpulen;
 }
 
+
 float* new_gpu_array(int size){
   assert(size > 0);
-//   int threadsPerBlock = 512;
-//   if(size % threadsPerBlock != 0){
-//     fprintf(stderr, "WARNING: new_gpu_array: size %% threadsPerBlock != 0\n");
-//   }
   float* array = NULL;
   gpu_safe( cudaMalloc((void**)(&array), size * sizeof(float)) );
-//   if(status != cudaSuccess){
-//     fprintf(stderr, "CUDA could not allocate %d floats\n", size);
-//     gpu_safe(status);
-//   }
+
   assert(array != NULL); // strange: it seems cuda can return 0 as a valid address?? 
   gpu_zero(array, size);
-//   if(array == 0){
-//      fprintf(stderr, "cudaMalloc(%p, %d) returned null without error status, retrying...\n", (void**)(&array), (int)(size * sizeof(float))); // (int) cast to resolve 32-bit vs. 64 bit problem...
-//     abort();
-//   }
   return array;
 }
+
 
 tensor* new_gputensor(int rank, int* size){
   int len = 1;
@@ -183,7 +175,7 @@ int gpu_stride_float(){
     gpu_safe( cudaMallocPitch((void**)&devPtr, &pitch, width * sizeof(float), height) );
     gpu_safe( cudaFree(devPtr) );
     _gpu_stride_float_cache = pitch / sizeof(float);
-    fprintf(stderr, "GPU stride: %d floats\n", _gpu_stride_float_cache);
+    debugv( fprintf(stderr, "GPU stride: %d floats\n", _gpu_stride_float_cache) );
   }
   return _gpu_stride_float_cache;
 }
@@ -191,7 +183,7 @@ int gpu_stride_float(){
 
 void gpu_override_stride(int nFloats){
   assert(nFloats > -2);
-  fprintf(stderr, "GPU stride overridden to %d floats\n", nFloats);
+  debugv( fprintf(stderr, "GPU stride overridden to %d floats\n", nFloats) );
   _gpu_stride_float_cache = nFloats;
 }
 
@@ -290,7 +282,7 @@ void _make1dconf(int N, unsigned int* gridSize, unsigned int* blockSize, int max
 //     *blockSize = N;
 //     *gridSize = 1;
 //   }
-  fprintf(stderr, "_make1dconf(%d): %d x %d\n", N, *gridSize, *blockSize);
+  debugv( fprintf(stderr, "_make1dconf(%d): %d x %d\n", N, *gridSize, *blockSize) );
   check1dconf(*gridSize, *blockSize);
   assert((*blockSize) * (*gridSize) == N);
   assert(*blockSize <= maxBlockSize);
@@ -329,10 +321,6 @@ void make3dconf(int N0, int N1, int N2, dim3* gridSize, dim3* blockSize ){
 	  
    check3dconf(*gridSize, *blockSize);
 }
-
-
-
-
 
 //_____________________________________________________________________________________________ device properties
 
