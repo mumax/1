@@ -43,11 +43,19 @@ type Gpu struct{
 
 //___________________________________________________________________________________________________ Time stepping
 
-func(d Gpu) deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int){
-  C.gpu_deltaM((*_C_float)(m), (*_C_float)(h), _C_float(alpha), _C_float(dtGilbert), _C_int(N))
+
+func(d Gpu) add(a, b unsafe.Pointer, N int){
+  C.gpu_add((*_C_float)(a), (*_C_float)(b), _C_int(N))
 }
 
+func(d Gpu) linearCombination(a, b unsafe.Pointer, weightA, weightB float, N int){
+  C.gpu_linear_combination((*_C_float)(a), (*_C_float)(b), _C_float(weightA), _C_float(weightB), _C_int(N))
+}
 
+func(d Gpu) addConstant(a unsafe.Pointer, cnst float, N int){
+  C.gpu_add_constant((*_C_float)(a), _C_float(cnst), _C_int(N))
+}
+  
 func(d Gpu) normalize(m unsafe.Pointer, N int){
   C.gpu_normalize_uniform((*_C_float)(m), _C_int(N))
 }
@@ -56,13 +64,8 @@ func(d Gpu) normalizeMap(m, normMap unsafe.Pointer, N int){
   C.gpu_normalize_map((*_C_float)(m), (*_C_float)(normMap), _C_int(N))
 }
 
-
-func(d Gpu) add(a, b unsafe.Pointer, N int){
-  C.gpu_add((*_C_float)(a), (*_C_float)(b), _C_int(N))
-}
-
-func(d Gpu) linearCombination(a, b unsafe.Pointer, weightA, weightB float, N int){
-  C.gpu_linear_combination((*_C_float)(a), (*_C_float)(b), _C_float(weightA), _C_float(weightB), _C_int(N))
+func(d Gpu) deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int){
+  C.gpu_deltaM((*_C_float)(m), (*_C_float)(h), _C_float(alpha), _C_float(dtGilbert), _C_int(N))
 }
 
 func(d Gpu) semianalStep(m, h unsafe.Pointer, dt, alpha float, N int){

@@ -37,16 +37,24 @@ import(
 type Device interface{
 
   //____________________________________________________________________ general purpose (use Backend safe wrappers)
-  
-  deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int)
 
-  normalize(m unsafe.Pointer, N int)
-
-  normalizeMap(m, normMap unsafe.Pointer, N int)
-
+  // adds b to a. N = length of a = length of b
   add(a, b unsafe.Pointer, N int)
 
+  // adds the constant cnst to a. N = length of a
+  addConstant(a unsafe.Pointer, cnst float, N int)
+  
+  // a = a * weightA + b * weightB
   linearCombination(a, b unsafe.Pointer, weightA, weightB float, N int)
+
+  // normalizes a vector field. N = length of one component
+  normalize(m unsafe.Pointer, N int)
+
+  // normalizes a vector field and multiplies with normMap. N = length of one component = length of normMap
+  normalizeMap(m, normMap unsafe.Pointer, N int)
+
+  // overwrites h with torque(m, h) * dtGilbert. N = length of one component
+  deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int)
 
 
   /// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride

@@ -58,6 +58,9 @@ void gpu_euler_stage(float* m, float* deltaM, int N);
 ///@internal
 void gpu_add(float* a, float* b, int N);
 
+///@internal
+void gpu_add_constant(float* a, float cnst, int N);
+
 
 
 #ifdef __cplusplus

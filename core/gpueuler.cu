@@ -36,6 +36,20 @@ void gpu_add(float* a, float* b, int N){
   timer_stop("add");
 }
 
+__global__ void _gpu_add_constant(float* a, float cnst){
+  int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
+  a[i] += cnst;
+}
+
+void gpu_add_constant(float* a, float cnst, int N){
+  int gridSize = -1, blockSize = -1;
+  make1dconf(N, &gridSize, &blockSize);
+  timer_start("add_constant");
+  _gpu_add_constant<<<gridSize, blockSize>>>(a, cnst);
+  cudaThreadSynchronize();
+  timer_stop("add_constant");
+}
+
 void gpu_euler_stage(float* m, float* torque, int N){
 
   int gridSize = -1, blockSize = -1;

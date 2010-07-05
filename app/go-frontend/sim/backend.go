@@ -36,7 +36,19 @@ func(dev Backend) LinearCombination(a, b *Tensor, weightA, weightB float){
   dev.linearCombination(a.data, b.data, weightA, weightB, tensor.N(a))
 }
 
+// adds the constant cnst to each element of a. N = length of a
+func(dev Backend) AddConstant(a *Tensor, cnst float){
+  dev.addConstant(a.data, cnst, tensor.N(a))
+}
 
+// // adds the constant vector cnst to each element a. len(cnst) == Size(a)[0]
+// func(dev Backend) AddVector(a *Tensor, cnst []float){
+//   assert(len(cnst) == a.size[0])
+//   for i:=range a.size{
+//     dev.addConstant(
+//   }
+// }
+  
 func(dev Backend) Normalize(m *Tensor){
   //Debugvv( "Backend.Normalize()" )
   assert(len(m.size) == 4)
