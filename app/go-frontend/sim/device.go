@@ -36,6 +36,8 @@ import(
  */
 type Device interface{
 
+  //____________________________________________________________________ general purpose (use Backend safe wrappers)
+  
   deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int)
 
   normalize(m unsafe.Pointer, N int)
@@ -46,6 +48,51 @@ type Device interface{
 
   linearCombination(a, b unsafe.Pointer, weightA, weightB float, N int)
 
+
+  /// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
+  overrideStride(nFloats int)
+
+
+  //____________________________________________________________________ tensor (safe wrappers in tensor.go)
+
+  
+  // Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
+  copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int)
+
+  //Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
+  copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int)
+
+ /**
+  * Allocates an array of floats on the GPU.
+  * By convention, GPU arrays are represented by an unsafe.Pointer,
+  * while host arrays are *float's.
+  * Initialized with zeros
+  */
+  newArray(nFloats int) unsafe.Pointer
+
+  /// Copies a number of floats from host to GPU
+  memcpyTo(source *float, dest unsafe.Pointer, nFloats int)
+
+  /// Copies a number of floats from GPU to host
+  memcpyFrom(source unsafe.Pointer, dest *float, nFloats int)
+
+  /// Copies a number of floats from GPU to GPU
+  memcpyOn(source, dest unsafe.Pointer, nFloats int)
+
+  /// Gets one float from a GPU array
+  arrayGet(array unsafe.Pointer, index int) float
+
+  arraySet(array unsafe.Pointer, index int, value float)
+
+  arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer
+
+  /// Overwrite n floats with zeros
+  zero(data unsafe.Pointer, nFloats int)
+
+  
+  //____________________________________________________________________ specialized (used in only one place)
+
+  
   semianalStep(m, h unsafe.Pointer, dt, alpha float, N int)
   
   // In-place kernel multiplication (m gets overwritten by h).
@@ -73,13 +120,6 @@ type Device interface{
   // TODO
   // kernelMul3(my, mz, kyy, kzz, kyz unsafe.Pointer, nRealNumbers int)
 
-
-  // Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
-  copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int)
-
-  //Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
-  copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int)
-
   // unsafe creation of C fftPlan
   newFFTPlan(dataSize, logicSize []int) unsafe.Pointer
 
@@ -89,38 +129,10 @@ type Device interface{
   // unsafe FFT
   fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer)
 
-  /**
-  * Allocates an array of floats on the GPU.
-  * By convention, GPU arrays are represented by an unsafe.Pointer,
-  * while host arrays are *float's.
-  * Initialized with zeros
-  */
-  newArray(nFloats int) unsafe.Pointer
-
-  /// Copies a number of floats from host to GPU
-  memcpyTo(source *float, dest unsafe.Pointer, nFloats int)
-
-  /// Copies a number of floats from GPU to host
-  memcpyFrom(source unsafe.Pointer, dest *float, nFloats int)
-
-  /// Copies a number of floats from GPU to GPU
-  memcpyOn(source, dest unsafe.Pointer, nFloats int)
-
-  /// Gets one float from a GPU array
-  arrayGet(array unsafe.Pointer, index int) float
-
-  arraySet(array unsafe.Pointer, index int, value float)
-
-  arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer
+  //______________________________________________________________________________ already safe
 
   /// The GPU stride in number of floats (!)
   Stride() int
-
-  /// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
-  overrideStride(nFloats int)
-
-  /// Overwrite n floats with zeros
-  zero(data unsafe.Pointer, nFloats int)
 
   /// Print the GPU properties to stdout
   PrintProperties()
