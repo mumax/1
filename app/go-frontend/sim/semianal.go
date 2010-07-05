@@ -5,15 +5,13 @@ import(
 
 
 type SemiAnal struct{
-  Solver
+  dt float
+  Field
 }
 
 
 func NewSemiAnal(dev Backend, mag *Magnet, dt float) *SemiAnal{
-  this := new(SemiAnal)
-  this.Solver = *NewSolver(dev, mag)
-  this.dt = dt
-  return this
+  return &SemiAnal{dt, *NewField(dev, mag)}
 }
 
 
@@ -29,5 +27,5 @@ func (this *SemiAnal) Step(){
 
 
 func(this *SemiAnal) String() string{
-  return "SemiAnal" + this.Solver.String() + "--\n"
+  return "SemiAnal" + this.Field.String() + "--\n"
 }

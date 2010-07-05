@@ -6,13 +6,14 @@ import(
 
 type Heun struct{
   m0, torque0 *Tensor
-  Solver
+  dt float
+  Field
 }
 
 
 func NewHeun(dev Backend, mag *Magnet, dt float) *Heun{
   this := new(Heun)
-  this.Solver = *NewSolver(dev, mag)
+  this.Field = *NewField(dev, mag)
   this.dt = dt
   this.m0 = NewTensor(dev, mag.Size4D())
   this.torque0 = NewTensor(dev, mag.Size4D())
@@ -28,12 +29,12 @@ func (this *Heun) Step(){
   TensorCopyOn(this.m, this.m0)
   
   this.CalcHeff(this.m0, this.torque0)
-  this.Torque(this.m0, this.torque0, 0.5 * gilbertdt)
+  this.DeltaM(this.m0, this.torque0, this.Alpha, 0.5 * gilbertdt)
   this.Add(this.m0, this.torque0)
   this.Normalize(this.m0)
 
   this.CalcHeff(this.m0, this.h)
-  this.Torque(this.m0, this.h, gilbertdt)
+  this.DeltaM(this.m0, this.h, this.Alpha, gilbertdt)
   this.LinearCombination(this.h, this.torque0, 0.5, 0.5)
   this.Add(this.m, this.torque0)
   this.Normalize(this.m)
@@ -41,5 +42,5 @@ func (this *Heun) Step(){
 
 
 func(this *Heun) String() string{
-  return "Heun" + this.Solver.String() + "--\n"
+  return "Heun" + this.Field.String() + "--\n"
 }

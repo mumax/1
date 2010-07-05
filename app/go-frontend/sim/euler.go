@@ -6,20 +6,19 @@ import(
 
 // 1st order Euler method
 type Euler struct{
-  Solver
+  dt float
+  Field
 }
 
 func(this *Euler) String() string{
-  return "Euler" + this.Solver.String() + "--\n"
+  return "Euler" + this.Field.String() + "--\n"
 }
 
 func NewEuler(dev Backend, mag *Magnet, dt float) *Euler{
-  euler := new(Euler)
-  
-  euler.Solver = *NewSolver(dev, mag)
-  euler.dt = dt
-  
-  return euler
+  this := new(Euler)
+  this.Field = *NewField(dev, mag)
+  this.dt = dt
+  return this
 }
 
 func (this *Euler) Step(){
@@ -29,10 +28,10 @@ func (this *Euler) Step(){
 
   this.Normalize(m)
   this.CalcHeff(this.m, this.h)
-  this.Torque(m, h, dt/(1+alpha*alpha))
-  torque := h
+  this.DeltaM(m, h, alpha, dt/(1+alpha*alpha))
+  deltaM := h // h is overwritten by deltaM
 
-  this.Add(m, torque)
+  this.Add(m, deltaM)
   this.Normalize(m)
 }
 

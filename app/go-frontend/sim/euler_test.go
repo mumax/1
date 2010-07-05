@@ -15,7 +15,7 @@ func TestEuler(t *testing.T){
   mat.MSat = 800E3
   mat.AExch = 1.1E-13
   mat.Alpha = 1.0
-  magnet := NewMagnet(mat, size, cellsize)
+  magnet := NewMagnet(dev, mat, size, cellsize)
   //field := NewField(dev, magnet) // to be constructed by solver
   
   _ = NewEuler(dev, magnet, dt)

@@ -34,6 +34,19 @@ func(dev Backend) LinearCombination(a, b *Tensor, weightA, weightB float){
   dev.linearCombination(a.data, b.data, weightA, weightB, tensor.N(a))
 }
 
+func(dev Backend) Normalize(m *Tensor){
+  //Debugvv( "Backend.Normalize()" )
+  assert(len(m.size) == 4)
+  N := m.size[1] * m.size[2] * m.size[3]
+  dev.normalize(m.data, N)
+}
+
+func(dev Backend) DeltaM(m, h *Tensor, alpha, dtGilbert float){
+  assert(len(m.size) == 4)
+  assert(tensor.EqualSize(m.size, h.size))
+  N := m.size[1] * m.size[2] * m.size[3]
+  dev.deltaM(m.data, h.data, alpha, dtGilbert, N)
+}
 
 func(b Backend) OverrideStride(stride int){
   Debugv( "Backend.OverrideStride(", stride, ")" )

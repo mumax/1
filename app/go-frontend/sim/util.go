@@ -13,6 +13,7 @@ func assert(test bool){
   }
 }
 
+
 // puts a 3 in front of the array
 func Size4D(size3D []int) []int{
   assert(len(size3D) == 3)
@@ -23,6 +24,7 @@ func Size4D(size3D []int) []int{
   }
   return size4D
 }
+
 
 // removes the 3 in front of the array
 func Size3D(size4D []int) []int{
@@ -35,6 +37,7 @@ func Size3D(size4D []int) []int{
   return size3D
 }
 
+
 var Verbosity int = 3
 
 func Debug(msg ... interface{}){
@@ -43,11 +46,13 @@ func Debug(msg ... interface{}){
   }
 }
 
+
 func Debugv(msg ... interface{}){
   if Verbosity > 1{
     Debug(msg)
   }
 }
+
 
 func Debugvv(msg ... interface{}){
     if Verbosity > 2{

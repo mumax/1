@@ -10,12 +10,14 @@ type Magnet struct{
   Material
   size []int        // Mesh Size, e.g. 4x64x64
   cellSize []float  // Cell Size in exchange lengths, e.g. 0.5 x 0.5 x 1.2
-
+  m, h *Tensor
+  
 }
 
 
-func NewMagnet(mat *Material, size []int, cellSize []float) *Magnet{
-  return &Magnet{*mat, size, cellSize}
+func NewMagnet(dev Backend, mat *Material, size []int, cellSize []float) *Magnet{
+  m, h := NewTensor(dev, Size4D(size)), NewTensor(dev, Size4D(size));
+  return &Magnet{*mat, size, cellSize, m, h}
 }
 
 
