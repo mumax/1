@@ -28,6 +28,7 @@ func NewTensor(b Backend, size []int) *Tensor{
     length *= size[i]
   }
   t.data = b.newArray(length)
+  ZeroTensor(t)
   return t
 }
 
