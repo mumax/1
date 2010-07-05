@@ -23,6 +23,10 @@ func(mag *Magnet) Size() []int {
   return mag.size
 }
 
+func(mag *Magnet) Size4D() []int {
+  return Size4D(mag.size)
+}
+
 func(mag *Magnet) NSpins() int{
   return mag.size[X] * mag.size[Y] * mag.size[Z]
 }

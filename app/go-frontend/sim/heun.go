@@ -12,10 +12,10 @@ type Heun struct{
 
 func NewHeun(dev Backend, mag *Magnet, dt float) *Heun{
   this := new(Heun)
-  this.m0 = NewTensor(dev, mag.Size())
-  this.torque0 = NewTensor(dev, mag.Size())
   this.Solver = *NewSolver(dev, mag)
   this.dt = dt
+  this.m0 = NewTensor(dev, mag.Size4D())
+  this.torque0 = NewTensor(dev, mag.Size4D())
   return this
 }
 
