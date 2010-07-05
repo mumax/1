@@ -42,8 +42,11 @@ type Device interface{
 
   normalizeMap(m, normMap unsafe.Pointer, N int)
 
+  // TODO rename add()
   eulerStage(m, torque unsafe.Pointer, N int)
 
+  semianalStep(m, h unsafe.Pointer, dt, alpha float, N int)
+  
   // In-place kernel multiplication (m gets overwritten by h).
   // The kernel is symmetric so only 6 of the 9 components need to be passed (xx, yy, zz, yz, xz, xy).
   // The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
