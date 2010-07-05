@@ -42,6 +42,9 @@ func(mag *Magnet) CellSize() []float {
   return mag.cellSize
 }
 
+func(mag *Magnet) M() *Tensor{
+  return mag.m
+}
 
 func(mag *Magnet) String() string{
   s := "Magnet:\n"

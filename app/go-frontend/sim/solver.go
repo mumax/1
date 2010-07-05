@@ -25,9 +25,7 @@ package sim
 //   return solver
 // }
 // 
-// func(s *Solver) M() *Tensor{
-//   return s.m
-// }
+
 // 
 // // // TODO do not pass alpha
 // // func(s *Solver) Torque(m, h *Tensor, dtGilbert float){

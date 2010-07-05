@@ -20,11 +20,11 @@ func main(){
   L := mat.UnitLength()
   cellsize := []float{3E-9 / L, 3.90625E-9 / L, 3.90625E-9 / L}
 
-  magnet := NewMagnet(mat, size, cellsize)
+  magnet := NewMagnet(dev, mat, size, cellsize)
   
   dt := 0.1E-12 / mat.UnitTime()
   
-  solver := NewHeun(dev, magnet, dt)
+  solver := NewSemiAnal(dev, magnet, dt)
 
   fmt.Println(solver)
 
