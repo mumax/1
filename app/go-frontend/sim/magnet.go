@@ -11,13 +11,18 @@ type Magnet struct{
   size []int        // Mesh Size, e.g. 4x64x64
   cellSize []float  // Cell Size in exchange lengths, e.g. 0.5 x 0.5 x 1.2
   m, h *Tensor
-  
+  mComp, hComp [3]*Tensor
 }
 
 
 func NewMagnet(dev Backend, mat *Material, size []int, cellSize []float) *Magnet{
   m, h := NewTensor(dev, Size4D(size)), NewTensor(dev, Size4D(size));
-  return &Magnet{*mat, size, cellSize, m, h}
+  mComp, hComp := [3]*Tensor{}, [3]*Tensor{}
+  for i:=range mComp{
+    mComp[i] = m.Component(i)
+    hComp[i] = h.Component(i)
+  }
+  return &Magnet{*mat, size, cellSize, m, h, mComp, hComp}
 }
 
 
