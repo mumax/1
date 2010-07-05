@@ -22,18 +22,20 @@ func NewHeun(dev Backend, mag *Magnet, dt float) *Heun{
 
 func (this *Heun) Step(){
   Debugvv( "Heun.Step()" )
-
+  gilbertdt := this.dt/(1+this.Alpha*this.Alpha)
+  
   this.Normalize(this.m)
   TensorCopyOn(this.m, this.m0)
   
-  this.CalcHeff(this.m, this.torque0)
-  this.Torque(this.m, this.torque0, 0.5 * this.dt/(1+alpha*alpha))
-  this.EulerStage(m, this.torque0)
-  this.Normalize(this.m)
+  this.CalcHeff(this.m0, this.torque0)
+  this.Torque(this.m0, this.torque0, 0.5 * gilbertdt)
+  this.EulerStage(this.m0, this.torque0)
+  this.Normalize(this.m0)
 
-  this.CalcHeff(this.m, this.h)
-  this.Torque(this.m, this.h, this.dt/(1+alpha*alpha))
-  this.EulerStage(m, )
+  this.CalcHeff(this.m0, this.h)
+  this.Torque(this.m0, this.h, gilbertdt)
+  this.linearCombination(this.h.data, this.torque0.data, 0.5, 0.5, this.NFloats())
+  this.EulerStage(this.m, this.torque0)
   this.Normalize(this.m)
 }
 

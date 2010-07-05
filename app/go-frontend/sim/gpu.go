@@ -8,6 +8,7 @@ package sim
 #include "../../../core/gpuconv2.h"
 #include "../../../core/gputorque.h"
 #include "../../../core/gpueuler.h"
+#include "../../../core/gpuheun.h"
 #include "../../../core/gpu_anal.h"
 #include "../../../core/gpunormalize.h"
 #include "../../../core/timer.h"
@@ -58,6 +59,10 @@ func(d Gpu) normalizeMap(m, normMap unsafe.Pointer, N int){
 
 func(d Gpu) eulerStage(m, torque unsafe.Pointer, N int){
   C.gpu_euler_stage((*_C_float)(m), (*_C_float)(torque), _C_int(N))
+}
+
+func(d Gpu) linearCombination(a, b unsafe.Pointer, weightA, weightB float, N int){
+  C.gpu_linear_combination((*_C_float)(a), (*_C_float)(b), _C_float(weightA), _C_float(weightB), _C_int(N))
 }
 
 func(d Gpu) semianalStep(m, h unsafe.Pointer, dt, alpha float, N int){

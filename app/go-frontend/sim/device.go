@@ -45,6 +45,8 @@ type Device interface{
   // TODO rename add()
   eulerStage(m, torque unsafe.Pointer, N int)
 
+  linearCombination(a, b unsafe.Pointer, weightA, weightB float, N int)
+
   semianalStep(m, h unsafe.Pointer, dt, alpha float, N int)
   
   // In-place kernel multiplication (m gets overwritten by h).
