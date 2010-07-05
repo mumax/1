@@ -57,8 +57,8 @@ func(d Gpu) normalizeMap(m, normMap unsafe.Pointer, N int){
 }
 
 
-func(d Gpu) eulerStage(m, torque unsafe.Pointer, N int){
-  C.gpu_euler_stage((*_C_float)(m), (*_C_float)(torque), _C_int(N))
+func(d Gpu) add(a, b unsafe.Pointer, N int){
+  C.gpu_add((*_C_float)(a), (*_C_float)(b), _C_int(N))
 }
 
 func(d Gpu) linearCombination(a, b unsafe.Pointer, weightA, weightB float, N int){

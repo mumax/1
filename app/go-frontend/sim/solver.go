@@ -55,7 +55,7 @@ func(s *Solver) EulerStage(m, torque *Tensor){
   assert(tensor.EqualSize(m.size, torque.size))
 
   N := m.size[1] * m.size[2] * m.size[3]
-  s.eulerStage(m.data, torque.data, N)
+  s.add(m.data, torque.data, N)
  
 }
 

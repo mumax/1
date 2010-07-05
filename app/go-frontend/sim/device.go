@@ -42,8 +42,7 @@ type Device interface{
 
   normalizeMap(m, normMap unsafe.Pointer, N int)
 
-  // TODO rename add()
-  eulerStage(m, torque unsafe.Pointer, N int)
+  add(a, b unsafe.Pointer, N int)
 
   linearCombination(a, b unsafe.Pointer, weightA, weightB float, N int)
 

@@ -32,7 +32,7 @@ func (this *Euler) Step(){
   this.Torque(m, h, dt/(1+alpha*alpha))
   torque := h
 
-  this.EulerStage(m, torque)
+  this.Add(m, torque)
   this.Normalize(m)
 }
 

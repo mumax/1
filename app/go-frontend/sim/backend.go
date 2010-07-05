@@ -1,7 +1,7 @@
 package sim
 
 import(
-
+  "tensor"
 )
 
 /**
@@ -23,6 +23,10 @@ type Backend struct{
 
 //_________________________________________________________________________ safe wrappers for Device methods
 
+func(dev Backend) Add(a, b *Tensor){
+  assert(tensor.EqualSize(a.size, b.size))
+  dev.add(a.data, b.data, tensor.N(a))
+}
 
 func(b Backend) OverrideStride(stride int){
   Debugv( "Backend.OverrideStride(", stride, ")" )

@@ -21,6 +21,21 @@ __global__ void _gpu_euler_stage(float* mx, float* my, float* mz,
   
 }
 
+
+__global__ void _gpu_add(float* a, float* b){
+  int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
+  a[i] += b[i];
+}
+
+void gpu_add(float* a, float* b, int N){
+  int gridSize = -1, blockSize = -1;
+  make1dconf(N, &gridSize, &blockSize);
+  timer_start("add");
+  _gpu_add<<<gridSize, blockSize>>>(a, b);
+  cudaThreadSynchronize();
+  timer_stop("add");
+}
+
 void gpu_euler_stage(float* m, float* torque, int N){
 
   int gridSize = -1, blockSize = -1;
