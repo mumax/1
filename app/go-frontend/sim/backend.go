@@ -28,6 +28,13 @@ func(dev Backend) Add(a, b *Tensor){
   dev.add(a.data, b.data, tensor.N(a))
 }
 
+
+func(dev Backend) LinearCombination(a, b *Tensor, weightA, weightB float){
+  assert(tensor.EqualSize(a.size, b.size))
+  dev.linearCombination(a.data, b.data, weightA, weightB, tensor.N(a))
+}
+
+
 func(b Backend) OverrideStride(stride int){
   Debugv( "Backend.OverrideStride(", stride, ")" )
   assert(stride > 0 || stride == -1)

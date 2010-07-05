@@ -49,15 +49,15 @@ func(s *Solver) Normalize(m *Tensor){
 }
 
 
-func(s *Solver) EulerStage(m, torque *Tensor){
-  Debugvv( "Solver.EulerStage()" )
-  assert(len(m.size) == 4)
-  assert(tensor.EqualSize(m.size, torque.size))
-
-  N := m.size[1] * m.size[2] * m.size[3]
-  s.add(m.data, torque.data, N)
- 
-}
+// func(s *Solver) EulerStage(m, torque *Tensor){
+//   Debugvv( "Solver.EulerStage()" )
+//   assert(len(m.size) == 4)
+//   assert(tensor.EqualSize(m.size, torque.size))
+// 
+//   N := m.size[1] * m.size[2] * m.size[3]
+//   s.add(m.data, torque.data, N)
+//  
+// }
 
 func(s *Solver) String() string{
   str := "Solver:\n"

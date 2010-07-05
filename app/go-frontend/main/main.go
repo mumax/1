@@ -24,7 +24,7 @@ func main(){
   
   dt := 0.1E-12 / mat.UnitTime()
   
-  solver := NewEuler(dev, magnet, dt)
+  solver := NewHeun(dev, magnet, dt)
 
   fmt.Println(solver)
 

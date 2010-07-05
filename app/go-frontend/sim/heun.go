@@ -29,13 +29,13 @@ func (this *Heun) Step(){
   
   this.CalcHeff(this.m0, this.torque0)
   this.Torque(this.m0, this.torque0, 0.5 * gilbertdt)
-  this.EulerStage(this.m0, this.torque0)
+  this.Add(this.m0, this.torque0)
   this.Normalize(this.m0)
 
   this.CalcHeff(this.m0, this.h)
   this.Torque(this.m0, this.h, gilbertdt)
-  this.linearCombination(this.h.data, this.torque0.data, 0.5, 0.5, this.NFloats())
-  this.EulerStage(this.m, this.torque0)
+  this.LinearCombination(this.h, this.torque0, 0.5, 0.5)
+  this.Add(this.m, this.torque0)
   this.Normalize(this.m)
 }
 

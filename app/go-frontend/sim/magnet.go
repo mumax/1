@@ -30,10 +30,10 @@ func(mag *Magnet) Size4D() []int {
 func(mag *Magnet) NSpins() int{
   return mag.size[X] * mag.size[Y] * mag.size[Z]
 }
-
-func(mag *Magnet) NFloats() int{
-  return 3*mag.NSpins()
-}
+// 
+// func(mag *Magnet) NFloats() int{
+//   return 3*mag.NSpins()
+// }
 
 
 func(mag *Magnet) CellSize() []float {
