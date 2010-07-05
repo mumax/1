@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-__global__ void _gpu_torque(float* mx, float* my, float* mz, float* hx, float* hy, float* hz, float alpha, float dt_gilb){
+__global__ void _gpu_deltaM(float* mx, float* my, float* mz, float* hx, float* hy, float* hz, float alpha, float dt_gilb){
 
   int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
 
@@ -24,7 +24,7 @@ __global__ void _gpu_torque(float* mx, float* my, float* mz, float* hx, float* h
   
 }
 
-void gpu_torque(float* m, float* h, float alpha, float dt_gilb, int N){
+void gpu_deltaM(float* m, float* h, float alpha, float dt_gilb, int N){
 
   int gridSize = -1, blockSize = -1;
   make1dconf(N, &gridSize, &blockSize);
@@ -39,7 +39,7 @@ void gpu_torque(float* m, float* h, float alpha, float dt_gilb, int N){
 
   
   timer_start("torque");
-  _gpu_torque<<<gridSize, blockSize>>>(mx, my, mz, hx, hy, hz, alpha, dt_gilb);
+  _gpu_deltaM<<<gridSize, blockSize>>>(mx, my, mz, hx, hy, hz, alpha, dt_gilb);
   cudaThreadSynchronize();
   timer_stop("torque");
 }

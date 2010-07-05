@@ -16,8 +16,8 @@
 extern "C" {
 #endif
 
-/// Overwrites h with torque(m, h)
-void gpu_torque(float* m,       ///< magnetization (all 3 components, contiguously)
+/// Overwrites h with deltaM(m, h)
+void gpu_deltaM(float* m,       ///< magnetization (all 3 components, contiguously)
                 float* h,       ///< effective field, to be overwritten by torque
                 float alpha,    ///< damping constant
                 float dt_gilb,  ///< dt * gilbert factor
@@ -26,7 +26,7 @@ void gpu_torque(float* m,       ///< magnetization (all 3 components, contiguous
 
 
 /// @internal
-__global__ void _gpu_torque(float* mx, float* my, float* mz, float* hx, float* hy, float* hz, float alpha, float dt_gilb);
+__global__ void _gpu_deltaM(float* mx, float* my, float* mz, float* hx, float* hy, float* hz, float alpha, float dt_gilb);
 
 
 #ifdef __cplusplus

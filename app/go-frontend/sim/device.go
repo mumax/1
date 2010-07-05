@@ -10,7 +10,7 @@ import(
  * like a GPU or CPU (or possibly even a cluster).
  *
  * The interface specifies quite a number of simulation primitives
- * like fft's, torque(), memory allocation... where all higher-level
+ * like fft's, deltaM(), memory allocation... where all higher-level
  * simulation functions can be derived from.
  *
  * Gpu is the primary implementation of the Device interface:
@@ -36,7 +36,7 @@ import(
  */
 type Device interface{
 
-  torque(m, h unsafe.Pointer, alpha, dtGilbert float, N int)
+  deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int)
 
   normalize(m unsafe.Pointer, N int)
 

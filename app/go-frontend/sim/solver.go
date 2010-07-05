@@ -36,7 +36,7 @@ func(s *Solver) Torque(m, h *Tensor, dtGilbert float){
   assert(tensor.EqualSize(m.size, h.size))
   
   N := m.size[1] * m.size[2] * m.size[3]
-  s.torque(m.data, h.data, s.Alpha, dtGilbert, N)
+  s.deltaM(m.data, h.data, s.Alpha, dtGilbert, N)
 }
 
 
