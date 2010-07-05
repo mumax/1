@@ -6,7 +6,7 @@ import(
 
 
 type Magnet struct{
-
+  
   Material
   size []int        // Mesh Size, e.g. 4x64x64
   cellSize []float  // Cell Size in exchange lengths, e.g. 0.5 x 0.5 x 1.2
@@ -32,11 +32,6 @@ func(mag *Magnet) Size4D() []int {
 func(mag *Magnet) NSpins() int{
   return mag.size[X] * mag.size[Y] * mag.size[Z]
 }
-// 
-// func(mag *Magnet) NFloats() int{
-//   return 3*mag.NSpins()
-// }
-
 
 func(mag *Magnet) CellSize() []float {
   return mag.cellSize
@@ -45,6 +40,7 @@ func(mag *Magnet) CellSize() []float {
 func(mag *Magnet) M() *Tensor{
   return mag.m
 }
+
 
 func(mag *Magnet) String() string{
   s := "Magnet:\n"

@@ -18,6 +18,7 @@ type Tensor struct{
   data unsafe.Pointer   // points to float array on the GPU/CPU
 }
 
+
 func NewTensor(b Backend, size []int) *Tensor{
   t := new(Tensor)
   t.Backend = b
@@ -88,27 +89,21 @@ func TensorCopyFrom(source *Tensor, dest tensor.StoredTensor){
   source.memcpyFrom(source.data, &(dest.List()[0]), tensor.N(source));
 }
 
+
 func ZeroTensor(t *Tensor){
   t.zero(t.data, tensor.N(t));
 }
+
 
 func CopyPad(source, dest *Tensor){
   source.copyPad(source.data, dest.data, source.size, dest.size)
 }
 
+
 func CopyUnpad(source, dest *Tensor){
   source.copyUnpad(source.data, dest.data, source.size, dest.size)
 }
 
-//___________________________________________________________________________________________________ go utilities
-
-// ToCTensor(t tensor.StoredTensor) *_C_tensor{
-//   return C.as_tensorN((*_C_float)(unsafe.Pointer(&(t.List()[0]))), (_C_int)(tensor.Rank(t)), (*_C_int)(unsafe.Pointer(&(t.Size()[0]))) );
-// }
-//
-// ToCGPUTensor(t *Tensor) *_C_tensor{
-//   return C.as_tensorN((*_C_float)(t.data), (_C_int)(tensor.Rank(t)), (*_C_int)(unsafe.Pointer(&(t.Size()[0]))) );
-// }
 
 
 

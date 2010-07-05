@@ -15,7 +15,7 @@ type Material struct{
   
 }
 
-/** All parameters passed in SI units. Program units are used only internally. */
+
 func NewMaterial() *Material{
   
   mat := new(Material);
@@ -24,7 +24,7 @@ func NewMaterial() *Material{
   return mat;
 }
 
-/** Prints some human-readable information to the screen. */
+
 func (mat *Material) String() string{
   s := "Material:\n"
   s += fmt.Sprintln("AExch      : \t", mat.AExch, " J/m")
@@ -38,39 +38,45 @@ func (mat *Material) String() string{
   return s
 }
 
-/*
- FIELD = Ms;
- LENGTH = sqrt(2.0*A/(Mu0*Ms*Ms));   //2007-02-05: crucial fix: factor sqrt(2), LENGTH is now the exchange length, not just 'a' good length unit.
- TIME = 1.0 / (gamma * Ms);
- ENERGY = A * LENGTH;*/
 
-/** The internal unit of length, expressed in meters. */
+//  FIELD = Ms
+//  LENGTH = sqrt(2.0*A/(Mu0*Ms*Ms))
+//  TIME = 1.0 / (gamma * Ms)
+//  ENERGY = A * LENGTH
+
+// The internal unit of length, expressed in meters.
 func (mat *Material) UnitLength() float{
   assert(mat.Valid());
   return float(Sqrt(2. * float64(mat.AExch / (mat.Mu0*mat.MSat*mat.MSat))));
 }
 
-/** The internal unit of time, expressed in seconds. */
+
+// The internal unit of time, expressed in seconds.
 func (mat *Material) UnitTime() float{
   assert(mat.Valid());
   return 1.0 / (mat.Gamma0 * mat.MSat);
 }
 
-/** The internal unit of field, expressed in tesla. */
+
+// The internal unit of field, expressed in tesla.
 func (mat *Material) UnitField() float{
   assert(mat.Valid());
   return mat.Mu0 * mat.MSat;
 }
 
-/** The internal unit of energy, expressed in J. */
+
+// The internal unit of energy, expressed in J.
 func (mat *Material) UnitEnergy() float{
   assert(mat.Valid());
   return mat.AExch * mat.UnitLength();
 }
 
+
+// Returns true if the material parameters are valid
 func (mat *Material) Valid() bool{
-  return mat.AExch != 0. && mat.MSat != 0. && mat.Gamma0 != 0 && mat.Mu0 != 0;
+  return mat.AExch > 0. && mat.MSat > 0. && mat.Gamma0 > 0 && mat.Mu0 > 0
 }
+
 
 func (unit *Material) AssertValid(){
   assert(unit.Valid());
