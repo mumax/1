@@ -10,8 +10,8 @@ type Conv struct{
   FFT
   kernel     [6]*Tensor
   buffer     [3]*Tensor
-  mComp      [3]*Tensor
-  hComp      [3]*Tensor
+  mcomp      [3]*Tensor
+  hcomp      [3]*Tensor
 }
 
 
@@ -29,8 +29,8 @@ func NewConv(backend Backend, dataSize []int, kernel []tensor.StoredTensor) *Con
   ///@todo do not allocate for infinite2D problem
   for i:=0; i<3; i++{
     conv.buffer[i] = NewTensor(conv.Backend, conv.PhysicSize())
-    conv.mComp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil) }
-    conv.hComp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil) }
+    conv.mcomp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil) }
+    conv.hcomp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil) }
   }
   conv.LoadKernel6(kernel)
   
@@ -47,19 +47,19 @@ func (conv *Conv) Convolve(source, dest *Tensor){
     assert(  dest.size[i+1] == s)
   }
   
-  // initialize mComp, hComp, re-using them from conv to avoid repeated allocation
-  mComp, hComp := conv.mComp, conv.hComp
+  // initialize mcomp, hcomp, re-using them from conv to avoid repeated allocation
+  mcomp, hcomp := conv.mcomp, conv.hcomp
   buffer := conv.buffer
   kernel := conv.kernel
-  mLen := Len(mComp[0].size)
+  mLen := Len(mcomp[0].size)
   for i:=0; i<3; i++{
-    mComp[i].data = conv.arrayOffset(source.data, i*mLen)
-    hComp[i].data = conv.arrayOffset(  dest.data, i*mLen)
+    mcomp[i].data = conv.arrayOffset(source.data, i*mLen)
+    hcomp[i].data = conv.arrayOffset(  dest.data, i*mLen)
   }
   
   for i:=0; i<3; i++{
     ZeroTensor(buffer[i])
-    CopyPad(mComp[i], buffer[i])
+    CopyPad(mcomp[i], buffer[i])
 //     fmt.Println("mPadded", i)
 //     tensor.Format(os.Stdout, buffer[i])
   }
@@ -87,7 +87,7 @@ func (conv *Conv) Convolve(source, dest *Tensor){
   } 
   
   for i:=0; i<3; i++{
-    CopyUnpad(buffer[i], hComp[i])
+    CopyUnpad(buffer[i], hcomp[i])
   }
 }
 

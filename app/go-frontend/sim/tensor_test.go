@@ -30,3 +30,19 @@ func TestGetSet(t *testing.T){
   tens.Set([]int{4, 5, 6}, 3.14)
   if tens.Get([]int{4, 5, 6}) != 3.14 { t.Fail() }
 }
+
+func TestComponent(t *testing.T){
+  m := NewTensor(backend, []int{3, 10, 20})
+
+  mx := m.Component(0)
+  my := m.Component(1)
+  mz := m.Component(2)
+
+  my.Set([]int{0, 0}, 1.)
+  my.Set([]int{9, 19}, 1.)
+
+  if mx.Get([]int{9, 19}) != 0 { t.Fail() }
+  if my.Get([]int{0, 0})  != 1 { t.Fail() }
+  if my.Get([]int{9, 19}) != 1 { t.Fail() }
+  if mz.Get([]int{0, 0})  != 0 { t.Fail() }
+}

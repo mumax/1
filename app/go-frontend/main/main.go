@@ -22,10 +22,11 @@ func main(){
 
   magnet := NewMagnet(dev, mat, size, cellsize)
   
-  dt := 0.1E-12 / mat.UnitTime()
+  dt := 1E-12 / mat.UnitTime()
   
-  solver := NewSemiAnal(dev, magnet, dt)
-
+  solver := NewHeun(dev, magnet, dt)
+ 
+  
   fmt.Println(solver)
 
   m := tensor.NewTensorN(Size4D(magnet.Size()))
@@ -33,10 +34,27 @@ func main(){
     m.List()[i] = 1.
   }
   TensorCopyTo(m, solver.M())
-  
+
+  file:=0
   for i:=0; i<100; i++{
     TensorCopyFrom(solver.M(), m)
-    fname := "m" + fmt.Sprintf("%06d", i) + ".t"
+    fname := "m" + fmt.Sprintf("%06d", file) + ".t"
+    file++
+    tensor.WriteFile(fname, m)
+    for j:=0; j<100; j++{
+      solver.Step()
+    }
+  }
+
+  dt = 0.05E-12 / mat.UnitTime()
+  solver = NewHeun(dev, magnet, dt)
+  solver.Alpha = 0.02
+  B := solver.UnitField()
+  solver.Hext = []float{24.6E-3 / B, 4.3E-3 / B, 0 / B}
+  for i:=0; i<2000; i++{
+    TensorCopyFrom(solver.M(), m)
+    fname := "m" + fmt.Sprintf("%06d", file) + ".t"
+    file++
     tensor.WriteFile(fname, m)
     for j:=0; j<100; j++{
       solver.Step()

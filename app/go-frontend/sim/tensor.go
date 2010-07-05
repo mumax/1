@@ -53,28 +53,18 @@ func(t *Tensor) Size() []int{
 func(t *Tensor) Component(comp int) *Tensor{
   assert(comp >= 0 && comp < t.size[0])
   size := t.size[1:]
-  N := Prod(size)
-  data := t.arrayOffset(t.data, comp*N)
+  data := t.arrayOffset(t.data, comp*Len(size))
   return &Tensor{t.Backend, size, data}
 }
 
-func Prod(size []int) int{
+
+func Len(size []int) int{
   prod := 1
   for _,s := range size{
     prod *= s
   }
   return prod
 }
-
-func Len(size []int) int{
-  length := 1
-  for i:=range size{
-    length *= size[i]
-  }
-  return length
-}
-
-
 
 
 func assertEqualSize(sizeA, sizeB []int){
