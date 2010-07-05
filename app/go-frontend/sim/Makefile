@@ -15,6 +15,7 @@ GOFILES=\
 	field.go\
 	solver.go\
 	euler.go\
+	heun.go\
 	semianal.go\
 	kernel.go\
 	demag.go\

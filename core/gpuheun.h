@@ -58,6 +58,9 @@ void gpuheun_stage0_(float* m, float* torque, int N);
 ///@internal
 void gpuheun_stage1_(float* m, float* torque, int N);
 
+///@internal
+void gpu_linear_combination(float* a, float* b, float weightA, float weightB, int N);
+
 #ifdef __cplusplus
 }
 #endif

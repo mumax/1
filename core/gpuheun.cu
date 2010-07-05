@@ -31,6 +31,22 @@ __global__ void _gpu_normalize2(float* mx , float* my , float* mz){
 //   timer_stop("normalize_m");
 // }
 
+__global__ void _gpu_linear_combination(float* a, float* b, float weightA, float weightB){
+  int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
+  a[i] = weightA * a[i] + weightB * b[i];
+}
+
+///@internal
+void gpu_linear_combination(float* a, float* b, float weightA, float weightB, int N){
+  
+  int gridSize = -1, blockSize = -1;
+  make1dconf(N, &gridSize, &blockSize);
+
+  timer_start("linear_combination");
+  _gpu_linear_combination<<<gridSize, blockSize>>>(a, b, weightA, weightB);
+  cudaThreadSynchronize();
+  timer_stop("linear_combination");
+}
 
 __global__ void _gpu_heunstage0(float* mx , float* my , float* mz ,
                                 float* hx , float* hy , float* hz ,
