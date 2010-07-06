@@ -26,7 +26,7 @@ func (this *Heun) Step(){
   
   this.Normalize(this.m)
   TensorCopyOn(this.m, this.m0)
-  
+  h0 := 
   this.CalcHeff(this.m0, this.torque0)
   this.DeltaM(this.m0, this.torque0, this.Alpha, 0.5 * gilbertDt)
   this.Add(this.m0, this.torque0)
@@ -35,7 +35,7 @@ func (this *Heun) Step(){
   this.CalcHeff(this.m0, this.h)
   this.DeltaM(this.m0, this.h, this.Alpha, gilbertDt)
   this.LinearCombination(this.h, this.torque0, 0.5, 0.5)
-  this.Add(this.m, this.torque0)
+  this.Add(this.m, this.h)sdghjghfdg
   this.Normalize(this.m)
 }
 

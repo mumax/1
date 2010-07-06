@@ -48,7 +48,7 @@ func main(){
   solver.Dt = 0.01E-12 / mat.UnitTime()
   solver.Alpha = 0.02
   B := solver.UnitField()
-  solver.Hext = []float{0/B, 4.3E-3/B, 24.6E-3/B}
+  solver.Hext = []float{0/B, 4.3E-3/B, -24.6E-3/B}
   
   for i:=0; i<2000; i++{
     TensorCopyFrom(solver.M(), m)
