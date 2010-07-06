@@ -6,8 +6,7 @@ import(
 
 type Heun struct{
   m0, torque0 *Tensor
-  Dt float
-  Field
+  TimeStep
 }
 
 

@@ -6,8 +6,7 @@ import(
 
 // 1st order Euler method
 type Euler struct{
-  Dt float
-  Field
+  TimeStep
 }
 
 func(this *Euler) String() string{

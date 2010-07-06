@@ -1,7 +1,7 @@
 include ../../../common.mk
 include $(GOROOT)/src/Make.$(GOARCH)
 
-CLEANFILES+=*.t *.png
+CLEANFILES+=*.t *.png *.jpg
 
 main:	*.go
 	ln -sf ../kernel-main/flags.go .

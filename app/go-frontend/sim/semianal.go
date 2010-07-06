@@ -5,13 +5,15 @@ import(
 
 
 type SemiAnal struct{
-  Dt float
-  Field
+  TimeStep
 }
 
 
 func NewSemiAnal(dev Backend, mag *Magnet, Dt float) *SemiAnal{
-  return &SemiAnal{Dt, *NewField(dev, mag)}
+  this := new(SemiAnal)
+  this.Dt = Dt
+  this.Field = *NewField(dev, mag)
+  return this
 }
 
 

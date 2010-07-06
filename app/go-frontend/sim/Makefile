@@ -14,6 +14,7 @@ GOFILES=\
 	conv.go\
 	field.go\
 	solver.go\
+	timestep.go\
 	euler.go\
 	heun.go\
 	semianal.go\
