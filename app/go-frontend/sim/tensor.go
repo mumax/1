@@ -3,6 +3,7 @@ package sim
 import(
   "unsafe"
   "tensor"
+  "fmt"
 )
 
 const(
@@ -113,5 +114,8 @@ func CopyUnpad(source, dest *Tensor){
 }
 
 
+func(t *Tensor) String() string{
+    return fmt.Sprint("Tensor{", t.size, "}")
+}
 
 

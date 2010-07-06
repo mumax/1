@@ -36,6 +36,7 @@ func NewField(dev Backend, mag *Magnet) *Field{
 func(f *Field) CalcHeff(m, h *Tensor){
   Debugvv("Field.CalcHeff()")
   f.Convolve(m, h)
+  
   if f.Hext != nil{
     for i:=range f.hComp{
       f.AddConstant(f.hComp[i], f.Hext[i])

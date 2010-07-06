@@ -38,6 +38,7 @@ func(dev Backend) LinearCombination(a, b *Tensor, weightA, weightB float){
 
 // adds the constant cnst to each element of a. N = length of a
 func(dev Backend) AddConstant(a *Tensor, cnst float){
+  Debugvv("Backend.AddConstant(", a, cnst, ")")
   dev.addConstant(a.data, cnst, tensor.N(a))
 }
 

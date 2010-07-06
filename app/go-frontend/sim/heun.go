@@ -6,15 +6,15 @@ import(
 
 type Heun struct{
   m0, torque0 *Tensor
-  dt float
+  Dt float
   Field
 }
 
 
-func NewHeun(dev Backend, mag *Magnet, dt float) *Heun{
+func NewHeun(dev Backend, mag *Magnet, Dt float) *Heun{
   this := new(Heun)
   this.Field = *NewField(dev, mag)
-  this.dt = dt
+  this.Dt = Dt
   this.m0 = NewTensor(dev, mag.Size4D())
   this.torque0 = NewTensor(dev, mag.Size4D())
   return this
@@ -23,18 +23,18 @@ func NewHeun(dev Backend, mag *Magnet, dt float) *Heun{
 
 func (this *Heun) Step(){
   Debugvv( "Heun.Step()" )
-  gilbertdt := this.dt/(1+this.Alpha*this.Alpha)
+  gilbertDt := this.Dt/(1+this.Alpha*this.Alpha)
   
   this.Normalize(this.m)
   TensorCopyOn(this.m, this.m0)
   
   this.CalcHeff(this.m0, this.torque0)
-  this.DeltaM(this.m0, this.torque0, this.Alpha, 0.5 * gilbertdt)
+  this.DeltaM(this.m0, this.torque0, this.Alpha, 0.5 * gilbertDt)
   this.Add(this.m0, this.torque0)
   this.Normalize(this.m0)
 
   this.CalcHeff(this.m0, this.h)
-  this.DeltaM(this.m0, this.h, this.Alpha, gilbertdt)
+  this.DeltaM(this.m0, this.h, this.Alpha, gilbertDt)
   this.LinearCombination(this.h, this.torque0, 0.5, 0.5)
   this.Add(this.m, this.torque0)
   this.Normalize(this.m)
