@@ -7,7 +7,7 @@ import(
 )
 
 func main(){
-  Verbosity = 3
+  Verbosity = 2
   
   dev := GPU
 
@@ -22,8 +22,8 @@ func main(){
 
   magnet := NewMagnet(dev, mat, size, cellsize)
   
-  dt := 1E-12 / mat.UnitTime()
-  solver := NewHeun(dev, magnet, dt)
+  dt := 0.1E-12 / mat.UnitTime()
+  solver := NewEuler(dev, magnet, dt)
  
   
   fmt.Println(solver)
@@ -35,7 +35,7 @@ func main(){
   TensorCopyTo(m, solver.M())
 
   file:=0
-  for i:=0; i<30; i++{
+  for i:=0; i<100; i++{
     TensorCopyFrom(solver.M(), m)
     fname := "m" + fmt.Sprintf("%06d", file) + ".t"
     file++
@@ -50,12 +50,12 @@ func main(){
   B := solver.UnitField()
   solver.Hext = []float{0/B, 4.3E-3/B, -24.6E-3/B}
   
-  for i:=0; i<2000; i++{
+  for i:=0; i<1000; i++{
     TensorCopyFrom(solver.M(), m)
     fname := "m" + fmt.Sprintf("%06d", file) + ".t"
     file++
     tensor.WriteFile(fname, m)
-    for j:=0; j<100; j++{
+    for j:=0; j<1000; j++{
       solver.Step()
     }
   }
