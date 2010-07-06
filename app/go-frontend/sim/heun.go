@@ -24,18 +24,23 @@ func (this *Heun) Step(){
   Debugvv( "Heun.Step()" )
   gilbertDt := this.Dt/(1+this.Alpha*this.Alpha)
   
-  this.Normalize(this.m)
+  // backup m
   TensorCopyOn(this.m, this.m0)
-  h0 := 
+  
+  // euler step for m0
   this.CalcHeff(this.m0, this.torque0)
-  this.DeltaM(this.m0, this.torque0, this.Alpha, 0.5 * gilbertDt)
+  this.DeltaM(this.m0, this.torque0, this.Alpha, gilbertDt)
   this.Add(this.m0, this.torque0)
   this.Normalize(this.m0)
 
-  this.CalcHeff(this.m0, this.h)
-  this.DeltaM(this.m0, this.h, this.Alpha, gilbertDt)
-  this.LinearCombination(this.h, this.torque0, 0.5, 0.5)
-  this.Add(this.m, this.h)sdghjghfdg
+  // field after euler step
+  torque1 := this.h
+  this.CalcHeff(this.m0, torque1)
+  this.DeltaM(this.m0, torque1, this.Alpha, gilbertDt)
+  
+  // combine deltaM of beginning and end of interval
+  this.LinearCombination(torque1, this.torque0, 0.5, 0.5)
+  this.Add(this.m, torque1)
   this.Normalize(this.m)
 }
 
