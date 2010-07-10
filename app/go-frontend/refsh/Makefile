@@ -4,6 +4,7 @@ PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 TARG=refsh
 
 GOFILES=\
+	tokenizer.go\
 	refsh.go\
 	flags.go\
 	

@@ -124,11 +124,11 @@ func parseInt(str string) int{
 
 func main(){
   refsh := NewRefsh();
-  refsh.Add("test", NewValue(Test));
+  refsh.Add("test", NewValue(SayHello));
   refsh.ExecFlags();
 }
 
-func Test(i int){
+func SayHello(i int){
   fmt.Println("Hello reflection!", i);
 }
 
