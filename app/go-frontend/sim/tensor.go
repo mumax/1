@@ -31,6 +31,7 @@ func NewTensor(b Backend, size []int) *Tensor{
   }
   t.data = b.newArray(length)
   ZeroTensor(t)
+  // TODO: runtime.SetFinalizer(t, Free)
   return t
 }
 
