@@ -1,10 +1,13 @@
 package refsh
 
 import(
-  . "reflect";
-   "fmt";
-   "os";
-   "strconv";
+  . "reflect"
+   "fmt"
+   "os"
+   "strconv"
+   "io"
+   "scanner"
+   "container/vector"
 )
 
 /** 
@@ -57,10 +60,21 @@ func (refsh *Refsh) Call(fname string, argv []string){
   function.Call(args);
 }
 
-/**
- * Executes the command line arguments. They should have a syntax like:
- * --command1 arg1 arg2 --command2 --command3 arg1
- */
+
+func(refsh *Refsh) Parse(in io.Reader){
+  var s scanner.Scanner
+  s.Init(in)
+  cmd, args := readLine(&s)
+  for cmd != ""{
+    fmt.Println(cmd, args)
+    cmd, args = readLine(&s)
+  }
+  
+}
+
+
+// Executes the command line arguments. They should have a syntax like:
+// --command1 arg1 arg2 --command2 --command3 arg1
 func (refsh *Refsh) ExecFlags(){
   commands, args := ParseFlags();
   for i:=range(commands){
@@ -69,6 +83,25 @@ func (refsh *Refsh) ExecFlags(){
   }
 }
 
+
+func readLine(s *scanner.Scanner) (command string, args []string){
+  token := s.Scan()
+  if token == scanner.EOF { return }
+  
+  startline := s.Pos().Line
+  command = s.TokenText()
+  
+  argl := vector.StringVector(make([]string, 0))
+  
+  for token != scanner.EOF && s.Pos().Line == startline{
+    token = s.Scan()
+    fmt.Println(token, s.TokenText())
+    argl.Push(s.TokenText())
+    
+  }
+  args = []string(argl)
+  return
+}
 
 
 func (r *Refsh) resolve(funcname string) *FuncValue{
