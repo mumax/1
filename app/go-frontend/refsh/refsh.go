@@ -14,26 +14,29 @@ import(
  * Maximum number of functions.
  * @todo use a vector to make this unlimited.
  */
-const CAPACITY = 100;
+const CAPACITY = 100
 
 
 type Refsh struct{
-  funcnames []string;
-  funcs []*FuncValue;
+  funcnames []string
+  funcs []*FuncValue
+  CrashOnError bool
 }
 
 func NewRefsh() *Refsh{
-  return &Refsh{make([]string, CAPACITY)[0:0], make([]*FuncValue, CAPACITY)[0:0]}; 
+  refsh := new(Refsh)
+  refsh.funcnames = make([]string, CAPACITY)[0:0]
+  refsh.funcs = make([]*FuncValue, CAPACITY)[0:0]
+  refsh.CrashOnError = true
+  return refsh
 }
 
 func New() *Refsh{
   return NewRefsh();
 }
 
-/**
- * Adds a function to the list of known commands.
- * example: refsh.Add("exit", reflect.NewValue(Exit));
- */
+// Adds a function to the list of known commands.
+// example: refsh.Add("exit", Exit)
 func (r *Refsh) Add(funcname string, f interface{}){
   function := NewValue(f)
   if r.resolve(funcname) != nil{
@@ -46,32 +49,33 @@ func (r *Refsh) Add(funcname string, f interface{}){
   r.funcs[len(r.funcs)-1] = function.(*FuncValue);
 }
 
-/**
- * Calls a function. Function name and arguments are passed as strings.
- * The function name should first have been added by refsh.Add();
- */
-func (refsh *Refsh) Call(fname string, argv []string){
-  function := refsh.resolve(fname);
-  if function == nil{
-    fmt.Fprintln(os.Stderr, "Unknown command:", fname, "Options are:", refsh.funcnames);
-    os.Exit(-5);
-  }
-
-  args := refsh.parseArgs(fname, argv);
-  function.Call(args);
-}
-
-
-func(refsh *Refsh) Parse(in io.Reader){
+// parses and executes the commands read from in
+// bash-like syntax:
+// command arg1 arg2
+// command arg1
+func(refsh *Refsh) Exec(in io.Reader){
   var s scanner.Scanner
   s.Init(in)
   cmd, args := readLine(&s)
   for cmd != ""{
-    fmt.Println(cmd, args)
     refsh.Call(cmd, args)
     cmd, args = readLine(&s)
   }
-  
+}
+
+const prompt = ">> "
+
+// starts an interactive command line
+// TODO: exit should stop this refsh, not exit the entire program
+func(refsh *Refsh) Interactive(){
+  var s scanner.Scanner
+  refsh.CrashOnError = false
+  for{
+    fmt.Print(prompt)
+    s.Init(os.Stdin)
+    cmd, args := readLine(&s)
+    refsh.Call(cmd, args)
+  }
 }
 
 
@@ -85,24 +89,35 @@ func (refsh *Refsh) ExecFlags(){
   }
 }
 
+
+// Calls a function. Function name and arguments are passed as strings.
+// The function name should first have been added by refsh.Add();
+func (refsh *Refsh) Call(fname string, argv []string){
+  function := refsh.resolve(fname);
+  if function == nil{
+    fmt.Fprintln(os.Stderr, "Unknown command:", fname, "Options are:", refsh.funcnames);
+    if refsh.CrashOnError { os.Exit(-5) }
+  }else{
+    args := refsh.parseArgs(fname, argv)
+    function.Call(args)
+  }
+}
+
+
 // Reads one line. 
 // The first token is returned in command, the rest in the args array
 func readLine(s *scanner.Scanner) (command string, args []string){
+  line := s.Pos().Line          // I found no direct way to detect line ends using a scanner
+  startline := line             // so I check if the line number changes
   
-  line := s.Pos().Line
-  startline := line
-  
-  token := s.Scan()
+  token := s.Scan()             // the first token is the command
   command = s.TokenText()
-  fmt.Println(line, s.TokenText())
   line = s.Pos().Line
-  
+                                // the other tokens are the arguments
   argl := vector.StringVector(make([]string, 0))
   for token != scanner.EOF && line == startline{
     token = s.Scan()
-  
     argl.Push(s.TokenText())
-    
     line = s.Pos().Line
   }
   args = []string(argl)
@@ -119,12 +134,16 @@ func (r *Refsh) resolve(funcname string) *FuncValue{
   return nil; // never reached
 }
 
+
 func (refsh *Refsh) parseArgs(fname string, argv []string) []Value{
   function := refsh.resolve(fname);
   functype := function.Type().(*FuncType);
   nargs := functype.NumIn();
 
-  checkArgCount(fname, argv, nargs);
+  if nargs != len(argv){
+    fmt.Fprintln(os.Stderr, "Error calling", fname, argv, ": needs", nargs, "arguments.");
+    os.Exit(-1);
+  }
 
   args := make([]Value, nargs);
   for i:=range(args){
@@ -133,12 +152,8 @@ func (refsh *Refsh) parseArgs(fname string, argv []string) []Value{
   return args;
 }
 
-func checkArgCount(fname string, argv []string, nargs int){
-  if nargs != len(argv){
-    fmt.Fprintln(os.Stderr, "Error calling", fname, argv, ": needs", nargs, "arguments.");
-    os.Exit(-1);
-  }
-}
+
+
 
 func parseArg(arg string, argtype Type) Value{
   switch argtype.Name(){
@@ -150,6 +165,7 @@ func parseArg(arg string, argtype Type) Value{
   }
   return NewValue(666); // is never reached.
 }
+
 
 func parseInt(str string) int{
   i, err := strconv.Atoi(str);

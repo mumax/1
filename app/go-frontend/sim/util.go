@@ -40,6 +40,7 @@ func Size3D(size4D []int) []int{
 
 var Verbosity int = 3
 
+
 func Debug(msg ... interface{}){
   if Verbosity > 0 {
     fmt.Fprintln(os.Stderr, msg)

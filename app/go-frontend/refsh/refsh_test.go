@@ -2,18 +2,20 @@ package refsh
 
 import(
   "testing"
-  "os"
+  //"os"
   "fmt"
 )
 
 func TestRefsh(test *testing.T){
-  in, err := os.Open("test.in", os.O_RDONLY, 0666)
-  if err != nil{ test.Fail(); return }
+//   in, err := os.Open("test.in", os.O_RDONLY, 0666)
+//   if err != nil{ test.Fail(); return }
+//   
   
   refsh := NewRefsh()
   refsh.Add("hello", Hello)
   refsh.Add("echo", Echo)
-  refsh.Parse(in)
+  refsh.CrashOnError = false
+  refsh.Interactive()
   
 }
 
