@@ -83,21 +83,25 @@ func (refsh *Refsh) ExecFlags(){
   }
 }
 
-
+// Reads one line. 
+// The first token is returned in command, the rest in the args array
 func readLine(s *scanner.Scanner) (command string, args []string){
-  token := s.Scan()
-  if token == scanner.EOF { return }
   
-  startline := s.Pos().Line
+  line := s.Pos().Line
+  startline := line
+  
+  token := s.Scan()
   command = s.TokenText()
+  fmt.Println(line, s.TokenText())
+  line = s.Pos().Line
   
   argl := vector.StringVector(make([]string, 0))
-  
-  for token != scanner.EOF && s.Pos().Line == startline{
+  for token != scanner.EOF && line == startline{
     token = s.Scan()
-    fmt.Println(token, s.TokenText())
+  
     argl.Push(s.TokenText())
     
+    line = s.Pos().Line
   }
   args = []string(argl)
   return
