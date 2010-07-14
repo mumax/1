@@ -34,7 +34,8 @@ func New() *Refsh{
  * Adds a function to the list of known commands.
  * example: refsh.Add("exit", reflect.NewValue(Exit));
  */
-func (r *Refsh) Add(funcname string, function Value){
+func (r *Refsh) Add(funcname string, f interface{}){
+  function := NewValue(f)
   if r.resolve(funcname) != nil{
     fmt.Fprintln(os.Stderr, "Aldready defined:", funcname);
     os.Exit(-4);
@@ -67,6 +68,7 @@ func(refsh *Refsh) Parse(in io.Reader){
   cmd, args := readLine(&s)
   for cmd != ""{
     fmt.Println(cmd, args)
+    refsh.Call(cmd, args)
     cmd, args = readLine(&s)
   }
   
@@ -158,6 +160,7 @@ func parseInt(str string) int{
   return i;
 }
 
+/*
 
 func main(){
   refsh := NewRefsh();
@@ -167,7 +170,7 @@ func main(){
 
 func SayHello(i int){
   fmt.Println("Hello reflection!", i);
-}
+}*/
 
 
 

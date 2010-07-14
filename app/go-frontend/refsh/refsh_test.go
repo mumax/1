@@ -3,6 +3,7 @@ package refsh
 import(
   "testing"
   "os"
+  "fmt"
 )
 
 func TestRefsh(test *testing.T){
@@ -10,7 +11,21 @@ func TestRefsh(test *testing.T){
   if err != nil{ test.Fail(); return }
   
   refsh := NewRefsh()
+  refsh.Add("hello", Hello)
+  refsh.Add("echo", Echo)
   refsh.Parse(in)
   
 }
+
+
+func Hello(){
+  fmt.Println("Hello world!")
+}
+
+func Echo(i int){
+  fmt.Println(i)
+}
+
+
+
 
