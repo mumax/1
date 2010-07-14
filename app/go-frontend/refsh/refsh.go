@@ -8,7 +8,7 @@ import(
    "io"
    "scanner"
    "container/vector"
-   "runtime"
+//    "runtime"
 )
 
 /** 
@@ -70,17 +70,21 @@ const prompt = ">> "
 // TODO: exit should stop this refsh, not exit the entire program
 func(refsh *Refsh) Interactive(){
   var s scanner.Scanner
-  refsh.Add("exit", runtime.Goexit)
+  refsh.Add("exit", exit)
   refsh.CrashOnError = false
+  
   for{
     fmt.Print(prompt)
     s.Init(os.Stdin)
     cmd, args := readLine(&s)
+    if cmd == "" { return }
     refsh.Call(cmd, args)
   }
 }
 
-
+func exit(){
+  os.Exit(0)
+}
 
 
 // Executes the command line arguments. They should have a syntax like:
@@ -169,6 +173,7 @@ func parseArg(arg string, argtype Type) Value{
   }
   return NewValue(666); // is never reached.
 }
+
 
 
 func parseInt(str string) int{
