@@ -1,7 +1,26 @@
 /**
  * @mainpage
  * 
- * Micromagnetic/Spin-Lattice Simuations on the GPU 
+ * GPU-accelerated Micromagnetic/Spin-Lattice Simuations 
+ *
+ * @b Low-level @b libraries 
+ *
+ * We start from a relatively small number of essential building blocks ("primitives"),
+ * which do the real number-crunching on the GPU.
+ * These are implemented as low-level functions in core/ and follow this convetion:
+ *  - We use @b extern @b "C" linkage so we can easily call from many languages like C,C++, Go, java, ...
+ *  - Vector fields (like m, H) are stored as @b contiguous arrays containing first all the x-components, than all the y-components and all the z-components.
+ *  - All arrays are passed as float* pointers
+ *
+ * These low-level functions typically have signatures like, e.g., this:
+ * @code
+ * //normalizes the magnetization
+ * void gpu_normalize(float* m, int N);
+ * @endcode
+ *
+ * Safe wrappers are available for many of these functions, however.
+ *
+ * 
  *
  * The core library (trunk/core) contains the building blocks for running magnetic simulations on the GPU.
  * The high-level building blocks provide:
