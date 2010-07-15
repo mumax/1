@@ -10,7 +10,7 @@
  * These are implemented as low-level functions in core/ and follow this convetion:
  *  - We use @b extern @b "C" linkage so we can easily call from many languages like C,C++, Go, java, ...
  *  - Vector fields (like m, H) are stored as @b contiguous arrays containing first all the x-components, than all the y-components and all the z-components.
- *  - All arrays are passed as float* pointers
+ *  - An array is passed as single float* pointer, even if it represents a multi-dimensional vector field.
  *
  * These low-level functions typically have signatures like, e.g., this:
  * @code
@@ -18,9 +18,17 @@
  * void gpu_normalize(float* m, int N);
  * @endcode
  *
- * Safe wrappers are available for many of these functions, however.
- *
+ * Also, safe wrappers are available for most of these functions. 
+ * For this purpose, we use a @b tensor @b struct to store N-dimensional arrays,
+ * including their rank and size in each dimension (see tensor.h).
+ * The safe versions of the low-level functions can thus check the validity of the tensor size.
+ * A typical signature of such safe wrapper looks, e.g., like this:
+ * @code
+ * //normalizes the magnetization
+ * void gpu_normalize_safe(tensor* m);
+ * @endcode
  * 
+ * @b 
  *
  * The core library (trunk/core) contains the building blocks for running magnetic simulations on the GPU.
  * The high-level building blocks provide:
