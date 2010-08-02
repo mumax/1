@@ -1,0 +1,84 @@
+.TH "gpuconv2_test.cpp" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gpuconv2_test.cpp \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'gputil.h'\fP
+.br
+\fC#include 'gpupad.h'\fP
+.br
+\fC#include 'tensor.h'\fP
+.br
+\fC#include 'assert.h'\fP
+.br
+\fC#include 'gpuconv2.h'\fP
+.br
+\fC#include 'gpufft2.h'\fP
+.br
+\fC#include 'param.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBtest_convplan\fP ()"
+.br
+.ti -1c
+.RI "void \fBtest_pad\fP ()"
+.br
+.ti -1c
+.RI "void \fBtest_transpose\fP ()"
+.br
+.ti -1c
+.RI "void \fBtest_conv\fP ()"
+.br
+.ti -1c
+.RI "int \fBmain\fP (int argc, char **argv)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "int \fBN0\fP = 4"
+.br
+.ti -1c
+.RI "int \fBN1\fP = 32"
+.br
+.ti -1c
+.RI "int \fBN2\fP = 64"
+.br
+.ti -1c
+.RI "int \fBN3\fP = 2"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Tests for smart zero-padded FFT and convolution on the GPU
+.PP
+\fBAuthor:\fP
+.RS 4
+Arne Vansteenkiste, Ben Van de Wiele 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "int main (int argc, char ** argv)"
+.SS "void test_conv ()"
+.SS "void test_convplan ()"
+.SS "void test_pad ()"
+.SS "void test_transpose ()"
+.SH "Variable Documentation"
+.PP 
+.SS "int \fBN0\fP = 4"
+.SS "int \fBN1\fP = 32"
+.SS "int \fBN2\fP = 64"
+.SS "int \fBN3\fP = 2"
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

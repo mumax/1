@@ -1,0 +1,48 @@
+.TH "conv_data" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+conv_data \- 
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <gpu_conv.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBgpuFFT3dPlan\fP * \fBfftplan\fP"
+.br
+.RI "\fIFFT plan adapted to the size of the simulation. \fP"
+.ti -1c
+.RI "\fBtensor\fP * \fBfft1\fP"
+.br
+.RI "\fIbuffer to store and transform the zero-padded magnetization and field. \fP"
+.ti -1c
+.RI "\fBtensor\fP * \fBfft2\fP"
+.br
+.RI "\fIsecond fft buffer. By default, this one points to fft1, so everything is in-place. \fP"
+.ti -1c
+.RI "\fBtensor\fP * \fBkernel\fP"
+.br
+.RI "\fIkernel used in the convolution. \fP"
+.in -1c
+.SH "Field Documentation"
+.PP 
+.SS "\fBtensor\fP* \fBconv_data::fft1\fP"
+.PP
+buffer to store and transform the zero-padded magnetization and field. 
+.SS "\fBtensor\fP* \fBconv_data::fft2\fP"
+.PP
+second fft buffer. By default, this one points to fft1, so everything is in-place. 
+.SS "\fBgpuFFT3dPlan\fP* \fBconv_data::fftplan\fP"
+.PP
+FFT plan adapted to the size of the simulation. 
+.SS "\fBtensor\fP* \fBconv_data::kernel\fP"
+.PP
+kernel used in the convolution. 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

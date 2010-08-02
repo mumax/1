@@ -1,0 +1,262 @@
+.TH "gpuconv1.h" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gpuconv1.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'tensor.h'\fP
+.br
+\fC#include 'gputil.h'\fP
+.br
+\fC#include <cufft.h>\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBgpuc2cplan\fP"
+.br
+.ti -1c
+.RI "struct \fBgpuconv1\fP"
+.br
+.in -1c
+.SS "Defines"
+
+.in +1c
+.ti -1c
+.RI "#define \fBFORWARD\fP   CUFFT_FORWARD"
+.br
+.ti -1c
+.RI "#define \fBINVERSE\fP   CUFFT_INVERSE"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBgpuc2cplan\fP * \fBnew_gpuc2cplan\fP (int \fBN0\fP, int \fBN1\fP, int \fBN2\fP)"
+.br
+.ti -1c
+.RI "void \fBgpuc2cplan_exec\fP (\fBgpuc2cplan\fP *plan, float *data, int direction)"
+.br
+.ti -1c
+.RI "void \fBdelete_gpuc2cplan\fP (\fBgpuc2cplan\fP *plan)"
+.br
+.ti -1c
+.RI "\fBgpuconv1\fP * \fBnew_gpuconv1\fP (int \fBN0\fP, int \fBN1\fP, int \fBN2\fP, \fBtensor\fP *kernel)"
+.br
+.ti -1c
+.RI "void \fBgpuconv1_exec\fP (\fBgpuconv1\fP *plan, float *source, float *dest)"
+.br
+.ti -1c
+.RI "void \fBgpuconv1_loadkernel\fP (\fBgpuconv1\fP *plan, \fBtensor\fP *kernel)"
+.br
+.ti -1c
+.RI "void \fBmemcpy_r2c\fP (float *source, float *dest, int nReal)"
+.br
+.ti -1c
+.RI "void \fBgpu_copy_pad_r2c\fP (float *source, float *dest, int \fBN0\fP, int \fBN1\fP, int \fBN2\fP)"
+.br
+.ti -1c
+.RI "void \fBgpu_copy_unpad_c2r\fP (float *source, float *dest, int \fBN0\fP, int \fBN1\fP, int \fBN2\fP)"
+.br
+.ti -1c
+.RI "void \fBgpu_kernel_mul\fP (float *ft_m_i, float *ft_kernel_comp_ij, float *ft_h_comp_j, int nRealNumbers)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+This file implements the simplest possible vector convolution plan on the GPU: All FFT's are complex-to-complex, no advantage is taken from the real input data. The zero's in the padded magnetization buffers are not ignored. The zero's in the micromagnetic kernel are not ignored. No care is taken to align CUDA memory access.
+.PP
+The interface is flexible: gpuconv1_exec(m, h) can be called on any magnetization and field array that match the size of the plan. m and h are thus not stored in the plan itself. This is handy for higher order solvers that keep multiple versions of m and h.
+.PP
+When more intelligent implementations are made, this one can serve as a comparison for correctness and performance.
+.PP
+\fBSee also:\fP
+.RS 4
+\fBnew_gpuconv1\fP, \fBgpuconv1_exec\fP
+.RE
+.PP
+\fBAuthor:\fP
+.RS 4
+Arne Vansteenkiste 
+.RE
+.PP
+
+.SH "Define Documentation"
+.PP 
+.SS "#define FORWARD   CUFFT_FORWARD"Forward FFT direction. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBgpuc2cplan_exec()\fP 
+.RE
+.PP
+
+.SS "#define INVERSE   CUFFT_INVERSE"Backward FFT direction. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBgpuc2cplan_exec()\fP 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "void delete_gpuc2cplan (\fBgpuc2cplan\fP * plan)"Frees the FFT plan 
+.PP
+\fBTodo\fP
+.RS 4
+not fully implemented 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIplan\fP the plan to be deleted 
+.RE
+.PP
+
+.SS "void gpu_copy_pad_r2c (float * source, float * dest, int N0, int N1, int N2)"Copies a field of real numbers into a zero-padded array and in the meanwhile converts them to complex format. Runs on the GPU. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBgpu_copy_unpad_c2r\fP 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsource\fP real input data, length = N0*N1*N2 
+.br
+\fIdest\fP complex data destination, length = 2*N0 * 2*N1 * 2*2*N2 
+.br
+\fIN0\fP X size of the real data 
+.br
+\fIN1\fP Y size of the real data 
+.br
+\fIN2\fP Z size of the real data 
+.RE
+.PP
+
+.SS "void gpu_copy_unpad_c2r (float * source, float * dest, int N0, int N1, int N2)"Copies the 'region of interest' from a zero-padded array of complex numbers into a smaller array of real numbers. Drops the imaginary parts on the fly. Runs on the GPU. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBgpu_copy_pad_r2c\fP 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsource\fP complex input data, length = 2*N0 * 2*N1 * 2*2*N2 
+.br
+\fIdest\fP real data destination, length = N0*N1*N2 
+.br
+\fIN0\fP X size of the real data 
+.br
+\fIN1\fP X size of the real data 
+.br
+\fIN2\fP X size of the real data 
+.RE
+.PP
+
+.SS "void gpu_kernel_mul (float * ft_m_i, float * ft_kernel_comp_ij, float * ft_h_comp_j, int nRealNumbers)"Pointwise multiplication of arrays of complex numbers. ft_h_comp_j += ft_m_i * ft_kernel_comp_ij. Runs on the GPU. 
+.PP
+\fBTodo\fP
+.RS 4
+make use of symmetry 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+DO NOT store in texture memory! This would be a bit faster on older devices, but actually slower on Fermi cards! 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIft_m_i\fP multiplication input 1 
+.br
+\fIft_kernel_comp_ij\fP multiplication input 2 
+.br
+\fIft_h_comp_j\fP multiplication result gets added to this array 
+.br
+\fInRealNumbers\fP the number of floats(!) in each of the arrays, thus twice the number of complex's in them. 
+.RE
+.PP
+
+.SS "void gpuc2cplan_exec (\fBgpuc2cplan\fP * plan, float * data, int direction)"Executes the 3D complex-to-complex FFT plan in-place. \fBParameters:\fP
+.RS 4
+\fIplan\fP the plan to be executed 
+.br
+\fIdata\fP data to be transformed in-place 
+.br
+\fIdirection\fP FORWARD or INVERSE 
+.RE
+.PP
+
+.SS "void gpuconv1_exec (\fBgpuconv1\fP * plan, float * source, float * dest)"Executes the convolution plan: convolves the source data with the stored kernel and stores the result in the destination pointer. 
+.PP
+\fBTodo\fP
+.RS 4
+: rename: execute 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIplan\fP the plan to execute 
+.br
+\fIsource\fP the input vector field (magnetization) 
+.br
+\fIdest\fP the destination vector field (magnetic field) to store the result in 
+.RE
+.PP
+
+.SS "void gpuconv1_loadkernel (\fBgpuconv1\fP * plan, \fBtensor\fP * kernel)"Loads a kernel. Automatically called during \fBnew_gpuconv1()\fP, but could be used to change the kernel afterwards. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBnew_gpuconv1\fP 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIplan\fP plan to load the kernel into 
+.br
+\fIkernel\fP kernel to load (should match the plan size) 
+.RE
+.PP
+
+.SS "void memcpy_r2c (float * source, float * dest, int nReal)"Copies a real array to an array of complex numbers (of twice the size) and interleaves the elements with zero's (imaginary parts). 
+.SS "\fBgpuc2cplan\fP* new_gpuc2cplan (int N0, int N1, int N2)"Creates a new 3D complex-to-complex FFT plan for the GPU. 
+.PP
+\fBTodo\fP
+.RS 4
+There is a difficulty with real-to-complex FFT's: the last dimension must be made 2 complex numbers larger, but then it does not fit the stride anymore. Extra padding? Out-of-place transform? 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIN0\fP size in x-direction 
+.br
+\fIN1\fP size in y-direction 
+.br
+\fIN2\fP size in z-direction 
+.RE
+.PP
+
+.SS "\fBgpuconv1\fP* new_gpuconv1 (int N0, int N1, int N2, \fBtensor\fP * kernel)"New convolution plan. \fBParameters:\fP
+.RS 4
+\fIN0\fP X size of the magnetization vector field 
+.br
+\fIN1\fP Y size of the magnetization vector field 
+.br
+\fIN2\fP Z size of the magnetization vector field 
+.br
+\fIkernel\fP convolution kernel of size 3 x 3 x 2*N0 x 2*N1 x 2*N2 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

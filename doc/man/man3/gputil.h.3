@@ -1,0 +1,526 @@
+.TH "gputil.h" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gputil.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'tensor.h'\fP
+.br
+\fC#include <cufft.h>\fP
+.br
+\fC#include <stdlib.h>\fP
+.br
+\fC#include <stdarg.h>\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "float * \fBnew_gpu_array\fP (int size)"
+.br
+.ti -1c
+.RI "\fBtensor\fP * \fBnew_gputensor\fP (int rank, int *size)"
+.br
+.ti -1c
+.RI "float * \fBnew_ram_array\fP (int size)"
+.br
+.ti -1c
+.RI "int \fBgpu_stride_float\fP ()"
+.br
+.ti -1c
+.RI "int \fBgpu_pad_to_stride\fP (int nFloats)"
+.br
+.ti -1c
+.RI "void \fBgpu_override_stride\fP (int nFloats)"
+.br
+.ti -1c
+.RI "void \fBmemcpy_to_gpu\fP (float *source, float *dest, int nElements)"
+.br
+.ti -1c
+.RI "void \fBmemcpy_from_gpu\fP (float *source, float *dest, int nElements)"
+.br
+.ti -1c
+.RI "void \fBmemcpy_gpu_to_gpu\fP (float *source, float *dest, int nElements)"
+.br
+.ti -1c
+.RI "float \fBgpu_array_get\fP (float *dataptr, int index)"
+.br
+.ti -1c
+.RI "void \fBgpu_array_set\fP (float *dataptr, int index, float value)"
+.br
+.ti -1c
+.RI "void \fBtensor_copy_to_gpu\fP (\fBtensor\fP *source, \fBtensor\fP *dest)"
+.br
+.ti -1c
+.RI "void \fBtensor_copy_from_gpu\fP (\fBtensor\fP *source, \fBtensor\fP *dest)"
+.br
+.ti -1c
+.RI "void \fBtensor_copy_gpu_to_gpu\fP (\fBtensor\fP *source, \fBtensor\fP *dest)"
+.br
+.ti -1c
+.RI "void \fBgpu_zero\fP (float *data, int nElements)"
+.br
+.ti -1c
+.RI "void \fBgpu_zero_tensor\fP (\fBtensor\fP *t)"
+.br
+.ti -1c
+.RI "void \fBgpu_safe\fP (int status)"
+.br
+.ti -1c
+.RI "void \fBformat_gputensor\fP (\fBtensor\fP *t, FILE *out)"
+.br
+.ti -1c
+.RI "void \fBassertHost\fP (float *pointer)"
+.br
+.ti -1c
+.RI "void \fBassertDevice\fP (float *pointer)"
+.br
+.ti -1c
+.RI "void \fBgpu_checkconf\fP (dim3 gridsize, dim3 blocksize)"
+.br
+.ti -1c
+.RI "void \fBgpu_checkconf_int\fP (int gridsize, int blocksize)"
+.br
+.ti -1c
+.RI "void \fBcheck3dconf\fP (dim3 gridsize, dim3 blocksize)"
+.br
+.ti -1c
+.RI "void \fBcheck1dconf\fP (int gridsize, int blocksize)"
+.br
+.ti -1c
+.RI "void \fBmake3dconf\fP (int \fBN0\fP, int \fBN1\fP, int \fBN2\fP, dim3 *gridSize, dim3 *blockSize)"
+.br
+.ti -1c
+.RI "void \fBmake1dconf\fP (int N, int *gridSize, int *blockSize)"
+.br
+.ti -1c
+.RI "void * \fBgpu_getproperties\fP (void)"
+.br
+.ti -1c
+.RI "void \fBprint_device_properties\fP (FILE *out)"
+.br
+.ti -1c
+.RI "void \fBprint_device_properties_stdout\fP ()"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+This file provides some common functions for the GPU, like allocating arrays on it...
+.PP
+\fBTodo\fP
+.RS 4
+use CudaGetDeviceProperties to obtain the maximum number of threads per block, etc... 
+.PP
+Strided Arrays 
+.PP
+Smart zero-padded FFT's: try strided and transposed 
+.PP
+choose between in-place and out-of-place FFT's for best performance or best memory efficiency
+.RE
+.PP
+\fBAuthor:\fP
+.RS 4
+Arne Vansteenkiste 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "void assertDevice (float * pointer)".PP
+\fBFor internal use only.\fP
+.RS 4
+Checks if the data resides on the GPU device by copying one float from device to device. A segmentation fault is thrown when the data resides on the host. 
+.RE
+.PP
+
+.SS "void assertHost (float * pointer)".PP
+\fBFor internal use only.\fP
+.RS 4
+Checks if the data resides on the host by copying one float from host to host. A segmentation fault is thrown when the data resides on the GPU device. 
+.RE
+.PP
+
+.SS "void check1dconf (int gridsize, int blocksize)"Checks if the CUDA 1D kernel launch configuration is valid. CUDA tends to ignore invalid configurations silently, which is painfull for debugging. Uses device properties \fBParameters:\fP
+.RS 4
+\fIgridsize\fP 1D size of the thread grid 
+.br
+\fIblocksize\fP 1D size of the trhead blocks on the grid 
+.RE
+.PP
+
+.SS "void check3dconf (dim3 gridsize, dim3 blocksize)"Checks if the CUDA 3D kernel launch configuration is valid. CUDA tends to ignore invalid configurations silently, which is painfull for debugging. Uses device properties \fBParameters:\fP
+.RS 4
+\fIgridsize\fP 3D size of the thread grid 
+.br
+\fIblocksize\fP 3D size of the trhead blocks on the grid 
+.RE
+.PP
+
+.SS "void format_gputensor (\fBtensor\fP * t, FILE * out)".PP
+\fBFor internal use only.\fP
+.RS 4
+Debug function for printing gpu tensors without first having to copy them to host memory manually. 
+.RE
+.PP
+
+.SS "float gpu_array_get (float * dataptr, int index)".PP
+\fBFor internal use only.\fP
+.RS 4
+Reads one float from a GPU array, not extremely efficient. 
+.RE
+.PP
+
+.SS "void gpu_array_set (float * dataptr, int index, float value)".PP
+\fBFor internal use only.\fP
+.RS 4
+Writes one float to a GPU array, not extremely efficient. 
+.RE
+.PP
+
+.SS "void gpu_checkconf (dim3 gridsize, dim3 blocksize)"Checks if the CUDA 3D kernel launch configuration is valid. CUDA tends to ignore invalid configurations silently, which is painfull for debugging. 
+.PP
+\fBDeprecated\fP
+.RS 4
+use \fBcheck3dconf()\fP, which uses the actual device properties 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIgridsize\fP 3D size of the thread grid 
+.br
+\fIblocksize\fP 3D size of the trhead blocks on the grid 
+.RE
+.PP
+
+.SS "void gpu_checkconf_int (int gridsize, int blocksize)"Checks if the CUDA 1D kernel launch configuration is valid. CUDA tends to ignore invalid configurations silently, which is painfull for debugging. 
+.PP
+\fBDeprecated\fP
+.RS 4
+use \fBcheck1dconf()\fP, which uses the actual device properties 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIgridsize\fP 1D size of the thread grid 
+.br
+\fIblocksize\fP 1D size of the trhead blocks on the grid 
+.RE
+.PP
+
+.SS "void* gpu_getproperties (void)".PP
+\fBFor internal use only.\fP
+.RS 4
+Returns a cudaDeviceProp struct that contains the properties of the used GPU. When there are multiple GPUs present, the active one, used by this thread, is considered.
+.PP
+\fBWarning:\fP
+.RS 4
+One global cudaDeviceProp* is stored. The first time this function is called, it gets initialized. All subsequent calls return this cached cudaDeviceProp*. Consequently, the returned pointer must not be freed!
+.RE
+.PP
+The struct looks like this: 
+.PP
+.nf
+    char name[256];
+    size_t totalGlobalMem;
+    size_t sharedMemPerBlock;
+    int regsPerBlock;
+    int warpSize;
+    size_t memPitch;
+    int maxThreadsPerBlock;
+    int maxThreadsDim[3];
+    int maxGridSize[3];
+    size_t totalConstMem;
+    int major;
+    int minor;
+    int clockRate;
+    size_t textureAlignment;
+    int deviceOverlap;
+    int multiProcessorCount;
+    int kernelExecTimeoutEnabled;
+    int integrated;
+    int canMapHostMemory;
+    int computeMode;
+    int concurrentKernels;
+
+.fi
+.PP
+.PP
+\fBNote:\fP
+.RS 4
+I currently return the cudaDeviceProp* as a void*. In this way, none of the core functions expose cuda stuff directly. This makes it easier to link them with external code (Go, in my case). Arne. 
+.RE
+.PP
+.RE
+.PP
+
+.SS "void gpu_override_stride (int nFloats)".PP
+\fBFor internal use only.\fP
+.RS 4
+For debugging, it is handy to use a smaller-than-optimal stride; this prevents small test data to be padded to huge proportions. To reset to the intrinsic machine stride, set the value to -1. 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fInFloats\fP The stride (in number of floats) to use instead of the real, GPU-dependent stride. 
+.RE
+.PP
+
+.SS "int gpu_pad_to_stride (int nFloats)"This function takes an array size (in number of floats) and returns an array size -usually larger- that can store the original array and fits the GPU stride. Example (for a stride of 64 floats -- 256 bytes): 
+.PP
+.nf
+  1 -> 64
+  2 -> 64
+ ...
+ 63 -> 64
+ 64 -> 64
+ 65 -> 128
+ ...
+
+.fi
+.PP
+ 
+.SS "void gpu_safe (int status)"This function should be wrapped around cuda functions to check for a non-zero error status. It will print an error message and abort when neccesary. 
+.PP
+.nf
+ gpu_safe( cudaMalloc(...) );
+
+.fi
+.PP
+ \fBParameters:\fP
+.RS 4
+\fIstatus\fP CUDA return status 
+.RE
+.PP
+
+.SS "int gpu_stride_float ()"Returns the optimal array stride (in number of floats): the second dimension of a 2D array should be a multiple of the stride. This number is usually 64 but could depend on the hardware.
+.PP
+E.g.: it is better to use a 3 x 64 array than a 64 x 3.
+.PP
+This seems to generalize to higher dimensions: at least the last dimension should be a multiple of the stride. E.g.: Standard problem 4 ran about 4x faster when using a (3x) 1 x 32 x 128 geometry instead of (3x) 128 x 32 x 1 !
+.PP
+\fBTodo\fP
+.RS 4
+use cudaGetDeviceProperties for this? 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBgpu_pad_to_stride()\fP 
+.RE
+.PP
+
+.SS "void gpu_zero (float * data, int nElements)"Set a range of floats on the GPU to zero. \fBParameters:\fP
+.RS 4
+\fIdata\fP data pointer on the GPU 
+.br
+\fInElements\fP number of floats (not bytes) to be zeroed 
+.RE
+.PP
+
+.SS "void gpu_zero_tensor (\fBtensor\fP * t)"Sets all the tensor's elements to zero. The tensor should be allocated on the GPU. 
+.SS "void make1dconf (int N, int * gridSize, int * blockSize)"Makes a 1D thread configuration suited for a float array of size N The returned configuration will:
+.IP "\(bu" 2
+span the entire array
+.IP "\(bu" 2
+have the largest valid block size that fits in the array
+.IP "\(bu" 2
+be valid
+.PP
+.PP
+\fBSee also:\fP
+.RS 4
+\fBmake3dconf()\fP
+.RE
+.PP
+Example: 
+.PP
+.nf
+ int gridSize, blockSize;
+ make1dconf(arraySize, &gridSize, &blockSize);
+ mykernel<<<gridSize, blockSize>>>(arrrrgh);
+
+.fi
+.PP
+ \fBParameters:\fP
+.RS 4
+\fIN\fP size of array to span (number of floats) 
+.br
+\fIgridSize\fP grid size is returned here 
+.br
+\fIblockSize\fP block size is returned here 
+.RE
+.PP
+
+.SS "void make3dconf (int N0, int N1, int N2, dim3 * gridSize, dim3 * blockSize)"Makes a 3D thread configuration suited for a float array of size N0 x N1 x N2. The returned configuration will:
+.IP "\(bu" 2
+span the entire N0 x N1 x N2 array
+.IP "\(bu" 2
+have the largest valid block size that fits in the N0 x N1 x N2 array
+.IP "\(bu" 2
+be valid
+.PP
+.PP
+\fBTodo\fP
+.RS 4
+works only up to N2 = 512 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBmake1dconf()\fP
+.RE
+.PP
+Example: 
+.PP
+.nf
+  dim3 gridSize, blockSize;
+  make3dconf(N0, N1, N2, &gridSize, &blockSize);
+  mykernel<<<gridSize, blockSize>>>(arrrrgh);
+  
+  __global__ void mykernel(aaarghs){
+    
+    int i = ((blockIdx.x * blockDim.x) + threadIdx.x)
+    int j = ((blockIdx.y * blockDim.y) + threadIdx.y)
+    int k = ((blockIdx.z * blockDim.z) + threadIdx.z)
+    
+    ...
+  }
+
+.fi
+.PP
+ \fBParameters:\fP
+.RS 4
+\fIN0\fP size of 3D array to span 
+.br
+\fIN1\fP size of 3D array to span 
+.br
+\fIN2\fP size of 3D array to span 
+.br
+\fIgridSize\fP grid size is returned here 
+.br
+\fIblockSize\fP block size is returned here 
+.RE
+.PP
+
+.SS "void memcpy_from_gpu (float * source, float * dest, int nElements)"Copies floats from GPU to the main RAM. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBmemcpy_to_gpu()\fP, \fBmemcpy_gpu_to_gpu()\fP 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsource\fP source data pointer on the GPU 
+.br
+\fIdest\fP destination data pointer in the RAM 
+.br
+\fInElements\fP number of floats (not bytes) to be copied 
+.RE
+.PP
+
+.SS "void memcpy_gpu_to_gpu (float * source, float * dest, int nElements)"Copies floats from GPU to GPU. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBmemcpy_to_gpu()\fP, \fBmemcpy_from_gpu()\fP 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsource\fP source data pointer on the GPU 
+.br
+\fIdest\fP destination data pointer on the GPU 
+.br
+\fInElements\fP number of floats (not bytes) to be copied 
+.RE
+.PP
+
+.SS "void memcpy_to_gpu (float * source, float * dest, int nElements)"Copies floats from the main RAM to the GPU. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBmemcpy_from_gpu()\fP, \fBmemcpy_gpu_to_gpu()\fP 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsource\fP source data pointer in the RAM 
+.br
+\fIdest\fP destination data pointer on the GPU 
+.br
+\fInElements\fP number of floats (not bytes) to be copied 
+.RE
+.PP
+
+.SS "float* new_gpu_array (int size)"Allocates an array of floats on the GPU and asserts the size is a multiple of 512. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBnew_ram_array()\fP 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsize\fP size of the array 
+.RE
+.PP
+
+.SS "\fBtensor\fP* new_gputensor (int rank, int * size)"Creates a new tensor whose data is allocated on the GPU. (rank and size are stored in the host RAM) 
+.PP
+\fBTodo\fP
+.RS 4
+delete_gputensor() 
+.RE
+.PP
+
+.SS "float* new_ram_array (int size)"Allocates an array of floats in the main RAM. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBnew_gpu_array()\fP 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsize\fP size of the array 
+.RE
+.PP
+
+.SS "void print_device_properties (FILE * out)"Prints the properties of the used GPU \fBParameters:\fP
+.RS 4
+\fIout\fP stream to print to 
+.RE
+.PP
+
+.SS "void print_device_properties_stdout ()"
+.SS "void tensor_copy_from_gpu (\fBtensor\fP * source, \fBtensor\fP * dest)"Copies the source tensor (on the GPU) to the the destination tensor (in RAM). They should have equal sizes. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBtensor_copy_to_gpu()\fP, \fBtensor_copy_gpu_to_gpu()\fP 
+.RE
+.PP
+
+.SS "void tensor_copy_gpu_to_gpu (\fBtensor\fP * source, \fBtensor\fP * dest)"Copies the source tensor to the the destination tensor (both on the GPU). They should have equal sizes. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBtensor_copy_to_gpu()\fP, \fBtensor_copy_from_gpu()\fP 
+.RE
+.PP
+
+.SS "void tensor_copy_to_gpu (\fBtensor\fP * source, \fBtensor\fP * dest)"Copies the source tensor (in RAM) to the the destination tensor (on the GPU). They should have equal sizes. 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBtensor_copy_from_gpu()\fP, \fBtensor_copy_gpu_to_gpu()\fP 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

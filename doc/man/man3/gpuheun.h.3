@@ -1,0 +1,78 @@
+.TH "gpuheun.h" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gpuheun.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'debug.h'\fP
+.br
+\fC#include 'tensor.h'\fP
+.br
+\fC#include 'param.h'\fP
+.br
+\fC#include 'gpuconv2.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBgpuheun\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBgpuheun\fP * \fBnew_gpuheun\fP (\fBparam\fP *p)"
+.br
+.ti -1c
+.RI "void \fBgpu_heun_step\fP (\fBgpuheun\fP *solver, \fBtensor\fP *m, \fBtensor\fP *h, double *totalTime)"
+.br
+.ti -1c
+.RI "void \fBgpuheun_stage0_\fP (float *m, float *torque, int N)"
+.br
+.ti -1c
+.RI "void \fBgpuheun_stage1_\fP (float *m, float *torque, int N)"
+.br
+.ti -1c
+.RI "void \fBgpu_linear_combination\fP (float *a, float *b, float weightA, float weightB, int N)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+This file implements a Heun algorithm for solving the LL equation.
+.PP
+\fBAuthor:\fP
+.RS 4
+Arne Vansteenkiste 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "void gpu_heun_step (\fBgpuheun\fP * solver, \fBtensor\fP * m, \fBtensor\fP * h, double * totalTime)"Takes one time step 
+.SS "void gpu_linear_combination (float * a, float * b, float weightA, float weightB, int N)".PP
+\fBFor internal use only.\fP
+.RS 4
+.RE
+.PP
+
+.SS "void gpuheun_stage0_ (float * m, float * torque, int N)".PP
+\fBFor internal use only.\fP
+.RS 4
+.RE
+.PP
+
+.SS "void gpuheun_stage1_ (float * m, float * torque, int N)".PP
+\fBFor internal use only.\fP
+.RS 4
+.RE
+.PP
+
+.SS "\fBgpuheun\fP* new_gpuheun (\fBparam\fP * p)"Makes a new heun solver. 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

@@ -1,0 +1,87 @@
+\hypertarget{structtensor}{
+\section{tensor Struct Reference}
+\label{structtensor}\index{tensor@{tensor}}
+}
+
+
+{\ttfamily \#include $<$tensor.h$>$}
+
+\subsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{structtensor_a7557914487d3688aae0cffa1527446dc}{rank}
+\begin{DoxyCompactList}\small\item\em the tensor's rank \item\end{DoxyCompactList}\item 
+int $\ast$ \hyperlink{structtensor_ab6fbe3c007384ce983219f08dfb2e7ca}{size}
+\begin{DoxyCompactList}\small\item\em an array of length rank that stores the dimensions in all directions \item\end{DoxyCompactList}\item 
+int \hyperlink{structtensor_adebc092b0efc1c822fff1c722c65eb09}{len}
+\begin{DoxyCompactList}\small\item\em total number of elements, equal to size\mbox{[}0\mbox{]} $\ast$ size\mbox{[}1\mbox{]} $\ast$ ... $\ast$size\mbox{[}rank-\/1\mbox{]} \item\end{DoxyCompactList}\item 
+float $\ast$ \hyperlink{structtensor_a6f3380b63c035b9627bdb6dcef03fc1b}{list}
+\begin{DoxyCompactList}\small\item\em tensor data, stored as a (contiguous) array of length \char`\"{}len\char`\"{} \item\end{DoxyCompactList}\item 
+void $\ast$ \hyperlink{structtensor_a981c1c095b7ef2970dce785c6658285d}{array}
+\begin{DoxyCompactList}\small\item\em the tensor data represented as a multi-\/dimensional array. underneath lies the data from \char`\"{}list\char`\"{}. \item\end{DoxyCompactList}\item 
+int \hyperlink{structtensor_a382032d59a44e7b1c6d85e545c6140cd}{flags}
+\begin{DoxyCompactList}\small\item\em used to store some additional info like: allocated on RAM/GPU? symmetric? \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Field Documentation}
+\hypertarget{structtensor_a981c1c095b7ef2970dce785c6658285d}{
+\index{tensor@{tensor}!array@{array}}
+\index{array@{array}!tensor@{tensor}}
+\subsubsection[{array}]{\setlength{\rightskip}{0pt plus 5cm}void$\ast$ {\bf tensor::array}}}
+\label{structtensor_a981c1c095b7ef2970dce785c6658285d}
+
+
+the tensor data represented as a multi-\/dimensional array. underneath lies the data from \char`\"{}list\char`\"{}. 
+
+\hypertarget{structtensor_a382032d59a44e7b1c6d85e545c6140cd}{
+\index{tensor@{tensor}!flags@{flags}}
+\index{flags@{flags}!tensor@{tensor}}
+\subsubsection[{flags}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf tensor::flags}}}
+\label{structtensor_a382032d59a44e7b1c6d85e545c6140cd}
+
+
+used to store some additional info like: allocated on RAM/GPU? symmetric? 
+
+\begin{Desc}
+\item[\hyperlink{deprecated__deprecated000005}{Deprecated}]? \end{Desc}
+\hypertarget{structtensor_adebc092b0efc1c822fff1c722c65eb09}{
+\index{tensor@{tensor}!len@{len}}
+\index{len@{len}!tensor@{tensor}}
+\subsubsection[{len}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf tensor::len}}}
+\label{structtensor_adebc092b0efc1c822fff1c722c65eb09}
+
+
+total number of elements, equal to size\mbox{[}0\mbox{]} $\ast$ size\mbox{[}1\mbox{]} $\ast$ ... $\ast$size\mbox{[}rank-\/1\mbox{]} 
+
+\hypertarget{structtensor_a6f3380b63c035b9627bdb6dcef03fc1b}{
+\index{tensor@{tensor}!list@{list}}
+\index{list@{list}!tensor@{tensor}}
+\subsubsection[{list}]{\setlength{\rightskip}{0pt plus 5cm}float$\ast$ {\bf tensor::list}}}
+\label{structtensor_a6f3380b63c035b9627bdb6dcef03fc1b}
+
+
+tensor data, stored as a (contiguous) array of length \char`\"{}len\char`\"{} 
+
+\hypertarget{structtensor_a7557914487d3688aae0cffa1527446dc}{
+\index{tensor@{tensor}!rank@{rank}}
+\index{rank@{rank}!tensor@{tensor}}
+\subsubsection[{rank}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf tensor::rank}}}
+\label{structtensor_a7557914487d3688aae0cffa1527446dc}
+
+
+the tensor's rank 
+
+\hypertarget{structtensor_ab6fbe3c007384ce983219f08dfb2e7ca}{
+\index{tensor@{tensor}!size@{size}}
+\index{size@{size}!tensor@{tensor}}
+\subsubsection[{size}]{\setlength{\rightskip}{0pt plus 5cm}int$\ast$ {\bf tensor::size}}}
+\label{structtensor_ab6fbe3c007384ce983219f08dfb2e7ca}
+
+
+an array of length rank that stores the dimensions in all directions 
+
+
+
+The documentation for this struct was generated from the following file:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{tensor_8h}{tensor.h}\end{DoxyCompactItemize}

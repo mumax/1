@@ -1,0 +1,313 @@
+\hypertarget{param_8h}{
+\section{param.h File Reference}
+\label{param_8h}\index{param.h@{param.h}}
+}
+{\ttfamily \#include \char`\"{}assert.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}tensor.h\char`\"{}}\par
+{\ttfamily \#include $<$stdio.h$>$}\par
+{\ttfamily \#include $<$stdlib.h$>$}\par
+{\ttfamily \#include $<$math.h$>$}\par
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structparam}{param}
+\end{DoxyCompactItemize}
+\subsection*{Defines}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{param_8h_a598a3330b3c21701223ee0ca14316eca}{PI}~3.14159265
+\item 
+\#define \hyperlink{param_8h_a655c84af1b0034986ff56e12e84f983d}{NONE}~0
+\begin{DoxyCompactList}\small\item\em Possible value for any type (anisotropy, solver, exchange, ...). \item\end{DoxyCompactList}\item 
+\#define \hyperlink{param_8h_a08f5215e9e74045159201e009c3f822a}{ANIS\_\-UNIAXIAL}~1
+\begin{DoxyCompactList}\small\item\em Possible value for anisType. Means uniaxial anisotropy. \item\end{DoxyCompactList}\item 
+\#define \hyperlink{param_8h_ad4bc321fcc2c4bafa5e9c40d22a8a334}{ANIS\_\-CUBIC}~2
+\begin{DoxyCompactList}\small\item\em Possible value for anisType. Means cubic anisotropy. \item\end{DoxyCompactList}\item 
+\#define \hyperlink{param_8h_a97ecdec47cda68ea249c88071edf8768}{ANIS\_\-EDGE}~3
+\begin{DoxyCompactList}\small\item\em Possible value for anisType. Means shape anisotropy. \item\end{DoxyCompactList}\item 
+\#define \hyperlink{param_8h_accf65682788c3bb3cd2480f9bc75aa11}{SOLVER\_\-EULER}~1
+\begin{DoxyCompactList}\small\item\em Possible value for solverType. Simple Euler method. \item\end{DoxyCompactList}\item 
+\#define \hyperlink{param_8h_ab090745f8a353ba00fb08134f030c59d}{SOLVER\_\-HEUN}~2
+\begin{DoxyCompactList}\small\item\em Possible value for solverType. 2nd order Heun method. \item\end{DoxyCompactList}\item 
+\#define \hyperlink{param_8h_acfe6841b82819738f69bae5bd998cf5c}{SOLVER\_\-RK4}~4
+\begin{DoxyCompactList}\small\item\em Possible value for solverType. 4th order Runge-\/Kutta. \item\end{DoxyCompactList}\item 
+\#define \hyperlink{param_8h_aef07c5a739bb1eb7ecc1b61aebf740da}{SOLVER\_\-DP45}~45
+\begin{DoxyCompactList}\small\item\em Possible value for solverType. 5th order Dormand-\/Prince with adaptive step size. \item\end{DoxyCompactList}\item 
+\#define \hyperlink{param_8h_a825e62c5059292c9189839724a78b2b0}{SOLVER\_\-ANAL\_\-FW}~128
+\begin{DoxyCompactList}\small\item\em Possible value for solverType. Ben Van de Wiele's forward semi-\/analytical solver. \item\end{DoxyCompactList}\item 
+\#define \hyperlink{param_8h_a7306ecc4e97a917f168580a653f30a9a}{SOLVER\_\-ANAL\_\-PC}~256
+\begin{DoxyCompactList}\small\item\em Possible value for solverType. Ben Van de Wiele's predictor/corrector semi-\/analytical solver. \item\end{DoxyCompactList}\item 
+\#define \hyperlink{param_8h_a7e1a6335d94efc281d5b2eae4325ca43}{EXCH\_\-6NGBR}~6
+\begin{DoxyCompactList}\small\item\em Possible value for exchType. 6-\/neighbour exchange. \item\end{DoxyCompactList}\item 
+\#define \hyperlink{param_8h_a360d70a4aa6542c61ae1bad32b7df372}{KERNEL\_\-DIPOLE}~1
+\item 
+\#define \hyperlink{param_8h_aa89209eb8ea21d22e0bd037567e3a8a9}{KERNEL\_\-MICROMAG2D}~2
+\begin{DoxyCompactList}\small\item\em Possible value for kernelType. Quantities only dependent on Y and Z coordinate, invariance in X direction. Includes exchange. \item\end{DoxyCompactList}\item 
+\#define \hyperlink{param_8h_a34505b98c69b02e37b915628b1ab4fc0}{KERNEL\_\-MICROMAG3D}~3
+\begin{DoxyCompactList}\small\item\em Possible value for kernelType. Classical 3D micromagnetic kernel. Can also be used for 2D simulations (1 cell in X). Includes exchange. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{param_8h_af452f7948d4c49bae3732225342f53a3}{check\_\-param} (\hyperlink{structparam}{param} $\ast$p)
+\item 
+\hyperlink{structparam}{param} $\ast$ \hyperlink{param_8h_ab127140cec953de6afa605d7aa314017}{new\_\-param} ()
+\begin{DoxyCompactList}\small\item\em New param with default values. \item\end{DoxyCompactList}\item 
+void \hyperlink{param_8h_a267a1984bde484c0a264696bfa6cb6e2}{delete\_\-param} (\hyperlink{structparam}{param} $\ast$p)
+\begin{DoxyCompactList}\small\item\em Frees everything. \item\end{DoxyCompactList}\item 
+double \hyperlink{param_8h_afef99c49ae98fd4a2b4844c484975aec}{unitlength} (\hyperlink{structparam}{param} $\ast$p)
+\begin{DoxyCompactList}\small\item\em The internal unit of length, expressed in meters. \item\end{DoxyCompactList}\item 
+double \hyperlink{param_8h_afd5c91ab91885614920f91c05d75e3e0}{unittime} (\hyperlink{structparam}{param} $\ast$p)
+\begin{DoxyCompactList}\small\item\em The internal unit of time, expressed in seconds. \item\end{DoxyCompactList}\item 
+double \hyperlink{param_8h_a3d43510462f4fb3eef35ed4090b6a44d}{unitfield} (\hyperlink{structparam}{param} $\ast$p)
+\begin{DoxyCompactList}\small\item\em The internal unit of field, expressed in tesla. \item\end{DoxyCompactList}\item 
+double \hyperlink{param_8h_aad86c3fa9ec316ed5e1462e843b66e6e}{unitenergy} (\hyperlink{structparam}{param} $\ast$p)
+\begin{DoxyCompactList}\small\item\em The internal unit of energy, expressed in J. \item\end{DoxyCompactList}\item 
+void \hyperlink{param_8h_a7511344ddf8998dd0995a7b6332fa7f5}{param\_\-print} (FILE $\ast$out, \hyperlink{structparam}{param} $\ast$p)
+\begin{DoxyCompactList}\small\item\em Prints the parameters. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The params struct stores simulation parameters like
+\begin{DoxyItemize}
+\item material constants
+\item simulation size
+\item demag type
+\item time stepping parameters By convention, these parameters are only changed by the user, {\itshape not\/} by the simulation itself (e.g.: a solver itself must not change the maxDt parameter, etc.).
+\end{DoxyItemize}
+
+Should there be a need for a central place to store all variables that {\itshape are\/} changed during the simulation (like m, h, time, ...), then a second struct can be made for this.
+
+\begin{DoxyWarning}{Warning}
+Unless otherwise noted, all values represent internal units. Conversion from SI units is typically done right after the input file is read, and conversion back to SI is done right before output is written. In between, everything is doen in internal units, even if not noted explicitly.
+\end{DoxyWarning}
+The internal program units are well adapted to the intrinsic scale of the problem. This avoids having to deal with extremely large or small quantities, which may lead to numerical errors. Our program units are chosen so that the values of the following four quantities become one:
+
+
+\begin{DoxyItemize}
+\item msat (saturation magnetization of the used material, A/m)
+\item eaxch (exchange constant of the used material, J/m)
+\item gamma0 (gyromagnetic ratio, 2.211E5 m/As)
+\item mu0 (permeability of vacuum, 4pi$\ast$1E-\/7 N/A$^\wedge$2)
+\end{DoxyItemize}
+
+This leads to the following set of program units:
+
+
+\begin{DoxyItemize}
+\item Unit of field: msat $\ast$ mu0
+\item Unit of length: sqrt(2aexch/(mu0 $\ast$ msat$^\wedge$2)), the exchange length
+\item Unit of time:1/(gamma0 $\ast$ msat)
+\item Unit of energy: aexch $\ast$ unitlength
+\end{DoxyItemize}
+
+The param struct provides an easy way to keep track of the internal simulation units. A new unit system is created with \hyperlink{param_8cpp_ab127140cec953de6afa605d7aa314017}{new\_\-param()}, after which aexch and msat can be set. Then, \hyperlink{param_8cpp_afef99c49ae98fd4a2b4844c484975aec}{unitlength()}, \hyperlink{param_8cpp_afd5c91ab91885614920f91c05d75e3e0}{unittime()}, \hyperlink{param_8cpp_a3d43510462f4fb3eef35ed4090b6a44d}{unitfield()} and \hyperlink{param_8cpp_aad86c3fa9ec316ed5e1462e843b66e6e}{unitenergy()} can be called to get the respective internal units expressed in SI units.
+
+\begin{DoxyNote}{Note}
+gamma0 and mu0 are set to their default values, but can be changed if desired.
+\end{DoxyNote}
+\begin{DoxyAuthor}{Author}
+Arne Vansteenkiste, Ben Van de Wiele 
+\end{DoxyAuthor}
+
+
+\subsection{Define Documentation}
+\hypertarget{param_8h_ad4bc321fcc2c4bafa5e9c40d22a8a334}{
+\index{param.h@{param.h}!ANIS\_\-CUBIC@{ANIS\_\-CUBIC}}
+\index{ANIS\_\-CUBIC@{ANIS\_\-CUBIC}!param.h@{param.h}}
+\subsubsection[{ANIS\_\-CUBIC}]{\setlength{\rightskip}{0pt plus 5cm}\#define ANIS\_\-CUBIC~2}}
+\label{param_8h_ad4bc321fcc2c4bafa5e9c40d22a8a334}
+
+
+Possible value for anisType. Means cubic anisotropy. 
+
+\hypertarget{param_8h_a97ecdec47cda68ea249c88071edf8768}{
+\index{param.h@{param.h}!ANIS\_\-EDGE@{ANIS\_\-EDGE}}
+\index{ANIS\_\-EDGE@{ANIS\_\-EDGE}!param.h@{param.h}}
+\subsubsection[{ANIS\_\-EDGE}]{\setlength{\rightskip}{0pt plus 5cm}\#define ANIS\_\-EDGE~3}}
+\label{param_8h_a97ecdec47cda68ea249c88071edf8768}
+
+
+Possible value for anisType. Means shape anisotropy. 
+
+\hypertarget{param_8h_a08f5215e9e74045159201e009c3f822a}{
+\index{param.h@{param.h}!ANIS\_\-UNIAXIAL@{ANIS\_\-UNIAXIAL}}
+\index{ANIS\_\-UNIAXIAL@{ANIS\_\-UNIAXIAL}!param.h@{param.h}}
+\subsubsection[{ANIS\_\-UNIAXIAL}]{\setlength{\rightskip}{0pt plus 5cm}\#define ANIS\_\-UNIAXIAL~1}}
+\label{param_8h_a08f5215e9e74045159201e009c3f822a}
+
+
+Possible value for anisType. Means uniaxial anisotropy. 
+
+\hypertarget{param_8h_a7e1a6335d94efc281d5b2eae4325ca43}{
+\index{param.h@{param.h}!EXCH\_\-6NGBR@{EXCH\_\-6NGBR}}
+\index{EXCH\_\-6NGBR@{EXCH\_\-6NGBR}!param.h@{param.h}}
+\subsubsection[{EXCH\_\-6NGBR}]{\setlength{\rightskip}{0pt plus 5cm}\#define EXCH\_\-6NGBR~6}}
+\label{param_8h_a7e1a6335d94efc281d5b2eae4325ca43}
+
+
+Possible value for exchType. 6-\/neighbour exchange. 
+
+\hypertarget{param_8h_a360d70a4aa6542c61ae1bad32b7df372}{
+\index{param.h@{param.h}!KERNEL\_\-DIPOLE@{KERNEL\_\-DIPOLE}}
+\index{KERNEL\_\-DIPOLE@{KERNEL\_\-DIPOLE}!param.h@{param.h}}
+\subsubsection[{KERNEL\_\-DIPOLE}]{\setlength{\rightskip}{0pt plus 5cm}\#define KERNEL\_\-DIPOLE~1}}
+\label{param_8h_a360d70a4aa6542c61ae1bad32b7df372}
+\hypertarget{param_8h_aa89209eb8ea21d22e0bd037567e3a8a9}{
+\index{param.h@{param.h}!KERNEL\_\-MICROMAG2D@{KERNEL\_\-MICROMAG2D}}
+\index{KERNEL\_\-MICROMAG2D@{KERNEL\_\-MICROMAG2D}!param.h@{param.h}}
+\subsubsection[{KERNEL\_\-MICROMAG2D}]{\setlength{\rightskip}{0pt plus 5cm}\#define KERNEL\_\-MICROMAG2D~2}}
+\label{param_8h_aa89209eb8ea21d22e0bd037567e3a8a9}
+
+
+Possible value for kernelType. Quantities only dependent on Y and Z coordinate, invariance in X direction. Includes exchange. 
+
+\hypertarget{param_8h_a34505b98c69b02e37b915628b1ab4fc0}{
+\index{param.h@{param.h}!KERNEL\_\-MICROMAG3D@{KERNEL\_\-MICROMAG3D}}
+\index{KERNEL\_\-MICROMAG3D@{KERNEL\_\-MICROMAG3D}!param.h@{param.h}}
+\subsubsection[{KERNEL\_\-MICROMAG3D}]{\setlength{\rightskip}{0pt plus 5cm}\#define KERNEL\_\-MICROMAG3D~3}}
+\label{param_8h_a34505b98c69b02e37b915628b1ab4fc0}
+
+
+Possible value for kernelType. Classical 3D micromagnetic kernel. Can also be used for 2D simulations (1 cell in X). Includes exchange. 
+
+\hypertarget{param_8h_a655c84af1b0034986ff56e12e84f983d}{
+\index{param.h@{param.h}!NONE@{NONE}}
+\index{NONE@{NONE}!param.h@{param.h}}
+\subsubsection[{NONE}]{\setlength{\rightskip}{0pt plus 5cm}\#define NONE~0}}
+\label{param_8h_a655c84af1b0034986ff56e12e84f983d}
+
+
+Possible value for any type (anisotropy, solver, exchange, ...). 
+
+\hypertarget{param_8h_a598a3330b3c21701223ee0ca14316eca}{
+\index{param.h@{param.h}!PI@{PI}}
+\index{PI@{PI}!param.h@{param.h}}
+\subsubsection[{PI}]{\setlength{\rightskip}{0pt plus 5cm}\#define PI~3.14159265}}
+\label{param_8h_a598a3330b3c21701223ee0ca14316eca}
+\hypertarget{param_8h_a825e62c5059292c9189839724a78b2b0}{
+\index{param.h@{param.h}!SOLVER\_\-ANAL\_\-FW@{SOLVER\_\-ANAL\_\-FW}}
+\index{SOLVER\_\-ANAL\_\-FW@{SOLVER\_\-ANAL\_\-FW}!param.h@{param.h}}
+\subsubsection[{SOLVER\_\-ANAL\_\-FW}]{\setlength{\rightskip}{0pt plus 5cm}\#define SOLVER\_\-ANAL\_\-FW~128}}
+\label{param_8h_a825e62c5059292c9189839724a78b2b0}
+
+
+Possible value for solverType. Ben Van de Wiele's forward semi-\/analytical solver. 
+
+\hypertarget{param_8h_a7306ecc4e97a917f168580a653f30a9a}{
+\index{param.h@{param.h}!SOLVER\_\-ANAL\_\-PC@{SOLVER\_\-ANAL\_\-PC}}
+\index{SOLVER\_\-ANAL\_\-PC@{SOLVER\_\-ANAL\_\-PC}!param.h@{param.h}}
+\subsubsection[{SOLVER\_\-ANAL\_\-PC}]{\setlength{\rightskip}{0pt plus 5cm}\#define SOLVER\_\-ANAL\_\-PC~256}}
+\label{param_8h_a7306ecc4e97a917f168580a653f30a9a}
+
+
+Possible value for solverType. Ben Van de Wiele's predictor/corrector semi-\/analytical solver. 
+
+\hypertarget{param_8h_aef07c5a739bb1eb7ecc1b61aebf740da}{
+\index{param.h@{param.h}!SOLVER\_\-DP45@{SOLVER\_\-DP45}}
+\index{SOLVER\_\-DP45@{SOLVER\_\-DP45}!param.h@{param.h}}
+\subsubsection[{SOLVER\_\-DP45}]{\setlength{\rightskip}{0pt plus 5cm}\#define SOLVER\_\-DP45~45}}
+\label{param_8h_aef07c5a739bb1eb7ecc1b61aebf740da}
+
+
+Possible value for solverType. 5th order Dormand-\/Prince with adaptive step size. 
+
+\hypertarget{param_8h_accf65682788c3bb3cd2480f9bc75aa11}{
+\index{param.h@{param.h}!SOLVER\_\-EULER@{SOLVER\_\-EULER}}
+\index{SOLVER\_\-EULER@{SOLVER\_\-EULER}!param.h@{param.h}}
+\subsubsection[{SOLVER\_\-EULER}]{\setlength{\rightskip}{0pt plus 5cm}\#define SOLVER\_\-EULER~1}}
+\label{param_8h_accf65682788c3bb3cd2480f9bc75aa11}
+
+
+Possible value for solverType. Simple Euler method. 
+
+\hypertarget{param_8h_ab090745f8a353ba00fb08134f030c59d}{
+\index{param.h@{param.h}!SOLVER\_\-HEUN@{SOLVER\_\-HEUN}}
+\index{SOLVER\_\-HEUN@{SOLVER\_\-HEUN}!param.h@{param.h}}
+\subsubsection[{SOLVER\_\-HEUN}]{\setlength{\rightskip}{0pt plus 5cm}\#define SOLVER\_\-HEUN~2}}
+\label{param_8h_ab090745f8a353ba00fb08134f030c59d}
+
+
+Possible value for solverType. 2nd order Heun method. 
+
+\hypertarget{param_8h_acfe6841b82819738f69bae5bd998cf5c}{
+\index{param.h@{param.h}!SOLVER\_\-RK4@{SOLVER\_\-RK4}}
+\index{SOLVER\_\-RK4@{SOLVER\_\-RK4}!param.h@{param.h}}
+\subsubsection[{SOLVER\_\-RK4}]{\setlength{\rightskip}{0pt plus 5cm}\#define SOLVER\_\-RK4~4}}
+\label{param_8h_acfe6841b82819738f69bae5bd998cf5c}
+
+
+Possible value for solverType. 4th order Runge-\/Kutta. 
+
+
+
+\subsection{Function Documentation}
+\hypertarget{param_8h_af452f7948d4c49bae3732225342f53a3}{
+\index{param.h@{param.h}!check\_\-param@{check\_\-param}}
+\index{check\_\-param@{check\_\-param}!param.h@{param.h}}
+\subsubsection[{check\_\-param}]{\setlength{\rightskip}{0pt plus 5cm}void check\_\-param ({\bf param} $\ast$ {\em p})}}
+\label{param_8h_af452f7948d4c49bae3732225342f53a3}
+checks if the parameter list has acceptable values. \hypertarget{param_8h_a267a1984bde484c0a264696bfa6cb6e2}{
+\index{param.h@{param.h}!delete\_\-param@{delete\_\-param}}
+\index{delete\_\-param@{delete\_\-param}!param.h@{param.h}}
+\subsubsection[{delete\_\-param}]{\setlength{\rightskip}{0pt plus 5cm}void delete\_\-param ({\bf param} $\ast$ {\em p})}}
+\label{param_8h_a267a1984bde484c0a264696bfa6cb6e2}
+
+
+Frees everything. 
+
+\begin{Desc}
+\item[\hyperlink{todo__todo000020}{Todo}]implement \end{Desc}
+\hypertarget{param_8h_ab127140cec953de6afa605d7aa314017}{
+\index{param.h@{param.h}!new\_\-param@{new\_\-param}}
+\index{new\_\-param@{new\_\-param}!param.h@{param.h}}
+\subsubsection[{new\_\-param}]{\setlength{\rightskip}{0pt plus 5cm}{\bf param}$\ast$ new\_\-param ()}}
+\label{param_8h_ab127140cec953de6afa605d7aa314017}
+
+
+New param with default values. 
+
+\hypertarget{param_8h_a7511344ddf8998dd0995a7b6332fa7f5}{
+\index{param.h@{param.h}!param\_\-print@{param\_\-print}}
+\index{param\_\-print@{param\_\-print}!param.h@{param.h}}
+\subsubsection[{param\_\-print}]{\setlength{\rightskip}{0pt plus 5cm}void param\_\-print (FILE $\ast$ {\em out}, \/  {\bf param} $\ast$ {\em p})}}
+\label{param_8h_a7511344ddf8998dd0995a7b6332fa7f5}
+
+
+Prints the parameters. 
+
+\hypertarget{param_8h_aad86c3fa9ec316ed5e1462e843b66e6e}{
+\index{param.h@{param.h}!unitenergy@{unitenergy}}
+\index{unitenergy@{unitenergy}!param.h@{param.h}}
+\subsubsection[{unitenergy}]{\setlength{\rightskip}{0pt plus 5cm}double unitenergy ({\bf param} $\ast$ {\em p})}}
+\label{param_8h_aad86c3fa9ec316ed5e1462e843b66e6e}
+
+
+The internal unit of energy, expressed in J. 
+
+\hypertarget{param_8h_a3d43510462f4fb3eef35ed4090b6a44d}{
+\index{param.h@{param.h}!unitfield@{unitfield}}
+\index{unitfield@{unitfield}!param.h@{param.h}}
+\subsubsection[{unitfield}]{\setlength{\rightskip}{0pt plus 5cm}double unitfield ({\bf param} $\ast$ {\em p})}}
+\label{param_8h_a3d43510462f4fb3eef35ed4090b6a44d}
+
+
+The internal unit of field, expressed in tesla. 
+
+\hypertarget{param_8h_afef99c49ae98fd4a2b4844c484975aec}{
+\index{param.h@{param.h}!unitlength@{unitlength}}
+\index{unitlength@{unitlength}!param.h@{param.h}}
+\subsubsection[{unitlength}]{\setlength{\rightskip}{0pt plus 5cm}double unitlength ({\bf param} $\ast$ {\em p})}}
+\label{param_8h_afef99c49ae98fd4a2b4844c484975aec}
+
+
+The internal unit of length, expressed in meters. 
+
+\hypertarget{param_8h_afd5c91ab91885614920f91c05d75e3e0}{
+\index{param.h@{param.h}!unittime@{unittime}}
+\index{unittime@{unittime}!param.h@{param.h}}
+\subsubsection[{unittime}]{\setlength{\rightskip}{0pt plus 5cm}double unittime ({\bf param} $\ast$ {\em p})}}
+\label{param_8h_afd5c91ab91885614920f91c05d75e3e0}
+
+
+The internal unit of time, expressed in seconds. 
+

@@ -1,0 +1,30 @@
+.TH "deprecated" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+deprecated \- Deprecated List 
+ 
+.IP "\fBGlobal \fBgpu_checkconf\fP(dim3 gridsize, dim3 blocksize) \fP" 1c
+use \fBcheck3dconf()\fP, which uses the actual device properties 
+.PP
+.PP
+ 
+.IP "\fBGlobal \fBgpu_checkconf_int\fP(int gridsize, int blocksize) \fP" 1c
+use \fBcheck1dconf()\fP, which uses the actual device properties 
+.PP
+.PP
+ 
+.IP "\fBGlobal \fBnew_tensor\fP(int rank,...) \fP" 1c
+No compliation error arises when used with an int* as second argument. 
+.PP
+.PP
+ 
+.IP "\fBGlobal \fBtensor::flags\fP \fP" 1c
+? 
+.PP
+.PP
+ 
+.IP "\fBGlobal \fBtensor_length\fP(tensor *t) \fP" 1c
+use tensor->len instead 
+.PP
+

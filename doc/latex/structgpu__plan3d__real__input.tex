@@ -1,0 +1,146 @@
+\hypertarget{structgpu__plan3d__real__input}{
+\section{gpu\_\-plan3d\_\-real\_\-input Struct Reference}
+\label{structgpu__plan3d__real__input}\index{gpu\_\-plan3d\_\-real\_\-input@{gpu\_\-plan3d\_\-real\_\-input}}
+}
+
+
+{\ttfamily \#include $<$gpufft.h$>$}
+
+\subsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+int $\ast$ \hyperlink{structgpu__plan3d__real__input_a49f751412da8ff594dd2f0275a4d8a21}{size}
+\begin{DoxyCompactList}\small\item\em logical size of the (real) input data \item\end{DoxyCompactList}\item 
+int \hyperlink{structgpu__plan3d__real__input_a0d093b066f8063cc183c8340790bdf14}{N}
+\begin{DoxyCompactList}\small\item\em total number of floats in size \item\end{DoxyCompactList}\item 
+int $\ast$ \hyperlink{structgpu__plan3d__real__input_a3542f2b6fca17ea54549c784570dcd44}{paddedSize}
+\begin{DoxyCompactList}\small\item\em size after zero-\/padding. \item\end{DoxyCompactList}\item 
+int \hyperlink{structgpu__plan3d__real__input_a94d7eac29ab42754d7fdba51c563f419}{paddedN}
+\begin{DoxyCompactList}\small\item\em total number of floats in paddedSize \item\end{DoxyCompactList}\item 
+int $\ast$ \hyperlink{structgpu__plan3d__real__input_a46e1d58faf582ea23c2e3e14640356b2}{paddedStorageSize}
+\begin{DoxyCompactList}\small\item\em A real-\/to-\/complex FFT requires padding with one complex number in the last dimension. However, is this would result in misalgned memory, we pad with (typically) 64 floats. \item\end{DoxyCompactList}\item 
+int \hyperlink{structgpu__plan3d__real__input_ac2ab3705948b428a3db89126c7610964}{paddedStorageN}
+\begin{DoxyCompactList}\small\item\em total number of floats in paddedStorageSize \item\end{DoxyCompactList}\item 
+cufftHandle \hyperlink{structgpu__plan3d__real__input_ae39275ea173f7d06fe87cf75bd1ca0b2}{fwPlanZ}
+\begin{DoxyCompactList}\small\item\em 1D real-\/to-\/complex plan for Z-\/direction \item\end{DoxyCompactList}\item 
+cufftHandle \hyperlink{structgpu__plan3d__real__input_a91b425c652f16c10a152dcff097a5b04}{invPlanZ}
+\begin{DoxyCompactList}\small\item\em 1D complex-\/to-\/real plan for Z-\/direction \item\end{DoxyCompactList}\item 
+cufftHandle \hyperlink{structgpu__plan3d__real__input_a7721fe049fc152d3bc0ade13c4f4426b}{planY}
+\begin{DoxyCompactList}\small\item\em 1D complex-\/to-\/complex plan for Y-\/direction, forward or inverse \item\end{DoxyCompactList}\item 
+cufftHandle \hyperlink{structgpu__plan3d__real__input_a57752f1567bc689ad71d8e3e8017ec4a}{planX}
+\begin{DoxyCompactList}\small\item\em 1D complex-\/to-\/complex plan for X-\/direction, forward or inverse \item\end{DoxyCompactList}\item 
+float $\ast$ \hyperlink{structgpu__plan3d__real__input_ac51425f669e3169308d1b1126008ee09}{transp}
+\begin{DoxyCompactList}\small\item\em buffer for out-\/of-\/place transposing \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A real-\/to-\/complex FFT plan on the GPU. 
+
+\subsection{Field Documentation}
+\hypertarget{structgpu__plan3d__real__input_ae39275ea173f7d06fe87cf75bd1ca0b2}{
+\index{gpu\_\-plan3d\_\-real\_\-input@{gpu\_\-plan3d\_\-real\_\-input}!fwPlanZ@{fwPlanZ}}
+\index{fwPlanZ@{fwPlanZ}!gpu_plan3d_real_input@{gpu\_\-plan3d\_\-real\_\-input}}
+\subsubsection[{fwPlanZ}]{\setlength{\rightskip}{0pt plus 5cm}cufftHandle {\bf gpu\_\-plan3d\_\-real\_\-input::fwPlanZ}}}
+\label{structgpu__plan3d__real__input_ae39275ea173f7d06fe87cf75bd1ca0b2}
+
+
+1D real-\/to-\/complex plan for Z-\/direction 
+
+\hypertarget{structgpu__plan3d__real__input_a91b425c652f16c10a152dcff097a5b04}{
+\index{gpu\_\-plan3d\_\-real\_\-input@{gpu\_\-plan3d\_\-real\_\-input}!invPlanZ@{invPlanZ}}
+\index{invPlanZ@{invPlanZ}!gpu_plan3d_real_input@{gpu\_\-plan3d\_\-real\_\-input}}
+\subsubsection[{invPlanZ}]{\setlength{\rightskip}{0pt plus 5cm}cufftHandle {\bf gpu\_\-plan3d\_\-real\_\-input::invPlanZ}}}
+\label{structgpu__plan3d__real__input_a91b425c652f16c10a152dcff097a5b04}
+
+
+1D complex-\/to-\/real plan for Z-\/direction 
+
+\hypertarget{structgpu__plan3d__real__input_a0d093b066f8063cc183c8340790bdf14}{
+\index{gpu\_\-plan3d\_\-real\_\-input@{gpu\_\-plan3d\_\-real\_\-input}!N@{N}}
+\index{N@{N}!gpu_plan3d_real_input@{gpu\_\-plan3d\_\-real\_\-input}}
+\subsubsection[{N}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf gpu\_\-plan3d\_\-real\_\-input::N}}}
+\label{structgpu__plan3d__real__input_a0d093b066f8063cc183c8340790bdf14}
+
+
+total number of floats in size 
+
+\hypertarget{structgpu__plan3d__real__input_a94d7eac29ab42754d7fdba51c563f419}{
+\index{gpu\_\-plan3d\_\-real\_\-input@{gpu\_\-plan3d\_\-real\_\-input}!paddedN@{paddedN}}
+\index{paddedN@{paddedN}!gpu_plan3d_real_input@{gpu\_\-plan3d\_\-real\_\-input}}
+\subsubsection[{paddedN}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf gpu\_\-plan3d\_\-real\_\-input::paddedN}}}
+\label{structgpu__plan3d__real__input_a94d7eac29ab42754d7fdba51c563f419}
+
+
+total number of floats in paddedSize 
+
+\hypertarget{structgpu__plan3d__real__input_a3542f2b6fca17ea54549c784570dcd44}{
+\index{gpu\_\-plan3d\_\-real\_\-input@{gpu\_\-plan3d\_\-real\_\-input}!paddedSize@{paddedSize}}
+\index{paddedSize@{paddedSize}!gpu_plan3d_real_input@{gpu\_\-plan3d\_\-real\_\-input}}
+\subsubsection[{paddedSize}]{\setlength{\rightskip}{0pt plus 5cm}int$\ast$ {\bf gpu\_\-plan3d\_\-real\_\-input::paddedSize}}}
+\label{structgpu__plan3d__real__input_a3542f2b6fca17ea54549c784570dcd44}
+
+
+size after zero-\/padding. 
+
+\begin{DoxyNote}{Note}
+zero-\/padding is conditional and not necessarily performed in each direction. Therefore, \char`\"{}paddedSize\char`\"{} is not necessarily twice \char`\"{}size\char`\"{}. 
+\end{DoxyNote}
+\hypertarget{structgpu__plan3d__real__input_ac2ab3705948b428a3db89126c7610964}{
+\index{gpu\_\-plan3d\_\-real\_\-input@{gpu\_\-plan3d\_\-real\_\-input}!paddedStorageN@{paddedStorageN}}
+\index{paddedStorageN@{paddedStorageN}!gpu_plan3d_real_input@{gpu\_\-plan3d\_\-real\_\-input}}
+\subsubsection[{paddedStorageN}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf gpu\_\-plan3d\_\-real\_\-input::paddedStorageN}}}
+\label{structgpu__plan3d__real__input_ac2ab3705948b428a3db89126c7610964}
+
+
+total number of floats in paddedStorageSize 
+
+\hypertarget{structgpu__plan3d__real__input_a46e1d58faf582ea23c2e3e14640356b2}{
+\index{gpu\_\-plan3d\_\-real\_\-input@{gpu\_\-plan3d\_\-real\_\-input}!paddedStorageSize@{paddedStorageSize}}
+\index{paddedStorageSize@{paddedStorageSize}!gpu_plan3d_real_input@{gpu\_\-plan3d\_\-real\_\-input}}
+\subsubsection[{paddedStorageSize}]{\setlength{\rightskip}{0pt plus 5cm}int$\ast$ {\bf gpu\_\-plan3d\_\-real\_\-input::paddedStorageSize}}}
+\label{structgpu__plan3d__real__input_a46e1d58faf582ea23c2e3e14640356b2}
+
+
+A real-\/to-\/complex FFT requires padding with one complex number in the last dimension. However, is this would result in misalgned memory, we pad with (typically) 64 floats. 
+
+\hypertarget{structgpu__plan3d__real__input_a57752f1567bc689ad71d8e3e8017ec4a}{
+\index{gpu\_\-plan3d\_\-real\_\-input@{gpu\_\-plan3d\_\-real\_\-input}!planX@{planX}}
+\index{planX@{planX}!gpu_plan3d_real_input@{gpu\_\-plan3d\_\-real\_\-input}}
+\subsubsection[{planX}]{\setlength{\rightskip}{0pt plus 5cm}cufftHandle {\bf gpu\_\-plan3d\_\-real\_\-input::planX}}}
+\label{structgpu__plan3d__real__input_a57752f1567bc689ad71d8e3e8017ec4a}
+
+
+1D complex-\/to-\/complex plan for X-\/direction, forward or inverse 
+
+\hypertarget{structgpu__plan3d__real__input_a7721fe049fc152d3bc0ade13c4f4426b}{
+\index{gpu\_\-plan3d\_\-real\_\-input@{gpu\_\-plan3d\_\-real\_\-input}!planY@{planY}}
+\index{planY@{planY}!gpu_plan3d_real_input@{gpu\_\-plan3d\_\-real\_\-input}}
+\subsubsection[{planY}]{\setlength{\rightskip}{0pt plus 5cm}cufftHandle {\bf gpu\_\-plan3d\_\-real\_\-input::planY}}}
+\label{structgpu__plan3d__real__input_a7721fe049fc152d3bc0ade13c4f4426b}
+
+
+1D complex-\/to-\/complex plan for Y-\/direction, forward or inverse 
+
+\hypertarget{structgpu__plan3d__real__input_a49f751412da8ff594dd2f0275a4d8a21}{
+\index{gpu\_\-plan3d\_\-real\_\-input@{gpu\_\-plan3d\_\-real\_\-input}!size@{size}}
+\index{size@{size}!gpu_plan3d_real_input@{gpu\_\-plan3d\_\-real\_\-input}}
+\subsubsection[{size}]{\setlength{\rightskip}{0pt plus 5cm}int$\ast$ {\bf gpu\_\-plan3d\_\-real\_\-input::size}}}
+\label{structgpu__plan3d__real__input_a49f751412da8ff594dd2f0275a4d8a21}
+
+
+logical size of the (real) input data 
+
+\hypertarget{structgpu__plan3d__real__input_ac51425f669e3169308d1b1126008ee09}{
+\index{gpu\_\-plan3d\_\-real\_\-input@{gpu\_\-plan3d\_\-real\_\-input}!transp@{transp}}
+\index{transp@{transp}!gpu_plan3d_real_input@{gpu\_\-plan3d\_\-real\_\-input}}
+\subsubsection[{transp}]{\setlength{\rightskip}{0pt plus 5cm}float$\ast$ {\bf gpu\_\-plan3d\_\-real\_\-input::transp}}}
+\label{structgpu__plan3d__real__input_ac51425f669e3169308d1b1126008ee09}
+
+
+buffer for out-\/of-\/place transposing 
+
+
+
+The documentation for this struct was generated from the following file:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{gpufft_8h}{gpufft.h}\end{DoxyCompactItemize}

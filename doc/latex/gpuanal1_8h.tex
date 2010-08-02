@@ -1,0 +1,67 @@
+\hypertarget{gpuanal1_8h}{
+\section{gpuanal1.h File Reference}
+\label{gpuanal1_8h}\index{gpuanal1.h@{gpuanal1.h}}
+}
+{\ttfamily \#include \char`\"{}tensor.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}gpuconv1.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}gputil.h\char`\"{}}\par
+{\ttfamily \#include $<$cufft.h$>$}\par
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structgpuanal1}{gpuanal1}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{structgpuanal1}{gpuanal1} $\ast$ \hyperlink{gpuanal1_8h_a635a155a39748764eeaeba18dd27efa1}{new\_\-gpuanal1} (int \hyperlink{gpufft2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{N0}, int \hyperlink{gpufft2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{N1}, int \hyperlink{gpufft2__test_8cpp_adeea8075a0038c985c63d45161804d60}{N2}, \hyperlink{structtensor}{tensor} $\ast$kernel)
+\item 
+void \hyperlink{gpuanal1_8h_a146042969213bc68f8969bab1e43766d}{gpuanal1\_\-loadm} (\hyperlink{structgpuanal1}{gpuanal1} $\ast$anal1, \hyperlink{structtensor}{tensor} $\ast$m)
+\item 
+void \hyperlink{gpuanal1_8h_a32b20cadae7c02475e48b20e9dfd3f31}{gpuanal1\_\-storem} (\hyperlink{structgpuanal1}{gpuanal1} $\ast$anal1, \hyperlink{structtensor}{tensor} $\ast$m)
+\item 
+void \hyperlink{gpuanal1_8h_a07ba96c93c70f4a619b74aacf49af917}{gpuanal1\_\-step} (\hyperlink{structgpuanal1}{gpuanal1} $\ast$solver, float dt, float alpha)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This file implements the forward semi-\/analytical time stepping scheme for solving the LL equation.
+
+\begin{DoxyAuthor}{Author}
+Ben Van de Wiele 
+\end{DoxyAuthor}
+
+
+\subsection{Function Documentation}
+\hypertarget{gpuanal1_8h_a146042969213bc68f8969bab1e43766d}{
+\index{gpuanal1.h@{gpuanal1.h}!gpuanal1\_\-loadm@{gpuanal1\_\-loadm}}
+\index{gpuanal1\_\-loadm@{gpuanal1\_\-loadm}!gpuanal1.h@{gpuanal1.h}}
+\subsubsection[{gpuanal1\_\-loadm}]{\setlength{\rightskip}{0pt plus 5cm}void gpuanal1\_\-loadm ({\bf gpuanal1} $\ast$ {\em anal1}, \/  {\bf tensor} $\ast$ {\em m})}}
+\label{gpuanal1_8h_a146042969213bc68f8969bab1e43766d}
+Copies a magnetization configuration in the solver, e.g. the initial magnetization. \begin{DoxySeeAlso}{See also}
+: \hyperlink{gpuanal1_8h_a32b20cadae7c02475e48b20e9dfd3f31}{gpuanal1\_\-storem} 
+\end{DoxySeeAlso}
+\hypertarget{gpuanal1_8h_a07ba96c93c70f4a619b74aacf49af917}{
+\index{gpuanal1.h@{gpuanal1.h}!gpuanal1\_\-step@{gpuanal1\_\-step}}
+\index{gpuanal1\_\-step@{gpuanal1\_\-step}!gpuanal1.h@{gpuanal1.h}}
+\subsubsection[{gpuanal1\_\-step}]{\setlength{\rightskip}{0pt plus 5cm}void gpuanal1\_\-step ({\bf gpuanal1} $\ast$ {\em solver}, \/  float {\em dt}, \/  float {\em alpha})}}
+\label{gpuanal1_8h_a07ba96c93c70f4a619b74aacf49af917}
+Takes one time step 
+\begin{DoxyParams}{Parameters}
+\item[{\em solver}]the solver to step \item[{\em dt}]time step (internal units). \item[{\em alpha}]damping constant \end{DoxyParams}
+\hypertarget{gpuanal1_8h_a32b20cadae7c02475e48b20e9dfd3f31}{
+\index{gpuanal1.h@{gpuanal1.h}!gpuanal1\_\-storem@{gpuanal1\_\-storem}}
+\index{gpuanal1\_\-storem@{gpuanal1\_\-storem}!gpuanal1.h@{gpuanal1.h}}
+\subsubsection[{gpuanal1\_\-storem}]{\setlength{\rightskip}{0pt plus 5cm}void gpuanal1\_\-storem ({\bf gpuanal1} $\ast$ {\em anal1}, \/  {\bf tensor} $\ast$ {\em m})}}
+\label{gpuanal1_8h_a32b20cadae7c02475e48b20e9dfd3f31}
+Copies a magnetization configuration from the solver to the RAM, e.g. the magnetization after a number of time steps. \begin{DoxySeeAlso}{See also}
+: \hyperlink{gpuanal1_8h_a146042969213bc68f8969bab1e43766d}{gpuanal1\_\-loadm} 
+\end{DoxySeeAlso}
+\hypertarget{gpuanal1_8h_a635a155a39748764eeaeba18dd27efa1}{
+\index{gpuanal1.h@{gpuanal1.h}!new\_\-gpuanal1@{new\_\-gpuanal1}}
+\index{new\_\-gpuanal1@{new\_\-gpuanal1}!gpuanal1.h@{gpuanal1.h}}
+\subsubsection[{new\_\-gpuanal1}]{\setlength{\rightskip}{0pt plus 5cm}{\bf gpuanal1}$\ast$ new\_\-gpuanal1 (int {\em N0}, \/  int {\em N1}, \/  int {\em N2}, \/  {\bf tensor} $\ast$ {\em kernel})}}
+\label{gpuanal1_8h_a635a155a39748764eeaeba18dd27efa1}
+Makes a new anal1 solver. 
+\begin{DoxyParams}{Parameters}
+\item[{\em N0}]X-\/size of magnetization \item[{\em N1}]Y-\/size of magnetization \item[{\em N2}]Z-\/size of magnetization \item[{\em kernel}]convolution kernel describing the effective field. size: 2$\ast$N0 x 2$\ast$N1 x 2$\ast$N2 \end{DoxyParams}

@@ -1,0 +1,58 @@
+.TH "pipes.h" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+pipes.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'tensor.h'\fP
+.br
+\fC#include 'param.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBtensor\fP * \fBpipe_tensor\fP (char *command)"
+.br
+.ti -1c
+.RI "\fBtensor\fP * \fBpipe_kernel\fP (\fBparam\fP *params)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Using sub-processes is a universal way to glue together programs written in different languages. The main program can communticate with its sub-processes by sending data over UNIX pipes. Using sub-processes is mainly useful in the non performance-critical stages of a program, as there is some overhead associated to the creation of each new process.
+.PP
+This file provides some utilities for working with pipes. E.g., \fBpipe_tensor()\fP executes a command and returns its standard output directly as a tensor, thus releaving the user to manully open the pipe, read the tensor, check for errors, etc.
+.PP
+\fBTodo\fP
+.RS 4
+pipe_kernel(msat, aexch, size, ...) to get a micromagnetic kernel 
+.PP
+pipe_config() for an initial configuration 
+.PP
+pipe_output() for post-processing
+.RE
+.PP
+\fBAuthor:\fP
+.RS 4
+Arne Vansteenkiste 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "\fBtensor\fP* pipe_kernel (\fBparam\fP * params)"
+.SS "\fBtensor\fP* pipe_tensor (char * command)"Executes a command that should output a tensor to stdout, and returns the tensor. The tensor should be passed in the standard tensor format (see \fBtensor.h\fP).
+.PP
+\fBTodo\fP
+.RS 4
+error handling 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

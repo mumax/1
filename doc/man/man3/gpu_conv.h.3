@@ -1,0 +1,279 @@
+.TH "gpu_conv.h" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gpu_conv.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'gputil.h'\fP
+.br
+\fC#include 'tensor.h'\fP
+.br
+\fC#include 'param.h'\fP
+.br
+\fC#include 'kernel.h'\fP
+.br
+\fC#include 'gpufft2.h'\fP
+.br
+\fC#include 'assert.h'\fP
+.br
+\fC#include 'timer.h'\fP
+.br
+\fC#include <stdio.h>\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBconv_data\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBevaluate_convolution\fP (\fBtensor\fP *m, \fBtensor\fP *h, \fBconv_data\fP *conv, \fBparam\fP *p)"
+.br
+.ti -1c
+.RI "void \fBevaluate_micromag3d_conv\fP (\fBtensor\fP *m, \fBtensor\fP *h, \fBconv_data\fP *conv)"
+.br
+.ti -1c
+.RI "void \fBgpu_kernel_mul_micromag3d\fP (\fBtensor\fP *fft1, \fBtensor\fP *kernel)"
+.br
+.ti -1c
+.RI "__global__ void \fB_gpu_kernel_mul_micromag3d\fP (float *fftMx, float *fftMy, float *fftMz, float *fftKxx, float *fftKxy, float *fftKxz, float *fftKyy, float *fftKyz, float *fftKzz)"
+.br
+.ti -1c
+.RI "void \fBevaluate_micromag3d_conv_Xthickness_1\fP (\fBtensor\fP *m, \fBtensor\fP *h, \fBconv_data\fP *conv)"
+.br
+.ti -1c
+.RI "void \fBgpu_kernel_mul_micromag3d_Xthickness_1\fP (\fBtensor\fP *fft1, \fBtensor\fP *kernel)"
+.br
+.ti -1c
+.RI "__global__ void \fB_gpu_kernel_mul_micromag3d_Xthickness_1\fP (float *fftMx, float *fftMy, float *fftMz, float *fftKxx, float *fftKyy, float *fftKyz, float *fftKzz)"
+.br
+.ti -1c
+.RI "void \fBevaluate_micromag2d_conv\fP (\fBtensor\fP *m, \fBtensor\fP *h, \fBconv_data\fP *conv)"
+.br
+.ti -1c
+.RI "void \fBgpu_kernel_mul_micromag2d\fP (\fBtensor\fP *fft1, \fBtensor\fP *kernel)"
+.br
+.ti -1c
+.RI "__global__ void \fB_gpu_kernel_mul_micromag2d\fP (float *fftMy, float *fftMz, float *fftKyy, float *fftKyz, float *fftKzz)"
+.br
+.ti -1c
+.RI "\fBconv_data\fP * \fBnew_conv_data\fP (\fBparam\fP *p, \fBtensor\fP *kernel)"
+.br
+.ti -1c
+.RI "__global__ void \fB_gpu_copy_pad\fP (float *source, float *dest, int S1, int S2, int D1, int D2)"
+.br
+.ti -1c
+.RI "void \fBgpu_copy_to_pad\fP (float *source, float *dest, int *unpad_size4d, int *pad_size4d)"
+.br
+.ti -1c
+.RI "void \fBgpu_copy_to_unpad\fP (float *source, float *dest, int *pad_size4d, int *unpad_size4d)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+This file contains all functions related with the initialization and execution of the convolutions.
+.PP
+\fBAuthor:\fP
+.RS 4
+Ben Van de Wiele, Arne Vansteenkiste 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "__global__ void _gpu_copy_pad (float * source, float * dest, int S1, int S2, int D1, int D2)".PP
+\fBFor internal use only.\fP
+.RS 4
+Does padding and unpadding, not necessarily by a factor 2 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsource\fP source data 
+.br
+\fIdest\fP destination data 
+.br
+\fIS1\fP source size Y 
+.br
+\fIS2\fP source size Z 
+.br
+\fID1\fP destination size Y 
+.br
+\fID2\fP destination size Z 
+.RE
+.PP
+
+.SS "__global__ void _gpu_kernel_mul_micromag2d (float * fftMy, float * fftMz, float * fftKyy, float * fftKyz, float * fftKzz)"\fBParameters:\fP
+.RS 4
+\fIfftMy\fP Fourier transformed My data 
+.br
+\fIfftMz\fP Fourier transformed Mz data 
+.br
+\fIfftKyy\fP yy kernel component 
+.br
+\fIfftKyz\fP yz kernel component 
+.br
+\fIfftKzz\fP zz kernel component 
+.RE
+.PP
+
+.SS "__global__ void _gpu_kernel_mul_micromag3d (float * fftMx, float * fftMy, float * fftMz, float * fftKxx, float * fftKxy, float * fftKxz, float * fftKyy, float * fftKyz, float * fftKzz)"Actual multiplication on gpu of the MICROMAG3D kernel with a sample thickness of more then one (possibly coarse level) FD cell. \fBParameters:\fP
+.RS 4
+\fIfftMx\fP Fourier transformed Mx data 
+.br
+\fIfftMy\fP Fourier transformed My data 
+.br
+\fIfftMz\fP Fourier transformed Mz data 
+.br
+\fIfftKxx\fP xx kernel component 
+.br
+\fIfftKxy\fP xy kernel component 
+.br
+\fIfftKxz\fP xz kernel component 
+.br
+\fIfftKyy\fP yy kernel component 
+.br
+\fIfftKyz\fP yz kernel component 
+.br
+\fIfftKzz\fP zz kernel component 
+.RE
+.PP
+
+.SS "__global__ void _gpu_kernel_mul_micromag3d_Xthickness_1 (float * fftMx, float * fftMy, float * fftMz, float * fftKxx, float * fftKyy, float * fftKyz, float * fftKzz)"Actual multiplication on gpu of the MICROMAG3D kernel with a sample thickness of one (possibly coarse level) FD cell. \fBParameters:\fP
+.RS 4
+\fIfftMx\fP Fourier transformed Mx data 
+.br
+\fIfftMy\fP Fourier transformed My data 
+.br
+\fIfftMz\fP Fourier transformed Mz data 
+.br
+\fIfftKxx\fP xx kernel component 
+.br
+\fIfftKyy\fP yy kernel component 
+.br
+\fIfftKyz\fP yz kernel component 
+.br
+\fIfftKzz\fP zz kernel component 
+.RE
+.PP
+
+.SS "void evaluate_convolution (\fBtensor\fP * m, \fBtensor\fP * h, \fBconv_data\fP * conv, \fBparam\fP * p)"Evaluates a convolution. The input is the magnetization tensor m, the output is the magnetic field tensor h. All required work space, the kernel and the corresponding FFT plan are referred ate in the convolution data 'conv'. Before using this function, the convolution data should be initialized using the function: \fBnew_conv_data(param *p, tensor *kernel)\fP. \fBParameters:\fP
+.RS 4
+\fIm\fP input: rank 4 tensor containing the magnetization data. 
+.br
+\fIh\fP output: rank 4 tensor containing the field data. 
+.br
+\fIconv\fP convolution data: work space, kernel. 
+.br
+\fIp\fP parameter list 
+.RE
+.PP
+
+.SS "void evaluate_micromag2d_conv (\fBtensor\fP * m, \fBtensor\fP * h, \fBconv_data\fP * conv)"Evaluates a convolution of type MICROMAG2D. \fBParameters:\fP
+.RS 4
+\fIm\fP input: rank 4 tensor containing the magnetization data. 
+.br
+\fIh\fP output: rank 4 tensor containing the field data. 
+.br
+\fIconv\fP convolution data: work space, kernel, FFT plan. 
+.RE
+.PP
+
+.SS "void evaluate_micromag3d_conv (\fBtensor\fP * m, \fBtensor\fP * h, \fBconv_data\fP * conv)"Evaluates a convolution of type MICROMAG3D with a sample thickness of more then one (possibly coarse level) FD cell. \fBParameters:\fP
+.RS 4
+\fIm\fP input: rank 4 tensor containing the magnetization data. 
+.br
+\fIh\fP output: rank 4 tensor containing the field data. 
+.br
+\fIconv\fP convolution data: work space, kernel, FFT plan. 
+.RE
+.PP
+
+.SS "void evaluate_micromag3d_conv_Xthickness_1 (\fBtensor\fP * m, \fBtensor\fP * h, \fBconv_data\fP * conv)"Evaluates a convolution of type MICROMAG3D with a sample thickness of one (possibly coarse level) FD cell. \fBParameters:\fP
+.RS 4
+\fIm\fP input: rank 4 tensor containing the magnetization data. 
+.br
+\fIh\fP output: rank 4 tensor containing the field data. 
+.br
+\fIconv\fP convolution data: work space, kernel, FFT plan. 
+.RE
+.PP
+
+.SS "void gpu_copy_to_pad (float * source, float * dest, int * unpad_size4d, int * pad_size4d)".PP
+\fBFor internal use only.\fP
+.RS 4
+pads the input tensor 'source' and saves it in tensor 'dest', 2d and 3d applicable. 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsource\fP input: unpadded source as contiguous float array 
+.br
+\fIdest\fP output: padded destination as contiguous float array 
+.br
+\fIunpad_size4d\fP size of the corresponding unpadded tensor 
+.br
+\fIpad_size4d\fP size of the corresponding padded tensor 
+.RE
+.PP
+
+.SS "void gpu_copy_to_unpad (float * source, float * dest, int * pad_size4d, int * unpad_size4d)".PP
+\fBFor internal use only.\fP
+.RS 4
+copies the non-zero elements from the padded the input tensor 'source' towards tensor 'dest', 2d and 3d applicable. 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsource\fP input: padded source as contiguous float array 
+.br
+\fIdest\fP output: unpadded destination as contiguous float array 
+.br
+\fIpad_size4d\fP size of the corresponding padded tensor 
+.br
+\fIunpad_size4d\fP size of the corresponding unpadded tensor 
+.RE
+.PP
+
+.SS "void gpu_kernel_mul_micromag2d (\fBtensor\fP * fft1, \fBtensor\fP * kernel)"\fBParameters:\fP
+.RS 4
+\fIfft1\fP Fourier transformed data (as input: m-data, when exiting: h-data) 
+.br
+\fIkernel\fP MICROMAG3d kernel 
+.RE
+.PP
+
+.SS "void gpu_kernel_mul_micromag3d (\fBtensor\fP * fft1, \fBtensor\fP * kernel)"Evaluates the kernel multiplication for the MICROMAG3D kernel with a sample thickness of more then one (possibly coarse level) FD cell. \fBParameters:\fP
+.RS 4
+\fIfft1\fP Fourier transformed data (as input: m-data, when exiting: h-data) 
+.br
+\fIkernel\fP MICROMAG3d kernel 
+.RE
+.PP
+
+.SS "void gpu_kernel_mul_micromag3d_Xthickness_1 (\fBtensor\fP * fft1, \fBtensor\fP * kernel)"Evaluates the kernel multiplication for the MICROMAG3D kernel with a sample thickness of one (possibly coarse level) FD cell. \fBParameters:\fP
+.RS 4
+\fIfft1\fP Fourier transformed data (as input: m-data, when exiting: h-data) 
+.br
+\fIkernel\fP MICROMAG3d kernel 
+.RE
+.PP
+
+.SS "\fBconv_data\fP* new_conv_data (\fBparam\fP * p, \fBtensor\fP * kernel)"Initializes the convolution data based on the parameter list p and links to the initialized kernel. Before using this function, the kernel data should be initialized using the function: \fBnew_kernel(param *p)\fP. \fBParameters:\fP
+.RS 4
+\fIp\fP parameter list 
+.br
+\fIkernel\fP tensor containing the kernel data 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

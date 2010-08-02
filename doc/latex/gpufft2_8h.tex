@@ -1,0 +1,188 @@
+\hypertarget{gpufft2_8h}{
+\section{gpufft2.h File Reference}
+\label{gpufft2_8h}\index{gpufft2.h@{gpufft2.h}}
+}
+{\ttfamily \#include \char`\"{}tensor.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}gputil.h\char`\"{}}\par
+{\ttfamily \#include $<$cufft.h$>$}\par
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structgpuFFT3dPlan}{gpuFFT3dPlan}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{structgpuFFT3dPlan}{gpuFFT3dPlan} $\ast$ \hyperlink{gpufft2_8h_a56fef026d295e4997387d2a5003280bf}{new\_\-gpuFFT3dPlan\_\-padded} (int $\ast$size, int $\ast$paddedsize)
+\item 
+\hyperlink{structgpuFFT3dPlan}{gpuFFT3dPlan} $\ast$ \hyperlink{gpufft2_8h_a6f9ea484e615c0bb2ab277cde22de5a1}{new\_\-gpuFFT3dPlan} (int $\ast$size)
+\item 
+void \hyperlink{gpufft2_8h_aa280b3aeb3c1fb98902b037f6f2a1a66}{gpuFFT3dPlan\_\-forward} (\hyperlink{structgpuFFT3dPlan}{gpuFFT3dPlan} $\ast$plan, \hyperlink{structtensor}{tensor} $\ast$input, \hyperlink{structtensor}{tensor} $\ast$output)
+\item 
+void \hyperlink{gpufft2_8h_a75da74eec95a5552833f242c12103404}{gpuFFT3dPlan\_\-inverse} (\hyperlink{structgpuFFT3dPlan}{gpuFFT3dPlan} $\ast$plan, \hyperlink{structtensor}{tensor} $\ast$input, \hyperlink{structtensor}{tensor} $\ast$output)
+\item 
+void \hyperlink{gpufft2_8h_a171291e09b52a46b97e3facc7715c720}{gpuFFT3dPlan\_\-forward\_\-unsafe} (\hyperlink{structgpuFFT3dPlan}{gpuFFT3dPlan} $\ast$plan, float $\ast$input, float $\ast$output)
+\item 
+void \hyperlink{gpufft2_8h_a439a00c62c5013429d98d925eb56093b}{gpuFFT3dPlan\_\-inverse\_\-unsafe} (\hyperlink{structgpuFFT3dPlan}{gpuFFT3dPlan} $\ast$plan, float $\ast$input, float $\ast$output)
+\item 
+int \hyperlink{gpufft2_8h_a7ffa48347bd1dea4a23de8384ef5d82a}{gpuFFT3dPlan\_\-normalization} (\hyperlink{structgpuFFT3dPlan}{gpuFFT3dPlan} $\ast$plan)
+\item 
+void \hyperlink{gpufft2_8h_ac9d320ac5dc735c8d5e11c0b7c6c861e}{gpu\_\-tensor\_\-transposeYZ\_\-complex} (\hyperlink{structtensor}{tensor} $\ast$source, \hyperlink{structtensor}{tensor} $\ast$dest)
+\item 
+void \hyperlink{gpufft2_8h_a646b9f684a0c142b92134e19b249b91d}{gpu\_\-tensor\_\-transposeXZ\_\-complex} (\hyperlink{structtensor}{tensor} $\ast$source, \hyperlink{structtensor}{tensor} $\ast$dest)
+\item 
+void \hyperlink{gpufft2_8h_a6f5c5a5b92c5d07a445480c1d60b929a}{gpu\_\-transposeXZ\_\-complex} (float $\ast$source, float $\ast$dest, int \hyperlink{gpufft2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{N0}, int \hyperlink{gpufft2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{N1}, int \hyperlink{gpufft2__test_8cpp_adeea8075a0038c985c63d45161804d60}{N2})
+\item 
+\_\-\_\-global\_\-\_\- void \hyperlink{gpufft2_8h_a0c89894448ae4b3440f1dde73c4e6ad6}{\_\-gpu\_\-transposeXZ\_\-complex} (float $\ast$source, float $\ast$dest, int \hyperlink{gpufft2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{N0}, int \hyperlink{gpufft2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{N1}, int \hyperlink{gpufft2__test_8cpp_adeea8075a0038c985c63d45161804d60}{N2})
+\item 
+void \hyperlink{gpufft2_8h_a471c00045b04ae34ce9cfc6d1f997855}{gpu\_\-transposeYZ\_\-complex} (float $\ast$source, float $\ast$dest, int \hyperlink{gpufft2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{N0}, int \hyperlink{gpufft2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{N1}, int \hyperlink{gpufft2__test_8cpp_adeea8075a0038c985c63d45161804d60}{N2})
+\item 
+\_\-\_\-global\_\-\_\- void \hyperlink{gpufft2_8h_a3a4fd4f2349b4971da48c5b2b39ddabf}{\_\-gpu\_\-transposeYZ\_\-complex} (float $\ast$source, float $\ast$dest, int \hyperlink{gpufft2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{N0}, int \hyperlink{gpufft2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{N1}, int \hyperlink{gpufft2__test_8cpp_adeea8075a0038c985c63d45161804d60}{N2})
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Like gpufft but works on tensors instead of float$\ast$'s
+
+Initialization, execution and deleting of FFTs used during the computation of the micromagnetic kernel. The following is taken into account:
+\begin{DoxyItemize}
+\item real-\/to-\/complex FFTs
+\item No FFTs on the zeros in the padded magnetization buffers
+\item The CUDA memory access is aligned
+\end{DoxyItemize}
+
+\begin{Desc}
+\item[\hyperlink{todo__todo000013}{Todo}]In place transpose routines: swap if sourceIndex $>$ destIndex 
+
+Option for out-\/of place transforms 
+
+normalization\_\-factor();\end{Desc}
+\begin{DoxyAuthor}{Author}
+Arne Vansteenkiste 
+
+Ben Van de Wiele 
+\end{DoxyAuthor}
+
+
+\subsection{Function Documentation}
+\hypertarget{gpufft2_8h_a0c89894448ae4b3440f1dde73c4e6ad6}{
+\index{gpufft2.h@{gpufft2.h}!\_\-gpu\_\-transposeXZ\_\-complex@{\_\-gpu\_\-transposeXZ\_\-complex}}
+\index{\_\-gpu\_\-transposeXZ\_\-complex@{\_\-gpu\_\-transposeXZ\_\-complex}!gpufft2.h@{gpufft2.h}}
+\subsubsection[{\_\-gpu\_\-transposeXZ\_\-complex}]{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-global\_\-\_\- void \_\-gpu\_\-transposeXZ\_\-complex (float $\ast$ {\em source}, \/  float $\ast$ {\em dest}, \/  int {\em N0}, \/  int {\em N1}, \/  int {\em N2})}}
+\label{gpufft2_8h_a0c89894448ae4b3440f1dde73c4e6ad6}
+\hypertarget{gpufft2_8h_a3a4fd4f2349b4971da48c5b2b39ddabf}{
+\index{gpufft2.h@{gpufft2.h}!\_\-gpu\_\-transposeYZ\_\-complex@{\_\-gpu\_\-transposeYZ\_\-complex}}
+\index{\_\-gpu\_\-transposeYZ\_\-complex@{\_\-gpu\_\-transposeYZ\_\-complex}!gpufft2.h@{gpufft2.h}}
+\subsubsection[{\_\-gpu\_\-transposeYZ\_\-complex}]{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-global\_\-\_\- void \_\-gpu\_\-transposeYZ\_\-complex (float $\ast$ {\em source}, \/  float $\ast$ {\em dest}, \/  int {\em N0}, \/  int {\em N1}, \/  int {\em N2})}}
+\label{gpufft2_8h_a3a4fd4f2349b4971da48c5b2b39ddabf}
+\hypertarget{gpufft2_8h_a646b9f684a0c142b92134e19b249b91d}{
+\index{gpufft2.h@{gpufft2.h}!gpu\_\-tensor\_\-transposeXZ\_\-complex@{gpu\_\-tensor\_\-transposeXZ\_\-complex}}
+\index{gpu\_\-tensor\_\-transposeXZ\_\-complex@{gpu\_\-tensor\_\-transposeXZ\_\-complex}!gpufft2.h@{gpufft2.h}}
+\subsubsection[{gpu\_\-tensor\_\-transposeXZ\_\-complex}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-tensor\_\-transposeXZ\_\-complex ({\bf tensor} $\ast$ {\em source}, \/  {\bf tensor} $\ast$ {\em dest})}}
+\label{gpufft2_8h_a646b9f684a0c142b92134e19b249b91d}
+\begin{DoxyInternal}{For internal use only.}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{gpufft_8h_a471c00045b04ae34ce9cfc6d1f997855}{gpu\_\-transposeYZ\_\-complex()} 
+\end{DoxySeeAlso}
+\end{DoxyInternal}
+
+\begin{DoxyParams}{Parameters}
+\item[{\em source}]source data, size N0 x N1 x (2$\ast$N2) \item[{\em dest}]destination data, size N2 x N1 x (2$\ast$N0) \end{DoxyParams}
+\hypertarget{gpufft2_8h_ac9d320ac5dc735c8d5e11c0b7c6c861e}{
+\index{gpufft2.h@{gpufft2.h}!gpu\_\-tensor\_\-transposeYZ\_\-complex@{gpu\_\-tensor\_\-transposeYZ\_\-complex}}
+\index{gpu\_\-tensor\_\-transposeYZ\_\-complex@{gpu\_\-tensor\_\-transposeYZ\_\-complex}!gpufft2.h@{gpufft2.h}}
+\subsubsection[{gpu\_\-tensor\_\-transposeYZ\_\-complex}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-tensor\_\-transposeYZ\_\-complex ({\bf tensor} $\ast$ {\em source}, \/  {\bf tensor} $\ast$ {\em dest})}}
+\label{gpufft2_8h_ac9d320ac5dc735c8d5e11c0b7c6c861e}
+\begin{DoxyInternal}{For internal use only.}
+Swaps the Y and Z components of a 3D array of complex numbers. N0 x N1 x N2/2 complex numbers are stored as N0 x N1 x N2 interleaved real numbers. \end{DoxyInternal}
+
+\begin{DoxyParams}{Parameters}
+\item[{\em source}]source data, size N0 x N1 x (2$\ast$N2) \item[{\em dest}]destination data, size N0 x N2 x (2$\ast$N1) \end{DoxyParams}
+\hypertarget{gpufft2_8h_a6f5c5a5b92c5d07a445480c1d60b929a}{
+\index{gpufft2.h@{gpufft2.h}!gpu\_\-transposeXZ\_\-complex@{gpu\_\-transposeXZ\_\-complex}}
+\index{gpu\_\-transposeXZ\_\-complex@{gpu\_\-transposeXZ\_\-complex}!gpufft2.h@{gpufft2.h}}
+\subsubsection[{gpu\_\-transposeXZ\_\-complex}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-transposeXZ\_\-complex (float $\ast$ {\em source}, \/  float $\ast$ {\em dest}, \/  int {\em N0}, \/  int {\em N1}, \/  int {\em N2})}}
+\label{gpufft2_8h_a6f5c5a5b92c5d07a445480c1d60b929a}
+\hypertarget{gpufft2_8h_a471c00045b04ae34ce9cfc6d1f997855}{
+\index{gpufft2.h@{gpufft2.h}!gpu\_\-transposeYZ\_\-complex@{gpu\_\-transposeYZ\_\-complex}}
+\index{gpu\_\-transposeYZ\_\-complex@{gpu\_\-transposeYZ\_\-complex}!gpufft2.h@{gpufft2.h}}
+\subsubsection[{gpu\_\-transposeYZ\_\-complex}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-transposeYZ\_\-complex (float $\ast$ {\em source}, \/  float $\ast$ {\em dest}, \/  int {\em N0}, \/  int {\em N1}, \/  int {\em N2})}}
+\label{gpufft2_8h_a471c00045b04ae34ce9cfc6d1f997855}
+\hypertarget{gpufft2_8h_aa280b3aeb3c1fb98902b037f6f2a1a66}{
+\index{gpufft2.h@{gpufft2.h}!gpuFFT3dPlan\_\-forward@{gpuFFT3dPlan\_\-forward}}
+\index{gpuFFT3dPlan\_\-forward@{gpuFFT3dPlan\_\-forward}!gpufft2.h@{gpufft2.h}}
+\subsubsection[{gpuFFT3dPlan\_\-forward}]{\setlength{\rightskip}{0pt plus 5cm}void gpuFFT3dPlan\_\-forward ({\bf gpuFFT3dPlan} $\ast$ {\em plan}, \/  {\bf tensor} $\ast$ {\em input}, \/  {\bf tensor} $\ast$ {\em output})}}
+\label{gpufft2_8h_aa280b3aeb3c1fb98902b037f6f2a1a66}
+Forward (real-\/to-\/complex) transform. Tensor sizes are checked. \begin{DoxySeeAlso}{See also}
+\hyperlink{gpufft2_8h_a171291e09b52a46b97e3facc7715c720}{gpuFFT3dPlan\_\-forward\_\-unsafe()} 
+\end{DoxySeeAlso}
+
+\begin{DoxyParams}{Parameters}
+\item[{\em plan}]the plan to be executed \item[{\em input}]input data, it's size should match the strided \char`\"{}half complex\char`\"{} format (=plan-\/$>$paddedStorageSize) \item[{\em output}]output data, may be equal to input for in-\/place transforms. \end{DoxyParams}
+\hypertarget{gpufft2_8h_a171291e09b52a46b97e3facc7715c720}{
+\index{gpufft2.h@{gpufft2.h}!gpuFFT3dPlan\_\-forward\_\-unsafe@{gpuFFT3dPlan\_\-forward\_\-unsafe}}
+\index{gpuFFT3dPlan\_\-forward\_\-unsafe@{gpuFFT3dPlan\_\-forward\_\-unsafe}!gpufft2.h@{gpufft2.h}}
+\subsubsection[{gpuFFT3dPlan\_\-forward\_\-unsafe}]{\setlength{\rightskip}{0pt plus 5cm}void gpuFFT3dPlan\_\-forward\_\-unsafe ({\bf gpuFFT3dPlan} $\ast$ {\em plan}, \/  float $\ast$ {\em input}, \/  float $\ast$ {\em output})}}
+\label{gpufft2_8h_a171291e09b52a46b97e3facc7715c720}
+\begin{DoxyInternal}{For internal use only.}
+Forward (real-\/to-\/complex) transform. Sizes are not checked. \begin{DoxySeeAlso}{See also}
+\hyperlink{gpufft2_8h_aa280b3aeb3c1fb98902b037f6f2a1a66}{gpuFFT3dPlan\_\-forward()} 
+\end{DoxySeeAlso}
+\end{DoxyInternal}
+
+\begin{DoxyParams}{Parameters}
+\item[{\em plan}]the plan to be executed \item[{\em input}]input data, it's size should match the strided \char`\"{}half complex\char`\"{} format (=plan-\/$>$paddedStorageSize) \item[{\em output}]output data, may be equal to input for in-\/place transforms. \end{DoxyParams}
+\hypertarget{gpufft2_8h_a75da74eec95a5552833f242c12103404}{
+\index{gpufft2.h@{gpufft2.h}!gpuFFT3dPlan\_\-inverse@{gpuFFT3dPlan\_\-inverse}}
+\index{gpuFFT3dPlan\_\-inverse@{gpuFFT3dPlan\_\-inverse}!gpufft2.h@{gpufft2.h}}
+\subsubsection[{gpuFFT3dPlan\_\-inverse}]{\setlength{\rightskip}{0pt plus 5cm}void gpuFFT3dPlan\_\-inverse ({\bf gpuFFT3dPlan} $\ast$ {\em plan}, \/  {\bf tensor} $\ast$ {\em input}, \/  {\bf tensor} $\ast$ {\em output})}}
+\label{gpufft2_8h_a75da74eec95a5552833f242c12103404}
+Backward (complex-\/to-\/real) transform. Tensor sizes are checked. \begin{DoxySeeAlso}{See also}
+\hyperlink{gpufft2_8h_a439a00c62c5013429d98d925eb56093b}{gpuFFT3dPlan\_\-inverse\_\-unsafe()} 
+\end{DoxySeeAlso}
+
+\begin{DoxyParams}{Parameters}
+\item[{\em plan}]the plan to be executed \item[{\em input}]input data, may be equal to output for in-\/place transforms. \item[{\em output}]output data, it's size should match the strided \char`\"{}half complex\char`\"{} format (=plan-\/$>$paddedStorageSize) \end{DoxyParams}
+\hypertarget{gpufft2_8h_a439a00c62c5013429d98d925eb56093b}{
+\index{gpufft2.h@{gpufft2.h}!gpuFFT3dPlan\_\-inverse\_\-unsafe@{gpuFFT3dPlan\_\-inverse\_\-unsafe}}
+\index{gpuFFT3dPlan\_\-inverse\_\-unsafe@{gpuFFT3dPlan\_\-inverse\_\-unsafe}!gpufft2.h@{gpufft2.h}}
+\subsubsection[{gpuFFT3dPlan\_\-inverse\_\-unsafe}]{\setlength{\rightskip}{0pt plus 5cm}void gpuFFT3dPlan\_\-inverse\_\-unsafe ({\bf gpuFFT3dPlan} $\ast$ {\em plan}, \/  float $\ast$ {\em input}, \/  float $\ast$ {\em output})}}
+\label{gpufft2_8h_a439a00c62c5013429d98d925eb56093b}
+\begin{DoxyInternal}{For internal use only.}
+Backward (complex-\/to-\/real) transform. Sizes are not checked. \begin{DoxySeeAlso}{See also}
+\hyperlink{gpufft2_8h_a75da74eec95a5552833f242c12103404}{gpuFFT3dPlan\_\-inverse()} 
+\end{DoxySeeAlso}
+\end{DoxyInternal}
+
+\begin{DoxyParams}{Parameters}
+\item[{\em plan}]the plan to be executed \item[{\em input}]input data, may be equal to output for in-\/place transforms. \item[{\em output}]output data, it's size should match the strided \char`\"{}half complex\char`\"{} format (=plan-\/$>$paddedStorageSize) \end{DoxyParams}
+\hypertarget{gpufft2_8h_a7ffa48347bd1dea4a23de8384ef5d82a}{
+\index{gpufft2.h@{gpufft2.h}!gpuFFT3dPlan\_\-normalization@{gpuFFT3dPlan\_\-normalization}}
+\index{gpuFFT3dPlan\_\-normalization@{gpuFFT3dPlan\_\-normalization}!gpufft2.h@{gpufft2.h}}
+\subsubsection[{gpuFFT3dPlan\_\-normalization}]{\setlength{\rightskip}{0pt plus 5cm}int gpuFFT3dPlan\_\-normalization ({\bf gpuFFT3dPlan} $\ast$ {\em plan})}}
+\label{gpufft2_8h_a7ffa48347bd1dea4a23de8384ef5d82a}
+FFT normalization factor. After forward + inverse transforming, the data will be multiplied by this factor. It is equal to kernelSize\mbox{[}X\mbox{]} $\ast$ kernelSize\mbox{[}Y\mbox{]} $\ast$ kernelSize\mbox{[}Z\mbox{]}; \hypertarget{gpufft2_8h_a6f9ea484e615c0bb2ab277cde22de5a1}{
+\index{gpufft2.h@{gpufft2.h}!new\_\-gpuFFT3dPlan@{new\_\-gpuFFT3dPlan}}
+\index{new\_\-gpuFFT3dPlan@{new\_\-gpuFFT3dPlan}!gpufft2.h@{gpufft2.h}}
+\subsubsection[{new\_\-gpuFFT3dPlan}]{\setlength{\rightskip}{0pt plus 5cm}{\bf gpuFFT3dPlan}$\ast$ new\_\-gpuFFT3dPlan (int $\ast$ {\em size})}}
+\label{gpufft2_8h_a6f9ea484e615c0bb2ab277cde22de5a1}
+Creates a general real-\/to-\/complex 3D FFT plan. \begin{DoxyNote}{Note}
+This is equivalent to 
+\begin{DoxyCode}
+ new_gpuFFT3dPlan_padded(size, size);
+\end{DoxyCode}
+ 
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+\item[{\em size}]size of real input data (3D) \end{DoxyParams}
+\hypertarget{gpufft2_8h_a56fef026d295e4997387d2a5003280bf}{
+\index{gpufft2.h@{gpufft2.h}!new\_\-gpuFFT3dPlan\_\-padded@{new\_\-gpuFFT3dPlan\_\-padded}}
+\index{new\_\-gpuFFT3dPlan\_\-padded@{new\_\-gpuFFT3dPlan\_\-padded}!gpufft2.h@{gpufft2.h}}
+\subsubsection[{new\_\-gpuFFT3dPlan\_\-padded}]{\setlength{\rightskip}{0pt plus 5cm}{\bf gpuFFT3dPlan}$\ast$ new\_\-gpuFFT3dPlan\_\-padded (int $\ast$ {\em size}, \/  int $\ast$ {\em paddedsize})}}
+\label{gpufft2_8h_a56fef026d295e4997387d2a5003280bf}
+Creates a new real-\/to-\/complex 3D FFT plan with efficient handling of padding zeros. If paddedsize is larger than size, then the additional space is filled with zeros, but they are efficiently handled during the transform. \begin{Desc}
+\item[\hyperlink{todo__todo000014}{Todo}]: better give paddedstoragesize? is less confusing. \end{Desc}
+
+\begin{DoxyParams}{Parameters}
+\item[{\em size}]size of real input data (3D) \item[{\em paddedsize}]size of the padded data (3D). Should be at least the size of the input data. If the kernel is larger, the input data is assumed to be padded with zero's which are efficiently handled by the FFT \end{DoxyParams}

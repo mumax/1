@@ -1,0 +1,131 @@
+\hypertarget{timer_8cpp}{
+\section{timer.cpp File Reference}
+\label{timer_8cpp}\index{timer.cpp@{timer.cpp}}
+}
+{\ttfamily \#include \char`\"{}timer.h\char`\"{}}\par
+{\ttfamily \#include $<$time.h$>$}\par
+{\ttfamily \#include $<$string$>$}\par
+{\ttfamily \#include $<$map$>$}\par
+{\ttfamily \#include $<$iostream$>$}\par
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{timer_8cpp_a4afa9221724ba768c769277a6b531b0b}{timer\_\-start} (const char $\ast$tag)
+\item 
+void \hyperlink{timer_8cpp_a95443317132ccc37dc76db307f404a15}{timer\_\-stop} (const char $\ast$tag)
+\item 
+double \hyperlink{timer_8cpp_a152bb0977c6d2d4b11605d7f9f84923b}{timer\_\-get} (const char $\ast$tag)
+\item 
+void \hyperlink{timer_8cpp_a23720437d03bb08c11abe2cff4980248}{timer\_\-print} (const char $\ast$tag)
+\item 
+void \hyperlink{timer_8cpp_a145a85ed19255310f7a20e7d0bb87e35}{timer\_\-printall} ()
+\item 
+void \hyperlink{timer_8cpp_ae3c870b10038788eb8146f2447c3991c}{timer\_\-printdetail} ()
+\item 
+double \hyperlink{timer_8cpp_a9314a12df175889d2bbd668af76c6774}{timer\_\-elapsedtime} ()
+\item 
+double \hyperlink{timer_8cpp_a9bc49359766399b62d771bc7adbe7fec}{timer\_\-accumulatedtime} ()
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+map$<$ string, long long int $>$ \hyperlink{timer_8cpp_ae3ba32749c0c3baa2eedfff5feadb6fb}{timer\_\-table}
+\item 
+map$<$ string, double $>$ \hyperlink{timer_8cpp_a1dc93012e2aa929b4ebcd796fe352b02}{timer\_\-total}
+\item 
+long long int \hyperlink{timer_8cpp_a46a84536cd447413ca8dc82db1e1f11a}{timer\_\-first\_\-start} = -\/1
+\item 
+long long int \hyperlink{timer_8cpp_a2e38f5f81cb511995d7da7b369cf9b54}{timer\_\-last\_\-stop} = -\/1
+\item 
+time\_\-t \hyperlink{timer_8cpp_aa23594bf77f5506f126913d9d03a1553}{timer\_\-start\_\-wall} = -\/1
+\item 
+time\_\-t \hyperlink{timer_8cpp_a8989e59b04d1ba6382bddbfec9e6f16b}{timer\_\-stop\_\-wall} = -\/1
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\hypertarget{timer_8cpp_a9bc49359766399b62d771bc7adbe7fec}{
+\index{timer.cpp@{timer.cpp}!timer\_\-accumulatedtime@{timer\_\-accumulatedtime}}
+\index{timer\_\-accumulatedtime@{timer\_\-accumulatedtime}!timer.cpp@{timer.cpp}}
+\subsubsection[{timer\_\-accumulatedtime}]{\setlength{\rightskip}{0pt plus 5cm}double timer\_\-accumulatedtime (void)}}
+\label{timer_8cpp_a9bc49359766399b62d771bc7adbe7fec}
+The sum of registered times by all tags. If all went well, this should be approximately equal to timer\_\-totaltime(). If it is significantly smaller, important portions of the code have probably not been timed, if it is significantly larger, portions may have been double-\/timed. \hypertarget{timer_8cpp_a9314a12df175889d2bbd668af76c6774}{
+\index{timer.cpp@{timer.cpp}!timer\_\-elapsedtime@{timer\_\-elapsedtime}}
+\index{timer\_\-elapsedtime@{timer\_\-elapsedtime}!timer.cpp@{timer.cpp}}
+\subsubsection[{timer\_\-elapsedtime}]{\setlength{\rightskip}{0pt plus 5cm}double timer\_\-elapsedtime (void)}}
+\label{timer_8cpp_a9314a12df175889d2bbd668af76c6774}
+The time elapsed between the first \hyperlink{timer_8cpp_a4afa9221724ba768c769277a6b531b0b}{timer\_\-start()} and the last \hyperlink{timer_8cpp_a95443317132ccc37dc76db307f404a15}{timer\_\-stop()} call. If all went well, this should be approximately equal to \hyperlink{timer_8cpp_a9bc49359766399b62d771bc7adbe7fec}{timer\_\-accumulatedtime()}. \hypertarget{timer_8cpp_a152bb0977c6d2d4b11605d7f9f84923b}{
+\index{timer.cpp@{timer.cpp}!timer\_\-get@{timer\_\-get}}
+\index{timer\_\-get@{timer\_\-get}!timer.cpp@{timer.cpp}}
+\subsubsection[{timer\_\-get}]{\setlength{\rightskip}{0pt plus 5cm}double timer\_\-get (const char $\ast$ {\em tag})}}
+\label{timer_8cpp_a152bb0977c6d2d4b11605d7f9f84923b}
+Returns the time in seconds. \hyperlink{timer_8cpp_a95443317132ccc37dc76db307f404a15}{timer\_\-stop()} should be called first. 
+\begin{DoxyParams}{Parameters}
+\item[{\em tag}]identifies what is being timed \end{DoxyParams}
+\hypertarget{timer_8cpp_a23720437d03bb08c11abe2cff4980248}{
+\index{timer.cpp@{timer.cpp}!timer\_\-print@{timer\_\-print}}
+\index{timer\_\-print@{timer\_\-print}!timer.cpp@{timer.cpp}}
+\subsubsection[{timer\_\-print}]{\setlength{\rightskip}{0pt plus 5cm}void timer\_\-print (const char $\ast$ {\em tag})}}
+\label{timer_8cpp_a23720437d03bb08c11abe2cff4980248}
+Prints the time to stderr with format: \char`\"{}tag: xxx s\char`\"{} 
+\begin{DoxyParams}{Parameters}
+\item[{\em tag}]identifies what is being timed \end{DoxyParams}
+\hypertarget{timer_8cpp_a145a85ed19255310f7a20e7d0bb87e35}{
+\index{timer.cpp@{timer.cpp}!timer\_\-printall@{timer\_\-printall}}
+\index{timer\_\-printall@{timer\_\-printall}!timer.cpp@{timer.cpp}}
+\subsubsection[{timer\_\-printall}]{\setlength{\rightskip}{0pt plus 5cm}void timer\_\-printall (void)}}
+\label{timer_8cpp_a145a85ed19255310f7a20e7d0bb87e35}
+Prints all the timers that are registered \hypertarget{timer_8cpp_ae3c870b10038788eb8146f2447c3991c}{
+\index{timer.cpp@{timer.cpp}!timer\_\-printdetail@{timer\_\-printdetail}}
+\index{timer\_\-printdetail@{timer\_\-printdetail}!timer.cpp@{timer.cpp}}
+\subsubsection[{timer\_\-printdetail}]{\setlength{\rightskip}{0pt plus 5cm}void timer\_\-printdetail (void)}}
+\label{timer_8cpp_ae3c870b10038788eb8146f2447c3991c}
+Like \hyperlink{timer_8cpp_a145a85ed19255310f7a20e7d0bb87e35}{timer\_\-printall()}, but also prints percentages of the total time. \hypertarget{timer_8cpp_a4afa9221724ba768c769277a6b531b0b}{
+\index{timer.cpp@{timer.cpp}!timer\_\-start@{timer\_\-start}}
+\index{timer\_\-start@{timer\_\-start}!timer.cpp@{timer.cpp}}
+\subsubsection[{timer\_\-start}]{\setlength{\rightskip}{0pt plus 5cm}void timer\_\-start (const char $\ast$ {\em tag})}}
+\label{timer_8cpp_a4afa9221724ba768c769277a6b531b0b}
+Starts the timer for the tag 
+\begin{DoxyParams}{Parameters}
+\item[{\em tag}]identifies what is being timed \end{DoxyParams}
+\hypertarget{timer_8cpp_a95443317132ccc37dc76db307f404a15}{
+\index{timer.cpp@{timer.cpp}!timer\_\-stop@{timer\_\-stop}}
+\index{timer\_\-stop@{timer\_\-stop}!timer.cpp@{timer.cpp}}
+\subsubsection[{timer\_\-stop}]{\setlength{\rightskip}{0pt plus 5cm}void timer\_\-stop (const char $\ast$ {\em tag})}}
+\label{timer_8cpp_a95443317132ccc37dc76db307f404a15}
+Stops the timer for the tag 
+\begin{DoxyParams}{Parameters}
+\item[{\em tag}]identifies what is being timed \end{DoxyParams}
+
+
+\subsection{Variable Documentation}
+\hypertarget{timer_8cpp_a46a84536cd447413ca8dc82db1e1f11a}{
+\index{timer.cpp@{timer.cpp}!timer\_\-first\_\-start@{timer\_\-first\_\-start}}
+\index{timer\_\-first\_\-start@{timer\_\-first\_\-start}!timer.cpp@{timer.cpp}}
+\subsubsection[{timer\_\-first\_\-start}]{\setlength{\rightskip}{0pt plus 5cm}long long int {\bf timer\_\-first\_\-start} = -\/1}}
+\label{timer_8cpp_a46a84536cd447413ca8dc82db1e1f11a}
+\hypertarget{timer_8cpp_a2e38f5f81cb511995d7da7b369cf9b54}{
+\index{timer.cpp@{timer.cpp}!timer\_\-last\_\-stop@{timer\_\-last\_\-stop}}
+\index{timer\_\-last\_\-stop@{timer\_\-last\_\-stop}!timer.cpp@{timer.cpp}}
+\subsubsection[{timer\_\-last\_\-stop}]{\setlength{\rightskip}{0pt plus 5cm}long long int {\bf timer\_\-last\_\-stop} = -\/1}}
+\label{timer_8cpp_a2e38f5f81cb511995d7da7b369cf9b54}
+\hypertarget{timer_8cpp_aa23594bf77f5506f126913d9d03a1553}{
+\index{timer.cpp@{timer.cpp}!timer\_\-start\_\-wall@{timer\_\-start\_\-wall}}
+\index{timer\_\-start\_\-wall@{timer\_\-start\_\-wall}!timer.cpp@{timer.cpp}}
+\subsubsection[{timer\_\-start\_\-wall}]{\setlength{\rightskip}{0pt plus 5cm}time\_\-t {\bf timer\_\-start\_\-wall} = -\/1}}
+\label{timer_8cpp_aa23594bf77f5506f126913d9d03a1553}
+\hypertarget{timer_8cpp_a8989e59b04d1ba6382bddbfec9e6f16b}{
+\index{timer.cpp@{timer.cpp}!timer\_\-stop\_\-wall@{timer\_\-stop\_\-wall}}
+\index{timer\_\-stop\_\-wall@{timer\_\-stop\_\-wall}!timer.cpp@{timer.cpp}}
+\subsubsection[{timer\_\-stop\_\-wall}]{\setlength{\rightskip}{0pt plus 5cm}time\_\-t {\bf timer\_\-stop\_\-wall} = -\/1}}
+\label{timer_8cpp_a8989e59b04d1ba6382bddbfec9e6f16b}
+\hypertarget{timer_8cpp_ae3ba32749c0c3baa2eedfff5feadb6fb}{
+\index{timer.cpp@{timer.cpp}!timer\_\-table@{timer\_\-table}}
+\index{timer\_\-table@{timer\_\-table}!timer.cpp@{timer.cpp}}
+\subsubsection[{timer\_\-table}]{\setlength{\rightskip}{0pt plus 5cm}map$<$string, long long int$>$ {\bf timer\_\-table}}}
+\label{timer_8cpp_ae3ba32749c0c3baa2eedfff5feadb6fb}
+\hypertarget{timer_8cpp_a1dc93012e2aa929b4ebcd796fe352b02}{
+\index{timer.cpp@{timer.cpp}!timer\_\-total@{timer\_\-total}}
+\index{timer\_\-total@{timer\_\-total}!timer.cpp@{timer.cpp}}
+\subsubsection[{timer\_\-total}]{\setlength{\rightskip}{0pt plus 5cm}map$<$string, double$>$ {\bf timer\_\-total}}}
+\label{timer_8cpp_a1dc93012e2aa929b4ebcd796fe352b02}

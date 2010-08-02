@@ -1,0 +1,37 @@
+include ../../common.mk
+
+OFILES=\
+	cpu_properties.o\
+	cpu_mem.o\
+	cpu_linalg.o\
+	cpu_normalize.o\
+	cpu_torque.o\
+
+all: libcpukern.so libcpukern.a
+
+libcpukern.so: $(OFILES)
+	$(CPP) -shared $(CFLAGS) $(OFILES) -o libcpukern.so
+
+libcpukern.a:	$(OFILES)
+	ar rcs libcpukern.a $(OFILES)
+
+
+cpu_properties.o:  cpu_properties.h cpu_properties.cpp                                                
+	$(CPP) -c $(CFLAGS) cpu_properties.cpp
+
+cpu_mem.o:  cpu_mem.h cpu_mem.cpp
+	$(CPP) -c $(CFLAGS) cpu_mem.cpp
+
+cpu_linalg.o:  cpu_linalg.h cpu_linalg.cpp
+	$(CPP) -c $(CFLAGS) cpu_linalg.cpp
+
+cpu_normalize.o:  cpu_normalize.h cpu_normalize.cpp
+	$(CPP) -c $(CFLAGS) cpu_normalize.cpp
+
+cpu_torque.o:  cpu_torque.h cpu_torque.cpp
+	$(CPP) -c $(CFLAGS) cpu_torque.cpp
+
+
+.PHONY:	clean
+clean:	
+	rm -f *.o *.so *.a

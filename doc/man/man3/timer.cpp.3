@@ -1,0 +1,110 @@
+.TH "timer.cpp" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+timer.cpp \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'timer.h'\fP
+.br
+\fC#include <time.h>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <map>\fP
+.br
+\fC#include <iostream>\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBtimer_start\fP (const char *tag)"
+.br
+.ti -1c
+.RI "void \fBtimer_stop\fP (const char *tag)"
+.br
+.ti -1c
+.RI "double \fBtimer_get\fP (const char *tag)"
+.br
+.ti -1c
+.RI "void \fBtimer_print\fP (const char *tag)"
+.br
+.ti -1c
+.RI "void \fBtimer_printall\fP ()"
+.br
+.ti -1c
+.RI "void \fBtimer_printdetail\fP ()"
+.br
+.ti -1c
+.RI "double \fBtimer_elapsedtime\fP ()"
+.br
+.ti -1c
+.RI "double \fBtimer_accumulatedtime\fP ()"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "map< string, long long int > \fBtimer_table\fP"
+.br
+.ti -1c
+.RI "map< string, double > \fBtimer_total\fP"
+.br
+.ti -1c
+.RI "long long int \fBtimer_first_start\fP = -1"
+.br
+.ti -1c
+.RI "long long int \fBtimer_last_stop\fP = -1"
+.br
+.ti -1c
+.RI "time_t \fBtimer_start_wall\fP = -1"
+.br
+.ti -1c
+.RI "time_t \fBtimer_stop_wall\fP = -1"
+.br
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "double timer_accumulatedtime (void)"The sum of registered times by all tags. If all went well, this should be approximately equal to timer_totaltime(). If it is significantly smaller, important portions of the code have probably not been timed, if it is significantly larger, portions may have been double-timed. 
+.SS "double timer_elapsedtime (void)"The time elapsed between the first \fBtimer_start()\fP and the last \fBtimer_stop()\fP call. If all went well, this should be approximately equal to \fBtimer_accumulatedtime()\fP. 
+.SS "double timer_get (const char * tag)"Returns the time in seconds. \fBtimer_stop()\fP should be called first. \fBParameters:\fP
+.RS 4
+\fItag\fP identifies what is being timed 
+.RE
+.PP
+
+.SS "void timer_print (const char * tag)"Prints the time to stderr with format: 'tag: xxx s' \fBParameters:\fP
+.RS 4
+\fItag\fP identifies what is being timed 
+.RE
+.PP
+
+.SS "void timer_printall (void)"Prints all the timers that are registered 
+.SS "void timer_printdetail (void)"Like \fBtimer_printall()\fP, but also prints percentages of the total time. 
+.SS "void timer_start (const char * tag)"Starts the timer for the tag \fBParameters:\fP
+.RS 4
+\fItag\fP identifies what is being timed 
+.RE
+.PP
+
+.SS "void timer_stop (const char * tag)"Stops the timer for the tag \fBParameters:\fP
+.RS 4
+\fItag\fP identifies what is being timed 
+.RE
+.PP
+
+.SH "Variable Documentation"
+.PP 
+.SS "long long int \fBtimer_first_start\fP = -1"
+.SS "long long int \fBtimer_last_stop\fP = -1"
+.SS "time_t \fBtimer_start_wall\fP = -1"
+.SS "time_t \fBtimer_stop_wall\fP = -1"
+.SS "map<string, long long int> \fBtimer_table\fP"
+.SS "map<string, double> \fBtimer_total\fP"
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

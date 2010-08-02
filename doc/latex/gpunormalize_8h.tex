@@ -1,0 +1,68 @@
+\hypertarget{gpunormalize_8h}{
+\section{gpunormalize.h File Reference}
+\label{gpunormalize_8h}\index{gpunormalize.h@{gpunormalize.h}}
+}
+{\ttfamily \#include \char`\"{}tensor.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}param.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}gputil.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}timer.h\char`\"{}}\par
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{gpunormalize_8h_a27d865850b5ee6d12b6f3920d3c284b8}{gpu\_\-normalize} (\hyperlink{structparam}{param} $\ast$p, \hyperlink{structtensor}{tensor} $\ast$m)
+\item 
+void \hyperlink{gpunormalize_8h_ac639bb47c49507b90144e839d4cc3c56}{gpu\_\-normalize\_\-uniform} (float $\ast$m, int N)
+\item 
+void \hyperlink{gpunormalize_8h_a027edb11227fd0d5157867db1b026de6}{gpu\_\-normalize\_\-map} (float $\ast$m, float $\ast$map, int N)
+\item 
+\_\-\_\-global\_\-\_\- void \hyperlink{gpunormalize_8h_ad4674992f28debd5fc8643ecf618d297}{\_\-gpu\_\-normalize} (float $\ast$mx, float $\ast$my, float $\ast$mz)
+\item 
+\_\-\_\-global\_\-\_\- void \hyperlink{gpunormalize_8h_aa93a920d6414d1bc8dcb4743b559c403}{\_\-gpu\_\-normalize\_\-map} (float $\ast$mx, float $\ast$my, float $\ast$mz, float $\ast$normMap)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Normalization of m, possible space-\/dependent
+
+\begin{DoxyAuthor}{Author}
+Arne Vansteenkiste 
+\end{DoxyAuthor}
+
+
+\subsection{Function Documentation}
+\hypertarget{gpunormalize_8h_ad4674992f28debd5fc8643ecf618d297}{
+\index{gpunormalize.h@{gpunormalize.h}!\_\-gpu\_\-normalize@{\_\-gpu\_\-normalize}}
+\index{\_\-gpu\_\-normalize@{\_\-gpu\_\-normalize}!gpunormalize.h@{gpunormalize.h}}
+\subsubsection[{\_\-gpu\_\-normalize}]{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-global\_\-\_\- void \_\-gpu\_\-normalize (float $\ast$ {\em mx}, \/  float $\ast$ {\em my}, \/  float $\ast$ {\em mz})}}
+\label{gpunormalize_8h_ad4674992f28debd5fc8643ecf618d297}
+\begin{DoxyInternal}{For internal use only.}
+uniform normalization \end{DoxyInternal}
+\hypertarget{gpunormalize_8h_aa93a920d6414d1bc8dcb4743b559c403}{
+\index{gpunormalize.h@{gpunormalize.h}!\_\-gpu\_\-normalize\_\-map@{\_\-gpu\_\-normalize\_\-map}}
+\index{\_\-gpu\_\-normalize\_\-map@{\_\-gpu\_\-normalize\_\-map}!gpunormalize.h@{gpunormalize.h}}
+\subsubsection[{\_\-gpu\_\-normalize\_\-map}]{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-global\_\-\_\- void \_\-gpu\_\-normalize\_\-map (float $\ast$ {\em mx}, \/  float $\ast$ {\em my}, \/  float $\ast$ {\em mz}, \/  float $\ast$ {\em normMap})}}
+\label{gpunormalize_8h_aa93a920d6414d1bc8dcb4743b559c403}
+\begin{DoxyInternal}{For internal use only.}
+space-\/dependent normalization \end{DoxyInternal}
+\hypertarget{gpunormalize_8h_a27d865850b5ee6d12b6f3920d3c284b8}{
+\index{gpunormalize.h@{gpunormalize.h}!gpu\_\-normalize@{gpu\_\-normalize}}
+\index{gpu\_\-normalize@{gpu\_\-normalize}!gpunormalize.h@{gpunormalize.h}}
+\subsubsection[{gpu\_\-normalize}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-normalize ({\bf param} $\ast$ {\em p}, \/  {\bf tensor} $\ast$ {\em m})}}
+\label{gpunormalize_8h_a27d865850b5ee6d12b6f3920d3c284b8}
+Normalizes the magnetization (or any other tensor). 
+\begin{DoxyParams}{Parameters}
+\item[{\em p}]parameters indicate whether normalization is space-\/dependent and store msatMap if applicable. \item[{\em m}]3 x N0 x N1 x N2 tensor to normalize \end{DoxyParams}
+\hypertarget{gpunormalize_8h_a027edb11227fd0d5157867db1b026de6}{
+\index{gpunormalize.h@{gpunormalize.h}!gpu\_\-normalize\_\-map@{gpu\_\-normalize\_\-map}}
+\index{gpu\_\-normalize\_\-map@{gpu\_\-normalize\_\-map}!gpunormalize.h@{gpunormalize.h}}
+\subsubsection[{gpu\_\-normalize\_\-map}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-normalize\_\-map (float $\ast$ {\em m}, \/  float $\ast$ {\em map}, \/  int {\em N})}}
+\label{gpunormalize_8h_a027edb11227fd0d5157867db1b026de6}
+\begin{DoxyInternal}{For internal use only.}
+\end{DoxyInternal}
+\hypertarget{gpunormalize_8h_ac639bb47c49507b90144e839d4cc3c56}{
+\index{gpunormalize.h@{gpunormalize.h}!gpu\_\-normalize\_\-uniform@{gpu\_\-normalize\_\-uniform}}
+\index{gpu\_\-normalize\_\-uniform@{gpu\_\-normalize\_\-uniform}!gpunormalize.h@{gpunormalize.h}}
+\subsubsection[{gpu\_\-normalize\_\-uniform}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-normalize\_\-uniform (float $\ast$ {\em m}, \/  int {\em N})}}
+\label{gpunormalize_8h_ac639bb47c49507b90144e839d4cc3c56}
+\begin{DoxyInternal}{For internal use only.}
+\end{DoxyInternal}

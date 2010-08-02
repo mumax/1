@@ -1,0 +1,214 @@
+.TH "gpu_micromag3d_kernel.h" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gpu_micromag3d_kernel.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'tensor.h'\fP
+.br
+\fC#include 'gputil.h'\fP
+.br
+\fC#include 'param.h'\fP
+.br
+\fC#include 'gpufft2.h'\fP
+.br
+\fC#include 'assert.h'\fP
+.br
+\fC#include 'timer.h'\fP
+.br
+\fC#include <stdio.h>\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBtensor\fP * \fBgpu_micromag3d_kernel\fP (\fBparam\fP *p)"
+.br
+.ti -1c
+.RI "void \fBgpu_init_and_FFT_Greens_kernel_elements_micromag3d\fP (\fBtensor\fP *dev_kernel, int *kernelSize, int *exchInConv, float *FD_cell_size, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10, \fBgpuFFT3dPlan\fP *kernel_plan)"
+.br
+.ti -1c
+.RI "__global__ void \fB_gpu_init_Greens_kernel_elements_micromag3d\fP (float *dev_temp, int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int Nkernel_storage_Z, int exchInConv_X, int exchInConv_Y, int exchInConv_Z, int co1, int co2, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_X, int repetition_Y, int repetition_Z, float *qd_P_10, float *qd_W_10)"
+.br
+.ti -1c
+.RI "__device__ float \fB_gpu_get_Greens_element_micromag3d\fP (int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int exchInConv_X, int exchInConv_Y, int exchInConv_Z, int co1, int co2, int a, int b, int c, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10)"
+.br
+.ti -1c
+.RI "__global__ void \fB_gpu_extract_real_parts_micromag3d\fP (float *dev_kernel_array, float *dev_temp)"
+.br
+.ti -1c
+.RI "void \fBinitialize_Gauss_quadrature_on_gpu_micromag3d\fP (float *dev_qd_W_10, float *dev_qd_P_10, float *FD_cell_size)"
+.br
+.ti -1c
+.RI "void \fBget_Quad_Points_micromag3d\fP (float *gaussQP, float *stdgaussQ, int qOrder, double a, double b)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Initialization of the micromagnetic kernel for 3D simulations (possibly only 1 cell thickness). This kernel contains the demag and exchange (if wanted) contribution and is adapted to the FFT dimensions of gpufft.cu. The Kernel components are Fourier transformed and only the real parts are stored on the device. The correction factor 1/(dimensions FFTs) is included. Parameter demagCoarse controls if the kernel is defined on a coarser discretization level. Parameter exchInConv controls if exchange is included in the kernel
+.PP
+\fBAuthor:\fP
+.RS 4
+Ben Van de Wiele 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "__global__ void _gpu_extract_real_parts_micromag3d (float * dev_kernel_array, float * dev_temp)"Extracts the 'size1' real numbers from the array 'dev_temp' and stores them in the 'dev_kernel_array' starting from 'dev_kernel_array[rank0*size1]'. \fBParameters:\fP
+.RS 4
+\fIdev_kernel_array\fP pointer to the first kernel element of the considered tensor element 
+.br
+\fIdev_temp\fP pointer to the temporary memory space on the device to store all elements of a given Greens tensor component 
+.RE
+.PP
+
+.SS "__device__ float _gpu_get_Greens_element_micromag3d (int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int exchInConv_X, int exchInConv_Y, int exchInConv_Z, int co1, int co2, int a, int b, int c, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_X, int repetition_Y, int repetition_Z, float * dev_qd_P_10, float * dev_qd_W_10)"Returns an element with coordinates [a,b,c] of the Greens kernel component defined by 'co1, co2'. \fBParameters:\fP
+.RS 4
+\fINkernel_X\fP Non-strided size of the kernel data (x-direction) 
+.br
+\fINkernel_Y\fP Non-strided size of the kernel data (y-direction) 
+.br
+\fINkernel_Z\fP Non-strided size of the kernel data (z-direction) 
+.br
+\fIexchInConv_X\fP 1 if exchange is to be included in the x-direction 
+.br
+\fIexchInConv_Y\fP 1 if exchange is to be included in the y-direction 
+.br
+\fIexchInConv_Z\fP 1 if exchange is to be included in the z-direction 
+.br
+\fIco1\fP co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy 
+.br
+\fIco2\fP co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy 
+.br
+\fIa\fP [a,b,c] defines the cartesian vector pointing to the source FD cell to the receiver FD cell (in units FD cell size) 
+.br
+\fIb\fP [a,b,c] defines the cartesian vector pointing to the source FD cell to the receiver FD cell (in units FD cell size) 
+.br
+\fIc\fP [a,b,c] defines the cartesian vector pointing to the source FD cell to the receiver FD cell (in units FD cell size) 
+.br
+\fIFD_cell_size_X\fP Size of the used FD cells in the x direction 
+.br
+\fIFD_cell_size_Y\fP Size of the used FD cells in the y direction 
+.br
+\fIFD_cell_size_Z\fP Size of the used FD cells in the z direction 
+.br
+\fIrepetition_X\fP 2*repetition_X+1 is the number of periods considered the x-direction (repetition_X=0 means no repetion in x direction) 
+.br
+\fIrepetition_Y\fP 2*repetition_Y+1 is the number of periods considered the y-direction (repetition_Y=0 means no repetion in y direction) 
+.br
+\fIrepetition_Z\fP 2*repetition_Z+1 is the number of periods considered the z-direction (repetition_Z=0 means no repetion in z direction) 
+.br
+\fIdev_qd_P_10\fP float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device) 
+.br
+\fIdev_qd_W_10\fP float array (10 floats) containing the 10 Gauss quadrature weights (on device) 
+.RE
+.PP
+
+.SS "__global__ void _gpu_init_Greens_kernel_elements_micromag3d (float * dev_temp, int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int Nkernel_storage_Z, int exchInConv_X, int exchInConv_Y, int exchInConv_Z, int co1, int co2, float FD_cell_size_X, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_X, int repetition_Y, int repetition_Z, float * qd_P_10, float * qd_W_10)"Computes all elements of the Greens kernel component defined by 'co1, co2'. \fBParameters:\fP
+.RS 4
+\fIdev_temp\fP pointer to the temporary memory space on the device to store all elements of a given Greens tensor component 
+.br
+\fINkernel_X\fP Non-strided size of the kernel data (x-direction) 
+.br
+\fINkernel_Y\fP Non-strided size of the kernel data (y-direction) 
+.br
+\fINkernel_Z\fP Non-strided size of the kernel data (z-direction) 
+.br
+\fINkernel_storage_Z\fP Strided size of the kernel data in z-direction 
+.br
+\fIexchInConv_X\fP 1 if exchange is to be included in the x-direction 
+.br
+\fIexchInConv_Y\fP 1 if exchange is to be included in the y-direction 
+.br
+\fIexchInConv_Z\fP 1 if exchange is to be included in the z-direction 
+.br
+\fIco1\fP co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy 
+.br
+\fIco2\fP co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy 
+.br
+\fIFD_cell_size_X\fP Size of the used FD cells in the x direction 
+.br
+\fIFD_cell_size_Y\fP Size of the used FD cells in the y direction 
+.br
+\fIFD_cell_size_Z\fP Size of the used FD cells in the z direction 
+.br
+\fIrepetition_X\fP 2*repetition_X+1 is the number of periods considered the x-direction (repetition_X=0 means no repetion in x direction) 
+.br
+\fIrepetition_Y\fP 2*repetition_Y+1 is the number of periods considered the y-direction (repetition_Y=0 means no repetion in y direction) 
+.br
+\fIrepetition_Z\fP 2*repetition_Z+1 is the number of periods considered the z-direction (repetition_Z=0 means no repetion in z direction) 
+.br
+\fIqd_P_10\fP float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device) 
+.br
+\fIqd_W_10\fP float array (10 floats) containing the 10 Gauss quadrature weights (on device) 
+.RE
+.PP
+
+.SS "void get_Quad_Points_micromag3d (float * gaussQP, float * stdgaussQ, int qOrder, double a, double b)"Get the quadrature points for integration between a and b \fBParameters:\fP
+.RS 4
+\fIgaussQP\fP float array containing the requested Gauss quadrature points 
+.br
+\fIstdgaussQ\fP standard Gauss quadrature points between -1 and +1 
+.br
+\fIqOrder\fP Gauss quadrature order 
+.br
+\fIa\fP integration lower bound 
+.br
+\fIb\fP integration upper bound 
+.RE
+.PP
+
+.SS "void gpu_init_and_FFT_Greens_kernel_elements_micromag3d (\fBtensor\fP * dev_kernel, int * kernelSize, int * exchInConv, float * FD_cell_size, int * repetition, float * dev_qd_P_10, float * dev_qd_W_10, \fBgpuFFT3dPlan\fP * kernel_plan)"Initializes the Greens kernel elements, Fourier transforms the data and extracts the real parts from the data. (imaginary parts are zero in due to the symmetry) The kernel is only stored at the device. \fBParameters:\fP
+.RS 4
+\fIdev_kernel\fP rank 2 tensor; rank 0: xx, xy, xz, yy, yz, zz parts of symmetrical Greens tensor, rank 1: all data of a Greens kernel component contiguously 
+.br
+\fIkernelSize\fP Non-strided size of the kernel data 
+.br
+\fIexchInConv\fP 3 ints, 1 means exchange is included in the kernel in the considered direction 
+.br
+\fIFD_cell_size\fP 3 float, size of finite difference cell in X,Y,Z respectively 
+.br
+\fIrepetition\fP 3 ints, for periodicity: e.g. 2*repetition[0]+1 is the number of periods considered the x-direction ([0,0,0] means no periodic repetition) 
+.br
+\fIdev_qd_P_10\fP float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device) 
+.br
+\fIdev_qd_W_10\fP float array (10 floats) containing the 10 Gauss quadrature weights (on device) 
+.br
+\fIkernel_plan\fP FFT plan for the execution of the forward FFT of the kernel. 
+.RE
+.PP
+
+.SS "\fBtensor\fP* gpu_micromag3d_kernel (\fBparam\fP * p)"Returns the initialized micromagnetic 3D kernel. The kernel is stored as a rank 2 tensor. For a 3D simulation with thickness > 1 FD cell, the first rank contains the Kernel elements: [xx, xy, xz, yy, yz, zz], for a 3D simulation with thickness = 1 FD cell (only possible in X-direction!) the first rank contains only the non-zero elements: [xx, yy, yz, zz]. The second rank contains the contiguous Fourier transformed data of each element. For instants: the contiguous xy-data maps the x-component of the (Fourier transformed) magnetic field with the y-component of the (Fourier transformed) magnetization.
+.PP
+This function includes:
+.IP "\(bu" 2
+computation of the elements of the Greens kernel components
+.IP "\(bu" 2
+Fourier transformation of the Greens kernel components
+.IP "\(bu" 2
+extraction of the real parts in the Fourier domain (complex parts are zero due to symmetry)
+.PP
+.PP
+Demag, exchange (if wanted) as well as the correction factor 1/(dimensions FFTs) are included. \fBParameters:\fP
+.RS 4
+\fIp\fP parameter list 
+.RE
+.PP
+
+.SS "void initialize_Gauss_quadrature_on_gpu_micromag3d (float * dev_qd_W_10, float * dev_qd_P_10, float * FD_cell_size)"Initialization of the Gauss quadrature points and quadrature weights to be used for integration over the FD cell faces. A ten points Gauss quadrature formula is used. The obtained quadrature weights and points are copied to the device. \fBParameters:\fP
+.RS 4
+\fIdev_qd_W_10\fP float array (10 floats) containing the 10 Gauss quadrature weights (on device) 
+.br
+\fIdev_qd_P_10\fP float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device) 
+.br
+\fIFD_cell_size\fP 3 floats: the dimensions of the used FD cell, (X, Y, Z) respectively 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

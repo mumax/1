@@ -1,0 +1,61 @@
+.TH "gputorque.h" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gputorque.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'gputil.h'\fP
+.br
+\fC#include 'timer.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBgpu_deltaM\fP (float *m, float *h, float alpha, float dt_gilb, int N)"
+.br
+.RI "\fIOverwrites h with deltaM(m, h). \fP"
+.ti -1c
+.RI "__global__ void \fB_gpu_deltaM\fP (float *mx, float *my, float *mz, float *hx, float *hy, float *hz, float alpha, float dt_gilb)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Torque functions
+.PP
+\fBAuthor:\fP
+.RS 4
+Arne Vansteenkiste 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "__global__ void _gpu_deltaM (float * mx, float * my, float * mz, float * hx, float * hy, float * hz, float alpha, float dt_gilb)".PP
+\fBFor internal use only.\fP
+.RS 4
+.RE
+.PP
+
+.SS "void gpu_deltaM (float * m, float * h, float alpha, float dt_gilb, int N)"
+.PP
+Overwrites h with deltaM(m, h). \fBParameters:\fP
+.RS 4
+\fIm\fP magnetization (all 3 components, contiguously) 
+.br
+\fIh\fP effective field, to be overwritten by torque 
+.br
+\fIalpha\fP damping constant 
+.br
+\fIdt_gilb\fP dt * gilbert factor 
+.br
+\fIN\fP length of each of the components of m, h (1/3 of their total length) 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

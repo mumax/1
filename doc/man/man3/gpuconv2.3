@@ -1,0 +1,96 @@
+.TH "gpuconv2" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gpuconv2 \- 
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <gpuconv2.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBgpuFFT3dPlan\fP * \fBfftplan\fP"
+.br
+.ti -1c
+.RI "\fBtensor\fP * \fBm\fP"
+.br
+.RI "\fIno space is allocated for m, this is just a pointer the m being convolved at the moment. It's mainly used to store the size of m. \fP"
+.ti -1c
+.RI "\fBtensor\fP * \fBmComp\fP [3]"
+.br
+.RI "\fIpoints to mx, my, mz. again, no space is allocated as this just points into m. each time m->list is set, mComp needs to be updated as well... \fP"
+.ti -1c
+.RI "\fBtensor\fP * \fBh\fP"
+.br
+.RI "\fIno space is allocated for h, this is just a pointer the h being convolved at the moment. It's mainly used to store the size of h. \fP"
+.ti -1c
+.RI "\fBtensor\fP * \fBhComp\fP [3]"
+.br
+.RI "\fIpoints to hx, hy, hz. again, no space is allocated as this just points into h. each time h->list is set, hComp needs to be updated as well... \fP"
+.ti -1c
+.RI "int * \fBpaddedSize\fP"
+.br
+.RI "\fIlogical size of the zero-padded data. No tensor actually has this size: fftXComp has about paddedSize, but plus one stride in the Z dimension. \fP"
+.ti -1c
+.RI "\fBtensor\fP * \fBfft1\fP"
+.br
+.RI "\fIbuffer to store and transform the zero-padded magnetization and field \fP"
+.ti -1c
+.RI "\fBtensor\fP * \fBfft1Comp\fP [3]"
+.br
+.ti -1c
+.RI "\fBtensor\fP * \fBfft2\fP"
+.br
+.RI "\fIsecond fft buffer. By default, this one points to fft1, so everything is in-place. However, it can also be separatly allocated so that the FFT's \fP"
+.ti -1c
+.RI "\fBtensor\fP * \fBfft2Comp\fP [3]"
+.br
+.ti -1c
+.RI "\fBtensor\fP * \fBfftKernel\fP [3][3]"
+.br
+.RI "\fInot stored as a rank 5 kernel because the underlying storage is not neccessarily contiguous: we can exploit the kernel symmetry and make K[X][Y] point to K[Y][X], etc. \fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+.PP
+\fBFor internal use only.\fP
+.RS 4
+.RE
+.PP
+
+.SH "Field Documentation"
+.PP 
+.SS "\fBtensor\fP* \fBgpuconv2::fft1\fP"
+.PP
+buffer to store and transform the zero-padded magnetization and field 
+.SS "\fBtensor\fP* \fBgpuconv2::fft1Comp\fP[3]"
+.SS "\fBtensor\fP* \fBgpuconv2::fft2\fP"
+.PP
+second fft buffer. By default, this one points to fft1, so everything is in-place. However, it can also be separatly allocated so that the FFT's 
+.SS "\fBtensor\fP* \fBgpuconv2::fft2Comp\fP[3]"
+.SS "\fBtensor\fP* \fBgpuconv2::fftKernel\fP[3][3]"
+.PP
+not stored as a rank 5 kernel because the underlying storage is not neccessarily contiguous: we can exploit the kernel symmetry and make K[X][Y] point to K[Y][X], etc. 
+.SS "\fBgpuFFT3dPlan\fP* \fBgpuconv2::fftplan\fP"
+.SS "\fBtensor\fP* \fBgpuconv2::h\fP"
+.PP
+no space is allocated for h, this is just a pointer the h being convolved at the moment. It's mainly used to store the size of h. 
+.SS "\fBtensor\fP* \fBgpuconv2::hComp\fP[3]"
+.PP
+points to hx, hy, hz. again, no space is allocated as this just points into h. each time h->list is set, hComp needs to be updated as well... 
+.SS "\fBtensor\fP* \fBgpuconv2::m\fP"
+.PP
+no space is allocated for m, this is just a pointer the m being convolved at the moment. It's mainly used to store the size of m. 
+.SS "\fBtensor\fP* \fBgpuconv2::mComp\fP[3]"
+.PP
+points to mx, my, mz. again, no space is allocated as this just points into m. each time m->list is set, mComp needs to be updated as well... 
+.SS "int* \fBgpuconv2::paddedSize\fP"
+.PP
+logical size of the zero-padded data. No tensor actually has this size: fftXComp has about paddedSize, but plus one stride in the Z dimension. 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

@@ -1,0 +1,34 @@
+
+# GO
+if [ ! $GOROOT ]; then
+  export GOROOT=$SIMROOT/dep/go
+  export GOOS=linux
+  export GOARCH=386
+  export GOBIN=$SIMROOT/bin/go
+fi
+
+if [ ! $GOROOT ]; then
+  export GOMAXPROCS=$(grep processor /proc/cpuinfo | wc -l)
+fi
+
+export PATH=$PATH:$SIMROOT/bin/go
+
+# cuda
+export LD_LIBRARY_PATH=$SIMROOT/dep/cuda/lib:$LD_LIBRARY_PATH
+export C_INCLUDE_PATH=$SIMROOT/dep/cuda/include:$C_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=$SIMROOT/dep/cuda/include:$CPLUS_INCLUDE_PATH
+
+# simulation
+export PATH=$PATH:$SIMROOT/bin
+export LD_LIBRARY_PATH=$SIMROOT/lib:$LD_LIBRARY_PATH
+export C_INCLUDE_PATH=$SIMROOT/src/gpukern:$SIMROOT/src/gpukern:$C_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=$SIMROOT/src/gpukern:$SIMROOT/src/gpukern:$CPLUS_INCLUDE_PATH
+
+# if arguments are passed, run them after having set the environment
+$@
+
+# Note:
+# This script sets the neccesary environmental variables
+# and then runs the program passed as arguments (if any).
+# Alternatively, one could add "source /path/to/setenv.bash"
+# to the ~/.bashrc.

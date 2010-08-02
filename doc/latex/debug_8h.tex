@@ -1,0 +1,104 @@
+\hypertarget{debug_8h}{
+\section{debug.h File Reference}
+\label{debug_8h}\index{debug.h@{debug.h}}
+}
+{\ttfamily \#include \char`\"{}assert.h\char`\"{}}\par
+{\ttfamily \#include $<$stdio.h$>$}\par
+\subsection*{Defines}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{debug_8h_ab0b439a41f42a310f0e37b337db7b7fe}{debug}(cmd)~\{ if(\hyperlink{debug_8h_acbad9c7b044849c2d0776643a2a4d27c}{\_\-debug\_\-verbosity} $>$ 0)\{ cmd; \} \}
+\item 
+\#define \hyperlink{debug_8h_a958bd3181af67ca831697af3936abadc}{debugv}(cmd)~\{ if(\hyperlink{debug_8h_acbad9c7b044849c2d0776643a2a4d27c}{\_\-debug\_\-verbosity} $>$ 1)\{ cmd; \} \}
+\item 
+\#define \hyperlink{debug_8h_a97079126c32d88d3f950c6acd183fd11}{debugvv}(cmd)~\{ if(\hyperlink{debug_8h_acbad9c7b044849c2d0776643a2a4d27c}{\_\-debug\_\-verbosity} $>$ 2)\{ cmd; \} \}
+\item 
+\#define \hyperlink{debug_8h_a8b1ed2232178c935e9434d2efc271bf0}{beenhere}()~\{ if(\hyperlink{debug_8h_acbad9c7b044849c2d0776643a2a4d27c}{\_\-debug\_\-verbosity} $>$ 2)\{ fprintf(stderr, \char`\"{}Been here: \%s line \%d$\backslash$n\char`\"{}, \_\-\_\-FILE\_\-\_\-, \_\-\_\-LINE\_\-\_\-); \} \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{debug_8h_a624a10b4d886cb41e9bfd15f3ab1b1e8}{debug\_\-verbosity} (int level)
+\item 
+int \hyperlink{debug_8h_a1aa287031c4f0a5eb3923ad3a6842b67}{debug\_\-getverbosity} ()
+\begin{DoxyCompactList}\small\item\em default is 1 \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{debug_8h_acbad9c7b044849c2d0776643a2a4d27c}{\_\-debug\_\-verbosity}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\begin{DoxyAuthor}{Author}
+Arne Vansteenkiste 
+\end{DoxyAuthor}
+
+
+\subsection{Define Documentation}
+\hypertarget{debug_8h_a8b1ed2232178c935e9434d2efc271bf0}{
+\index{debug.h@{debug.h}!beenhere@{beenhere}}
+\index{beenhere@{beenhere}!debug.h@{debug.h}}
+\subsubsection[{beenhere}]{\setlength{\rightskip}{0pt plus 5cm}\#define beenhere()~\{ if({\bf \_\-debug\_\-verbosity} $>$ 2)\{ fprintf(stderr, \char`\"{}Been here: \%s line \%d$\backslash$n\char`\"{}, \_\-\_\-FILE\_\-\_\-, \_\-\_\-LINE\_\-\_\-); \} \}}}
+\label{debug_8h_a8b1ed2232178c935e9434d2efc271bf0}
+Prints \char`\"{}Been here: \char`\"{} with the corresponding file and line number. Only for verbosity 3. \hypertarget{debug_8h_ab0b439a41f42a310f0e37b337db7b7fe}{
+\index{debug.h@{debug.h}!debug@{debug}}
+\index{debug@{debug}!debug.h@{debug.h}}
+\subsubsection[{debug}]{\setlength{\rightskip}{0pt plus 5cm}\#define debug(cmd)~\{ if({\bf \_\-debug\_\-verbosity} $>$ 0)\{ cmd; \} \}}}
+\label{debug_8h_ab0b439a41f42a310f0e37b337db7b7fe}
+Prints a debug message that is considered generally useful and displayed by default \hypertarget{debug_8h_a958bd3181af67ca831697af3936abadc}{
+\index{debug.h@{debug.h}!debugv@{debugv}}
+\index{debugv@{debugv}!debug.h@{debug.h}}
+\subsubsection[{debugv}]{\setlength{\rightskip}{0pt plus 5cm}\#define debugv(cmd)~\{ if({\bf \_\-debug\_\-verbosity} $>$ 1)\{ cmd; \} \}}}
+\label{debug_8h_a958bd3181af67ca831697af3936abadc}
+Prints a debug message that is only useful when we are specifically debugging. It is not displayed by default, but only when the verbosity level is at 2 or higher \hypertarget{debug_8h_a97079126c32d88d3f950c6acd183fd11}{
+\index{debug.h@{debug.h}!debugvv@{debugvv}}
+\index{debugvv@{debugvv}!debug.h@{debug.h}}
+\subsubsection[{debugvv}]{\setlength{\rightskip}{0pt plus 5cm}\#define debugvv(cmd)~\{ if({\bf \_\-debug\_\-verbosity} $>$ 2)\{ cmd; \} \}}}
+\label{debug_8h_a97079126c32d88d3f950c6acd183fd11}
+Prints a debug message that is annoying or printed a lot, like inside a loop. It is not displayed by default, but only when the verbosity level is at 3 or higher 
+
+\subsection{Function Documentation}
+\hypertarget{debug_8h_a1aa287031c4f0a5eb3923ad3a6842b67}{
+\index{debug.h@{debug.h}!debug\_\-getverbosity@{debug\_\-getverbosity}}
+\index{debug\_\-getverbosity@{debug\_\-getverbosity}!debug.h@{debug.h}}
+\subsubsection[{debug\_\-getverbosity}]{\setlength{\rightskip}{0pt plus 5cm}int debug\_\-getverbosity ()}}
+\label{debug_8h_a1aa287031c4f0a5eb3923ad3a6842b67}
+
+
+default is 1 
+
+\hypertarget{debug_8h_a624a10b4d886cb41e9bfd15f3ab1b1e8}{
+\index{debug.h@{debug.h}!debug\_\-verbosity@{debug\_\-verbosity}}
+\index{debug\_\-verbosity@{debug\_\-verbosity}!debug.h@{debug.h}}
+\subsubsection[{debug\_\-verbosity}]{\setlength{\rightskip}{0pt plus 5cm}void debug\_\-verbosity (int {\em level})}}
+\label{debug_8h_a624a10b4d886cb41e9bfd15f3ab1b1e8}
+Setting the verbosity controls how many debug messages are displayed.
+
+
+\begin{DoxyItemize}
+\item The default, 1, means only \hyperlink{debug_8h_ab0b439a41f42a310f0e37b337db7b7fe}{debug()} messages are shown.
+\item Level 2 is more verbose: also \hyperlink{debug_8h_a958bd3181af67ca831697af3936abadc}{debugv()} messages are shown.
+\item Level 3 means full verbosity: even \hyperlink{debug_8h_a97079126c32d88d3f950c6acd183fd11}{debugvv()} messages are shown, which may cause a huge amount of output.
+\item Level 0 means be silent, show no messages at all.
+\end{DoxyItemize}
+
+Example: 
+\begin{DoxyCode}
+    debugv( fprintf(stderr, "size = %d \n", size) );
+    beenhere();     // Prints: "Been here: file XXX.c, line YYY (only for verbosi
+      ty 3)
+\end{DoxyCode}
+
+
+\begin{DoxyNote}{Note}
+Do not worry about performance. When compiling with NDEBUG defined, all debug messages are suppressed and the compiler should throw away the calls to empty functions. (todo) 
+\end{DoxyNote}
+
+
+\subsection{Variable Documentation}
+\hypertarget{debug_8h_acbad9c7b044849c2d0776643a2a4d27c}{
+\index{debug.h@{debug.h}!\_\-debug\_\-verbosity@{\_\-debug\_\-verbosity}}
+\index{\_\-debug\_\-verbosity@{\_\-debug\_\-verbosity}!debug.h@{debug.h}}
+\subsubsection[{\_\-debug\_\-verbosity}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \_\-debug\_\-verbosity}}}
+\label{debug_8h_acbad9c7b044849c2d0776643a2a4d27c}

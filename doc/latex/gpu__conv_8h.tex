@@ -1,0 +1,177 @@
+\hypertarget{gpu__conv_8h}{
+\section{gpu\_\-conv.h File Reference}
+\label{gpu__conv_8h}\index{gpu\_\-conv.h@{gpu\_\-conv.h}}
+}
+{\ttfamily \#include \char`\"{}gputil.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}tensor.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}param.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}kernel.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}gpufft2.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}assert.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}timer.h\char`\"{}}\par
+{\ttfamily \#include $<$stdio.h$>$}\par
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structconv__data}{conv\_\-data}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{gpu__conv_8h_a0848e6c978fdabd3e58c7d8781b6d174}{evaluate\_\-convolution} (\hyperlink{structtensor}{tensor} $\ast$m, \hyperlink{structtensor}{tensor} $\ast$h, \hyperlink{structconv__data}{conv\_\-data} $\ast$conv, \hyperlink{structparam}{param} $\ast$p)
+\item 
+void \hyperlink{gpu__conv_8h_a2c4567e3d08af267f1d67e1afc91d64e}{evaluate\_\-micromag3d\_\-conv} (\hyperlink{structtensor}{tensor} $\ast$m, \hyperlink{structtensor}{tensor} $\ast$h, \hyperlink{structconv__data}{conv\_\-data} $\ast$conv)
+\item 
+void \hyperlink{gpu__conv_8h_a8a5da1ee93143360a4f660e31fed8fb0}{gpu\_\-kernel\_\-mul\_\-micromag3d} (\hyperlink{structtensor}{tensor} $\ast$fft1, \hyperlink{structtensor}{tensor} $\ast$kernel)
+\item 
+\_\-\_\-global\_\-\_\- void \hyperlink{gpu__conv_8h_aae98f437aec9e6c1b4f49f35a34ab1c9}{\_\-gpu\_\-kernel\_\-mul\_\-micromag3d} (float $\ast$fftMx, float $\ast$fftMy, float $\ast$fftMz, float $\ast$fftKxx, float $\ast$fftKxy, float $\ast$fftKxz, float $\ast$fftKyy, float $\ast$fftKyz, float $\ast$fftKzz)
+\item 
+void \hyperlink{gpu__conv_8h_a9e2af2f0825e40da45fb3f47dcc5ee59}{evaluate\_\-micromag3d\_\-conv\_\-Xthickness\_\-1} (\hyperlink{structtensor}{tensor} $\ast$m, \hyperlink{structtensor}{tensor} $\ast$h, \hyperlink{structconv__data}{conv\_\-data} $\ast$conv)
+\item 
+void \hyperlink{gpu__conv_8h_abfba4d8cd8807eec6626827d8158e5b8}{gpu\_\-kernel\_\-mul\_\-micromag3d\_\-Xthickness\_\-1} (\hyperlink{structtensor}{tensor} $\ast$fft1, \hyperlink{structtensor}{tensor} $\ast$kernel)
+\item 
+\_\-\_\-global\_\-\_\- void \hyperlink{gpu__conv_8h_abac37b82c536c514592f6960ba711512}{\_\-gpu\_\-kernel\_\-mul\_\-micromag3d\_\-Xthickness\_\-1} (float $\ast$fftMx, float $\ast$fftMy, float $\ast$fftMz, float $\ast$fftKxx, float $\ast$fftKyy, float $\ast$fftKyz, float $\ast$fftKzz)
+\item 
+void \hyperlink{gpu__conv_8h_ab9000a16284ca5231c2d6c6d953b6c18}{evaluate\_\-micromag2d\_\-conv} (\hyperlink{structtensor}{tensor} $\ast$m, \hyperlink{structtensor}{tensor} $\ast$h, \hyperlink{structconv__data}{conv\_\-data} $\ast$conv)
+\item 
+void \hyperlink{gpu__conv_8h_aa424b1c7fdfb2c5569a1a97235303550}{gpu\_\-kernel\_\-mul\_\-micromag2d} (\hyperlink{structtensor}{tensor} $\ast$fft1, \hyperlink{structtensor}{tensor} $\ast$kernel)
+\item 
+\_\-\_\-global\_\-\_\- void \hyperlink{gpu__conv_8h_a6ac9c6e1f8ee05181c1dd75b97c9efe9}{\_\-gpu\_\-kernel\_\-mul\_\-micromag2d} (float $\ast$fftMy, float $\ast$fftMz, float $\ast$fftKyy, float $\ast$fftKyz, float $\ast$fftKzz)
+\item 
+\hyperlink{structconv__data}{conv\_\-data} $\ast$ \hyperlink{gpu__conv_8h_a4e0c6140920c05095b2ca2a5037f55e7}{new\_\-conv\_\-data} (\hyperlink{structparam}{param} $\ast$p, \hyperlink{structtensor}{tensor} $\ast$kernel)
+\item 
+\_\-\_\-global\_\-\_\- void \hyperlink{gpu__conv_8h_a20af60fe31db3ff8fd148a5489283f0e}{\_\-gpu\_\-copy\_\-pad} (float $\ast$source, float $\ast$dest, int S1, int S2, int D1, int D2)
+\item 
+void \hyperlink{gpu__conv_8h_ae49d40e1a1521a0a50be182c883cb81b}{gpu\_\-copy\_\-to\_\-pad} (float $\ast$source, float $\ast$dest, int $\ast$unpad\_\-size4d, int $\ast$pad\_\-size4d)
+\item 
+void \hyperlink{gpu__conv_8h_a3e70d2785bf9f60ad41661cea6bba1e2}{gpu\_\-copy\_\-to\_\-unpad} (float $\ast$source, float $\ast$dest, int $\ast$pad\_\-size4d, int $\ast$unpad\_\-size4d)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This file contains all functions related with the initialization and execution of the convolutions.
+
+\begin{DoxyAuthor}{Author}
+Ben Van de Wiele, Arne Vansteenkiste 
+\end{DoxyAuthor}
+
+
+\subsection{Function Documentation}
+\hypertarget{gpu__conv_8h_a20af60fe31db3ff8fd148a5489283f0e}{
+\index{gpu\_\-conv.h@{gpu\_\-conv.h}!\_\-gpu\_\-copy\_\-pad@{\_\-gpu\_\-copy\_\-pad}}
+\index{\_\-gpu\_\-copy\_\-pad@{\_\-gpu\_\-copy\_\-pad}!gpu_conv.h@{gpu\_\-conv.h}}
+\subsubsection[{\_\-gpu\_\-copy\_\-pad}]{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-global\_\-\_\- void \_\-gpu\_\-copy\_\-pad (float $\ast$ {\em source}, \/  float $\ast$ {\em dest}, \/  int {\em S1}, \/  int {\em S2}, \/  int {\em D1}, \/  int {\em D2})}}
+\label{gpu__conv_8h_a20af60fe31db3ff8fd148a5489283f0e}
+\begin{DoxyInternal}{For internal use only.}
+Does padding and unpadding, not necessarily by a factor 2 \end{DoxyInternal}
+
+\begin{DoxyParams}{Parameters}
+\item[{\em source}]source data \item[{\em dest}]destination data \item[{\em S1}]source size Y \item[{\em S2}]source size Z \item[{\em D1}]destination size Y \item[{\em D2}]destination size Z \end{DoxyParams}
+\hypertarget{gpu__conv_8h_a6ac9c6e1f8ee05181c1dd75b97c9efe9}{
+\index{gpu\_\-conv.h@{gpu\_\-conv.h}!\_\-gpu\_\-kernel\_\-mul\_\-micromag2d@{\_\-gpu\_\-kernel\_\-mul\_\-micromag2d}}
+\index{\_\-gpu\_\-kernel\_\-mul\_\-micromag2d@{\_\-gpu\_\-kernel\_\-mul\_\-micromag2d}!gpu_conv.h@{gpu\_\-conv.h}}
+\subsubsection[{\_\-gpu\_\-kernel\_\-mul\_\-micromag2d}]{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-global\_\-\_\- void \_\-gpu\_\-kernel\_\-mul\_\-micromag2d (float $\ast$ {\em fftMy}, \/  float $\ast$ {\em fftMz}, \/  float $\ast$ {\em fftKyy}, \/  float $\ast$ {\em fftKyz}, \/  float $\ast$ {\em fftKzz})}}
+\label{gpu__conv_8h_a6ac9c6e1f8ee05181c1dd75b97c9efe9}
+
+\begin{DoxyParams}{Parameters}
+\item[{\em fftMy}]Fourier transformed My data \item[{\em fftMz}]Fourier transformed Mz data \item[{\em fftKyy}]yy kernel component \item[{\em fftKyz}]yz kernel component \item[{\em fftKzz}]zz kernel component \end{DoxyParams}
+\hypertarget{gpu__conv_8h_aae98f437aec9e6c1b4f49f35a34ab1c9}{
+\index{gpu\_\-conv.h@{gpu\_\-conv.h}!\_\-gpu\_\-kernel\_\-mul\_\-micromag3d@{\_\-gpu\_\-kernel\_\-mul\_\-micromag3d}}
+\index{\_\-gpu\_\-kernel\_\-mul\_\-micromag3d@{\_\-gpu\_\-kernel\_\-mul\_\-micromag3d}!gpu_conv.h@{gpu\_\-conv.h}}
+\subsubsection[{\_\-gpu\_\-kernel\_\-mul\_\-micromag3d}]{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-global\_\-\_\- void \_\-gpu\_\-kernel\_\-mul\_\-micromag3d (float $\ast$ {\em fftMx}, \/  float $\ast$ {\em fftMy}, \/  float $\ast$ {\em fftMz}, \/  float $\ast$ {\em fftKxx}, \/  float $\ast$ {\em fftKxy}, \/  float $\ast$ {\em fftKxz}, \/  float $\ast$ {\em fftKyy}, \/  float $\ast$ {\em fftKyz}, \/  float $\ast$ {\em fftKzz})}}
+\label{gpu__conv_8h_aae98f437aec9e6c1b4f49f35a34ab1c9}
+Actual multiplication on gpu of the MICROMAG3D kernel with a sample thickness of more then one (possibly coarse level) FD cell. 
+\begin{DoxyParams}{Parameters}
+\item[{\em fftMx}]Fourier transformed Mx data \item[{\em fftMy}]Fourier transformed My data \item[{\em fftMz}]Fourier transformed Mz data \item[{\em fftKxx}]xx kernel component \item[{\em fftKxy}]xy kernel component \item[{\em fftKxz}]xz kernel component \item[{\em fftKyy}]yy kernel component \item[{\em fftKyz}]yz kernel component \item[{\em fftKzz}]zz kernel component \end{DoxyParams}
+\hypertarget{gpu__conv_8h_abac37b82c536c514592f6960ba711512}{
+\index{gpu\_\-conv.h@{gpu\_\-conv.h}!\_\-gpu\_\-kernel\_\-mul\_\-micromag3d\_\-Xthickness\_\-1@{\_\-gpu\_\-kernel\_\-mul\_\-micromag3d\_\-Xthickness\_\-1}}
+\index{\_\-gpu\_\-kernel\_\-mul\_\-micromag3d\_\-Xthickness\_\-1@{\_\-gpu\_\-kernel\_\-mul\_\-micromag3d\_\-Xthickness\_\-1}!gpu_conv.h@{gpu\_\-conv.h}}
+\subsubsection[{\_\-gpu\_\-kernel\_\-mul\_\-micromag3d\_\-Xthickness\_\-1}]{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-global\_\-\_\- void \_\-gpu\_\-kernel\_\-mul\_\-micromag3d\_\-Xthickness\_\-1 (float $\ast$ {\em fftMx}, \/  float $\ast$ {\em fftMy}, \/  float $\ast$ {\em fftMz}, \/  float $\ast$ {\em fftKxx}, \/  float $\ast$ {\em fftKyy}, \/  float $\ast$ {\em fftKyz}, \/  float $\ast$ {\em fftKzz})}}
+\label{gpu__conv_8h_abac37b82c536c514592f6960ba711512}
+Actual multiplication on gpu of the MICROMAG3D kernel with a sample thickness of one (possibly coarse level) FD cell. 
+\begin{DoxyParams}{Parameters}
+\item[{\em fftMx}]Fourier transformed Mx data \item[{\em fftMy}]Fourier transformed My data \item[{\em fftMz}]Fourier transformed Mz data \item[{\em fftKxx}]xx kernel component \item[{\em fftKyy}]yy kernel component \item[{\em fftKyz}]yz kernel component \item[{\em fftKzz}]zz kernel component \end{DoxyParams}
+\hypertarget{gpu__conv_8h_a0848e6c978fdabd3e58c7d8781b6d174}{
+\index{gpu\_\-conv.h@{gpu\_\-conv.h}!evaluate\_\-convolution@{evaluate\_\-convolution}}
+\index{evaluate\_\-convolution@{evaluate\_\-convolution}!gpu_conv.h@{gpu\_\-conv.h}}
+\subsubsection[{evaluate\_\-convolution}]{\setlength{\rightskip}{0pt plus 5cm}void evaluate\_\-convolution ({\bf tensor} $\ast$ {\em m}, \/  {\bf tensor} $\ast$ {\em h}, \/  {\bf conv\_\-data} $\ast$ {\em conv}, \/  {\bf param} $\ast$ {\em p})}}
+\label{gpu__conv_8h_a0848e6c978fdabd3e58c7d8781b6d174}
+Evaluates a convolution. The input is the magnetization tensor m, the output is the magnetic field tensor h. All required work space, the kernel and the corresponding FFT plan are referred ate in the convolution data 'conv'. Before using this function, the convolution data should be initialized using the function: \hyperlink{gpu__conv_8h_a4e0c6140920c05095b2ca2a5037f55e7}{new\_\-conv\_\-data(param $\ast$p, tensor $\ast$kernel)}. 
+\begin{DoxyParams}{Parameters}
+\item[{\em m}]input: rank 4 tensor containing the magnetization data. \item[{\em h}]output: rank 4 tensor containing the field data. \item[{\em conv}]convolution data: work space, kernel. \item[{\em p}]parameter list \end{DoxyParams}
+\hypertarget{gpu__conv_8h_ab9000a16284ca5231c2d6c6d953b6c18}{
+\index{gpu\_\-conv.h@{gpu\_\-conv.h}!evaluate\_\-micromag2d\_\-conv@{evaluate\_\-micromag2d\_\-conv}}
+\index{evaluate\_\-micromag2d\_\-conv@{evaluate\_\-micromag2d\_\-conv}!gpu_conv.h@{gpu\_\-conv.h}}
+\subsubsection[{evaluate\_\-micromag2d\_\-conv}]{\setlength{\rightskip}{0pt plus 5cm}void evaluate\_\-micromag2d\_\-conv ({\bf tensor} $\ast$ {\em m}, \/  {\bf tensor} $\ast$ {\em h}, \/  {\bf conv\_\-data} $\ast$ {\em conv})}}
+\label{gpu__conv_8h_ab9000a16284ca5231c2d6c6d953b6c18}
+Evaluates a convolution of type MICROMAG2D. 
+\begin{DoxyParams}{Parameters}
+\item[{\em m}]input: rank 4 tensor containing the magnetization data. \item[{\em h}]output: rank 4 tensor containing the field data. \item[{\em conv}]convolution data: work space, kernel, FFT plan. \end{DoxyParams}
+\hypertarget{gpu__conv_8h_a2c4567e3d08af267f1d67e1afc91d64e}{
+\index{gpu\_\-conv.h@{gpu\_\-conv.h}!evaluate\_\-micromag3d\_\-conv@{evaluate\_\-micromag3d\_\-conv}}
+\index{evaluate\_\-micromag3d\_\-conv@{evaluate\_\-micromag3d\_\-conv}!gpu_conv.h@{gpu\_\-conv.h}}
+\subsubsection[{evaluate\_\-micromag3d\_\-conv}]{\setlength{\rightskip}{0pt plus 5cm}void evaluate\_\-micromag3d\_\-conv ({\bf tensor} $\ast$ {\em m}, \/  {\bf tensor} $\ast$ {\em h}, \/  {\bf conv\_\-data} $\ast$ {\em conv})}}
+\label{gpu__conv_8h_a2c4567e3d08af267f1d67e1afc91d64e}
+Evaluates a convolution of type MICROMAG3D with a sample thickness of more then one (possibly coarse level) FD cell. 
+\begin{DoxyParams}{Parameters}
+\item[{\em m}]input: rank 4 tensor containing the magnetization data. \item[{\em h}]output: rank 4 tensor containing the field data. \item[{\em conv}]convolution data: work space, kernel, FFT plan. \end{DoxyParams}
+\hypertarget{gpu__conv_8h_a9e2af2f0825e40da45fb3f47dcc5ee59}{
+\index{gpu\_\-conv.h@{gpu\_\-conv.h}!evaluate\_\-micromag3d\_\-conv\_\-Xthickness\_\-1@{evaluate\_\-micromag3d\_\-conv\_\-Xthickness\_\-1}}
+\index{evaluate\_\-micromag3d\_\-conv\_\-Xthickness\_\-1@{evaluate\_\-micromag3d\_\-conv\_\-Xthickness\_\-1}!gpu_conv.h@{gpu\_\-conv.h}}
+\subsubsection[{evaluate\_\-micromag3d\_\-conv\_\-Xthickness\_\-1}]{\setlength{\rightskip}{0pt plus 5cm}void evaluate\_\-micromag3d\_\-conv\_\-Xthickness\_\-1 ({\bf tensor} $\ast$ {\em m}, \/  {\bf tensor} $\ast$ {\em h}, \/  {\bf conv\_\-data} $\ast$ {\em conv})}}
+\label{gpu__conv_8h_a9e2af2f0825e40da45fb3f47dcc5ee59}
+Evaluates a convolution of type MICROMAG3D with a sample thickness of one (possibly coarse level) FD cell. 
+\begin{DoxyParams}{Parameters}
+\item[{\em m}]input: rank 4 tensor containing the magnetization data. \item[{\em h}]output: rank 4 tensor containing the field data. \item[{\em conv}]convolution data: work space, kernel, FFT plan. \end{DoxyParams}
+\hypertarget{gpu__conv_8h_ae49d40e1a1521a0a50be182c883cb81b}{
+\index{gpu\_\-conv.h@{gpu\_\-conv.h}!gpu\_\-copy\_\-to\_\-pad@{gpu\_\-copy\_\-to\_\-pad}}
+\index{gpu\_\-copy\_\-to\_\-pad@{gpu\_\-copy\_\-to\_\-pad}!gpu_conv.h@{gpu\_\-conv.h}}
+\subsubsection[{gpu\_\-copy\_\-to\_\-pad}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-copy\_\-to\_\-pad (float $\ast$ {\em source}, \/  float $\ast$ {\em dest}, \/  int $\ast$ {\em unpad\_\-size4d}, \/  int $\ast$ {\em pad\_\-size4d})}}
+\label{gpu__conv_8h_ae49d40e1a1521a0a50be182c883cb81b}
+\begin{DoxyInternal}{For internal use only.}
+pads the input tensor 'source' and saves it in tensor 'dest', 2d and 3d applicable. \end{DoxyInternal}
+
+\begin{DoxyParams}{Parameters}
+\item[{\em source}]input: unpadded source as contiguous float array \item[{\em dest}]output: padded destination as contiguous float array \item[{\em unpad\_\-size4d}]size of the corresponding unpadded tensor \item[{\em pad\_\-size4d}]size of the corresponding padded tensor \end{DoxyParams}
+\hypertarget{gpu__conv_8h_a3e70d2785bf9f60ad41661cea6bba1e2}{
+\index{gpu\_\-conv.h@{gpu\_\-conv.h}!gpu\_\-copy\_\-to\_\-unpad@{gpu\_\-copy\_\-to\_\-unpad}}
+\index{gpu\_\-copy\_\-to\_\-unpad@{gpu\_\-copy\_\-to\_\-unpad}!gpu_conv.h@{gpu\_\-conv.h}}
+\subsubsection[{gpu\_\-copy\_\-to\_\-unpad}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-copy\_\-to\_\-unpad (float $\ast$ {\em source}, \/  float $\ast$ {\em dest}, \/  int $\ast$ {\em pad\_\-size4d}, \/  int $\ast$ {\em unpad\_\-size4d})}}
+\label{gpu__conv_8h_a3e70d2785bf9f60ad41661cea6bba1e2}
+\begin{DoxyInternal}{For internal use only.}
+copies the non-\/zero elements from the padded the input tensor 'source' towards tensor 'dest', 2d and 3d applicable. \end{DoxyInternal}
+
+\begin{DoxyParams}{Parameters}
+\item[{\em source}]input: padded source as contiguous float array \item[{\em dest}]output: unpadded destination as contiguous float array \item[{\em pad\_\-size4d}]size of the corresponding padded tensor \item[{\em unpad\_\-size4d}]size of the corresponding unpadded tensor \end{DoxyParams}
+\hypertarget{gpu__conv_8h_aa424b1c7fdfb2c5569a1a97235303550}{
+\index{gpu\_\-conv.h@{gpu\_\-conv.h}!gpu\_\-kernel\_\-mul\_\-micromag2d@{gpu\_\-kernel\_\-mul\_\-micromag2d}}
+\index{gpu\_\-kernel\_\-mul\_\-micromag2d@{gpu\_\-kernel\_\-mul\_\-micromag2d}!gpu_conv.h@{gpu\_\-conv.h}}
+\subsubsection[{gpu\_\-kernel\_\-mul\_\-micromag2d}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-kernel\_\-mul\_\-micromag2d ({\bf tensor} $\ast$ {\em fft1}, \/  {\bf tensor} $\ast$ {\em kernel})}}
+\label{gpu__conv_8h_aa424b1c7fdfb2c5569a1a97235303550}
+
+\begin{DoxyParams}{Parameters}
+\item[{\em fft1}]Fourier transformed data (as input: m-\/data, when exiting: h-\/data) \item[{\em kernel}]MICROMAG3d kernel \end{DoxyParams}
+\hypertarget{gpu__conv_8h_a8a5da1ee93143360a4f660e31fed8fb0}{
+\index{gpu\_\-conv.h@{gpu\_\-conv.h}!gpu\_\-kernel\_\-mul\_\-micromag3d@{gpu\_\-kernel\_\-mul\_\-micromag3d}}
+\index{gpu\_\-kernel\_\-mul\_\-micromag3d@{gpu\_\-kernel\_\-mul\_\-micromag3d}!gpu_conv.h@{gpu\_\-conv.h}}
+\subsubsection[{gpu\_\-kernel\_\-mul\_\-micromag3d}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-kernel\_\-mul\_\-micromag3d ({\bf tensor} $\ast$ {\em fft1}, \/  {\bf tensor} $\ast$ {\em kernel})}}
+\label{gpu__conv_8h_a8a5da1ee93143360a4f660e31fed8fb0}
+Evaluates the kernel multiplication for the MICROMAG3D kernel with a sample thickness of more then one (possibly coarse level) FD cell. 
+\begin{DoxyParams}{Parameters}
+\item[{\em fft1}]Fourier transformed data (as input: m-\/data, when exiting: h-\/data) \item[{\em kernel}]MICROMAG3d kernel \end{DoxyParams}
+\hypertarget{gpu__conv_8h_abfba4d8cd8807eec6626827d8158e5b8}{
+\index{gpu\_\-conv.h@{gpu\_\-conv.h}!gpu\_\-kernel\_\-mul\_\-micromag3d\_\-Xthickness\_\-1@{gpu\_\-kernel\_\-mul\_\-micromag3d\_\-Xthickness\_\-1}}
+\index{gpu\_\-kernel\_\-mul\_\-micromag3d\_\-Xthickness\_\-1@{gpu\_\-kernel\_\-mul\_\-micromag3d\_\-Xthickness\_\-1}!gpu_conv.h@{gpu\_\-conv.h}}
+\subsubsection[{gpu\_\-kernel\_\-mul\_\-micromag3d\_\-Xthickness\_\-1}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-kernel\_\-mul\_\-micromag3d\_\-Xthickness\_\-1 ({\bf tensor} $\ast$ {\em fft1}, \/  {\bf tensor} $\ast$ {\em kernel})}}
+\label{gpu__conv_8h_abfba4d8cd8807eec6626827d8158e5b8}
+Evaluates the kernel multiplication for the MICROMAG3D kernel with a sample thickness of one (possibly coarse level) FD cell. 
+\begin{DoxyParams}{Parameters}
+\item[{\em fft1}]Fourier transformed data (as input: m-\/data, when exiting: h-\/data) \item[{\em kernel}]MICROMAG3d kernel \end{DoxyParams}
+\hypertarget{gpu__conv_8h_a4e0c6140920c05095b2ca2a5037f55e7}{
+\index{gpu\_\-conv.h@{gpu\_\-conv.h}!new\_\-conv\_\-data@{new\_\-conv\_\-data}}
+\index{new\_\-conv\_\-data@{new\_\-conv\_\-data}!gpu_conv.h@{gpu\_\-conv.h}}
+\subsubsection[{new\_\-conv\_\-data}]{\setlength{\rightskip}{0pt plus 5cm}{\bf conv\_\-data}$\ast$ new\_\-conv\_\-data ({\bf param} $\ast$ {\em p}, \/  {\bf tensor} $\ast$ {\em kernel})}}
+\label{gpu__conv_8h_a4e0c6140920c05095b2ca2a5037f55e7}
+Initializes the convolution data based on the parameter list p and links to the initialized kernel. Before using this function, the kernel data should be initialized using the function: \hyperlink{kernel_8h_ae7a1d6779f775bea9d4f6dc64571a25a}{new\_\-kernel(param $\ast$p)}. 
+\begin{DoxyParams}{Parameters}
+\item[{\em p}]parameter list \item[{\em kernel}]tensor containing the kernel data \end{DoxyParams}

@@ -1,0 +1,85 @@
+.TH "gpunormalize.h" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gpunormalize.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'tensor.h'\fP
+.br
+\fC#include 'param.h'\fP
+.br
+\fC#include 'gputil.h'\fP
+.br
+\fC#include 'timer.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBgpu_normalize\fP (\fBparam\fP *p, \fBtensor\fP *m)"
+.br
+.ti -1c
+.RI "void \fBgpu_normalize_uniform\fP (float *m, int N)"
+.br
+.ti -1c
+.RI "void \fBgpu_normalize_map\fP (float *m, float *map, int N)"
+.br
+.ti -1c
+.RI "__global__ void \fB_gpu_normalize\fP (float *mx, float *my, float *mz)"
+.br
+.ti -1c
+.RI "__global__ void \fB_gpu_normalize_map\fP (float *mx, float *my, float *mz, float *normMap)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Normalization of m, possible space-dependent
+.PP
+\fBAuthor:\fP
+.RS 4
+Arne Vansteenkiste 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "__global__ void _gpu_normalize (float * mx, float * my, float * mz)".PP
+\fBFor internal use only.\fP
+.RS 4
+uniform normalization 
+.RE
+.PP
+
+.SS "__global__ void _gpu_normalize_map (float * mx, float * my, float * mz, float * normMap)".PP
+\fBFor internal use only.\fP
+.RS 4
+space-dependent normalization 
+.RE
+.PP
+
+.SS "void gpu_normalize (\fBparam\fP * p, \fBtensor\fP * m)"Normalizes the magnetization (or any other tensor). \fBParameters:\fP
+.RS 4
+\fIp\fP parameters indicate whether normalization is space-dependent and store msatMap if applicable. 
+.br
+\fIm\fP 3 x N0 x N1 x N2 tensor to normalize 
+.RE
+.PP
+
+.SS "void gpu_normalize_map (float * m, float * map, int N)".PP
+\fBFor internal use only.\fP
+.RS 4
+.RE
+.PP
+
+.SS "void gpu_normalize_uniform (float * m, int N)".PP
+\fBFor internal use only.\fP
+.RS 4
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

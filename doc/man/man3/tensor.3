@@ -1,0 +1,67 @@
+.TH "tensor" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+tensor \- 
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <tensor.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "int \fBrank\fP"
+.br
+.RI "\fIthe tensor's rank \fP"
+.ti -1c
+.RI "int * \fBsize\fP"
+.br
+.RI "\fIan array of length rank that stores the dimensions in all directions \fP"
+.ti -1c
+.RI "int \fBlen\fP"
+.br
+.RI "\fItotal number of elements, equal to size[0] * size[1] * ... *size[rank-1] \fP"
+.ti -1c
+.RI "float * \fBlist\fP"
+.br
+.RI "\fItensor data, stored as a (contiguous) array of length 'len' \fP"
+.ti -1c
+.RI "void * \fBarray\fP"
+.br
+.RI "\fIthe tensor data represented as a multi-dimensional array. underneath lies the data from 'list'. \fP"
+.ti -1c
+.RI "int \fBflags\fP"
+.br
+.RI "\fIused to store some additional info like: allocated on RAM/GPU? symmetric? \fP"
+.in -1c
+.SH "Field Documentation"
+.PP 
+.SS "void* \fBtensor::array\fP"
+.PP
+the tensor data represented as a multi-dimensional array. underneath lies the data from 'list'. 
+.SS "int \fBtensor::flags\fP"
+.PP
+used to store some additional info like: allocated on RAM/GPU? symmetric? \fBDeprecated\fP
+.RS 4
+? 
+.RE
+.PP
+
+.SS "int \fBtensor::len\fP"
+.PP
+total number of elements, equal to size[0] * size[1] * ... *size[rank-1] 
+.SS "float* \fBtensor::list\fP"
+.PP
+tensor data, stored as a (contiguous) array of length 'len' 
+.SS "int \fBtensor::rank\fP"
+.PP
+the tensor's rank 
+.SS "int* \fBtensor::size\fP"
+.PP
+an array of length rank that stores the dimensions in all directions 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

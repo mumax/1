@@ -1,0 +1,99 @@
+.TH "gpurk4.h" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gpurk4.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'tensor.h'\fP
+.br
+\fC#include 'gpuconv1.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBgpurk4\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBgpurk4\fP * \fBnew_gpurk4\fP (int \fBN0\fP, int \fBN1\fP, int \fBN2\fP, \fBtensor\fP *kernel)"
+.br
+.ti -1c
+.RI "void \fBgpurk4_loadm\fP (\fBgpurk4\fP *rk, \fBtensor\fP *m)"
+.br
+.ti -1c
+.RI "void \fBgpurk4_storem\fP (\fBgpurk4\fP *rk, \fBtensor\fP *m)"
+.br
+.ti -1c
+.RI "void \fBgpurk4_step\fP (\fBgpurk4\fP *rk, float dt)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+The classical 4th order Runge-Kutta algorithm for solving the LL equation.
+.PP
+\fBNote:\fP
+.RS 4
+Does not work yet
+.PP
+When writing out of allocated memory bounds, the GPU of course does not throw a segmentation fault. However, I had one case where a copy operation AFTER faulty memory acces failed with 'the launch timed out and was terminated', and also my screen went black for a split-second. Writing out of bounds can thus actually affect your graphics!
+.RE
+.PP
+\fBTodo\fP
+.RS 4
+we do not need 4 k arrays: just one where we accumulate the total k first calc k_i in shared memory, use it to set the next m_i+1 then add it to the global k array with the correct weigth the last k_i is not even added to that array but immediately to m
+.RE
+.PP
+\fBAuthor:\fP
+.RS 4
+Arne Vansteenkiste 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "void gpurk4_loadm (\fBgpurk4\fP * rk, \fBtensor\fP * m)"Copies a magnetization configuration in the solver, e.g. the initial magnetization. 
+.PP
+\fBSee also:\fP
+.RS 4
+: \fBgpurk4_storem\fP 
+.RE
+.PP
+
+.SS "void gpurk4_step (\fBgpurk4\fP * rk, float dt)"Takes one time step \fBParameters:\fP
+.RS 4
+\fIrk\fP the solver to step 
+.br
+\fIdt\fP time step (internal units). 
+.RE
+.PP
+
+.SS "void gpurk4_storem (\fBgpurk4\fP * rk, \fBtensor\fP * m)"Copies a magnetization configuration from the solver to the RAM, e.g. the magnetization after a number of time steps. 
+.PP
+\fBSee also:\fP
+.RS 4
+: \fBgpurk4_loadm\fP 
+.RE
+.PP
+
+.SS "\fBgpurk4\fP* new_gpurk4 (int N0, int N1, int N2, \fBtensor\fP * kernel)"Makes a new euler solver. \fBParameters:\fP
+.RS 4
+\fIN0\fP X-size of magnetization 
+.br
+\fIN1\fP Y-size of magnetization 
+.br
+\fIN2\fP Z-size of magnetization 
+.br
+\fIkernel\fP convolution kernel describing the effective field. size: 2*N0 x 2*N1 x 2*N2 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

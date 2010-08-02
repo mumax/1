@@ -1,0 +1,175 @@
+\hypertarget{gpufft_8h}{
+\section{gpufft.h File Reference}
+\label{gpufft_8h}\index{gpufft.h@{gpufft.h}}
+}
+{\ttfamily \#include \char`\"{}tensor.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}gputil.h\char`\"{}}\par
+{\ttfamily \#include $<$cufft.h$>$}\par
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structgpu__plan3d__real__input}{gpu\_\-plan3d\_\-real\_\-input}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{structgpu__plan3d__real__input}{gpu\_\-plan3d\_\-real\_\-input} $\ast$ \hyperlink{gpufft_8h_adaab760b0595a368b478605477bb9e2d}{new\_\-gpu\_\-plan3d\_\-real\_\-input} (int \hyperlink{gpufft2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{N0}, int \hyperlink{gpufft2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{N1}, int \hyperlink{gpufft2__test_8cpp_adeea8075a0038c985c63d45161804d60}{N2}, int $\ast$zero\_\-pad)
+\item 
+void \hyperlink{gpufft_8h_a6ccc79a5828c728ed1eb141508b65501}{gpu\_\-plan3d\_\-real\_\-input\_\-forward} (\hyperlink{structgpu__plan3d__real__input}{gpu\_\-plan3d\_\-real\_\-input} $\ast$plan, float $\ast$data)
+\item 
+void \hyperlink{gpufft_8h_aa3360339d8b5274ebc85c2b3f522f1d0}{gpu\_\-plan3d\_\-real\_\-input\_\-inverse} (\hyperlink{structgpu__plan3d__real__input}{gpu\_\-plan3d\_\-real\_\-input} $\ast$plan, float $\ast$data)
+\item 
+void \hyperlink{gpufft_8h_a471c00045b04ae34ce9cfc6d1f997855}{gpu\_\-transposeYZ\_\-complex} (float $\ast$source, float $\ast$dest, int \hyperlink{gpufft2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{N0}, int \hyperlink{gpufft2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{N1}, int \hyperlink{gpufft2__test_8cpp_adeea8075a0038c985c63d45161804d60}{N2})
+\item 
+void \hyperlink{gpufft_8h_a6f5c5a5b92c5d07a445480c1d60b929a}{gpu\_\-transposeXZ\_\-complex} (float $\ast$source, float $\ast$dest, int \hyperlink{gpufft2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{N0}, int \hyperlink{gpufft2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{N1}, int \hyperlink{gpufft2__test_8cpp_adeea8075a0038c985c63d45161804d60}{N2})
+\item 
+void \hyperlink{gpufft_8h_a4180e192ed898bac1a64e7bd95668e5c}{gpu\_\-transposeYZ\_\-complex\_\-inplace} (float $\ast$source, int \hyperlink{gpufft2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{N0}, int \hyperlink{gpufft2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{N1}, int \hyperlink{gpufft2__test_8cpp_adeea8075a0038c985c63d45161804d60}{N2})
+\item 
+void \hyperlink{gpufft_8h_a8ef8d9e973c51c2245ef0bdf83088818}{gpu\_\-transposeXZ\_\-complex\_\-inplace} (float $\ast$source, int \hyperlink{gpufft2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{N0}, int \hyperlink{gpufft2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{N1}, int \hyperlink{gpufft2__test_8cpp_adeea8075a0038c985c63d45161804d60}{N2})
+\item 
+\_\-\_\-global\_\-\_\- void \hyperlink{gpufft_8h_a3a4fd4f2349b4971da48c5b2b39ddabf}{\_\-gpu\_\-transposeYZ\_\-complex} (float $\ast$source, float $\ast$dest, int \hyperlink{gpufft2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{N0}, int \hyperlink{gpufft2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{N1}, int \hyperlink{gpufft2__test_8cpp_adeea8075a0038c985c63d45161804d60}{N2})
+\item 
+\_\-\_\-global\_\-\_\- void \hyperlink{gpufft_8h_a0c89894448ae4b3440f1dde73c4e6ad6}{\_\-gpu\_\-transposeXZ\_\-complex} (float $\ast$source, float $\ast$dest, int \hyperlink{gpufft2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{N0}, int \hyperlink{gpufft2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{N1}, int \hyperlink{gpufft2__test_8cpp_adeea8075a0038c985c63d45161804d60}{N2})
+\item 
+\_\-\_\-global\_\-\_\- void \hyperlink{gpufft_8h_a3828099740e4107f037c2a7c7ce152e2}{\_\-gpu\_\-transposeYZ\_\-complex\_\-inplace} (float $\ast$source, int \hyperlink{gpufft2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{N0}, int \hyperlink{gpufft2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{N1}, int \hyperlink{gpufft2__test_8cpp_adeea8075a0038c985c63d45161804d60}{N2})
+\item 
+\_\-\_\-global\_\-\_\- void \hyperlink{gpufft_8h_a49098eb11d3ddc837e15121bb1173602}{\_\-gpu\_\-transposeXZ\_\-complex\_\-inplace} (float $\ast$source, int \hyperlink{gpufft2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{N0}, int \hyperlink{gpufft2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{N1}, int \hyperlink{gpufft2__test_8cpp_adeea8075a0038c985c63d45161804d60}{N2})
+\item 
+void \hyperlink{gpufft_8h_ab0f91dcf5d86ae1efa6df8d908378496}{delete\_\-gpu\_\-plan3d\_\-real\_\-input} (\hyperlink{structgpu__plan3d__real__input}{gpu\_\-plan3d\_\-real\_\-input} $\ast$plan)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Initialization, execution and deleting of FFTs used during the computation of the micromagnetic kernel. The following is taken into account:
+\begin{DoxyItemize}
+\item real-\/to-\/complex FFTs
+\item No FFTs on the zeros in the padded magnetization buffers
+\item The CUDA memory access is alligned
+\end{DoxyItemize}
+
+\begin{Desc}
+\item[\hyperlink{todo__todo000009}{Todo}]In place transpose routines 
+
+Option for out-\/of place transforms 
+
+Accecpt tensor arguments\end{Desc}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{structgpuconv1}{gpuconv1}, \hyperlink{gpuconv2_8h_a276cde10877794d8927911fe2abeec0f}{new\_\-gpuconv2}, \hyperlink{gpuconv2_8h_ada13dcbed7b84f58bafbf2a0bc57ae85}{gpuconv2\_\-exec}
+\end{DoxySeeAlso}
+\begin{DoxyAuthor}{Author}
+Arne Vansteenkiste 
+
+Ben Van de Wiele 
+\end{DoxyAuthor}
+
+
+\subsection{Function Documentation}
+\hypertarget{gpufft_8h_a0c89894448ae4b3440f1dde73c4e6ad6}{
+\index{gpufft.h@{gpufft.h}!\_\-gpu\_\-transposeXZ\_\-complex@{\_\-gpu\_\-transposeXZ\_\-complex}}
+\index{\_\-gpu\_\-transposeXZ\_\-complex@{\_\-gpu\_\-transposeXZ\_\-complex}!gpufft.h@{gpufft.h}}
+\subsubsection[{\_\-gpu\_\-transposeXZ\_\-complex}]{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-global\_\-\_\- void \_\-gpu\_\-transposeXZ\_\-complex (float $\ast$ {\em source}, \/  float $\ast$ {\em dest}, \/  int {\em N0}, \/  int {\em N1}, \/  int {\em N2})}}
+\label{gpufft_8h_a0c89894448ae4b3440f1dde73c4e6ad6}
+\begin{DoxyInternal}{For internal use only.}
+\end{DoxyInternal}
+\hypertarget{gpufft_8h_a49098eb11d3ddc837e15121bb1173602}{
+\index{gpufft.h@{gpufft.h}!\_\-gpu\_\-transposeXZ\_\-complex\_\-inplace@{\_\-gpu\_\-transposeXZ\_\-complex\_\-inplace}}
+\index{\_\-gpu\_\-transposeXZ\_\-complex\_\-inplace@{\_\-gpu\_\-transposeXZ\_\-complex\_\-inplace}!gpufft.h@{gpufft.h}}
+\subsubsection[{\_\-gpu\_\-transposeXZ\_\-complex\_\-inplace}]{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-global\_\-\_\- void \_\-gpu\_\-transposeXZ\_\-complex\_\-inplace (float $\ast$ {\em source}, \/  int {\em N0}, \/  int {\em N1}, \/  int {\em N2})}}
+\label{gpufft_8h_a49098eb11d3ddc837e15121bb1173602}
+\begin{DoxyInternal}{For internal use only.}
+\end{DoxyInternal}
+\hypertarget{gpufft_8h_a3a4fd4f2349b4971da48c5b2b39ddabf}{
+\index{gpufft.h@{gpufft.h}!\_\-gpu\_\-transposeYZ\_\-complex@{\_\-gpu\_\-transposeYZ\_\-complex}}
+\index{\_\-gpu\_\-transposeYZ\_\-complex@{\_\-gpu\_\-transposeYZ\_\-complex}!gpufft.h@{gpufft.h}}
+\subsubsection[{\_\-gpu\_\-transposeYZ\_\-complex}]{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-global\_\-\_\- void \_\-gpu\_\-transposeYZ\_\-complex (float $\ast$ {\em source}, \/  float $\ast$ {\em dest}, \/  int {\em N0}, \/  int {\em N1}, \/  int {\em N2})}}
+\label{gpufft_8h_a3a4fd4f2349b4971da48c5b2b39ddabf}
+\begin{DoxyInternal}{For internal use only.}
+\end{DoxyInternal}
+\hypertarget{gpufft_8h_a3828099740e4107f037c2a7c7ce152e2}{
+\index{gpufft.h@{gpufft.h}!\_\-gpu\_\-transposeYZ\_\-complex\_\-inplace@{\_\-gpu\_\-transposeYZ\_\-complex\_\-inplace}}
+\index{\_\-gpu\_\-transposeYZ\_\-complex\_\-inplace@{\_\-gpu\_\-transposeYZ\_\-complex\_\-inplace}!gpufft.h@{gpufft.h}}
+\subsubsection[{\_\-gpu\_\-transposeYZ\_\-complex\_\-inplace}]{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-global\_\-\_\- void \_\-gpu\_\-transposeYZ\_\-complex\_\-inplace (float $\ast$ {\em source}, \/  int {\em N0}, \/  int {\em N1}, \/  int {\em N2})}}
+\label{gpufft_8h_a3828099740e4107f037c2a7c7ce152e2}
+\begin{DoxyInternal}{For internal use only.}
+\end{DoxyInternal}
+\hypertarget{gpufft_8h_ab0f91dcf5d86ae1efa6df8d908378496}{
+\index{gpufft.h@{gpufft.h}!delete\_\-gpu\_\-plan3d\_\-real\_\-input@{delete\_\-gpu\_\-plan3d\_\-real\_\-input}}
+\index{delete\_\-gpu\_\-plan3d\_\-real\_\-input@{delete\_\-gpu\_\-plan3d\_\-real\_\-input}!gpufft.h@{gpufft.h}}
+\subsubsection[{delete\_\-gpu\_\-plan3d\_\-real\_\-input}]{\setlength{\rightskip}{0pt plus 5cm}void delete\_\-gpu\_\-plan3d\_\-real\_\-input ({\bf gpu\_\-plan3d\_\-real\_\-input} $\ast$ {\em plan})}}
+\label{gpufft_8h_ab0f91dcf5d86ae1efa6df8d908378496}
+Frees the FFT plan 
+\begin{DoxyParams}{Parameters}
+\item[{\em plan}]the plan to be deleted \end{DoxyParams}
+\hypertarget{gpufft_8h_a6ccc79a5828c728ed1eb141508b65501}{
+\index{gpufft.h@{gpufft.h}!gpu\_\-plan3d\_\-real\_\-input\_\-forward@{gpu\_\-plan3d\_\-real\_\-input\_\-forward}}
+\index{gpu\_\-plan3d\_\-real\_\-input\_\-forward@{gpu\_\-plan3d\_\-real\_\-input\_\-forward}!gpufft.h@{gpufft.h}}
+\subsubsection[{gpu\_\-plan3d\_\-real\_\-input\_\-forward}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-plan3d\_\-real\_\-input\_\-forward ({\bf gpu\_\-plan3d\_\-real\_\-input} $\ast$ {\em plan}, \/  float $\ast$ {\em data})}}
+\label{gpufft_8h_a6ccc79a5828c728ed1eb141508b65501}
+Executes in-\/place. 
+\begin{DoxyParams}{Parameters}
+\item[{\em plan}]the plan to be executed \item[{\em data}]data to be transformed in-\/place, it size should be plan-\/$>$paddedStorageSize \end{DoxyParams}
+\hypertarget{gpufft_8h_aa3360339d8b5274ebc85c2b3f522f1d0}{
+\index{gpufft.h@{gpufft.h}!gpu\_\-plan3d\_\-real\_\-input\_\-inverse@{gpu\_\-plan3d\_\-real\_\-input\_\-inverse}}
+\index{gpu\_\-plan3d\_\-real\_\-input\_\-inverse@{gpu\_\-plan3d\_\-real\_\-input\_\-inverse}!gpufft.h@{gpufft.h}}
+\subsubsection[{gpu\_\-plan3d\_\-real\_\-input\_\-inverse}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-plan3d\_\-real\_\-input\_\-inverse ({\bf gpu\_\-plan3d\_\-real\_\-input} $\ast$ {\em plan}, \/  float $\ast$ {\em data})}}
+\label{gpufft_8h_aa3360339d8b5274ebc85c2b3f522f1d0}
+Executes in-\/place. 
+\begin{DoxyParams}{Parameters}
+\item[{\em plan}]the plan to be executed \item[{\em data}]data to be transformed in-\/place, it size should be plan-\/$>$paddedStorageSize \end{DoxyParams}
+\hypertarget{gpufft_8h_a6f5c5a5b92c5d07a445480c1d60b929a}{
+\index{gpufft.h@{gpufft.h}!gpu\_\-transposeXZ\_\-complex@{gpu\_\-transposeXZ\_\-complex}}
+\index{gpu\_\-transposeXZ\_\-complex@{gpu\_\-transposeXZ\_\-complex}!gpufft.h@{gpufft.h}}
+\subsubsection[{gpu\_\-transposeXZ\_\-complex}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-transposeXZ\_\-complex (float $\ast$ {\em source}, \/  float $\ast$ {\em dest}, \/  int {\em N0}, \/  int {\em N1}, \/  int {\em N2})}}
+\label{gpufft_8h_a6f5c5a5b92c5d07a445480c1d60b929a}
+\begin{DoxyInternal}{For internal use only.}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{gpufft_8h_a471c00045b04ae34ce9cfc6d1f997855}{gpu\_\-transposeYZ\_\-complex()} 
+\end{DoxySeeAlso}
+\end{DoxyInternal}
+\hypertarget{gpufft_8h_a8ef8d9e973c51c2245ef0bdf83088818}{
+\index{gpufft.h@{gpufft.h}!gpu\_\-transposeXZ\_\-complex\_\-inplace@{gpu\_\-transposeXZ\_\-complex\_\-inplace}}
+\index{gpu\_\-transposeXZ\_\-complex\_\-inplace@{gpu\_\-transposeXZ\_\-complex\_\-inplace}!gpufft.h@{gpufft.h}}
+\subsubsection[{gpu\_\-transposeXZ\_\-complex\_\-inplace}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-transposeXZ\_\-complex\_\-inplace (float $\ast$ {\em source}, \/  int {\em N0}, \/  int {\em N1}, \/  int {\em N2})}}
+\label{gpufft_8h_a8ef8d9e973c51c2245ef0bdf83088818}
+\begin{DoxyInternal}{For internal use only.}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{gpufft_8h_a471c00045b04ae34ce9cfc6d1f997855}{gpu\_\-transposeYZ\_\-complex()} 
+\end{DoxySeeAlso}
+\begin{Desc}
+\item[\hyperlink{todo__todo000012}{Todo}]does not yet seem to work \end{Desc}
+\end{DoxyInternal}
+\hypertarget{gpufft_8h_a471c00045b04ae34ce9cfc6d1f997855}{
+\index{gpufft.h@{gpufft.h}!gpu\_\-transposeYZ\_\-complex@{gpu\_\-transposeYZ\_\-complex}}
+\index{gpu\_\-transposeYZ\_\-complex@{gpu\_\-transposeYZ\_\-complex}!gpufft.h@{gpufft.h}}
+\subsubsection[{gpu\_\-transposeYZ\_\-complex}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-transposeYZ\_\-complex (float $\ast$ {\em source}, \/  float $\ast$ {\em dest}, \/  int {\em N0}, \/  int {\em N1}, \/  int {\em N2})}}
+\label{gpufft_8h_a471c00045b04ae34ce9cfc6d1f997855}
+\begin{DoxyInternal}{For internal use only.}
+Swaps the Y and Z components of a 3D array of complex numbers. N0 x N1 x N2/2 complex numbers are stored as N0 x N1 x N2 interleaved real numbers. \end{DoxyInternal}
+
+\begin{DoxyParams}{Parameters}
+\item[{\em source}]source data, size N0 x N1 x N2 \item[{\em dest}]destination data, size N0 x N2 x N1 \item[{\em N0}]source size X \item[{\em N1}]source size Z \item[{\em N2}]number of floats (!) in the Z-\/direction, thus 2x the number of complex numbers in Z. \end{DoxyParams}
+\hypertarget{gpufft_8h_a4180e192ed898bac1a64e7bd95668e5c}{
+\index{gpufft.h@{gpufft.h}!gpu\_\-transposeYZ\_\-complex\_\-inplace@{gpu\_\-transposeYZ\_\-complex\_\-inplace}}
+\index{gpu\_\-transposeYZ\_\-complex\_\-inplace@{gpu\_\-transposeYZ\_\-complex\_\-inplace}!gpufft.h@{gpufft.h}}
+\subsubsection[{gpu\_\-transposeYZ\_\-complex\_\-inplace}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-transposeYZ\_\-complex\_\-inplace (float $\ast$ {\em source}, \/  int {\em N0}, \/  int {\em N1}, \/  int {\em N2})}}
+\label{gpufft_8h_a4180e192ed898bac1a64e7bd95668e5c}
+\begin{DoxyInternal}{For internal use only.}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{gpufft_8h_a471c00045b04ae34ce9cfc6d1f997855}{gpu\_\-transposeYZ\_\-complex()} 
+\end{DoxySeeAlso}
+\begin{Desc}
+\item[\hyperlink{todo__todo000011}{Todo}]does not yet seem to work \end{Desc}
+\end{DoxyInternal}
+
+\begin{DoxyParams}{Parameters}
+\item[{\em source}]source data, size N0 x N1 x N2 \item[{\em N0}]source size X \item[{\em N1}]source size Z \item[{\em N2}]number of floats (!) in the Z-\/direction, thus 2x the number of complex numbers in Z. \end{DoxyParams}
+\hypertarget{gpufft_8h_adaab760b0595a368b478605477bb9e2d}{
+\index{gpufft.h@{gpufft.h}!new\_\-gpu\_\-plan3d\_\-real\_\-input@{new\_\-gpu\_\-plan3d\_\-real\_\-input}}
+\index{new\_\-gpu\_\-plan3d\_\-real\_\-input@{new\_\-gpu\_\-plan3d\_\-real\_\-input}!gpufft.h@{gpufft.h}}
+\subsubsection[{new\_\-gpu\_\-plan3d\_\-real\_\-input}]{\setlength{\rightskip}{0pt plus 5cm}{\bf gpu\_\-plan3d\_\-real\_\-input}$\ast$ new\_\-gpu\_\-plan3d\_\-real\_\-input (int {\em N0}, \/  int {\em N1}, \/  int {\em N2}, \/  int $\ast$ {\em zero\_\-pad})}}
+\label{gpufft_8h_adaab760b0595a368b478605477bb9e2d}
+Creates a new FFT plan for transforming the magnetization. Zero-\/padding in each dimension is optional, and rows with only zero's are not transformed. \begin{Desc}
+\item[\hyperlink{todo__todo000010}{Todo}]on compute capability $<$ 2.0, the first step is done serially... \end{Desc}
+
+\begin{DoxyParams}{Parameters}
+\item[{\em N0}]size of real input data in x-\/direction \item[{\em N1}]size of real input data in y-\/direction \item[{\em N2}]size of real input data in z-\/direction \item[{\em zero\_\-pad}]3 ints, should be 1 or 0, meaning zero-\/padding or no zero-\/padding in X,Y,Z respectively \end{DoxyParams}

@@ -1,0 +1,187 @@
+.TH "param" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+param \- 
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <param.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "double \fBaexch\fP"
+.br
+.RI "\fIExchange constant in J/m. \fP"
+.ti -1c
+.RI "double \fBmsat\fP"
+.br
+.RI "\fISaturation magnetization in A/m. \fP"
+.ti -1c
+.RI "double \fBmu0\fP"
+.br
+.RI "\fIMu0 in N/A^2. \fP"
+.ti -1c
+.RI "double \fBgamma0\fP"
+.br
+.RI "\fIGyromagnetic ratio in m/As. \fP"
+.ti -1c
+.RI "double \fBalpha\fP"
+.br
+.RI "\fIDamping constant (dimensionless). \fP"
+.ti -1c
+.RI "int \fBanisType\fP"
+.br
+.RI "\fIIdentifies the anisotropy type (see typedefs ANIS_NONE, ANIS_UNIAXIAL, ...). \fP"
+.ti -1c
+.RI "float * \fBanisK\fP"
+.br
+.RI "\fIAnisotropy constants, as many as needed by the anisotropy type. \fP"
+.ti -1c
+.RI "int \fBanisN\fP"
+.br
+.RI "\fINumber of ansiotropy constants stored in anisK. \fP"
+.ti -1c
+.RI "int \fBsize\fP [3]"
+.br
+.RI "\fINumber of cells in each direction. For 2D sims, the FIRST size should be 1. \fP"
+.ti -1c
+.RI "float \fBcellSize\fP [3]"
+.br
+.RI "\fISize of the FD cells (internal units). \fP"
+.ti -1c
+.RI "int \fBkernelType\fP"
+.br
+.ti -1c
+.RI "int \fBdemagPeriodic\fP [3]"
+.br
+.RI "\fIPeriodic boundary conditions in each of the directions? 0 means no periodicity, a positive number means repeat N times in the positive and negative direction along the respective axis. \fP"
+.ti -1c
+.RI "int \fBdemagCoarse\fP [3]"
+.br
+.RI "\fICombine N cells in each respective direction into a larger cell, for a faster, coarser evaluation of the demag field. {1, 1, 1} means full resolution. \fP"
+.ti -1c
+.RI "int \fBkernelSize\fP [3]"
+.br
+.ti -1c
+.RI "int \fBexchType\fP"
+.br
+.RI "\fIType of exchange model. Can be EXCH_NONE when the exchange is allready included in the demag kernel. \fP"
+.ti -1c
+.RI "int \fBexchInConv\fP [3]"
+.br
+.RI "\fIflag that reports if exchange is included in the convolution for a corresponding direction. \fP"
+.ti -1c
+.RI "int \fBsolverType\fP"
+.br
+.RI "\fIIdentifies the solver type (see typedefs SOLVER_EULER, SOLVER_HEUN, SOLVER_ANAL, ...). \fP"
+.ti -1c
+.RI "float \fBmaxDt\fP"
+.br
+.RI "\fITime step (internal units). This applies only for solvers with a fixed time step, other solvers may ignore it or use it as an absolute maximum step. \fP"
+.ti -1c
+.RI "float \fBmaxDelta\fP"
+.br
+.RI "\fIThe maximum 'change' an adaptive step solver may make per step. Depending on the solver this may be, e.g., delta_m, delta_phi, ... Other solvers may ignore this. \fP"
+.ti -1c
+.RI "float \fBmaxError\fP"
+.br
+.RI "\fIThe maximum error per step, for adaptive solvers. Others may ignore this. \fP"
+.ti -1c
+.RI "int \fBnormalizeEvery\fP"
+.br
+.RI "\fINormalize the magnetization vectors after every N (partial) time steps. \fP"
+.ti -1c
+.RI "\fBtensor\fP * \fBmsatMap\fP"
+.br
+.RI "\fISpace-dependent magenetization norm, typically contains numbers between 0 and 1. NULL means msat is uniform over space. \fP"
+.ti -1c
+.RI "float \fBhExt\fP [3]"
+.br
+.RI "\fIThe externally applied field (internal units). \fP"
+.ti -1c
+.RI "float \fBdiffHExt\fP [3]"
+.br
+.RI "\fITime derivative of the applied field (internal units). Most solvers ignore this, it should only be set for some special solver I have in mind. \fP"
+.in -1c
+.SH "Field Documentation"
+.PP 
+.SS "double \fBparam::aexch\fP"
+.PP
+Exchange constant in J/m. 
+.SS "double \fBparam::alpha\fP"
+.PP
+Damping constant (dimensionless). 
+.SS "float* \fBparam::anisK\fP"
+.PP
+Anisotropy constants, as many as needed by the anisotropy type. 
+.SS "int \fBparam::anisN\fP"
+.PP
+Number of ansiotropy constants stored in anisK. 
+.SS "int \fBparam::anisType\fP"
+.PP
+Identifies the anisotropy type (see typedefs ANIS_NONE, ANIS_UNIAXIAL, ...). 
+.SS "float \fBparam::cellSize\fP[3]"
+.PP
+Size of the FD cells (internal units). 
+.SS "int \fBparam::demagCoarse\fP[3]"
+.PP
+Combine N cells in each respective direction into a larger cell, for a faster, coarser evaluation of the demag field. {1, 1, 1} means full resolution. 
+.SS "int \fBparam::demagPeriodic\fP[3]"
+.PP
+Periodic boundary conditions in each of the directions? 0 means no periodicity, a positive number means repeat N times in the positive and negative direction along the respective axis. 
+.SS "float \fBparam::diffHExt\fP[3]"
+.PP
+Time derivative of the applied field (internal units). Most solvers ignore this, it should only be set for some special solver I have in mind. 
+.SS "int \fBparam::exchInConv\fP[3]"
+.PP
+flag that reports if exchange is included in the convolution for a corresponding direction. 
+.SS "int \fBparam::exchType\fP"
+.PP
+Type of exchange model. Can be EXCH_NONE when the exchange is allready included in the demag kernel. \fBTodo\fP
+.RS 4
+add demag kernel here too? 
+.RE
+.PP
+
+.SS "double \fBparam::gamma0\fP"
+.PP
+Gyromagnetic ratio in m/As. 
+.SS "float \fBparam::hExt\fP[3]"
+.PP
+The externally applied field (internal units). 
+.SS "int \fBparam::kernelSize\fP[3]"Size of the convolution kernel. In principle it can be derived from demagPeriodic and demagCoarse, but we store it anyway for convienience. 
+.SS "int \fBparam::kernelType\fP"
+.SS "float \fBparam::maxDelta\fP"
+.PP
+The maximum 'change' an adaptive step solver may make per step. Depending on the solver this may be, e.g., delta_m, delta_phi, ... Other solvers may ignore this. 
+.SS "float \fBparam::maxDt\fP"
+.PP
+Time step (internal units). This applies only for solvers with a fixed time step, other solvers may ignore it or use it as an absolute maximum step. 
+.SS "float \fBparam::maxError\fP"
+.PP
+The maximum error per step, for adaptive solvers. Others may ignore this. 
+.SS "double \fBparam::msat\fP"
+.PP
+Saturation magnetization in A/m. 
+.SS "\fBtensor\fP* \fBparam::msatMap\fP"
+.PP
+Space-dependent magenetization norm, typically contains numbers between 0 and 1. NULL means msat is uniform over space. 
+.SS "double \fBparam::mu0\fP"
+.PP
+Mu0 in N/A^2. 
+.SS "int \fBparam::normalizeEvery\fP"
+.PP
+Normalize the magnetization vectors after every N (partial) time steps. 
+.SS "int \fBparam::size\fP[3]"
+.PP
+Number of cells in each direction. For 2D sims, the FIRST size should be 1. 
+.SS "int \fBparam::solverType\fP"
+.PP
+Identifies the solver type (see typedefs SOLVER_EULER, SOLVER_HEUN, SOLVER_ANAL, ...). 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

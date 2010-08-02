@@ -1,0 +1,105 @@
+.TH "gpu_plan3d_real_input" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gpu_plan3d_real_input \- 
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <gpufft.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "int * \fBsize\fP"
+.br
+.RI "\fIlogical size of the (real) input data \fP"
+.ti -1c
+.RI "int \fBN\fP"
+.br
+.RI "\fItotal number of floats in size \fP"
+.ti -1c
+.RI "int * \fBpaddedSize\fP"
+.br
+.RI "\fIsize after zero-padding. \fP"
+.ti -1c
+.RI "int \fBpaddedN\fP"
+.br
+.RI "\fItotal number of floats in paddedSize \fP"
+.ti -1c
+.RI "int * \fBpaddedStorageSize\fP"
+.br
+.RI "\fIA real-to-complex FFT requires padding with one complex number in the last dimension. However, is this would result in misalgned memory, we pad with (typically) 64 floats. \fP"
+.ti -1c
+.RI "int \fBpaddedStorageN\fP"
+.br
+.RI "\fItotal number of floats in paddedStorageSize \fP"
+.ti -1c
+.RI "cufftHandle \fBfwPlanZ\fP"
+.br
+.RI "\fI1D real-to-complex plan for Z-direction \fP"
+.ti -1c
+.RI "cufftHandle \fBinvPlanZ\fP"
+.br
+.RI "\fI1D complex-to-real plan for Z-direction \fP"
+.ti -1c
+.RI "cufftHandle \fBplanY\fP"
+.br
+.RI "\fI1D complex-to-complex plan for Y-direction, forward or inverse \fP"
+.ti -1c
+.RI "cufftHandle \fBplanX\fP"
+.br
+.RI "\fI1D complex-to-complex plan for X-direction, forward or inverse \fP"
+.ti -1c
+.RI "float * \fBtransp\fP"
+.br
+.RI "\fIbuffer for out-of-place transposing \fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+A real-to-complex FFT plan on the GPU. 
+.SH "Field Documentation"
+.PP 
+.SS "cufftHandle \fBgpu_plan3d_real_input::fwPlanZ\fP"
+.PP
+1D real-to-complex plan for Z-direction 
+.SS "cufftHandle \fBgpu_plan3d_real_input::invPlanZ\fP"
+.PP
+1D complex-to-real plan for Z-direction 
+.SS "int \fBgpu_plan3d_real_input::N\fP"
+.PP
+total number of floats in size 
+.SS "int \fBgpu_plan3d_real_input::paddedN\fP"
+.PP
+total number of floats in paddedSize 
+.SS "int* \fBgpu_plan3d_real_input::paddedSize\fP"
+.PP
+size after zero-padding. \fBNote:\fP
+.RS 4
+zero-padding is conditional and not necessarily performed in each direction. Therefore, 'paddedSize' is not necessarily twice 'size'. 
+.RE
+.PP
+
+.SS "int \fBgpu_plan3d_real_input::paddedStorageN\fP"
+.PP
+total number of floats in paddedStorageSize 
+.SS "int* \fBgpu_plan3d_real_input::paddedStorageSize\fP"
+.PP
+A real-to-complex FFT requires padding with one complex number in the last dimension. However, is this would result in misalgned memory, we pad with (typically) 64 floats. 
+.SS "cufftHandle \fBgpu_plan3d_real_input::planX\fP"
+.PP
+1D complex-to-complex plan for X-direction, forward or inverse 
+.SS "cufftHandle \fBgpu_plan3d_real_input::planY\fP"
+.PP
+1D complex-to-complex plan for Y-direction, forward or inverse 
+.SS "int* \fBgpu_plan3d_real_input::size\fP"
+.PP
+logical size of the (real) input data 
+.SS "float* \fBgpu_plan3d_real_input::transp\fP"
+.PP
+buffer for out-of-place transposing 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

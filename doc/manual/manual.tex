@@ -1,0 +1,81 @@
+\documentclass[a4paper, twoside]{article}
+\usepackage{a4wide}
+
+%\usepackage[Sonny]{fncychap}% Bjornstrup, Sonny, Lenny, Glenn, Conny, Rejne and Bjarne
+\usepackage[final]{graphicx}
+%\graphicspath{{fig/}}
+\usepackage[english]{babel}
+\usepackage{url}
+\usepackage[small, bf, centerlast]{caption}
+\usepackage{xspace}
+\usepackage[latin1]{inputenc}      
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage[final]{pdfpages}
+
+%\usepackage[square]{natbib}
+\bibliographystyle{unsrt}
+%\bibpunct{[}{]}{,}{y}{,}{,} % maak y n
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+
+% \fancyhf[HL]{\nouppercase{{\textsf{\arne}}}}        % Links in header het hoofdstuk,
+% \fancyhf[HR]{\textsf\textbf{{\thepage}}}            % Rechts het paginanummer.
+
+\usepackage{makeidx}
+\makeindex
+
+\usepackage{color}
+
+\usepackage{listings}
+\lstset{
+language=C,                  % choose the language of the code
+basicstyle=\sffamily\scriptsize,       % the size of the fonts that are used for the code
+%backgroundcolor=\color{lightblue},  % choose the background color. You must add \usepackage{color}
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=none,                   % adds a frame around the code
+tabsize=2,                      % sets default tabsize to 2 spaces
+captionpos=b,                   % sets the caption-position to bottom
+breaklines=true,                % sets automatic line breaking
+breakatwhitespace=false         % sets if automatic breaks should only happen at whitespace
+}
+
+
+\newcommand{\doctitle}{Simulations manual}
+\usepackage[plainpages=false, colorlinks=true, citecolor=blue, linkcolor=blue, filecolor=blue, urlcolor=blue, bookmarks=true, pdftitle={\doctitle}, pdfauthor={Arne Vansteenkiste, Ben Van de Wiele}]{hyperref}%a4paper
+\usepackage[all]{hypcap} % link to image shows image, not caption.
+\usepackage{backref} %biblio backreferences
+
+\setcounter{MaxMatrixCols}{20}
+
+%\input{commands}
+%\input{ hyphenation}
+%\setcounter{tocdepth}{1} % niet overdrijven met toc!
+
+
+\begin{document}
+\hypersetup{breaklinks=true}
+\setlength{\parindent}{0cm}
+
+\title{\doctitle}
+\author{Arne Vansteenkiste\\Ben Van de Wiele}
+\maketitle
+
+
+\tableofcontents
+
+
+\include{installation}
+
+\appendix
+
+
+%\bibliography{biblio}
+
+\printindex
+
+
+\end{document}

@@ -1,0 +1,104 @@
+\hypertarget{gpukernel1_8h}{
+\section{gpukernel1.h File Reference}
+\label{gpukernel1_8h}\index{gpukernel1.h@{gpukernel1.h}}
+}
+{\ttfamily \#include \char`\"{}tensor.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}gputil.h\char`\"{}}\par
+{\ttfamily \#include $<$cufft.h$>$}\par
+{\ttfamily \#include \char`\"{}gpufft.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}assert.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}timer.h\char`\"{}}\par
+{\ttfamily \#include $<$stdio.h$>$}\par
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{gpukernel1_8h_adb1e5d71a43a60425562d14f48c72be0}{gpu\_\-init\_\-Greens\_\-kernel1} (\hyperlink{structtensor}{tensor} $\ast$dev\_\-kernel, int \hyperlink{gpufft2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{N0}, int \hyperlink{gpufft2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{N1}, int \hyperlink{gpufft2__test_8cpp_adeea8075a0038c985c63d45161804d60}{N2}, int $\ast$zero\_\-pad, int $\ast$repetition, float $\ast$FD\_\-cell\_\-size)
+\item 
+void \hyperlink{gpukernel1_8h_a83a756b402262d0484dfeb9ea6b95d9c}{gpu\_\-init\_\-and\_\-FFT\_\-Greens\_\-kernel\_\-elements\_\-1} (\hyperlink{structtensor}{tensor} $\ast$dev\_\-kernel, int $\ast$Nkernel, float $\ast$FD\_\-cell\_\-size, float cst, int $\ast$repetition, float $\ast$dev\_\-qd\_\-P\_\-10, float $\ast$dev\_\-qd\_\-W\_\-10, \hyperlink{structgpu__plan3d__real__input}{gpu\_\-plan3d\_\-real\_\-input} $\ast$kernel\_\-plan)
+\item 
+\_\-\_\-global\_\-\_\- void \hyperlink{gpukernel1_8h_aa5af2ceb01d29c3fa24c4c8cdf32481b}{\_\-gpu\_\-init\_\-Greens\_\-kernel\_\-elements\_\-1} (float $\ast$dev\_\-temp, int Nkernel\_\-X, int Nkernel\_\-Y, int Nkernel\_\-Z, int co1, int co2, float FD\_\-cell\_\-size\_\-X, float FD\_\-cell\_\-size\_\-Y, float FD\_\-cell\_\-size\_\-Z, float cst, int repetition\_\-X, int repetition\_\-Y, int repetition\_\-Z, float $\ast$qd\_\-P\_\-10, float $\ast$qd\_\-W\_\-10)
+\item 
+\_\-\_\-device\_\-\_\- float \hyperlink{gpukernel1_8h_a033675f8b51bddec740566c0a6a75ae0}{\_\-gpu\_\-get\_\-Greens\_\-element\_\-1} (int Nkernel\_\-X, int Nkernel\_\-Y, int Nkernel\_\-Z, int co1, int co2, int a, int b, int c, float FD\_\-cell\_\-size\_\-X, float FD\_\-cell\_\-size\_\-Y, float FD\_\-cell\_\-size\_\-Z, float cst, int repetition\_\-X, int repetition\_\-Y, int repetition\_\-Z, float $\ast$dev\_\-qd\_\-P\_\-10, float $\ast$dev\_\-qd\_\-W\_\-10)
+\item 
+\_\-\_\-global\_\-\_\- void \hyperlink{gpukernel1_8h_a3c1528915e3568add606651c3d1be933}{\_\-gpu\_\-extract\_\-real\_\-parts\_\-1} (float $\ast$dev\_\-kernel\_\-array, float $\ast$dev\_\-temp, int rank0, int size1)
+\item 
+void \hyperlink{gpukernel1_8h_a920336fcc0f17ca570d38f18dc3534fb}{initialize\_\-Gauss\_\-quadrature\_\-on\_\-gpu\_\-1} (float $\ast$dev\_\-qd\_\-W\_\-10, float $\ast$dev\_\-qd\_\-P\_\-10, float $\ast$FD\_\-cell\_\-size)
+\item 
+void \hyperlink{gpukernel1_8h_a58460242486084023cdf529f7814acb5}{get\_\-Quad\_\-Points\_\-1} (float $\ast$gaussQP, float $\ast$stdgaussQ, int qOrder, double a, double b)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Initialization of the Greens function kernel adapted to the FFT dimensions of gpufft.cu. The Kernel components are Fourier transformed and only the real parts are stored on the device.
+
+\begin{DoxyAuthor}{Author}
+Ben Van de Wiele 
+\end{DoxyAuthor}
+
+
+\subsection{Function Documentation}
+\hypertarget{gpukernel1_8h_a3c1528915e3568add606651c3d1be933}{
+\index{gpukernel1.h@{gpukernel1.h}!\_\-gpu\_\-extract\_\-real\_\-parts\_\-1@{\_\-gpu\_\-extract\_\-real\_\-parts\_\-1}}
+\index{\_\-gpu\_\-extract\_\-real\_\-parts\_\-1@{\_\-gpu\_\-extract\_\-real\_\-parts\_\-1}!gpukernel1.h@{gpukernel1.h}}
+\subsubsection[{\_\-gpu\_\-extract\_\-real\_\-parts\_\-1}]{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-global\_\-\_\- void \_\-gpu\_\-extract\_\-real\_\-parts\_\-1 (float $\ast$ {\em dev\_\-kernel\_\-array}, \/  float $\ast$ {\em dev\_\-temp}, \/  int {\em rank0}, \/  int {\em size1})}}
+\label{gpukernel1_8h_a3c1528915e3568add606651c3d1be933}
+Extracts the 'size1' real numbers from the array 'dev\_\-temp' and stores them in the 'dev\_\-kernel\_\-array' starting from 'dev\_\-kernel\_\-array\mbox{[}rank0$\ast$size1\mbox{]}'. 
+\begin{DoxyParams}{Parameters}
+\item[{\em dev\_\-kernel\_\-array}]rank 2 tensor; rank 0: xx, xy, xz, yy, yz, zz parts of symmetrical Greens tensor, rank 1: all data of a Greens kernel component contiguously \item[{\em dev\_\-temp}]pointer to the temporary memory space on the device to store all elements of a given Greens tensor component \item[{\em rank0}]int defining the rank 0 number: xx=0, xy=1, xz=2, etc. \item[{\em size1}]length of a Fourier transformed Greens kernel component (only real parts). \end{DoxyParams}
+\hypertarget{gpukernel1_8h_a033675f8b51bddec740566c0a6a75ae0}{
+\index{gpukernel1.h@{gpukernel1.h}!\_\-gpu\_\-get\_\-Greens\_\-element\_\-1@{\_\-gpu\_\-get\_\-Greens\_\-element\_\-1}}
+\index{\_\-gpu\_\-get\_\-Greens\_\-element\_\-1@{\_\-gpu\_\-get\_\-Greens\_\-element\_\-1}!gpukernel1.h@{gpukernel1.h}}
+\subsubsection[{\_\-gpu\_\-get\_\-Greens\_\-element\_\-1}]{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-device\_\-\_\- float \_\-gpu\_\-get\_\-Greens\_\-element\_\-1 (int {\em Nkernel\_\-X}, \/  int {\em Nkernel\_\-Y}, \/  int {\em Nkernel\_\-Z}, \/  int {\em co1}, \/  int {\em co2}, \/  int {\em a}, \/  int {\em b}, \/  int {\em c}, \/  float {\em FD\_\-cell\_\-size\_\-X}, \/  float {\em FD\_\-cell\_\-size\_\-Y}, \/  float {\em FD\_\-cell\_\-size\_\-Z}, \/  float {\em cst}, \/  int {\em repetition\_\-X}, \/  int {\em repetition\_\-Y}, \/  int {\em repetition\_\-Z}, \/  float $\ast$ {\em dev\_\-qd\_\-P\_\-10}, \/  float $\ast$ {\em dev\_\-qd\_\-W\_\-10})}}
+\label{gpukernel1_8h_a033675f8b51bddec740566c0a6a75ae0}
+Returns an element with coordinates \mbox{[}a,b,c\mbox{]} of the Greens kernel component defined by 'co1, co2'. 
+\begin{DoxyParams}{Parameters}
+\item[{\em Nkernel\_\-X}]Non-\/strided size of the kernel data (x-\/direction) \item[{\em Nkernel\_\-Y}]Non-\/strided size of the kernel data (y-\/direction) \item[{\em Nkernel\_\-Z}]Non-\/strided size of the kernel data (z-\/direction) \item[{\em co1}]co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy \item[{\em co2}]co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy \item[{\em a}]\mbox{[}a,b,c\mbox{]} defines the cartesian vector pointing to the source FD cell to the receiver FD cell (in units FD cell size) \item[{\em b}]\mbox{[}a,b,c\mbox{]} defines the cartesian vector pointing to the source FD cell to the receiver FD cell (in units FD cell size) \item[{\em c}]\mbox{[}a,b,c\mbox{]} defines the cartesian vector pointing to the source FD cell to the receiver FD cell (in units FD cell size) \item[{\em FD\_\-cell\_\-size\_\-X}]Size of the used FD cells in the x direction \item[{\em FD\_\-cell\_\-size\_\-Y}]Size of the used FD cells in the y direction \item[{\em FD\_\-cell\_\-size\_\-Z}]Size of the used FD cells in the z direction \item[{\em cst}]constant preceeding all Greens tensor elements (includes the correction for the dimensions of the FFTs in the convolution!) \item[{\em repetition\_\-X}]2$\ast$repetition\_\-X+1 is the number of periods considered the x-\/direction (repetition\_\-X=0 means no repetion in x direction) \item[{\em repetition\_\-Y}]2$\ast$repetition\_\-Y+1 is the number of periods considered the y-\/direction (repetition\_\-Y=0 means no repetion in y direction) \item[{\em repetition\_\-Z}]2$\ast$repetition\_\-Z+1 is the number of periods considered the z-\/direction (repetition\_\-Z=0 means no repetion in z direction) \item[{\em dev\_\-qd\_\-P\_\-10}]float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device) \item[{\em dev\_\-qd\_\-W\_\-10}]float array (10 floats) containing the 10 Gauss quadrature weights (on device) \end{DoxyParams}
+\hypertarget{gpukernel1_8h_aa5af2ceb01d29c3fa24c4c8cdf32481b}{
+\index{gpukernel1.h@{gpukernel1.h}!\_\-gpu\_\-init\_\-Greens\_\-kernel\_\-elements\_\-1@{\_\-gpu\_\-init\_\-Greens\_\-kernel\_\-elements\_\-1}}
+\index{\_\-gpu\_\-init\_\-Greens\_\-kernel\_\-elements\_\-1@{\_\-gpu\_\-init\_\-Greens\_\-kernel\_\-elements\_\-1}!gpukernel1.h@{gpukernel1.h}}
+\subsubsection[{\_\-gpu\_\-init\_\-Greens\_\-kernel\_\-elements\_\-1}]{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-global\_\-\_\- void \_\-gpu\_\-init\_\-Greens\_\-kernel\_\-elements\_\-1 (float $\ast$ {\em dev\_\-temp}, \/  int {\em Nkernel\_\-X}, \/  int {\em Nkernel\_\-Y}, \/  int {\em Nkernel\_\-Z}, \/  int {\em co1}, \/  int {\em co2}, \/  float {\em FD\_\-cell\_\-size\_\-X}, \/  float {\em FD\_\-cell\_\-size\_\-Y}, \/  float {\em FD\_\-cell\_\-size\_\-Z}, \/  float {\em cst}, \/  int {\em repetition\_\-X}, \/  int {\em repetition\_\-Y}, \/  int {\em repetition\_\-Z}, \/  float $\ast$ {\em qd\_\-P\_\-10}, \/  float $\ast$ {\em qd\_\-W\_\-10})}}
+\label{gpukernel1_8h_aa5af2ceb01d29c3fa24c4c8cdf32481b}
+Computes all elements of the Greens kernel component defined by 'co1, co2'. 
+\begin{DoxyParams}{Parameters}
+\item[{\em dev\_\-temp}]pointer to the temporary memory space on the device to store all elements of a given Greens tensor component \item[{\em Nkernel\_\-X}]Non-\/strided size of the kernel data (x-\/direction) \item[{\em Nkernel\_\-Y}]Non-\/strided size of the kernel data (y-\/direction) \item[{\em Nkernel\_\-Z}]Non-\/strided size of the kernel data (z-\/direction) \item[{\em co1}]co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy \item[{\em co2}]co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy \item[{\em FD\_\-cell\_\-size\_\-X}]Size of the used FD cells in the x direction \item[{\em FD\_\-cell\_\-size\_\-Y}]Size of the used FD cells in the y direction \item[{\em FD\_\-cell\_\-size\_\-Z}]Size of the used FD cells in the z direction \item[{\em cst}]constant preceeding all Greens tensor elements (includes the correction for the dimensions of the FFTs in the convolution!) \item[{\em repetition\_\-X}]2$\ast$repetition\_\-X+1 is the number of periods considered the x-\/direction (repetition\_\-X=0 means no repetion in x direction) \item[{\em repetition\_\-Y}]2$\ast$repetition\_\-Y+1 is the number of periods considered the y-\/direction (repetition\_\-Y=0 means no repetion in y direction) \item[{\em repetition\_\-Z}]2$\ast$repetition\_\-Z+1 is the number of periods considered the z-\/direction (repetition\_\-Z=0 means no repetion in z direction) \item[{\em qd\_\-P\_\-10}]float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device) \item[{\em qd\_\-W\_\-10}]float array (10 floats) containing the 10 Gauss quadrature weights (on device) \end{DoxyParams}
+\hypertarget{gpukernel1_8h_a58460242486084023cdf529f7814acb5}{
+\index{gpukernel1.h@{gpukernel1.h}!get\_\-Quad\_\-Points\_\-1@{get\_\-Quad\_\-Points\_\-1}}
+\index{get\_\-Quad\_\-Points\_\-1@{get\_\-Quad\_\-Points\_\-1}!gpukernel1.h@{gpukernel1.h}}
+\subsubsection[{get\_\-Quad\_\-Points\_\-1}]{\setlength{\rightskip}{0pt plus 5cm}void get\_\-Quad\_\-Points\_\-1 (float $\ast$ {\em gaussQP}, \/  float $\ast$ {\em stdgaussQ}, \/  int {\em qOrder}, \/  double {\em a}, \/  double {\em b})}}
+\label{gpukernel1_8h_a58460242486084023cdf529f7814acb5}
+Get the quadrature points for integration between a and b 
+\begin{DoxyParams}{Parameters}
+\item[{\em gaussQP}]float array containing the requested Gauss quadrature points \item[{\em stdgaussQ}]standard Gauss quadrature points between -\/1 and +1 \item[{\em qOrder}]Gauss quadrature order \item[{\em a}]integration lower bound \item[{\em b}]integration upper bound \end{DoxyParams}
+\hypertarget{gpukernel1_8h_a83a756b402262d0484dfeb9ea6b95d9c}{
+\index{gpukernel1.h@{gpukernel1.h}!gpu\_\-init\_\-and\_\-FFT\_\-Greens\_\-kernel\_\-elements\_\-1@{gpu\_\-init\_\-and\_\-FFT\_\-Greens\_\-kernel\_\-elements\_\-1}}
+\index{gpu\_\-init\_\-and\_\-FFT\_\-Greens\_\-kernel\_\-elements\_\-1@{gpu\_\-init\_\-and\_\-FFT\_\-Greens\_\-kernel\_\-elements\_\-1}!gpukernel1.h@{gpukernel1.h}}
+\subsubsection[{gpu\_\-init\_\-and\_\-FFT\_\-Greens\_\-kernel\_\-elements\_\-1}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-init\_\-and\_\-FFT\_\-Greens\_\-kernel\_\-elements\_\-1 ({\bf tensor} $\ast$ {\em dev\_\-kernel}, \/  int $\ast$ {\em Nkernel}, \/  float $\ast$ {\em FD\_\-cell\_\-size}, \/  float {\em cst}, \/  int $\ast$ {\em repetition}, \/  float $\ast$ {\em dev\_\-qd\_\-P\_\-10}, \/  float $\ast$ {\em dev\_\-qd\_\-W\_\-10}, \/  {\bf gpu\_\-plan3d\_\-real\_\-input} $\ast$ {\em kernel\_\-plan})}}
+\label{gpukernel1_8h_a83a756b402262d0484dfeb9ea6b95d9c}
+Initializes the Greens kernel elements, Fourier transforms the data and extracts the real parts from the data. (imaginary parts are zero in due to the symmetry) The kernel is only stored at the device. 
+\begin{DoxyParams}{Parameters}
+\item[{\em dev\_\-kernel}]rank 2 tensor; rank 0: xx, xy, xz, yy, yz, zz parts of symmetrical Greens tensor, rank 1: all data of a Greens kernel component contiguously \item[{\em Nkernel}]Non-\/strided size of the kernel data \item[{\em FD\_\-cell\_\-size}]3 float, size of finite difference cell in X,Y,Z respectively \item[{\em cst}]constant factor preceeding the expression of the magnetostatic field \item[{\em repetition}]3 ints, for periodicity: e.g. 2$\ast$repetition\mbox{[}0\mbox{]}+1 is the number of periods considered the x-\/direction (\mbox{[}0,0,0\mbox{]} means no periodic repetition) \item[{\em dev\_\-qd\_\-P\_\-10}]float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device) \item[{\em dev\_\-qd\_\-W\_\-10}]float array (10 floats) containing the 10 Gauss quadrature weights (on device) \item[{\em kernel\_\-plan}]FFT plan for the execution of the forward FFT of the kernel. \end{DoxyParams}
+\hypertarget{gpukernel1_8h_adb1e5d71a43a60425562d14f48c72be0}{
+\index{gpukernel1.h@{gpukernel1.h}!gpu\_\-init\_\-Greens\_\-kernel1@{gpu\_\-init\_\-Greens\_\-kernel1}}
+\index{gpu\_\-init\_\-Greens\_\-kernel1@{gpu\_\-init\_\-Greens\_\-kernel1}!gpukernel1.h@{gpukernel1.h}}
+\subsubsection[{gpu\_\-init\_\-Greens\_\-kernel1}]{\setlength{\rightskip}{0pt plus 5cm}void gpu\_\-init\_\-Greens\_\-kernel1 ({\bf tensor} $\ast$ {\em dev\_\-kernel}, \/  int {\em N0}, \/  int {\em N1}, \/  int {\em N2}, \/  int $\ast$ {\em zero\_\-pad}, \/  int $\ast$ {\em repetition}, \/  float $\ast$ {\em FD\_\-cell\_\-size})}}
+\label{gpukernel1_8h_adb1e5d71a43a60425562d14f48c72be0}
+Initializes the Greens function kernel. The kernel is stored as a rank 2 tensor: The i+j element (j$>$=i) of kernel\mbox{[}i+j\mbox{]}\mbox{[}k\mbox{]} contains the contigous Fourier transformed data connecting the (Fourier transformed) i-\/component of the magnetic field with the (Fourier transformed) j-\/component of the magnetization. The size is addapted to the gpu-\/memory.
+
+This function includes:
+\begin{DoxyItemize}
+\item computation of the elements of the Greens kernel components
+\item Fourier transformation of the Greens kernel components
+\item in Fourier domain: extraction of the real parts (complex parts are zero due to symmetry)
+\end{DoxyItemize}
+
+note that the correction factor 1/(dimensions FFTs) is already included. 
+\begin{DoxyParams}{Parameters}
+\item[{\em dev\_\-kernel}]rank 2 tensor (rank 1: xx, xy, xz, yy, yz, zz parts of symmetrical Greens tensor) containing all contiguous Greens function data \item[{\em N0}]size of simulation in x-\/direction \item[{\em N1}]size of simulation in y-\/direction \item[{\em N2}]size of simulation in z-\/direction \item[{\em zero\_\-pad}]3 ints, should be 1 or 0, meaning zero-\/padding or no zero-\/padding in X,Y,Z respectively \item[{\em repetition}]3 ints, for periodicity: e.g. 2$\ast$repetition\mbox{[}0\mbox{]}+1 is the number of periods considered the x-\/direction \item[{\em FD\_\-cell\_\-size}]3 float, size of finite difference cell in X,Y,Z respectively \end{DoxyParams}
+\hypertarget{gpukernel1_8h_a920336fcc0f17ca570d38f18dc3534fb}{
+\index{gpukernel1.h@{gpukernel1.h}!initialize\_\-Gauss\_\-quadrature\_\-on\_\-gpu\_\-1@{initialize\_\-Gauss\_\-quadrature\_\-on\_\-gpu\_\-1}}
+\index{initialize\_\-Gauss\_\-quadrature\_\-on\_\-gpu\_\-1@{initialize\_\-Gauss\_\-quadrature\_\-on\_\-gpu\_\-1}!gpukernel1.h@{gpukernel1.h}}
+\subsubsection[{initialize\_\-Gauss\_\-quadrature\_\-on\_\-gpu\_\-1}]{\setlength{\rightskip}{0pt plus 5cm}void initialize\_\-Gauss\_\-quadrature\_\-on\_\-gpu\_\-1 (float $\ast$ {\em dev\_\-qd\_\-W\_\-10}, \/  float $\ast$ {\em dev\_\-qd\_\-P\_\-10}, \/  float $\ast$ {\em FD\_\-cell\_\-size})}}
+\label{gpukernel1_8h_a920336fcc0f17ca570d38f18dc3534fb}
+Initialization of the Gauss quadrature points and quadrature weights to be used for integration over the FD cell faces. A ten points Gauss quadrature formula is used. The obtained quadrature weights and points are copied to the device. 
+\begin{DoxyParams}{Parameters}
+\item[{\em dev\_\-qd\_\-W\_\-10}]float array (10 floats) containing the 10 Gauss quadrature weights (on device) \item[{\em dev\_\-qd\_\-P\_\-10}]float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device) \item[{\em FD\_\-cell\_\-size}]3 floats: the dimensions of the used FD cell, (X, Y, Z) respectively \end{DoxyParams}

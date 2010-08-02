@@ -1,0 +1,239 @@
+.TH "gpufft.h" 3 "6 Jul 2010" "GPU_simulations" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+gpufft.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'tensor.h'\fP
+.br
+\fC#include 'gputil.h'\fP
+.br
+\fC#include <cufft.h>\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBgpu_plan3d_real_input\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBgpu_plan3d_real_input\fP * \fBnew_gpu_plan3d_real_input\fP (int \fBN0\fP, int \fBN1\fP, int \fBN2\fP, int *zero_pad)"
+.br
+.ti -1c
+.RI "void \fBgpu_plan3d_real_input_forward\fP (\fBgpu_plan3d_real_input\fP *plan, float *data)"
+.br
+.ti -1c
+.RI "void \fBgpu_plan3d_real_input_inverse\fP (\fBgpu_plan3d_real_input\fP *plan, float *data)"
+.br
+.ti -1c
+.RI "void \fBgpu_transposeYZ_complex\fP (float *source, float *dest, int \fBN0\fP, int \fBN1\fP, int \fBN2\fP)"
+.br
+.ti -1c
+.RI "void \fBgpu_transposeXZ_complex\fP (float *source, float *dest, int \fBN0\fP, int \fBN1\fP, int \fBN2\fP)"
+.br
+.ti -1c
+.RI "void \fBgpu_transposeYZ_complex_inplace\fP (float *source, int \fBN0\fP, int \fBN1\fP, int \fBN2\fP)"
+.br
+.ti -1c
+.RI "void \fBgpu_transposeXZ_complex_inplace\fP (float *source, int \fBN0\fP, int \fBN1\fP, int \fBN2\fP)"
+.br
+.ti -1c
+.RI "__global__ void \fB_gpu_transposeYZ_complex\fP (float *source, float *dest, int \fBN0\fP, int \fBN1\fP, int \fBN2\fP)"
+.br
+.ti -1c
+.RI "__global__ void \fB_gpu_transposeXZ_complex\fP (float *source, float *dest, int \fBN0\fP, int \fBN1\fP, int \fBN2\fP)"
+.br
+.ti -1c
+.RI "__global__ void \fB_gpu_transposeYZ_complex_inplace\fP (float *source, int \fBN0\fP, int \fBN1\fP, int \fBN2\fP)"
+.br
+.ti -1c
+.RI "__global__ void \fB_gpu_transposeXZ_complex_inplace\fP (float *source, int \fBN0\fP, int \fBN1\fP, int \fBN2\fP)"
+.br
+.ti -1c
+.RI "void \fBdelete_gpu_plan3d_real_input\fP (\fBgpu_plan3d_real_input\fP *plan)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Initialization, execution and deleting of FFTs used during the computation of the micromagnetic kernel. The following is taken into account:
+.IP "\(bu" 2
+real-to-complex FFTs
+.IP "\(bu" 2
+No FFTs on the zeros in the padded magnetization buffers
+.IP "\(bu" 2
+The CUDA memory access is alligned
+.PP
+.PP
+\fBTodo\fP
+.RS 4
+In place transpose routines 
+.PP
+Option for out-of place transforms 
+.PP
+Accecpt tensor arguments
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBgpuconv1\fP, \fBnew_gpuconv2\fP, \fBgpuconv2_exec\fP
+.RE
+.PP
+\fBAuthor:\fP
+.RS 4
+Arne Vansteenkiste 
+.PP
+Ben Van de Wiele 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "__global__ void _gpu_transposeXZ_complex (float * source, float * dest, int N0, int N1, int N2)".PP
+\fBFor internal use only.\fP
+.RS 4
+.RE
+.PP
+
+.SS "__global__ void _gpu_transposeXZ_complex_inplace (float * source, int N0, int N1, int N2)".PP
+\fBFor internal use only.\fP
+.RS 4
+.RE
+.PP
+
+.SS "__global__ void _gpu_transposeYZ_complex (float * source, float * dest, int N0, int N1, int N2)".PP
+\fBFor internal use only.\fP
+.RS 4
+.RE
+.PP
+
+.SS "__global__ void _gpu_transposeYZ_complex_inplace (float * source, int N0, int N1, int N2)".PP
+\fBFor internal use only.\fP
+.RS 4
+.RE
+.PP
+
+.SS "void delete_gpu_plan3d_real_input (\fBgpu_plan3d_real_input\fP * plan)"Frees the FFT plan \fBParameters:\fP
+.RS 4
+\fIplan\fP the plan to be deleted 
+.RE
+.PP
+
+.SS "void gpu_plan3d_real_input_forward (\fBgpu_plan3d_real_input\fP * plan, float * data)"Executes in-place. \fBParameters:\fP
+.RS 4
+\fIplan\fP the plan to be executed 
+.br
+\fIdata\fP data to be transformed in-place, it size should be plan->paddedStorageSize 
+.RE
+.PP
+
+.SS "void gpu_plan3d_real_input_inverse (\fBgpu_plan3d_real_input\fP * plan, float * data)"Executes in-place. \fBParameters:\fP
+.RS 4
+\fIplan\fP the plan to be executed 
+.br
+\fIdata\fP data to be transformed in-place, it size should be plan->paddedStorageSize 
+.RE
+.PP
+
+.SS "void gpu_transposeXZ_complex (float * source, float * dest, int N0, int N1, int N2)".PP
+\fBFor internal use only.\fP
+.RS 4
+\fBSee also:\fP
+.RS 4
+\fBgpu_transposeYZ_complex()\fP 
+.RE
+.PP
+.RE
+.PP
+
+.SS "void gpu_transposeXZ_complex_inplace (float * source, int N0, int N1, int N2)".PP
+\fBFor internal use only.\fP
+.RS 4
+\fBSee also:\fP
+.RS 4
+\fBgpu_transposeYZ_complex()\fP 
+.RE
+.PP
+\fBTodo\fP
+.RS 4
+does not yet seem to work 
+.RE
+.PP
+.RE
+.PP
+
+.SS "void gpu_transposeYZ_complex (float * source, float * dest, int N0, int N1, int N2)".PP
+\fBFor internal use only.\fP
+.RS 4
+Swaps the Y and Z components of a 3D array of complex numbers. N0 x N1 x N2/2 complex numbers are stored as N0 x N1 x N2 interleaved real numbers. 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsource\fP source data, size N0 x N1 x N2 
+.br
+\fIdest\fP destination data, size N0 x N2 x N1 
+.br
+\fIN0\fP source size X 
+.br
+\fIN1\fP source size Z 
+.br
+\fIN2\fP number of floats (!) in the Z-direction, thus 2x the number of complex numbers in Z. 
+.RE
+.PP
+
+.SS "void gpu_transposeYZ_complex_inplace (float * source, int N0, int N1, int N2)".PP
+\fBFor internal use only.\fP
+.RS 4
+\fBSee also:\fP
+.RS 4
+\fBgpu_transposeYZ_complex()\fP 
+.RE
+.PP
+\fBTodo\fP
+.RS 4
+does not yet seem to work 
+.RE
+.PP
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsource\fP source data, size N0 x N1 x N2 
+.br
+\fIN0\fP source size X 
+.br
+\fIN1\fP source size Z 
+.br
+\fIN2\fP number of floats (!) in the Z-direction, thus 2x the number of complex numbers in Z. 
+.RE
+.PP
+
+.SS "\fBgpu_plan3d_real_input\fP* new_gpu_plan3d_real_input (int N0, int N1, int N2, int * zero_pad)"Creates a new FFT plan for transforming the magnetization. Zero-padding in each dimension is optional, and rows with only zero's are not transformed. 
+.PP
+\fBTodo\fP
+.RS 4
+on compute capability < 2.0, the first step is done serially... 
+.RE
+.PP
+\fBParameters:\fP
+.RS 4
+\fIN0\fP size of real input data in x-direction 
+.br
+\fIN1\fP size of real input data in y-direction 
+.br
+\fIN2\fP size of real input data in z-direction 
+.br
+\fIzero_pad\fP 3 ints, should be 1 or 0, meaning zero-padding or no zero-padding in X,Y,Z respectively 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for GPU_simulations from the source code.

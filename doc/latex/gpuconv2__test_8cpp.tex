@@ -1,0 +1,94 @@
+\hypertarget{gpuconv2__test_8cpp}{
+\section{gpuconv2\_\-test.cpp File Reference}
+\label{gpuconv2__test_8cpp}\index{gpuconv2\_\-test.cpp@{gpuconv2\_\-test.cpp}}
+}
+{\ttfamily \#include \char`\"{}gputil.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}gpupad.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}tensor.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}assert.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}gpuconv2.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}gpufft2.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}param.h\char`\"{}}\par
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{gpuconv2__test_8cpp_abd28ef8e8efcf3d29917caa26f90060d}{test\_\-convplan} ()
+\item 
+void \hyperlink{gpuconv2__test_8cpp_addb21e3c679fde30867be33d4ec9564d}{test\_\-pad} ()
+\item 
+void \hyperlink{gpuconv2__test_8cpp_a0c052c14cede39b10e790cf36143e13e}{test\_\-transpose} ()
+\item 
+void \hyperlink{gpuconv2__test_8cpp_aaa035dc9efb66b38acd300d1d28dd74e}{test\_\-conv} ()
+\item 
+int \hyperlink{gpuconv2__test_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}{main} (int argc, char $\ast$$\ast$argv)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{gpuconv2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{N0} = 4
+\item 
+int \hyperlink{gpuconv2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{N1} = 32
+\item 
+int \hyperlink{gpuconv2__test_8cpp_adeea8075a0038c985c63d45161804d60}{N2} = 64
+\item 
+int \hyperlink{gpuconv2__test_8cpp_a4e8e9c2bf9e06ae07ef364c05a073302}{N3} = 2
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Tests for smart zero-\/padded FFT and convolution on the GPU
+
+\begin{DoxyAuthor}{Author}
+Arne Vansteenkiste, Ben Van de Wiele 
+\end{DoxyAuthor}
+
+
+\subsection{Function Documentation}
+\hypertarget{gpuconv2__test_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}{
+\index{gpuconv2\_\-test.cpp@{gpuconv2\_\-test.cpp}!main@{main}}
+\index{main@{main}!gpuconv2_test.cpp@{gpuconv2\_\-test.cpp}}
+\subsubsection[{main}]{\setlength{\rightskip}{0pt plus 5cm}int main (int {\em argc}, \/  char $\ast$$\ast$ {\em argv})}}
+\label{gpuconv2__test_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}
+\hypertarget{gpuconv2__test_8cpp_aaa035dc9efb66b38acd300d1d28dd74e}{
+\index{gpuconv2\_\-test.cpp@{gpuconv2\_\-test.cpp}!test\_\-conv@{test\_\-conv}}
+\index{test\_\-conv@{test\_\-conv}!gpuconv2_test.cpp@{gpuconv2\_\-test.cpp}}
+\subsubsection[{test\_\-conv}]{\setlength{\rightskip}{0pt plus 5cm}void test\_\-conv ()}}
+\label{gpuconv2__test_8cpp_aaa035dc9efb66b38acd300d1d28dd74e}
+\hypertarget{gpuconv2__test_8cpp_abd28ef8e8efcf3d29917caa26f90060d}{
+\index{gpuconv2\_\-test.cpp@{gpuconv2\_\-test.cpp}!test\_\-convplan@{test\_\-convplan}}
+\index{test\_\-convplan@{test\_\-convplan}!gpuconv2_test.cpp@{gpuconv2\_\-test.cpp}}
+\subsubsection[{test\_\-convplan}]{\setlength{\rightskip}{0pt plus 5cm}void test\_\-convplan ()}}
+\label{gpuconv2__test_8cpp_abd28ef8e8efcf3d29917caa26f90060d}
+\hypertarget{gpuconv2__test_8cpp_addb21e3c679fde30867be33d4ec9564d}{
+\index{gpuconv2\_\-test.cpp@{gpuconv2\_\-test.cpp}!test\_\-pad@{test\_\-pad}}
+\index{test\_\-pad@{test\_\-pad}!gpuconv2_test.cpp@{gpuconv2\_\-test.cpp}}
+\subsubsection[{test\_\-pad}]{\setlength{\rightskip}{0pt plus 5cm}void test\_\-pad ()}}
+\label{gpuconv2__test_8cpp_addb21e3c679fde30867be33d4ec9564d}
+\hypertarget{gpuconv2__test_8cpp_a0c052c14cede39b10e790cf36143e13e}{
+\index{gpuconv2\_\-test.cpp@{gpuconv2\_\-test.cpp}!test\_\-transpose@{test\_\-transpose}}
+\index{test\_\-transpose@{test\_\-transpose}!gpuconv2_test.cpp@{gpuconv2\_\-test.cpp}}
+\subsubsection[{test\_\-transpose}]{\setlength{\rightskip}{0pt plus 5cm}void test\_\-transpose ()}}
+\label{gpuconv2__test_8cpp_a0c052c14cede39b10e790cf36143e13e}
+
+
+\subsection{Variable Documentation}
+\hypertarget{gpuconv2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}{
+\index{gpuconv2\_\-test.cpp@{gpuconv2\_\-test.cpp}!N0@{N0}}
+\index{N0@{N0}!gpuconv2_test.cpp@{gpuconv2\_\-test.cpp}}
+\subsubsection[{N0}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf N0} = 4}}
+\label{gpuconv2__test_8cpp_a1a345a1e634b1d40f23b3333f3696366}
+\hypertarget{gpuconv2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}{
+\index{gpuconv2\_\-test.cpp@{gpuconv2\_\-test.cpp}!N1@{N1}}
+\index{N1@{N1}!gpuconv2_test.cpp@{gpuconv2\_\-test.cpp}}
+\subsubsection[{N1}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf N1} = 32}}
+\label{gpuconv2__test_8cpp_a5a6a26e0827f9640d2eb7201017f19d7}
+\hypertarget{gpuconv2__test_8cpp_adeea8075a0038c985c63d45161804d60}{
+\index{gpuconv2\_\-test.cpp@{gpuconv2\_\-test.cpp}!N2@{N2}}
+\index{N2@{N2}!gpuconv2_test.cpp@{gpuconv2\_\-test.cpp}}
+\subsubsection[{N2}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf N2} = 64}}
+\label{gpuconv2__test_8cpp_adeea8075a0038c985c63d45161804d60}
+\hypertarget{gpuconv2__test_8cpp_a4e8e9c2bf9e06ae07ef364c05a073302}{
+\index{gpuconv2\_\-test.cpp@{gpuconv2\_\-test.cpp}!N3@{N3}}
+\index{N3@{N3}!gpuconv2_test.cpp@{gpuconv2\_\-test.cpp}}
+\subsubsection[{N3}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf N3} = 2}}
+\label{gpuconv2__test_8cpp_a4e8e9c2bf9e06ae07ef364c05a073302}
