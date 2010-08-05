@@ -31,8 +31,6 @@ type Gpu struct{
 }
 
 
-//___________________________________________________________________________________________________ Time stepping
-
 
 func(d Gpu) add(a, b unsafe.Pointer, N int){
   C.gpu_add((*C.float)(a), (*C.float)(b), C.int(N))

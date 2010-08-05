@@ -4,7 +4,8 @@ PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 TARG=sim
 
 CGOFILES=\
-	gpu.go
+	gpu.go\
+	cpu.go\
 
 GOFILES=\
 	device.go\

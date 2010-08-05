@@ -21,8 +21,8 @@ export CPLUS_INCLUDE_PATH=$SIMROOT/dep/cuda/include:$CPLUS_INCLUDE_PATH
 # simulation
 export PATH=$PATH:$SIMROOT/bin
 export LD_LIBRARY_PATH=$SIMROOT/lib:$LD_LIBRARY_PATH
-export C_INCLUDE_PATH=$SIMROOT/src/gpukern:$SIMROOT/src/gpukern:$C_INCLUDE_PATH
-export CPLUS_INCLUDE_PATH=$SIMROOT/src/gpukern:$SIMROOT/src/gpukern:$CPLUS_INCLUDE_PATH
+export C_INCLUDE_PATH=$SIMROOT/src/gpukern:$SIMROOT/src/cpukern:$C_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=$SIMROOT/src/gpukern:$SIMROOT/src/cpukern:$CPLUS_INCLUDE_PATH
 
 # if arguments are passed, run them after having set the environment
 $@
