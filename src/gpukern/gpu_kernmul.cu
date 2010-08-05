@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 
-__global__ void _gpu_kernelmul9(float* fftMx,  float* fftMy,  float* fftMz, 
+__global__ void _gpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
                                                      float* fftKxx, float* fftKyy, float* fftKzz,
                                                      float* fftKyz, float* fftKxz, float* fftKxy){
   
