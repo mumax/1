@@ -1,16 +1,21 @@
 /**
  * @file
  *
+ * @todo cleanup
+ * @todo efficient handling of zeros
+ *
  * @author Arne Vansteenkiste
  * @author Ben Van de Wiele
  */
 #ifndef cpu_fft_h
 #define cpu_fft_h
+#include "fftw3.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+typedef float complex_t[2];
 
 /**
  * A real-to-complex FFT plan on the CPU.
@@ -22,11 +27,11 @@ typedef struct{
   int* paddedSize;         ///< size after zero-padding. @note zero-padding is conditional and not necessarily performed in each direction. Therefore, "paddedSize" is not necessarily twice "size".
   int paddedN;             ///< total number of floats in paddedSize
   
-  int* paddedStorageSize;  ///< A real-to-complex FFT requires padding with one complex number in the last dimension. However, is this would result in misalgned memory, we pad with (typically) 64 floats
-  int paddedStorageN;      ///< total number of floats in paddedStorageSize
+  //int* paddedStorageSize;  ///< A real-to-complex FFT requires padding with one complex number in the last dimension. However, is this would result in misalgned memory, we pad with (typically) 64 floats
+  //int paddedStorageN;      ///< total number of floats in paddedStorageSize
 
-  void* fwPlan;
-  void* bwPlan;
+  fftwf_plan fwPlan;
+  fftwf_plan bwPlan;
   
 //  cufftHandle fwPlanZ;     ///< 1D real-to-complex plan for Z-direction
 //  cufftHandle invPlanZ;    ///< 1D complex-to-real plan for Z-direction
@@ -68,9 +73,9 @@ cpuFFT3dPlan* new_cpuFFT3dPlan_padded(int* size,       ///< size of real input d
  * Sizes are not checked.
  * @see cpuFFT3dPlan_forward()
  */
-void cpuFFT3dPlan_forward(cpuFFT3dPlan* plan,       ///< the plan to be executed
-                          float* input,      ///< input data, it's size should match the strided "half complex" format (=plan->paddedStorageSize)
-                          float* output      ///< output data, may be equal to input for in-place transforms.
+void cpuFFT3dPlan_forward(cpuFFT3dPlan* plan       ///< the plan to be executed
+                 //         float* input,      ///< input data, it's size should match the strided "half complex" format (=plan->paddedStorageSize)
+                 //         float* output      ///< output data, may be equal to input for in-place transforms.
                           );
 
 /**
@@ -79,9 +84,9 @@ void cpuFFT3dPlan_forward(cpuFFT3dPlan* plan,       ///< the plan to be executed
  * Sizes are not checked.
  * @see cpuFFT3dPlan_inverse()
  */
-void cpuFFT3dPlan_inverse(cpuFFT3dPlan* plan,       ///< the plan to be executed
-                          float* input,            ///< input data, may be equal to output for in-place transforms.
-                          float* output            ///< output data, it's size should match the strided "half complex" format (=plan->paddedStorageSize)
+void cpuFFT3dPlan_inverse(cpuFFT3dPlan* plan       ///< the plan to be executed
+                      //    float* input,            ///< input data, may be equal to output for in-place transforms.
+                      //    float* output            ///< output data, it's size should match the strided "half complex" format (=plan->paddedStorageSize)
                           );
                                  
 ///@todo access to X,Y,Z transforms for multi GPU / MPI implementation

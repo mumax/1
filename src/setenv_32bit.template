@@ -18,6 +18,11 @@ export LD_LIBRARY_PATH=$SIMROOT/dep/cuda/lib:$LD_LIBRARY_PATH
 export C_INCLUDE_PATH=$SIMROOT/dep/cuda/include:$C_INCLUDE_PATH
 export CPLUS_INCLUDE_PATH=$SIMROOT/dep/cuda/include:$CPLUS_INCLUDE_PATH
 
+# fftw
+export LD_LIBRARY_PATH=$SIMROOT/lib/fftw/lib:$LD_LIBRARY_PATH
+export C_INCLUDE_PATH=$SIMROOT/lib/fftw/include:$C_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=$SIMROOT/lib/fftw/include:$CPLUS_INCLUDE_PATH
+
 # simulation
 export PATH=$PATH:$SIMROOT/bin
 export LD_LIBRARY_PATH=$SIMROOT/lib:$LD_LIBRARY_PATH

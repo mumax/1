@@ -10,6 +10,7 @@ OFILES=\
 	cpu_kernmul.o\
 	cpu_zeropad.o\
 	cpu_transpose.o\
+	cpu_fft.o\
 
 all: libcpukern.so libcpukern.a
 
@@ -46,6 +47,10 @@ cpu_zeropad.o:  cpu_zeropad.h cpu_zeropad.cpp
 
 cpu_transpose.o:  cpu_transpose.h cpu_transpose.cpp
 	$(CPP) -c $(CFLAGS) cpu_transpose.cpp
+
+cpu_fft.o:  cpu_fft.h cpu_fft.cpp
+	$(CPP) -c $(CFLAGS) cpu_fft.cpp
+
 
 .PHONY:	clean
 clean:	
