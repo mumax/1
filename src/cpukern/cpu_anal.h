@@ -4,8 +4,8 @@
  * @author Ben Van de Wiele
  * @author Arne Vansteenkiste
  */
-#ifndef gpu_anal_h
-#define gpu_anal_h
+#ifndef cpu_anal_h
+#define cpu_anal_h
 
 #ifdef __cplusplus
 extern "C" {

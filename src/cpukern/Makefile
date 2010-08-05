@@ -7,6 +7,7 @@ OFILES=\
 	cpu_normalize.o\
 	cpu_torque.o\
 	cpu_anal.o\
+	cpu_kernmul.o\
 
 all: libcpukern.so libcpukern.a
 
@@ -34,6 +35,9 @@ cpu_torque.o:  cpu_torque.h cpu_torque.cpp
 
 cpu_anal.o:  cpu_anal.h cpu_anal.cpp
 	$(CPP) -c $(CFLAGS) cpu_anal.cpp
+
+cpu_kernmul.o:  cpu_kernmul.h cpu_kernmul.cpp
+	$(CPP) -c $(CFLAGS) cpu_kernmul.cpp
 
 .PHONY:	clean
 clean:	
