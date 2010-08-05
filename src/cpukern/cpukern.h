@@ -15,7 +15,6 @@
 #include "cpu_linalg.h"
 #include "cpu_mem.h"
 #include "cpu_normalize.h"
-#include "cpu_tensor.h"
 #include "cpu_torque.h"
 #include "cpu_transpose.h"
 #include "cpu_zeropad.h"

@@ -1,5 +1,4 @@
 #include "cpu_kernmul.h"
-#include "cpu_conf.h"
 #include "assert.h"
 
 #ifdef __cplusplus

@@ -57,7 +57,7 @@ void gpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
    int blockSize = -1;
    make1dconf(nRealNumbers/2, &gridSize, &blockSize);
 
-  _gpu_kernelmul9<<<gridSize, blockSize>>>(
+  _gpu_kernelmul6<<<gridSize, blockSize>>>(
                                       fftMx,  fftMy,  fftMz, 
                                       fftKxx, fftKyy, fftKzz,
                                       fftKyz, fftKxz, fftKxy);
