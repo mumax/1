@@ -50,6 +50,7 @@ cpuFFT3dPlan* new_cpuFFT3dPlan_padded(int* size, int* paddedSize, float* source,
 //   plan->paddedStorageSize[Z] = cpu_pad_to_stride( plan->paddedSize[Z] + 2 );
 //   plan->paddedStorageN = paddedStorageSize[X] * paddedStorageSize[Y] * paddedStorageSize[Z];
 
+  ///@todo Check for NULL return value: plan could not be created
   plan->fwPlan = fftwf_plan_dft_r2c_3d(paddedSize[X], paddedSize[Y], paddedSize[Z], source, (complex_t*)dest, FFTW_ESTIMATE); // replace by FFTW_PATIENT for super-duper performance
   plan->bwPlan = fftwf_plan_dft_c2r_3d(paddedSize[X], paddedSize[Y], paddedSize[Z], (complex_t*)source, dest, FFTW_ESTIMATE);
   
@@ -85,8 +86,8 @@ cpuFFT3dPlan* new_cpuFFT3dPlan_padded(int* size, int* paddedSize, float* source,
 // }
 
 
-void cpuFFT3dPlan_forward(cpuFFT3dPlan* plan){
-  fftwf_execute((fftwf_plan) plan->fwPlan);
+void cpuFFT3dPlan_forward(cpuFFT3dPlan* plan, float* input, float* output){
+  fftwf_execute_dft_r2c((fftwf_plan) plan->fwPlan, input, (complex_t*)output);
 //   int* size = plan->size;
 //   int* pSSize = plan->paddedStorageSize;
 //   int N0 = pSSize[X];
@@ -141,8 +142,8 @@ void cpuFFT3dPlan_forward(cpuFFT3dPlan* plan){
 //   cpuFFT3dPlan_inverse_unsafe(plan, input->list, output->list);
 // }
 
-void cpuFFT3dPlan_inverse(cpuFFT3dPlan* plan){  //, float* input, float* output){
-  fftwf_execute((fftwf_plan) plan->bwPlan);
+void cpuFFT3dPlan_inverse(cpuFFT3dPlan* plan, float* input, float* output){
+  fftwf_execute_dft_c2r((fftwf_plan) plan->bwPlan, (complex_t*)input, output);
 //   int* size = plan->size;
 //   int* pSSize = plan->paddedStorageSize;
 //   int N0 = pSSize[X];

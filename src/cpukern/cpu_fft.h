@@ -73,9 +73,9 @@ cpuFFT3dPlan* new_cpuFFT3dPlan_padded(int* size,       ///< size of real input d
  * Sizes are not checked.
  * @see cpuFFT3dPlan_forward()
  */
-void cpuFFT3dPlan_forward(cpuFFT3dPlan* plan       ///< the plan to be executed
-                 //         float* input,      ///< input data, it's size should match the strided "half complex" format (=plan->paddedStorageSize)
-                 //         float* output      ///< output data, may be equal to input for in-place transforms.
+void cpuFFT3dPlan_forward(cpuFFT3dPlan* plan,       ///< the plan to be executed
+                         float* input,      ///< input data, it's size should match the strided "half complex" format (=plan->paddedStorageSize)
+                         float* output      ///< output data, may be equal to input for in-place transforms.
                           );
 
 /**
@@ -84,9 +84,9 @@ void cpuFFT3dPlan_forward(cpuFFT3dPlan* plan       ///< the plan to be executed
  * Sizes are not checked.
  * @see cpuFFT3dPlan_inverse()
  */
-void cpuFFT3dPlan_inverse(cpuFFT3dPlan* plan       ///< the plan to be executed
-                      //    float* input,            ///< input data, may be equal to output for in-place transforms.
-                      //    float* output            ///< output data, it's size should match the strided "half complex" format (=plan->paddedStorageSize)
+void cpuFFT3dPlan_inverse(cpuFFT3dPlan* plan,       ///< the plan to be executed
+                         float* input,            ///< input data, may be equal to output for in-place transforms.
+                         float* output            ///< output data, it's size should match the strided "half complex" format (=plan->paddedStorageSize)
                           );
                                  
 ///@todo access to X,Y,Z transforms for multi GPU / MPI implementation
