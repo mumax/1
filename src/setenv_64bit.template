@@ -6,6 +6,7 @@ export GOARCH=amd64
 export GOBIN=$SIMROOT/bin/go
 export GOMAXPROCS=$(grep processor /proc/cpuinfo | wc -l)
 export PATH=$PATH:$SIMROOT/bin/go
+export LD_LIBRARY_PATH=$GOROOT/pkg/$GOOS'_'$GOARCH:$LD_LIBRARY_PATH
 
 # cuda
 export LD_LIBRARY_PATH=$SIMROOT/dep/cuda/lib64:$SIMROOT/dep/cuda/lib:$LD_LIBRARY_PATH
