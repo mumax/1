@@ -19,7 +19,7 @@ extern "C" {
  * Allocates an array of floats on the GPU
  * @see new_ram_array()
  */
-float* new_cpu_array(int size	///< size of the array
+float* new_cpu_array(int size	///< number of floats
                     );
 
                     

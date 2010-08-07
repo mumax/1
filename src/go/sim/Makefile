@@ -29,6 +29,6 @@ GOFILES=\
 
 CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so
 
-CLEANFILES+=$(PKGDIR)/$(TARG).a $(PKGDIR)/$(TARG).so 
+CLEANFILES+=$(PKGDIR)/$(TARG).a $(PKGDIR)/cgo_$(TARG).so 
 	
 include $(GOROOT)/src/Make.pkg

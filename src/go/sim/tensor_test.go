@@ -6,7 +6,7 @@ import(
   "fmt"
 )
 
-var backend Backend = GPU
+var backend Backend = CPU
 
 func TestCopy(t *testing.T){
   size := []int{4, 8, 16}

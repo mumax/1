@@ -16,7 +16,7 @@ GOFILES=\
 	storedtensor.go\
 	out.go\
 
-CLEANFILES+=$(PKGDIR)/$(TARG).a $(PKGDIR)/$(TARG).so iotest
+CLEANFILES+=$(PKGDIR)/$(TARG).a $(PKGDIR)/cgo_$(TARG).so iotest
 
 include $(GOROOT)/src/Make.pkg
 
