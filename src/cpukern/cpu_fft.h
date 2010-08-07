@@ -30,8 +30,8 @@ typedef struct{
   //int* paddedStorageSize;  ///< A real-to-complex FFT requires padding with one complex number in the last dimension. However, is this would result in misalgned memory, we pad with (typically) 64 floats
   //int paddedStorageN;      ///< total number of floats in paddedStorageSize
 
-  fftwf_plan fwPlan;
-  fftwf_plan bwPlan;
+  void* fwPlan;
+  void* bwPlan;
   
 //  cufftHandle fwPlanZ;     ///< 1D real-to-complex plan for Z-direction
 //  cufftHandle invPlanZ;    ///< 1D complex-to-real plan for Z-direction
