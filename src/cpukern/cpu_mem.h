@@ -69,31 +69,36 @@ void cpu_override_stride(int nFloats    ///< The stride (in number of floats) to
 //______________________________________________________________________________________ copy
 
 /**
+ * Copies N floats.
+ */
+void cpu_memcpy(float* source, float* dest, int nElements);
+
+/**
  * Copies floats from the main RAM to the GPU.
  * @see memcpy_from_cpu(), memcpy_cpu_to_cpu()
  */
-void memcpy_to_cpu(float* source,	///< source data pointer in the RAM
-		   float* dest,		///< destination data pointer on the GPU
-		   int nElements	///< number of floats (not bytes) to be copied
-		   );
+// void memcpy_to_cpu(float* source,	///< source data pointer in the RAM
+// 		   float* dest,		///< destination data pointer on the GPU
+// 		   int nElements	///< number of floats (not bytes) to be copied
+// 		   );
 
 /**
  * Copies floats from GPU to the main RAM.
  * @see memcpy_to_cpu(), memcpy_cpu_to_cpu()
  */
-void memcpy_from_cpu(float* source,	///< source data pointer on the GPU
-		     float* dest,	///< destination data pointer in the RAM
-		     int nElements	///< number of floats (not bytes) to be copied
-		     );
+// void memcpy_from_cpu(float* source,	///< source data pointer on the GPU
+// 		     float* dest,	///< destination data pointer in the RAM
+// 		     int nElements	///< number of floats (not bytes) to be copied
+// 		     );
 
 /**
  * Copies floats from GPU to GPU.
  * @see memcpy_to_cpu(), memcpy_from_cpu()
  */
-void memcpy_cpu_to_cpu(float* source,	///< source data pointer on the GPU
-                       float* dest, 	///< destination data pointer on the GPU
-                       int nElements	///< number of floats (not bytes) to be copied
-                       );
+// void memcpy_cpu_to_cpu(float* source,	///< source data pointer on the GPU
+//                        float* dest, 	///< destination data pointer on the GPU
+//                        int nElements	///< number of floats (not bytes) to be copied
+//                        );
 
 /// @internal Reads one float from a GPU array, not extremely efficient.
 float cpu_array_get(float* dataptr, int index);
