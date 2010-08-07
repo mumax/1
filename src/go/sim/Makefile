@@ -27,7 +27,7 @@ GOFILES=\
 	config.go\
 	util.go\
 
-CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so
+CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a $(PKGDIR)/cgo_$(TARG).so 
 	

@@ -16,10 +16,11 @@ all: libcpukern.so libcpukern.a
 
 libcpukern.so: $(OFILES)
 	$(CPP) -shared $(CFLAGS) $(OFILES) -o libcpukern.so
+	ln -sf $(CURDIR)/libcpukern.so $(CURDIR)/../../lib
 
 libcpukern.a:	$(OFILES)
 	ar rcs libcpukern.a $(OFILES)
-
+	ln -sf $(CURDIR)/libcpukern.a $(CURDIR)/../../lib
 
 cpu_properties.o:  cpu_properties.h cpu_properties.cpp                                                
 	$(CPP) -c $(CFLAGS) cpu_properties.cpp
