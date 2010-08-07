@@ -45,16 +45,23 @@ typedef struct{
 
 
 /**
- * Creates a new real-to-complex 3D FFT plan with efficient handling of padding zeros.
+ * Creates a new real-to-complex 3D FFT plan (still without efficient handling of padding zeros).
  * If paddedsize is larger than size, then the additional space is filled with zeros,
  * but they are efficiently handled during the transform.
- * @todo: better give paddedstoragesize? is less confusing.
  */
-cpuFFT3dPlan* new_cpuFFT3dPlan_padded(int* size,       ///< size of real input data (3D)
-                                      int* paddedsize,  ///< size of the padded data (3D). Should be at least the size of the input data. If the kernel is larger, the input data is assumed to be padded with zero's which are efficiently handled by the FFT
-                                      float* source,
-                                      float* dest
+cpuFFT3dPlan* new_cpuFFT3dPlan_outplace(int* datasize,       ///< size of real input data (3D)
+                                      int* paddedsize  ///< size of the padded data (3D). Should be at least the size of the input data. If the kernel is larger, the input data is assumed to be padded with zero's which are efficiently handled by the FFT
                                       );
+
+/**
+ * Creates a new real-to-complex 3D FFT plan (still without efficient handling of padding zeros).
+ * If paddedsize is larger than size, then the additional space is filled with zeros,
+ * but they are efficiently handled during the transform.
+ */
+cpuFFT3dPlan* new_cpuFFT3dPlan_inplace(int* datasize,       ///< size of real input data (3D)
+                                      int* paddedsize  ///< size of the padded data (3D). Should be at least the size of the input data. If the kernel is larger, the input data is assumed to be padded with zero's which are efficiently handled by the FFT
+                                      );
+                                      
                                       
 /**
  * Creates a general real-to-complex 3D FFT plan.
