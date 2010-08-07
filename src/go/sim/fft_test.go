@@ -9,7 +9,7 @@ import(
 
 
 func TestFFTOutOfPlace(t *testing.T){
-  backend := GPU
+  backend := CPU
 
   //backend.OverrideStride(1)
 

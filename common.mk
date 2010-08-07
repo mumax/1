@@ -29,3 +29,5 @@ NVCCFLAGS+=\
 # Cuda libraries
 CUDALIBS= -lcudart -lcufft
 
+
+

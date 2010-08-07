@@ -1,4 +1,5 @@
 include ../../common.mk
+FFTWLIBS=$(CURDIR)/../../lib/fftw/lib/libfftw3f.a
 
 OFILES=\
 	cpu_properties.o\
@@ -15,11 +16,11 @@ OFILES=\
 all: libcpukern.so libcpukern.a
 
 libcpukern.so: $(OFILES)
-	$(CPP) -shared $(CFLAGS) $(OFILES) -o libcpukern.so
+	$(CPP) -shared $(CFLAGS) $(OFILES) $(FFTWLIBS) -o libcpukern.so
 	ln -sf $(CURDIR)/libcpukern.so $(CURDIR)/../../lib
 
 libcpukern.a:	$(OFILES)
-	ar rcs libcpukern.a $(OFILES)
+	ar rcs libcpukern.a $(OFILES) $(FFTWLIBS)
 	ln -sf $(CURDIR)/libcpukern.a $(CURDIR)/../../lib
 
 cpu_properties.o:  cpu_properties.h cpu_properties.cpp                                                
