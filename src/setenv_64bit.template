@@ -1,16 +1,10 @@
 
 # GO
-if [ ! $GOROOT ]; then
-  export GOROOT=$SIMROOT/dep/go
-  export GOOS=linux
-  export GOARCH=amd64
-  export GOBIN=$SIMROOT/bin/go
-fi
-
-if [ ! $GOROOT ]; then
-  export GOMAXPROCS=$(grep processor /proc/cpuinfo | wc -l)
-fi
-
+export GOROOT=$SIMROOT/dep/go
+export GOOS=linux
+export GOARCH=amd64
+export GOBIN=$SIMROOT/bin/go
+export GOMAXPROCS=$(grep processor /proc/cpuinfo | wc -l)
 export PATH=$PATH:$SIMROOT/bin/go
 
 # cuda

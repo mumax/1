@@ -98,6 +98,7 @@ void cpuFFT3dPlan_inverse(cpuFFT3dPlan* plan,       ///< the plan to be executed
                                  
 ///@todo access to X,Y,Z transforms for multi GPU / MPI implementation
 
+
 #ifdef __cplusplus
 }
 #endif
