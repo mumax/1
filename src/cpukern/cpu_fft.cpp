@@ -71,8 +71,8 @@ cpuFFT3dPlan* new_cpuFFT3dPlan_outplace(int* datasize, int* paddedSize){
   float* in = new_cpu_array(paddedN);
   float* out = new_cpu_array(paddedN);
   cpuFFT3dPlan* plan = new_cpuFFT3dPlan_padded(datasize, paddedSize, in, out);
-  free(in);
-  free(out);
+  delete_cpu_array(in);
+  delete_cpu_array(out);
   return plan;
 }
 
@@ -81,7 +81,7 @@ cpuFFT3dPlan* new_cpuFFT3dPlan_inplace(int* datasize, int* paddedSize){
   int paddedN = paddedSize[X] * paddedSize[Y] * (paddedSize[Z]+2);
   float* in = new_cpu_array(paddedN);
   cpuFFT3dPlan* plan = new_cpuFFT3dPlan_padded(datasize, paddedSize, in, in);
-  free(in);
+  delete_cpu_array(in);
   return plan;
 }
                                       
