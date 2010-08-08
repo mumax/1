@@ -16,8 +16,9 @@ OFILES=\
 all: libcpukern.so libcpukern.a
 
 libcpukern.so: $(OFILES)
-	$(CPP) -shared $(CFLAGS) $(OFILES) $(FFTWLIBS) -o libcpukern.so
-	ln -sf $(CURDIR)/libcpukern.so $(CURDIR)/../../lib
+	$(CPP) -shared $(CFLAGS) $(OFILES) $(FFTWLIBS) -Wl,-soname,libcpukern.so -o libcpukern.so
+	ln -sf $(CURDIR)/libcpukern.so $(CURDIR)/../../lib/libcpukern.so
+	
 
 libcpukern.a:	$(OFILES)
 	ar rcs libcpukern.a $(OFILES) $(FFTWLIBS)
@@ -53,6 +54,7 @@ cpu_transpose.o:  cpu_transpose.h cpu_transpose.cpp
 cpu_fft.o:  cpu_fft.h cpu_fft.cpp
 	$(CPP) -c $(CFLAGS) cpu_fft.cpp
 
+test: test.cpp libcpukern.so
 
 .PHONY:	clean
 clean:	

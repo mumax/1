@@ -58,7 +58,7 @@ func TestFFTOutOfPlace(t *testing.T){
 
 
 func TestFFTInplace(t *testing.T){
-  backend := GPU
+  backend := CPU
 
   //backend.OverrideStride(1)
 

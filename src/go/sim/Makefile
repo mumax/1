@@ -1,3 +1,4 @@
+include ../../../common.mk
 include $(GOROOT)/src/Make.$(GOARCH)
 PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 
