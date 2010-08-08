@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-///@todo this should be a quadword-aligned pointer!
+///@todo use fftwf_malloc
 float* new_cpu_array(int size){
   assert(size > 0);
   float* array = (float*)calloc(size, sizeof(float));
@@ -14,6 +14,11 @@ float* new_cpu_array(int size){
     abort();
   }
   return array;
+}
+
+///@todo use fftwf_free
+void delete_cpu_array(float* array){
+  free(array);
 }
 
 

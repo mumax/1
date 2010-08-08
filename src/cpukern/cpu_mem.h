@@ -17,11 +17,12 @@ extern "C" {
 
 /**
  * Allocates an array of floats on the GPU
- * @see new_ram_array()
+ * @see delete_cpu_array()
  */
 float* new_cpu_array(int size	///< number of floats
                     );
 
+void delete_cpu_array(float* array);
                     
 /**
  * Returns the optimal array stride (in number of floats):
