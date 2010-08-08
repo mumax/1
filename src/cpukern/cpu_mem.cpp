@@ -51,7 +51,7 @@ int _cpu_stride_float_cache = -1;
 /// We use quadword alignment by default, but allow to override just like on the GPU
 int cpu_stride_float(){
   if( _cpu_stride_float_cache == -1){
-    _cpu_stride_float_cache = 4;
+    _cpu_stride_float_cache = 1; /// The default for now. @todo: this should become 4 when strided FFT's work
   }
   return _cpu_stride_float_cache;
 }
