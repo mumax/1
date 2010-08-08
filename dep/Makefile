@@ -1,6 +1,7 @@
 all:
 	chmod u+x make-go.bash
 	chmod u+x make-fftw.bash
+	make -C cuda
 	./make-go.bash
 	./make-fftw.bash
 
