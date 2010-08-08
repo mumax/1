@@ -6,8 +6,6 @@ import(
   "fmt"
 )
 
-var backend Backend = CPU
-
 func TestCopy(t *testing.T){
   size := []int{4, 8, 16}
   dev1, dev2 := NewTensor(backend, size), NewTensor(backend, size)

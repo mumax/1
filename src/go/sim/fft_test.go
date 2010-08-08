@@ -9,7 +9,6 @@ import(
 
 
 func TestFFTOutOfPlace(t *testing.T){
-  backend := CPU
 
   //backend.OverrideStride(1)
 
@@ -58,7 +57,6 @@ func TestFFTOutOfPlace(t *testing.T){
 
 
 func TestFFTInplace(t *testing.T){
-  backend := CPU
 
   //backend.OverrideStride(1)
 

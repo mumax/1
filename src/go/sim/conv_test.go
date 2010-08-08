@@ -8,7 +8,6 @@ import(
 )
 
 func TestConv(t *testing.T){
-  backend := Backend{Gpu{}}
   
   //backend.OverrideStride(1)
   size4D := []int{3, 32, 32, 2}
