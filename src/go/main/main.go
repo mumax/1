@@ -12,7 +12,7 @@ func main(){
   
   Verbosity = 2
   
-  dev := GPU
+  dev := CPU
 
   mat := NewMaterial()
   mat.MSat = 800E3
