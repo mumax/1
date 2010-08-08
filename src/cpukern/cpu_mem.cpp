@@ -8,7 +8,7 @@ extern "C" {
 ///@todo use fftwf_malloc
 float* new_cpu_array(int size){
   assert(size > 0);
-  float* array = (float*)calloc(size, sizeof(float));
+  float* array = (float*)malloc(size * sizeof(float));
   if(array == NULL){
     fprintf(stderr, "could not allocate %d floats in main memory\n", size);
     abort();
