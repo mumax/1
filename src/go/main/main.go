@@ -11,7 +11,6 @@ import (
 var (
     backend *Backend = nil
 	mat = NewMaterial()
-	
 )
 
 func MSat(ms float) {
