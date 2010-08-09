@@ -22,62 +22,62 @@ func ReadChar(in io.Reader) int {
 }
 
 func ReadLine(in io.Reader) (line []string, eof bool) {
-    words_arr := [10]string{}
+	words_arr := [10]string{}
 	words := vector.StringVector(words_arr[0:0])
 	currword := ""
 	for {
 		char := ReadChar(in)
 
 		if isEndline(char) {
-            if currword != ""{
-              words.Push(currword)
-              currword = ""
-            }
-            eof = isEOF(char) && len(words) == 0
+			if currword != "" {
+				words.Push(currword)
+				currword = ""
+			}
+			eof = isEOF(char) && len(words) == 0
 			line = []string(words)
 			return
 		}
-		
-        if isWhitespace(char) && currword != "" {
-            words.Push(currword)
-            currword = ""
-        } // whitespace && currword == "": ignore whitespace
-        
-        if isCharacter(char){
-          currword += string(char)
-        }
+
+		if isWhitespace(char) && currword != "" {
+			words.Push(currword)
+			currword = ""
+		} // whitespace && currword == "": ignore whitespace
+
+		if isCharacter(char) {
+			currword += string(char)
+		}
 	}
 
 	//not reached
 	return
 }
 
-func ReadNonemptyLine(in io.Reader) (line []string, eof bool){
-  line, eof = ReadLine(in)
-  for len(line) == 0 && !eof{
-    line, eof = ReadLine(in)
-  }
-  return
+func ReadNonemptyLine(in io.Reader) (line []string, eof bool) {
+	line, eof = ReadLine(in)
+	for len(line) == 0 && !eof {
+		line, eof = ReadLine(in)
+	}
+	return
 }
 
-func isEOF(char int) bool{
-  return char == -1
+func isEOF(char int) bool {
+	return char == -1
 }
 
 func isEndline(char int) bool {
-	if isEOF(char) || char == int('\n') || char == int(';'){
+	if isEOF(char) || char == int('\n') || char == int(';') {
 		return true
 	}
 	return false
 }
 
 func isWhitespace(char int) bool {
-	if char == int(' ') || char == int('\t') || char == int(':'){
+	if char == int(' ') || char == int('\t') || char == int(':') {
 		return true
 	}
 	return false
 }
 
-func isCharacter(char int) bool{
-  return !isEndline(char) && !isWhitespace(char)
+func isCharacter(char int) bool {
+	return !isEndline(char) && !isWhitespace(char)
 }
