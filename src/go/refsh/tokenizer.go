@@ -29,19 +29,21 @@ func (t *Tokenizer) ReadChar() int {
 	return 0 // never reached
 }
 
-func (t *Tokenizer) ReadLine() []string {
+func (t *Tokenizer) ReadLine() (line []string, eof bool) {
     words_arr := [10]string{}
 	words := vector.StringVector(words_arr[0:0])
 	currword := ""
 	for {
 		char := t.ReadChar()
-		//fmt.Println("char:", char)
+
 		if isEndline(char) {
             if currword != ""{
               words.Push(currword)
               currword = ""
             }
-			return []string(words)
+            eof = isEOF(char) && len(words) == 0
+			line = []string(words)
+			return
 		}
 		
         if isWhitespace(char) && currword != "" {
@@ -55,11 +57,23 @@ func (t *Tokenizer) ReadLine() []string {
 	}
 
 	//not reached
-	return []string(words)
+	return
+}
+
+func (t *Tokenizer) ReadNonemptyLine() (line []string, eof bool){
+  line, eof = t.ReadLine()
+  for len(line) == 0 && !eof{
+    line, eof = t.ReadLine()
+  }
+  return
+}
+
+func isEOF(char int) bool{
+  return char == -1
 }
 
 func isEndline(char int) bool {
-	if char == int('\n') || char == -1 || char == int(';'){
+	if isEOF(char) || char == int('\n') || char == int(';'){
 		return true
 	}
 	return false

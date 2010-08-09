@@ -13,8 +13,8 @@ func TestTokenizer(test *testing.T) {
 		return
 	}
 	tokenizer := &Tokenizer{in}
-	for i := 0; i < 10; i++ {
-		words := tokenizer.ReadLine()
-		fmt.Println(words)
+	
+	for line, eof := tokenizer.ReadNonemptyLine(); !eof; line, eof = tokenizer.ReadNonemptyLine(){
+		fmt.Println(line)
 	}
 }
