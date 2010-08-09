@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"io"
+    "strings"
 // 	"scanner"
 // 	"container/vector"
 	//    "runtime"
@@ -167,6 +168,8 @@ func parseArg(arg string, argtype Type) Value {
 		os.Exit(-2)
 	case "int":
 		return NewValue(parseInt(arg))
+    case "float":
+        return NewValue(parseFloat(arg))
 	}
 	return NewValue(666) // is never reached.
 }
@@ -180,6 +183,17 @@ func parseInt(str string) int {
 	}
 	return i
 }
+
+func parseFloat(str string) float {
+    i, err := strconv.Atof(strings.ToLower(str))
+    if err != nil {
+        fmt.Fprintln(os.Stderr, "Could not parse to float:", str)
+        os.Exit(-3)
+    }
+    return i
+}
+
+
 
 /*
 
