@@ -12,9 +12,8 @@ func TestTokenizer(test *testing.T) {
 		test.Fail()
 		return
 	}
-	tokenizer := &Tokenizer{in}
 	
-	for line, eof := tokenizer.ReadNonemptyLine(); !eof; line, eof = tokenizer.ReadNonemptyLine(){
+	for line, eof := ReadNonemptyLine(in); !eof; line, eof = ReadNonemptyLine(in){
 		fmt.Println(line)
 	}
 }

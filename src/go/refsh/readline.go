@@ -7,17 +7,9 @@ import (
 	"os"
 )
 
-
-type Tokenizer struct{
-  io.Reader
-}
-// func NewTokenizer(in io.Reader) *Tokenizer{
-//   return &Tokenizer{in, vector.StringVector(make([]string, 10))}
-// }
-
-func (t *Tokenizer) ReadChar() int {
+func ReadChar(in io.Reader) int {
 	buffer := [1]byte{}
-	switch nr, err := t.Read(buffer[0:]); true {
+	switch nr, err := in.Read(buffer[0:]); true {
 	case nr < 0: // error
 		fmt.Fprintln(os.Stderr, "read error:", err)
 		os.Exit(1)
@@ -29,12 +21,12 @@ func (t *Tokenizer) ReadChar() int {
 	return 0 // never reached
 }
 
-func (t *Tokenizer) ReadLine() (line []string, eof bool) {
+func ReadLine(in io.Reader) (line []string, eof bool) {
     words_arr := [10]string{}
 	words := vector.StringVector(words_arr[0:0])
 	currword := ""
 	for {
-		char := t.ReadChar()
+		char := ReadChar(in)
 
 		if isEndline(char) {
             if currword != ""{
@@ -60,10 +52,10 @@ func (t *Tokenizer) ReadLine() (line []string, eof bool) {
 	return
 }
 
-func (t *Tokenizer) ReadNonemptyLine() (line []string, eof bool){
-  line, eof = t.ReadLine()
+func ReadNonemptyLine(in io.Reader) (line []string, eof bool){
+  line, eof = ReadLine(in)
   for len(line) == 0 && !eof{
-    line, eof = t.ReadLine()
+    line, eof = ReadLine(in)
   }
   return
 }

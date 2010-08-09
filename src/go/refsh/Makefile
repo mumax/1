@@ -5,7 +5,7 @@ TARG=refsh
 
 GOFILES=\
 	refsh.go\
-	tokenizer.go\
+	readline.go\
 	flags.go\
 	
 CLEANFILES+=$(PKGDIR)/$(TARG).a
