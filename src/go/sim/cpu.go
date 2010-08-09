@@ -186,7 +186,7 @@ func (d Cpu) PrintProperties() {
 // //___________________________________________________________________________________________________ misc
 
 func (d Cpu) String() string {
-	return "CPU\n"
+	return "CPU"
 }
 
 // func TimerPrintDetail(){

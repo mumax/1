@@ -6,16 +6,12 @@ import (
 	"os"
 	"strconv"
 	"io"
-    "strings"
-// 	"scanner"
-// 	"container/vector"
-	//    "runtime"
+	"strings"
+	"log"
 )
 
-/**
- * Maximum number of functions.
- * @todo use a vector to make this unlimited.
- */
+// Maximum number of functions.
+// TODO use a vector to make this unlimited.
 const CAPACITY = 100
 
 
@@ -57,10 +53,10 @@ func (r *Refsh) Add(funcname string, f interface{}) {
 // command arg1
 func (refsh *Refsh) Exec(in io.Reader) {
 	for line, eof := ReadNonemptyLine(in); !eof; line, eof = ReadNonemptyLine(in) {
-        cmd := line[0]
-        args := line[1:]
-        refsh.Call(cmd, args)
-    }
+		cmd := line[0]
+		args := line[1:]
+		refsh.Call(cmd, args)
+	}
 }
 
 const prompt = ">> "
@@ -68,16 +64,16 @@ const prompt = ">> "
 // starts an interactive command line
 // TODO: exit should stop this refsh, not exit the entire program
 func (refsh *Refsh) Interactive() {
-    in := os.Stdin
-    fmt.Print(prompt)
-    line, eof := ReadNonemptyLine(in)
-	for  !eof {
-        cmd := line[0]
-        args := line[1:]
-        refsh.Call(cmd, args)
-        fmt.Print(prompt)
-        line, eof = ReadNonemptyLine(in) 
-    }
+	in := os.Stdin
+	fmt.Print(prompt)
+	line, eof := ReadNonemptyLine(in)
+	for !eof {
+		cmd := line[0]
+		args := line[1:]
+		refsh.Call(cmd, args)
+		fmt.Print(prompt)
+		line, eof = ReadNonemptyLine(in)
+	}
 }
 
 func exit() {
@@ -112,34 +108,13 @@ func (refsh *Refsh) Call(fname string, argv []string) {
 }
 
 
-// // Reads one line.
-// // The first token is returned in command, the rest in the args array
-// func readLine(s *scanner.Scanner) (command string, args []string) {
-// 	line := s.Pos().Line // I found no direct way to detect line ends using a scanner
-// 	startline := line    // so I check if the line number changes
-// 
-// 	token := s.Scan() // the first token is the command
-// 	command = s.TokenText()
-// 	line = s.Pos().Line
-// 	// the other tokens are the arguments
-// 	argl := vector.StringVector(make([]string, 0))
-// 	for token != scanner.EOF && line == startline {
-// 		token = s.Scan()
-// 		argl.Push(s.TokenText())
-// 		line = s.Pos().Line
-// 	}
-// 	args = []string(argl)
-// 	return
-// }
-
-
 func (r *Refsh) resolve(funcname string) *FuncValue {
 	for i := range r.funcnames {
 		if r.funcnames[i] == funcname {
 			return r.funcs[i]
 		}
 	}
-	return nil // never reached
+	return nil
 }
 
 
@@ -168,10 +143,13 @@ func parseArg(arg string, argtype Type) Value {
 		os.Exit(-2)
 	case "int":
 		return NewValue(parseInt(arg))
-    case "float":
-        return NewValue(parseFloat(arg))
+	case "float":
+		return NewValue(parseFloat(arg))
+	case "string":
+		return NewValue(arg)
 	}
-	return NewValue(666) // is never reached.
+	log.Crash() // is never reached.
+	return NewValue(666)
 }
 
 
@@ -185,14 +163,13 @@ func parseInt(str string) int {
 }
 
 func parseFloat(str string) float {
-    i, err := strconv.Atof(strings.ToLower(str))
-    if err != nil {
-        fmt.Fprintln(os.Stderr, "Could not parse to float:", str)
-        os.Exit(-3)
-    }
-    return i
+	i, err := strconv.Atof(strings.ToLower(str))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Could not parse to float:", str)
+		os.Exit(-3)
+	}
+	return i
 }
-
 
 
 /*

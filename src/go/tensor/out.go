@@ -1,10 +1,10 @@
 package tensor
 
-import(
-  "fmt";
-  //"io";
-  "os";
-  "log";
+import (
+	"fmt"
+	//"io";
+	"os"
+	"log"
 )
 
 // idea: merge with assert(?)
@@ -12,13 +12,13 @@ import(
 
 // TODO: rename function, FOpen already exists.
 /** Todo: sometimes appends instead of overwriting... */
-func FOpenz(filename string) *os.File{
-  file, ok := os.Open(filename, os.O_RDWR | os.O_CREAT, 0666);
-  if ok!=nil{
-    fmt.Fprint(os.Stderr, ok, "\n");
-    log.Crash("Could not open file");
-  }
-  return file;
+func FOpenz(filename string) *os.File {
+	file, ok := os.Open(filename, os.O_RDWR|os.O_CREAT, 0666)
+	if ok != nil {
+		fmt.Fprint(os.Stderr, ok, "\n")
+		log.Crash("Could not open file")
+	}
+	return file
 }
 
 
@@ -49,11 +49,11 @@ func PrintVectors(out io.Writer, t Tensor){
 /** ugly temp. hack, make general: Vectorblock is really a 4D stored tensor. */
 
 // func PrintVectorBlock(out io.Writer, t *Block){
-//   
+//
 //   xcomp := t.Component(X);
 //   ycomp := t.Component(Y);
 //   zcomp := t.Component(Z);
-// 
+//
 //   for it := NewIterator(xcomp); it.HasNext(); it.Next(){
 //     index := it.Index();
 //     for i:=0; i<3; i++{
@@ -61,7 +61,7 @@ func PrintVectors(out io.Writer, t Tensor){
 //     }
 //     fmt.Fprint(out, " ", xcomp.Get(index), ycomp.Get(index), zcomp.Get(index), "\n");
 //   }
-// 
+//
 //   // close if possible.
 //   c:=out.(io.Closer);
 //   if  c != nil{

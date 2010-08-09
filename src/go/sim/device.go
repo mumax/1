@@ -1,7 +1,7 @@
 package sim
 
-import(
-  "unsafe"
+import (
+	"unsafe"
 )
 
 /**
@@ -34,116 +34,116 @@ import(
  * The few methods that are already safe are accessible through
  * Backend thanks to embedding.
  */
-type Device interface{
+type Device interface {
 
-  //____________________________________________________________________ general purpose (use Backend safe wrappers)
+	//____________________________________________________________________ general purpose (use Backend safe wrappers)
 
-  // adds b to a. N = length of a = length of b
-  add(a, b unsafe.Pointer, N int)
+	// adds b to a. N = length of a = length of b
+	add(a, b unsafe.Pointer, N int)
 
-  // adds the constant cnst to a. N = length of a
-  addConstant(a unsafe.Pointer, cnst float, N int)
-  
-  // a = a * weightA + b * weightB
-  linearCombination(a, b unsafe.Pointer, weightA, weightB float, N int)
+	// adds the constant cnst to a. N = length of a
+	addConstant(a unsafe.Pointer, cnst float, N int)
 
-  // normalizes a vector field. N = length of one component
-  normalize(m unsafe.Pointer, N int)
+	// a = a * weightA + b * weightB
+	linearCombination(a, b unsafe.Pointer, weightA, weightB float, N int)
 
-  // normalizes a vector field and multiplies with normMap. N = length of one component = length of normMap
-  normalizeMap(m, normMap unsafe.Pointer, N int)
+	// normalizes a vector field. N = length of one component
+	normalize(m unsafe.Pointer, N int)
 
-  // overwrites h with torque(m, h) * dtGilbert. N = length of one component
-  deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int)
+	// normalizes a vector field and multiplies with normMap. N = length of one component = length of normMap
+	normalizeMap(m, normMap unsafe.Pointer, N int)
 
-
-  /// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
-  overrideStride(nFloats int)
+	// overwrites h with torque(m, h) * dtGilbert. N = length of one component
+	deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int)
 
 
-  //____________________________________________________________________ tensor (safe wrappers in tensor.go)
+	/// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
+	overrideStride(nFloats int)
 
-  
-  // Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
-  copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int)
 
-  //Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
-  copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int)
+	//____________________________________________________________________ tensor (safe wrappers in tensor.go)
 
- /**
-  * Allocates an array of floats on the GPU.
-  * By convention, GPU arrays are represented by an unsafe.Pointer,
-  * while host arrays are *float's.
-  * Does not need to be initialized with zeros
-  */
-  newArray(nFloats int) unsafe.Pointer
 
-  /// Copies a number of floats from host to GPU
-  memcpyTo(source *float, dest unsafe.Pointer, nFloats int)
+	// Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
+	copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int)
 
-  /// Copies a number of floats from GPU to host
-  memcpyFrom(source unsafe.Pointer, dest *float, nFloats int)
+	//Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
+	copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int)
 
-  /// Copies a number of floats from GPU to GPU
-  memcpyOn(source, dest unsafe.Pointer, nFloats int)
+	/**
+	 * Allocates an array of floats on the GPU.
+	 * By convention, GPU arrays are represented by an unsafe.Pointer,
+	 * while host arrays are *float's.
+	 * Does not need to be initialized with zeros
+	 */
+	newArray(nFloats int) unsafe.Pointer
 
-  /// Gets one float from a GPU array
-  arrayGet(array unsafe.Pointer, index int) float
+	/// Copies a number of floats from host to GPU
+	memcpyTo(source *float, dest unsafe.Pointer, nFloats int)
 
-  arraySet(array unsafe.Pointer, index int, value float)
+	/// Copies a number of floats from GPU to host
+	memcpyFrom(source unsafe.Pointer, dest *float, nFloats int)
 
-  arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer
+	/// Copies a number of floats from GPU to GPU
+	memcpyOn(source, dest unsafe.Pointer, nFloats int)
 
-  /// Overwrite n floats with zeros
-  zero(data unsafe.Pointer, nFloats int)
+	/// Gets one float from a GPU array
+	arrayGet(array unsafe.Pointer, index int) float
 
-  
-  //____________________________________________________________________ specialized (used in only one place)
+	arraySet(array unsafe.Pointer, index int, value float)
 
-  
-  semianalStep(m, h unsafe.Pointer, dt, alpha float, N int)
-  
-  // In-place kernel multiplication (m gets overwritten by h).
-  // The kernel is symmetric so only 6 of the 9 components need to be passed (xx, yy, zz, yz, xz, xy).
-  // The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
-  // This is the typical situation for a 3D micromagnetic problem
-  kernelMul6(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int)
+	arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer
 
-  
-  // In-place kernel multiplication (m gets overwritten by h).
-  // The kernel is symmetric and contains no mixing between x and (y, z),
-  // so only 4 of the 9 components need to be passed (xx, yy, zz, yz).
-  // The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
-  // This is the typical situation for a finite 2D micromagnetic problem
-  // TODO
-  // kernelMul4(mx, my, mz, kxx, kyy, kzz, kyz unsafe.Pointer, nRealNumbers int)
+	/// Overwrite n floats with zeros
+	zero(data unsafe.Pointer, nFloats int)
 
-  
-  // In-place kernel multiplication (m gets overwritten by h).
-  // The kernel is symmetric and contains no x contributions.
-  // so only 3 of the 9 components need to be passed (yy, zz, yz).
-  // The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
-  // This is the typical situation for a infinitely thick 2D micromagnetic problem,
-  // which has no demag effects in the out-of-plane direction
-  // TODO
-  // kernelMul3(my, mz, kyy, kzz, kyz unsafe.Pointer, nRealNumbers int)
 
-  // unsafe creation of C fftPlan
-  newFFTPlan(dataSize, logicSize []int) unsafe.Pointer
+	//____________________________________________________________________ specialized (used in only one place)
 
-  // unsafe FFT
-  fftForward(plan unsafe.Pointer, in, out unsafe.Pointer)
 
-  // unsafe FFT
-  fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer)
+	semianalStep(m, h unsafe.Pointer, dt, alpha float, N int)
 
-  //______________________________________________________________________________ already safe
+	// In-place kernel multiplication (m gets overwritten by h).
+	// The kernel is symmetric so only 6 of the 9 components need to be passed (xx, yy, zz, yz, xz, xy).
+	// The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
+	// This is the typical situation for a 3D micromagnetic problem
+	kernelMul6(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int)
 
-  /// The GPU stride in number of floats (!)
-  Stride() int
 
-  /// Print the GPU properties to stdout
-  PrintProperties()
+	// In-place kernel multiplication (m gets overwritten by h).
+	// The kernel is symmetric and contains no mixing between x and (y, z),
+	// so only 4 of the 9 components need to be passed (xx, yy, zz, yz).
+	// The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
+	// This is the typical situation for a finite 2D micromagnetic problem
+	// TODO
+	// kernelMul4(mx, my, mz, kxx, kyy, kzz, kyz unsafe.Pointer, nRealNumbers int)
 
-  String() string
+
+	// In-place kernel multiplication (m gets overwritten by h).
+	// The kernel is symmetric and contains no x contributions.
+	// so only 3 of the 9 components need to be passed (yy, zz, yz).
+	// The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
+	// This is the typical situation for a infinitely thick 2D micromagnetic problem,
+	// which has no demag effects in the out-of-plane direction
+	// TODO
+	// kernelMul3(my, mz, kyy, kzz, kyz unsafe.Pointer, nRealNumbers int)
+
+	// unsafe creation of C fftPlan
+	newFFTPlan(dataSize, logicSize []int) unsafe.Pointer
+
+	// unsafe FFT
+	fftForward(plan unsafe.Pointer, in, out unsafe.Pointer)
+
+	// unsafe FFT
+	fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer)
+
+	//______________________________________________________________________________ already safe
+
+	/// The GPU stride in number of floats (!)
+	Stride() int
+
+	/// Print the GPU properties to stdout
+	PrintProperties()
+
+	String() string
 }

@@ -1,7 +1,7 @@
 package sim
 
-import(
-  "tensor"
+import (
+	"tensor"
 )
 
 /**
@@ -16,30 +16,30 @@ import(
  *
  */
 
-type Backend struct{
-  Device
+type Backend struct {
+	Device
 }
 
 
 //_________________________________________________________________________ safe wrappers for Device methods
 
 // adds b to a
-func(dev Backend) Add(a, b *Tensor){
-  assert(tensor.EqualSize(a.size, b.size))
-  dev.add(a.data, b.data, tensor.N(a))
+func (dev Backend) Add(a, b *Tensor) {
+	assert(tensor.EqualSize(a.size, b.size))
+	dev.add(a.data, b.data, tensor.N(a))
 }
 
 
 // overwrites a with weightA * a + weightB * b
-func(dev Backend) LinearCombination(a, b *Tensor, weightA, weightB float){
-  assert(tensor.EqualSize(a.size, b.size))
-  dev.linearCombination(a.data, b.data, weightA, weightB, tensor.N(a))
+func (dev Backend) LinearCombination(a, b *Tensor, weightA, weightB float) {
+	assert(tensor.EqualSize(a.size, b.size))
+	dev.linearCombination(a.data, b.data, weightA, weightB, tensor.N(a))
 }
 
 // adds the constant cnst to each element of a. N = length of a
-func(dev Backend) AddConstant(a *Tensor, cnst float){
-  Debugvv("Backend.AddConstant(", a, cnst, ")")
-  dev.addConstant(a.data, cnst, tensor.N(a))
+func (dev Backend) AddConstant(a *Tensor, cnst float) {
+	Debugvv("Backend.AddConstant(", a, cnst, ")")
+	dev.addConstant(a.data, cnst, tensor.N(a))
 }
 
 // // adds the constant vector cnst to each element a. len(cnst) == Size(a)[0]
@@ -49,28 +49,28 @@ func(dev Backend) AddConstant(a *Tensor, cnst float){
 //     dev.addConstant(
 //   }
 // }
-  
-func(dev Backend) Normalize(m *Tensor){
-  //Debugvv( "Backend.Normalize()" )
-  assert(len(m.size) == 4)
-  N := m.size[1] * m.size[2] * m.size[3]
-  dev.normalize(m.data, N)
+
+func (dev Backend) Normalize(m *Tensor) {
+	//Debugvv( "Backend.Normalize()" )
+	assert(len(m.size) == 4)
+	N := m.size[1] * m.size[2] * m.size[3]
+	dev.normalize(m.data, N)
 }
 
 
 // calculates torque * dt, overwrites h with the result
-func(dev Backend) DeltaM(m, h *Tensor, alpha, dtGilbert float){
-  assert(len(m.size) == 4)
-  assert(tensor.EqualSize(m.size, h.size))
-  N := m.size[1] * m.size[2] * m.size[3]
-  dev.deltaM(m.data, h.data, alpha, dtGilbert, N)
+func (dev Backend) DeltaM(m, h *Tensor, alpha, dtGilbert float) {
+	assert(len(m.size) == 4)
+	assert(tensor.EqualSize(m.size, h.size))
+	N := m.size[1] * m.size[2] * m.size[3]
+	dev.deltaM(m.data, h.data, alpha, dtGilbert, N)
 }
 
 
-func(b Backend) OverrideStride(stride int){
-  Debugv( "Backend.OverrideStride(", stride, ")" )
-  assert(stride > 0 || stride == -1)
-  b.overrideStride(stride)
+func (b Backend) OverrideStride(stride int) {
+	Debugv("Backend.OverrideStride(", stride, ")")
+	assert(stride > 0 || stride == -1)
+	b.overrideStride(stride)
 }
 
 
@@ -78,13 +78,12 @@ func(b Backend) OverrideStride(stride int){
 
 
 // Takes an array size and returns the smallest multiple of Stride() where the array size fits in
-func(b Backend)  PadToStride(nFloats int) int{
-  stride := b.Stride()
-  gpulen := ((nFloats-1)/stride + 1) * stride;
+func (b Backend) PadToStride(nFloats int) int {
+	stride := b.Stride()
+	gpulen := ((nFloats-1)/stride + 1) * stride
 
-  assert(gpulen % stride == 0)
-  assert(gpulen > 0)
-  assert(gpulen >= nFloats)
-  return gpulen
+	assert(gpulen%stride == 0)
+	assert(gpulen > 0)
+	assert(gpulen >= nFloats)
+	return gpulen
 }
-

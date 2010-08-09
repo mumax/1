@@ -13,8 +13,8 @@ func Slice(t Tensor, dim, value int) *TensorSlice {
 	return &TensorSlice{t, dim, value, nil}
 }
 
-func Component(t Tensor, component int) *TensorSlice{
-  return Slice(t, 0, component)
+func Component(t Tensor, component int) *TensorSlice {
+	return Slice(t, 0, component)
 }
 
 type TensorSlice struct {
@@ -78,7 +78,7 @@ func (t *TransposedTensor) Size() []int {
 	if t.size == nil {
 		origsize := t.Tensor.Size()
 		size := make([]int, len(origsize))
-		for i := range (size) {
+		for i := range size {
 			size[i] = origsize[i]
 		}
 		size[t.x], size[t.y] = size[t.y], size[t.x]
@@ -103,7 +103,7 @@ func (t *NormalizedTensor) Get(index []int) float {
 
 	// make an index for going through the direction over which we normalize
 	index2 := make([]int, len(size))
-	for i := range (index2) {
+	for i := range index2 {
 		index2[i] = index[i]
 	}
 
@@ -125,9 +125,9 @@ func Average(t Tensor, dim int) *TensorAverage {
 }
 
 type TensorAverage struct {
-	Tensor          // the original tensor
-	dim int 	// the dimension to average away
-	size       []int
+	Tensor     // the original tensor
+	dim    int // the dimension to average away
+	size   []int
 }
 
 func (t *TensorAverage) Size() []int {
@@ -155,12 +155,12 @@ func (t *TensorAverage) Get(index []int) float {
 		bigindex[i] = index[i-1]
 	}
 
-	var sum float64 = 0.;
-	for i:=0; i<t.Tensor.Size()[t.dim]; i++{
-	  bigindex[t.dim] = i;
-	  sum += float64(t.Tensor.Get(bigindex));
+	var sum float64 = 0.
+	for i := 0; i < t.Tensor.Size()[t.dim]; i++ {
+		bigindex[t.dim] = i
+		sum += float64(t.Tensor.Get(bigindex))
 	}
-	return float(sum / float64(t.Tensor.Size()[t.dim]));
+	return float(sum / float64(t.Tensor.Size()[t.dim]))
 }
 
 //_____________________________________________________________________ sum

@@ -24,12 +24,12 @@ func Rank(t Tensor) int { return len(t.Size()) }
 
 /// @deprecated use Len
 func N(t Tensor) int {
-   n := 1
-    size := t.Size()
-    for i := range (size) {
-        n *= size[i]
-    }
-    return n
+	n := 1
+	size := t.Size()
+	for i := range size {
+		n *= size[i]
+	}
+	return n
 }
 
 // func Len(t Tensor) int{
@@ -82,7 +82,7 @@ func EqualSize(a, b []int) bool {
 	if len(a) != len(b) {
 		return false
 	} else {
-		for i := range (a) {
+		for i := range a {
 			if a[i] != b[i] {
 				return false
 			}
@@ -90,6 +90,3 @@ func EqualSize(a, b []int) bool {
 	}
 	return true
 }
-
-
-

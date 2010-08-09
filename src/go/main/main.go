@@ -1,60 +1,96 @@
 package main
 
-import(
-//   . "sim"
-  "refsh"
-//   "tensor"
-  "fmt"
-//   "runtime"
+import (
+	. "sim"
+	"refsh"
+	"os"
+	"fmt"
+	"strings"
 )
 
-var msat float = 0.
+var (
+    backend *Backend = nil
+	mat = NewMaterial()
+	
+)
 
-
-func MSat(ms float){
-  msat = ms
-  fmt.Println("Msat=", msat)
+func MSat(ms float) {
+	mat.MSat = ms
+	fmt.Println("msat", mat.MSat, "A/m")
 }
 
-func main(){
-  refsh := refsh.New()
-  refsh.Add("msat", MSat)
-  refsh.CrashOnError = true
-  refsh.Interactive()
+
+func AExch(a float) {
+	mat.AExch = a
+	fmt.Println("aexch", mat.AExch, "J/m")
 }
 
+func Alpha(a float){
+    mat.Alpha = a
+    fmt.Println("alpha", mat.Alpha)
+}
+
+func SetBackend(s string) {
+	switch strings.ToLower(s) {
+	case "cpu":
+		backend = &CPU
+	case "gpu":
+		backend = &GPU
+	default:
+		fmt.Fprintln(os.Stderr, "backend should be cpu or gpu")
+		os.Exit(-4)
+	}
+	fmt.Println("backend", backend)
+}
+
+
+func main() {
+	refsh := refsh.New()
+	refsh.Add("msat", MSat)
+	refsh.Add("aexch", AExch)
+	refsh.Add("alpha", Alpha)
+	refsh.Add("backend", SetBackend)
+	refsh.CrashOnError = true
+	in, err := os.Open("test.in", os.O_RDONLY, 0666)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(-2)
+	}
+	defer in.Close()
+	refsh.Exec(in)
+}
 
 
 // func main(){
 //   fmt.Println(runtime.Version())
-//   
+//
 //   Verbosity = 2
-//   
+//
 //   dev := CPU
-// 
+//
 //   mat := NewMaterial()
 //   mat.MSat = 800E3
 //   mat.AExch = 1.3E-11
 //   mat.Alpha = 1.0
-//   
+//
 //   size := []int{1, 32, 128}
 //   L := mat.UnitLength()
 //   cellsize := []float{3E-9 / L, 3.90625E-9 / L, 3.90625E-9 / L}
-// 
+//
 //   magnet := NewMagnet(dev, mat, size, cellsize)
-//   
+//
 //   dt := 0.1E-12 / mat.UnitTime()
 //   solver := NewEuler(dev, magnet, dt)
-//  
-//   
+//
+//
 //   fmt.Println(solver)
-// 
+//
 //   m := tensor.NewTensorN(Size4D(magnet.Size()))
 //   for i:=range m.List(){
 //     m.List()[i] = 1.
 //   }
 //   TensorCopyTo(m, solver.M())
-// 
+//
 //   file:=0
 //   for i:=0; i<100; i++{
 //     TensorCopyFrom(solver.M(), m)
@@ -65,12 +101,12 @@ func main(){
 //       solver.Step()
 //     }
 //   }
-// 
+//
 //   solver.Dt = 0.01E-12 / mat.UnitTime()
 //   solver.Alpha = 0.02
 //   B := solver.UnitField()
 //   solver.Hext = []float{0/B, 4.3E-3/B, -24.6E-3/B}
-//   
+//
 //   for i:=0; i<1000; i++{
 //     TensorCopyFrom(solver.M(), m)
 //     fname := "m" + fmt.Sprintf("%06d", file) + ".t"
@@ -80,9 +116,6 @@ func main(){
 //       solver.Step()
 //     }
 //   }
-//   
+//
 //   //TimerPrintDetail()
 // }
-
-
-
