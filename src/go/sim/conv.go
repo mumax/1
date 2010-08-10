@@ -10,8 +10,8 @@ type Conv struct {
 	FFT
 	kernel [6]*Tensor
 	buffer [3]*Tensor
-	mcomp  [3]*Tensor
-	hcomp  [3]*Tensor
+	mcomp  [3]*Tensor   // only a buffer, automatically set at each conv()
+	hcomp  [3]*Tensor   // only a buffer, automatically set at each conv()
 }
 
 

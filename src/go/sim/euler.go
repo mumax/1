@@ -38,9 +38,12 @@ func (this *Euler) Step() {
 
 // Simulation{ ? to avoid typing backend backend backend...(but sim. sim. sim.)
 // Euler{
-//   Solver{
+//   TimeStep{
 //     Field{
-//       Material;
+//       Magnet{
+//         Material
+//         Size
+//       }
 //       Conv{
 //         FFT{
 //           size
