@@ -21,12 +21,22 @@ func ReadChar(in io.Reader) int {
 	return 0 // never reached
 }
 
+func ReadCharNoComment(in io.Reader) int {
+  char := ReadChar(in)
+  if char == int('#'){
+    for char != int('\n') && char != -1{
+      char = ReadChar(in)
+    }
+  }
+  return char
+}
+
 func ReadLine(in io.Reader) (line []string, eof bool) {
 	words_arr := [10]string{}
 	words := vector.StringVector(words_arr[0:0])
 	currword := ""
 	for {
-		char := ReadChar(in)
+		char := ReadCharNoComment(in)
 
 		if isEndline(char) {
 			if currword != "" {
