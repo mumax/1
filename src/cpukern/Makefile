@@ -1,6 +1,6 @@
 include ../../common.mk
 FFTWLIBS=$(CURDIR)/../../lib/fftw/lib/libfftw3f.a
-CFLAGS=$(CFLAGS) -fomp
+OMPFLAGS= -fopenmp
 
 OFILES=\
 	cpu_properties.o\
@@ -17,7 +17,7 @@ OFILES=\
 all: libcpukern.so libcpukern.a
 
 libcpukern.so: $(OFILES)
-	$(CPP) -shared $(CFLAGS) $(OFILES) $(FFTWLIBS) -Wl,-soname,libcpukern.so -o libcpukern.so
+	$(CPP) -shared $(CFLAGS) $(OMPFLAGS) $(OFILES) $(FFTWLIBS) -Wl,-soname,libcpukern.so -o libcpukern.so
 	ln -sf $(CURDIR)/libcpukern.so $(CURDIR)/../../lib/libcpukern.so
 	
 
@@ -26,34 +26,34 @@ libcpukern.a:	$(OFILES)
 	ln -sf $(CURDIR)/libcpukern.a $(CURDIR)/../../lib
 
 cpu_properties.o:  cpu_properties.h cpu_properties.cpp                                                
-	$(CPP) -c $(CFLAGS) cpu_properties.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_properties.cpp
 
 cpu_mem.o:  cpu_mem.h cpu_mem.cpp
-	$(CPP) -c $(CFLAGS) cpu_mem.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_mem.cpp
 
 cpu_linalg.o:  cpu_linalg.h cpu_linalg.cpp
-	$(CPP) -c $(CFLAGS) cpu_linalg.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_linalg.cpp
 
 cpu_normalize.o:  cpu_normalize.h cpu_normalize.cpp
-	$(CPP) -c $(CFLAGS) cpu_normalize.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_normalize.cpp
 
 cpu_torque.o:  cpu_torque.h cpu_torque.cpp
-	$(CPP) -c $(CFLAGS) cpu_torque.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_torque.cpp
 
 cpu_anal.o:  cpu_anal.h cpu_anal.cpp
-	$(CPP) -c $(CFLAGS) cpu_anal.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_anal.cpp
 
 cpu_kernmul.o:  cpu_kernmul.h cpu_kernmul.cpp
-	$(CPP) -c $(CFLAGS) cpu_kernmul.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_kernmul.cpp
 
 cpu_zeropad.o:  cpu_zeropad.h cpu_zeropad.cpp
-	$(CPP) -c $(CFLAGS) cpu_zeropad.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_zeropad.cpp
 
 cpu_transpose.o:  cpu_transpose.h cpu_transpose.cpp
-	$(CPP) -c $(CFLAGS) cpu_transpose.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_transpose.cpp
 
 cpu_fft.o:  cpu_fft.h cpu_fft.cpp
-	$(CPP) -c $(CFLAGS) cpu_fft.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_fft.cpp
 
 test: test.cpp libcpukern.so
 

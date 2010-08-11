@@ -14,10 +14,7 @@ void cpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
   assert(nRealNumbers > 0);
   assert(nRealNumbers % 2 == 0);
 
-  //    int gridSize = -1;
-  //    int blockSize = -1;
-  //    make1dconf(nRealNumbers/2, &gridSize, &blockSize);
-
+  #pragma omp parallel for
   for(int e=0; e<nRealNumbers; e+=2){
     float reMx = fftMx[e  ];
     float imMx = fftMx[e+1];

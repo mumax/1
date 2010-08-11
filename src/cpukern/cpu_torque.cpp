@@ -14,6 +14,7 @@ void cpu_deltaM(float* m, float* h, float alpha, float dt_gilb, int N){
   float* hy = &(h[1*N]);
   float* hz = &(h[2*N]);
 
+  #pragma omp parallel for
   for(int i=0; i<N; i++){
     // - m cross H
     float _mxHx = -my[i] * hz[i] + hy[i] * mz[i];

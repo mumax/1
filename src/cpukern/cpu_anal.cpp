@@ -76,14 +76,13 @@ extern "C" {
 
 void cpu_anal_fw_step_unsafe(float* m, float* h, float dt, float alpha, int N){
 
-//   int gridSize = -1, blockSize = -1;
-//   make1dconf(N, &gridSize, &blockSize);
 
   //timer_start("cpu_anal_fw_step");
+ #pragma omp parallel for
  for(int i=0; i<N; i++){
    ///@todo inline this function
     _cpu_anal_fw_step(&m[X*N], &m[Y*N], &m[Z*N], &h[X*N], &h[Y*N], &h[Z*N], dt, alpha, i);
-  }
+ }
   
   //timer_stop("cpu_anal_fw_step");
 
