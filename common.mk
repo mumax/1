@@ -27,7 +27,7 @@ NVCCFLAGS+=\
 # -DNDEBUG disables all assert() statements
 
 # Cuda libraries
-#CUDALIBS= -l:libcudart.so -l:libcufft.so
-CUDALIBS= -lcudart -lcufft
+CUDALIBS= -l:libcudart.so -l:libcufft.so
+#CUDALIBS= -lcudart -lcufft
 
 

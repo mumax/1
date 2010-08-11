@@ -17,7 +17,7 @@ OFILES=\
 all: libgpukern.so libgpukern.a
 
 libgpukern.so: $(OFILES)
-	$(NVCC) -shared $(NVCCFLAGS) $(OFILES) $(CUDALIBS) -o libgpukern.so
+	$(NVCC) -shared $(NVCCFLAGS) $(OFILES) $(CUDALIBS) $(L) -o libgpukern.so
 	ln -sf $(CURDIR)/libgpukern.so $(CURDIR)/../../lib
 
 libgpukern.a:	$(OFILES)

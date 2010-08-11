@@ -1,4 +1,9 @@
 
+# TODO: it would be safer to do PATH=... instead of PATH=$PATH:...
+# e.g.: when an different go release is already present in PATH, things can get ugly
+# but then this script can not be sourced anymore and only serve as wrapper
+# TODO: also for 32 bit!
+
 # GO
 export GOROOT=$SIMROOT/dep/go
 export GOOS=linux
@@ -10,17 +15,20 @@ export LD_LIBRARY_PATH=$GOROOT/pkg/$GOOS'_'$GOARCH:$LD_LIBRARY_PATH
 
 # cuda
 export LD_LIBRARY_PATH=$SIMROOT/dep/cuda/lib64:$SIMROOT/dep/cuda/lib:$LD_LIBRARY_PATH
+export L=-L$SIMROOT/dep/cuda/lib64' '-L$SIMROOT/dep/cuda/lib
 export C_INCLUDE_PATH=$SIMROOT/dep/cuda/include:$C_INCLUDE_PATH
 export CPLUS_INCLUDE_PATH=$SIMROOT/dep/cuda/include:$CPLUS_INCLUDE_PATH
 
 # fftw
 export LD_LIBRARY_PATH=$SIMROOT/lib/fftw/lib:$LD_LIBRARY_PATH
+#export L=-L$SIMROOT/lib/fftw/lib
 export C_INCLUDE_PATH=$SIMROOT/lib/fftw/include:$C_INCLUDE_PATH
 export CPLUS_INCLUDE_PATH=$SIMROOT/lib/fftw/include:$CPLUS_INCLUDE_PATH
 
 # simulation
 export PATH=$PATH:$SIMROOT/bin
 export LD_LIBRARY_PATH=$SIMROOT/lib:$LD_LIBRARY_PATH
+#export L=$L' '-L$SIMROOT/lib
 export C_INCLUDE_PATH=$SIMROOT/src/gpukern:$SIMROOT/src/cpukern:$C_INCLUDE_PATH
 export CPLUS_INCLUDE_PATH=$SIMROOT/src/gpukern:$SIMROOT/src/cpukern:$CPLUS_INCLUDE_PATH
 
