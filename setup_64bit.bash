@@ -1,6 +1,7 @@
 #! /bin/bash
 
 # Generates bin/setenv
+# TODO we need to quote simroot
 
 OUTPUT=bin/setenv
 echo '#! /bin/bash' > $OUTPUT
@@ -9,5 +10,4 @@ cat src/setenv_64bit.template >> $OUTPUT
 chmod u+x $OUTPUT
 
 echo Created $OUTPUT.
-echo You can now run this script to start simulation programs,
-echo or append \"source $OUTPUT\" to ~/.bashrc
+echo You can now run this script to start simulation programs.

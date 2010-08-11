@@ -9,5 +9,4 @@ cat src/setenv_32bit.template >> $OUTPUT
 chmod u+x $OUTPUT
 
 echo Created $OUTPUT.
-echo You can now run this script to start simulation programs,
-echo or append \"source $OUTPUT\" to ~/.bashrc
+echo You can now run this script to start simulation programs.

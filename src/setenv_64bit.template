@@ -1,8 +1,4 @@
 
-# TODO: it would be safer to do PATH=... instead of PATH=$PATH:...
-# e.g.: when an different go release is already present in PATH, things can get ugly
-# but then this script can not be sourced anymore and only serve as wrapper
-# TODO: also for 32 bit!
 
 # GO
 export GOROOT=$SIMROOT/dep/go
@@ -10,8 +6,8 @@ export GOOS=linux
 export GOARCH=amd64
 export GOBIN=$SIMROOT/bin/go
 export GOMAXPROCS=$(grep processor /proc/cpuinfo | wc -l)
-export PATH=$PATH:$SIMROOT/bin/go
-export LD_LIBRARY_PATH=$GOROOT/pkg/$GOOS'_'$GOARCH:$LD_LIBRARY_PATH
+export PATH=$SIMROOT/bin/go:$PATH
+export LD_LIBRARY_PATH=$GOROOT/pkg/$GOOS'_'$GOARCH
 
 # cuda
 export LD_LIBRARY_PATH=$SIMROOT/dep/cuda/lib64:$SIMROOT/dep/cuda/lib:$LD_LIBRARY_PATH
