@@ -1,5 +1,6 @@
 include ../../common.mk
 FFTWLIBS=$(CURDIR)/../../lib/fftw/lib/libfftw3f.a
+CFLAGS=$(CFLAGS) -fomp
 
 OFILES=\
 	cpu_properties.o\
