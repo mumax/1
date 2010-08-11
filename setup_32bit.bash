@@ -2,7 +2,7 @@
 
 # Generates bin/setenv
 
-OUTPUT=bin/setenv
+OUTPUT=bin/sim
 echo '#! /bin/bash' > $OUTPUT
 echo 'export SIMROOT='$(pwd) >> $OUTPUT
 cat src/setenv_32bit.template >> $OUTPUT

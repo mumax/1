@@ -3,7 +3,7 @@
 # Generates bin/setenv
 # TODO we need to quote simroot
 
-OUTPUT=bin/setenv
+OUTPUT=bin/sim
 echo '#! /bin/bash' > $OUTPUT
 echo 'export SIMROOT='$(pwd) >> $OUTPUT
 cat src/setenv_64bit.template >> $OUTPUT
