@@ -22,7 +22,7 @@ func ReadChar(in io.Reader) int {
 }
 
 // Reads a character from the Reader,
-// ignoring bash-style comments (everything from a # till a line end) 
+// ignoring bash-style comments (everything from a # till a line end)
 func ReadCharNoComment(in io.Reader) int {
 	char := ReadChar(in)
 	if char == int('#') {
