@@ -15,7 +15,7 @@ func TestRefsh(test *testing.T) {
 	refsh.AddFunc("hello", Hello)
 	refsh.AddFunc("echo", Echo)
 
-	refsh.AddMethod("method", &St{1}, "Method")
+	refsh.AddAllMethods(&St{1})
 
 	refsh.CrashOnError = false
 	refsh.Interactive()

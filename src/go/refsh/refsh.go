@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"os"
 	"io"
+	"strings"
 )
 
 // Maximum number of functions.
@@ -51,7 +52,6 @@ func (r *Refsh) AddMethod(funcname string, reciever interface{}, methodname stri
 	typ := Typeof(reciever)
 	var f *FuncValue
 	for i := 0; i < typ.NumMethod(); i++ {
-		fmt.Println("method", i, typ.Method(i).Name)
 		if typ.Method(i).Name == methodname {
 			f = typ.Method(i).Func
 		}
@@ -66,6 +66,14 @@ func (r *Refsh) AddMethod(funcname string, reciever interface{}, methodname stri
 
 	r.funcs[len(r.funcs)-1] = &MethodWrapper{NewValue(reciever), f}
 }
+
+func (r *Refsh) AddAllMethods(reciever interface{}) {
+  typ := Typeof(reciever)
+  for i := 0; i < typ.NumMethod(); i++ {
+      name := typ.Method(i).Name
+      r.AddMethod(strings.ToLower(name), reciever, name)
+    }
+  }
 
 // parses and executes the commands read from in
 // bash-like syntax:
