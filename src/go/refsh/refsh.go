@@ -15,6 +15,7 @@ import (
 	"os"
 	"io"
 	"strings"
+	"unicode"
 )
 
 // Maximum number of functions.
@@ -67,13 +68,17 @@ func (r *Refsh) AddMethod(funcname string, reciever interface{}, methodname stri
 	r.funcs[len(r.funcs)-1] = &MethodWrapper{NewValue(reciever), f}
 }
 
+// Adds all the public Methods of the reciever,
+// giving them a lower-case command name
 func (r *Refsh) AddAllMethods(reciever interface{}) {
-  typ := Typeof(reciever)
-  for i := 0; i < typ.NumMethod(); i++ {
-      name := typ.Method(i).Name
+	typ := Typeof(reciever)
+	for i := 0; i < typ.NumMethod(); i++ {
+		name := typ.Method(i).Name
+		if unicode.IsUpper(int(name[0])){
       r.AddMethod(strings.ToLower(name), reciever, name)
     }
-  }
+	}
+}
 
 // parses and executes the commands read from in
 // bash-like syntax:
