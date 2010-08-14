@@ -47,6 +47,17 @@ func (r *Refsh) Add(funcname string, f interface{}) {
 	r.funcs[len(r.funcs)-1] = function.(*FuncValue)
 }
 
+func (r *Refsh) AddMethod(funcname string, function *FuncValue ){
+  if r.resolve(funcname) != nil {
+    fmt.Fprintln(os.Stderr, "Aldready defined:", funcname)
+    os.Exit(-4)
+  }
+  r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
+  r.funcnames[len(r.funcnames)-1] = funcname
+  r.funcs = r.funcs[0 : len(r.funcs)+1]
+  r.funcs[len(r.funcs)-1] = function
+}
+
 // parses and executes the commands read from in
 // bash-like syntax:
 // command arg1 arg2

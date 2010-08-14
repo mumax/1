@@ -15,22 +15,25 @@ func TestRefsh(test *testing.T) {
 	refsh := NewRefsh()
 	refsh.Add("hello", Hello)
 	refsh.Add("echo", Echo)
-	var s interface{}
-	s = S{1}
-	var iv *InterfaceValue
-	iv = &NewValue(s)
-	refsh.Add("method", .Method(0))
+
+  s := &St{1}
+  t := Typeof(s)
+  m := t.Method(0)
+  f := m.Func
+  fmt.Println(f)
+	refsh.AddMethod("method", f)
+	
 	refsh.CrashOnError = false
 	refsh.Interactive()
 
 }
 
-type S struct{
-  i int
+type St struct{
+  It int
 }
 
-func (s S) Method() int{
-  return s.i
+func (s *St) Method() int{
+  return s.It
 }
 
 func Hello() {
