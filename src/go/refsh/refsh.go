@@ -32,7 +32,7 @@ func New() *Refsh {
 
 // Adds a function to the list of known commands.
 // example: refsh.Add("exit", Exit)
-func (r *Refsh) Add(funcname string, f interface{}) {
+func (r *Refsh) AddFunc(funcname string, f interface{}) {
 	function := NewValue(f)
 	if r.resolve(funcname) != nil {
 		fmt.Fprintln(os.Stderr, "Aldready defined:", funcname)

@@ -13,8 +13,8 @@ func TestRefsh(test *testing.T) {
 	//
 
 	refsh := NewRefsh()
-	refsh.Add("hello", Hello)
-	refsh.Add("echo", Echo)
+	refsh.AddFunc("hello", Hello)
+	refsh.AddFunc("echo", Echo)
 
 	s := &St{1}
 	t := Typeof(s)
