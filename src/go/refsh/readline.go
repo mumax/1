@@ -3,16 +3,16 @@ package refsh
 import (
 	"io"
 	"container/vector"
-	"fmt"
-	"os"
 )
 
+// Reads one character from the Reader
+// -1 means EOF
+// errors are cought and cause panic
 func ReadChar(in io.Reader) int {
 	buffer := [1]byte{}
 	switch nr, err := in.Read(buffer[0:]); true {
 	case nr < 0: // error
-		fmt.Fprintln(os.Stderr, "read error:", err)
-		os.Exit(1)
+		panic(err)
 	case nr == 0: // eof
 		return -1
 	case nr > 0: // ok
@@ -21,6 +21,8 @@ func ReadChar(in io.Reader) int {
 	return 0 // never reached
 }
 
+// Reads a character from the Reader,
+// ignoring bash-style comments (everything from a # till a line end) 
 func ReadCharNoComment(in io.Reader) int {
 	char := ReadChar(in)
 	if char == int('#') {
@@ -31,6 +33,8 @@ func ReadCharNoComment(in io.Reader) int {
 	return char
 }
 
+// Reads a line and parses it into words
+// empty lines are returned as empty string slices
 func ReadLine(in io.Reader) (line []string, eof bool) {
 	words_arr := [10]string{}
 	words := vector.StringVector(words_arr[0:0])
@@ -62,6 +66,7 @@ func ReadLine(in io.Reader) (line []string, eof bool) {
 	return
 }
 
+// Reads and returns the first non-empty line
 func ReadNonemptyLine(in io.Reader) (line []string, eof bool) {
 	line, eof = ReadLine(in)
 	for len(line) == 0 && !eof {
