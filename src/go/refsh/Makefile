@@ -5,6 +5,8 @@ TARG=refsh
 
 GOFILES=\
 	refsh.go\
+	caller.go\
+	parse.go\
 	readline.go\
 	flags.go\
 	
