@@ -32,27 +32,40 @@ func New() *Refsh {
 
 // Adds a function to the list of known commands.
 // example: refsh.Add("exit", Exit)
-func (r *Refsh) AddFunc(funcname string, f interface{}) {
-	function := NewValue(f)
+func (r *Refsh) AddFunc(funcname string, function interface{}) {
+	f := NewValue(function)
+	
 	if r.resolve(funcname) != nil {
-		fmt.Fprintln(os.Stderr, "Aldready defined:", funcname)
-		os.Exit(-4)
+		panic("Aldready defined: " + funcname)
 	}
+	
 	r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
 	r.funcnames[len(r.funcnames)-1] = funcname
 	r.funcs = r.funcs[0 : len(r.funcs)+1]
-	r.funcs[len(r.funcs)-1] = (*FuncWrapper)(function.(*FuncValue))
+	r.funcs[len(r.funcs)-1] = (*FuncWrapper)(f.(*FuncValue))
 }
 
-func (r *Refsh) AddMethod(funcname string, function *FuncValue) {
+func (r *Refsh) AddMethod(funcname string, reciever interface{}, methodname string) {
 	if r.resolve(funcname) != nil {
-		fmt.Fprintln(os.Stderr, "Aldready defined:", funcname)
-		os.Exit(-4)
+		panic("Aldready defined: " + funcname)
 	}
+	
+	typ := Typeof(reciever)
+    var f *FuncValue
+    for i:=0; i<typ.NumMethod(); i++{
+      if typ.Method(i).Name == methodname{
+        f = typ.Method(i).Func
+      }
+    }
+    if f == nil{
+      panic("Method does not exist: " + methodname)
+    }
+    
 	r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
 	r.funcnames[len(r.funcnames)-1] = funcname
 	r.funcs = r.funcs[0 : len(r.funcs)+1]
-	r.funcs[len(r.funcs)-1] = (*FuncWrapper)(function)
+	
+	r.funcs[len(r.funcs)-1] = &MethodWrapper{NewValue(reciever), f}
 }
 
 // parses and executes the commands read from in

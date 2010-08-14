@@ -16,12 +16,9 @@ func TestRefsh(test *testing.T) {
 	refsh.AddFunc("hello", Hello)
 	refsh.AddFunc("echo", Echo)
 
-	s := &St{1}
-	t := Typeof(s)
-	m := t.Method(0)
-	f := m.Func
+	
 	fmt.Println(f)
-	refsh.AddMethod("method", f)
+	refsh.AddMethod("method", St(1), "Method")
 
 	refsh.CrashOnError = false
 	refsh.Interactive()
