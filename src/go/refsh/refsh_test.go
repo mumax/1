@@ -1,6 +1,7 @@
 package refsh
 
 import (
+    . "reflect"
 	"testing"
 	//"os"
 	"fmt"
@@ -14,11 +15,23 @@ func TestRefsh(test *testing.T) {
 	refsh := NewRefsh()
 	refsh.Add("hello", Hello)
 	refsh.Add("echo", Echo)
+	var s interface{}
+	s = S{1}
+	var iv *InterfaceValue
+	iv = &NewValue(s)
+	refsh.Add("method", .Method(0))
 	refsh.CrashOnError = false
 	refsh.Interactive()
 
 }
 
+type S struct{
+  i int
+}
+
+func (s S) Method() int{
+  return s.i
+}
 
 func Hello() {
 	fmt.Println("Hello world!")
