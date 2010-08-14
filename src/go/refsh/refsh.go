@@ -53,6 +53,7 @@ func (r *Refsh) AddMethod(funcname string, reciever interface{}, methodname stri
 	typ := Typeof(reciever)
     var f *FuncValue
     for i:=0; i<typ.NumMethod(); i++{
+      fmt.Println("method", i, typ.Method(i).Name)
       if typ.Method(i).Name == methodname{
         f = typ.Method(i).Func
       }

@@ -1,7 +1,6 @@
 package refsh
 
 import (
-	. "reflect"
 	"testing"
 	//"os"
 	"fmt"
@@ -16,9 +15,7 @@ func TestRefsh(test *testing.T) {
 	refsh.AddFunc("hello", Hello)
 	refsh.AddFunc("echo", Echo)
 
-	
-	fmt.Println(f)
-	refsh.AddMethod("method", St(1), "Method")
+	refsh.AddMethod("method", &St{1}, "Method")
 
 	refsh.CrashOnError = false
 	refsh.Interactive()
