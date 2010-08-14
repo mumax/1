@@ -44,18 +44,18 @@ func (r *Refsh) Add(funcname string, f interface{}) {
 	r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
 	r.funcnames[len(r.funcnames)-1] = funcname
 	r.funcs = r.funcs[0 : len(r.funcs)+1]
-	r.funcs[len(r.funcs)-1] = (*AFunction)(function.(*FuncValue))
+	r.funcs[len(r.funcs)-1] = (*FuncWrapper)(function.(*FuncValue))
 }
 
-func (r *Refsh) AddMethod(funcname string, function *FuncValue ){
-  if r.resolve(funcname) != nil {
-    fmt.Fprintln(os.Stderr, "Aldready defined:", funcname)
-    os.Exit(-4)
-  }
-  r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
-  r.funcnames[len(r.funcnames)-1] = funcname
-  r.funcs = r.funcs[0 : len(r.funcs)+1]
-  r.funcs[len(r.funcs)-1] = (*AFunction)(function)
+func (r *Refsh) AddMethod(funcname string, function *FuncValue) {
+	if r.resolve(funcname) != nil {
+		fmt.Fprintln(os.Stderr, "Aldready defined:", funcname)
+		os.Exit(-4)
+	}
+	r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
+	r.funcnames[len(r.funcnames)-1] = funcname
+	r.funcs = r.funcs[0 : len(r.funcs)+1]
+	r.funcs[len(r.funcs)-1] = (*FuncWrapper)(function)
 }
 
 // parses and executes the commands read from in

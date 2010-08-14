@@ -22,13 +22,13 @@ func ReadChar(in io.Reader) int {
 }
 
 func ReadCharNoComment(in io.Reader) int {
-  char := ReadChar(in)
-  if char == int('#'){
-    for char != int('\n') && char != -1{
-      char = ReadChar(in)
-    }
-  }
-  return char
+	char := ReadChar(in)
+	if char == int('#') {
+		for char != int('\n') && char != -1 {
+			char = ReadChar(in)
+		}
+	}
+	return char
 }
 
 func ReadLine(in io.Reader) (line []string, eof bool) {
