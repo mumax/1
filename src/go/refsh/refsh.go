@@ -17,14 +17,14 @@ const CAPACITY = 100
 
 type Refsh struct {
 	funcnames    []string
-	funcs        []*FuncValue
+	funcs        []Caller
 	CrashOnError bool
 }
 
 func NewRefsh() *Refsh {
 	refsh := new(Refsh)
 	refsh.funcnames = make([]string, CAPACITY)[0:0]
-	refsh.funcs = make([]*FuncValue, CAPACITY)[0:0]
+	refsh.funcs = make([]Caller, CAPACITY)[0:0]
 	refsh.CrashOnError = true
 	return refsh
 }
@@ -44,7 +44,7 @@ func (r *Refsh) Add(funcname string, f interface{}) {
 	r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
 	r.funcnames[len(r.funcnames)-1] = funcname
 	r.funcs = r.funcs[0 : len(r.funcs)+1]
-	r.funcs[len(r.funcs)-1] = function.(*FuncValue)
+	r.funcs[len(r.funcs)-1] = (*AFunction)(function.(*FuncValue))
 }
 
 func (r *Refsh) AddMethod(funcname string, function *FuncValue ){
@@ -55,7 +55,7 @@ func (r *Refsh) AddMethod(funcname string, function *FuncValue ){
   r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
   r.funcnames[len(r.funcnames)-1] = funcname
   r.funcs = r.funcs[0 : len(r.funcs)+1]
-  r.funcs[len(r.funcs)-1] = function
+  r.funcs[len(r.funcs)-1] = (*AFunction)(function)
 }
 
 // parses and executes the commands read from in
@@ -119,7 +119,7 @@ func (refsh *Refsh) Call(fname string, argv []string) {
 }
 
 
-func (r *Refsh) resolve(funcname string) *FuncValue {
+func (r *Refsh) resolve(funcname string) Caller {
 	for i := range r.funcnames {
 		if r.funcnames[i] == funcname {
 			return r.funcs[i]
@@ -131,8 +131,7 @@ func (r *Refsh) resolve(funcname string) *FuncValue {
 
 func (refsh *Refsh) parseArgs(fname string, argv []string) []Value {
 	function := refsh.resolve(fname)
-	functype := function.Type().(*FuncType)
-	nargs := functype.NumIn()
+	nargs := function.NumIn()
 
 	if nargs != len(argv) {
 		fmt.Fprintln(os.Stderr, "Error calling", fname, argv, ": needs", nargs, "arguments.")
@@ -141,7 +140,7 @@ func (refsh *Refsh) parseArgs(fname string, argv []string) []Value {
 
 	args := make([]Value, nargs)
 	for i := range args {
-		args[i] = parseArg(argv[i], functype.In(i))
+		args[i] = parseArg(argv[i], function.In(i))
 	}
 	return args
 }

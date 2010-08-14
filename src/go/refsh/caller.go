@@ -5,7 +5,7 @@ import(
 )
 
 // Caller unifies anything that can be called:
-// a Method or a Func
+// a Method or a reflect.FuncValue
 type Caller interface{
   // Call the thing
   Call(args []reflect.Value) []reflect.Value
@@ -39,4 +39,18 @@ func(m *AMethod) NumIn() int{
   return (m.function.Type().(*reflect.FuncType)).NumIn() - 1 // do not treat the reciever (1st argument) as an actual argument
 }
 
+
+type AFunction reflect.FuncValue
+
+func(f *AFunction) In(i int) reflect.Type{
+  return (*reflect.FuncValue)(f).Type().(*reflect.FuncType).In(i)
+}
+
+func(f *AFunction) NumIn() int{
+  return (*reflect.FuncValue)(f).Type().(*reflect.FuncType).NumIn()
+}
+
+func(f *AFunction) Call(args []reflect.Value) []reflect.Value{
+  return (*reflect.FuncValue)(f).Call(args)
+}
 
