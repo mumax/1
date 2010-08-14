@@ -1,3 +1,12 @@
+// refsh is a "reflective shell", an interpreter that parses
+// commands, executing them via run-time reflection.
+// Usage: first set up a new interpreter:
+// sh := refsh.New()
+// sh.AddFunc("shortname", Func)
+// sh.AddMethod("shortname", &Reciever{...}, "MethodName")
+// Then execute some commands:
+// sh.Exec(reader)
+//
 package refsh
 
 import (
@@ -11,21 +20,7 @@ import (
 // TODO use a vector to make this unlimited.
 const CAPACITY = 100
 
-
-type Refsh struct {
-	funcnames    []string
-	funcs        []Caller
-	CrashOnError bool
-}
-
-func NewRefsh() *Refsh {
-	refsh := new(Refsh)
-	refsh.funcnames = make([]string, CAPACITY)[0:0]
-	refsh.funcs = make([]Caller, CAPACITY)[0:0]
-	refsh.CrashOnError = true
-	return refsh
-}
-
+// Makes a new Refsh
 func New() *Refsh {
 	return NewRefsh()
 }
@@ -34,38 +29,41 @@ func New() *Refsh {
 // example: refsh.Add("exit", Exit)
 func (r *Refsh) AddFunc(funcname string, function interface{}) {
 	f := NewValue(function)
-	
+
 	if r.resolve(funcname) != nil {
 		panic("Aldready defined: " + funcname)
 	}
-	
+
 	r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
 	r.funcnames[len(r.funcnames)-1] = funcname
 	r.funcs = r.funcs[0 : len(r.funcs)+1]
 	r.funcs[len(r.funcs)-1] = (*FuncWrapper)(f.(*FuncValue))
 }
 
+// Adds a method to the list of known commands
+// example: refsh.Add("field", reciever, "GetField")
+// (command field ... will call reciever.GetField(...))
 func (r *Refsh) AddMethod(funcname string, reciever interface{}, methodname string) {
 	if r.resolve(funcname) != nil {
 		panic("Aldready defined: " + funcname)
 	}
-	
+
 	typ := Typeof(reciever)
-    var f *FuncValue
-    for i:=0; i<typ.NumMethod(); i++{
-      fmt.Println("method", i, typ.Method(i).Name)
-      if typ.Method(i).Name == methodname{
-        f = typ.Method(i).Func
-      }
-    }
-    if f == nil{
-      panic("Method does not exist: " + methodname)
-    }
-    
+	var f *FuncValue
+	for i := 0; i < typ.NumMethod(); i++ {
+		fmt.Println("method", i, typ.Method(i).Name)
+		if typ.Method(i).Name == methodname {
+			f = typ.Method(i).Func
+		}
+	}
+	if f == nil {
+		panic("Method does not exist: " + methodname)
+	}
+
 	r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
 	r.funcnames[len(r.funcnames)-1] = funcname
 	r.funcs = r.funcs[0 : len(r.funcs)+1]
-	
+
 	r.funcs[len(r.funcs)-1] = &MethodWrapper{NewValue(reciever), f}
 }
 
@@ -73,6 +71,7 @@ func (r *Refsh) AddMethod(funcname string, reciever interface{}, methodname stri
 // bash-like syntax:
 // command arg1 arg2
 // command arg1
+// #comment
 func (refsh *Refsh) Exec(in io.Reader) {
 	for line, eof := ReadNonemptyLine(in); !eof; line, eof = ReadNonemptyLine(in) {
 		cmd := line[0]
@@ -84,6 +83,8 @@ func (refsh *Refsh) Exec(in io.Reader) {
 const prompt = ">> "
 
 // starts an interactive command line
+// When an error is encountered, the program will not abort
+// but print a message and continue
 // TODO: exit should stop this refsh, not exit the entire program
 func (refsh *Refsh) Interactive() {
 	in := os.Stdin
@@ -113,7 +114,6 @@ func (refsh *Refsh) ExecFlags() {
 	}
 }
 
-
 // Calls a function. Function name and arguments are passed as strings.
 // The function name should first have been added by refsh.Add();
 func (refsh *Refsh) Call(fname string, argv []string) {
@@ -129,6 +129,20 @@ func (refsh *Refsh) Call(fname string, argv []string) {
 	}
 }
 
+type Refsh struct {
+	funcnames    []string
+	funcs        []Caller
+	CrashOnError bool
+}
+
+func NewRefsh() *Refsh {
+	refsh := new(Refsh)
+	refsh.funcnames = make([]string, CAPACITY)[0:0]
+	refsh.funcs = make([]Caller, CAPACITY)[0:0]
+	refsh.CrashOnError = true
+	return refsh
+}
+
 
 func (r *Refsh) resolve(funcname string) Caller {
 	for i := range r.funcnames {
@@ -138,16 +152,3 @@ func (r *Refsh) resolve(funcname string) Caller {
 	}
 	return nil
 }
-
-
-/*
-
-func main(){
-  refsh := NewRefsh();
-  refsh.Add("test", NewValue(SayHello));
-  refsh.ExecFlags();
-}
-
-func SayHello(i int){
-  fmt.Println("Hello reflection!", i);
-}*/
