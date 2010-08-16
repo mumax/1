@@ -1,8 +1,6 @@
 package sim
 
-import (
- 
-)
+import ()
 
 
 // 1st order Euler method
@@ -28,7 +26,7 @@ func (this *Euler) Step() {
 	m, h := this.m, this.h
 	alpha, dt := this.Alpha, this.Dt
 
-// 	this.Normalize(this.m)
+	// 	this.Normalize(this.m)
 	this.CalcHeff(m, h)
 	this.DeltaM(m, h, alpha, dt/(1+alpha*alpha))
 	deltaM := h // h is overwritten by deltaM

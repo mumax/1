@@ -1,9 +1,9 @@
 package sim
 
-import(
-  "fmt"
-//   "tensor"
-  )
+import (
+	"fmt"
+	//   "tensor"
+)
 
 // Stores a simulation state
 // Here, all parameters are STILL IN SI UNITS
@@ -20,13 +20,14 @@ type Sim struct {
 	cellsize [3]float
 
 	// time stepping
-	dt   float
-	time float
+	dt     float
+	time   float
+	solver *Euler //TODO other types
 
+	//external field
+	hext [3]float
 	// backend
 	backend int
-
-	solver *Euler
 }
 
 func New() *Sim {
@@ -52,11 +53,11 @@ func (s *Sim) isValid() bool {
 // (re-)initialize the simulation tree, necessary before running
 func (s *Sim) init() {
 	if s.isValid() {
-    fmt.Println("valid")
+		fmt.Println("valid")
 		return //no work to do
 	}
-  fmt.Println("invalid")
-  
+	fmt.Println("invalid")
+
 	dev := GPU
 
 	mat := NewMaterial()
@@ -73,29 +74,31 @@ func (s *Sim) init() {
 	dt := s.dt / mat.UnitTime()
 	s.solver = NewEuler(dev, magnet, dt)
 
-	fmt.Println(s.solver)
+    B := s.solver.UnitField()
+    s.solver.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
+    
+	//	fmt.Println(s.solver)
 
-// 	m := tensor.NewTensorN(Size4D(magnet.Size()))
-// 	for i := range m.List() {
-// 		m.List()[i] = 1.
-// 	}
-// 	TensorCopyTo(m, solver.M())
-/*
-	file := 0
-	for i := 0; i < 100; i++ {
-		TensorCopyFrom(solver.M(), m)
-		fname := "m" + fmt.Sprintf("%06d", file) + ".t"
-		file++
-		tensor.WriteFile(fname, m)
-		for j := 0; j < 100; j++ {
-			solver.Step()
+	// 	m := tensor.NewTensorN(Size4D(magnet.Size()))
+	// 	for i := range m.List() {
+	// 		m.List()[i] = 1.
+	// 	}
+	// 	TensorCopyTo(m, solver.M())
+	/*
+		file := 0
+		for i := 0; i < 100; i++ {
+			TensorCopyFrom(solver.M(), m)
+			fname := "m" + fmt.Sprintf("%06d", file) + ".t"
+			file++
+			tensor.WriteFile(fname, m)
+			for j := 0; j < 100; j++ {
+				solver.Step()
+			}
 		}
-	}
 
-	solver.Dt = 0.01E-12 / mat.UnitTime()
-	solver.Alpha = 0.02
-	B := solver.UnitField()
-	solver.Hext = []float{0 / B, 4.3E-3 / B, -24.6E-3 / B}*/
+		solver.Dt = 0.01E-12 / mat.UnitTime()
+		solver.Alpha = 0.02
+*/
 
 }
 
@@ -132,6 +135,14 @@ func (s *Sim) Dt(t float) {
 	s.dt = t
 	s.invalidate()
 }
+
+func (s *Sim) Field(hx, hy, hz float) {
+	s.hext[X] = hx
+	s.hext[Y] = hy
+	s.hext[Z] = hz
+	s.invalidate()
+}
+
 
 func (s *Sim) Run(time float) {
 	s.init()
