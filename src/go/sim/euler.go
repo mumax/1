@@ -1,6 +1,8 @@
 package sim
 
-import ()
+import (
+ 
+)
 
 
 // 1st order Euler method
@@ -21,12 +23,14 @@ func NewEuler(dev Backend, mag *Magnet, Dt float) *Euler {
 
 func (this *Euler) Step() {
 	Debugvv("Euler.Step()")
+	//TODO normalize m before first step (sim.go)
+	//TODO make them private!
 	m, h := this.m, this.h
-	alpha, Dt := this.Alpha, this.Dt
+	alpha, dt := this.Alpha, this.Dt
 
-	this.Normalize(m)
-	this.CalcHeff(this.m, this.h)
-	this.DeltaM(m, h, alpha, Dt/(1+alpha*alpha))
+// 	this.Normalize(this.m)
+	this.CalcHeff(m, h)
+	this.DeltaM(m, h, alpha, dt/(1+alpha*alpha))
 	deltaM := h // h is overwritten by deltaM
 
 	this.Add(m, deltaM)

@@ -1,9 +1,13 @@
 package sim
 
+import(
+  "fmt"
+//   "tensor"
+  )
 
 // Stores a simulation state
 // Here, all parameters are STILL IN SI UNITS
-// when Sim.init() is called, a solver is initiated with these values converted to internal units.
+// when Sim.init() is called, a solver is initd with these values converted to internal units.
 // We need to keep the originial SI values in case a parameter gets changed during the simulation and we need to re-initialize everything.
 type Sim struct {
 	// material parameters
@@ -30,7 +34,9 @@ func New() *Sim {
 }
 
 func NewSim() *Sim {
-	return new(Sim)
+	sim := new(Sim)
+	sim.invalidate()
+	return sim
 }
 
 // when a parmeter is changed, the simulation state is invalid until it gets (re-)initialized by init()
@@ -46,10 +52,12 @@ func (s *Sim) isValid() bool {
 // (re-)initialize the simulation tree, necessary before running
 func (s *Sim) init() {
 	if s.isValid() {
+    fmt.Println("valid")
 		return //no work to do
 	}
-
-	dev := CPU
+  fmt.Println("invalid")
+  
+	dev := GPU
 
 	mat := NewMaterial()
 	mat.MSat = s.msat
@@ -63,15 +71,15 @@ func (s *Sim) init() {
 	magnet := NewMagnet(dev, mat, size, cellsize)
 
 	dt := s.dt / mat.UnitTime()
-	solver := NewEuler(dev, magnet, dt)
+	s.solver = NewEuler(dev, magnet, dt)
 
-	fmt.Println(solver)
+	fmt.Println(s.solver)
 
-	m := tensor.NewTensorN(Size4D(magnet.Size()))
-	for i := range m.List() {
-		m.List()[i] = 1.
-	}
-	TensorCopyTo(m, solver.M())
+// 	m := tensor.NewTensorN(Size4D(magnet.Size()))
+// 	for i := range m.List() {
+// 		m.List()[i] = 1.
+// 	}
+// 	TensorCopyTo(m, solver.M())
 /*
 	file := 0
 	for i := 0; i < 100; i++ {
@@ -126,7 +134,7 @@ func (s *Sim) Dt(t float) {
 }
 
 func (s *Sim) Run(time float) {
-	init()
+	s.init()
 	stop := s.time + time
 	for s.time < stop {
 		s.solver.Step()
