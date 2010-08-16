@@ -5,57 +5,23 @@ import (
 	"refsh"
 	"os"
 	"fmt"
-	"strings"
 )
-
-var (
-    backend *Backend = nil
-	mat = NewMaterial()
-)
-
-func MSat(ms float) {
-	mat.MSat = ms
-	fmt.Println("msat", mat.MSat, "A/m")
-}
-
-
-func AExch(a float) {
-	mat.AExch = a
-	fmt.Println("aexch", mat.AExch, "J/m")
-}
-
-func Alpha(a float){
-    mat.Alpha = a
-    fmt.Println("alpha", mat.Alpha)
-}
-
-func SetBackend(s string) {
-	switch strings.ToLower(s) {
-	case "cpu":
-		backend = &CPU
-	case "gpu":
-		backend = &GPU
-	default:
-		fmt.Fprintln(os.Stderr, "backend should be cpu or gpu")
-		os.Exit(-4)
-	}
-	fmt.Println("backend", backend)
-}
 
 
 func main() {
+	sim := NewSim()
+
 	refsh := refsh.New()
-	refsh.Add("msat", MSat)
-	refsh.Add("aexch", AExch)
-	refsh.Add("alpha", Alpha)
-	refsh.Add("backend", SetBackend)
 	refsh.CrashOnError = true
+	refsh.AddAllMethods(sim)
+
 	in, err := os.Open("test.in", os.O_RDONLY, 0666)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(-2)
 	}
 	defer in.Close()
+
 	refsh.Exec(in)
 }
 

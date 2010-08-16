@@ -132,7 +132,7 @@ func (refsh *Refsh) ExecFlags() {
 func (refsh *Refsh) Call(fname string, argv []string) {
 	function := refsh.resolve(fname)
 	if function == nil {
-		fmt.Fprintln(os.Stderr, "Unknown command:", fname, "Options are:", refsh.funcnames)
+		fmt.Fprintln(os.Stderr, "Unknown command: \"" + fname + "\". Options are:", refsh.funcnames)
 		if refsh.CrashOnError {
 			os.Exit(-5)
 		}
