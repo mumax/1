@@ -3,7 +3,7 @@ package sim
 import (
 	"fmt"
 	// 	"strings"
-	   "tensor"
+	"tensor"
 )
 
 // Stores a simulation state
@@ -11,9 +11,8 @@ import (
 // when Sim.init() is called, a solver is initd with these values converted to internal units.
 // We need to keep the originial SI values in case a parameter gets changed during the simulation and we need to re-initialize everything.
 type Sim struct {
+	backend Backend
 
-    backend Backend
-    
 	aexch float
 	msat  float
 	alpha float
@@ -21,8 +20,8 @@ type Sim struct {
 	size     [3]int
 	cellsize [3]float
 
-  m *tensor.Tensor4
-  
+	m *tensor.Tensor4
+
 	dt     float
 	time   float
 	solver *Euler //TODO other types, embed
@@ -31,8 +30,6 @@ type Sim struct {
 	autosaveIdx int
 
 	hext [3]float
-
-
 }
 
 func New() *Sim {
@@ -62,9 +59,9 @@ func (s *Sim) init() {
 		return //no work to do
 	}
 
-  if s.m == nil{
-    panic("m not set")
-  }
+	if s.m == nil {
+		panic("m not set")
+	}
 
 	dev := s.backend
 
@@ -87,9 +84,9 @@ func (s *Sim) init() {
 
 	fmt.Println(s.solver)
 
-		TensorCopyTo(s.m, s.solver.M())
-		s.solver.Normalize(s.solver.M())
-		
+	TensorCopyTo(s.m, s.solver.M())
+	s.solver.Normalize(s.solver.M())
+
 	/*
 		file := 0
 		for i := 0; i < 100; i++ {
@@ -164,12 +161,12 @@ func (s *Sim) Run(time float) {
 
 		s.solver.Step()
 		s.time += s.dt
-    sinceout += s.dt
-    
-	  if s.savem > 0 && sinceout >= s.savem {
-      sinceout = 0.
-      s.autosavem()
-    }
+		sinceout += s.dt
+
+		if s.savem > 0 && sinceout >= s.savem {
+			sinceout = 0.
+			s.autosavem()
+		}
 	}
 	//does not invalidate
 }
@@ -181,9 +178,9 @@ func (s *Sim) autosavem() {
 	tensor.WriteFile(fname, s.m)
 }
 
-func (s *Sim) AutosaveM(interval float){
-  s.savem = interval
-  //does not invalidate
+func (s *Sim) AutosaveM(interval float) {
+	s.savem = interval
+	//does not invalidate
 }
 
 func (s *Sim) Cpu() {
@@ -197,15 +194,15 @@ func (s *Sim) Gpu() {
 }
 
 
-func (s *Sim) Uniform(mx, my, mz float){
-  s.ensure_m()
-  Uniform(s.m, mx, my, mz)
+func (s *Sim) Uniform(mx, my, mz float) {
+	s.ensure_m()
+	Uniform(s.m, mx, my, mz)
 }
 
-func (s *Sim) ensure_m(){
-  if s.m == nil{
-    s.m = tensor.NewTensor4([]int{3, s.size[X], s.size[Y], s.size[Z]})
-  }
+func (s *Sim) ensure_m() {
+	if s.m == nil {
+		s.m = tensor.NewTensor4([]int{3, s.size[X], s.size[Y], s.size[Z]})
+	}
 }
 
 // func (s *Sim) Backend(b string) {
