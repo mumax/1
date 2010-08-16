@@ -2,8 +2,8 @@ package sim
 
 import (
 	"fmt"
-// 	"strings"
-	//   "tensor"
+	// 	"strings"
+	   "tensor"
 )
 
 // Stores a simulation state
@@ -11,24 +11,28 @@ import (
 // when Sim.init() is called, a solver is initd with these values converted to internal units.
 // We need to keep the originial SI values in case a parameter gets changed during the simulation and we need to re-initialize everything.
 type Sim struct {
-	// material parameters
+
+    backend Backend
+    
 	aexch float
 	msat  float
 	alpha float
 
-	// geometry
 	size     [3]int
 	cellsize [3]float
 
-	// time stepping
+  m *tensor.Tensor4
+  
 	dt     float
 	time   float
-	solver *Euler //TODO other types
+	solver *Euler //TODO other types, embed
 
-	//external field
+	savem       float
+	autosaveIdx int
+
 	hext [3]float
-	// backend
-	backend Backend
+
+
 }
 
 func New() *Sim {
@@ -55,10 +59,12 @@ func (s *Sim) isValid() bool {
 // (re-)initialize the simulation tree, necessary before running
 func (s *Sim) init() {
 	if s.isValid() {
-		fmt.Println("valid")
 		return //no work to do
 	}
-	fmt.Println("invalid")
+
+  if s.m == nil{
+    panic("m not set")
+  }
 
 	dev := s.backend
 
@@ -76,16 +82,14 @@ func (s *Sim) init() {
 	dt := s.dt / mat.UnitTime()
 	s.solver = NewEuler(dev, magnet, dt)
 
-    B := s.solver.UnitField()
-    s.solver.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
-    
+	B := s.solver.UnitField()
+	s.solver.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
+
 	fmt.Println(s.solver)
 
-	// 	m := tensor.NewTensorN(Size4D(magnet.Size()))
-	// 	for i := range m.List() {
-	// 		m.List()[i] = 1.
-	// 	}
-	// 	TensorCopyTo(m, solver.M())
+		TensorCopyTo(s.m, s.solver.M())
+		s.solver.Normalize(s.solver.M())
+		
 	/*
 		file := 0
 		for i := 0; i < 100; i++ {
@@ -100,7 +104,7 @@ func (s *Sim) init() {
 
 		solver.Dt = 0.01E-12 / mat.UnitTime()
 		solver.Alpha = 0.02
-*/
+	*/
 
 }
 
@@ -145,32 +149,64 @@ func (s *Sim) Field(hx, hy, hz float) {
 	s.invalidate()
 }
 
-func (s *Sim) Verbosity(level int){
-  Verbosity = level
-  // does not invalidate
+func (s *Sim) Verbosity(level int) {
+	Verbosity = level
+	// does not invalidate
 }
 
 func (s *Sim) Run(time float) {
+
 	s.init()
 	stop := s.time + time
+	sinceout := 0.
+
 	for s.time < stop {
+
 		s.solver.Step()
 		s.time += s.dt
+    sinceout += s.dt
+    
+	  if s.savem > 0 && sinceout >= s.savem {
+      sinceout = 0.
+      s.autosavem()
+    }
 	}
 	//does not invalidate
 }
 
-func (s *Sim) Cpu(){
-  s.backend = CPU
-  s.invalidate()
+func (s *Sim) autosavem() {
+	s.autosaveIdx++ // we start at 1 to stress that m0 has not been saved
+	TensorCopyFrom(s.solver.M(), s.m)
+	fname := "m" + fmt.Sprintf("%06d", s.autosaveIdx) + ".t"
+	tensor.WriteFile(fname, s.m)
 }
 
-func (s *Sim) Gpu(){
-  s.backend = GPU
-  s.invalidate()
+func (s *Sim) AutosaveM(interval float){
+  s.savem = interval
+  //does not invalidate
+}
+
+func (s *Sim) Cpu() {
+	s.backend = CPU
+	s.invalidate()
+}
+
+func (s *Sim) Gpu() {
+	s.backend = GPU
+	s.invalidate()
 }
 
 
+func (s *Sim) Uniform(mx, my, mz float){
+  s.ensure_m()
+  Uniform(s.m, mx, my, mz)
+}
+
+func (s *Sim) ensure_m(){
+  if s.m == nil{
+    s.m = tensor.NewTensor4([]int{3, s.size[X], s.size[Y], s.size[Z]})
+  }
+}
 
 // func (s *Sim) Backend(b string) {
 //   b = strings.ToLower(b)

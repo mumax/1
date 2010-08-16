@@ -11,26 +11,27 @@ gpu
 verbosity:  0                            # debug verbosity
 
 # material parameters
-
 msat:       800E3                         # in A/m
 aexch:      1.3E-11                       # in J/m
 alpha:      1.0
 
 
 # geometry
-
 size:       1     128       32            # number of cells in X,Y,Z
 cellsize:   3E-9  3.125E-9  3.125E-9      # cell size in m
 
 
-# relax
+# initial magnetization
+uniform:    0 1 1                         # gets automatically normalized
 
+
+# relax
+autosavem:  1E-12                         # make this autosave m/table
 dt:         1E-12                         # time step in seconds
 run:        0.1E-9                        # run time in seconds
 
 
 # run
-
 dt:         0.1E-12
 alpha:      0.02
 field:      0     4.3E-3    -24.6E-3      # applied field in T
