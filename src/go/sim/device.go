@@ -56,13 +56,10 @@ type Device interface {
 	// overwrites h with torque(m, h) * dtGilbert. N = length of one component
 	deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int)
 
-
 	/// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
 	overrideStride(nFloats int)
 
-
 	//____________________________________________________________________ tensor (safe wrappers in tensor.go)
-
 
 	// Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
 	copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int)
@@ -97,7 +94,6 @@ type Device interface {
 	/// Overwrite n floats with zeros
 	zero(data unsafe.Pointer, nFloats int)
 
-
 	//____________________________________________________________________ specialized (used in only one place)
 
 
@@ -109,7 +105,6 @@ type Device interface {
 	// This is the typical situation for a 3D micromagnetic problem
 	kernelMul6(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int)
 
-
 	// In-place kernel multiplication (m gets overwritten by h).
 	// The kernel is symmetric and contains no mixing between x and (y, z),
 	// so only 4 of the 9 components need to be passed (xx, yy, zz, yz).
@@ -117,7 +112,6 @@ type Device interface {
 	// This is the typical situation for a finite 2D micromagnetic problem
 	// TODO
 	// kernelMul4(mx, my, mz, kxx, kyy, kzz, kyz unsafe.Pointer, nRealNumbers int)
-
 
 	// In-place kernel multiplication (m gets overwritten by h).
 	// The kernel is symmetric and contains no x contributions.

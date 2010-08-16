@@ -25,16 +25,17 @@ func (refsh *Refsh) parseArgs(fname string, argv []string) []Value {
 	return args
 }
 
-
+// TODO: we need to return Value, err
 func parseArg(arg string, argtype Type) Value {
 	switch argtype.Name() {
 	default:
-		fmt.Fprintln(os.Stderr, "Do not know how to parse", argtype)
-		os.Exit(-2)
+		panic(fmt.Sprint("Do not know how to parse ", argtype))
 	case "int":
 		return NewValue(parseInt(arg))
 	case "float":
 		return NewValue(parseFloat(arg))
+	case "float64":
+		return NewValue(parseFloat64(arg))
 	case "string":
 		return NewValue(arg)
 	}
@@ -54,6 +55,15 @@ func parseInt(str string) int {
 
 func parseFloat(str string) float {
 	i, err := strconv.Atof(strings.ToLower(str))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Could not parse to float:", str)
+		os.Exit(-3)
+	}
+	return i
+}
+
+func parseFloat64(str string) float64 {
+	i, err := strconv.Atof64(strings.ToLower(str))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Could not parse to float:", str)
 		os.Exit(-3)

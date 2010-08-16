@@ -30,8 +30,8 @@ func (s *St) Method() int {
 	return s.It
 }
 
-func (s *St) private() int{
-  return 3
+func (s *St) private() int {
+	return 3
 }
 
 func Hello() {

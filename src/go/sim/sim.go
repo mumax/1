@@ -7,13 +7,16 @@ package sim
 // We need to keep the originial SI values in case a parameter gets changed during the simulation and we need to re-initialize everything.
 type Sim struct {
 	// material parameters
-	aexch float
-	msat  float
-  alpha float
-  
+	aexch float64
+	msat  float64
+	alpha float64
+
 	// geometry
 	size     [3]int
-	cellsize [3]float
+	cellsize [3]float64
+
+	// time stepping
+	dt float64
 
 	// backend
 	backend int
@@ -34,19 +37,19 @@ func (s *Sim) invalidate() {
 	s.solver = nil
 }
 
-func (s *Sim) AExch(a float) {
+func (s *Sim) AExch(a float64) {
 	s.aexch = a
 	s.invalidate()
 }
 
-func (s *Sim) MSat(ms float) {
+func (s *Sim) MSat(ms float64) {
 	s.msat = ms
 	s.invalidate()
 }
 
-func (s *Sim) Alpha(a float) {
-  s.alpha = a
-  s.invalidate()
+func (s *Sim) Alpha(a float64) {
+	s.alpha = a
+	s.invalidate()
 }
 
 func (s *Sim) Size(x, y, z int) {
@@ -56,11 +59,20 @@ func (s *Sim) Size(x, y, z int) {
 	s.invalidate()
 }
 
-func (s *Sim) CellSize(x, y, z float) {
+func (s *Sim) CellSize(x, y, z float64) {
 	s.cellsize[X] = x
 	s.cellsize[Y] = y
 	s.cellsize[Z] = z
 	s.invalidate()
+}
+
+func (s *Sim) Dt(t float64) {
+	s.dt = t
+	s.invalidate()
+}
+
+func (s *Sim) Run(time float64) {
+
 }
 
 

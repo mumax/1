@@ -1,6 +1,3 @@
 package sim
 
-type Solver interface{
-  
-}
-
+type Solver interface{}

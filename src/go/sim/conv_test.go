@@ -17,7 +17,6 @@ func TestConv(t *testing.T) {
 	kernel := FaceKernel6(size, []float{1., 1., 1.})
 	conv := NewConv(backend, size, kernel)
 
-
 	// unit kernel
 	//   kernel := make([]*tensor.Tensor3, 6)
 	//   for i := range kernel{
