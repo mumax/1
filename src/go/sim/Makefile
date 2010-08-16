@@ -28,6 +28,13 @@ GOFILES=\
 	config.go\
 	util.go\
 	sim.go\
+	simbackend.go\
+	simconfig.go\
+	simfield.go\
+	simgeom.go\
+	simmaterial.go\
+	simoutput.go\
+	simrun.go\
 
 CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so
 
