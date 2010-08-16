@@ -7,16 +7,17 @@
 # * Linefeeds may be replaced by semicolons (;)
 #
 
-verbosity:  0
+gpu
+verbosity:  0                            # debug verbosity
 
-#material parameters
+# material parameters
 
 msat:       800E3                         # in A/m
 aexch:      1.3E-11                       # in J/m
 alpha:      1.0
 
 
-#geometry
+# geometry
 
 size:       1     128       32            # number of cells in X,Y,Z
 cellsize:   3E-9  3.125E-9  3.125E-9      # cell size in m

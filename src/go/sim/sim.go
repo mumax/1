@@ -2,6 +2,7 @@ package sim
 
 import (
 	"fmt"
+// 	"strings"
 	//   "tensor"
 )
 
@@ -27,7 +28,7 @@ type Sim struct {
 	//external field
 	hext [3]float
 	// backend
-	backend int
+	backend Backend
 }
 
 func New() *Sim {
@@ -36,6 +37,7 @@ func New() *Sim {
 
 func NewSim() *Sim {
 	sim := new(Sim)
+	sim.backend = GPU //the default TODO: check if GPU is present, use CPU otherwise
 	sim.invalidate()
 	return sim
 }
@@ -58,7 +60,7 @@ func (s *Sim) init() {
 	}
 	fmt.Println("invalid")
 
-	dev := GPU
+	dev := s.backend
 
 	mat := NewMaterial()
 	mat.MSat = s.msat
@@ -77,7 +79,7 @@ func (s *Sim) init() {
     B := s.solver.UnitField()
     s.solver.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
     
-	//	fmt.Println(s.solver)
+	fmt.Println(s.solver)
 
 	// 	m := tensor.NewTensorN(Size4D(magnet.Size()))
 	// 	for i := range m.List() {
@@ -143,6 +145,10 @@ func (s *Sim) Field(hx, hy, hz float) {
 	s.invalidate()
 }
 
+func (s *Sim) Verbosity(level int){
+  Verbosity = level
+  // does not invalidate
+}
 
 func (s *Sim) Run(time float) {
 	s.init()
@@ -151,9 +157,30 @@ func (s *Sim) Run(time float) {
 		s.solver.Step()
 		s.time += s.dt
 	}
+	//does not invalidate
+}
+
+func (s *Sim) Cpu(){
+  s.backend = CPU
+  s.invalidate()
+}
+
+func (s *Sim) Gpu(){
+  s.backend = GPU
+  s.invalidate()
 }
 
 
-func (s *Sim) Backend(b string) {
-	panic("todo")
-}
+
+// func (s *Sim) Backend(b string) {
+//   b = strings.ToLower(b)
+//   switch b{
+//     default:
+//       panic(fmt.Sprint("Unknown backend:", b))
+//     case "cpu":
+//       s.backend = CPU
+//     case "gpu":
+//       s.backend = GPU
+//   }
+//   s.invalidate()
+// }
