@@ -1,3 +1,11 @@
+// TODO read input files from cli args
+// TODO automatic backend selection
+// TODO read magnetization + scale
+// TODO Time-dependent quantities
+// TODO Nice output, output directory
+// TODO draw output immediately
+// TODO movie output
+
 package main
 
 import (
@@ -5,23 +13,32 @@ import (
 	"refsh"
 	"os"
 	"fmt"
+	"flag"
+	"io"
 )
 
 
 func main() {
+	for i := 0; i < flag.NArg(); i++ {
+
+		in, err := os.Open(flag.Arg(i), os.O_RDONLY, 0666)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(-2)
+		}
+		defer in.Close()
+
+		exec(in)
+	}
+}
+
+
+func exec(in io.Reader) {
 	sim := NewSim()
 
 	refsh := refsh.New()
 	refsh.CrashOnError = true
 	refsh.AddAllMethods(sim)
-
-	in, err := os.Open("test.in", os.O_RDONLY, 0666)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(-2)
-	}
-	defer in.Close()
-
 	refsh.Exec(in)
 }
 

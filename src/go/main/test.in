@@ -7,7 +7,7 @@
 # * Linefeeds may be replaced by semicolons (;)
 #
 
-gpu
+cpu
 verbosity:  0                            # debug verbosity
 
 # material parameters
