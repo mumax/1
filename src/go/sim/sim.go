@@ -28,7 +28,8 @@ type Sim struct {
 
 	savem       float
 	autosaveIdx int
-
+  outputdir   string
+  
 	hext [3]float
 }
 
@@ -39,7 +40,8 @@ func New() *Sim {
 func NewSim() *Sim {
 	sim := new(Sim)
 	sim.backend = GPU //the default TODO: check if GPU is present, use CPU otherwise
-	sim.invalidate()
+	sim.outputdir = "."
+	sim.invalidate()  //just to make sure we will init()
 	return sim
 }
 

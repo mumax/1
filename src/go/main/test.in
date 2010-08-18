@@ -13,8 +13,8 @@ cpu
 
 
 # output options
-outputdir:  stdprobl                      # where to save output, "." by default
-verbosity:  3                             # how much debug info to print (0, 1, 2 or 3)
+outputdir:  stdprobl4                     # where to save output, "." by default
+verbosity:  1                             # how much debug info to print (0, 1, 2 or 3)
 
 # material parameters
 msat:       800E3                         # in A/m
