@@ -1,4 +1,3 @@
-// TODO read input files from cli args
 // TODO automatic backend selection
 // TODO read magnetization + scale
 // TODO Time-dependent quantities
@@ -19,15 +18,18 @@ import (
 
 
 func main() {
+  if flag.NArg() == 0{
+    fmt.Fprintln(os.Stderr, "No input files.")
+    os.Exit(-1)
+  }
+  
 	for i := 0; i < flag.NArg(); i++ {
-
 		in, err := os.Open(flag.Arg(i), os.O_RDONLY, 0666)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(-2)
 		}
 		defer in.Close()
-
 		exec(in)
 	}
 }
