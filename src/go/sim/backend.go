@@ -73,9 +73,9 @@ func (b Backend) OverrideStride(stride int) {
 	b.overrideStride(stride)
 }
 
-func (b Backend) ExtractReal(complex, real *Tensor){
-  assert(Len(complex.size) == 2*Len(real.size))
-  b.extractReal(complex.data, real.data, Len(real.size))
+func (b Backend) ExtractReal(complex, real *Tensor) {
+	assert(Len(complex.size) == 2*Len(real.size))
+	b.extractReal(complex.data, real.data, Len(real.size))
 }
 
 //________________________________________________________________________ derived methods

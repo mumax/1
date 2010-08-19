@@ -99,9 +99,8 @@ type Device interface {
 
 	semianalStep(m, h unsafe.Pointer, dt, alpha float, N int)
 
-
-  // Extract only the real parts form in interleaved complex array
-  extractReal(complex, real unsafe.Pointer, NReal int)
+	// Extract only the real parts form in interleaved complex array
+	extractReal(complex, real unsafe.Pointer, NReal int)
 
 	// In-place kernel multiplication (m gets overwritten by h).
 	// The kernel is symmetric so only 6 of the 9 components need to be passed (xx, yy, zz, yz, xz, xy).

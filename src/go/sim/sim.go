@@ -26,10 +26,10 @@ type Sim struct {
 	time   float
 	solver *Euler //TODO other types, embed
 
-	savem       float
+  outschedule []Output  //TODO vector...
 	autosaveIdx int
-  outputdir   string
-  
+	outputdir   string
+
 	hext [3]float
 }
 
@@ -41,7 +41,8 @@ func NewSim() *Sim {
 	sim := new(Sim)
 	sim.backend = GPU //the default TODO: check if GPU is present, use CPU otherwise
 	sim.outputdir = "."
-	sim.invalidate()  //just to make sure we will init()
+	sim.outschedule = make([]Output, 50)[0:0]
+	sim.invalidate() //just to make sure we will init()
 	return sim
 }
 
@@ -60,7 +61,6 @@ func (s *Sim) init() {
 	if s.isValid() {
 		return //no work to do
 	}
-
 	if s.m == nil {
 		panic("m not set")
 	}
@@ -75,12 +75,11 @@ func (s *Sim) init() {
 	size := s.size[0:]
 	L := mat.UnitLength()
 	cellsize := []float{s.cellsize[X] / L, s.cellsize[Y] / L, s.cellsize[Z] / L}
-
 	magnet := NewMagnet(dev, mat, size, cellsize)
 
 	dt := s.dt / mat.UnitTime()
 	s.solver = NewEuler(dev, magnet, dt)
-
+	
 	B := s.solver.UnitField()
 	s.solver.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
 
@@ -88,7 +87,6 @@ func (s *Sim) init() {
 
 	TensorCopyTo(s.m, s.solver.M())
 	s.solver.Normalize(s.solver.M())
-
 }
 
 

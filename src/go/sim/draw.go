@@ -4,8 +4,8 @@ import (
 	"tensor"
 	. "image"
 	"image/png"
-// 	"os"
-// 	"fmt"
+	// 	"os"
+	// 	"fmt"
 	"io"
 )
 
@@ -51,4 +51,3 @@ func GreyMap(min, max, value float) NRGBAColor {
 	color8 := uint8(255 * color)
 	return NRGBAColor{color8, color8, color8, 255}
 }
-
