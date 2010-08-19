@@ -1,8 +1,8 @@
 /**
  * @file
  *
- * @author Arne Vansteenkiste
  * @author Ben Van de Wiele
+ * @author Arne Vansteenkiste
  */
 #ifndef gpu_kernmul_h
 #define gpu_kernmul_h
@@ -10,6 +10,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @internal
+ * Extract only the real parts from an interleaved complex array.
+ */
+void gpu_extract_real(float* complex, float* real, int NReal); 
+
 
 /**
  * @internal 

@@ -7,6 +7,22 @@ extern "C" {
 #endif
 
 
+__global__ void _gpu_extract_real(float* complex, float* real){
+  int e = ((blockIdx.x * blockDim.x) + threadIdx.x);
+  real[e] = complex[2*e];
+}
+
+void gpu_extract_real(float* complex, float* real, int NReal){
+  
+  int gridSize = -1, blockSize = -1;
+  make1dconf(NReal, &gridSize, &blockSize);
+
+  _gpu_extract_real<<<gridSize, blockSize>>>(complex, real);
+  cudaThreadSynchronize();
+}
+
+
+
 __global__ void _gpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
                                                      float* fftKxx, float* fftKyy, float* fftKzz,
                                                      float* fftKyz, float* fftKxz, float* fftKxy){
