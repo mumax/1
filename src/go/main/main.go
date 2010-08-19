@@ -1,7 +1,9 @@
 // TODO automatic backend selection
+
 // TODO read magnetization + scale
 // TODO Time-dependent quantities
-// TODO Nice output, output directory
+
+// TODO Nice output / table
 // TODO draw output immediately
 // TODO movie output
 

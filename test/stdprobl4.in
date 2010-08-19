@@ -1,0 +1,39 @@
+# Micromagnetic standard problem 4
+
+
+# hardware selection
+cpu
+
+
+# output
+outputdir:  stdprobl4
+verbosity:  1
+
+
+# material parameters
+msat:       800E3       # A/m
+aexch:      1.3E-11     # J/m
+alpha:      1.0         #
+
+
+# geometry
+size:       1     32          128         # 
+cellsize:   3E-9  3.90625E-9  3.90625E-9  # m
+
+
+# initial magnetization
+uniform:    0 1 1                  
+
+
+# relax
+autosavem:  10E-12      # s
+dt:         0.1E-12     # s
+run:        1E-9        # s
+
+
+# run
+dt:         0.01E-12                  # s
+alpha:      0.02                      #
+field:      0     4.3E-3    -24.6E-3  # T
+run:        1E-9                      # s
+
