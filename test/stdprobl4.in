@@ -22,13 +22,13 @@ cellsize:   3E-9  3.90625E-9  3.90625E-9  # m
 
 
 # initial magnetization
-uniform:    0 1 1                  
+uniform:    1 1 1
 
 
 # relax
 autosavem:  100E-12      # s
 dt:         0.5E-12      # s
-run:        3E-9          # s
+run:        10E-9          # s
 
 
 # run

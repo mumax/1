@@ -35,6 +35,7 @@ GOFILES=\
 	simmaterial.go\
 	simoutput.go\
 	simrun.go\
+	draw.go\
 
 CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so
 
