@@ -60,6 +60,10 @@ func (d Cpu) semianalStep(m, h unsafe.Pointer, dt, alpha float, N int) {
 //___________________________________________________________________________________________________ Kernel multiplication
 
 
+func (d Cpu) extractReal(complex, real unsafe.Pointer, NReal int){
+  C.cpu_extract_real((*C.float)(complex), (*C.float)(real), C.int(NReal))
+}
+
 func (d Cpu) kernelMul6(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int) {
 	C.cpu_kernelmul6(
 		(*C.float)(mx), (*C.float)(my), (*C.float)(mz),

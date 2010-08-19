@@ -11,6 +11,14 @@
 extern "C" {
 #endif
 
+
+/**
+ * @internal
+ * Extract only the real parts from an interleaved complex array.
+ */
+void cpu_extract_real(float* complex, float* real, int NReal);
+
+
 /**
  * @internal 
  * Kernel is in interleaved complex format (imaginary part is zero and not read, but still stored),

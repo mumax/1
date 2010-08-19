@@ -5,6 +5,13 @@
 extern "C" {
 #endif
 
+void cpu_extract_real(float* complex, float* real, int NReal){
+  #pragma omp parallel for
+  for(int e=0; e<NReal; e++){
+    real[e] = complex[2*e];
+  }
+}
+
 void cpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
                     float* fftKxx, float* fftKyy, float* fftKzz,
                     float* fftKyz, float* fftKxz, float* fftKxy,
