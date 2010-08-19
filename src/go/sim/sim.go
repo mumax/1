@@ -29,8 +29,8 @@ type Sim struct {
 	outschedule []Output //TODO vector...
 	autosaveIdx int
 	outputdir   string
-    mUpToDate bool
-    
+	mUpToDate   bool
+
 	hext [3]float
 }
 

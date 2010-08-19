@@ -12,11 +12,12 @@ func (s *Sim) Run(time float) {
 	stop := s.time + time
 
 	for s.time < stop {
-
+		// step
 		s.solver.Step()
 		s.time += s.dt
 		s.mUpToDate = false
 
+		// save output if so scheduled
 		for _, out := range s.outschedule {
 			if out.NeedSave(s.time) {
 				// assure the local copy of m is up to date and increment the autosave counter if neccesary
@@ -25,7 +26,6 @@ func (s *Sim) Run(time float) {
 				out.Save(s)
 			}
 		}
-
 	}
 	//does not invalidate
 }
@@ -33,7 +33,7 @@ func (s *Sim) Run(time float) {
 // Assures the local copy of m is up to date with that on the device
 // If necessary, it will be copied from the device and autosaveIdx will be incremented
 func (s *Sim) assureMUpToDate() {
-  s.init()
+	s.init()
 	if !s.mUpToDate {
 		TensorCopyFrom(s.solver.M(), s.m)
 		s.autosaveIdx++

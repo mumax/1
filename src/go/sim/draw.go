@@ -18,7 +18,6 @@ import (
 // 	PNG(os.Stdout, t)
 // }
 
-
 func PNG(out io.Writer, t tensor.Tensor) {
 	err := png.Encode(out, DrawTensor(t))
 	if err != nil {
@@ -27,6 +26,11 @@ func PNG(out io.Writer, t tensor.Tensor) {
 }
 
 func DrawTensor(t tensor.Tensor) *NRGBA {
+    // todo: we need to handle any rank <= 4
+    for tensor.Rank(t) > 2{
+      t = tensor.Slice(t, 0, 0)
+    } 
+  
 	w, h := t.Size()[0], t.Size()[1]
 	img := NewNRGBA(w, h)
 	pos := []int{w, h}

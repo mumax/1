@@ -20,7 +20,8 @@ func (s *Sim) OutputDir(outputdir string) {
 	//does not invalidate
 }
 
-
+// Schedules a quantity for autosave
+// E.g.: "autosave m binary 1E-9" will save the magnetization in binary format every ns
 func (s *Sim) Autosave(what, format string, interval float) {
 	s.outschedule = s.outschedule[0 : len(s.outschedule)+1]
 	output := resolve(what, format)
@@ -28,21 +29,28 @@ func (s *Sim) Autosave(what, format string, interval float) {
 	s.outschedule[len(s.outschedule)-1] = output
 }
 
-
+// Saves a quantity just once
+// E.g.: "save m binary" saves the current magnetization state
 func (s *Sim) Save(what, format string) {
 	output := resolve(what, format)
-    s.assureMUpToDate()
-    output.Save(s)
+	s.assureMUpToDate()
+	output.Save(s)
 }
 
-//
+
+//____________________________________________________________________ internal 
+
+// Entries in the list of scheduled output have this interface
 type Output interface {
+    // Set the autosave interval in seconds 
 	SetInterval(interval float)
+	// Returns true if the output needs to saved at this time
 	NeedSave(time float) bool
+	// After NeedSave() returned true, the simulation will make sure the local copy of m is up to date and the autosaveIdx gets updated. Then Save() is called to save the output
 	Save(sim *Sim)
 }
 
-
+// Common superclass for all periodic outputs
 type Periodic struct {
 	period      float
 	sinceoutput float
@@ -71,12 +79,19 @@ func resolve(what, format string) Output {
 			return &MBinary{&Periodic{0., 0.}}
 		case "ascii":
 			return &MAscii{&Periodic{0., 0.}}
-			//case "png":
+		case "png":
+            return &MPng{&Periodic{0., 0.}}
 		}
 
 	}
 	panic("bug")
 	return nil // not reached
+}
+
+//__________________________________________ ascii
+
+type MAscii struct {
+    *Periodic
 }
 
 func (m *MAscii) Save(s *Sim) {
@@ -92,6 +107,7 @@ func (m *MAscii) Save(s *Sim) {
 	m.sinceoutput = s.time
 }
 
+//_________________________________________ binary
 
 type MBinary struct {
 	*Periodic
@@ -103,19 +119,19 @@ func (m *MBinary) Save(s *Sim) {
 	m.sinceoutput = s.time
 }
 
-type MAscii struct {
-	*Periodic
+
+//_________________________________________ png
+
+type MPng struct{
+  *Periodic
 }
 
-
-// func (s *Sim) autosavem() {
-// 	s.autosaveIdx++ // we start at 1 to stress that m0 has not been saved
-// 	TensorCopyFrom(s.solver.M(), s.m)
-// 	fname := s.outputdir + "/" + "m" + fmt.Sprintf("%06d", s.autosaveIdx) + ".t"
-// 	tensor.WriteFile(fname, s.m)
-// }
-
-// func (s *Sim) AutosaveM(interval float) {
-// 	s.savem = interval
-// 	//does not invalidate
-// }
+func (m *MPng) Save(s *Sim) {
+    fname := s.outputdir + "/" + "m" + fmt.Sprintf("%06d", s.autosaveIdx) + ".png"
+    out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
+    if err != nil{
+      panic(err)
+    }
+    PNG(out, s.m)
+    m.sinceoutput = s.time
+}
