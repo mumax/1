@@ -15,21 +15,28 @@ func (s *Sim) Run(time float) {
 
 		s.solver.Step()
 		s.time += s.dt
-		mUpToDate := false
+		s.mUpToDate = false
 
-		for _,out := range s.outschedule{
-      if out.NeedSave(s.time){
-        // assure the local copy of m is up to date and increment the autosave counter if neccesary
-        if(!mUpToDate){
-          TensorCopyFrom(s.solver.M(), s.m)
-          s.autosaveIdx++
-          mUpToDate = true
-        }
-        // save
-        out.Save(s)
-      }
-    }
+		for _, out := range s.outschedule {
+			if out.NeedSave(s.time) {
+				// assure the local copy of m is up to date and increment the autosave counter if neccesary
+				s.assureMUpToDate()
+				// save
+				out.Save(s)
+			}
+		}
 
 	}
 	//does not invalidate
+}
+
+// Assures the local copy of m is up to date with that on the device
+// If necessary, it will be copied from the device and autosaveIdx will be incremented
+func (s *Sim) assureMUpToDate() {
+  s.init()
+	if !s.mUpToDate {
+		TensorCopyFrom(s.solver.M(), s.m)
+		s.autosaveIdx++
+		s.mUpToDate = true
+	}
 }

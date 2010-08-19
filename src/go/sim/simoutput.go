@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// Sets the output directory where all output files are stored
 func (s *Sim) OutputDir(outputdir string) {
 	// remove trailing slash if present
 	//   if outputdir[len(outputdir)-1] == '/'{
@@ -20,7 +21,23 @@ func (s *Sim) OutputDir(outputdir string) {
 }
 
 
+func (s *Sim) Autosave(what, format string, interval float) {
+	s.outschedule = s.outschedule[0 : len(s.outschedule)+1]
+	output := resolve(what, format)
+	output.SetInterval(interval)
+	s.outschedule[len(s.outschedule)-1] = output
+}
+
+
+func (s *Sim) Save(what, format string) {
+	output := resolve(what, format)
+    s.assureMUpToDate()
+    output.Save(s)
+}
+
+//
 type Output interface {
+	SetInterval(interval float)
 	NeedSave(time float) bool
 	Save(sim *Sim)
 }
@@ -34,6 +51,47 @@ type Periodic struct {
 func (p *Periodic) NeedSave(time float) bool {
 	return time-p.sinceoutput >= p.period
 }
+
+func (p *Periodic) SetInterval(interval float) {
+	p.period = interval
+}
+
+// Takes a text representation of an output (like: "m" "binary") and returns a corresponding output interface.
+// No interval is stored yet, so the result can be used for a single save or an interval can be set to use
+// it for scheduled output.
+func resolve(what, format string) Output {
+	switch what {
+	default:
+		panic("unknown output quantity " + what + ". options are: m")
+	case "m":
+		switch format {
+		default:
+			panic("unknown format " + format + ". options are: binary, ascii, png")
+		case "binary":
+			return &MBinary{&Periodic{0., 0.}}
+		case "ascii":
+			return &MAscii{&Periodic{0., 0.}}
+			//case "png":
+		}
+
+	}
+	panic("bug")
+	return nil // not reached
+}
+
+func (m *MAscii) Save(s *Sim) {
+	fname := s.outputdir + "/" + "m" + fmt.Sprintf("%06d", s.autosaveIdx) + ".txt"
+	out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(-2)
+	}
+	defer out.Close()
+	tensor.Format(out, s.m)
+
+	m.sinceoutput = s.time
+}
+
 
 type MBinary struct {
 	*Periodic
@@ -49,37 +107,6 @@ type MAscii struct {
 	*Periodic
 }
 
-func (m *MAscii) Save(s *Sim) {
-	fname := s.outputdir + "/" + "m" + fmt.Sprintf("%06d", s.autosaveIdx) + ".txt"
-	out, err := os.Open(fname, os.O_WRONLY | os.O_CREAT, 0666)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(-2)
-	}
-	defer out.Close()
-	tensor.Format(out, s.m)
-
-	m.sinceoutput = s.time
-}
-
-
-func (s *Sim) Autosave(what, format string, interval float) {
-	s.outschedule = s.outschedule[0 : len(s.outschedule)+1]
-	switch what {
-	case "m":
-		switch format {
-		case "binary":
-			s.outschedule[len(s.outschedule)-1] = &MBinary{&Periodic{interval, 0.}}
-		case "ascii":
-			s.outschedule[len(s.outschedule)-1] = &MAscii{&Periodic{interval, 0.}}
-		case "png":
-		default:
-			panic("unknown format " + format + ". options are: binary, ascii, png")
-		}
-	default:
-		panic("unknown output quantity " + what + ". options are: m")
-	}
-}
 
 // func (s *Sim) autosavem() {
 // 	s.autosaveIdx++ // we start at 1 to stress that m0 has not been saved

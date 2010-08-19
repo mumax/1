@@ -2,7 +2,7 @@
 
 
 # hardware selection
-gpu
+cpu
 
 
 # output
@@ -26,7 +26,8 @@ uniform:    1 1 1
 
 
 # relax
-autosave:   m  ascii  10E-12   # s
+save        m ascii             # once
+autosave:   m  ascii  10E-12    # every 10ps
 
 dt:         0.5E-12      # s
 run:        10E-9        # s

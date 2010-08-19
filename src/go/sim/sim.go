@@ -26,10 +26,11 @@ type Sim struct {
 	time   float
 	solver *Euler //TODO other types, embed
 
-  outschedule []Output  //TODO vector...
+	outschedule []Output //TODO vector...
 	autosaveIdx int
 	outputdir   string
-
+    mUpToDate bool
+    
 	hext [3]float
 }
 
@@ -42,6 +43,7 @@ func NewSim() *Sim {
 	sim.backend = GPU //the default TODO: check if GPU is present, use CPU otherwise
 	sim.outputdir = "."
 	sim.outschedule = make([]Output, 50)[0:0]
+	sim.mUpToDate = false
 	sim.invalidate() //just to make sure we will init()
 	return sim
 }
@@ -79,7 +81,7 @@ func (s *Sim) init() {
 
 	dt := s.dt / mat.UnitTime()
 	s.solver = NewEuler(dev, magnet, dt)
-	
+
 	B := s.solver.UnitField()
 	s.solver.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
 
