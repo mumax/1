@@ -12,7 +12,7 @@ extern "C" {
 #endif
 
 /**
- * Does the necessary initialization before the CPU backend can be used
+ * Does the necessary initialization before the GPU backend can be used
  */
 void gpu_init();
 

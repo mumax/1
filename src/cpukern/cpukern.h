@@ -20,3 +20,4 @@
 #include "cpu_zeropad.h"
 #include "cpu_properties.h"
 #include "cpu_anal.h"
+#include "cpu_init.h"

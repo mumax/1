@@ -22,3 +22,4 @@
 #include "gpu_zeropad.h"
 #include "gpu_properties.h"
 #include "gpu_anal.h"
+#include "gpu_init.h"

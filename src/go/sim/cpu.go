@@ -22,12 +22,15 @@ import "unsafe"
 
 import ()
 
-var CPU Backend = Backend{Cpu{}}
+var CPU Backend = Backend{Cpu{}, false}
 
 type Cpu struct {
 	// intentionally empty, but the methods implement sim.Cpu
 }
 
+func (d Cpu) init(){
+  C.cpu_init()
+}
 
 func (d Cpu) add(a, b unsafe.Pointer, N int) {
 	C.cpu_add((*C.float)(a), (*C.float)(b), C.int(N))

@@ -22,12 +22,15 @@ import "unsafe"
 
 import ()
 
-var GPU Backend = Backend{Gpu{}}
+var GPU Backend = Backend{Gpu{}, false}
 
 type Gpu struct {
 	// intentionally empty, but the methods implement sim.Gpu
 }
 
+func (d Gpu) init(){
+  C.gpu_init()
+}
 
 func (d Gpu) add(a, b unsafe.Pointer, N int) {
 	C.gpu_add((*C.float)(a), (*C.float)(b), C.int(N))

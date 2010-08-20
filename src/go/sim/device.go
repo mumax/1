@@ -36,6 +36,8 @@ import (
  */
 type Device interface {
 
+    init()
+    
 	//____________________________________________________________________ general purpose (use Backend safe wrappers)
 
 	// adds b to a. N = length of a = length of b
