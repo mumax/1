@@ -5,8 +5,6 @@ import (
 	. "image"
 	"image/png"
 	"math"
-	// 	"os"
-	// 	"fmt"
 	"io"
 )
 
