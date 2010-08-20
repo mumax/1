@@ -82,7 +82,8 @@ func (s *Sim) init() {
 	}
 
 	dev := s.backend
-
+    dev.Init()  
+    
 	mat := NewMaterial()
 	mat.MSat = s.msat
 	mat.AExch = s.aexch
