@@ -10,7 +10,7 @@ export LD_LIBRARY_PATH=$GOROOT/pkg/$GOOS'_'$GOARCH
 
 # cuda
 export LD_LIBRARY_PATH=$SIMROOT/dep/cuda/lib:$LD_LIBRARY_PATH
-export L=-L$SIMROOT/dep/cuda/lib64' '-L$SIMROOT/dep/cuda/lib
+export L=-L$SIMROOT/dep/cuda/lib
 export C_INCLUDE_PATH=$SIMROOT/dep/cuda/include:$C_INCLUDE_PATH
 export CPLUS_INCLUDE_PATH=$SIMROOT/dep/cuda/include:$CPLUS_INCLUDE_PATH
 

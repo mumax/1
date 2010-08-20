@@ -1,5 +1,6 @@
 #include "cpu_init.h"
 #include <sys/sysinfo.h>
+#include "fftw3.h"
 
 #ifdef __cplusplus
 extern "C" {

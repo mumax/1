@@ -1,5 +1,5 @@
 include ../../common.mk
-FFTWLIBS=$(CURDIR)/../../lib/fftw/lib/libfftw3f.a
+FFTWLIBS=$(CURDIR)/../../lib/fftw/lib/libfftw3f_threads.a $(CURDIR)/../../lib/fftw/lib/libfftw3f.a
 OMPFLAGS= -fopenmp
 
 OFILES=\
