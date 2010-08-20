@@ -1,15 +1,25 @@
+// Magnetic simulation package
 package sim
 
 import (
 	"fmt"
-	// 	"strings"
 	"tensor"
 )
 
-// Stores a simulation state
-// Here, all parameters are STILL IN SI UNITS
-// when Sim.init() is called, a solver is initd with these values converted to internal units.
-// We need to keep the originial SI values in case a parameter gets changed during the simulation and we need to re-initialize everything.
+// The Sim struct stores a simulation state.
+//
+// Here, all parameters are STILL IN SI UNITS.
+// When Sim.init() is called, a solver is initiated
+// with these values converted to internal units.
+// We need to keep the originial SI values in case a
+// parameter gets changed during the simulation and
+// we need to re-initialize everything.
+//
+// The Sim struct has a lot of exported methods.
+// When an input file is processed, reflection is used
+// to resolve commands in the file to methods and call them.
+// See sim*.go
+//
 type Sim struct {
 	backend Backend
 
@@ -48,17 +58,17 @@ func NewSim() *Sim {
 	return sim
 }
 
-// when a parmeter is changed, the simulation state is invalid until it gets (re-)initialized by init()
+// When a parmeter is changed, the simulation state is invalidated until it gets (re-)initialized by init().
 func (s *Sim) invalidate() {
 	s.solver = nil
 }
 
-// when it returns false, init() needs to be called before running
+// When it returns false, init() needs to be called before running.
 func (s *Sim) isValid() bool {
 	return s.solver != nil
 }
 
-// (re-)initialize the simulation tree, necessary before running
+// (Re-)initialize the simulation tree, necessary before running.
 func (s *Sim) init() {
 	if s.isValid() {
 		return //no work to do
@@ -91,7 +101,7 @@ func (s *Sim) init() {
 	s.solver.Normalize(s.solver.M())
 }
 
-
+// Set how much debug info is printed. Level=0,1,2 or 3 for none, normal, verbose and very verbose.
 func (s *Sim) Verbosity(level int) {
 	Verbosity = level
 	// does not invalidate

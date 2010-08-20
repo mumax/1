@@ -25,7 +25,6 @@ GOFILES=\
 	exchange.go\
 	material.go\
 	magnet.go\
-	config.go\
 	util.go\
 	sim.go\
 	simbackend.go\

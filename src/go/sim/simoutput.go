@@ -38,11 +38,11 @@ func (s *Sim) Save(what, format string) {
 }
 
 
-//____________________________________________________________________ internal 
+//____________________________________________________________________ internal
 
 // Entries in the list of scheduled output have this interface
 type Output interface {
-    // Set the autosave interval in seconds 
+	// Set the autosave interval in seconds
 	SetInterval(interval float)
 	// Returns true if the output needs to saved at this time
 	NeedSave(time float) bool
@@ -80,7 +80,7 @@ func resolve(what, format string) Output {
 		case "ascii":
 			return &MAscii{&Periodic{0., 0.}}
 		case "png":
-            return &MPng{&Periodic{0., 0.}}
+			return &MPng{&Periodic{0., 0.}}
 		}
 
 	}
@@ -90,8 +90,11 @@ func resolve(what, format string) Output {
 
 //__________________________________________ ascii
 
+// it would be nice to have a separate date sturcture for the format and one for the data.
+// with a better input file parser we could allow any tensor to be stored:
+// save average(component(m, z)) jpg
 type MAscii struct {
-    *Periodic
+	*Periodic
 }
 
 func (m *MAscii) Save(s *Sim) {
@@ -122,16 +125,16 @@ func (m *MBinary) Save(s *Sim) {
 
 //_________________________________________ png
 
-type MPng struct{
-  *Periodic
+type MPng struct {
+	*Periodic
 }
 
 func (m *MPng) Save(s *Sim) {
-    fname := s.outputdir + "/" + "m" + fmt.Sprintf("%06d", s.autosaveIdx) + ".png"
-    out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
-    if err != nil{
-      panic(err)
-    }
-    PNG(out, s.m)
-    m.sinceoutput = s.time
+	fname := s.outputdir + "/" + "m" + fmt.Sprintf("%06d", s.autosaveIdx) + ".png"
+	out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
+	if err != nil {
+		panic(err)
+	}
+	PNG(out, s.m)
+	m.sinceoutput = s.time
 }
