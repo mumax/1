@@ -9,9 +9,11 @@
 
 
 all:
-	make -C dep
 	make -C src
 	make -C bin
+
+depend:
+	make -C dep
 
 .PHONY: clean
 clean:
