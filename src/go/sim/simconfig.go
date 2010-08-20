@@ -37,7 +37,7 @@ func (s *Sim) Uniform(mx, my, mz float) {
 // in-plane circulation (-1 or +1)
 // and core polarization (-1 or 1)
 func (s *Sim) Vortex(circulation, polarization int) {
-  s.ensure_m()
+	s.ensure_m()
 	cy, cx := s.size[1]/2, s.size[2]/2
 	a := s.m.Array()
 	for i := range a[0] {
@@ -54,7 +54,7 @@ func (s *Sim) Vortex(circulation, polarization int) {
 		a[Y][i][cy][cx] = 0.
 		a[X][i][cy][cx] = float(polarization)
 	}
-
+	normalize(a)
 }
 
 
@@ -89,7 +89,26 @@ func (s *Sim) AddNoise(amplitude float) {
 	for i := range list {
 		list[i] += amplitude * (rand.Float() - 0.5)
 	}
+	normalize(s.m.Array())
 }
 
+//INTERNAL
+func normalize(a [][][][]float) {
+	for i := range a[0] {
+		for j := range a[0][i] {
+			for k := range a[0][i][j] {
+				x := a[X][i][j][k]
+				y := a[Y][i][j][k]
+				z := a[Z][i][j][k]
+
+				norm := 1. / fsqrt(x*x+y*y+z*z)
+
+				a[X][i][j][k] *= norm
+				a[Y][i][j][k] *= norm
+				a[Z][i][j][k] *= norm
+			}
+		}
+	}
+}
 // TODO: we are in trouble here if we have automatic transpose of the geometry for performance
 // X needs to be the out-of-plane direction

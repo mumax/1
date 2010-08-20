@@ -20,11 +20,11 @@ import (
 
 
 func main() {
-  if flag.NArg() == 0{
-    fmt.Fprintln(os.Stderr, "No input files.")
-    os.Exit(-1)
-  }
-  
+	if flag.NArg() == 0 {
+		fmt.Fprintln(os.Stderr, "No input files.")
+		os.Exit(-1)
+	}
+
 	for i := 0; i < flag.NArg(); i++ {
 		in, err := os.Open(flag.Arg(i), os.O_RDONLY, 0666)
 		if err != nil {
@@ -45,6 +45,3 @@ func exec(in io.Reader) {
 	refsh.AddAllMethods(sim)
 	refsh.Exec(in)
 }
-
-
-

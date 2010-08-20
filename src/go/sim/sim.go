@@ -57,7 +57,7 @@ func NewSim() *Sim {
 	sim.outputdir = "."
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
-	sim.invalidate() //just to make sure we will init()
+	sim.invalidate()     //just to make sure we will init()
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
 	return sim
 }
