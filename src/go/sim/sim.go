@@ -18,7 +18,10 @@ import (
 // The Sim struct has a lot of exported methods.
 // When an input file is processed, reflection is used
 // to resolve commands in the file to methods and call them.
-// See sim*.go
+// (See sim*.go, refsh/)
+// All these methods may be called repeatedly and in any
+// order; we use decentralized initialization to make sure
+// everything works out.
 //
 type Sim struct {
 	backend Backend

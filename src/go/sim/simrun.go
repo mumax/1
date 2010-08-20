@@ -1,11 +1,15 @@
 package sim
 
+// This file implements the methods for time stepping
+
+// Set the solver time step, defined in seconds
+// TODO this should imply or require a fixed-step solver
 func (s *Sim) Dt(t float) {
 	s.dt = t
 	s.invalidate()
 }
 
-
+// Run the simulation for a certain duration, specified in seconds
 func (s *Sim) Run(time float) {
 
 	s.init()
@@ -30,6 +34,7 @@ func (s *Sim) Run(time float) {
 	//does not invalidate
 }
 
+// INTERNAL
 // Assures the local copy of m is up to date with that on the device
 // If necessary, it will be copied from the device and autosaveIdx will be incremented
 func (s *Sim) assureMUpToDate() {

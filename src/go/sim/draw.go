@@ -32,35 +32,35 @@ func DrawTensor(t tensor.Tensor) *NRGBA {
 		t = tensor.Average(t, 1) //average over the thickness
 	}
 
-// 	w, h := t.Size()[0], t.Size()[1]
-// 	img := NewNRGBA(w, h)
-// 	pos := []int{w, h}
-// 	for i := 0; i < w; i++ {
-// 		pos[X] = i
-// 		for j := 0; j < h; j++ {
-// 			pos[Y] = j
-// 			img.Set(i, j, GreyMap(-1., 1., t.Get(pos)))
-// 		}
-// 	}
-// 	return img
+	// 	w, h := t.Size()[0], t.Size()[1]
+	// 	img := NewNRGBA(w, h)
+	// 	pos := []int{w, h}
+	// 	for i := 0; i < w; i++ {
+	// 		pos[X] = i
+	// 		for j := 0; j < h; j++ {
+	// 			pos[Y] = j
+	// 			img.Set(i, j, GreyMap(-1., 1., t.Get(pos)))
+	// 		}
+	// 	}
+	// 	return img
 
- w, h := t.Size()[1], t.Size()[2]
- img := NewNRGBA(w, h)
- pos := []int{0, w, h}
- for i := 0; i < w; i++ {
-   pos[1] = i
-   for j := 0; j < h; j++ {
-     pos[2] = j
-     pos[0] = X
-     x := t.Get(pos)
-     pos[0] = Y
-     y := t.Get(pos)
-     pos[0] = Z
-     z := t.Get(pos)
-     img.Set(i, j, HSLMap(z, y, x)) // TODO: x is thickness for now...
-   }
- }
- return img
+	w, h := t.Size()[1], t.Size()[2]
+	img := NewNRGBA(w, h)
+	pos := []int{0, w, h}
+	for i := 0; i < w; i++ {
+		pos[1] = i
+		for j := 0; j < h; j++ {
+			pos[2] = j
+			pos[0] = X
+			x := t.Get(pos)
+			pos[0] = Y
+			y := t.Get(pos)
+			pos[0] = Z
+			z := t.Get(pos)
+			img.Set(i, j, HSLMap(z, y, x)) // TODO: x is thickness for now...
+		}
+	}
+	return img
 
 }
 
@@ -76,15 +76,15 @@ func GreyMap(min, max, value float) NRGBAColor {
 	return NRGBAColor{color8, color8, color8, 255}
 }
 
-func HSLMap(x, y, z float) NRGBAColor{
-  s := fsqrt(x*x + y*y + z*z)
-  l := 0.5 * z + 0.5
-  h := float(math.Atan2(float64(y), float64(x)))
-  return HSL(h, s, l)
+func HSLMap(x, y, z float) NRGBAColor {
+	s := fsqrt(x*x + y*y + z*z)
+	l := 0.5*z + 0.5
+	h := float(math.Atan2(float64(y), float64(x)))
+	return HSL(h, s, l)
 }
 
-func fsqrt(number float) float{
-  return float(math.Sqrt(float64(number)))
+func fsqrt(number float) float {
+	return float(math.Sqrt(float64(number)))
 }
 
 // h = 0..2pi, s=0..1, l=0..1
@@ -154,6 +154,6 @@ func fmod(number, mod float) float {
 func abs(number float) float {
 	if number < 0 {
 		return -number
-	}// else
-		return number
+	} // else
+	return number
 }

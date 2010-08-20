@@ -1,5 +1,7 @@
 package sim
 
+// This file implements the methods for scheduling output
+
 import (
 	"fmt"
 	"tensor"
@@ -40,7 +42,7 @@ func (s *Sim) Save(what, format string) {
 
 //____________________________________________________________________ internal
 
-// Entries in the list of scheduled output have this interface
+// INTERNAL: Entries in the list of scheduled output have this interface
 type Output interface {
 	// Set the autosave interval in seconds
 	SetInterval(interval float)
@@ -50,20 +52,23 @@ type Output interface {
 	Save(sim *Sim)
 }
 
-// Common superclass for all periodic outputs
+// INTERNAL: Common superclass for all periodic outputs
 type Periodic struct {
 	period      float
 	sinceoutput float
 }
 
+// INTERNAL
 func (p *Periodic) NeedSave(time float) bool {
 	return time-p.sinceoutput >= p.period
 }
 
+// INTERNAL
 func (p *Periodic) SetInterval(interval float) {
 	p.period = interval
 }
 
+// INTERNAL
 // Takes a text representation of an output (like: "m" "binary") and returns a corresponding output interface.
 // No interval is stored yet, so the result can be used for a single save or an interval can be set to use
 // it for scheduled output.
@@ -90,13 +95,16 @@ func resolve(what, format string) Output {
 
 //__________________________________________ ascii
 
-// it would be nice to have a separate date sturcture for the format and one for the data.
+
+// TODO: it would be nice to have a separate date sturcture for the format and one for the data.
 // with a better input file parser we could allow any tensor to be stored:
 // save average(component(m, z)) jpg
+// INTERNAL
 type MAscii struct {
 	*Periodic
 }
 
+// INTERNAL
 func (m *MAscii) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf("%06d", s.autosaveIdx) + ".txt"
 	out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
@@ -112,10 +120,12 @@ func (m *MAscii) Save(s *Sim) {
 
 //_________________________________________ binary
 
+// INTERNAL
 type MBinary struct {
 	*Periodic
 }
 
+// INTERNAL
 func (m *MBinary) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf("%06d", s.autosaveIdx) + ".t"
 	tensor.WriteFile(fname, s.m)
@@ -125,10 +135,12 @@ func (m *MBinary) Save(s *Sim) {
 
 //_________________________________________ png
 
+// INTERNAL
 type MPng struct {
 	*Periodic
 }
 
+// INTERNAL
 func (m *MPng) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf("%06d", s.autosaveIdx) + ".png"
 	out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
