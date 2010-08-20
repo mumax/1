@@ -58,27 +58,15 @@ func (s *Sim) Vortex(circulation, polarization int) {
 }
 
 
-//       // z should be 0 to work also in 3D
-//         target.set(x, y, 0);
-//         // we can not divide by Unit.LENGTH earlier because it is not yet set
-//         // during Problem.init().
-//     target.subtract(center);
-//     target.cross(Vector.UNIT[Vector.Z]);
-//         target.multiply(circulation);
-//     target.normalize();
-//     // if the cell position is exactly at the center, we do not want to set it to NaN
-//         if(target.isNaN())
-//             target.set(1,0,0);
-//         // add a vortex core, if specified.
-//         if(polarization != 0){
-//             double distance = sqrt(square(x-center.x) + square(y-center.y));
-//             if(distance <= CORE_RADIUS){
-//                 target.add(0, 0, polarization);
-//                 Configuration.normalizeVerySafe(target);
-//             }
-//         }
-//     }
-//
+func (s *Sim) Load(file string){
+   out, err := os.Open(fname, os.O_RDONLY, 0666)
+   defer out.Close()
+   if err != nil{
+    panic(err)
+   }
+   
+}
+
 // Adds noise with the specified amplitude
 // to the magnetization state.
 // Handy to break the symmetry.

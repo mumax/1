@@ -28,8 +28,8 @@ type Gpu struct {
 	// intentionally empty, but the methods implement sim.Gpu
 }
 
-func (d Gpu) init(){
-  C.gpu_init()
+func (d Gpu) init() {
+	C.gpu_init()
 }
 
 func (d Gpu) add(a, b unsafe.Pointer, N int) {

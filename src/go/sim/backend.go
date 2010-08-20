@@ -26,11 +26,11 @@ type Backend struct {
 
 // more or less safe initialization, calls the underlying init() only once
 // (given you allocate only one unique CPU, GPU, ...)
-func (dev Backend) Init(){
-  if !dev.initiated{
-    dev.init()
-    dev.initiated = true
-  }
+func (dev Backend) Init() {
+	if !dev.initiated {
+		dev.init()
+		dev.initiated = true
+	}
 }
 
 // adds b to a

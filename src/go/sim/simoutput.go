@@ -108,13 +108,12 @@ type MAscii struct {
 func (m *MAscii) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf("%06d", s.autosaveIdx) + ".txt"
 	out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
+	defer out.Close()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(-2)
 	}
-	defer out.Close()
 	tensor.Format(out, s.m)
-
 	m.sinceoutput = s.time
 }
 
@@ -144,6 +143,7 @@ type MPng struct {
 func (m *MPng) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf("%06d", s.autosaveIdx) + ".png"
 	out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
+	defer out.Close()
 	if err != nil {
 		panic(err)
 	}

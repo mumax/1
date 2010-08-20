@@ -12,6 +12,7 @@ GOFILES=\
 	io.go\
 	tensor.go\
 	tensorops.go\
+	resample.go\
 	vector.go\
 	storedtensor.go\
 	out.go\

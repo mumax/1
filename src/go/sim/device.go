@@ -35,9 +35,8 @@ import (
  * Backend thanks to embedding.
  */
 type Device interface {
+	init()
 
-    init()
-    
 	//____________________________________________________________________ general purpose (use Backend safe wrappers)
 
 	// adds b to a. N = length of a = length of b

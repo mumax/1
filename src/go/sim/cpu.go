@@ -28,8 +28,8 @@ type Cpu struct {
 	// intentionally empty, but the methods implement sim.Cpu
 }
 
-func (d Cpu) init(){
-  C.cpu_init()
+func (d Cpu) init() {
+	C.cpu_init()
 }
 
 func (d Cpu) add(a, b unsafe.Pointer, N int) {
