@@ -13,6 +13,7 @@ OFILES=\
 	gpu_kernmul.o\
 	gpu_zeropad.o\
 	gpu_anal.o\
+	gpu_init.o\
 
 all: libgpukern.so libgpukern.a
 
@@ -59,6 +60,9 @@ gpu_zeropad.o:  gpu_zeropad.h gpu_zeropad.cu
 
 gpu_anal.o:  gpu_anal.h gpu_anal.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_anal.cu
+
+gpu_init.o:  gpu_init.h gpu_init.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_init.cu
 
 .PHONY:	clean
 clean:	

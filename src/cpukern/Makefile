@@ -13,6 +13,7 @@ OFILES=\
 	cpu_zeropad.o\
 	cpu_transpose.o\
 	cpu_fft.o\
+	cpu_init.o\
 
 all: libcpukern.so libcpukern.a
 
@@ -54,6 +55,10 @@ cpu_transpose.o:  cpu_transpose.h cpu_transpose.cpp
 
 cpu_fft.o:  cpu_fft.h cpu_fft.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_fft.cpp
+
+cpu_init.o:  cpu_init.h cpu_init.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_init.cpp
+
 
 test: test.cpp libcpukern.so
 
