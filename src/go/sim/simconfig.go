@@ -7,6 +7,7 @@ package sim
 import (
 	"tensor"
 	"rand"
+	"os"
 )
 
 // INTERNAL: to be called before setting a magnetization state,
@@ -31,6 +32,7 @@ func (s *Sim) Uniform(mx, my, mz float) {
 			}
 		}
 	}
+	s.invalidate() // todo: we do not need to invalidate everything here!
 }
 
 // Make the magnetization a vortex with given
@@ -55,16 +57,19 @@ func (s *Sim) Vortex(circulation, polarization int) {
 		a[X][i][cy][cx] = float(polarization)
 	}
 	normalize(a)
+	s.invalidate()
 }
 
 
 func (s *Sim) Load(file string){
-   out, err := os.Open(fname, os.O_RDONLY, 0666)
-   defer out.Close()
+   in, err := os.Open(file, os.O_RDONLY, 0666)
+   defer in.Close()
    if err != nil{
     panic(err)
    }
-   
+   //TODO this allocates too much buffers!
+   tensor.CopyTo(tensor.Buffer(tensor.Resample(tensor.Read(in), s.m.Size())), s.m)
+   s.invalidate()
 }
 
 // Adds noise with the specified amplitude
@@ -78,6 +83,7 @@ func (s *Sim) AddNoise(amplitude float) {
 		list[i] += amplitude * (rand.Float() - 0.5)
 	}
 	normalize(s.m.Array())
+	s.invalidate()
 }
 
 //INTERNAL
