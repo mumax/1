@@ -11,12 +11,12 @@ verbosity:  1
 # material parameters
 msat:       800E3       # A/m
 aexch:      1.3E-11     # J/m
-alpha:      1.0         #
+alpha:      1.0    
 
 
 # geometry
-size       4     64          64         #
-cellsize   12.5E-9  10E-9  10E-9  # m
+size       4     64           64
+cellsize   12.5E-9  10E-9  10E-9
 
 
 # initial magnetization
@@ -24,9 +24,9 @@ vortex    1 1
 
 
 # relax
-save       m png       #once
-#autosave   m png  100E-12
-#dt         0.5E-12      # s
-#run        2E-9        # s
+save       m png
+autosave   m png  100E-12
+dt         0.5E-12
+run        2E-9
 
 

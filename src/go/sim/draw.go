@@ -77,7 +77,7 @@ func GreyMap(min, max, value float) NRGBAColor {
 func HSLMap(x, y, z float) NRGBAColor {
 	s := fsqrt(x*x + y*y + z*z)
 	l := 0.5*z + 0.5
-	h := float(math.Atan2(float64(y), float64(x)))
+	h := float(math.Atan2(float64(x), float64(y)))
 	return HSL(h, s, l)
 }
 
