@@ -2,6 +2,11 @@ package sim
 
 // This file implements the methods for scheduling output
 
+// TODO each kind of output should be scheduled only once
+// autosave m 1E-9; autosave m 2E-9
+// should remove the first entry.
+// TODO scheduling a table twice will wipe the previous content...
+
 import (
 	"fmt"
 	"tensor"
@@ -108,9 +113,11 @@ type MAscii struct {
 	*Periodic
 }
 
+const FILENAME_FORMAT = "%08d"
+
 // INTERNAL
 func (m *MAscii) Save(s *Sim) {
-	fname := s.outputdir + "/" + "m" + fmt.Sprintf("%06d", s.autosaveIdx) + ".txt"
+	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".txt"
 	out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
 	defer out.Close()
 	if err != nil {
@@ -125,12 +132,14 @@ type Table struct {
 	out io.Writer
 }
 
-const TABLE_HEADER = "# id\t time\t mx\t my\t mz"
+const TABLE_HEADER = "# time\t mx\t my\t mz\t id"
 
+
+// TODO use a tabwriter
 func (t *Table) Save(s *Sim) {
 	if t.out == nil {
 		fname := s.outputdir + "/" + "datatable.txt"
-		out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
+		out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT|os.O_TRUNC, 0666)
 		// todo: out is not closed
 		if err != nil {
 			panic(err)
@@ -140,7 +149,9 @@ func (t *Table) Save(s *Sim) {
 		fmt.Fprintln(out, TABLE_HEADER)
 	}
 	mx, my, mz := m_average(s.m)
-	fmt.Fprintln(t.out, s.autosaveIdx, s.time, mx, my, mz)
+	fmt.Fprint(t.out, s.time, mx, my, mz, " ")
+	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
+	fmt.Fprintln(t.out)
 }
 
 func m_average(m *tensor.Tensor4) (mx, my, mz float) {
