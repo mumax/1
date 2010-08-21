@@ -23,6 +23,8 @@ import (
 // order; we use decentralized initialization to make sure
 // everything works out.
 //
+// TODO at least time and dt should be float64
+//
 type Sim struct {
 	backend Backend
 
@@ -36,7 +38,7 @@ type Sim struct {
 	m *tensor.Tensor4
 
 	dt     float
-	time   float
+	time   float64
 	solver *Euler //TODO other types, embed
 
 	outschedule []Output //TODO vector...
@@ -95,7 +97,7 @@ func (s *Sim) init() {
 	magnet := NewMagnet(dev, mat, size, cellsize)
 
 	dt := s.dt / mat.UnitTime()
-	s.solver = NewEuler(dev, magnet, dt)
+	s.solver = NewEuler(dev, magnet, dt)    //TODO solver dt should be float64(?)
 
 	B := s.solver.UnitField()
 	s.solver.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}

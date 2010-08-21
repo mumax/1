@@ -10,7 +10,7 @@ func (s *Sim) Dt(t float) {
 }
 
 // Run the simulation for a certain duration, specified in seconds
-func (s *Sim) Run(time float) {
+func (s *Sim) Run(time float64) {
 
 	s.init()
 	stop := s.time + time
@@ -18,12 +18,12 @@ func (s *Sim) Run(time float) {
 	for s.time < stop {
 		// step
 		s.solver.Step()
-		s.time += s.dt
+		s.time += float64(s.dt)		
 		s.mUpToDate = false
 
 		// save output if so scheduled
 		for _, out := range s.outschedule {
-			if out.NeedSave(s.time) {
+			if out.NeedSave(float(s.time)) {
 				// assure the local copy of m is up to date and increment the autosave counter if neccesary
 				s.assureMUpToDate()
 				// save

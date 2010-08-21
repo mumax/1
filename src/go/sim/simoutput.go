@@ -124,7 +124,7 @@ func (m *MAscii) Save(s *Sim) {
 		panic(err)
 	}
 	tensor.Format(out, s.m)
-	m.sinceoutput = s.time
+	m.sinceoutput = float(s.time)
 }
 
 type Table struct {
@@ -152,6 +152,7 @@ func (t *Table) Save(s *Sim) {
 	fmt.Fprint(t.out, s.time, mx, my, mz, " ")
 	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
 	fmt.Fprintln(t.out)
+	t.sinceoutput = float(s.time)
 }
 
 func m_average(m *tensor.Tensor4) (mx, my, mz float) {
@@ -184,7 +185,7 @@ type MBinary struct {
 func (m *MBinary) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf("%06d", s.autosaveIdx) + ".t"
 	tensor.WriteFile(fname, s.m)
-	m.sinceoutput = s.time
+	m.sinceoutput = float(s.time)
 }
 
 
@@ -204,5 +205,5 @@ func (m *MPng) Save(s *Sim) {
 		panic(err)
 	}
 	PNG(out, s.m)
-	m.sinceoutput = s.time
+	m.sinceoutput = float(s.time)
 }
