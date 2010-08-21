@@ -67,6 +67,7 @@ func (s *Sim) Load(file string){
    if err != nil{
     panic(err)
    }
+   s.ensure_m()
    //TODO this allocates too much buffers!
    tensor.CopyTo(tensor.Buffer(tensor.Resample(tensor.Read(in), s.m.Size())), s.m)
    s.invalidate()

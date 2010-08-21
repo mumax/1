@@ -9,7 +9,7 @@ type Magnet struct {
 	Material
 	size         []int   // Mesh Size, e.g. 4x64x64 TODO get rid of: already in FFT
 	cellSize     []float // Cell Size in exchange lengths, e.g. Inf x 0.5 x 0.5
-	m, h         *Tensor
+	m, h         *Tensor // on device
 	mComp, hComp [3]*Tensor
 }
 

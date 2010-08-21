@@ -183,7 +183,7 @@ type MBinary struct {
 
 // INTERNAL
 func (m *MBinary) Save(s *Sim) {
-	fname := s.outputdir + "/" + "m" + fmt.Sprintf("%06d", s.autosaveIdx) + ".t"
+	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".t"
 	tensor.WriteFile(fname, s.m)
 	m.sinceoutput = float(s.time)
 }
@@ -198,7 +198,7 @@ type MPng struct {
 
 // INTERNAL
 func (m *MPng) Save(s *Sim) {
-	fname := s.outputdir + "/" + "m" + fmt.Sprintf("%06d", s.autosaveIdx) + ".png"
+	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".png"
 	out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
 	defer out.Close()
 	if err != nil {

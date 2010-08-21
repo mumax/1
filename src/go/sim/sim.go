@@ -79,13 +79,11 @@ func (s *Sim) init() {
 	if s.isValid() {
 		return //no work to do
 	}
-	if s.m == nil {
-		panic("m not set")
-	}
+	s.ensure_m()
 
 	dev := s.backend
-    dev.Init()  
-    
+	dev.Init()
+
 	mat := NewMaterial()
 	mat.MSat = s.msat
 	mat.AExch = s.aexch
@@ -97,14 +95,18 @@ func (s *Sim) init() {
 	magnet := NewMagnet(dev, mat, size, cellsize)
 
 	dt := s.dt / mat.UnitTime()
-	s.solver = NewEuler(dev, magnet, dt)    //TODO solver dt should be float64(?)
+	s.solver = NewEuler(dev, magnet, dt) //TODO solver dt should be float64(?)
 
 	B := s.solver.UnitField()
 	s.solver.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
 
 	fmt.Println(s.solver)
 
+	if !tensor.EqualSize(s.m.Size(), s.solver.M().Size()) {
+		s.m = resample(s.m, s.solver.M().size)
+	}
 	TensorCopyTo(s.m, s.solver.M())
+
 	s.solver.Normalize(s.solver.M())
 }
 
@@ -112,4 +114,24 @@ func (s *Sim) init() {
 func (s *Sim) Verbosity(level int) {
 	Verbosity = level
 	// does not invalidate
+}
+
+func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {
+	out := tensor.NewTensor4(size2)
+	out_a := out.Array()
+	in_a:= in.Array()
+	size1 := in.Size()
+	for c := range out_a {
+		for i := range out_a[c] {
+			i1 := (i * size1[1]) / size2[1]
+			for j := range out_a[0][i] {
+				j1 := (j * size1[2]) / size2[2]
+				for k := range out_a[0][i][j] {
+					k1 := (k * size1[3]) / size2[3]
+					out_a[c][i][j][k] = in_a[c][i1][j1][k1]
+				}
+			}
+		}
+	}
+	return out
 }
