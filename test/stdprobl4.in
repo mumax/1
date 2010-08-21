@@ -15,24 +15,30 @@ msat:       800E3       # A/m
 aexch:      1.3E-11     # J/m
 alpha:      1.0         #
 
-
-# geometry
-size:       1     32          128         # 
-cellsize:   3E-9  3.90625E-9  3.90625E-9  # m
+# geometry 
+# first we take a coarse mesh, to be refined later
+size:       1     16          64         # 
+cellsize:   3E-9  7.8125E-9   7.8125E-9  # m
 
 
 # initial magnetization
 uniform:    1 1 1
 
 
-# relax
+# relax 1
 save        m png             # once
 autosave:   m png  100E-12    # every 10ps
-autosave:   table   ascii 1E-12
+autosave:   table   ascii 10E-12
 
 dt:         0.5E-12      # s
 run:        2E-9         # s
 
+# now a finer mesh
+size:       1     32          128         # 
+cellsize:   3E-9  3.90625E-9  3.90625E-9  # m
+
+# relax 2
+run 1E-9
 
 # run
 autosave:   m       png   10E-12 
