@@ -2,12 +2,12 @@
 
 
 # hardware selection
-gpu
+cpu
 
 
 # output
 outputdir:  stdprobl4
-verbosity:  1
+verbosity:  2
 
 
 # material parameters
@@ -28,14 +28,14 @@ uniform:    1 1 1
 # relax
 save        m png             # once
 autosave:   m png  100E-12    # every 10ps
+autosave:   table   ascii 1E-12
 
 dt:         0.5E-12      # s
-run:        2E-9        # s
+run:        2E-9         # s
 
 
 # run
-autosave:   m  png  1E-12          # s
-
+autosave:   m       png   10E-12 
 dt:         0.01E-12                  # s
 alpha:      0.02                      #
 field:      0     4.3E-3    -24.6E-3  # T

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"tensor"
 	"os"
+	"io"
 )
 
 // Sets the output directory where all output files are stored
@@ -87,8 +88,11 @@ func resolve(what, format string) Output {
 		case "png":
 			return &MPng{&Periodic{0., 0.}}
 		}
-
+	case "table":
+      //format gets ignored for now
+      return &Table{&Periodic{0., 0.}, nil}
 	}
+
 	panic("bug")
 	return nil // not reached
 }
@@ -110,11 +114,52 @@ func (m *MAscii) Save(s *Sim) {
 	out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
 	defer out.Close()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(-2)
+		panic(err)
 	}
 	tensor.Format(out, s.m)
 	m.sinceoutput = s.time
+}
+
+type Table struct {
+	*Periodic
+	out io.Writer
+}
+
+const TABLE_HEADER = "# id\t time\t mx\t my\t mz"
+
+func (t *Table) Save(s *Sim) {
+	if t.out == nil {
+		fname := s.outputdir + "/" + "datatable.txt"
+		out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
+		// todo: out is not closed
+		if err != nil {
+			panic(err)
+		}
+		t.out = out
+		Debugv("Opened data table file")
+		fmt.Fprintln(out, TABLE_HEADER)
+	}
+	mx, my, mz := m_average(s.m)
+	fmt.Fprintln(t.out, s.autosaveIdx, s.time, mx, my, mz)
+}
+
+func m_average(m *tensor.Tensor4) (mx, my, mz float) {
+	count := 0
+	a := m.Array()
+	for i := range a[0] {
+		for j := range a[0][i] {
+			for k := range a[0][i][j] {
+				mx += a[X][i][j][k]
+				my += a[Y][i][j][k]
+				mz += a[Z][i][j][k]
+				count++
+			}
+		}
+	}
+	mx /= float(count)
+	my /= float(count)
+	mz /= float(count)
+	return
 }
 
 //_________________________________________ binary
