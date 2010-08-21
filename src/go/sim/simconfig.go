@@ -69,7 +69,10 @@ func (s *Sim) Load(file string){
    }
    s.ensure_m()
    //TODO this allocates too much buffers!
-   tensor.CopyTo(tensor.Buffer(tensor.Resample(tensor.Read(in), s.m.Size())), s.m)
+   m1 := tensor.Read(in)
+   s.m = tensor.NewTensor4(m1.Size())
+   tensor.CopyTo(m1, s.m)
+   //TODO this should not invalidate the entire sim
    s.invalidate()
 }
 
