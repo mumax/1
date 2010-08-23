@@ -31,6 +31,7 @@ float* new_ram_array(int size){
 
 
 void gpu_zero(float* data, int nElements){
+  debugvv(fprintf(stderr, "gpu_zero(%p, %d)\n", data, nElements));
   gpu_safe( cudaMemset(data, 0, nElements*sizeof(float)) );
 }
 
