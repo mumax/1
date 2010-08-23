@@ -20,8 +20,10 @@ extern "C" {
  * gpu_safe( cudaMalloc(...) );
  * @endcode
  */
-void gpu_safe(int status    ///< CUDA return status
-          );
+// void gpu_safe(int status    ///< CUDA return status
+//           );
+
+#define gpu_safe(s) assert(s == 0);
           
 
 #ifdef __cplusplus
