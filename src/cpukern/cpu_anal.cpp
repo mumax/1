@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 ///@internal
-
+// I've quickly put this function here to get the solver running on the CPU.
 void  _sin_cos_f(float angle, float* sn, float* cs){
   *sn = sinf(angle);
   *cs = cosf(angle);
