@@ -12,12 +12,11 @@ func (this *Euler) String() string {
 	return "Euler\n" + this.Field.String() + "--\n"
 }
 
-func NewEuler(dev Backend, field *Field, Dt float) *Euler { //todo: do not need backend param
-	this := new(Euler)
-	this.Field = field
-	this.Dt = Dt
-	return this
-}
+// func NewEuler(field *Field) *Euler {
+// 	this := new(Euler)
+// 	this.Field = field
+// 	return this
+// }
 
 func (this *Euler) Step() {
 	Debugvv("Euler.Step()")

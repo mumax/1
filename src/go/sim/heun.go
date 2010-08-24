@@ -44,5 +44,5 @@ func (this *Heun) Step() {
 
 
 func (this *Heun) String() string {
-	return "Heun" + this.Field.String() + "--\n"
+	return "Heun\n" + this.Field.String() + "--\n"
 }

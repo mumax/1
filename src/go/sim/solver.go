@@ -14,8 +14,10 @@ func NewSolver(solvertype string, field *Field) Solver {
 		panic("Unknown solver type: " + solvertype + ". Options are: euler, semianal, heun.")
 	case "euler":
 		return &Euler{SolverState{0., field}}
-  case "heun":
-    return NewHeun(field)
+	case "heun":
+		return NewHeun(field)
+	case "semianal":
+		return &SemiAnal{SolverState{0., field}}
 	}
 	panic("bug")
 	return nil // never reached

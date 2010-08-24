@@ -100,9 +100,9 @@ func (s *Sim) init() {
 	s.Field = NewField(s.backend, magnet)
 
 	dt := s.dt / mat.UnitTime()
-	s.Solver = NewSolver(s.solvertype, s.Field)//NewEuler(dev, s.Field, dt) //TODO solver dt should be float64(?)
-  s.Solver.SetDt(dt)
-  
+	s.Solver = NewSolver(s.solvertype, s.Field) //NewEuler(dev, s.Field, dt) //TODO solver dt should be float64(?)
+	s.Solver.SetDt(dt)
+
 	B := s.UnitField()
 	s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
 
