@@ -4,6 +4,7 @@
 # hardware selection
 cpu
 
+solvertype: euler
 
 # output
 outputdir:  stdprobl4

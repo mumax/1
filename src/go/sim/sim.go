@@ -37,12 +37,13 @@ type Sim struct {
 
 	m *tensor.Tensor4
 
-	dt     float
-	time   float64
-
+	dt         float
+	time       float64
+	solvertype string
 	Solver
-  *Field  //TODO: rename magnet->mesh, field->magnet?
-  
+
+	*Field //TODO: rename magnet->mesh, field->magnet?
+
 	outschedule []Output //TODO vector...
 	autosaveIdx int
 	outputdir   string
@@ -96,11 +97,12 @@ func (s *Sim) init() {
 	L := mat.UnitLength()
 	cellsize := []float{s.cellsize[X] / L, s.cellsize[Y] / L, s.cellsize[Z] / L}
 	magnet := NewMagnet(dev, mat, size, cellsize)
-  s.Field = NewField(s.backend, magnet)
-  
-	dt := s.dt / mat.UnitTime()
-	s.Solver = NewEuler(dev, s.Field, dt) //TODO solver dt should be float64(?)
+	s.Field = NewField(s.backend, magnet)
 
+	dt := s.dt / mat.UnitTime()
+	s.Solver = NewSolver(s.solvertype, s.Field)//NewEuler(dev, s.Field, dt) //TODO solver dt should be float64(?)
+  s.Solver.SetDt(dt)
+  
 	B := s.UnitField()
 	s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
 
@@ -109,7 +111,7 @@ func (s *Sim) init() {
 	if !tensor.EqualSize(s.m.Size(), s.M().Size()) {
 		s.m = resample(s.m, s.M().size)
 	}
-	TensorCopyTo(s.m, s.M())  // TODO it's not clear which is local/remote
+	TensorCopyTo(s.m, s.M()) // TODO it's not clear which is local/remote
 
 	s.Normalize(s.M())
 }

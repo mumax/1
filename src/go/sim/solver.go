@@ -1,8 +1,22 @@
 package sim
 
+import "strings"
 
-type Solver interface{
-  Step()
+type Solver interface {
+	Step()
+	SetDt(dt float)
+}
+
+func NewSolver(solvertype string, field *Field) Solver {
+	solvertype = strings.ToLower(solvertype)
+	switch solvertype {
+	default:
+		panic("Unknown solver type: " + solvertype + ". Options are: euler, semianal, heun.")
+	case "euler":
+		return &Euler{SolverState{0., field}}
+	}
+	panic("bug")
+	return nil // never reached
 }
 
 // stores the common data for fixed-step solvers
@@ -11,6 +25,6 @@ type SolverState struct {
 	*Field
 }
 
-func(s *SolverState) SetDt(dt float){
-  s.Dt = dt
+func (s *SolverState) SetDt(dt float) {
+	s.Dt = dt
 }
