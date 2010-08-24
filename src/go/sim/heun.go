@@ -5,7 +5,7 @@ import ()
 
 type Heun struct {
 	m0, torque0 *Tensor
-	TimeStep
+	SolverState
 }
 
 

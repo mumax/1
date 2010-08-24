@@ -94,8 +94,8 @@ func resolve(what, format string) Output {
 			return &MPng{&Periodic{0., 0.}}
 		}
 	case "table":
-      //format gets ignored for now
-      return &Table{&Periodic{0., 0.}, nil}
+		//format gets ignored for now
+		return &Table{&Periodic{0., 0.}, nil}
 	}
 
 	panic("bug")

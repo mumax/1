@@ -119,7 +119,7 @@ func (s *Sim) Verbosity(level int) {
 func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {
 	out := tensor.NewTensor4(size2)
 	out_a := out.Array()
-	in_a:= in.Array()
+	in_a := in.Array()
 	size1 := in.Size()
 	for c := range out_a {
 		for i := range out_a[c] {

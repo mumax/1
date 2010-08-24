@@ -4,7 +4,7 @@ import ()
 
 
 type SemiAnal struct {
-	TimeStep
+	SolverState
 }
 
 

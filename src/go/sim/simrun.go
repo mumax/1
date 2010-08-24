@@ -18,7 +18,7 @@ func (s *Sim) Run(time float64) {
 	for s.time < stop {
 		// step
 		s.solver.Step()
-		s.time += float64(s.dt)		
+		s.time += float64(s.dt)
 		s.mUpToDate = false
 
 		// save output if so scheduled
