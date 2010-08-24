@@ -18,7 +18,7 @@ import (
 
 type Backend struct {
 	Device
-	initiated bool
+	Initiated bool
 }
 
 
@@ -27,9 +27,9 @@ type Backend struct {
 // more or less safe initialization, calls the underlying init() only once
 // (given you allocate only one unique CPU, GPU, ...)
 func (dev Backend) Init() {
-	if !dev.initiated {
+	if !dev.Initiated {
 		dev.init()
-		dev.initiated = true
+		dev.Initiated = true
 	}
 }
 

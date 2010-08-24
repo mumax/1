@@ -10,7 +10,7 @@ outputdir:  	stdprobl4-heun
 verbosity:  	2
 
 solvertype:  	heun
-dt:           0.02E-12                  # s
+dt:           0.05E-12                  # s
 
 # material
 msat:       	800E3       # A/m

@@ -25,7 +25,7 @@ import ()
 var CPU Backend = Backend{Cpu{}, false}
 
 type Cpu struct {
-	// intentionally empty, but the methods implement sim.Cpu
+	// intentionally empty, but the methods implement sim.Device
 }
 
 func (d Cpu) init() {

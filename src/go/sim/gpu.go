@@ -25,7 +25,7 @@ import ()
 var GPU Backend = Backend{Gpu{}, false}
 
 type Gpu struct {
-	// intentionally empty, but the methods implement sim.Gpu
+	// intentionally empty, but the methods implement sim.Device
 }
 
 func (d Gpu) init() {

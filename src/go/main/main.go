@@ -20,6 +20,11 @@ import (
 
 
 func main() {
+
+  Main()
+  
+  os.Exit(0)
+  
 	if flag.NArg() == 0 {
 		fmt.Fprintln(os.Stderr, "No input files.")
 		os.Exit(-1)
