@@ -36,6 +36,7 @@ GOFILES=\
 	simsolver.go\
 	draw.go\
 	remotedevice.go\
+	simserver.go\
 
 CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so
 

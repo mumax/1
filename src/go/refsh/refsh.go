@@ -129,7 +129,7 @@ func (refsh *Refsh) ExecFlags() {
 
 // Calls a function. Function name and arguments are passed as strings.
 // The function name should first have been added by refsh.Add();
-func (refsh *Refsh) Call(fname string, argv []string) []Value{
+func (refsh *Refsh) Call(fname string, argv []string) []Value {
 	function := refsh.resolve(fname)
 	if function == nil {
 		fmt.Fprintln(os.Stderr, "Unknown command: \""+fname+"\". Options are:", refsh.funcnames)
