@@ -39,8 +39,10 @@ type Sim struct {
 
 	dt     float
 	time   float64
-	solver *Euler //TODO other types, embed
 
+	Solver
+  *Field  //TODO: rename magnet->mesh, field->magnet?
+  
 	outschedule []Output //TODO vector...
 	autosaveIdx int
 	outputdir   string
@@ -66,12 +68,13 @@ func NewSim() *Sim {
 
 // When a parmeter is changed, the simulation state is invalidated until it gets (re-)initialized by init().
 func (s *Sim) invalidate() {
-	s.solver = nil
+	s.Solver = nil
+	s.Field = nil
 }
 
 // When it returns false, init() needs to be called before running.
 func (s *Sim) isValid() bool {
-	return s.solver != nil
+	return s.Solver != nil && s.Field != nil
 }
 
 // (Re-)initialize the simulation tree, necessary before running.
@@ -93,21 +96,22 @@ func (s *Sim) init() {
 	L := mat.UnitLength()
 	cellsize := []float{s.cellsize[X] / L, s.cellsize[Y] / L, s.cellsize[Z] / L}
 	magnet := NewMagnet(dev, mat, size, cellsize)
-
+  s.Field = NewField(s.backend, magnet)
+  
 	dt := s.dt / mat.UnitTime()
-	s.solver = NewEuler(dev, magnet, dt) //TODO solver dt should be float64(?)
+	s.Solver = NewEuler(dev, s.Field, dt) //TODO solver dt should be float64(?)
 
-	B := s.solver.UnitField()
-	s.solver.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
+	B := s.UnitField()
+	s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
 
-	fmt.Println(s.solver)
+	fmt.Println(s.Solver)
 
-	if !tensor.EqualSize(s.m.Size(), s.solver.M().Size()) {
-		s.m = resample(s.m, s.solver.M().size)
+	if !tensor.EqualSize(s.m.Size(), s.M().Size()) {
+		s.m = resample(s.m, s.M().size)
 	}
-	TensorCopyTo(s.m, s.solver.M())
+	TensorCopyTo(s.m, s.M())  // TODO it's not clear which is local/remote
 
-	s.solver.Normalize(s.solver.M())
+	s.Normalize(s.M())
 }
 
 // Set how much debug info is printed. Level=0,1,2 or 3 for none, normal, verbose and very verbose.

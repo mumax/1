@@ -9,12 +9,12 @@ type Euler struct {
 }
 
 func (this *Euler) String() string {
-	return "Euler" + this.Field.String() + "--\n"
+	return "Euler\n" + this.Field.String() + "--\n"
 }
 
-func NewEuler(dev Backend, mag *Magnet, Dt float) *Euler {
+func NewEuler(dev Backend, field *Field, Dt float) *Euler { //todo: do not need backend param
 	this := new(Euler)
-	this.Field = *NewField(dev, mag)
+	this.Field = field
 	this.Dt = Dt
 	return this
 }

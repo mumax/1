@@ -17,7 +17,7 @@ func (s *Sim) Run(time float64) {
 
 	for s.time < stop {
 		// step
-		s.solver.Step()
+		s.Step()
 		s.time += float64(s.dt)
 		s.mUpToDate = false
 
@@ -40,7 +40,7 @@ func (s *Sim) Run(time float64) {
 func (s *Sim) assureMUpToDate() {
 	s.init()
 	if !s.mUpToDate {
-		TensorCopyFrom(s.solver.M(), s.m)
+		TensorCopyFrom(s.M(), s.m)
 		s.autosaveIdx++
 		s.mUpToDate = true
 	}
