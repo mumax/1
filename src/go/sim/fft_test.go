@@ -107,10 +107,10 @@ func TestFFTInplace(t *testing.T) {
 	backend.OverrideStride(-1)
 }
 
-func abs(r float) float {
-	if r < 0 {
-		return -r
-	}
-	//else
-	return r
-}
+// func abs(r float) float {
+// 	if r < 0 {
+// 		return -r
+// 	}
+// 	//else
+// 	return r
+// }

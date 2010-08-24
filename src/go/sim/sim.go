@@ -23,7 +23,7 @@ import (
 // order; we use decentralized initialization to make sure
 // everything works out.
 //
-// TODO at least time and dt should be float64
+// TODO order of initialization is too important in input file, should be more versatile
 //
 type Sim struct {
 	backend Backend

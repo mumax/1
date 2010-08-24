@@ -5,7 +5,7 @@ import (
 	"tensor"
 )
 
-var backend = CPU
+var backend = GPU
 
 func TestPad(t *testing.T) {
 	small := []int{4, 8, 16}
