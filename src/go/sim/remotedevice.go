@@ -31,11 +31,11 @@ func NewRemoteDevice(serverAddress, serverPort string) *RemoteDevice {
 	d.serverAddress = serverAddress
 	d.serverPort = serverPort
 	var err os.Error
-	Debugv("Dial tcp " + d.serverAddress + d.serverPort)
-	d.Client, err = rpc.DialHTTP("tcp", d.serverAddress+d.serverPort)
+	d.Client, err = rpc.DialHTTP("tcp", d.serverAddress+d.serverPort) //TODO: UDP
 	if err != nil {
 		panic(err)
 	}
+	Debugv("Connected to " + d.serverAddress + d.serverPort)
 	return d
 }
 
@@ -55,6 +55,80 @@ func (d *RemoteDevice) add(a, b unsafe.Pointer, N int) {
 	args := &AddArgs{uintptr(a), uintptr(b), N}
 	var reply int
 	err := d.Client.Call("DeviceServer.Add", args, &reply)
+	if err != nil {
+		panic(err)
+	}
+}
+
+
+type LinearCombinationArgs struct {
+	A, B             uintptr
+	WeightA, WeightB float
+	N                int
+}
+
+func (d *RemoteDevice) linearCombination(a, b unsafe.Pointer, weightA, weightB float, N int) {
+	args := &LinearCombinationArgs{uintptr(a), uintptr(b), weightA, weightB, N}
+	var reply int
+	err := d.Client.Call("DeviceServer.LinearCombination", args, &reply)
+	if err != nil {
+		panic(err)
+	}
+}
+
+type AddConstantArgs struct {
+	A    uintptr
+	Cnst float
+	N    int
+}
+
+func (d *RemoteDevice) addConstant(a unsafe.Pointer, cnst float, N int) {
+	args := &AddConstantArgs{uintptr(a), cnst, N}
+	var reply int
+	err := d.Client.Call("DeviceServer.AddConstant", args, &reply)
+	if err != nil {
+		panic(err)
+	}
+}
+
+type NormalizeArgs struct {
+	M uintptr
+	N int
+}
+
+func (d *RemoteDevice) normalize(m unsafe.Pointer, N int) {
+	args := &NormalizeArgs{uintptr(m), N}
+	var reply int
+	err := d.Client.Call("DeviceServer.Normalize", args, &reply)
+	if err != nil {
+		panic(err)
+	}
+}
+
+type NormalizeMapArgs struct {
+	M, NormMap uintptr
+	N          int
+}
+
+func (d *RemoteDevice) normalizeMap(m, normMap unsafe.Pointer, N int) {
+	args := &NormalizeMapArgs{uintptr(m), uintptr(normMap), N}
+	var reply int
+	err := d.Client.Call("DeviceServer.NormalizeMap", args, &reply)
+	if err != nil {
+		panic(err)
+	}
+}
+
+type DeltaMArgs struct {
+	M, H             uintptr
+	Alpha, DtGilbert float
+	N                int
+}
+
+func (d *RemoteDevice) deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int) {
+	args := &DeltaMArgs{uintptr(m), uintptr(h), alpha, dtGilbert, N}
+	var reply int
+	err := d.Client.Call("DeviceServer.DeltaM", args, &reply)
 	if err != nil {
 		panic(err)
 	}
