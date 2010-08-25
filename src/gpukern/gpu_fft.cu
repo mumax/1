@@ -106,7 +106,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   //timer_stop("FFT_z");
 
   gpu_transposeYZ_complex(output, transp, N0, N1, N2*N3);
-  memcpy_gpu_to_gpu(transp, input, N);
+  memcpy_on_gpu(transp, input, N);
 
   //timer_start("FFT_y");
   gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)input,  (cufftComplex*)output, CUFFT_FORWARD) );
@@ -116,7 +116,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   // support for 2D transforms: do not transform if first dimension has size 1
   if(N0 > 1){
     gpu_transposeXZ_complex(output, transp, N0, N2, N1*N3); // size has changed due to previous transpose!
-    memcpy_gpu_to_gpu(transp, input, N);
+    memcpy_on_gpu(transp, input, N);
     //timer_start("FFT_x");
     gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)input,  (cufftComplex*)output, CUFFT_FORWARD) );
     cudaThreadSynchronize();
@@ -157,7 +157,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
     cudaThreadSynchronize();
 //     timer_stop("FFT_x");
     gpu_transposeXZ_complex(output, transp, N1, N2, N0*N3); // size has changed due to previous transpose!
-    memcpy_gpu_to_gpu(transp, input, N);
+    memcpy_on_gpu(transp, input, N);
   }
 
 //   timer_start("FFT_y");
@@ -166,7 +166,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
 //   timer_stop("FFT_y");
   
   gpu_transposeYZ_complex(output, transp, N0, N2, N1*N3);
-  memcpy_gpu_to_gpu(transp, input, N);
+  memcpy_on_gpu(transp, input, N);
 
 //   timer_start("FFT_z");
     for(int i=0; i<size[X]; i++){
