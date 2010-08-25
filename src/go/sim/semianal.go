@@ -5,6 +5,7 @@ import ()
 
 type SemiAnal struct {
 	SolverState
+	order int
 }
 
 
@@ -14,7 +15,7 @@ func (this *SemiAnal) Step() {
 
 	this.Normalize(m)
 	this.CalcHeff(this.m, this.h)
-	this.semianalStep(m.data, h.data, this.Dt, this.Alpha, this.NSpins())
+	this.semianalStep(m.data, h.data, this.Dt, this.Alpha, this.order, this.NSpins())
 }
 
 

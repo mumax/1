@@ -52,15 +52,15 @@ func (dev Backend) memcpyOn(source, dest unsafe.Pointer, nFloats int) {
 // Gets one float from a Device array.
 // Slow, for debug only
 func (dev Backend) arrayGet(array unsafe.Pointer, index int) float {
-  var f float
-  dev.memcpyFrom(dev.arrayOffset(array, index), &f, 1)
-  return f
+	var f float
+	dev.memcpyFrom(dev.arrayOffset(array, index), &f, 1)
+	return f
 }
 
 // Sets one float on a Device array.
 // Slow, for debug only
 func (dev Backend) arraySet(array unsafe.Pointer, index int, value float) {
-  dev.memcpyTo(&value, dev.arrayOffset(array, index), 1)
+	dev.memcpyTo(&value, dev.arrayOffset(array, index), 1)
 }
 
 

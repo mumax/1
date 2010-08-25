@@ -17,7 +17,7 @@ func NewSolver(solvertype string, field *Field) Solver {
 	case "heun":
 		return NewHeun(field)
 	case "semianal":
-		return &SemiAnal{SolverState{0., field}}
+		return &SemiAnal{SolverState{0., field}, 0} //0th order by default TODO: make selectable ("semianal0", "semianal1" ?)
 	}
 	panic("bug")
 	return nil // never reached

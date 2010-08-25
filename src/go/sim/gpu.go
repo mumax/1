@@ -20,7 +20,9 @@ import "unsafe"
  * @author Arne Vansteenkiste
  */
 
-import ()
+import (
+	"fmt"
+)
 
 var GPU Backend = Backend{Gpu{}, false}
 
@@ -56,8 +58,13 @@ func (d Gpu) deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int) {
 	C.gpu_deltaM((*C.float)(m), (*C.float)(h), C.float(alpha), C.float(dtGilbert), C.int(N))
 }
 
-func (d Gpu) semianalStep(m, h unsafe.Pointer, dt, alpha float, N int) {
-	C.gpu_anal_fw_step_unsafe((*C.float)(m), (*C.float)(h), C.float(dt), C.float(alpha), C.int(N))
+func (d Gpu) semianalStep(m, h unsafe.Pointer, dt, alpha float, order, N int) {
+	switch order {
+	default:
+		panic(fmt.Sprintf("Unknown semianal order:", order))
+	case 0:
+		C.gpu_anal_fw_step_unsafe((*C.float)(m), (*C.float)(h), C.float(dt), C.float(alpha), C.int(N))
+	}
 }
 
 //___________________________________________________________________________________________________ Kernel multiplication
@@ -67,12 +74,17 @@ func (d Gpu) extractReal(complex, real unsafe.Pointer, NReal int) {
 	C.gpu_extract_real((*C.float)(complex), (*C.float)(real), C.int(NReal))
 }
 
-func (d Gpu) kernelMul6(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int) {
-	C.gpu_kernelmul6(
-		(*C.float)(mx), (*C.float)(my), (*C.float)(mz),
-		(*C.float)(kxx), (*C.float)(kyy), (*C.float)(kzz),
-		(*C.float)(kyz), (*C.float)(kxz), (*C.float)(kxy),
-		C.int(nRealNumbers))
+func (d Gpu) kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, kerneltype, nRealNumbers int) {
+	switch kerneltype {
+	default:
+		panic(fmt.Sprintf("Unknown kernel type:", kerneltype))
+	case 6:
+		C.gpu_kernelmul6(
+			(*C.float)(mx), (*C.float)(my), (*C.float)(mz),
+			(*C.float)(kxx), (*C.float)(kyy), (*C.float)(kzz),
+			(*C.float)(kyz), (*C.float)(kxz), (*C.float)(kxy),
+			C.int(nRealNumbers))
+	}
 }
 
 //___________________________________________________________________________________________________ Copy-pad
@@ -139,7 +151,7 @@ func (d Gpu) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
 // func (d Gpu) arrayGet(array unsafe.Pointer, index int) float {
 // 	return float(C.gpu_array_get((*C.float)(array), C.int(index)))
 // }
-// 
+//
 // func (d Gpu) arraySet(array unsafe.Pointer, index int, value float) {
 // 	C.gpu_array_set((*C.float)(array), C.int(index), C.float(value))
 // }

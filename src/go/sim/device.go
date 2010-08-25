@@ -78,6 +78,8 @@ type Device interface {
 	// Copies nFloats to, on or from the device, depending on the direction flag (1, 2 or 3)
 	memcpy(source, dest unsafe.Pointer, nFloats, direction int)
 
+	// Offset the array pointer by "index" floats, useful for taking sub-arrays
+	// TODO: on a multi-device this will not work
 	arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer
 
 	/// Overwrite n floats with zeros
@@ -86,16 +88,19 @@ type Device interface {
 	//____________________________________________________________________ specialized (used in only one place)
 
 
-	semianalStep(m, h unsafe.Pointer, dt, alpha float, N int)
+	semianalStep(m, h unsafe.Pointer, dt, alpha float, order, N int)
 
 	// Extract only the real parts form in interleaved complex array
 	extractReal(complex, real unsafe.Pointer, NReal int)
+
+	// Automatically selects between kernelmul3/4/6
+	kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, kerntype, nRealNumbers int)
 
 	// In-place kernel multiplication (m gets overwritten by h).
 	// The kernel is symmetric so only 6 of the 9 components need to be passed (xx, yy, zz, yz, xz, xy).
 	// The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
 	// This is the typical situation for a 3D micromagnetic problem
-	kernelMul6(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int)
+	// kernelMul6(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int)
 
 	// In-place kernel multiplication (m gets overwritten by h).
 	// The kernel is symmetric and contains no mixing between x and (y, z),
