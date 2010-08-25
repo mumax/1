@@ -1,7 +1,7 @@
 package sim
 
-// TODO it would be nice to reduce the number of funcs here
-// Memcpy(DIRECTION)
+// TODO: it would be nice to reduce the number of funcs here
+// DONE: Memcpy(DIRECTION)
 // Normalize(map=nil)
 // ...
 
@@ -153,11 +153,11 @@ func (d *RemoteDevice) newArray(nFloats int) unsafe.Pointer {
 
 type MemcpyArgs struct{
   Source, Dest uintptr
-  NFloats int
+  NFloats, direction int
 }
 
-func (d *RemoteDevice) memcpyTo(source *float, dest unsafe.Pointer, nFloats int) {
-  args := &MemcpyArgs{uintptr(unsafe.Pointer(source)), uintptr(dest), nFloats}
+func (d *RemoteDevice) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
+  args := &MemcpyArgs{uintptr(unsafe.Pointer(source)), uintptr(dest), nFloats, direction}
   var reply int
   err := d.Client.Call("DeviceServer.MemcpyTo", args, &reply)
   if err != nil {
@@ -165,12 +165,3 @@ func (d *RemoteDevice) memcpyTo(source *float, dest unsafe.Pointer, nFloats int)
   }
 }
 
-
-func (d *RemoteDevice) memcpyFrom(source unsafe.Pointer, dest *float, nFloats int) {
-
-}
-
-
-func (d *RemoteDevice) memcpyOn(source, dest unsafe.Pointer, nFloats int) {
-
-}
