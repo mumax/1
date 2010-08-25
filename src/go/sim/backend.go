@@ -34,22 +34,36 @@ func (dev Backend) Init() {
 	}
 }
 
-   // Copies a number of floats from host to GPU
-   func (dev Backend)memcpyTo(source *float, dest unsafe.Pointer, nFloats int){
-     dev.memcpy(unsafe.Pointer(source), dest, nFloats, CPY_TO)
-   }
+// Copies a number of floats from host to GPU
+func (dev Backend) memcpyTo(source *float, dest unsafe.Pointer, nFloats int) {
+	dev.memcpy(unsafe.Pointer(source), dest, nFloats, CPY_TO)
+}
 
-   // Copies a number of floats from GPU to host
-   func (dev Backend)memcpyFrom(source unsafe.Pointer, dest *float, nFloats int){
-     dev.memcpy(source, unsafe.Pointer(dest), nFloats, CPY_FROM)
-   }
+// Copies a number of floats from GPU to host
+func (dev Backend) memcpyFrom(source unsafe.Pointer, dest *float, nFloats int) {
+	dev.memcpy(source, unsafe.Pointer(dest), nFloats, CPY_FROM)
+}
 
-   // Copies a number of floats from GPU to GPU
-   func (dev Backend)memcpyOn(source, dest unsafe.Pointer, nFloats int){
-     dev.memcpy(unsafe.Pointer(source), unsafe.Pointer(dest), nFloats, CPY_ON)
-   }
+// Copies a number of floats from GPU to GPU
+func (dev Backend) memcpyOn(source, dest unsafe.Pointer, nFloats int) {
+	dev.memcpy(unsafe.Pointer(source), unsafe.Pointer(dest), nFloats, CPY_ON)
+}
 
-  
+// Gets one float from a Device array.
+// Slow, for debug only
+func (dev Backend) arrayGet(array unsafe.Pointer, index int) float {
+  var f float
+  dev.memcpyFrom(dev.arrayOffset(array, index), &f, 1)
+  return f
+}
+
+// Sets one float on a Device array.
+// Slow, for debug only
+func (dev Backend) arraySet(array unsafe.Pointer, index int, value float) {
+  dev.memcpyTo(&value, dev.arrayOffset(array, index), 1)
+}
+
+
 // adds b to a
 func (dev Backend) Add(a, b *Tensor) {
 	assert(tensor.EqualSize(a.size, b.size))

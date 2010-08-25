@@ -131,19 +131,19 @@ func (d Cpu) newArray(nFloats int) unsafe.Pointer {
 }
 
 func (d Cpu) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
- C.cpu_memcpy((*C.float)(source), (*C.float)(dest), C.int(nFloats)) //direction is ignored, it's always "CPY_ON" because there is no separate device
+	C.cpu_memcpy((*C.float)(source), (*C.float)(dest), C.int(nFloats)) //direction is ignored, it's always "CPY_ON" because there is no separate device
 }
 
 // ///
 // func (d Cpu) memcpyTo(source *float, dest unsafe.Pointer, nFloats int) {
 // 	C.cpu_memcpy((*C.float)(unsafe.Pointer(source)), (*C.float)(dest), C.int(nFloats))
 // }
-// 
+//
 // ///
 // func (d Cpu) memcpyFrom(source unsafe.Pointer, dest *float, nFloats int) {
 // 	C.cpu_memcpy((*C.float)(source), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats))
 // }
-// 
+//
 // ///
 // func (d Cpu) memcpyOn(source, dest unsafe.Pointer, nFloats int) {
 // 	C.cpu_memcpy((*C.float)(source), (*C.float)(dest), C.int(nFloats))

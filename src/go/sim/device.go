@@ -57,7 +57,8 @@ type Device interface {
 	// overwrites h with torque(m, h) * dtGilbert. N = length of one component
 	deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int)
 
-	/// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
+	// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
+	// TODO: get rid of? decide the stride by yourself instead of globally storing it?
 	overrideStride(nFloats int)
 
 	//____________________________________________________________________ tensor (safe wrappers in tensor.go)
@@ -76,11 +77,6 @@ type Device interface {
 
 	// Copies nFloats to, on or from the device, depending on the direction flag (1, 2 or 3)
 	memcpy(source, dest unsafe.Pointer, nFloats, direction int)
-
-	/// Gets one float from a GPU array
-	arrayGet(array unsafe.Pointer, index int) float
-
-	arraySet(array unsafe.Pointer, index int, value float)
 
 	arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer
 

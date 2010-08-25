@@ -139,7 +139,7 @@ func (d Gpu) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
 // func (d Gpu) memcpyFrom(source unsafe.Pointer, dest *float, nFloats int) {
 // 	C.memcpy_from_gpu((*C.float)(source), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats))
 // }
-// 
+//
 // // Copies a number of floats from GPU to GPU
 // func (d Gpu) memcpyOn(source, dest unsafe.Pointer, nFloats int) {
 // 	C.memcpy_gpu_to_gpu((*C.float)(source), (*C.float)(dest), C.int(nFloats))

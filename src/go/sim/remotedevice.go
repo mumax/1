@@ -142,26 +142,25 @@ func (d *RemoteDevice) deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int
 type Int int
 
 func (d *RemoteDevice) newArray(nFloats int) unsafe.Pointer {
-  var args = Int(nFloats)
-  var reply uintptr
-  err := d.Client.Call("DeviceServer.NewArray", &args, &reply)
-  if err != nil {
-    panic(err)
-  }
-  return unsafe.Pointer(reply)
+	var args = Int(nFloats)
+	var reply uintptr
+	err := d.Client.Call("DeviceServer.NewArray", &args, &reply)
+	if err != nil {
+		panic(err)
+	}
+	return unsafe.Pointer(reply)
 }
 
-type MemcpyArgs struct{
-  Source, Dest uintptr
-  NFloats, direction int
+type MemcpyArgs struct {
+	Source, Dest       uintptr
+	NFloats, direction int
 }
 
 func (d *RemoteDevice) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
-  args := &MemcpyArgs{uintptr(unsafe.Pointer(source)), uintptr(dest), nFloats, direction}
-  var reply int
-  err := d.Client.Call("DeviceServer.MemcpyTo", args, &reply)
-  if err != nil {
-    panic(err)
-  }
+	args := &MemcpyArgs{uintptr(unsafe.Pointer(source)), uintptr(dest), nFloats, direction}
+	var reply int
+	err := d.Client.Call("DeviceServer.MemcpyTo", args, &reply)
+	if err != nil {
+		panic(err)
+	}
 }
-
