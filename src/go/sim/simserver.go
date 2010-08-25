@@ -1,7 +1,7 @@
 package sim
 
 import (
-  "unsafe"
+	"unsafe"
 	"rpc"
 	"net"
 	"http"
@@ -31,30 +31,33 @@ func SimServerMain() {
 
 
 func (s *DeviceServer) Add(in *AddArgs, out *Void) os.Error {
-	Debugvv("Add")
 	s.add(unsafe.Pointer(in.A), unsafe.Pointer(in.B), in.N)
 	return nil
 }
 
-func (s *DeviceServer) LinearCombination(in *LinearCombinationArgs, out *Void)os.Error  {
-
-  return nil
+func (s *DeviceServer) LinearCombination(in *LinearCombinationArgs, out *Void) os.Error {
+	s.linearCombination(unsafe.Pointer(in.A), unsafe.Pointer(in.B), in.WeightA, in.WeightB, in.N)
+	return nil
 }
 
 func (s *DeviceServer) AddConstant(in *AddConstantArgs, out *Void) os.Error {
-   return nil
+	s.addConstant(unsafe.Pointer(in.A), in.Cnst, in.N)
+	return nil
 }
 
 func (s *DeviceServer) Normalize(in *NormalizeArgs, out *Void) os.Error {
-   return nil
+	s.normalize(unsafe.Pointer(in.M), in.N)
+	return nil
 }
 
 func (s *DeviceServer) NormalizeMap(in *NormalizeMapArgs, out *Void) os.Error {
-   return nil
+	s.normalizeMap(unsafe.Pointer(in.M), unsafe.Pointer(in.NormMap), in.N)
+	return nil
 }
 
 func (s *DeviceServer) DeltaM(in *DeltaMArgs, out *Void) os.Error {
-    return nil
+	s.deltaM(unsafe.Pointer(in.M), unsafe.Pointer(in.H), in.Alpha, in.DtGilbert, in.N)
+	return nil
 }
 
 /*/*
@@ -187,7 +190,5 @@ func (s *DeviceServer) PrintProperties() {
 
 //___________________________________________________________________________________________________ misc*/
 func (s *DeviceServer) String() string {
-  return "Remote"
+	return "Remote"
 }
-
-
