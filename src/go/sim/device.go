@@ -68,22 +68,14 @@ type Device interface {
 	//Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
 	copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int)
 
-	/**
-	 * Allocates an array of floats on the GPU.
-	 * By convention, GPU arrays are represented by an unsafe.Pointer,
-	 * while host arrays are *float's.
-	 * Does not need to be initialized with zeros
-	 */
+	// Allocates an array of floats on the Device.
+	// By convention, Device arrays are represented by an unsafe.Pointer,
+	// while host arrays are *float's.
+	// Does not need to be initialized with zeros
 	newArray(nFloats int) unsafe.Pointer
 
-	/// Copies a number of floats from host to GPU
-	memcpyTo(source *float, dest unsafe.Pointer, nFloats int)
-
-	/// Copies a number of floats from GPU to host
-	memcpyFrom(source unsafe.Pointer, dest *float, nFloats int)
-
-	/// Copies a number of floats from GPU to GPU
-	memcpyOn(source, dest unsafe.Pointer, nFloats int)
+	// Copies nFloats to, on or from the device, depending on the direction flag (1, 2 or 3)
+	memcpy(source, dest unsafe.Pointer, nFloats, direction int)
 
 	/// Gets one float from a GPU array
 	arrayGet(array unsafe.Pointer, index int) float
@@ -145,3 +137,10 @@ type Device interface {
 
 	String() string
 }
+
+// direction flag for memcpy()
+const (
+	CPY_TO   = 1
+	CPY_ON   = 2
+	CPY_FROM = 3
+)

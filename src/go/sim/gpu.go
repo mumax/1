@@ -78,7 +78,7 @@ func (d Gpu) kernelMul6(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer,
 //___________________________________________________________________________________________________ Copy-pad
 
 
-///Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
+//Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
 func (d Gpu) copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int) {
 	C.gpu_copy_pad((*C.float)(source), (*C.float)(dest),
 		C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
@@ -95,20 +95,20 @@ func (d Gpu) copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int) 
 
 //___________________________________________________________________________________________________ FFT
 
-/// unsafe creation of C fftPlan
+// unsafe creation of C fftPlan
 func (d Gpu) newFFTPlan(dataSize, logicSize []int) unsafe.Pointer {
 	Csize := (*C.int)(unsafe.Pointer(&dataSize[0]))
 	CpaddedSize := (*C.int)(unsafe.Pointer(&logicSize[0]))
 	return unsafe.Pointer(C.new_gpuFFT3dPlan_padded(Csize, CpaddedSize))
 }
 
-/// unsafe FFT
+// unsafe FFT
 func (d Gpu) fftForward(plan unsafe.Pointer, in, out unsafe.Pointer) {
 	C.gpuFFT3dPlan_forward((*C.gpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
 }
 
 
-/// unsafe FFT
+// unsafe FFT
 func (d Gpu) fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer) {
 	C.gpuFFT3dPlan_inverse((*C.gpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
 }
@@ -130,22 +130,22 @@ func (d Gpu) newArray(nFloats int) unsafe.Pointer {
 	return unsafe.Pointer(C.new_gpu_array(C.int(nFloats)))
 }
 
-/// Copies a number of floats from host to GPU
-func (d Gpu) memcpyTo(source *float, dest unsafe.Pointer, nFloats int) {
-	C.memcpy_to_gpu((*C.float)(unsafe.Pointer(source)), (*C.float)(dest), C.int(nFloats))
+// Copies a number of floats from host to GPU
+func (d Gpu) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
+	C.memcpy_gpu_dir((*C.float)(unsafe.Pointer(source)), (*C.float)(dest), C.int(nFloats), C.int(direction))
 }
 
-/// Copies a number of floats from GPU to host
-func (d Gpu) memcpyFrom(source unsafe.Pointer, dest *float, nFloats int) {
-	C.memcpy_from_gpu((*C.float)(source), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats))
-}
+// // Copies a number of floats from GPU to host
+// func (d Gpu) memcpyFrom(source unsafe.Pointer, dest *float, nFloats int) {
+// 	C.memcpy_from_gpu((*C.float)(source), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats))
+// }
+// 
+// // Copies a number of floats from GPU to GPU
+// func (d Gpu) memcpyOn(source, dest unsafe.Pointer, nFloats int) {
+// 	C.memcpy_gpu_to_gpu((*C.float)(source), (*C.float)(dest), C.int(nFloats))
+// }
 
-/// Copies a number of floats from GPU to GPU
-func (d Gpu) memcpyOn(source, dest unsafe.Pointer, nFloats int) {
-	C.memcpy_gpu_to_gpu((*C.float)(source), (*C.float)(dest), C.int(nFloats))
-}
-
-/// Gets one float from a GPU array
+// Gets one float from a GPU array
 func (d Gpu) arrayGet(array unsafe.Pointer, index int) float {
 	return float(C.gpu_array_get((*C.float)(array), C.int(index)))
 }
@@ -160,30 +160,30 @@ func (d Gpu) arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer {
 
 //___________________________________________________________________________________________________ GPU Stride
 
-/// The GPU stride in number of floats (!)
+// The GPU stride in number of floats (!)
 func (d Gpu) Stride() int {
 	return int(C.gpu_stride_float())
 }
 
-/// Takes an array size and returns the smallest multiple of Stride() where the array size fits in
+// Takes an array size and returns the smallest multiple of Stride() where the array size fits in
 // func(d Gpu) PadToStride(nFloats int) int{
 //   return int(C.gpu_pad_to_stride(C.int(nFloats)));
 // }
 
-/// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
+// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
 func (d Gpu) overrideStride(nFloats int) {
 	C.gpu_override_stride(C.int(nFloats))
 }
 
 //___________________________________________________________________________________________________ tensor utilities
 
-/// Overwrite n floats with zeros
+// Overwrite n floats with zeros
 func (d Gpu) zero(data unsafe.Pointer, nFloats int) {
 	C.gpu_zero((*C.float)(data), C.int(nFloats))
 }
 
 
-/// Print the GPU properties to stdout
+// Print the GPU properties to stdout
 func (d Gpu) PrintProperties() {
 	C.gpu_print_properties_stdout()
 }

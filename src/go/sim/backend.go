@@ -2,6 +2,7 @@ package sim
 
 import (
 	"tensor"
+	"unsafe"
 )
 
 /**
@@ -33,6 +34,22 @@ func (dev Backend) Init() {
 	}
 }
 
+   // Copies a number of floats from host to GPU
+   func (dev Backend)memcpyTo(source *float, dest unsafe.Pointer, nFloats int){
+     dev.memcpy(unsafe.Pointer(source), dest, nFloats, CPY_TO)
+   }
+
+   // Copies a number of floats from GPU to host
+   func (dev Backend)memcpyFrom(source unsafe.Pointer, dest *float, nFloats int){
+     dev.memcpy(source, unsafe.Pointer(dest), nFloats, CPY_FROM)
+   }
+
+   // Copies a number of floats from GPU to GPU
+   func (dev Backend)memcpyOn(source, dest unsafe.Pointer, nFloats int){
+     dev.memcpy(unsafe.Pointer(source), unsafe.Pointer(dest), nFloats, CPY_ON)
+   }
+
+  
 // adds b to a
 func (dev Backend) Add(a, b *Tensor) {
 	assert(tensor.EqualSize(a.size, b.size))

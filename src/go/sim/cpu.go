@@ -123,29 +123,31 @@ func (d Cpu) fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer) {
 
 //_______________________________________________________________________________ GPU memory allocation
 
-/**
- * Allocates an array of floats on the GPU.
- * By convention, GPU arrays are represented by an unsafe.Pointer,
- * while host arrays are *float's.
- */
+// Allocates an array of floats on the CPU.
+// By convention, GPU arrays are represented by an unsafe.Pointer,
+// while host arrays are *float's.
 func (d Cpu) newArray(nFloats int) unsafe.Pointer {
 	return unsafe.Pointer(C.new_cpu_array(C.int(nFloats)))
 }
 
-///
-func (d Cpu) memcpyTo(source *float, dest unsafe.Pointer, nFloats int) {
-	C.cpu_memcpy((*C.float)(unsafe.Pointer(source)), (*C.float)(dest), C.int(nFloats))
+func (d Cpu) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
+ C.cpu_memcpy((*C.float)(source), (*C.float)(dest), C.int(nFloats)) //direction is ignored, it's always "CPY_ON" because there is no separate device
 }
 
-///
-func (d Cpu) memcpyFrom(source unsafe.Pointer, dest *float, nFloats int) {
-	C.cpu_memcpy((*C.float)(source), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats))
-}
-
-///
-func (d Cpu) memcpyOn(source, dest unsafe.Pointer, nFloats int) {
-	C.cpu_memcpy((*C.float)(source), (*C.float)(dest), C.int(nFloats))
-}
+// ///
+// func (d Cpu) memcpyTo(source *float, dest unsafe.Pointer, nFloats int) {
+// 	C.cpu_memcpy((*C.float)(unsafe.Pointer(source)), (*C.float)(dest), C.int(nFloats))
+// }
+// 
+// ///
+// func (d Cpu) memcpyFrom(source unsafe.Pointer, dest *float, nFloats int) {
+// 	C.cpu_memcpy((*C.float)(source), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats))
+// }
+// 
+// ///
+// func (d Cpu) memcpyOn(source, dest unsafe.Pointer, nFloats int) {
+// 	C.cpu_memcpy((*C.float)(source), (*C.float)(dest), C.int(nFloats))
+//}
 
 /// Gets one float from a GPU array
 func (d Cpu) arrayGet(array unsafe.Pointer, index int) float {
