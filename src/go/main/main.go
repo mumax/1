@@ -18,12 +18,18 @@ import (
 	"io"
 )
 
-
+var(
+  server *bool = flag.Bool("server", false, "Run as a slave node in a cluster")
+  )
+  
 func main() {
+  flag.Parse()
+  
+	if *server{
+    SimServerMain()
+    os.Exit(0)
+  }
 
-	Main()
-
-	os.Exit(0)
 
 	if flag.NArg() == 0 {
 		fmt.Fprintln(os.Stderr, "No input files.")
