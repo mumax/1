@@ -150,13 +150,13 @@ func (d Cpu) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
 //}
 
 /// Gets one float from a GPU array
-func (d Cpu) arrayGet(array unsafe.Pointer, index int) float {
-	return float(C.cpu_array_get((*C.float)(array), C.int(index)))
-}
-
-func (d Cpu) arraySet(array unsafe.Pointer, index int, value float) {
-	C.cpu_array_set((*C.float)(array), C.int(index), C.float(value))
-}
+// func (d Cpu) arrayGet(array unsafe.Pointer, index int) float {
+// 	return float(C.cpu_array_get((*C.float)(array), C.int(index)))
+// }
+// 
+// func (d Cpu) arraySet(array unsafe.Pointer, index int, value float) {
+// 	C.cpu_array_set((*C.float)(array), C.int(index), C.float(value))
+// }
 
 func (d Cpu) arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer {
 	return unsafe.Pointer(C.cpu_array_offset((*C.float)(array), C.int(index)))
