@@ -12,7 +12,6 @@ all:
 # 	make -C config-main
 	make -C draw
 	make -C main
-	make -C simserver
 
 .PHONY: clean
 clean:
@@ -25,7 +24,6 @@ clean:
 	make clean -C config-main
 	make clean -C draw
 	make clean -C main
-	make clean -C simserver
 
 	rm -f $(GOROOT)/pkg/$(GOOS)_$(GOARCH)/sim.a
 	rm -f $(GOROOT)/pkg/$(GOOS)_$(GOARCH)/sim.so
