@@ -121,30 +121,34 @@ func (s *DeviceServer) fftInverse(in * , out *Void) {
 
 //_______________________________________________________________________________ GPU memory allocation
 
-/**
- * Allocates an array of floats on the GPU.
- * By convention, GPU arrays are represented by an unsafe.Pointer,
- * while host arrays are *float's.
- *
-func (s *DeviceServer) newArray(in * , out *Void) unsafe.Pointer {
-  return unsafe.Pointer(C.new_gpu_array(C.int(nFloats)))
+
+// Allocates an array of floats on the GPU.
+// By convention, GPU arrays are represented by an unsafe.Pointer,
+// while host arrays are *float's.
+func (s *DeviceServer) NewArray(in * , out *Void) unsafe.Pointer {
+//   return unsafe.Pointer(C.new_gpu_array(C.int(nFloats)))
+  return nil
 }
 
-/// Copies a number of floats from host to GPU
-func (s *DeviceServer) memcpyTo(in * , out *Void) {
-  C.memcpy_to_gpu((*C.float)(unsafe.Pointer(source)), (*C.float)(dest), C.int(nFloats))
+/// Copies a number of floats from host to the device
+func (s *DeviceServer) MemcpyTo(in * , out *Void) {
+//   C.memcpy_to_gpu((*C.float)(unsafe.Pointer(source)), (*C.float)(dest), C.int(nFloats))
+return nil
 }
 
-/// Copies a number of floats from GPU to host
-func (s *DeviceServer) memcpyFrom(in * , out *Void) {
-  C.memcpy_from_gpu((*C.float)(source), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats))
+/// Copies a number of floats from the device to host
+func (s *DeviceServer) MemcpyFrom(in * , out *Void) {
+//   C.memcpy_from_gpu((*C.float)(source), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats))
+return nil
 }
 
-/// Copies a number of floats from GPU to GPU
-func (s *DeviceServer) memcpyOn(in * , out *Void) {
-  C.memcpy_gpu_to_gpu((*C.float)(source), (*C.float)(dest), C.int(nFloats))
+/// Copies a number of floats on the device
+func (s *DeviceServer) MemcpyOn(in * , out *Void) {
+//   C.memcpy_gpu_to_gpu((*C.float)(source), (*C.float)(dest), C.int(nFloats))
+return nil
 }
 
+/*
 /// Gets one float from a GPU array
 func (s *DeviceServer) arrayGet(in * , out *Void) float {
   return float(C.gpu_array_get((*C.float)(array), C.int(index)))

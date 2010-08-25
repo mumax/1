@@ -1,5 +1,10 @@
 package sim
 
+// TODO it would be nice to reduce the number of funcs here
+// Memcpy(DIRECTION)
+// Normalize(map=nil)
+// ...
+
 import (
 	"unsafe"
 	"rpc"
@@ -132,4 +137,40 @@ func (d *RemoteDevice) deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int
 	if err != nil {
 		panic(err)
 	}
+}
+
+type Int int
+
+func (d *RemoteDevice) newArray(nFloats int) unsafe.Pointer {
+  var args = Int(nFloats)
+  var reply uintptr
+  err := d.Client.Call("DeviceServer.NewArray", &args, &reply)
+  if err != nil {
+    panic(err)
+  }
+  return unsafe.Pointer(reply)
+}
+
+type MemcpyArgs struct{
+  Source, Dest uintptr
+  NFloats int
+}
+
+func (d *RemoteDevice) memcpyTo(source *float, dest unsafe.Pointer, nFloats int) {
+  args := &MemcpyArgs{uintptr(unsafe.Pointer(source)), uintptr(dest), nFloats}
+  var reply int
+  err := d.Client.Call("DeviceServer.MemcpyTo", args, &reply)
+  if err != nil {
+    panic(err)
+  }
+}
+
+
+func (d *RemoteDevice) memcpyFrom(source unsafe.Pointer, dest *float, nFloats int) {
+
+}
+
+
+func (d *RemoteDevice) memcpyOn(source, dest unsafe.Pointer, nFloats int) {
+
 }
