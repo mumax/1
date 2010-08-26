@@ -9,7 +9,7 @@ import (
 
 // 3D real-to-complex / complex-to-real transform. Handles zero-padding efficiently (if applicable)
 type FFT struct {
-	Backend
+	*Backend
 	plan       unsafe.Pointer ///< points to the simFFT3dPlan struct that does the actual FFT
 	dataSize   [3]int         ///< size of the non-zero data inside the logic input data. Must be <= logicSize
 	logicSize  [3]int         ///< logical size of the FFT, including padding: number of reals in each dimension
@@ -18,7 +18,7 @@ type FFT struct {
 
 
 // logicSize is the size of the real input data.
-func NewFFT(b Backend, logicSize []int) *FFT {
+func NewFFT(b *Backend, logicSize []int) *FFT {
 	return NewFFTPadded(b, logicSize, logicSize)
 }
 
@@ -27,7 +27,7 @@ func NewFFT(b Backend, logicSize []int) *FFT {
  * logicSize is the size of the real input data, but this may contain a lot of zeros.
  * dataSize is the portion of logicSize that is non-zero (typically half as large as logicSize).
  */
-func NewFFTPadded(b Backend, dataSize, logicSize []int) *FFT {
+func NewFFTPadded(b *Backend, dataSize, logicSize []int) *FFT {
 	assert(len(logicSize) == 3)
 	assert(len(dataSize) == 3)
 	for i := range dataSize {

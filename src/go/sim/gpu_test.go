@@ -5,7 +5,7 @@ import (
 	"tensor"
 )
 
-var backend = GPU
+var backend = Backend{NewRemoteDevice("127.0.0.1", ":2527"), false}
 
 func TestPad(t *testing.T) {
 	small := []int{4, 8, 16}
@@ -48,9 +48,9 @@ func TestStride(t *testing.T) {
 }
 
 
-func TestMisc(t *testing.T) {
-	backend.PrintProperties()
-}
+// func TestMisc(t *testing.T) {
+// 	backend.PrintProperties()
+// }
 
 
 func TestZero(t *testing.T) {

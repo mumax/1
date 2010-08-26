@@ -18,7 +18,7 @@ type Field struct {
 
 // Takes the parameters from a Magnet struct and
 // initializes everything.
-func NewField(dev Backend, mag *Magnet) *Field { // todo: do not need backend param here
+func NewField(dev *Backend, mag *Magnet) *Field { // todo: do not need backend param here
 	field := new(Field)
 
 	field.Magnet = *mag

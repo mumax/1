@@ -15,7 +15,7 @@ type Conv struct {
 }
 
 
-func NewConv(backend Backend, dataSize []int, kernel []tensor.StoredTensor) *Conv {
+func NewConv(backend *Backend, dataSize []int, kernel []tensor.StoredTensor) *Conv {
 	kernelSize := kernel[XX].Size()
 	assert(len(dataSize) == 3)
 	assert(len(kernelSize) == 3)

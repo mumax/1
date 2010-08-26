@@ -10,7 +10,7 @@ import (
 )
 
 type DeviceServer struct {
-	Device
+	dev Device  // We do not embed to avoid the dev methods to be exported by rpc
 	port string
 }
 
@@ -31,32 +31,32 @@ func SimServerMain() {
 
 
 func (s *DeviceServer) Add(in *AddArgs, out *Void) os.Error {
-	s.add(unsafe.Pointer(in.A), unsafe.Pointer(in.B), in.N)
+	s.dev.add(unsafe.Pointer(in.A), unsafe.Pointer(in.B), in.N)
 	return nil
 }
 
 func (s *DeviceServer) LinearCombination(in *LinearCombinationArgs, out *Void) os.Error {
-	s.linearCombination(unsafe.Pointer(in.A), unsafe.Pointer(in.B), in.WeightA, in.WeightB, in.N)
+	s.dev.linearCombination(unsafe.Pointer(in.A), unsafe.Pointer(in.B), in.WeightA, in.WeightB, in.N)
 	return nil
 }
 
 func (s *DeviceServer) AddConstant(in *AddConstantArgs, out *Void) os.Error {
-	s.addConstant(unsafe.Pointer(in.A), in.Cnst, in.N)
+	s.dev.addConstant(unsafe.Pointer(in.A), in.Cnst, in.N)
 	return nil
 }
 
 func (s *DeviceServer) Normalize(in *NormalizeArgs, out *Void) os.Error {
-	s.normalize(unsafe.Pointer(in.M), in.N)
+	s.dev.normalize(unsafe.Pointer(in.M), in.N)
 	return nil
 }
 
 func (s *DeviceServer) NormalizeMap(in *NormalizeMapArgs, out *Void) os.Error {
-	s.normalizeMap(unsafe.Pointer(in.M), unsafe.Pointer(in.NormMap), in.N)
+	s.dev.normalizeMap(unsafe.Pointer(in.M), unsafe.Pointer(in.NormMap), in.N)
 	return nil
 }
 
 func (s *DeviceServer) DeltaM(in *DeltaMArgs, out *Void) os.Error {
-	s.deltaM(unsafe.Pointer(in.M), unsafe.Pointer(in.H), in.Alpha, in.DtGilbert, in.N)
+	s.dev.deltaM(unsafe.Pointer(in.M), unsafe.Pointer(in.H), in.Alpha, in.DtGilbert, in.N)
 	return nil
 }
 
@@ -194,5 +194,5 @@ func (s *DeviceServer) PrintProperties() {
 
 //___________________________________________________________________________________________________ misc*/
 func (s *DeviceServer) String() string {
-	return "Remote"
+	return "Simulation server on " + s.port
 }

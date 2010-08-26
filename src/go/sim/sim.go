@@ -26,7 +26,7 @@ import (
 // TODO order of initialization is too important in input file, should be more versatile
 //
 type Sim struct {
-	backend Backend
+	backend *Backend
 
 	aexch float
 	msat  float
@@ -58,7 +58,7 @@ func New() *Sim {
 
 func NewSim() *Sim {
 	sim := new(Sim)
-	sim.backend = GPU //the default TODO: check if GPU is present, use CPU otherwise
+	sim.backend = nil//Backend{NewRemoteDevice("127.0.0.1", ":2527"), false} //the default TODO: check if GPU is present, use CPU otherwise
 	sim.outputdir = "."
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
@@ -97,7 +97,7 @@ func (s *Sim) init() {
 	L := mat.UnitLength()
 	cellsize := []float{s.cellsize[X] / L, s.cellsize[Y] / L, s.cellsize[Z] / L}
 	magnet := NewMagnet(dev, mat, size, cellsize)
-	s.Field = NewField(s.backend, magnet)
+	s.Field = NewField(dev, magnet)
 
 	dt := s.dt / mat.UnitTime()
 	s.Solver = NewSolver(s.solvertype, s.Field) //NewEuler(dev, s.Field, dt) //TODO solver dt should be float64(?)

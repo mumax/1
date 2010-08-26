@@ -24,7 +24,7 @@ import (
 	"fmt"
 )
 
-var CPU Backend = Backend{Cpu{}, false}
+var CPU *Backend = &Backend{Cpu{}, false}
 
 type Cpu struct {
 	// intentionally empty, but the methods implement sim.Device

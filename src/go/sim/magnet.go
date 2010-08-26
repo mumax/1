@@ -14,7 +14,7 @@ type Magnet struct {
 }
 
 
-func NewMagnet(dev Backend, mat *Material, size []int, cellSize []float) *Magnet {
+func NewMagnet(dev *Backend, mat *Material, size []int, cellSize []float) *Magnet {
 	m, h := NewTensor(dev, Size4D(size)), NewTensor(dev, Size4D(size))
 	mComp, hComp := [3]*Tensor{}, [3]*Tensor{}
 	for i := range mComp {
