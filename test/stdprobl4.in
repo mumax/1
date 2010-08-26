@@ -2,12 +2,13 @@
 
 
 # hardware selection
+# cpu
 remote 127.0.0.1   2527
 
 
 # output
 outputdir:  	stdprobl4
-verbosity:  	2
+verbosity:  	3
 
 solvertype:  	heun
 dt:           	0.02E-12                  # s

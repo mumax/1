@@ -93,6 +93,7 @@ func (s *DeviceServer) FFT(in *FFTArgs, out *Void) os.Error {
 
 func (s *DeviceServer) NewArray(in *Int, out *Ptr) os.Error {
 	out.Value = uintptr(s.dev.newArray(in.Value))
+	Debugvv("NewArray(", in, ") :", out)
 	return nil
 }
 //
@@ -114,9 +115,11 @@ func (s *DeviceServer) NewArray(in *Int, out *Ptr) os.Error {
 // 	C.gpu_override_stride(C.int(nFloats))
 // }
 //
-// func (s *DeviceServer) zero(data unsafe.Pointer, nFloats int) {
-// 	C.gpu_zero((*C.float)(data), C.int(nFloats))
-// }
+func (s *DeviceServer) Zero(in *ZeroArgs, out *Ptr) os.Error {
+  Debugvv("Zero", in)
+	s.dev.zero(unsafe.Pointer(in.Data), in.NFloats)
+	return nil
+}
 //
 
 // func (s *DeviceServer) PrintProperties() {

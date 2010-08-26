@@ -163,7 +163,8 @@ func (d *RemoteDevice) newArray(nFloats int) unsafe.Pointer {
 	if err != nil {
 		panic(err)
 	}
-	return unsafe.Pointer(reply)
+	Debugvv("newArray(", args, "): ", reply)
+	return unsafe.Pointer(reply.Value)  // WARNING  unsafe.Pointer(reply) is not a compilation error but is wrong!
 }
 
 type MemcpyArgs struct {
@@ -188,6 +189,7 @@ type ZeroArgs struct {
 func (d *RemoteDevice) zero(data unsafe.Pointer, nFloats int) {
 	args := &ZeroArgs{uintptr(data), nFloats}
   reply := &Void{0}
+  Debugvv("zero(", args, ")")
 	err := d.Client.Call("DeviceServer.Zero", args, reply)
 	if err != nil {
 		panic(err)
@@ -219,7 +221,7 @@ func (d *RemoteDevice) newFFTPlan(dataSize, logicSize []int) unsafe.Pointer {
 	if err != nil {
 		panic(err)
 	}
-	return unsafe.Pointer(reply)
+	return unsafe.Pointer(reply.Value)
 }
 
 type FFTArgs struct {
@@ -268,7 +270,7 @@ func (d *RemoteDevice) arrayOffset(array unsafe.Pointer, index int) unsafe.Point
 	if err != nil {
 		panic(err)
 	}
-	return unsafe.Pointer(reply)
+	return unsafe.Pointer(reply.Value)
 }
 
 
