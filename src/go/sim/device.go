@@ -63,11 +63,7 @@ type Device interface {
 
 	//____________________________________________________________________ tensor (safe wrappers in tensor.go)
 
-	// Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
-	copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int)
-
-	//Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
-	copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int)
+	copyPadded(source, dest unsafe.Pointer, sourceSize, destSize []int, direction int)
 
 	// Allocates an array of floats on the Device.
 	// By convention, Device arrays are represented by an unsafe.Pointer,
@@ -82,7 +78,7 @@ type Device interface {
 	// TODO: on a multi-device this will not work
 	arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer
 
-	/// Overwrite n floats with zeros
+	// Overwrite n floats with zeros
 	zero(data unsafe.Pointer, nFloats int)
 
 	//____________________________________________________________________ specialized (used in only one place)
@@ -91,7 +87,7 @@ type Device interface {
 	semianalStep(m, h unsafe.Pointer, dt, alpha float, order, N int)
 
 	// Extract only the real parts form in interleaved complex array
-	extractReal(complex, real unsafe.Pointer, NReal int)
+	// 	extractReal(complex, real unsafe.Pointer, NReal int)
 
 	// Automatically selects between kernelmul3/4/6
 	kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, kerntype, nRealNumbers int)
@@ -122,19 +118,16 @@ type Device interface {
 	// unsafe creation of C fftPlan
 	newFFTPlan(dataSize, logicSize []int) unsafe.Pointer
 
-	// unsafe FFT
-	fftForward(plan unsafe.Pointer, in, out unsafe.Pointer)
-
-	// unsafe FFT
-	fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer)
+	fft(plan unsafe.Pointer, in, out unsafe.Pointer, direction int)
 
 	//______________________________________________________________________________ already safe
 
-	/// The GPU stride in number of floats (!)
+	// The GPU stride in number of floats (!)
 	Stride() int
 
-	/// Print the GPU properties to stdout
-	PrintProperties()
+	// Print the GPU properties to stdout
+	// TODO: return string
+	//PrintProperties()
 
 	String() string
 }
@@ -144,4 +137,15 @@ const (
 	CPY_TO   = 1
 	CPY_ON   = 2
 	CPY_FROM = 3
+)
+
+// direction flag for copyPadded()
+const (
+	CPY_PAD   = 1
+	CPY_UNPAD = 2
+)
+
+const (
+	FFT_FORWARD = 1
+	FFT_INVERSE = -1
 )

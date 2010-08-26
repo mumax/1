@@ -90,20 +90,35 @@ func (d Gpu) kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, 
 //___________________________________________________________________________________________________ Copy-pad
 
 
-//Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
-func (d Gpu) copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int) {
-	C.gpu_copy_pad((*C.float)(source), (*C.float)(dest),
-		C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
-		C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
+func (d Gpu) copyPadded(source, dest unsafe.Pointer, sourceSize, destSize []int, direction int) {
+	switch direction {
+	default:
+		panic(fmt.Sprintf("Unknown padding direction:", direction))
+	case CPY_PAD:
+		C.gpu_copy_pad((*C.float)(source), (*C.float)(dest),
+			C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
+			C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
+	case CPY_UNPAD:
+		C.gpu_copy_unpad((*C.float)(source), (*C.float)(dest),
+			C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
+			C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
+	}
 }
 
-
-//Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
-func (d Gpu) copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int) {
-	C.gpu_copy_unpad((*C.float)(source), (*C.float)(dest),
-		C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
-		C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
-}
+// //Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
+// func (d Gpu) copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int) {
+// 	C.gpu_copy_pad((*C.float)(source), (*C.float)(dest),
+// 		C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
+// 		C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
+// }
+//
+//
+// //Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
+// func (d Gpu) copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int) {
+// 	C.gpu_copy_unpad((*C.float)(source), (*C.float)(dest),
+// 		C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
+// 		C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
+// }
 
 //___________________________________________________________________________________________________ FFT
 
@@ -115,14 +130,15 @@ func (d Gpu) newFFTPlan(dataSize, logicSize []int) unsafe.Pointer {
 }
 
 // unsafe FFT
-func (d Gpu) fftForward(plan unsafe.Pointer, in, out unsafe.Pointer) {
-	C.gpuFFT3dPlan_forward((*C.gpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
-}
-
-
-// unsafe FFT
-func (d Gpu) fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer) {
-	C.gpuFFT3dPlan_inverse((*C.gpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
+func (d Gpu) fft(plan unsafe.Pointer, in, out unsafe.Pointer, direction int) {
+	switch direction {
+	default:
+		panic(fmt.Sprintf("Unknown FFT direction:", direction))
+	case FFT_FORWARD:
+		C.gpuFFT3dPlan_forward((*C.gpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
+	case FFT_INVERSE:
+		C.gpuFFT3dPlan_inverse((*C.gpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
+	}
 }
 
 

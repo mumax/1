@@ -20,7 +20,9 @@ import "unsafe"
  * @author Arne Vansteenkiste
  */
 
-import ("fmt")
+import (
+	"fmt"
+)
 
 var CPU Backend = Backend{Cpu{}, false}
 
@@ -57,12 +59,12 @@ func (d Cpu) deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int) {
 }
 
 func (d Cpu) semianalStep(m, h unsafe.Pointer, dt, alpha float, order, N int) {
-  switch order {
-  default:
-    panic(fmt.Sprintf("Unknown semianal order:", order))
-  case 0:
-    C.cpu_anal_fw_step_unsafe((*C.float)(m), (*C.float)(h), C.float(dt), C.float(alpha), C.int(N))
-  }
+	switch order {
+	default:
+		panic(fmt.Sprintf("Unknown semianal order:", order))
+	case 0:
+		C.cpu_anal_fw_step_unsafe((*C.float)(m), (*C.float)(h), C.float(dt), C.float(alpha), C.int(N))
+	}
 }
 
 //___________________________________________________________________________________________________ Kernel multiplication
@@ -89,19 +91,19 @@ func (d Cpu) kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, 
 //___________________________________________________________________________________________________ Copy-pad
 
 
-///Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
-func (d Cpu) copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int) {
-	C.cpu_copy_pad((*C.float)(source), (*C.float)(dest),
-		C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
-		C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
-}
-
-
-//Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
-func (d Cpu) copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int) {
-	C.cpu_copy_unpad((*C.float)(source), (*C.float)(dest),
-		C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
-		C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
+func (d Cpu) copyPadded(source, dest unsafe.Pointer, sourceSize, destSize []int, direction int) {
+	switch direction {
+	default:
+		panic(fmt.Sprintf("Unknown padding direction:", direction))
+	case CPY_PAD:
+		C.cpu_copy_pad((*C.float)(source), (*C.float)(dest),
+			C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
+			C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
+	case CPY_UNPAD:
+		C.cpu_copy_unpad((*C.float)(source), (*C.float)(dest),
+			C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
+			C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
+	}
 }
 
 //___________________________________________________________________________________________________ FFT
@@ -115,16 +117,27 @@ func (d Cpu) newFFTPlan(dataSize, logicSize []int) unsafe.Pointer {
 	return unsafe.Pointer(C.new_cpuFFT3dPlan_inplace(Csize, CpaddedSize))
 }
 
-/// unsafe FFT
-func (d Cpu) fftForward(plan unsafe.Pointer, in, out unsafe.Pointer) {
-	C.cpuFFT3dPlan_forward((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
+func (d Cpu) fft(plan unsafe.Pointer, in, out unsafe.Pointer, direction int) {
+	switch direction {
+	default:
+		panic(fmt.Sprintf("Unknown FFT direction:", direction))
+	case FFT_FORWARD:
+		C.cpuFFT3dPlan_forward((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
+	case FFT_INVERSE:
+		C.cpuFFT3dPlan_inverse((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
+	}
 }
 
-
 /// unsafe FFT
-func (d Cpu) fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer) {
-	C.cpuFFT3dPlan_inverse((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
-}
+// func (d Cpu) fftForward(plan unsafe.Pointer, in, out unsafe.Pointer) {
+// 	C.cpuFFT3dPlan_forward((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
+// }
+//
+//
+// /// unsafe FFT
+// func (d Cpu) fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer) {
+// 	C.cpuFFT3dPlan_inverse((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
+// }
 
 
 // func(d Cpu) (fft *FFT) Normalization() int{

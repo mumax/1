@@ -13,7 +13,7 @@ import (
 
 // temp debug func
 func Main() {
-	dev := NewRemoteDevice("127.0.0.1", ":2527")
+	dev := Backend{NewRemoteDevice("127.0.0.1", ":2527"), false}
 	dev.add(nil, nil, 100)
 }
 
@@ -139,10 +139,27 @@ func (d *RemoteDevice) deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int
 	}
 }
 
-type Int int
+type SemiAnalStepArgs struct {
+	M, H      uintptr
+	Dt, Alpha float
+	Order, N  int
+}
+
+func (d *RemoteDevice) semianalStep(m, h unsafe.Pointer, dt, alpha float, order, N int) {
+	var args = &SemiAnalStepArgs{uintptr(m), uintptr(h), dt, alpha, order, N}
+	var reply int
+	err := d.Client.Call("DeviceServer.SemiAnalStep", &args, &reply)
+	if err != nil {
+		panic(err)
+	}
+}
+
+type Int struct {
+	Value int
+}
 
 func (d *RemoteDevice) newArray(nFloats int) unsafe.Pointer {
-	var args = Int(nFloats)
+	var args = &Int{nFloats}
 	var reply uintptr
 	err := d.Client.Call("DeviceServer.NewArray", &args, &reply)
 	if err != nil {
@@ -163,4 +180,113 @@ func (d *RemoteDevice) memcpy(source, dest unsafe.Pointer, nFloats, direction in
 	if err != nil {
 		panic(err)
 	}
+}
+
+type ZeroArgs struct {
+	Data    uintptr
+	NFloats int
+}
+
+func (d *RemoteDevice) zero(data unsafe.Pointer, nFloats int) {
+	args := &ZeroArgs{uintptr(data), nFloats}
+	var reply int
+	err := d.Client.Call("DeviceServer.Zero", args, &reply)
+	if err != nil {
+		panic(err)
+	}
+}
+
+type KernelMulArgs struct {
+	Mx, My, Mz, Kxx, Kyy, Kzz, Kyz, Kxz, Kxy uintptr
+	Kerneltype, NRealNumbers                 int
+}
+
+func (d *RemoteDevice) kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, kerneltype, nRealNumbers int) {
+	args := &KernelMulArgs{uintptr(mx), uintptr(my), uintptr(mz), uintptr(kxx), uintptr(kyy), uintptr(kzz), uintptr(kyz), uintptr(kxz), uintptr(kxy), kerneltype, nRealNumbers}
+	var reply int
+	err := d.Client.Call("DeviceServer.KernelMul", args, &reply)
+	if err != nil {
+		panic(err)
+	}
+}
+
+type NewFFTPlanArgs struct {
+	DataSize, LogicSize []int
+}
+
+func (d *RemoteDevice) newFFTPlan(dataSize, logicSize []int) unsafe.Pointer {
+	args := &NewFFTPlanArgs{dataSize, logicSize}
+	var reply uintptr
+	err := d.Client.Call("DeviceServer.NewFFTPlan", args, &reply)
+	if err != nil {
+		panic(err)
+	}
+	return unsafe.Pointer(reply)
+}
+
+type FFTArgs struct {
+	Plan, In, Out uintptr
+	Direction     int
+}
+
+func (d *RemoteDevice) fft(plan unsafe.Pointer, in, out unsafe.Pointer, direction int) {
+	args := &FFTArgs{uintptr(plan), uintptr(in), uintptr(out), direction}
+	var reply int
+	err := d.Client.Call("DeviceServer.FFT", args, &reply)
+	if err != nil {
+		panic(err)
+	}
+}
+
+type CopyPaddedArgs struct {
+	Source, Dest         uintptr
+	SourceSize, DestSize []int
+	Direction            int
+}
+
+func (d *RemoteDevice) copyPadded(source, dest unsafe.Pointer, sourceSize, destSize []int, direction int) {
+	args := &CopyPaddedArgs{uintptr(source), uintptr(dest), sourceSize, destSize, direction}
+	var reply int
+	err := d.Client.Call("DeviceServer.CopyPadded", args, &reply)
+	if err != nil {
+		panic(err)
+	}
+}
+
+
+type ArrayOffsetArgs struct {
+	Array uintptr
+	index int
+}
+
+func (d *RemoteDevice) arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer {
+	args := &ArrayOffsetArgs{uintptr(array), index}
+	var reply uintptr
+	err := d.Client.Call("DeviceServer.ArrayOffset", args, &reply)
+	if err != nil {
+		panic(err)
+	}
+	return unsafe.Pointer(reply)
+}
+
+
+func (d *RemoteDevice) Stride() int {
+	var reply int
+	err := d.Client.Call("DeviceServer.Stride", Void{}, &reply)
+	if err != nil {
+		panic(err)
+	}
+	return reply
+}
+
+func (d *RemoteDevice) overrideStride(nFloats int) {
+	var reply int
+	err := d.Client.Call("DeviceServer.OverrideStride", &Int{nFloats}, &reply)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (d *RemoteDevice) String() string {
+	return "RemoteDevice: " + d.serverAddress + d.serverPort
 }

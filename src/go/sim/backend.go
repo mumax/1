@@ -49,6 +49,16 @@ func (dev Backend) memcpyOn(source, dest unsafe.Pointer, nFloats int) {
 	dev.memcpy(unsafe.Pointer(source), unsafe.Pointer(dest), nFloats, CPY_ON)
 }
 
+// Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
+func (dev Backend) copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int) {
+	dev.copyPadded(source, dest, sourceSize, destSize, CPY_PAD)
+}
+
+//Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
+func (dev Backend) copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int) {
+	dev.copyPadded(source, dest, sourceSize, destSize, CPY_UNPAD)
+}
+
 // Gets one float from a Device array.
 // Slow, for debug only
 func (dev Backend) arrayGet(array unsafe.Pointer, index int) float {
@@ -114,10 +124,20 @@ func (b Backend) OverrideStride(stride int) {
 	b.overrideStride(stride)
 }
 
-func (b Backend) ExtractReal(complex, real *Tensor) {
-	assert(Len(complex.size) == 2*Len(real.size))
-	b.extractReal(complex.data, real.data, Len(real.size))
+// unsafe FFT
+func (b Backend) fftForward(plan unsafe.Pointer, in, out unsafe.Pointer) {
+	b.fft(plan, in, out, FFT_FORWARD)
 }
+
+// unsafe FFT
+func (b Backend) fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer) {
+	b.fft(plan, in, out, FFT_INVERSE)
+}
+
+// func (b Backend) ExtractReal(complex, real *Tensor) {
+// 	assert(Len(complex.size) == 2*Len(real.size))
+// 	b.extractReal(complex.data, real.data, Len(real.size))
+// }
 
 //________________________________________________________________________ derived methods
 
