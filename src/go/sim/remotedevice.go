@@ -9,13 +9,8 @@ import (
 	"unsafe"
 	"rpc"
 	"os"
+	"fmt"
 )
-
-// temp debug func
-func Main() {
-	dev := Backend{NewRemoteDevice("127.0.0.1", ":2527"), false}
-	dev.add(nil, nil, 100)
-}
 
 // A RemoteDevice gives access to a Device (GPU, CPU, ...)
 // on a remote server. Since RemoteDevice satisfies the Device
@@ -24,23 +19,24 @@ func Main() {
 type RemoteDevice struct {
 	*rpc.Client
 	serverAddress string
-	serverPort    string
+	serverPort    int
 }
 
 // func NewRemoteBackend(serverAddress, serverPort string) Backend{
 //   return &Backend{NewRemoteDevice(serverAddress, serverPort), false}
 // }
 
-func NewRemoteDevice(serverAddress, serverPort string) *RemoteDevice {
+func NewRemoteDevice(serverAddress string, serverPort int) *RemoteDevice {
 	d := new(RemoteDevice)
 	d.serverAddress = serverAddress
 	d.serverPort = serverPort
+	url:=d.serverAddress + ":" + fmt.Sprint(d.serverPort)
 	var err os.Error
-	d.Client, err = rpc.DialHTTP("tcp", d.serverAddress+d.serverPort) //TODO: UDP
+	d.Client, err = rpc.DialHTTP("tcp", url) //TODO: UDP
 	if err != nil {
 		panic(err)
 	}
-	Debugv("Connected to " + d.serverAddress + d.serverPort)
+	Debugv("Connected to " + d.serverAddress + fmt.Sprint(d.serverPort))
 	return d
 }
 
@@ -288,5 +284,5 @@ func (d *RemoteDevice) overrideStride(nFloats int) {
 }
 
 func (d *RemoteDevice) String() string {
-	return "RemoteDevice: " + d.serverAddress + d.serverPort
+	return "RemoteDevice: " + d.serverAddress + ":" + fmt.Sprint(d.serverPort)
 }
