@@ -30,7 +30,7 @@ func NewRemoteDevice(serverAddress string, serverPort int) *RemoteDevice {
 	d := new(RemoteDevice)
 	d.serverAddress = serverAddress
 	d.serverPort = serverPort
-	url:=d.serverAddress + ":" + fmt.Sprint(d.serverPort)
+	url := d.serverAddress + ":" + fmt.Sprint(d.serverPort)
 	var err os.Error
 	d.Client, err = rpc.DialHTTP("tcp", url) //TODO: UDP
 	if err != nil {
@@ -135,14 +135,14 @@ func (d *RemoteDevice) deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int
 	}
 }
 
-type SemiAnalStepArgs struct {
+type SemianalStepArgs struct {
 	M, H      uintptr
 	Dt, Alpha float
 	Order, N  int
 }
 
 func (d *RemoteDevice) semianalStep(m, h unsafe.Pointer, dt, alpha float, order, N int) {
-	var args = &SemiAnalStepArgs{uintptr(m), uintptr(h), dt, alpha, order, N}
+	var args = &SemianalStepArgs{uintptr(m), uintptr(h), dt, alpha, order, N}
 	var reply int
 	err := d.Client.Call("DeviceServer.SemiAnalStep", &args, &reply)
 	if err != nil {
@@ -223,6 +223,10 @@ func (d *RemoteDevice) newFFTPlan(dataSize, logicSize []int) unsafe.Pointer {
 type FFTArgs struct {
 	Plan, In, Out uintptr
 	Direction     int
+}
+
+type Ptr struct {
+	Value uintptr
 }
 
 func (d *RemoteDevice) fft(plan unsafe.Pointer, in, out unsafe.Pointer, direction int) {

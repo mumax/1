@@ -15,8 +15,8 @@ const (
 
 type Tensor struct {
 	*Backend ///< wraps the Device where the Tensor resides on (GPU/CPU/...)
-	size    []int
-	data    unsafe.Pointer // points to float array on the GPU/CPU
+	size     []int
+	data     unsafe.Pointer // points to float array on the GPU/CPU
 }
 
 

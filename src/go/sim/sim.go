@@ -58,7 +58,7 @@ func New() *Sim {
 
 func NewSim() *Sim {
 	sim := new(Sim)
-	sim.backend = nil  //TODO: check if GPU is present, use CPU otherwise
+	sim.backend = nil //TODO: check if GPU is present, use CPU otherwise
 	sim.outputdir = "."
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
