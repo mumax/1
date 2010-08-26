@@ -44,7 +44,9 @@ func (d *RemoteDevice) init() {
 
 }
 
-type Void struct{}
+type Void struct{
+  Dummy int
+}
 
 
 type AddArgs struct {
@@ -54,8 +56,8 @@ type AddArgs struct {
 
 func (d *RemoteDevice) add(a, b unsafe.Pointer, N int) {
 	args := &AddArgs{uintptr(a), uintptr(b), N}
-	var reply int
-	err := d.Client.Call("DeviceServer.Add", args, &reply)
+  reply := &Void{0}
+	err := d.Client.Call("DeviceServer.Add", args, reply)
 	if err != nil {
 		panic(err)
 	}
@@ -70,8 +72,8 @@ type LinearCombinationArgs struct {
 
 func (d *RemoteDevice) linearCombination(a, b unsafe.Pointer, weightA, weightB float, N int) {
 	args := &LinearCombinationArgs{uintptr(a), uintptr(b), weightA, weightB, N}
-	var reply int
-	err := d.Client.Call("DeviceServer.LinearCombination", args, &reply)
+ reply := &Void{0}
+	err := d.Client.Call("DeviceServer.LinearCombination", args, reply)
 	if err != nil {
 		panic(err)
 	}
@@ -85,8 +87,8 @@ type AddConstantArgs struct {
 
 func (d *RemoteDevice) addConstant(a unsafe.Pointer, cnst float, N int) {
 	args := &AddConstantArgs{uintptr(a), cnst, N}
-	var reply int
-	err := d.Client.Call("DeviceServer.AddConstant", args, &reply)
+ reply := &Void{0}
+	err := d.Client.Call("DeviceServer.AddConstant", args, reply)
 	if err != nil {
 		panic(err)
 	}
@@ -99,8 +101,8 @@ type NormalizeArgs struct {
 
 func (d *RemoteDevice) normalize(m unsafe.Pointer, N int) {
 	args := &NormalizeArgs{uintptr(m), N}
-	var reply int
-	err := d.Client.Call("DeviceServer.Normalize", args, &reply)
+ reply := &Void{0}
+	err := d.Client.Call("DeviceServer.Normalize", args, reply)
 	if err != nil {
 		panic(err)
 	}
@@ -113,8 +115,8 @@ type NormalizeMapArgs struct {
 
 func (d *RemoteDevice) normalizeMap(m, normMap unsafe.Pointer, N int) {
 	args := &NormalizeMapArgs{uintptr(m), uintptr(normMap), N}
-	var reply int
-	err := d.Client.Call("DeviceServer.NormalizeMap", args, &reply)
+ reply := &Void{0}
+	err := d.Client.Call("DeviceServer.NormalizeMap", args, reply)
 	if err != nil {
 		panic(err)
 	}
@@ -128,8 +130,8 @@ type DeltaMArgs struct {
 
 func (d *RemoteDevice) deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int) {
 	args := &DeltaMArgs{uintptr(m), uintptr(h), alpha, dtGilbert, N}
-	var reply int
-	err := d.Client.Call("DeviceServer.DeltaM", args, &reply)
+ reply := &Void{0}
+	err := d.Client.Call("DeviceServer.DeltaM", args, reply)
 	if err != nil {
 		panic(err)
 	}
@@ -143,8 +145,8 @@ type SemianalStepArgs struct {
 
 func (d *RemoteDevice) semianalStep(m, h unsafe.Pointer, dt, alpha float, order, N int) {
 	var args = &SemianalStepArgs{uintptr(m), uintptr(h), dt, alpha, order, N}
-	var reply int
-	err := d.Client.Call("DeviceServer.SemiAnalStep", &args, &reply)
+ reply := &Void{0}
+	err := d.Client.Call("DeviceServer.SemiAnalStep", &args, reply)
 	if err != nil {
 		panic(err)
 	}
@@ -156,8 +158,8 @@ type Int struct {
 
 func (d *RemoteDevice) newArray(nFloats int) unsafe.Pointer {
 	var args = &Int{nFloats}
-	var reply uintptr
-	err := d.Client.Call("DeviceServer.NewArray", &args, &reply)
+	reply := &Ptr{0}
+	err := d.Client.Call("DeviceServer.NewArray", args, reply)
 	if err != nil {
 		panic(err)
 	}
@@ -171,8 +173,8 @@ type MemcpyArgs struct {
 
 func (d *RemoteDevice) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
 	args := &MemcpyArgs{uintptr(unsafe.Pointer(source)), uintptr(dest), nFloats, direction}
-	var reply int
-	err := d.Client.Call("DeviceServer.MemcpyTo", args, &reply)
+ reply := &Void{0}
+	err := d.Client.Call("DeviceServer.MemcpyTo", args, reply)
 	if err != nil {
 		panic(err)
 	}
@@ -185,8 +187,8 @@ type ZeroArgs struct {
 
 func (d *RemoteDevice) zero(data unsafe.Pointer, nFloats int) {
 	args := &ZeroArgs{uintptr(data), nFloats}
-	var reply int
-	err := d.Client.Call("DeviceServer.Zero", args, &reply)
+  reply := &Void{0}
+	err := d.Client.Call("DeviceServer.Zero", args, reply)
 	if err != nil {
 		panic(err)
 	}
@@ -199,8 +201,8 @@ type KernelMulArgs struct {
 
 func (d *RemoteDevice) kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, kerneltype, nRealNumbers int) {
 	args := &KernelMulArgs{uintptr(mx), uintptr(my), uintptr(mz), uintptr(kxx), uintptr(kyy), uintptr(kzz), uintptr(kyz), uintptr(kxz), uintptr(kxy), kerneltype, nRealNumbers}
-	var reply int
-	err := d.Client.Call("DeviceServer.KernelMul", args, &reply)
+ reply := &Void{0}
+	err := d.Client.Call("DeviceServer.KernelMul", args, reply)
 	if err != nil {
 		panic(err)
 	}
@@ -212,8 +214,8 @@ type NewFFTPlanArgs struct {
 
 func (d *RemoteDevice) newFFTPlan(dataSize, logicSize []int) unsafe.Pointer {
 	args := &NewFFTPlanArgs{dataSize, logicSize}
-	var reply uintptr
-	err := d.Client.Call("DeviceServer.NewFFTPlan", args, &reply)
+ reply := &Ptr{0}
+	err := d.Client.Call("DeviceServer.NewFFTPlan", args, reply)
 	if err != nil {
 		panic(err)
 	}
@@ -231,8 +233,8 @@ type Ptr struct {
 
 func (d *RemoteDevice) fft(plan unsafe.Pointer, in, out unsafe.Pointer, direction int) {
 	args := &FFTArgs{uintptr(plan), uintptr(in), uintptr(out), direction}
-	var reply int
-	err := d.Client.Call("DeviceServer.FFT", args, &reply)
+	reply := &Void{0}
+	err := d.Client.Call("DeviceServer.FFT", args, reply)
 	if err != nil {
 		panic(err)
 	}
@@ -246,8 +248,8 @@ type CopyPaddedArgs struct {
 
 func (d *RemoteDevice) copyPadded(source, dest unsafe.Pointer, sourceSize, destSize []int, direction int) {
 	args := &CopyPaddedArgs{uintptr(source), uintptr(dest), sourceSize, destSize, direction}
-	var reply int
-	err := d.Client.Call("DeviceServer.CopyPadded", args, &reply)
+ reply := &Void{0}
+	err := d.Client.Call("DeviceServer.CopyPadded", args, reply)
 	if err != nil {
 		panic(err)
 	}
@@ -261,8 +263,8 @@ type ArrayOffsetArgs struct {
 
 func (d *RemoteDevice) arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer {
 	args := &ArrayOffsetArgs{uintptr(array), index}
-	var reply uintptr
-	err := d.Client.Call("DeviceServer.ArrayOffset", args, &reply)
+ reply := &Ptr{0}
+	err := d.Client.Call("DeviceServer.ArrayOffset", args, reply)
 	if err != nil {
 		panic(err)
 	}
@@ -271,17 +273,17 @@ func (d *RemoteDevice) arrayOffset(array unsafe.Pointer, index int) unsafe.Point
 
 
 func (d *RemoteDevice) Stride() int {
-	var reply int
-	err := d.Client.Call("DeviceServer.Stride", Void{}, &reply)
+  reply := &Int{0}
+	err := d.Client.Call("DeviceServer.Stride", Void{}, reply)
 	if err != nil {
 		panic(err)
 	}
-	return reply
+	return reply.Value
 }
 
 func (d *RemoteDevice) overrideStride(nFloats int) {
-	var reply int
-	err := d.Client.Call("DeviceServer.OverrideStride", &Int{nFloats}, &reply)
+ reply := &Void{0}
+	err := d.Client.Call("DeviceServer.OverrideStride", &Int{nFloats}, reply)
 	if err != nil {
 		panic(err)
 	}

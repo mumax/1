@@ -62,56 +62,62 @@ func (s *DeviceServer) DeltaM(in *DeltaMArgs, out *Void) os.Error {
 	return nil
 }
 
-func (s *DeviceServer) SemianalStep(in *SemianalStepArgs, out *Void) {
+func (s *DeviceServer) SemianalStep(in *SemianalStepArgs, out *Void) os.Error {
 	s.dev.semianalStep(unsafe.Pointer(in.M), unsafe.Pointer(in.H), in.Dt, in.Alpha, in.Order, in.N)
+	return nil
 }
 
-func (s *DeviceServer) KernelMul(in *KernelMulArgs, out *Void) {
+func (s *DeviceServer) KernelMul(in *KernelMulArgs, out *Void) os.Error {
 	s.dev.kernelMul(unsafe.Pointer(in.Mx), unsafe.Pointer(in.My), unsafe.Pointer(in.Mz), unsafe.Pointer(in.Kxx), unsafe.Pointer(in.Kyy), unsafe.Pointer(in.Kzz), unsafe.Pointer(in.Kyz), unsafe.Pointer(in.Kxz), unsafe.Pointer(in.Kxy), in.Kerneltype, in.NRealNumbers)
+	return nil
 }
 
 
-func (s *DeviceServer) CopyPadded(in *CopyPaddedArgs, out *Void) {
+func (s *DeviceServer) CopyPadded(in *CopyPaddedArgs, out *Void) os.Error {
 	s.dev.copyPadded(unsafe.Pointer(in.Source), unsafe.Pointer(in.Dest), in.SourceSize, in.DestSize, in.Direction)
+	return nil
 }
 
 
-func (s *DeviceServer) NewFFTPlan(in *NewFFTPlanArgs, out *Ptr) {
+func (s *DeviceServer) NewFFTPlan(in *NewFFTPlanArgs, out *Ptr) os.Error {
 	out.Value = uintptr(s.dev.newFFTPlan(in.DataSize, in.LogicSize))
+	return nil
 }
 
 
-func (s *DeviceServer) FFT(in *FFTArgs, out *Void) {
+func (s *DeviceServer) FFT(in *FFTArgs, out *Void) os.Error {
 	s.dev.fft(unsafe.Pointer(in.Plan), unsafe.Pointer(in.In), unsafe.Pointer(in.Out), in.Direction)
+	return nil
 }
 
 
-// func (s *DeviceServer) newArray(nFloats int) unsafe.Pointer {
-// 	return unsafe.Pointer(C.new_gpu_array(C.int(nFloats)))
-// }
-// 
-// 
+func (s *DeviceServer) NewArray(in *Int, out *Ptr) os.Error {
+	out.Value = uintptr(s.dev.newArray(in.Value))
+	return nil
+}
+//
+//
 // func (s *DeviceServer) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
 // 	C.memcpy_gpu_dir((*C.float)(unsafe.Pointer(source)), (*C.float)(dest), C.int(nFloats), C.int(direction))
 // }
-// 
-// 
+//
+//
 // func (s *DeviceServer) arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer {
 // 	return unsafe.Pointer(C.gpu_array_offset((*C.float)(array), C.int(index)))
 // }
-// 
+//
 // func (s *DeviceServer) Stride() int {
 // 	return int(C.gpu_stride_float())
 // }
-// 
+//
 // func (s *DeviceServer) overrideStride(nFloats int) {
 // 	C.gpu_override_stride(C.int(nFloats))
 // }
-// 
+//
 // func (s *DeviceServer) zero(data unsafe.Pointer, nFloats int) {
 // 	C.gpu_zero((*C.float)(data), C.int(nFloats))
 // }
-// 
+//
 
 // func (s *DeviceServer) PrintProperties() {
 //  C.gpu_print_properties_stdout()
