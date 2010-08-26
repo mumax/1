@@ -81,37 +81,37 @@ func (s *DeviceServer) NewFFTPlan(in *NewFFTPlanArgs, out *Ptr) {
 }
 
 
-func (s *DeviceServer) FFT(plan unsafe.Pointer, in, out unsafe.Pointer, direction int) {
-	s.dev.fft(in.Plan, in.In, in.Out, in.Direction)
+func (s *DeviceServer) FFT(in *FFTArgs, out *Void) {
+	s.dev.fft(unsafe.Pointer(in.Plan), unsafe.Pointer(in.In), unsafe.Pointer(in.Out), in.Direction)
 }
 
 
-func (s *DeviceServer) newArray(nFloats int) unsafe.Pointer {
-	return unsafe.Pointer(C.new_gpu_array(C.int(nFloats)))
-}
-
-
-func (s *DeviceServer) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
-	C.memcpy_gpu_dir((*C.float)(unsafe.Pointer(source)), (*C.float)(dest), C.int(nFloats), C.int(direction))
-}
-
-
-func (s *DeviceServer) arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer {
-	return unsafe.Pointer(C.gpu_array_offset((*C.float)(array), C.int(index)))
-}
-
-func (s *DeviceServer) Stride() int {
-	return int(C.gpu_stride_float())
-}
-
-func (s *DeviceServer) overrideStride(nFloats int) {
-	C.gpu_override_stride(C.int(nFloats))
-}
-
-func (s *DeviceServer) zero(data unsafe.Pointer, nFloats int) {
-	C.gpu_zero((*C.float)(data), C.int(nFloats))
-}
-
+// func (s *DeviceServer) newArray(nFloats int) unsafe.Pointer {
+// 	return unsafe.Pointer(C.new_gpu_array(C.int(nFloats)))
+// }
+// 
+// 
+// func (s *DeviceServer) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
+// 	C.memcpy_gpu_dir((*C.float)(unsafe.Pointer(source)), (*C.float)(dest), C.int(nFloats), C.int(direction))
+// }
+// 
+// 
+// func (s *DeviceServer) arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer {
+// 	return unsafe.Pointer(C.gpu_array_offset((*C.float)(array), C.int(index)))
+// }
+// 
+// func (s *DeviceServer) Stride() int {
+// 	return int(C.gpu_stride_float())
+// }
+// 
+// func (s *DeviceServer) overrideStride(nFloats int) {
+// 	C.gpu_override_stride(C.int(nFloats))
+// }
+// 
+// func (s *DeviceServer) zero(data unsafe.Pointer, nFloats int) {
+// 	C.gpu_zero((*C.float)(data), C.int(nFloats))
+// }
+// 
 
 // func (s *DeviceServer) PrintProperties() {
 //  C.gpu_print_properties_stdout()
