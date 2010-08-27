@@ -115,7 +115,7 @@ func (s *DeviceServer) NewArray(in *Int, out *Ptr) os.Error {
 // 	C.gpu_override_stride(C.int(nFloats))
 // }
 //
-func (s *DeviceServer) Zero(in *ZeroArgs, out *Ptr) os.Error {
+func (s *DeviceServer) Zero(in *ZeroArgs, out *Void) os.Error {
   Debugvv("Zero", in)
 	s.dev.zero(unsafe.Pointer(in.Data), in.NFloats)
 	return nil
