@@ -5,19 +5,18 @@ import ()
 
 // 1st order Euler method
 type Euler struct {
-	TimeStep
+	SolverState
 }
 
 func (this *Euler) String() string {
-	return "Euler" + this.Field.String() + "--\n"
+	return "Euler\n" + this.Field.String() + "--\n"
 }
 
-func NewEuler(dev Backend, mag *Magnet, Dt float) *Euler {
-	this := new(Euler)
-	this.Field = *NewField(dev, mag)
-	this.Dt = Dt
-	return this
-}
+// func NewEuler(field *Field) *Euler {
+// 	this := new(Euler)
+// 	this.Field = field
+// 	return this
+// }
 
 func (this *Euler) Step() {
 	Debugvv("Euler.Step()")

@@ -14,7 +14,7 @@ type Magnet struct {
 }
 
 
-func NewMagnet(dev Backend, mat *Material, size []int, cellSize []float) *Magnet {
+func NewMagnet(dev *Backend, mat *Material, size []int, cellSize []float) *Magnet {
 	m, h := NewTensor(dev, Size4D(size)), NewTensor(dev, Size4D(size))
 	mComp, hComp := [3]*Tensor{}, [3]*Tensor{}
 	for i := range mComp {
@@ -25,9 +25,9 @@ func NewMagnet(dev Backend, mat *Material, size []int, cellSize []float) *Magnet
 }
 
 
-func (mag *Magnet) Size() []int {
-	return mag.size
-}
+// func (mag *Magnet) Size() []int {
+// 	return mag.size
+// }
 
 func (mag *Magnet) Size4D() []int {
 	return Size4D(mag.size)
@@ -37,9 +37,9 @@ func (mag *Magnet) NSpins() int {
 	return mag.size[X] * mag.size[Y] * mag.size[Z]
 }
 
-func (mag *Magnet) CellSize() []float {
-	return mag.cellSize
-}
+// func (mag *Magnet) CellSize() []float {
+// 	return mag.cellSize
+// }
 
 func (mag *Magnet) M() *Tensor {
 	return mag.m

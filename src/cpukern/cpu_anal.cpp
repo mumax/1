@@ -6,6 +6,13 @@
 extern "C" {
 #endif
 
+///@internal
+// I've quickly put this function here to get the solver running on the CPU.
+void  _sin_cos_f(float angle, float* sn, float* cs){
+  *sn = sinf(angle);
+  *cs = cosf(angle);
+}
+  
 ///@internal kernel
  void _cpu_anal_fw_step (float *mx, float *my, float *mz, float *hx, float *hy, float *hz, float dt, float alpha, int i){
 
@@ -56,7 +63,7 @@ extern "C" {
 
   float ex, sn, cs, denom;
   ex = exp(act/hxyz_r);
-  __sincosf(at/hxyz_r, &sn, &cs);
+  _sin_cos_f(at/hxyz_r, &sn, &cs);
   denom = ex*(1.0f+mx_rot) + (1.0f-mx_rot)/ex;
 
   float mx_rotnw = (ex*(1.0f+mx_rot) - (1.0f-mx_rot)/ex)/denom;

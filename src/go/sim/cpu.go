@@ -20,12 +20,14 @@ import "unsafe"
  * @author Arne Vansteenkiste
  */
 
-import ()
+import (
+	"fmt"
+)
 
-var CPU Backend = Backend{Cpu{}, false}
+var CPU *Backend = &Backend{Cpu{}, false}
 
 type Cpu struct {
-	// intentionally empty, but the methods implement sim.Cpu
+	// intentionally empty, but the methods implement sim.Device
 }
 
 func (d Cpu) init() {
@@ -56,8 +58,13 @@ func (d Cpu) deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int) {
 	C.cpu_deltaM((*C.float)(m), (*C.float)(h), C.float(alpha), C.float(dtGilbert), C.int(N))
 }
 
-func (d Cpu) semianalStep(m, h unsafe.Pointer, dt, alpha float, N int) {
-	C.cpu_anal_fw_step_unsafe((*C.float)(m), (*C.float)(h), C.float(dt), C.float(alpha), C.int(N))
+func (d Cpu) semianalStep(m, h unsafe.Pointer, dt, alpha float, order, N int) {
+	switch order {
+	default:
+		panic(fmt.Sprintf("Unknown semianal order:", order))
+	case 0:
+		C.cpu_anal_fw_step_unsafe((*C.float)(m), (*C.float)(h), C.float(dt), C.float(alpha), C.int(N))
+	}
 }
 
 //___________________________________________________________________________________________________ Kernel multiplication
@@ -67,30 +74,36 @@ func (d Cpu) extractReal(complex, real unsafe.Pointer, NReal int) {
 	C.cpu_extract_real((*C.float)(complex), (*C.float)(real), C.int(NReal))
 }
 
-func (d Cpu) kernelMul6(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int) {
-	C.cpu_kernelmul6(
-		(*C.float)(mx), (*C.float)(my), (*C.float)(mz),
-		(*C.float)(kxx), (*C.float)(kyy), (*C.float)(kzz),
-		(*C.float)(kyz), (*C.float)(kxz), (*C.float)(kxy),
-		C.int(nRealNumbers))
+func (d Cpu) kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, kerneltype, nRealNumbers int) {
+	switch kerneltype {
+	default:
+		panic(fmt.Sprintf("Unknown kernel type:", kerneltype))
+	case 6:
+		C.cpu_kernelmul6(
+			(*C.float)(mx), (*C.float)(my), (*C.float)(mz),
+			(*C.float)(kxx), (*C.float)(kyy), (*C.float)(kzz),
+			(*C.float)(kyz), (*C.float)(kxz), (*C.float)(kxy),
+			C.int(nRealNumbers))
+	}
+
 }
 
 //___________________________________________________________________________________________________ Copy-pad
 
 
-///Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
-func (d Cpu) copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int) {
-	C.cpu_copy_pad((*C.float)(source), (*C.float)(dest),
-		C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
-		C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
-}
-
-
-//Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
-func (d Cpu) copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int) {
-	C.cpu_copy_unpad((*C.float)(source), (*C.float)(dest),
-		C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
-		C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
+func (d Cpu) copyPadded(source, dest unsafe.Pointer, sourceSize, destSize []int, direction int) {
+	switch direction {
+	default:
+		panic(fmt.Sprintf("Unknown padding direction:", direction))
+	case CPY_PAD:
+		C.cpu_copy_pad((*C.float)(source), (*C.float)(dest),
+			C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
+			C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
+	case CPY_UNPAD:
+		C.cpu_copy_unpad((*C.float)(source), (*C.float)(dest),
+			C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
+			C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
+	}
 }
 
 //___________________________________________________________________________________________________ FFT
@@ -104,16 +117,27 @@ func (d Cpu) newFFTPlan(dataSize, logicSize []int) unsafe.Pointer {
 	return unsafe.Pointer(C.new_cpuFFT3dPlan_inplace(Csize, CpaddedSize))
 }
 
-/// unsafe FFT
-func (d Cpu) fftForward(plan unsafe.Pointer, in, out unsafe.Pointer) {
-	C.cpuFFT3dPlan_forward((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
+func (d Cpu) fft(plan unsafe.Pointer, in, out unsafe.Pointer, direction int) {
+	switch direction {
+	default:
+		panic(fmt.Sprintf("Unknown FFT direction:", direction))
+	case FFT_FORWARD:
+		C.cpuFFT3dPlan_forward((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
+	case FFT_INVERSE:
+		C.cpuFFT3dPlan_inverse((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
+	}
 }
 
-
 /// unsafe FFT
-func (d Cpu) fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer) {
-	C.cpuFFT3dPlan_inverse((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
-}
+// func (d Cpu) fftForward(plan unsafe.Pointer, in, out unsafe.Pointer) {
+// 	C.cpuFFT3dPlan_forward((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
+// }
+//
+//
+// /// unsafe FFT
+// func (d Cpu) fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer) {
+// 	C.cpuFFT3dPlan_inverse((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
+// }
 
 
 // func(d Cpu) (fft *FFT) Normalization() int{
@@ -123,38 +147,40 @@ func (d Cpu) fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer) {
 
 //_______________________________________________________________________________ GPU memory allocation
 
-/**
- * Allocates an array of floats on the GPU.
- * By convention, GPU arrays are represented by an unsafe.Pointer,
- * while host arrays are *float's.
- */
+// Allocates an array of floats on the CPU.
+// By convention, GPU arrays are represented by an unsafe.Pointer,
+// while host arrays are *float's.
 func (d Cpu) newArray(nFloats int) unsafe.Pointer {
 	return unsafe.Pointer(C.new_cpu_array(C.int(nFloats)))
 }
 
-///
-func (d Cpu) memcpyTo(source *float, dest unsafe.Pointer, nFloats int) {
-	C.cpu_memcpy((*C.float)(unsafe.Pointer(source)), (*C.float)(dest), C.int(nFloats))
+func (d Cpu) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
+	C.cpu_memcpy((*C.float)(source), (*C.float)(dest), C.int(nFloats)) //direction is ignored, it's always "CPY_ON" because there is no separate device
 }
 
-///
-func (d Cpu) memcpyFrom(source unsafe.Pointer, dest *float, nFloats int) {
-	C.cpu_memcpy((*C.float)(source), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats))
-}
-
-///
-func (d Cpu) memcpyOn(source, dest unsafe.Pointer, nFloats int) {
-	C.cpu_memcpy((*C.float)(source), (*C.float)(dest), C.int(nFloats))
-}
+// ///
+// func (d Cpu) memcpyTo(source *float, dest unsafe.Pointer, nFloats int) {
+// 	C.cpu_memcpy((*C.float)(unsafe.Pointer(source)), (*C.float)(dest), C.int(nFloats))
+// }
+//
+// ///
+// func (d Cpu) memcpyFrom(source unsafe.Pointer, dest *float, nFloats int) {
+// 	C.cpu_memcpy((*C.float)(source), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats))
+// }
+//
+// ///
+// func (d Cpu) memcpyOn(source, dest unsafe.Pointer, nFloats int) {
+// 	C.cpu_memcpy((*C.float)(source), (*C.float)(dest), C.int(nFloats))
+//}
 
 /// Gets one float from a GPU array
-func (d Cpu) arrayGet(array unsafe.Pointer, index int) float {
-	return float(C.cpu_array_get((*C.float)(array), C.int(index)))
-}
-
-func (d Cpu) arraySet(array unsafe.Pointer, index int, value float) {
-	C.cpu_array_set((*C.float)(array), C.int(index), C.float(value))
-}
+// func (d Cpu) arrayGet(array unsafe.Pointer, index int) float {
+// 	return float(C.cpu_array_get((*C.float)(array), C.int(index)))
+// }
+//
+// func (d Cpu) arraySet(array unsafe.Pointer, index int, value float) {
+// 	C.cpu_array_set((*C.float)(array), C.int(index), C.float(value))
+// }
 
 func (d Cpu) arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer {
 	return unsafe.Pointer(C.cpu_array_offset((*C.float)(array), C.int(index)))

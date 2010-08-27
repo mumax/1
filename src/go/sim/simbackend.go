@@ -15,4 +15,10 @@ func (s *Sim) Gpu() {
 	s.invalidate()
 }
 
-// TODO: clusers etc.
+// DEBUG select a remote device.
+// Only useful to test the connection.
+// Normally, you would use more than one remote device in a cluster.
+func (s *Sim) Remote(serverAddress string, serverPort int) {
+	s.backend = &Backend{NewRemoteDevice(serverAddress, serverPort), false}
+	s.invalidate()
+}

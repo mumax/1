@@ -50,7 +50,22 @@ void assertDevice(float* pointer){
   if(_device_array == NULL){
     _device_array = new_gpu_array(1);
   }
-  memcpy_gpu_to_gpu(pointer, _device_array, 1); // may throw segfault
+  memcpy_on_gpu(pointer, _device_array, 1); // may throw segfault
+}
+
+void memcpy_gpu_dir(float* source, float* dest, int nElements, int direction){
+  if(direction == 1){
+      memcpy_to_gpu(source, dest,nElements);
+  }
+  else if(direction == 2){
+      memcpy_on_gpu(source, dest, nElements);
+  }
+  else if(direction == 3){
+      memcpy_from_gpu(source,  dest, nElements);
+  }
+  else{
+    abort();
+  }
 }
 
 
@@ -73,7 +88,7 @@ void memcpy_from_gpu(float* source, float* dest, int nElements){
   }
 }
 
-void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
+void memcpy_on_gpu(float* source, float* dest, int nElements){
   assert(nElements > 0);
   int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyDeviceToDevice);
   if(status != cudaSuccess){

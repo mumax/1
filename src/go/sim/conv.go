@@ -15,7 +15,7 @@ type Conv struct {
 }
 
 
-func NewConv(backend Backend, dataSize []int, kernel []tensor.StoredTensor) *Conv {
+func NewConv(backend *Backend, dataSize []int, kernel []tensor.StoredTensor) *Conv {
 	kernelSize := kernel[XX].Size()
 	assert(len(dataSize) == 3)
 	assert(len(kernelSize) == 3)
@@ -72,10 +72,10 @@ func (conv *Conv) Convolve(source, dest *Tensor) {
 		//     tensor.Format(os.Stdout, buffer[i])
 	}
 
-	conv.kernelMul6(buffer[X].data, buffer[Y].data, buffer[Z].data,
+	conv.kernelMul(buffer[X].data, buffer[Y].data, buffer[Z].data,
 		kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
 		kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
-		Len(buffer[X].size)) // nRealNumbers
+		6, Len(buffer[X].size)) // nRealNumbers
 
 	//   for i:=0; i<3; i++{
 	//     fmt.Println("mulM", i)

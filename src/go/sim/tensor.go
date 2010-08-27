@@ -14,13 +14,13 @@ const (
 
 
 type Tensor struct {
-	Backend ///< wraps the Device where the Tensor resides on (GPU/CPU/...)
-	size    []int
-	data    unsafe.Pointer // points to float array on the GPU/CPU
+	*Backend ///< wraps the Device where the Tensor resides on (GPU/CPU/...)
+	size     []int
+	data     unsafe.Pointer // points to float array on the GPU/CPU
 }
 
 
-func NewTensor(b Backend, size []int) *Tensor {
+func NewTensor(b *Backend, size []int) *Tensor {
 	t := new(Tensor)
 	t.Backend = b
 	t.size = make([]int, len(size))

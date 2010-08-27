@@ -5,16 +5,15 @@ import ()
 
 type Heun struct {
 	m0, torque0 *Tensor
-	TimeStep
+	SolverState
 }
 
 
-func NewHeun(dev Backend, mag *Magnet, Dt float) *Heun {
+func NewHeun(f *Field) *Heun {
 	this := new(Heun)
-	this.Field = *NewField(dev, mag)
-	this.Dt = Dt
-	this.m0 = NewTensor(dev, mag.Size4D())
-	this.torque0 = NewTensor(dev, mag.Size4D())
+	this.Field = f
+	this.m0 = NewTensor(f.Backend, f.Size4D())
+	this.torque0 = NewTensor(f.Backend, f.Size4D())
 	return this
 }
 
@@ -27,15 +26,18 @@ func (this *Heun) Step() {
 	TensorCopyOn(this.m, this.m0)
 
 	// euler step for m0
-	this.CalcHeff(this.m0, this.torque0)
+	h0 := this.torque0
+	this.CalcHeff(this.m0, h0)
 	this.DeltaM(this.m0, this.torque0, this.Alpha, gilbertDt)
 	this.Add(this.m0, this.torque0)
 	this.Normalize(this.m0)
+	m1 := this.m0
 
 	// field after euler step
+	// todo need to update the time here, for time-dependent fields etc
 	torque1 := this.h
-	this.CalcHeff(this.m0, torque1)
-	this.DeltaM(this.m0, torque1, this.Alpha, gilbertDt)
+	this.CalcHeff(m1, this.h)
+	this.DeltaM(m1, torque1, this.Alpha, gilbertDt)
 
 	// combine deltaM of beginning and end of interval
 	this.LinearCombination(torque1, this.torque0, 0.5, 0.5)
@@ -45,5 +47,5 @@ func (this *Heun) Step() {
 
 
 func (this *Heun) String() string {
-	return "Heun" + this.Field.String() + "--\n"
+	return "Heun\n" + this.Field.String() + "--\n"
 }

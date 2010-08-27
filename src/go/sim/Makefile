@@ -16,7 +16,6 @@ GOFILES=\
 	conv.go\
 	field.go\
 	solver.go\
-	timestep.go\
 	euler.go\
 	heun.go\
 	semianal.go\
@@ -34,7 +33,10 @@ GOFILES=\
 	simmaterial.go\
 	simoutput.go\
 	simrun.go\
+	simsolver.go\
 	draw.go\
+	remotedevice.go\
+	simserver.go\
 
 CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so
 

@@ -4,29 +4,21 @@ import ()
 
 
 type SemiAnal struct {
-	TimeStep
-}
-
-
-func NewSemiAnal(dev Backend, mag *Magnet, Dt float) *SemiAnal {
-	this := new(SemiAnal)
-	this.Dt = Dt
-	this.Field = *NewField(dev, mag)
-	return this
+	SolverState
+	order int
 }
 
 
 func (this *SemiAnal) Step() {
 	Debugvv("SemiAnal.Step()")
 	m, h := this.m, this.h
-	alpha, Dt := this.Alpha, this.Dt
 
 	this.Normalize(m)
 	this.CalcHeff(this.m, this.h)
-	this.semianalStep(m.data, h.data, Dt, alpha, this.NSpins())
+	this.semianalStep(m.data, h.data, this.Dt, this.Alpha, this.order, this.NSpins())
 }
 
 
 func (this *SemiAnal) String() string {
-	return "SemiAnal" + this.Field.String() + "--\n"
+	return "SemiAnal\n" + this.Field.String() + "--\n"
 }

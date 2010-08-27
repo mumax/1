@@ -61,19 +61,19 @@ func (s *Sim) Vortex(circulation, polarization int) {
 }
 
 
-func (s *Sim) Load(file string){
-   in, err := os.Open(file, os.O_RDONLY, 0666)
-   defer in.Close()
-   if err != nil{
-    panic(err)
-   }
-   s.ensure_m()
-   //TODO this allocates too much buffers!
-   m1 := tensor.Read(in)
-   s.m = tensor.NewTensor4(m1.Size())
-   tensor.CopyTo(m1, s.m)
-   //TODO this should not invalidate the entire sim
-   s.invalidate()
+func (s *Sim) Load(file string) {
+	in, err := os.Open(file, os.O_RDONLY, 0666)
+	defer in.Close()
+	if err != nil {
+		panic(err)
+	}
+	s.ensure_m()
+	//TODO this allocates too much buffers!
+	m1 := tensor.Read(in)
+	s.m = tensor.NewTensor4(m1.Size())
+	tensor.CopyTo(m1, s.m)
+	//TODO this should not invalidate the entire sim
+	s.invalidate()
 }
 
 // Adds noise with the specified amplitude

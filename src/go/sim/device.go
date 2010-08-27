@@ -57,57 +57,46 @@ type Device interface {
 	// overwrites h with torque(m, h) * dtGilbert. N = length of one component
 	deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int)
 
-	/// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
+	// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
+	// TODO: get rid of? decide the stride by yourself instead of globally storing it?
 	overrideStride(nFloats int)
 
 	//____________________________________________________________________ tensor (safe wrappers in tensor.go)
 
-	// Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
-	copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int)
+	copyPadded(source, dest unsafe.Pointer, sourceSize, destSize []int, direction int)
 
-	//Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
-	copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int)
-
-	/**
-	 * Allocates an array of floats on the GPU.
-	 * By convention, GPU arrays are represented by an unsafe.Pointer,
-	 * while host arrays are *float's.
-	 * Does not need to be initialized with zeros
-	 */
+	// Allocates an array of floats on the Device.
+	// By convention, Device arrays are represented by an unsafe.Pointer,
+	// while host arrays are *float's.
+	// Does not need to be initialized with zeros
 	newArray(nFloats int) unsafe.Pointer
 
-	/// Copies a number of floats from host to GPU
-	memcpyTo(source *float, dest unsafe.Pointer, nFloats int)
+	// Copies nFloats to, on or from the device, depending on the direction flag (1, 2 or 3)
+	memcpy(source, dest unsafe.Pointer, nFloats, direction int)
 
-	/// Copies a number of floats from GPU to host
-	memcpyFrom(source unsafe.Pointer, dest *float, nFloats int)
-
-	/// Copies a number of floats from GPU to GPU
-	memcpyOn(source, dest unsafe.Pointer, nFloats int)
-
-	/// Gets one float from a GPU array
-	arrayGet(array unsafe.Pointer, index int) float
-
-	arraySet(array unsafe.Pointer, index int, value float)
-
+	// Offset the array pointer by "index" floats, useful for taking sub-arrays
+	// TODO: on a multi-device this will not work
 	arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer
 
-	/// Overwrite n floats with zeros
+	// Overwrite n floats with zeros
 	zero(data unsafe.Pointer, nFloats int)
 
 	//____________________________________________________________________ specialized (used in only one place)
 
 
-	semianalStep(m, h unsafe.Pointer, dt, alpha float, N int)
+	semianalStep(m, h unsafe.Pointer, dt, alpha float, order, N int)
 
 	// Extract only the real parts form in interleaved complex array
-	extractReal(complex, real unsafe.Pointer, NReal int)
+	// 	extractReal(complex, real unsafe.Pointer, NReal int)
+
+	// Automatically selects between kernelmul3/4/6
+	kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, kerntype, nRealNumbers int)
 
 	// In-place kernel multiplication (m gets overwritten by h).
 	// The kernel is symmetric so only 6 of the 9 components need to be passed (xx, yy, zz, yz, xz, xy).
 	// The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
 	// This is the typical situation for a 3D micromagnetic problem
-	kernelMul6(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int)
+	// kernelMul6(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int)
 
 	// In-place kernel multiplication (m gets overwritten by h).
 	// The kernel is symmetric and contains no mixing between x and (y, z),
@@ -129,19 +118,34 @@ type Device interface {
 	// unsafe creation of C fftPlan
 	newFFTPlan(dataSize, logicSize []int) unsafe.Pointer
 
-	// unsafe FFT
-	fftForward(plan unsafe.Pointer, in, out unsafe.Pointer)
-
-	// unsafe FFT
-	fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer)
+	fft(plan unsafe.Pointer, in, out unsafe.Pointer, direction int)
 
 	//______________________________________________________________________________ already safe
 
-	/// The GPU stride in number of floats (!)
+	// The GPU stride in number of floats (!)
 	Stride() int
 
-	/// Print the GPU properties to stdout
-	PrintProperties()
+	// Print the GPU properties to stdout
+	// TODO: return string
+	//PrintProperties()
 
 	String() string
 }
+
+// direction flag for memcpy()
+const (
+	CPY_TO   = 1
+	CPY_ON   = 2
+	CPY_FROM = 3
+)
+
+// direction flag for copyPadded()
+const (
+	CPY_PAD   = 1
+	CPY_UNPAD = 2
+)
+
+const (
+	FFT_FORWARD = 1
+	FFT_INVERSE = -1
+)

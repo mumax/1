@@ -23,10 +23,10 @@ import (
 // order; we use decentralized initialization to make sure
 // everything works out.
 //
-// TODO at least time and dt should be float64
+// TODO order of initialization is too important in input file, should be more versatile
 //
 type Sim struct {
-	backend Backend
+	backend *Backend
 
 	aexch float
 	msat  float
@@ -37,9 +37,12 @@ type Sim struct {
 
 	m *tensor.Tensor4
 
-	dt     float
-	time   float64
-	solver *Euler //TODO other types, embed
+	dt         float
+	time       float64
+	solvertype string
+	Solver
+
+	*Field //TODO: rename magnet->mesh, field->magnet?
 
 	outschedule []Output //TODO vector...
 	autosaveIdx int
@@ -55,7 +58,7 @@ func New() *Sim {
 
 func NewSim() *Sim {
 	sim := new(Sim)
-	sim.backend = GPU //the default TODO: check if GPU is present, use CPU otherwise
+	sim.backend = nil //TODO: check if GPU is present, use CPU otherwise
 	sim.outputdir = "."
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
@@ -66,12 +69,13 @@ func NewSim() *Sim {
 
 // When a parmeter is changed, the simulation state is invalidated until it gets (re-)initialized by init().
 func (s *Sim) invalidate() {
-	s.solver = nil
+	s.Solver = nil
+	s.Field = nil
 }
 
 // When it returns false, init() needs to be called before running.
 func (s *Sim) isValid() bool {
-	return s.solver != nil
+	return s.Solver != nil && s.Field != nil
 }
 
 // (Re-)initialize the simulation tree, necessary before running.
@@ -93,21 +97,23 @@ func (s *Sim) init() {
 	L := mat.UnitLength()
 	cellsize := []float{s.cellsize[X] / L, s.cellsize[Y] / L, s.cellsize[Z] / L}
 	magnet := NewMagnet(dev, mat, size, cellsize)
+	s.Field = NewField(dev, magnet)
 
 	dt := s.dt / mat.UnitTime()
-	s.solver = NewEuler(dev, magnet, dt) //TODO solver dt should be float64(?)
+	s.Solver = NewSolver(s.solvertype, s.Field) //NewEuler(dev, s.Field, dt) //TODO solver dt should be float64(?)
+	s.Solver.SetDt(dt)
 
-	B := s.solver.UnitField()
-	s.solver.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
+	B := s.UnitField()
+	s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
 
-	fmt.Println(s.solver)
+	fmt.Println(s.Solver)
 
-	if !tensor.EqualSize(s.m.Size(), s.solver.M().Size()) {
-		s.m = resample(s.m, s.solver.M().size)
+	if !tensor.EqualSize(s.m.Size(), s.M().Size()) {
+		s.m = resample(s.m, s.M().size)
 	}
-	TensorCopyTo(s.m, s.solver.M())
+	TensorCopyTo(s.m, s.M()) // TODO it's not clear which is local/remote
 
-	s.solver.Normalize(s.solver.M())
+	s.Normalize(s.M())
 }
 
 // Set how much debug info is printed. Level=0,1,2 or 3 for none, normal, verbose and very verbose.
@@ -119,7 +125,7 @@ func (s *Sim) Verbosity(level int) {
 func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {
 	out := tensor.NewTensor4(size2)
 	out_a := out.Array()
-	in_a:= in.Array()
+	in_a := in.Array()
 	size1 := in.Size()
 	for c := range out_a {
 		for i := range out_a[c] {

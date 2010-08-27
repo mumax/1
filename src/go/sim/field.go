@@ -18,15 +18,15 @@ type Field struct {
 
 // Takes the parameters from a Magnet struct and
 // initializes everything.
-func NewField(dev Backend, mag *Magnet) *Field {
+func NewField(dev *Backend, mag *Magnet) *Field { // todo: do not need backend param here
 	field := new(Field)
 
 	field.Magnet = *mag
 	field.Hext = nil
-	demag := FaceKernel(field.Size(), field.CellSize())
-	exch := Exch6NgbrKernel(field.Size(), field.CellSize())
+	demag := FaceKernel(field.size, field.cellSize)
+	exch := Exch6NgbrKernel(field.size, field.cellSize)
 	kernel := toSymmetric(tensor.Buffer(tensor.Add(demag, exch)))
-	field.Conv = NewConv(dev, field.Size(), kernel)
+	field.Conv = NewConv(dev, field.size, kernel)
 
 	return field
 }
