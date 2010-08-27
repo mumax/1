@@ -16,12 +16,6 @@ func (s *Sim) Run(time float64) {
 	stop := s.time + time
 
 	for s.time < stop {
-		// step
-		Debugvv("Step", s.steps)
-		s.Step()
-		s.steps++
-		s.time += float64(s.dt)
-		s.mUpToDate = false
 
 		// save output if so scheduled
 		for _, out := range s.outschedule {
@@ -32,6 +26,14 @@ func (s *Sim) Run(time float64) {
 				out.Save(s)
 			}
 		}
+
+		// step
+		Debugvv("Step", s.steps)
+		s.Step()
+		s.steps++
+		s.time += float64(s.dt)
+		s.mUpToDate = false
+
 	}
 	//does not invalidate
 }

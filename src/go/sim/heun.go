@@ -37,7 +37,7 @@ func (s *Heun) Step() {
 	s.DeltaM(s.m1est, s.h, s.Alpha, gilbertDt)
 	tm1est := s.h
 	t := tm1est
-	s.LinearCombination(t, s.t0, 0.5, 0.5) 
+	s.LinearCombination(t, s.t0, 0.5, 0.5)
 	s.Add(s.m, t)
 
 	s.Normalize(s.m)

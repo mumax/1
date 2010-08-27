@@ -66,7 +66,7 @@ type Periodic struct {
 
 // INTERNAL
 func (p *Periodic) NeedSave(time float) bool {
-	return time-p.sinceoutput >= p.period
+	return time == 0. || time-p.sinceoutput >= p.period
 }
 
 // INTERNAL
