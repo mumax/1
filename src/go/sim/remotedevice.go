@@ -167,19 +167,24 @@ func (d *RemoteDevice) newArray(nFloats int) unsafe.Pointer {
 	return unsafe.Pointer(reply.Value)  // WARNING  unsafe.Pointer(reply) is not a compilation error but is wrong!
 }
 
+
+
 type MemcpyArgs struct {
 	Source, Dest       uintptr
-	NFloats, direction int
+	NFloats, Direction int
 }
 
 func (d *RemoteDevice) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
 	args := &MemcpyArgs{uintptr(unsafe.Pointer(source)), uintptr(dest), nFloats, direction}
  reply := &Void{0}
-	err := d.Client.Call("DeviceServer.MemcpyTo", args, reply)
+	err := d.Client.Call("DeviceServer.Memcpy", args, reply)
 	if err != nil {
 		panic(err)
 	}
 }
+
+
+
 
 type ZeroArgs struct {
 	Data    uintptr

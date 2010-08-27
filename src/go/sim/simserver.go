@@ -10,7 +10,6 @@ import (
 )
 
 func SimServerMain() {
-	Verbosity = 3
 
 	server := &DeviceServer{CPU.Device, ":2527"}
 	rpc.Register(server)
@@ -19,7 +18,7 @@ func SimServerMain() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Listening on port", server.port)
+	Debug("Listening on port", server.port)
 	http.Serve(listener, nil)
 }
 
@@ -96,13 +95,23 @@ func (s *DeviceServer) NewArray(in *Int, out *Ptr) os.Error {
 	Debugvv("NewArray(", in, ") :", out)
 	return nil
 }
-//
-//
-// func (s *DeviceServer) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
-// 	C.memcpy_gpu_dir((*C.float)(unsafe.Pointer(source)), (*C.float)(dest), C.int(nFloats), C.int(direction))
-// }
-//
-//
+
+
+func (s *DeviceServer) Memcpy(in *MemcpyArgs, out *Void) os.Error{
+  
+  switch in.Direction{
+    default:
+      panic(fmt.Sprintf("Unknown memcpy direction: ", in.Direction))
+    case CPY_TO:
+    case CPY_ON:
+      s.dev.memcpy(unsafe.Pointer(in.Source), unsafe.Pointer(in.Dest), in.NFloats, in.Direction)
+    case CPY_FROM:
+  }
+
+  return nil
+}
+
+
 func (s *DeviceServer) ArrayOffset(in *ArrayOffsetArgs, out *Ptr) os.Error {
   out.Value = uintptr(s.dev.arrayOffset(unsafe.Pointer(in.Array), in.Index))
   Debugvv("ArrayOffset(", in, "):", out)

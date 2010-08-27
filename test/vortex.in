@@ -7,6 +7,7 @@ cpu
 outputdir:  vortex
 verbosity:  1
 
+solvertype: euler
 
 # material parameters
 msat:       800E3       # A/m

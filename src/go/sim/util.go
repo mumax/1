@@ -38,7 +38,7 @@ func Size3D(size4D []int) []int {
 }
 
 
-var Verbosity int = 3
+var Verbosity int = 1
 
 
 func Debug(msg ...interface{}) {

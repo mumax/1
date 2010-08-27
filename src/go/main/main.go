@@ -20,10 +20,13 @@ import (
 
 var(
   server *bool = flag.Bool("server", false, "Run as a slave node in a cluster")
+  verbosity *int = flag.Int("verbosity", 1, "Control the debug verbosity (0 - 3)")
   )
   
 func main() {
   flag.Parse()
+
+  Verbosity = *verbosity
   
 	if *server{
     main_slave()
