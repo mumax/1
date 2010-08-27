@@ -52,10 +52,10 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
   plan->paddedStorageN = paddedStorageSize[X] * paddedStorageSize[Y] * paddedStorageSize[Z];
   
   ///@todo check these sizes !
-  gpu_safe( cufftPlan1d(&(plan->fwPlanZ), plan->paddedSize[Z], CUFFT_R2C, 1) );
-  gpu_safe( cufftPlan1d(&(plan->planY), plan->paddedSize[Y], CUFFT_C2C, paddedStorageSize[Z] * size[X] / 2) );          // IMPORTANT: the /2 is necessary because the complex transforms have only half the amount of elements (the elements are now complex numbers)
-  gpu_safe( cufftPlan1d(&(plan->planX), plan->paddedSize[X], CUFFT_C2C, paddedStorageSize[Z] * paddedSize[Y] / 2) );
-  gpu_safe( cufftPlan1d(&(plan->invPlanZ), plan->paddedSize[Z], CUFFT_C2R, 1) );
+  gpu_safefft( cufftPlan1d(&(plan->fwPlanZ), plan->paddedSize[Z], CUFFT_R2C, 1) );
+  gpu_safefft( cufftPlan1d(&(plan->planY), plan->paddedSize[Y], CUFFT_C2C, paddedStorageSize[Z] * size[X] / 2) );          // IMPORTANT: the /2 is necessary because the complex transforms have only half the amount of elements (the elements are now complex numbers)
+  gpu_safefft( cufftPlan1d(&(plan->planX), plan->paddedSize[X], CUFFT_C2C, paddedStorageSize[Z] * paddedSize[Y] / 2) );
+  gpu_safefft( cufftPlan1d(&(plan->invPlanZ), plan->paddedSize[Z], CUFFT_C2R, 1) );
   
   plan->transp = new_gpu_array(plan->paddedStorageN);
   
@@ -99,7 +99,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
     for(int j=0; j<size[Y]; j++){
       float* rowIn  = &( input[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
       float* rowOut = &(output[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-      gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)rowIn,  (cufftComplex*)rowOut) );
+      gpu_safefft( cufftExecR2C(plan->fwPlanZ, (cufftReal*)rowIn,  (cufftComplex*)rowOut) );
     }
   }
   cudaThreadSynchronize();
@@ -109,7 +109,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   memcpy_on_gpu(transp, input, N);
 
   //timer_start("FFT_y");
-  gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)input,  (cufftComplex*)output, CUFFT_FORWARD) );
+  gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)input,  (cufftComplex*)output, CUFFT_FORWARD) );
   cudaThreadSynchronize();
   //timer_stop("FFT_y");
 
@@ -118,7 +118,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
     gpu_transposeXZ_complex(output, transp, N0, N2, N1*N3); // size has changed due to previous transpose!
     memcpy_on_gpu(transp, input, N);
     //timer_start("FFT_x");
-    gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)input,  (cufftComplex*)output, CUFFT_FORWARD) );
+    gpu_safefft( cufftExecC2C(plan->planX, (cufftComplex*)input,  (cufftComplex*)output, CUFFT_FORWARD) );
     cudaThreadSynchronize();
     //timer_stop("FFT_x");
   }
@@ -153,7 +153,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
   if (N0 > 1){
     // input data is XZ transposed
 //     timer_start("FFT_x");
-    gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)input,  (cufftComplex*)output, CUFFT_INVERSE) );
+    gpu_safefft( cufftExecC2C(plan->planX, (cufftComplex*)input,  (cufftComplex*)output, CUFFT_INVERSE) );
     cudaThreadSynchronize();
 //     timer_stop("FFT_x");
     gpu_transposeXZ_complex(output, transp, N1, N2, N0*N3); // size has changed due to previous transpose!
@@ -161,7 +161,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
   }
 
 //   timer_start("FFT_y");
-    gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)input,  (cufftComplex*)output, CUFFT_INVERSE) );
+    gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)input,  (cufftComplex*)output, CUFFT_INVERSE) );
   cudaThreadSynchronize();
 //   timer_stop("FFT_y");
   
@@ -173,7 +173,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
     for(int j=0; j<size[Y]; j++){
       float* rowIn  = &( input[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
       float* rowOut = &(output[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-      gpu_safe( cufftExecC2R(plan->invPlanZ, (cufftComplex*)rowIn, (cufftReal*)rowOut) ); 
+      gpu_safefft( cufftExecC2R(plan->invPlanZ, (cufftComplex*)rowIn, (cufftReal*)rowOut) ); 
     }
   }
   cudaThreadSynchronize();
