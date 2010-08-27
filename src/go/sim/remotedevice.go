@@ -260,7 +260,7 @@ func (d *RemoteDevice) copyPadded(source, dest unsafe.Pointer, sourceSize, destS
 
 type ArrayOffsetArgs struct {
 	Array uintptr
-	index int
+	Index int
 }
 
 func (d *RemoteDevice) arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer {

@@ -103,20 +103,23 @@ func (s *DeviceServer) NewArray(in *Int, out *Ptr) os.Error {
 // }
 //
 //
-// func (s *DeviceServer) arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer {
-// 	return unsafe.Pointer(C.gpu_array_offset((*C.float)(array), C.int(index)))
-// }
-//
-// func (s *DeviceServer) Stride() int {
-// 	return int(C.gpu_stride_float())
-// }
+func (s *DeviceServer) ArrayOffset(in *ArrayOffsetArgs, out *Ptr) os.Error {
+  out.Value = uintptr(s.dev.arrayOffset(unsafe.Pointer(in.Array), in.Index))
+  Debugvv("ArrayOffset(", in, "):", out)
+  return nil
+}
+
+func (s *DeviceServer) Stride(in *Void, out *Int) os.Error {
+  out.Value = s.dev.Stride()
+	return nil
+}
 //
 // func (s *DeviceServer) overrideStride(nFloats int) {
 // 	C.gpu_override_stride(C.int(nFloats))
 // }
 //
 func (s *DeviceServer) Zero(in *ZeroArgs, out *Void) os.Error {
-  Debugvv("Zero", in)
+  Debugvv("Zero(", in, ")")
 	s.dev.zero(unsafe.Pointer(in.Data), in.NFloats)
 	return nil
 }
