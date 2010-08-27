@@ -22,7 +22,7 @@ for i; do
 	epsfile=$i.eps
 	pdffile=$i.pdf
 	svgfile=$i.svg
-	echo $(echo $epsrc; echo set output '"'$epsfile'";'; cat plot; echo set output';') | gnuplot;
-	echo $(echo $svgrc; echo set output '"'$svgfile'";'; cat plot; echo set output';') | gnuplot;
+	echo $(echo $epsrc; echo set output '"'$epsfile'";'; cat $i; echo set output';') | gnuplot;
+	echo $(echo $svgrc; echo set output '"'$svgfile'";'; cat $i; echo set output';') | gnuplot;
 	ps2pdf -dEPSCrop $epsfile
 done;
