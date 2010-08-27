@@ -45,6 +45,7 @@ type DeviceWrapper struct {
 }
 
 func (s *DeviceWrapper) Init(in, out *Void) os.Error {
+  Debugvv("Init()")
 	s.dev.init()
 	return nil
 }

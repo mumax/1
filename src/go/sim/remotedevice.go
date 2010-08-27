@@ -40,7 +40,12 @@ func NewRemoteDevice(transport, serverAddress string, serverPort int) *RemoteDev
 }
 
 func (d *RemoteDevice) init() {
-
+  args := &Void{0}
+  reply := &Void{0}
+  err := d.Client.Call("DeviceWrapper.Init", args, reply)
+  if err != nil {
+    panic(err)
+  }
 }
 
 type Void struct {
@@ -173,12 +178,15 @@ type MemcpyArgs struct {
 }
 
 func (d *RemoteDevice) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
+  
 	args := &MemcpyArgs{uintptr(unsafe.Pointer(source)), uintptr(dest), nFloats, direction}
 	reply := &Void{0}
 	err := d.Client.Call("DeviceWrapper.Memcpy", args, reply)
 	if err != nil {
 		panic(err)
 	}
+
+	
 }
 
 
