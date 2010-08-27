@@ -2,7 +2,7 @@
 
 
 # hardware selection
- remote 127.0.0.1 2527
+ remote tcp 127.0.0.1 2527
 #cpu
 
 # output

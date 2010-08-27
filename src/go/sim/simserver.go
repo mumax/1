@@ -10,9 +10,8 @@ import (
 )
 
 func SimServerMain() {
-
-	server := &DeviceServer{CPU.Device, ":2527"}
-	rpc.Register(server)
+	server := &DeviceServer{&DeviceWrapper{CPU.Device}, "tcp", ":2527"}
+	rpc.Register(server.DeviceWrapper)
 	rpc.HandleHTTP()
 	listener, err := net.Listen("tcp", server.port)
 	if err != nil {
@@ -23,118 +22,125 @@ func SimServerMain() {
 }
 
 type DeviceServer struct {
-	dev  Device // We do not embed to avoid the dev methods to be exported by rpc
-	port string
+	*DeviceWrapper
+	transport string // udp or tcp
+	port      string
 }
 
-func (s *DeviceServer) Init(in, out *Void) {
+
+type DeviceWrapper struct {
+	dev Device // We do not embed to avoid the dev methods to be exported by rpc
+}
+
+func (s *DeviceWrapper) Init(in, out *Void) os.Error {
 	s.dev.init()
+	return nil
 }
 
-func (s *DeviceServer) Add(in *AddArgs, out *Void) os.Error {
+func (s *DeviceWrapper) Add(in *AddArgs, out *Void) os.Error {
 	s.dev.add(unsafe.Pointer(in.A), unsafe.Pointer(in.B), in.N)
 	return nil
 }
 
-func (s *DeviceServer) LinearCombination(in *LinearCombinationArgs, out *Void) os.Error {
+func (s *DeviceWrapper) LinearCombination(in *LinearCombinationArgs, out *Void) os.Error {
 	s.dev.linearCombination(unsafe.Pointer(in.A), unsafe.Pointer(in.B), in.WeightA, in.WeightB, in.N)
 	return nil
 }
 
-func (s *DeviceServer) AddConstant(in *AddConstantArgs, out *Void) os.Error {
+func (s *DeviceWrapper) AddConstant(in *AddConstantArgs, out *Void) os.Error {
 	s.dev.addConstant(unsafe.Pointer(in.A), in.Cnst, in.N)
 	return nil
 }
 
-func (s *DeviceServer) Normalize(in *NormalizeArgs, out *Void) os.Error {
+func (s *DeviceWrapper) Normalize(in *NormalizeArgs, out *Void) os.Error {
 	s.dev.normalize(unsafe.Pointer(in.M), in.N)
 	return nil
 }
 
-func (s *DeviceServer) NormalizeMap(in *NormalizeMapArgs, out *Void) os.Error {
+func (s *DeviceWrapper) NormalizeMap(in *NormalizeMapArgs, out *Void) os.Error {
 	s.dev.normalizeMap(unsafe.Pointer(in.M), unsafe.Pointer(in.NormMap), in.N)
 	return nil
 }
 
-func (s *DeviceServer) DeltaM(in *DeltaMArgs, out *Void) os.Error {
+func (s *DeviceWrapper) DeltaM(in *DeltaMArgs, out *Void) os.Error {
 	s.dev.deltaM(unsafe.Pointer(in.M), unsafe.Pointer(in.H), in.Alpha, in.DtGilbert, in.N)
 	return nil
 }
 
-func (s *DeviceServer) SemianalStep(in *SemianalStepArgs, out *Void) os.Error {
+func (s *DeviceWrapper) SemianalStep(in *SemianalStepArgs, out *Void) os.Error {
 	s.dev.semianalStep(unsafe.Pointer(in.M), unsafe.Pointer(in.H), in.Dt, in.Alpha, in.Order, in.N)
 	return nil
 }
 
-func (s *DeviceServer) KernelMul(in *KernelMulArgs, out *Void) os.Error {
+func (s *DeviceWrapper) KernelMul(in *KernelMulArgs, out *Void) os.Error {
 	s.dev.kernelMul(unsafe.Pointer(in.Mx), unsafe.Pointer(in.My), unsafe.Pointer(in.Mz), unsafe.Pointer(in.Kxx), unsafe.Pointer(in.Kyy), unsafe.Pointer(in.Kzz), unsafe.Pointer(in.Kyz), unsafe.Pointer(in.Kxz), unsafe.Pointer(in.Kxy), in.Kerneltype, in.NRealNumbers)
 	return nil
 }
 
 
-func (s *DeviceServer) CopyPadded(in *CopyPaddedArgs, out *Void) os.Error {
+func (s *DeviceWrapper) CopyPadded(in *CopyPaddedArgs, out *Void) os.Error {
 	s.dev.copyPadded(unsafe.Pointer(in.Source), unsafe.Pointer(in.Dest), in.SourceSize, in.DestSize, in.Direction)
 	return nil
 }
 
 
-func (s *DeviceServer) NewFFTPlan(in *NewFFTPlanArgs, out *Ptr) os.Error {
+func (s *DeviceWrapper) NewFFTPlan(in *NewFFTPlanArgs, out *Ptr) os.Error {
 	out.Value = uintptr(s.dev.newFFTPlan(in.DataSize, in.LogicSize))
 	return nil
 }
 
 
-func (s *DeviceServer) FFT(in *FFTArgs, out *Void) os.Error {
+func (s *DeviceWrapper) FFT(in *FFTArgs, out *Void) os.Error {
 	s.dev.fft(unsafe.Pointer(in.Plan), unsafe.Pointer(in.In), unsafe.Pointer(in.Out), in.Direction)
 	return nil
 }
 
 
-func (s *DeviceServer) NewArray(in *Int, out *Ptr) os.Error {
+func (s *DeviceWrapper) NewArray(in *Int, out *Ptr) os.Error {
 	out.Value = uintptr(s.dev.newArray(in.Value))
 	Debugvv("NewArray(", in, ") :", out)
 	return nil
 }
 
 
-func (s *DeviceServer) Memcpy(in *MemcpyArgs, out *Void) os.Error{
-  
-  switch in.Direction{
-    default:
-      panic(fmt.Sprintf("Unknown memcpy direction: ", in.Direction))
-    case CPY_TO:
-    case CPY_ON:
-      s.dev.memcpy(unsafe.Pointer(in.Source), unsafe.Pointer(in.Dest), in.NFloats, in.Direction)
-    case CPY_FROM:
-  }
+func (s *DeviceWrapper) Memcpy(in *MemcpyArgs, out *Void) os.Error {
 
-  return nil
+	switch in.Direction {
+	default:
+		panic(fmt.Sprintf("Unknown memcpy direction: ", in.Direction))
+	case CPY_TO:
+	case CPY_ON:
+		s.dev.memcpy(unsafe.Pointer(in.Source), unsafe.Pointer(in.Dest), in.NFloats, in.Direction)
+	case CPY_FROM:
+	}
+
+	return nil
 }
 
 
-func (s *DeviceServer) ArrayOffset(in *ArrayOffsetArgs, out *Ptr) os.Error {
-  out.Value = uintptr(s.dev.arrayOffset(unsafe.Pointer(in.Array), in.Index))
-  Debugvv("ArrayOffset(", in, "):", out)
-  return nil
+func (s *DeviceWrapper) ArrayOffset(in *ArrayOffsetArgs, out *Ptr) os.Error {
+	out.Value = uintptr(s.dev.arrayOffset(unsafe.Pointer(in.Array), in.Index))
+	Debugvv("ArrayOffset(", in, "):", out)
+	return nil
 }
 
-func (s *DeviceServer) Stride(in *Void, out *Int) os.Error {
-  out.Value = s.dev.Stride()
+func (s *DeviceWrapper) Stride(in *Void, out *Int) os.Error {
+	out.Value = s.dev.Stride()
 	return nil
 }
 //
-// func (s *DeviceServer) overrideStride(nFloats int) {
+// func (s *DeviceWrapper) overrideStride(nFloats int) {
 // 	C.gpu_override_stride(C.int(nFloats))
 // }
 //
-func (s *DeviceServer) Zero(in *ZeroArgs, out *Void) os.Error {
-  Debugvv("Zero(", in, ")")
+func (s *DeviceWrapper) Zero(in *ZeroArgs, out *Void) os.Error {
+	Debugvv("Zero(", in, ")")
 	s.dev.zero(unsafe.Pointer(in.Data), in.NFloats)
 	return nil
 }
 //
 
-// func (s *DeviceServer) PrintProperties() {
+// func (s *DeviceWrapper) PrintProperties() {
 //  C.gpu_print_properties_stdout()
 // }
 
@@ -143,7 +149,6 @@ func (s *DeviceServer) Zero(in *ZeroArgs, out *Void) os.Error {
 // }
 
 
-
-func (s *DeviceServer) String() string {
-	return "Simulation server on " + s.port
-}
+// func (s *DeviceWrapper) String() string {
+// 	return "Simulation server on " + s.port
+// }

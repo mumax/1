@@ -3,6 +3,8 @@ package sim
 // This file implements the methods
 // for backend (hardware) selection
 
+import "strings"
+
 // Select the CPU as backend
 func (s *Sim) Cpu() {
 	s.backend = CPU
@@ -18,7 +20,8 @@ func (s *Sim) Gpu() {
 // DEBUG select a remote device.
 // Only useful to test the connection.
 // Normally, you would use more than one remote device in a cluster.
-func (s *Sim) Remote(serverAddress string, serverPort int) {
-	s.backend = &Backend{NewRemoteDevice(serverAddress, serverPort), false}
+func (s *Sim) Remote(transport string, serverAddress string, serverPort int) {
+	transport = strings.ToLower(transport)
+	s.backend = &Backend{NewRemoteDevice(transport, serverAddress, serverPort), false}
 	s.invalidate()
 }
