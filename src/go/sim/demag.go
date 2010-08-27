@@ -7,14 +7,14 @@ import (
 
 
 /// converts from the full "rank-5" kernel format to the symmetric "array-of-rank3-tensors" format
-func FaceKernel6(unpaddedsize []int, cellsize []float) []tensor.StoredTensor {
-	k9 := FaceKernel(unpaddedsize, cellsize)
+func FaceKernel6(unpaddedsize []int, cellsize []float, accuracy int) []tensor.StoredTensor {
+	k9 := FaceKernel(unpaddedsize, cellsize, accuracy)
 	return toSymmetric(k9)
 }
 
 
 /// Integrates the demag field based on multiple points per face.
-func FaceKernel(unpaddedsize []int, cellsize []float) *tensor.Tensor5 {
+func FaceKernel(unpaddedsize []int, cellsize []float, accuracy int) *tensor.Tensor5 {
 	size := PadSize(unpaddedsize)
 	k := tensor.NewTensor5([]int{3, 3, size[0], size[1], size[2]})
 	B := tensor.NewVector()
@@ -29,7 +29,7 @@ func FaceKernel(unpaddedsize []int, cellsize []float) *tensor.Tensor5 {
 					zw := wrap(z, size[Z])
 					R.Set(float(x)*cellsize[X], float(y)*cellsize[Y], float(z)*cellsize[Z])
 
-					faceIntegral(B, R, cellsize, s)
+					faceIntegral(B, R, cellsize, s, accuracy)
 
 					for d := 0; d < 3; d++ { // destination index Ksdxyz
 						k.Array()[s][d][xw][yw][zw] = B.Component[d]
@@ -51,8 +51,8 @@ func FaceKernel(unpaddedsize []int, cellsize []float) *tensor.Tensor5 {
 /**
  * Magnetostatic field at position r (integer, number of cellsizes away form source) for a given source magnetization direction m (X, Y, or Z)
  */
-func faceIntegral(B, R *tensor.Vector, cellsize []float, s int) {
-	n := 8                         // number of integration points = n^2
+func faceIntegral(B, R *tensor.Vector, cellsize []float, s int, accuracy int) {
+	n := accuracy                         // number of integration points = n^2
 	u, v, w := s, (s+1)%3, (s+2)%3 // u = direction of source (s), v & w are the orthogonal directions
 	R2 := tensor.NewVector()
 	pole := tensor.NewVector() // position of point charge on the surface

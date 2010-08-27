@@ -22,7 +22,7 @@ func main() {
 }
 
 func makeKernel() {
-	demag := sim.FaceKernel(units.Size, units.CellSize)
+	demag := sim.FaceKernel(units.Size, units.CellSize, 8)
 	exch := sim.Exch6NgbrKernel(units.Size, units.CellSize)
 	kernel := tensor.Add(exch, demag)
 	tensor.Write(os.Stdout, kernel)

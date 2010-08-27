@@ -11,3 +11,9 @@ func (s *Sim) AppliedField(hx, hy, hz float) {
 	s.hext[Z] = hz
 	s.invalidate()
 }
+
+func (s *Sim ) DemagAccuracy(accuracy int){
+    Debugv("Demag accuracy:", accuracy)
+  s.demag_accuracy = accuracy
+    s.invalidate()
+}

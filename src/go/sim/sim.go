@@ -33,7 +33,8 @@ type Sim struct {
 
 	size     [3]int
 	cellsize [3]float
-
+  demag_accuracy int
+  
 	m *tensor.Tensor4
 
 	dt         float
@@ -63,6 +64,7 @@ func NewSim() *Sim {
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
 	sim.invalidate()     //just to make sure we will init()
+	sim.demag_accuracy = 8
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
 	return sim
 }
@@ -102,7 +104,7 @@ func (s *Sim) init() {
 	L := mat.UnitLength()
 	cellsize := []float{s.cellsize[X] / L, s.cellsize[Y] / L, s.cellsize[Z] / L}
 	magnet := NewMagnet(dev, mat, size, cellsize)
-	s.Field = NewField(dev, magnet)
+	s.Field = NewField(dev, magnet, s.demag_accuracy)
 
 	dt := s.dt / mat.UnitTime()
 	s.Solver = NewSolver(s.solvertype, s.Field) //NewEuler(dev, s.Field, dt) //TODO solver dt should be float64(?)
