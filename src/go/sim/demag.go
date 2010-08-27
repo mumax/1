@@ -52,7 +52,7 @@ func FaceKernel(unpaddedsize []int, cellsize []float, accuracy int) *tensor.Tens
  * Magnetostatic field at position r (integer, number of cellsizes away form source) for a given source magnetization direction m (X, Y, or Z)
  */
 func faceIntegral(B, R *tensor.Vector, cellsize []float, s int, accuracy int) {
-	n := accuracy                         // number of integration points = n^2
+	n := accuracy                  // number of integration points = n^2
 	u, v, w := s, (s+1)%3, (s+2)%3 // u = direction of source (s), v & w are the orthogonal directions
 	R2 := tensor.NewVector()
 	pole := tensor.NewVector() // position of point charge on the surface

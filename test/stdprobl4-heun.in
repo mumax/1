@@ -2,12 +2,12 @@
 
 
 # hardware selection
-cpu
+gpu
 
 
 # output
 outputdir:  	stdprobl4-heun
-verbosity:  	2
+verbosity:  	3
 
 solvertype:  	heun
 dt:           0.02E-12                  # s
@@ -26,7 +26,7 @@ load:    	s-state.t
 
 
 # run
-autosave:	m	png	20E-12
+#autosave:	m	png	20E-12
 autosave:	table	ascii	10E-12
 appliedfield: 	0     4.3E-3    -24.6E-3  # T
 run:          	1E-9                      # s

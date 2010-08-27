@@ -31,10 +31,10 @@ type Sim struct {
 	msat  float
 	alpha float
 
-	size     [3]int
-	cellsize [3]float
-  demag_accuracy int
-  
+	size           [3]int
+	cellsize       [3]float
+	demag_accuracy int
+
 	m *tensor.Tensor4
 
 	dt         float
@@ -63,7 +63,7 @@ func NewSim() *Sim {
 	sim.outputdir = "."
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
-	sim.invalidate()     //just to make sure we will init()
+	sim.invalidate() //just to make sure we will init()
 	sim.demag_accuracy = 8
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
 	return sim
@@ -118,8 +118,8 @@ func (s *Sim) init() {
 	}
 	TensorCopyTo(s.m, s.M()) // TODO it's not clear which is local/remote
 	Debug("debug")
-  TensorCopyFrom(s.M(), s.m)  //DEBUG
-    
+	TensorCopyFrom(s.M(), s.m) //DEBUG
+
 	s.Normalize(s.M())
 }
 

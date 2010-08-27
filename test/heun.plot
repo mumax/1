@@ -1,1 +1,1 @@
-plot "stdprobl4-heun/datatable.txt" using 1:3 with lines, "solution3.txt" using ($1*1E-9):9 with lines;
+plot[0:1e-9] "stdprobl4-heun/datatable.txt" using 1:3 with lines, "solution3.txt" using ($1*1E-9):9 with lines;
