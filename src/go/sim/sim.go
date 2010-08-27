@@ -115,7 +115,9 @@ func (s *Sim) init() {
 		s.m = resample(s.m, s.M().size)
 	}
 	TensorCopyTo(s.m, s.M()) // TODO it's not clear which is local/remote
-
+	Debug("debug")
+  TensorCopyFrom(s.M(), s.m)  //DEBUG
+    
 	s.Normalize(s.M())
 }
 
