@@ -31,7 +31,7 @@ func NewRemoteDevice(transport, serverAddress string, serverPort int) *RemoteDev
 	d.serverPort = serverPort
 	url := d.serverAddress + ":" + fmt.Sprint(d.serverPort)
 	var err os.Error
-	d.Client, err = rpc.DialHTTP(d.transport, url) 
+	d.Client, err = rpc.DialHTTP(d.transport, url)
 	if err != nil {
 		panic(err)
 	}
@@ -40,12 +40,12 @@ func NewRemoteDevice(transport, serverAddress string, serverPort int) *RemoteDev
 }
 
 func (d *RemoteDevice) init() {
-  args := &Void{0}
-  reply := &Void{0}
-  err := d.Client.Call("DeviceWrapper.Init", args, reply)
-  if err != nil {
-    panic(err)
-  }
+	args := &Void{0}
+	reply := &Void{0}
+	err := d.Client.Call("DeviceWrapper.Init", args, reply)
+	if err != nil {
+		panic(err)
+	}
 }
 
 type Void struct {
@@ -67,7 +67,7 @@ func (d *RemoteDevice) add(a, b unsafe.Pointer, N int) {
 	}
 }
 
-// 
+//
 type LinearCombinationArgs struct {
 	A, B             uintptr
 	WeightA, WeightB float
@@ -178,7 +178,7 @@ type MemcpyArgs struct {
 }
 
 func (d *RemoteDevice) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
-  
+
 	args := &MemcpyArgs{uintptr(unsafe.Pointer(source)), uintptr(dest), nFloats, direction}
 	reply := &Void{0}
 	err := d.Client.Call("DeviceWrapper.Memcpy", args, reply)
@@ -186,7 +186,6 @@ func (d *RemoteDevice) memcpy(source, dest unsafe.Pointer, nFloats, direction in
 		panic(err)
 	}
 
-	
 }
 
 

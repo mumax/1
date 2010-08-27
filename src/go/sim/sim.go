@@ -2,7 +2,6 @@
 package sim
 
 import (
-	"fmt"
 	"tensor"
 )
 
@@ -39,6 +38,7 @@ type Sim struct {
 
 	dt         float
 	time       float64
+	steps      int
 	solvertype string
 	Solver
 
@@ -69,6 +69,9 @@ func NewSim() *Sim {
 
 // When a parmeter is changed, the simulation state is invalidated until it gets (re-)initialized by init().
 func (s *Sim) invalidate() {
+	if s.isValid() {
+		Debugv("Simulation state invalidated")
+	}
 	s.Solver = nil
 	s.Field = nil
 }
@@ -83,6 +86,8 @@ func (s *Sim) init() {
 	if s.isValid() {
 		return //no work to do
 	}
+	Debugv("Re-initializing simulation state")
+
 	s.ensure_m()
 
 	dev := s.backend
@@ -106,8 +111,6 @@ func (s *Sim) init() {
 	B := s.UnitField()
 	s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
 
-	fmt.Println(s.Solver)
-
 	if !tensor.EqualSize(s.m.Size(), s.M().Size()) {
 		s.m = resample(s.m, s.M().size)
 	}
@@ -123,6 +126,7 @@ func (s *Sim) Verbosity(level int) {
 }
 
 func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {
+	Debugv("Resampling magnetization from", in.Size(), "to", size2)
 	out := tensor.NewTensor4(size2)
 	out_a := out.Array()
 	in_a := in.Array()

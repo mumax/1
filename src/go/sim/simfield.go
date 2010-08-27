@@ -5,6 +5,7 @@ package sim
 
 // Apply a static field defined in Tesla
 func (s *Sim) AppliedField(hx, hy, hz float) {
+	Debugv("Applied field:", hx, hy, hz)
 	s.hext[X] = hx
 	s.hext[Y] = hy
 	s.hext[Z] = hz

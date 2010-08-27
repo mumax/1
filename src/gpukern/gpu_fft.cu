@@ -58,6 +58,8 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
   gpu_safefft( cufftPlan1d(&(plan->invPlanZ), plan->paddedSize[Z], CUFFT_C2R, 1) );
   
   plan->transp = new_gpu_array(plan->paddedStorageN);
+
+  debugvv(fprintf(stderr, "new_gpuFFT3dPlan_padded():%p\n", plan))
   
   return plan;
 }
@@ -85,6 +87,8 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
 
 void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
 
+    debugvv(fprintf(stderr, "gpuFFT3dPlan_forward(%p, %p, %p)\n", plan, input, output))
+    
   int* size = plan->size;
   int* pSSize = plan->paddedStorageSize;
   int N0 = pSSize[X];

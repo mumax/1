@@ -2,12 +2,12 @@
 
 
 # hardware selection
- remote tcp 127.0.0.1 2527
-#cpu
+# remote tcp 127.0.0.1 2527
+gpu
 
 # output
 outputdir:  	stdprobl4
-verbosity:  	0
+verbosity:  	3
 
 solvertype:  	euler
 dt:           	0.02E-12                  # s
@@ -26,8 +26,8 @@ load:    	s-state.t
 
 
 # run
-autosave:	m	png	20E-12
-autosave:	table	ascii	10E-12
+#autosave:	m	png	20E-12
+#autosave:	table	ascii	10E-12
 appliedfield: 	0     4.3E-3    -24.6E-3  # T
-run:          	0.01E-9                      # s
+run:          	1E-9                      # s
 

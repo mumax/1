@@ -16,28 +16,28 @@ type DeviceServer struct {
 	port      string
 }
 
-func NewDeviceServer(device string, transport string, port int) *DeviceServer{
-    var d Device
-    switch strings.ToLower(device){
-      default:
-        panic("Unknown device: " + device)
-      case "cpu":
-        d = CPU.Device
-      case "gpu":
-        d = GPU.Device
-    }
-    return  &DeviceServer{&DeviceWrapper{d}, transport, fmt.Sprintf(":%d", port)}
+func NewDeviceServer(device string, transport string, port int) *DeviceServer {
+	var d Device
+	switch strings.ToLower(device) {
+	default:
+		panic("Unknown device: " + device)
+	case "cpu":
+		d = CPU.Device
+	case "gpu":
+		d = GPU.Device
+	}
+	return &DeviceServer{&DeviceWrapper{d}, transport, fmt.Sprintf(":%d", port)}
 }
 
-func (server *DeviceServer) Listen(){
-  rpc.Register(server.DeviceWrapper)
-  rpc.HandleHTTP()
-  listener, err := net.Listen(server.transport, server.port)
-  if err != nil {
-    panic(err)
-  }
-  Debug("Listening on " + server.transport + "port", server.port)
-  http.Serve(listener, nil)
+func (server *DeviceServer) Listen() {
+	rpc.Register(server.DeviceWrapper)
+	rpc.HandleHTTP()
+	listener, err := net.Listen(server.transport, server.port)
+	if err != nil {
+		panic(err)
+	}
+	Debug("Listening on "+server.transport+"port", server.port)
+	http.Serve(listener, nil)
 }
 
 type DeviceWrapper struct {
@@ -45,7 +45,7 @@ type DeviceWrapper struct {
 }
 
 func (s *DeviceWrapper) Init(in, out *Void) os.Error {
-  Debugvv("Init()")
+	Debugvv("Init()")
 	s.dev.init()
 	return nil
 }

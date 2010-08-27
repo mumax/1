@@ -62,6 +62,7 @@ func (s *Sim) Vortex(circulation, polarization int) {
 
 
 func (s *Sim) Load(file string) {
+	Debugv("Loading", file)
 	in, err := os.Open(file, os.O_RDONLY, 0666)
 	defer in.Close()
 	if err != nil {
