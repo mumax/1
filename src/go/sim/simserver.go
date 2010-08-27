@@ -7,19 +7,8 @@ import (
 	"http"
 	"os"
 	"fmt"
+	"strings"
 )
-
-func SimServerMain() {
-	server := &DeviceServer{&DeviceWrapper{CPU.Device}, "tcp", ":2527"}
-	rpc.Register(server.DeviceWrapper)
-	rpc.HandleHTTP()
-	listener, err := net.Listen("tcp", server.port)
-	if err != nil {
-		panic(err)
-	}
-	Debug("Listening on port", server.port)
-	http.Serve(listener, nil)
-}
 
 type DeviceServer struct {
 	*DeviceWrapper
@@ -27,6 +16,29 @@ type DeviceServer struct {
 	port      string
 }
 
+func NewDeviceServer(device string, transport string, port int) *DeviceServer{
+    var d Device
+    switch strings.ToLower(device){
+      default:
+        panic("Unknown device: " + device)
+      case "cpu":
+        d = CPU.Device
+      case "gpu":
+        d = GPU.Device
+    }
+    return  &DeviceServer{&DeviceWrapper{d}, transport, fmt.Sprintf(":%d", port)}
+}
+
+func (server *DeviceServer) Listen(){
+  rpc.Register(server.DeviceWrapper)
+  rpc.HandleHTTP()
+  listener, err := net.Listen(server.transport, server.port)
+  if err != nil {
+    panic(err)
+  }
+  Debug("Listening on " + server.transport + "port", server.port)
+  http.Serve(listener, nil)
+}
 
 type DeviceWrapper struct {
 	dev Device // We do not embed to avoid the dev methods to be exported by rpc

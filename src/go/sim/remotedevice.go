@@ -31,7 +31,7 @@ func NewRemoteDevice(transport, serverAddress string, serverPort int) *RemoteDev
 	d.serverPort = serverPort
 	url := d.serverAddress + ":" + fmt.Sprint(d.serverPort)
 	var err os.Error
-	d.Client, err = rpc.DialHTTP(d.transport, url) //TODO: UDP
+	d.Client, err = rpc.DialHTTP(d.transport, url) 
 	if err != nil {
 		panic(err)
 	}
@@ -62,7 +62,7 @@ func (d *RemoteDevice) add(a, b unsafe.Pointer, N int) {
 	}
 }
 
-
+// 
 type LinearCombinationArgs struct {
 	A, B             uintptr
 	WeightA, WeightB float
