@@ -1,5 +1,5 @@
 include ../../../common.mk
-include $(GOROOT)/src/Make.$(GOARCH)
+include $(GOROOT)/src/Make.inc
 
 CLEANFILES+=*.t *.png *.jpg
 

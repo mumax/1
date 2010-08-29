@@ -1,4 +1,4 @@
-include $(GOROOT)/src/Make.$(GOARCH)
+include $(GOROOT)/src/Make.inc
 
 main:	*.go
 	ln -sf ../tensor-main/flags.go .
