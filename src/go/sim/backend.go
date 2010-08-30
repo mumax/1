@@ -20,8 +20,12 @@ import (
 type Backend struct {
 	Device
 	Initiated bool
+	Timer
 }
 
+func NewBackend(d Device) *Backend{
+  return &Backend{d, false, NewTimer()}
+}
 
 //_________________________________________________________________________ safe wrappers for Device methods
 

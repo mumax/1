@@ -71,4 +71,5 @@ func exec(in io.Reader) {
 	refsh.AddAllMethods(sim)
 	refsh.Exec(in)
 	sim.TimerPrintDetail()
+	sim.Print(os.Stdout)
 }

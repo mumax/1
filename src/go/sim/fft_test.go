@@ -59,11 +59,11 @@ func TestFFTOutOfPlace(t *testing.T) {
 
 func TestFFTInplace(t *testing.T) {
 
- 	//backend.OverrideStride(1)
+	//backend.OverrideStride(1)
 
 	sizes := [][]int{
-		[]int{1, 32, 64}}//,
-		//[]int{2, 4, 8}}
+		[]int{1, 32, 64}} //,
+	//[]int{2, 4, 8}}
 
 	for _, size := range sizes {
 		fft := NewFFT(backend, size)

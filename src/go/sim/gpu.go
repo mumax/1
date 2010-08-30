@@ -25,7 +25,7 @@ import (
 	"fmt"
 )
 
-var GPU *Backend = &Backend{Gpu{}, false}
+var GPU *Backend = NewBackend(&Gpu{})
 
 type Gpu struct {
 	// intentionally empty, but the methods implement sim.Device

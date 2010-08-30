@@ -129,8 +129,8 @@ type Device interface {
 	// TODO: return string
 	PrintProperties()
 
-  TimerPrintDetail()
-  
+	TimerPrintDetail()
+
 	String() string
 }
 

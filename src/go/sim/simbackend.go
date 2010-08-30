@@ -25,6 +25,6 @@ func (s *Sim) Gpu() {
 func (s *Sim) Remote(transport string, serverAddress string, serverPort int) {
 	Debugv("Selected remote backend:", transport, serverAddress, ":", serverPort)
 	transport = strings.ToLower(transport)
-	s.backend = &Backend{NewRemoteDevice(transport, serverAddress, serverPort), false}
+	s.backend = NewBackend(NewRemoteDevice(transport, serverAddress, serverPort))
 	s.invalidate()
 }
