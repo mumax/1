@@ -14,7 +14,7 @@ func TestConv(t *testing.T) {
 	size := size4D[1:]
 	//kernelSize := []int{2*size[X], 2*size[Y], 2*size[Z]}
 
-	kernel := FaceKernel6(size, []float{1., 1., 1.})
+	kernel := FaceKernel6(size, []float{1., 1., 1.}, 8)
 	conv := NewConv(backend, size, kernel)
 
 	// unit kernel
