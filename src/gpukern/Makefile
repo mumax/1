@@ -14,6 +14,7 @@ OFILES=\
 	gpu_zeropad.o\
 	gpu_anal.o\
 	gpu_init.o\
+	timer.o\
 
 all: libgpukern.so libgpukern.a
 
@@ -24,6 +25,9 @@ libgpukern.so: $(OFILES)
 libgpukern.a:	$(OFILES)
 	ar rcs libgpukern.a $(OFILES)
 	ln -sf $(CURDIR)/libgpukern.a $(CURDIR)/../../lib
+
+timer.o:  timer.h timer.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) timer.cpp
 
 gpu_safe.o:  gpu_safe.h gpu_safe.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_safe.cu

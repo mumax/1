@@ -1,6 +1,7 @@
 #include "gpu_transpose.h"
 #include "gpu_conf.h"
 #include <assert.h>
+#include "timer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,7 +26,7 @@ __global__ void _gpu_transposeXZ_complex(float* source, float* dest, int N0, int
 
 
 void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2){
-  
+  timer_start("transposeXZ");
   assert(source != dest);{ // must be out-of-place
 
   // we treat the complex array as a N0 x N1 x N2 x 2 real array
@@ -43,6 +44,7 @@ void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2)
   /*  else{
     gpu_transposeXZ_complex_inplace(source, N0, N1, N2*2); ///@todo see above
   }*/
+  timer_stop("transposeXZ");
 }
 
 
@@ -67,7 +69,7 @@ __global__ void _gpu_transposeYZ_complex(float* source, float* dest, int N0, int
 }
 
 void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
-
+  timer_start("transposeYZ");
   assert(source != dest);{ // must be out-of-place
 
   // we treat the complex array as a N0 x N1 x N2 x 2 real array
@@ -84,7 +86,7 @@ void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2)
 /*  else{
     gpu_transposeYZ_complex_inplace(source, N0, N1, N2*2); ///@todo see above
   }*/
-  //timer_stop("transposeYZ");
+  timer_stop("transposeYZ");
 }
 
 

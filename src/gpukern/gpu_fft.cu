@@ -4,7 +4,7 @@
 #include "gpu_safe.h"
 #include "gpu_conf.h"
 #include "gpu_mem.h"
-// #include "//timer.h"
+#include "timer.h"
 #include <stdio.h>
 #include <assert.h>
 
@@ -75,7 +75,6 @@ gpuFFT3dPlan* new_gpuFFT3dPlan(int* size){
 }
 
 void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
-  //timer_start("gpu_plan3d_real_input_forward_exec");
   
   int* size = plan->size;
   int* pSSize = plan->paddedStorageSize;
@@ -94,36 +93,42 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
       gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)rowIn,  (cufftComplex*)rowOut) );
     }
   }*/
+
+  timer_start("FFT_Z");
   for(int i=0; i<size[X]; i++){
     float* rowIn  = &( input[i * pSSize[Y] * pSSize[Z]]);
     float* rowOut = &(output[i * pSSize[Y] * pSSize[Z]]);
     gpu_safefft( cufftExecR2C(plan->fwPlanZ, (cufftReal*)rowIn,  (cufftComplex*)rowOut) );
   }
   cudaThreadSynchronize();
+  timer_stop("FFT_Z");
   
   gpu_transposeYZ_complex(data, data2, N0, N1, N2*N3);                  // it's now in data2
-  
+
+  timer_start("FFT_Y");
   gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)data2,  (cufftComplex*)data2, CUFFT_FORWARD) ); 
   cudaThreadSynchronize();
+  timer_stop("FFT_Y");
 
   // support for 2D transforms: do not transform if first dimension has size 1
   if(N0 > 1){
     gpu_transposeXZ_complex(data2, data, N0, N2, N1*N3); // size has changed due to previous transpose! // it's now in data2
+    timer_start("FFT_X");
     gpu_safefft( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)output, CUFFT_FORWARD) ); // it's now again in data
+    timer_stop("FFT_X");
     cudaThreadSynchronize();
   }
   else
     memcpy_on_gpu(data2, data, plan->paddedStorageN);             // for N0=1, it's now again in data
 
   cudaThreadSynchronize();
-  //timer_stop("gpu_plan3d_real_input_forward_exec");
 }
 
 
 
 
 void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
-  //timer_start("gpu_plan3d_real_input_inverse_exec");
+
   
   int* size = plan->size;
   int* pSSize = plan->paddedStorageSize;
@@ -137,13 +142,17 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
 
   if (N0 > 1){
     // input data is XZ transposed and stored in data, FFTs on X-arrays out of place towards data2
+    timer_start("FFT_X");
     gpu_safefft( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) ); // it's now in data2
     cudaThreadSynchronize();
+    timer_stop("FFT_X");
     gpu_transposeXZ_complex(data2, data, N1, N2, N0*N3); // size has changed due to previous transpose! // it's now in data
   }
 
+  timer_start("FFT_Y");
 	gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) ); // it's now again in data2
   cudaThreadSynchronize();
+  timer_stop("FFT_Y");
 
   gpu_transposeYZ_complex(data2, data, N0, N2, N1*N3);                 
 
@@ -154,14 +163,14 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
       gpu_safe( cufftExecC2R(plan->invPlanZ, (cufftComplex*)rowIn, (cufftReal*)rowOut) ); 
     }
   }*/
+  timer_start("FFT_Z");
   for(int i=0; i<size[X]; i++){
     float* rowIn  = &( input[i * pSSize[Y] * pSSize[Z]]);
     float* rowOut = &(output[i * pSSize[Y] * pSSize[Z]]);
     gpu_safefft( cufftExecC2R(plan->invPlanZ, (cufftComplex*)rowIn, (cufftReal*)rowOut) ); 
   }
   cudaThreadSynchronize();
-  
-  //timer_stop("gpu_plan3d_real_input_inverse_exec");
+  timer_stop("FFT_Z");
 }
 
 
@@ -176,7 +185,7 @@ int gpuFFT3dPlan_normalization(gpuFFT3dPlan* plan){
 
 // //Copied from gpufft by Ben ***********************************************************************
 // void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2){
-//   //timer_start("transposeXZ"); /// @todo section is double-timed with FFT exec
+//   timer_start("transposeXZ"); /// @todo section is double-timed with FFT exec
 // 
 //   if(source != dest){ // must be out-of-place
 // 
@@ -195,7 +204,7 @@ int gpuFFT3dPlan_normalization(gpuFFT3dPlan* plan){
 // /*  else{
 //     gpu_transposeXZ_complex_inplace(source, N0, N1, N2*2); ///@todo see above
 //   }*/
-//   //timer_stop("transposeXZ");
+//   timer_stop("transposeXZ");
 // }
 // 
 // __global__ void _gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2){
@@ -213,7 +222,7 @@ int gpuFFT3dPlan_normalization(gpuFFT3dPlan* plan){
 // 
 // 
 // void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
-//   //timer_start("transposeYZ");
+//   timer_start("transposeYZ");
 // 
 //   if(source != dest){ // must be out-of-place
 // 
@@ -231,7 +240,7 @@ int gpuFFT3dPlan_normalization(gpuFFT3dPlan* plan){
 // /*  else{
 //     gpu_transposeYZ_complex_inplace(source, N0, N1, N2*2); ///@todo see above
 //   }*/
-//   //timer_stop("transposeYZ");
+//   timer_stop("transposeYZ");
 // }
 // 
 // __global__ void _gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
@@ -259,7 +268,7 @@ int gpuFFT3dPlan_normalization(gpuFFT3dPlan* plan){
 // //_____________________________________________________________________________________________ exec plan
 // 
 // void gpu_plan3d_real_input_forward(gpu_plan3d_real_input* plan, float* data){
-//   //timer_start("gpu_plan3d_real_input_forward_exec");
+//   timer_start("gpu_plan3d_real_input_forward_exec");
 // 
 //   int* size = plan->size;
 //   int* pSSize = plan->paddedStorageSize;
@@ -286,7 +295,7 @@ int gpuFFT3dPlan_normalization(gpuFFT3dPlan* plan){
 //   gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)data, CUFFT_FORWARD) ); // it's now again in data
 //   cudaThreadSynchronize();
 //   
-//   //timer_stop("gpu_plan3d_real_input_forward_exec");
+//   timer_stop("gpu_plan3d_real_input_forward_exec");
 // }
 // 
 // void gpu_plan3d_real_input_inverse(gpu_plan3d_real_input* plan, float* data){

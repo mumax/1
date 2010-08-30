@@ -127,8 +127,10 @@ type Device interface {
 
 	// Print the GPU properties to stdout
 	// TODO: return string
-	//PrintProperties()
+	PrintProperties()
 
+  TimerPrintDetail()
+  
 	String() string
 }
 
