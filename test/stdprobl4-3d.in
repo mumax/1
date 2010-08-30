@@ -6,7 +6,7 @@ gpu
 
 
 # output
-outputdir:    stdprobl4
+outputdir:    stdprobl4-3d
 verbosity:    2
 
 solvertype:   heun
