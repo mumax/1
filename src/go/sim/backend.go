@@ -119,6 +119,7 @@ func (dev *Backend) DeltaM(m, h *Tensor, alpha, dtGilbert float) {
 
 
 func (b Backend) OverrideStride(stride int) {
+  panic("OverrideStride is currently not compatible with the used FFT, it should always be 1")
 	Debugv("Backend.OverrideStride(", stride, ")")
 	assert(stride > 0 || stride == -1)
 	b.overrideStride(stride)

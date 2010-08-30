@@ -51,7 +51,9 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
   
   plan->paddedStorageSize[X] = plan->paddedSize[X];
   plan->paddedStorageSize[Y] = plan->paddedSize[Y];
+
   plan->paddedStorageSize[Z] = gpu_pad_to_stride( plan->paddedSize[Z] + 2 );
+  
   plan->paddedStorageN = paddedStorageSize[X] * paddedStorageSize[Y] * paddedStorageSize[Z];
   
   ///@todo check these sizes !
