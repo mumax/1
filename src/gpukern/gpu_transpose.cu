@@ -39,7 +39,8 @@ __global__ void _gpu_transpose(float *idata, float *odata, int width, int height
 
 
 void gpu_transpose(float *idata, float *odata, int size_x, int size_y){
-    dim3 grid(size_x / BLOCK_DIM, size_y / BLOCK_DIM, 1);
+    dim3 grid((size_x-1) / BLOCK_DIM + 1, (size_y-1) / BLOCK_DIM + 1, 1);
+   // dim3 grid((size_x) / BLOCK_DIM, (size_y) / BLOCK_DIM, 1);
     dim3 threads(BLOCK_DIM, BLOCK_DIM, 1);
 
     _gpu_transpose<<< grid, threads >>>(idata, odata, size_x, size_y);

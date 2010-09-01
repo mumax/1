@@ -15,7 +15,7 @@ void format(float* array, int N1, int N2){
 }
 
 int main(){
-  int N1 = 16, N2 = 16;
+  int N1 = 4, N2 = 8;
   int N = N1*N2;
   
   float* host = (float*)calloc(N, sizeof(float));
@@ -30,7 +30,7 @@ int main(){
   }
 
   memcpy_to_gpu(host, dev, N);
-  gpu_transpose(dev, dev2, N1, N2);
+  gpu_transpose(dev, dev2, N2, N1);
   memcpy_from_gpu(dev2, host2, N);
   format(host, N1, N2);
   format(host2, N2, N1);
