@@ -30,7 +30,7 @@ int main(){
   }
 
   memcpy_to_gpu(host, dev, N);
-  gpu_transpose(dev, dev2, N2, N1);
+  gpu_transpose(dev, dev2, N1, N2);
   memcpy_from_gpu(dev2, host2, N);
   format(host, N1, N2);
   format(host2, N2, N1);
