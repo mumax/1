@@ -15,6 +15,8 @@
 extern "C" {
 #endif
 
+/// 2D transpose
+void gpu_transpose(float *odata, float *idata, int size_x, int size_y);
 
 /// Swaps the X and Z dimension of an array of complex numbers in interleaved format
 void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2);
