@@ -36,7 +36,7 @@ int main(){
   gpu_transpose(dev, dev2, N1, N2);
   
   timer_start("transpose");
-  for(int i=0; i<20000; i++)
+  for(int i=0; i<10000; i++)
     gpu_transpose(dev, dev2, N1, N2);
   timer_stop("transpose");
   
