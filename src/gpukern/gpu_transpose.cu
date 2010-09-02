@@ -28,21 +28,25 @@ __global__ void _gpu_transpose(float *input, float *output, int N1, int N2)
   int i = threadIdx.x;
   int j = threadIdx.y;
   
-  // "major" indices inside the entire matrix
-  int I = BI * BLOCKSIZE + i;
-  int J = BJ * BLOCKSIZE + j;
-  
-  if((I < N1) && (J < N2)){
-    block[j][i] = input[J * N1 + I];
+  {
+    // "major" indices inside the entire matrix
+    int I = BI * BLOCKSIZE + i;
+    int J = BJ * BLOCKSIZE + j;
+    
+    if((I < N1) && (J < N2)){
+      block[j][i] = input[J * N1 + I];
+    }
   }
-
   __syncthreads();
-
-  int It = BJ * BLOCKSIZE + i;
-  int Jt = BI * BLOCKSIZE + j;
   
-  if((It < N2) && (Jt < N1)){
-    output[Jt * N2 + It] = block[i][j];
+  {
+    // Major indices with transposed blocks but not transposed minor indices
+    int It = BJ * BLOCKSIZE + i;
+    int Jt = BI * BLOCKSIZE + j;
+    
+    if((It < N2) && (Jt < N1)){
+      output[Jt * N2 + It] = block[i][j];
+    }
   }
 }
 
