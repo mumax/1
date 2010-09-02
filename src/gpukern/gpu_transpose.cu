@@ -9,30 +9,40 @@ extern "C" {
 
 
 
-#define BLOCK_DIM 16
+#define BLOCKSIZE 16
 
-__global__ void _gpu_transpose(float *idata, float *odata, int width, int height)
+/*
+ * Transposing a block matrix:
+ * 1) Transpose the elements inside each block "internally"
+ * 2) Transpose the blocks inside the matrix.
+ */
+__global__ void _gpu_transpose(float *input, float *output, int N1, int N2)
 {
-  __shared__ float block[BLOCK_DIM][BLOCK_DIM+1];
+  __shared__ float block[BLOCKSIZE][BLOCKSIZE+1];
 
-  // read the matrix tile into shared memory
-  unsigned int xIndex = blockIdx.x * BLOCK_DIM + threadIdx.x;
-  unsigned int yIndex = blockIdx.y * BLOCK_DIM + threadIdx.y;
-  if((xIndex < width) && (yIndex < height))
-  {
-    unsigned int index_in = yIndex * width + xIndex;
-    block[threadIdx.y][threadIdx.x] = idata[index_in];
+  // index of the block inside the blockmatrix
+  int BI = blockIdx.x;
+  int BJ = blockIdx.y;
+  
+  // "minor" indices inside the tile
+  int i = threadIdx.x;
+  int j = threadIdx.y;
+  
+  // "major" indices inside the entire matrix
+  int I = BI * BLOCKSIZE + i;
+  int J = BJ * BLOCKSIZE + j;
+  
+  if((I < N1) && (J < N2)){
+    block[j][i] = input[J * N1 + I];
   }
 
   __syncthreads();
 
-  // write the transposed matrix tile to global memory
-  xIndex = blockIdx.y * BLOCK_DIM + threadIdx.x;
-  yIndex = blockIdx.x * BLOCK_DIM + threadIdx.y;
-  if((xIndex < height) && (yIndex < width))
-  {
-    unsigned int index_out = yIndex * height + xIndex;
-    odata[index_out] = block[threadIdx.x][threadIdx.y];
+  int It = BJ * BLOCKSIZE + i;
+  int Jt = BI * BLOCKSIZE + j;
+  
+  if((It < N2) && (Jt < N1)){
+    output[Jt * N2 + It] = block[i][j];
   }
 }
 
@@ -40,8 +50,8 @@ __global__ void _gpu_transpose(float *idata, float *odata, int width, int height
 
 
 void gpu_transpose(float *input, float *output, int size_y, int size_x){
-    dim3 grid((size_x-1) / BLOCK_DIM + 1, (size_y-1) / BLOCK_DIM + 1, 1); // integer division rounded UP
-    dim3 threads(BLOCK_DIM, BLOCK_DIM, 1);
+    dim3 grid((size_x-1) / BLOCKSIZE + 1, (size_y-1) / BLOCKSIZE + 1, 1); // integer division rounded UP
+    dim3 threads(BLOCKSIZE, BLOCKSIZE, 1);
     _gpu_transpose<<< grid, threads >>>(input, output, size_x, size_y);
 }
 

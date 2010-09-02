@@ -1,6 +1,6 @@
 #include "gpu_mem.h"
 #include "gpu_transpose.h"
-
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -15,7 +15,7 @@ void format(float* array, int N1, int N2){
 }
 
 int main(){
-  int N1 = 5, N2 = 31;
+  int N1 = 65, N2 = 31;
   int N = N1*N2;
   
   float* host = (float*)calloc(N, sizeof(float));
@@ -34,5 +34,12 @@ int main(){
   memcpy_from_gpu(dev2, host2, N);
   format(host, N1, N2);
   format(host2, N2, N1);
-  
+
+  for(int i=0; i<N1; i++){
+    for(int j=0; j<N2; j++){
+      assert( host[i*N2+j] == host2[j*N1+i]);
+    }
+  }
+
+  printf("PASS\n");
 }
