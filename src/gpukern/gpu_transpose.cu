@@ -8,13 +8,63 @@ extern "C" {
 #endif
 
 
-
+/// The size of matrix blocks to be loaded into shared memory.
+/// @todo: optimize this for Fermi, play with non-square blocks.
 #define BLOCKSIZE 16
 
+
+#define BLOCKSIZEX BLOCKSIZE
+#define BLOCKSIZEY (2*BLOCKSIZE)
+
+__global__ void _gpu_transpose_complex(float *input, float *output, int N1, int N2)
+{
+
+  int N3 = 2;
+  
+  __shared__ float block[BLOCKSIZE][BLOCKSIZE][2];
+
+  // index of the block inside the blockmatrix
+  int BI = blockIdx.x;
+  int BJ = blockIdx.y;
+
+  // "minor" indices inside the tile
+  int i = threadIdx.x;
+  int j = threadIdx.y/2;
+  int k = threadIdx.y%2;
+  
+  {
+    // "major" indices inside the entire matrix
+    int I = BI * BLOCKSIZEX + i;
+    int J = BJ * BLOCKSIZEY + j;
+    int K = k;
+    
+    if((I < N1) && (J < N2)){
+      block[j][i][k] = input[J*N1*N3 + I*N3 + K];
+    }
+  }
+  __syncthreads();
+
+  {
+    // Major indices with transposed blocks but not transposed minor indices
+    int It = BJ * BLOCKSIZEY + i;
+    int Jt = BI * BLOCKSIZEX + j;
+
+    if((It < N2) && (Jt < N1)){
+      output[Jt*N2*N3 + It*N3] = block[i][j][k];
+    }
+  }
+}
+
+
+
+void gpu_transpose_complex(float *input, float *output, int N1, int N2){
+    dim3 gridsize((N2-1) / BLOCKSIZEY + 1, (N1-1) / BLOCKSIZEX + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
+    dim3 blocksize(BLOCKSIZEY, BLOCKSIZEX, 1);
+    _gpu_transpose_complex<<<gridsize, blocksize>>>(input, output, N2, N1);
+}
+
 /*
- * On my GTS 250, the naive implementation is barely slower than with shared memory voodoo.
- * Also, replacing BLOCKSIZE+1 by BLOCKSIZE (generating bank conflicts) barely makes it slower.
- * So either my implementation is not optimal, or the promised shared memory speedup is largely exaggerated.
+ * Replacing BLOCKSIZE+1 by BLOCKSIZE (generating bank conflicts) barely makes it slower.
  */
 
 /*
@@ -62,7 +112,7 @@ __global__ void _gpu_transpose(float *input, float *output, int N1, int N2)
 }
 
 
-
+///@internal For debugging only
 __global__ void _gpu_transpose_slow(float *input, float *output, int N1, int N2)
 {
 

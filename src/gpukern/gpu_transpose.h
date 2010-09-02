@@ -2,8 +2,8 @@
  * @file
  * Transposition of a tensor of complex numbers
  *
- * @todo This implementation is way too slow,
- * see the transpose example in the nvidia SDK for a better way.
+ * @note Be sure not to use nvcc's -G flag, as this
+ * slows down these functions by an order of magnitude
  *
  * @author Arne Vansteenkiste
  * @author Ben Van de Wiele
