@@ -21,6 +21,9 @@ void test_complex(){
 
   float* host = (float*)calloc(N, sizeof(float));
   float* dev = new_gpu_array(N);
+
+  printf("%p\n", dev);
+  
   float* dev2 = new_gpu_array(N);
   float* host2 = (float*)calloc(N, sizeof(float));
 

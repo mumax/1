@@ -7,18 +7,19 @@
 extern "C" {
 #endif
 
+typedef struct{
+  float real;
+  float imag;
+}complex;
 
 /// The size of matrix blocks to be loaded into shared memory.
 /// @todo: optimize this for Fermi, play with non-square blocks.
 #define BLOCKSIZE 16
 
 
-__global__ void _gpu_transpose_complex(float *input, float *output, int N1, int N2)
+__global__ void _gpu_transpose_complex(complex* input, complex* output, int N1, int N2)
 {
-
-  int N3 = 2;
-  
-  __shared__ float block[BLOCKSIZE][BLOCKSIZE][2];
+  __shared__ complex block[BLOCKSIZE][BLOCKSIZE+1];
 
   // index of the block inside the blockmatrix
   int BI = blockIdx.x;
@@ -27,16 +28,14 @@ __global__ void _gpu_transpose_complex(float *input, float *output, int N1, int 
   // "minor" indices inside the tile
   int i = threadIdx.x;
   int j = threadIdx.y;
-  int k = threadIdx.z;
-  
+
   {
     // "major" indices inside the entire matrix
     int I = BI * BLOCKSIZE + i;
     int J = BJ * BLOCKSIZE + j;
-//     int K = k;
-    
+
     if((I < N1) && (J < N2)){
-      block[j][i][k] = input[J*N1*N3 + I*N3 + k];
+      block[j][i] = input[J * N1 + I];
     }
   }
   __syncthreads();
@@ -47,7 +46,7 @@ __global__ void _gpu_transpose_complex(float *input, float *output, int N1, int 
     int Jt = BI * BLOCKSIZE + j;
 
     if((It < N2) && (Jt < N1)){
-      output[Jt*N2*N3 + It*N3 + k] = block[i][j][k];
+      output[Jt * N2 + It] = block[i][j];
     }
   }
 }
@@ -56,10 +55,9 @@ __global__ void _gpu_transpose_complex(float *input, float *output, int N1, int 
 
 void gpu_transpose_complex(float *input, float *output, int N1, int N2){
     N2 /= 2;
-//     N3 = 2;
     dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
-    dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 2);
-    _gpu_transpose_complex<<<gridsize, blocksize>>>(input, output, N2, N1);
+    dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
+    _gpu_transpose_complex<<<gridsize, blocksize>>>((complex*)input, (complex*)output, N2, N1);
 }
 
 /*
