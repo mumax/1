@@ -313,7 +313,8 @@ void write_int(int i, FILE* out){
 
 int read_int(FILE* in){
   int32_t i;
-  fread(&i, sizeof(int32_t), 1, in);
+  size_t n = fread(&i, sizeof(int32_t), 1, in);
+  assert(n == 1);
   return (int)i;
 }
 
@@ -400,7 +401,8 @@ void read_tensor_pieces(int* rank, int** size, float** list, FILE* in){
     length *= (*size)[i];
   } 
   *list = (float*)safe_calloc(length, sizeof(float));
-  fread(*list, sizeof(float), length, in);
+  size_t n = fread(*list, sizeof(float), length, in);
+  assert(n == size_t(length));
 }
 
 

@@ -15,12 +15,13 @@ CFLAGS+=\
   -Wall\
   -fPIC\
   -O3\
-#  -Werror\
+  -Werror\
 
 # Flags to be passed to NVCC
 NVCCFLAGS+=\
   --compiler-options -Werror\
   --compiler-options -fPIC\
+  --use_fast_math
 #  --compiler-options -O3\
 #  -G\
 # --compiler-options -DNDEBUG\
