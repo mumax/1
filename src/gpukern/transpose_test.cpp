@@ -15,7 +15,7 @@ void format(float* array, int N1, int N2){
 }
 
 int main(){
-  int N1 = 4, N2 = 8;
+  int N1 = 5, N2 = 31;
   int N = N1*N2;
   
   float* host = (float*)calloc(N, sizeof(float));

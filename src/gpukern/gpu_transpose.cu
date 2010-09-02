@@ -9,38 +9,39 @@ extern "C" {
 
 
 
-#define TILESIZE 16
+#define BLOCK_DIM 16
 
-__global__ void _gpu_transpose(float *input, float *output, int N1, int N2){
-  // TILESIZE+1 avoids memory bank conflicts
-  __shared__ float block[TILESIZE][TILESIZE+1];
+__global__ void _gpu_transpose(float *idata, float *odata, int width, int height)
+{
+  __shared__ float block[BLOCK_DIM][BLOCK_DIM+1];
 
-  // read into shared memory
-  unsigned int xIndex = blockIdx.x * TILESIZE + threadIdx.x;
-  unsigned int yIndex = blockIdx.y * TILESIZE + threadIdx.y;
-  if((xIndex < N2) && (yIndex < N1))
+  // read the matrix tile into shared memory
+  unsigned int xIndex = blockIdx.x * BLOCK_DIM + threadIdx.x;
+  unsigned int yIndex = blockIdx.y * BLOCK_DIM + threadIdx.y;
+  if((xIndex < width) && (yIndex < height))
   {
-    unsigned int index_in = yIndex * N2 + xIndex;
-    block[threadIdx.y][threadIdx.x] = input[index_in];
+    unsigned int index_in = yIndex * width + xIndex;
+    block[threadIdx.y][threadIdx.x] = idata[index_in];
   }
 
   __syncthreads();
 
-  // write to global memory
-  xIndex = blockIdx.y * TILESIZE + threadIdx.x;
-  yIndex = blockIdx.x * TILESIZE + threadIdx.y;
-  if((xIndex < N1) && (yIndex < N2))
+  // write the transposed matrix tile to global memory
+  xIndex = blockIdx.y * BLOCK_DIM + threadIdx.x;
+  yIndex = blockIdx.x * BLOCK_DIM + threadIdx.y;
+  if((xIndex < height) && (yIndex < width))
   {
-    unsigned int index_out = yIndex * N1 + xIndex;
-    output[index_out] = block[threadIdx.x][threadIdx.y];
+    unsigned int index_out = yIndex * height + xIndex;
+    odata[index_out] = block[threadIdx.x][threadIdx.y];
   }
 }
 
 
 
-void gpu_transpose(float *input, float *output, int size_x, int size_y){
-    dim3 grid((size_x-1) / TILESIZE + 1, (size_y-1) / TILESIZE + 1, 1); // integer division rounded UP
-    dim3 threads(TILESIZE, TILESIZE, 1);
+
+void gpu_transpose(float *input, float *output, int size_y, int size_x){
+    dim3 grid((size_x-1) / BLOCK_DIM + 1, (size_y-1) / BLOCK_DIM + 1, 1); // integer division rounded UP
+    dim3 threads(BLOCK_DIM, BLOCK_DIM, 1);
     _gpu_transpose<<< grid, threads >>>(input, output, size_x, size_y);
 }
 
