@@ -16,7 +16,7 @@ void format(float* array, int N1, int N2){
 }
 
 void test_complex(){
-  int N1 = 4, N2 = 5, N3=2;
+  int N1 = 256, N2 = 512, N3=2;
   int N = N1*N2*N3;
 
   float* host = (float*)calloc(N, sizeof(float));
@@ -42,8 +42,8 @@ void test_complex(){
   timer_stop("transpose_complex");
 
   memcpy_from_gpu(dev2, host2, N);
-  format(host, N1, N2*N3);
-  format(host2, N2, N1*N3);
+//   format(host, N1, N2*N3);
+//   format(host2, N2, N1*N3);
 
   for(int i=0; i<N1; i++){
     for(int j=0; j<N2; j++){
@@ -56,7 +56,7 @@ void test_complex(){
 }
 
 void test_real(){
-  int N1 = 16, N2 = 16;
+  int N1 = 256, N2 = 1024;
   int N = N1*N2;
 
   float* host = (float*)calloc(N, sizeof(float));
