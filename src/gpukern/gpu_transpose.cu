@@ -12,12 +12,20 @@ extern "C" {
 #define BLOCKSIZE 16
 
 /*
+ * On my GTS 250, the naive implementation is barely slower than with shared memory voodoo.
+ * Also, replacing BLOCKSIZE+1 by BLOCKSIZE (generating bank conflicts) barely makes it slower.
+ * So either my implementation is not optimal, or the promised shared memory speedup is largely exaggerated.
+ */
+
+/*
  * Transposing a block matrix:
  * 1) Transpose the elements inside each block "internally"
  * 2) Transpose the blocks inside the matrix.
  */
 __global__ void _gpu_transpose(float *input, float *output, int N1, int N2)
 {
+  // With this peculiar size there are no shared memory bank conflicts.
+  // See NVIDIA's CUDA examples: "efficient matrix transpose".
   __shared__ float block[BLOCKSIZE][BLOCKSIZE+1];
 
   // index of the block inside the blockmatrix
@@ -52,11 +60,36 @@ __global__ void _gpu_transpose(float *input, float *output, int N1, int N2)
 
 
 
+__global__ void _gpu_transpose_slow(float *input, float *output, int N1, int N2)
+{
 
-void gpu_transpose(float *input, float *output, int size_y, int size_x){
-    dim3 grid((size_x-1) / BLOCKSIZE + 1, (size_y-1) / BLOCKSIZE + 1, 1); // integer division rounded UP
-    dim3 threads(BLOCKSIZE, BLOCKSIZE, 1);
-    _gpu_transpose<<< grid, threads >>>(input, output, size_x, size_y);
+  // index of the block inside the blockmatrix
+  int BI = blockIdx.x;
+  int BJ = blockIdx.y;
+
+  // "minor" indices inside the tile
+  int i = threadIdx.x;
+  int j = threadIdx.y;
+
+  // "major" indices inside the entire matrix
+  int I = BI * BLOCKSIZE + i;
+  int J = BJ * BLOCKSIZE + j;
+
+  // Major indices with transposed blocks but not transposed minor indices
+  int It = BJ * BLOCKSIZE + i;
+  int Jt = BI * BLOCKSIZE + j;
+
+  if((I < N1) && (J < N2)){
+    output[I * N2 + J] = input[J * N1 + I];
+  }
+
+}
+
+
+void gpu_transpose(float *input, float *output, int N1, int N2){
+    dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
+    dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
+    _gpu_transpose<<<gridsize, blocksize>>>(input, output, N2, N1);
 }
 
 

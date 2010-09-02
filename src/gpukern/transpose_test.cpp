@@ -31,9 +31,12 @@ int main(){
   }
 
   memcpy_to_gpu(host, dev, N);
+
+  // do one to initialize CUDA before the actual timing
+  gpu_transpose(dev, dev2, N1, N2);
   
   timer_start("transpose");
-  for(int i=0; i<10000; i++)
+  for(int i=0; i<20000; i++)
     gpu_transpose(dev, dev2, N1, N2);
   timer_stop("transpose");
   
