@@ -26,6 +26,9 @@ __global__ void _gpu_transpose(float *input, float *output, int N1, int N2)
 {
   // With this peculiar size there are no shared memory bank conflicts.
   // See NVIDIA's CUDA examples: "efficient matrix transpose".
+  // However, this barely seems to affect performance:
+  // removing the "+1" makes it only 5% slower, so no need to worry if
+  // something HAS to be implemented with memory bank conflicts.
   __shared__ float block[BLOCKSIZE][BLOCKSIZE+1];
 
   // index of the block inside the blockmatrix
