@@ -13,9 +13,6 @@ extern "C" {
 #define BLOCKSIZE 16
 
 
-#define BLOCKSIZEX BLOCKSIZE
-#define BLOCKSIZEY (2*BLOCKSIZE)
-
 __global__ void _gpu_transpose_complex(float *input, float *output, int N1, int N2)
 {
 
@@ -29,28 +26,28 @@ __global__ void _gpu_transpose_complex(float *input, float *output, int N1, int 
 
   // "minor" indices inside the tile
   int i = threadIdx.x;
-  int j = threadIdx.y/2;
-  int k = threadIdx.y%2;
+  int j = threadIdx.y;
+  int k = threadIdx.z;
   
   {
     // "major" indices inside the entire matrix
-    int I = BI * BLOCKSIZEX + i;
-    int J = BJ * BLOCKSIZEY + j;
-    int K = k;
+    int I = BI * BLOCKSIZE + i;
+    int J = BJ * BLOCKSIZE + j;
+//     int K = k;
     
     if((I < N1) && (J < N2)){
-      block[j][i][k] = input[J*N1*N3 + I*N3 + K];
+      block[j][i][k] = input[J*N1*N3 + I*N3 + k];
     }
   }
   __syncthreads();
 
   {
     // Major indices with transposed blocks but not transposed minor indices
-    int It = BJ * BLOCKSIZEY + i;
-    int Jt = BI * BLOCKSIZEX + j;
+    int It = BJ * BLOCKSIZE + i;
+    int Jt = BI * BLOCKSIZE + j;
 
     if((It < N2) && (Jt < N1)){
-      output[Jt*N2*N3 + It*N3] = block[i][j][k];
+      output[Jt*N2*N3 + It*N3 + k] = block[i][j][k];
     }
   }
 }
@@ -58,8 +55,10 @@ __global__ void _gpu_transpose_complex(float *input, float *output, int N1, int 
 
 
 void gpu_transpose_complex(float *input, float *output, int N1, int N2){
-    dim3 gridsize((N2-1) / BLOCKSIZEY + 1, (N1-1) / BLOCKSIZEX + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
-    dim3 blocksize(BLOCKSIZEY, BLOCKSIZEX, 1);
+    N2 /= 2;
+//     N3 = 2;
+    dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
+    dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 2);
     _gpu_transpose_complex<<<gridsize, blocksize>>>(input, output, N2, N1);
 }
 

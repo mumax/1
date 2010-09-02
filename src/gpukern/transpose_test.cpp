@@ -38,7 +38,7 @@ void test_complex(){
 
   timer_start("transpose_complex");
   for(int i=0; i<10000; i++)
-    gpu_transpose_complex(dev, dev2, N1, N2);
+    gpu_transpose_complex(dev, dev2, N1, N2*N3);
   timer_stop("transpose_complex");
 
   memcpy_from_gpu(dev2, host2, N);
@@ -73,11 +73,11 @@ void test_real(){
   memcpy_to_gpu(host, dev, N);
 
   // do one to initialize CUDA before the actual timing
-  gpu_transpose(dev, dev2, N1, N2*N3);
+  gpu_transpose(dev, dev2, N1, N2);
 
   timer_start("transpose");
   for(int i=0; i<10000; i++)
-    gpu_transpose(dev, dev2, N1, N2*N3);
+    gpu_transpose(dev, dev2, N1, N2);
   timer_stop("transpose");
 
   memcpy_from_gpu(dev2, host2, N);
@@ -94,6 +94,6 @@ void test_real(){
 
 int main(){
   test_real();
-  test_complex();
+   test_complex();
     timer_printdetail();
 }
