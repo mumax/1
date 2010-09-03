@@ -70,6 +70,11 @@ gpu_init.o:  gpu_init.h gpu_init.cu
 
 transpose_test:	transpose_test.cpp libgpukern.so
 	$(CPP) $(CFLAGS) libgpukern.so transpose_test.cpp -o transpose_test
+	./transpose_test
+
+fft_test:	fft_test.cpp libgpukern.so
+	$(CPP) libgpukern.so fft_test.cpp -o fft_test
+	./fft_test
 
 .PHONY:	clean
 clean:	

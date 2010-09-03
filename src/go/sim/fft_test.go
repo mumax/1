@@ -3,7 +3,7 @@ package sim
 import (
 	"testing"
 	"tensor"
-	"os"
+ 	"os"
 	"fmt"
 )
 
@@ -31,14 +31,14 @@ func TestFFTOutOfPlace(t *testing.T) {
 	//
 	//       TensorCopyTo(host1, devLog)
 	//       CopyPad(devLog, devPhys1)
-	//       tensor.Format(os.Stdout, devPhys1)
+	//       //tensor.Format(os.Stdout, devPhys1)
 	//       fft.Forward(devPhys1, devPhys2)
-	//       tensor.Format(os.Stdout, devPhys2)
+	//       //tensor.Format(os.Stdout, devPhys2)
 	//       ZeroTensor(devPhys1)
 	//       fft.Inverse(devPhys2, devPhys1)
-	//       tensor.Format(os.Stdout, devPhys1)
+	//       //tensor.Format(os.Stdout, devPhys1)
 	//       CopyUnpad(devPhys1, devLog)
-	//       tensor.Format(os.Stdout, devLog)
+	//       //tensor.Format(os.Stdout, devLog)
 	//       TensorCopyFrom(devLog, host2)
 	//
 	//       N := float(fft.Normalization());
@@ -49,7 +49,7 @@ func TestFFTOutOfPlace(t *testing.T) {
 	//           maxError = abs(host2.List()[i] - host1.List()[i])
 	//         }
 	//       }
-	//       tensor.Format(os.Stdout, host2)
+	//       //tensor.Format(os.Stdout, host2)
 	//       fmt.Println("FFT error:", maxError);
 	//       if maxError > 1E-4 { t.Fail() }
 	//     }
@@ -96,7 +96,7 @@ func TestFFT(t *testing.T) {
 				maxError = abs(host2.List()[i] - host1.List()[i])
 			}
 		}
-		tensor.Format(os.Stdout, host2)
+		//tensor.Format(os.Stdout, host2)
 		fmt.Println("FFT error:", maxError)
 		if maxError > 1E-4 {
 			t.Fail()
