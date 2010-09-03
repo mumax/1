@@ -186,12 +186,16 @@ int* size = plan->size;
   float* buffer2t = plan->buffer2t;
   float* buffer3 = plan->buffer3;
   float* buffer3t = plan->buffer3t;
-  
+
+  print("input", input, paddedSize[Y], paddedComplexSize[Z], paddedSize[X]);
+    
   // (8) In-place C2C FFT X
   timer_start("-FFT_X");
   gpu_safefft( cufftExecC2C(plan->planX, (cufftComplex*)input,  (cufftComplex*)input, CUFFT_INVERSE) );
   cudaThreadSynchronize();
   timer_stop("-FFT_X");
+
+  print("input", input, paddedSize[Y], paddedComplexSize[Z], paddedSize[X]);
   
   // (7) Zero-padding in Z''
   timer_start("-copy_pad_3");
@@ -199,30 +203,39 @@ int* size = plan->size;
   cudaThreadSynchronize();
   timer_stop("-copy_pad_3");
 
+  print("buffer3t", buffer3t, paddedSize[Y], paddedComplexSize[Z], size[X]);
+  
   // (6) Transpose X-Z
   timer_start("-transposeXZ");
   gpu_transposeXZ_complex(buffer3t, buffer3, paddedSize[Y], paddedComplexSize[Z], size[X]);
   cudaThreadSynchronize();
   timer_stop("-transposeXZ");
 
+  print("buffer3", buffer3, size[X], paddedComplexSize[Z], paddedSize[Y]);
+    
   // (5) In-place C2C FFT Y
   timer_start("-FFT_Y");
   gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)buffer3,  (cufftComplex*)buffer3, CUFFT_INVERSE) );
   cudaThreadSynchronize();
   timer_stop("-FFT_Y");
 
+  print("buffer3", buffer3, size[X], paddedComplexSize[Z], paddedSize[Y]);
+    
   // (4) Zero-padding in Z'
   timer_start("-copy_pad_2");
   gpu_copy_unpad(buffer3, buffer2t,   size[X], paddedComplexSize[Z], paddedSize[Y],    size[X], paddedComplexSize[Z], size[Y]);
   cudaThreadSynchronize();
   timer_stop("-copy_pad_2");
 
+  print("buffer2t", buffer2t, size[X], paddedComplexSize[Z], size[Y]);
+   
   // (3) transpose Y-Z
   timer_start("-transposeYZ");
   gpu_transposeYZ_complex(buffer2t, buffer2,   size[X], paddedComplexSize[Z], size[Y]);
   cudaThreadSynchronize();
   timer_stop("-transposeYZ");
 
+  print("buffer2", buffer2, size[X], size[Y], paddedComplexSize[Z]);
 
   // (2) Out-of-place R2C FFT Z
   timer_start("-FFT_C2R");
@@ -230,12 +243,15 @@ int* size = plan->size;
   cudaThreadSynchronize();
   timer_stop("-FFT_C2R");
 
+  print("buffer1", buffer1, size[X], size[Y], paddedSize[Z]);
+    
   // (1) Zero-padding in Z direction
   timer_start("-copy_pad_1");
   gpu_copy_unpad(buffer1, output,   size[X], size[Y], paddedSize[Z],   size[X], size[Y], size[Z]);
   cudaThreadSynchronize();
   timer_stop("-copy_pad_1");
 
+  print("output", output, size[X], size[Y], size[Z]);
 
 }
 
