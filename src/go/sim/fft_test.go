@@ -57,38 +57,36 @@ func TestFFTOutOfPlace(t *testing.T) {
 }
 
 
-func TestFFTInplace(t *testing.T) {
+func TestFFT(t *testing.T) {
 
-	//backend.OverrideStride(1)
 
 	sizes := [][]int{
-		[]int{1, 32, 64}} //,
-	//[]int{2, 4, 8}}
+// 		[]int{1, 32, 64},
+	  []int{2, 4, 8}}
 
 	for _, size := range sizes {
+    
 		fft := NewFFT(backend, size)
 		fmt.Println(fft)
-		physicSize := fft.PhysicSize()
+		outsize := fft.PhysicSize()
 
-		devLog, devPhys := NewTensor(backend, size), NewTensor(backend, physicSize)
+		devIn, devOut := NewTensor(backend, size), NewTensor(backend, outsize)
 		host1, host2 := tensor.NewTensorN(size), tensor.NewTensorN(size)
 
-		for i := 0; i < tensor.N(host1); i++ {
-			host1.List()[i] = float(i%100) / 100
-		}
+// 		for i := 0; i < tensor.N(host1); i++ {
+// 			host1.List()[i] = float(i%100) / 100
+// 		}
 
 		host1.List()[0] = 1.
 
-		TensorCopyTo(host1, devLog)
-		CopyPad(devLog, devPhys)
-		tensor.Format(os.Stdout, devPhys)
-		fft.Forward(devPhys, devPhys)
-		tensor.Format(os.Stdout, devPhys)
-		fft.Inverse(devPhys, devPhys)
-		tensor.Format(os.Stdout, devPhys)
-		CopyUnpad(devPhys, devLog)
-		tensor.Format(os.Stdout, devLog)
-		TensorCopyFrom(devLog, host2)
+    
+		TensorCopyTo(host1, devIn)
+		tensor.Format(os.Stdout, devIn)
+		fft.Forward(devIn, devOut)
+		tensor.Format(os.Stdout, devOut)
+		fft.Inverse(devOut, devIn)
+		tensor.Format(os.Stdout, devIn)
+		TensorCopyFrom(devIn, host2)
 
 		N := float(fft.Normalization())
 		var maxError float = 0
