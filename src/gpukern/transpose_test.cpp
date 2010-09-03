@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define RUNS 100000
+
 void format(float* array, int N1, int N2){
   for(int i=0; i<N1; i++){
     for(int j=0; j<N2; j++){
@@ -40,7 +42,7 @@ void test_complex(){
   gpu_transpose_complex(dev, dev2, N1, N2*N3);
 
   timer_start("transpose_complex");
-  for(int i=0; i<10000; i++)
+  for(int i=0; i<RUNS; i++)
     gpu_transpose_complex(dev, dev2, N1, N2*N3);
   timer_stop("transpose_complex");
 
@@ -79,7 +81,7 @@ void test_real(){
   gpu_transpose(dev, dev2, N1, N2);
 
   timer_start("transpose");
-  for(int i=0; i<10000; i++)
+  for(int i=0; i<RUNS; i++)
     gpu_transpose(dev, dev2, N1, N2);
   timer_stop("transpose");
 

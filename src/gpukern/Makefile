@@ -68,6 +68,9 @@ gpu_anal.o:  gpu_anal.h gpu_anal.cu
 gpu_init.o:  gpu_init.h gpu_init.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_init.cu
 
+transpose_test:	transpose_test.cpp libgpukern.so
+	$(CPP) $(CFLAGS) libgpukern.so transpose_test.cpp -o transpose_test
+
 .PHONY:	clean
 clean:	
 	rm -f *.o *.so *.a
