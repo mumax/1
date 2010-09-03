@@ -86,12 +86,6 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   float* buffer2t = plan->buffer2t;
   float* buffer3 = plan->buffer3;
   float* buffer3t = plan->buffer3t;
-  
-//   int* complexSize = plan->paddedComplexSize;
-//   int N0 = complexSize[X];
-//   int N1 = complexSize[Y];
-//   int N2 = complexSize[Z]/2; // we treat the complex data as an N0 x N1 x N2 x 2 array
-//   int N3 = 2;
 
   // (1) Zero-padding in Z direction
   /// @todo: only if necessary
@@ -100,7 +94,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   cudaThreadSynchronize();
   timer_stop("copy_pad_1");
 
-  // (2) Out-of-place R2C FFT
+  // (2) Out-of-place R2C FFT Z
   timer_start("FFT_R2C");
   gpu_safefft( cufftExecR2C(plan->fwPlanZ, (cufftReal*)buffer1,  (cufftComplex*)buffer2) );
   cudaThreadSynchronize();
@@ -118,9 +112,9 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   cudaThreadSynchronize();
   timer_stop("copy_pad_2");
 
-  // (5) In-place C2C FFT
+  // (5) In-place C2C FFT Y
   timer_start("FFT_Y");
-  gpu_safefft( cufftExecR2C(plan->fwPlanY, (cufftComplex*)buffer3,  (cufftComplex*)buffer3) );
+  gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)buffer3,  (cufftComplex*)buffer3, CUFFT_FORWARD) );
   cudaThreadSynchronize();
   timer_stop("FFT_Y");
 
@@ -137,25 +131,13 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   gpu_copy_pad(buffer3t, output, paddedSize[Y], paddedComplexSize[Z], size[X], paddedSize[Y], paddedComplexSize[Z], paddedSize[X]);
   cudaThreadSynchronize();
   timer_stop("copy_pad_3");
-  
- /* 
-  timer_start("FFT_Y");
-  gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)data2,  (cufftComplex*)data2, CUFFT_FORWARD) ); 
+
+  // (8) In-place C2C FFT X
+  timer_start("FFT_X");
+  gpu_safefft( cufftExecC2C(plan->planX, (cufftComplex*)output,  (cufftComplex*)output, CUFFT_FORWARD) );
   cudaThreadSynchronize();
-  timer_stop("FFT_Y");
+  timer_stop("FFT_X");
 
-  // support for 2D transforms: do not transform if first dimension has size 1
-  if(N0 > 1){
-    gpu_transposeXZ_complex(data2, data, N0, N2, N1*N3); // size has changed due to previous transpose! // it's now in data2
-    timer_start("FFT_X");
-    gpu_safefft( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)output, CUFFT_FORWARD) ); // it's now again in data
-    timer_stop("FFT_X");
-    cudaThreadSynchronize();
-  }
-  else
-    memcpy_on_gpu(data2, data, plan->paddedComplexN);             // for N0=1, it's now again in data
-
-  cudaThreadSynchronize();*/
 }
 
 
@@ -163,193 +145,71 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
 
 void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
 
-/*  
-  int* size = plan->size;
-  int* pSSize = plan->paddedComplexSize;
-  int N0 = pSSize[X];
-  int N1 = pSSize[Y];
-  int N2 = pSSize[Z]/2; // we treat the complex data as an N0 x N1 x N2 x 2 array
-  int N3 = 2;
+int* size = plan->size;
+  int* paddedSize = plan->paddedSize;
+  int* paddedComplexSize = plan->paddedComplexSize;
+  float* buffer1 = plan->buffer1;
+  float* buffer2 = plan->buffer2;
+  float* buffer2t = plan->buffer2t;
+  float* buffer3 = plan->buffer3;
+  float* buffer3t = plan->buffer3t;
   
-  float* data = input;
-  float* data2 = plan->transp; // both the transpose and FFT are out-of-place between data and data2
-
-  if (N0 > 1){
-    // input data is XZ transposed and stored in data, FFTs on X-arrays out of place towards data2
-    timer_start("FFT_X");
-    gpu_safefft( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) ); // it's now in data2
-    cudaThreadSynchronize();
-    timer_stop("FFT_X");
-    gpu_transposeXZ_complex(data2, data, N1, N2, N0*N3); // size has changed due to previous transpose! // it's now in data
-  }
-
-  timer_start("FFT_Y");
-	gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) ); // it's now again in data2
+  // (8) In-place C2C FFT X
+  timer_start("-FFT_X");
+  gpu_safefft( cufftExecC2C(plan->planX, (cufftComplex*)input,  (cufftComplex*)input, CUFFT_INVERSE) );
   cudaThreadSynchronize();
-  timer_stop("FFT_Y");
-
-  gpu_transposeYZ_complex(data2, data, N0, N2, N1*N3);                 
-
-/*	for(int i=0; i<size[X]; i++){
-    for(int j=0; j<size[Y]; j++){
-      float* rowIn  = &( input[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-      float* rowOut = &(output[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-      gpu_safe( cufftExecC2R(plan->invPlanZ, (cufftComplex*)rowIn, (cufftReal*)rowOut) ); 
-    }
-  }
-  timer_start("FFT_Z");
-  for(int i=0; i<size[X]; i++){
-    float* rowIn  = &( input[i * pSSize[Y] * pSSize[Z]]);
-    float* rowOut = &(output[i * pSSize[Y] * pSSize[Z]]);
-    gpu_safefft( cufftExecC2R(plan->invPlanZ, (cufftComplex*)rowIn, (cufftReal*)rowOut) ); 
-  }
+  timer_stop("-FFT_X");
+  
+  // (7) Zero-padding in Z''
+  timer_start("-copy_pad_3");
+  gpu_copy_unpad(output, buffer3t,   paddedSize[Y], paddedComplexSize[Z], paddedSize[X],   paddedSize[Y], paddedComplexSize[Z], size[X]);
   cudaThreadSynchronize();
-  timer_stop("FFT_Z");*/
+  timer_stop("-copy_pad_3");
+
+  // (6) Transpose X-Z
+  timer_start("-transposeXZ");
+  gpu_transposeXZ_complex(buffer3t, buffer3, paddedSize[Y], paddedComplexSize[Z], size[X]);
+  cudaThreadSynchronize();
+  timer_stop("-transposeXZ");
+
+  // (5) In-place C2C FFT Y
+  timer_start("-FFT_Y");
+  gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)buffer3,  (cufftComplex*)buffer3, CUFFT_INVERSE) );
+  cudaThreadSynchronize();
+  timer_stop("-FFT_Y");
+
+  // (4) Zero-padding in Z'
+  timer_start("-copy_pad_2");
+  gpu_copy_unpad(buffer3, buffer2t,   size[X], paddedComplexSize[Z], paddedSize[Y],    size[X], paddedComplexSize[Z], size[Y]);
+  cudaThreadSynchronize();
+  timer_stop("-copy_pad_2");
+
+  // (3) transpose Y-Z
+  timer_start("-transposeYZ");
+  gpu_transposeYZ_complex(buffer2t, buffer2,   size[X], paddedComplexSize[Z], size[Y]);
+  cudaThreadSynchronize();
+  timer_stop("-transposeYZ");
+
+
+  // (2) Out-of-place R2C FFT Z
+  timer_start("-FFT_C2R");
+  gpu_safefft( cufftExecC2R(plan->invPlanZ, (cufftComplex*)buffer2,  (cufftReal*)buffer1) );
+  cudaThreadSynchronize();
+  timer_stop("-FFT_C2R");
+
+  // (1) Zero-padding in Z direction
+  timer_start("-copy_pad_1");
+  gpu_copy_unpad(buffer1, output,   size[X], size[Y], paddedSize[Z],   size[X], size[Y], size[Z]);
+  cudaThreadSynchronize();
+  timer_stop("-copy_pad_1");
+
+
 }
 
 
 int gpuFFT3dPlan_normalization(gpuFFT3dPlan* plan){
   return plan->paddedSize[X] * plan->paddedSize[Y] * plan->paddedSize[Z];
 }
-
-//_____________________________________________________________________________________________ transpose
-
-
-
-
-// //Copied from gpufft by Ben ***********************************************************************
-// void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2){
-//   timer_start("transposeXZ"); /// @todo section is double-timed with FFT exec
-// 
-//   if(source != dest){ // must be out-of-place
-// 
-//   // we treat the complex array as a N0 x N1 x N2 x 2 real array
-//   // after transposing it becomes N0 x N2 x N1 x 2
-//   N2 /= 2;  ///@todo: should have new variable here!
-//   //int N3 = 2;
-// 
-//   dim3 gridsize(N0, N1, 1); ///@todo generalize!
-//   dim3 blocksize(N2, 1, 1);
-//   gpu_checkconf(gridsize, blocksize);
-//   _gpu_transposeXZ_complex<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
-//   cudaThreadSynchronize();
-// 
-//   }
-// /*  else{
-//     gpu_transposeXZ_complex_inplace(source, N0, N1, N2*2); ///@todo see above
-//   }*/
-//   timer_stop("transposeXZ");
-// }
-// 
-// __global__ void _gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2){
-//     // N0 <-> N2
-//     // i  <-> k
-//     int N3 = 2;
-// 
-//     int i = blockIdx.x;
-//     int j = blockIdx.y;
-//     int k = threadIdx.x;
-// 
-//     dest[k*N1*N0*N3 + j*N0*N3 + i*N3 + 0] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 0];
-//     dest[k*N1*N0*N3 + j*N0*N3 + i*N3 + 1] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 1];
-// }
-// 
-// 
-// void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
-//   timer_start("transposeYZ");
-// 
-//   if(source != dest){ // must be out-of-place
-// 
-//   // we treat the complex array as a N0 x N1 x N2 x 2 real array
-//   // after transposing it becomes N0 x N2 x N1 x 2
-//   N2 /= 2;
-//   //int N3 = 2;
-// 
-//   dim3 gridsize(N0, N1, 1); ///@todo generalize!
-//   dim3 blocksize(N2, 1, 1);
-//   gpu_checkconf(gridsize, blocksize);
-//   _gpu_transposeYZ_complex<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
-//   cudaThreadSynchronize();
-//   }
-// /*  else{
-//     gpu_transposeYZ_complex_inplace(source, N0, N1, N2*2); ///@todo see above
-//   }*/
-//   timer_stop("transposeYZ");
-// }
-// 
-// __global__ void _gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
-//     // N1 <-> N2
-//     // j  <-> k
-// 
-//     int N3 = 2;
-// 
-//         int i = blockIdx.x;
-//     int j = blockIdx.y;
-//     int k = threadIdx.x;
-// 
-// //      int index_dest = i*N2*N1*N3 + k*N1*N3 + j*N3;
-// //      int index_source = i*N1*N2*N3 + j*N2*N3 + k*N3;
-// 
-// 
-//     dest[i*N2*N1*N3 + k*N1*N3 + j*N3 + 0] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 0];
-//     dest[i*N2*N1*N3 + k*N1*N3 + j*N3 + 1] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 1];
-// /*    dest[index_dest + 0] = source[index_source + 0];
-//     dest[index_dest + 1] = source[index_source + 1];*/
-// }
-
-
-
-// //_____________________________________________________________________________________________ exec plan
-// 
-// void gpu_plan3d_real_input_forward(gpu_plan3d_real_input* plan, float* data){
-//   timer_start("gpu_plan3d_real_input_forward_exec");
-// 
-//   int* size = plan->size;
-//   int* pSSize = plan->paddedComplexSize;
-//   int N0 = pSSize[X];
-//   int N1 = pSSize[Y];
-//   int N2 = pSSize[Z]/2; // we treat the complex data as an N0 x N1 x N2 x 2 array
-//   int N3 = 2;
-//   
-//   float* data2 = plan->transp; // both the transpose and FFT are out-of-place between data and data2
-//   
-//   for(int i=0; i<size[X]; i++){
-//     for(int j=0; j<size[Y]; j++){
-//       float* row = &(data[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-//       gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)row,  (cufftComplex*)row) ); // all stays in data
-//     }
-//   }
-//   cudaThreadSynchronize();
-//   
-//   gpu_transposeYZ_complex(data, data2, N0, N1, N2*N3);					// it's now in data2
-//   gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data2,  (cufftComplex*)data2, CUFFT_FORWARD) ); // it's now again in data
-//   cudaThreadSynchronize();
-//   
-//   gpu_transposeXZ_complex(data2, data, N0, N2, N1*N3); // size has changed due to previous transpose! // it's now in data2
-//   gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)data, CUFFT_FORWARD) ); // it's now again in data
-//   cudaThreadSynchronize();
-//   
-//   timer_stop("gpu_plan3d_real_input_forward_exec");
-// }
-// 
-// void gpu_plan3d_real_input_inverse(gpu_plan3d_real_input* plan, float* data){
-//   
-// }
-// 
-// void delete_gpu_plan3d_real_input(gpu_plan3d_real_input* plan){
-//   
-// 	gpu_safe( cufftDestroy(plan->fwPlanZ) );
-// 	gpu_safe( cufftDestroy(plan->invPlanZ) );
-// 	gpu_safe( cufftDestroy(plan->planY) );
-// 	gpu_safe( cufftDestroy(plan->planX) );
-// 
-// 	gpu_safe( cudaFree(plan->transp) ); 
-// 	gpu_safe( cudaFree(plan->size) );
-// 	gpu_safe( cudaFree(plan->paddedSize) );
-// 	gpu_safe( cudaFree(plan->paddedComplexSize) );
-// 	free(plan);
-// 
-// }
 
 
 #ifdef __cplusplus
