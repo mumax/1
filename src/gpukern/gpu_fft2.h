@@ -18,14 +18,14 @@ extern "C" {
  * A real-to-complex FFT plan on the GPU.
  */
 typedef struct{
-  int* dataSize;           ///< logical size of the (real, unpadded) input data
+  int* size;               ///< logical size of the (real, unpadded) input data
   int  dataN;              ///< total number of floats in dataSize
 
   int* paddedSize;         ///< size after zero-padding. @note zero-padding is conditional and not necessarily performed in each direction. Therefore, "paddedSize" is not necessarily twice "dataSize".
   int  paddedN;            ///< total number of floats in paddedSize
 
-  int* paddedComplexSize   ///< physical size of the (complex, padded) output data in half-complex format
-  int  paddedComplexN
+  int* paddedComplexSize;  ///< physical size of the (complex, padded) output data in half-complex format
+  int  paddedComplexN;
   
   cufftHandle fwPlanZ;     ///< 1D real-to-complex plan for Z-direction
   cufftHandle invPlanZ;    ///< 1D complex-to-real plan for Z-direction
@@ -34,7 +34,9 @@ typedef struct{
 
   float* buffer1;          ///< Buffer for zero-padding in Z
   float* buffer2;          ///< Buffer for result of out-of-place FFT_z
+  float* buffer2t;         ///< buffer2 transposed
   float* buffer3;          ///< Buffer for zero-padding in Y and in-place transform
+  float* buffer3t;         ///< buffer3 transposed
 
 }gpuFFT3dPlan;
 
