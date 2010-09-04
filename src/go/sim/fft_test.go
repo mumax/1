@@ -25,11 +25,11 @@ func TestFFT(t *testing.T) {
 		devIn, devOut := NewTensor(backend, size), NewTensor(backend, outsize)
 		host1, host2 := tensor.NewTensorN(size), tensor.NewTensorN(size)
 
-		for i := 0; i < tensor.N(host1); i++ {
+		for i := 0; i < tensor.N(host1); i+=2 {
 			host1.List()[i] = float(i%100) / 100
 		}
 
-		host1.List()[0] = 1.
+// 		host1.List()[0] = 1.
 
     
 		TensorCopyTo(host1, devIn)

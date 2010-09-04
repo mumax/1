@@ -22,7 +22,9 @@ int main(){
   float* devin = new_gpu_array(N);
   float* devout = new_gpu_array(4*N);
 
-  host1[0] = 1.;
+  for(int i=0; i<N; i+=3){
+    host1[i] = 1.;
+  }
   memcpy_to_gpu(host1, devin, N);
   gpuFFT3dPlan_forward(plan, devin, devout);
   gpuFFT3dPlan_inverse(plan, devout, devin);
