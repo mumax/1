@@ -9,20 +9,12 @@ import (
 
 func TestConv(t *testing.T) {
 
-	//backend.OverrideStride(1)
 	size4D := []int{3, 32, 32, 2}
 	size := size4D[1:]
 	//kernelSize := []int{2*size[X], 2*size[Y], 2*size[Z]}
 
-	kernel := FaceKernel6(size, []float{1., 1., 1.})
+	kernel := FaceKernel6(size, []float{1., 1., 1.}, 8)
 	conv := NewConv(backend, size, kernel)
-
-	// unit kernel
-	//   kernel := make([]*tensor.Tensor3, 6)
-	//   for i := range kernel{
-	//     kernel[i] = tensor.NewTensor3(kernelSize)
-	//   }
-	//   kernel[XX].List()[0] = 1.
 
 	//   for i,k:= range kernel{
 	//     fmt.Println("kernel", i, k.Size())
@@ -47,5 +39,4 @@ func TestConv(t *testing.T) {
 	tensor.WriteFile("m.t", m)
 	conv.Convolve(m, h)
 	tensor.WriteFile("h.t", h)
-	//backend.OverrideStride(-1)
 }
