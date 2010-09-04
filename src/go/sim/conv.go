@@ -86,9 +86,9 @@ func (conv *Conv) Convolve(source, dest *Tensor) {
 		conv.Inverse(buffer[i], hcomp[i]) // should not be asynchronous unless we have 3 fft's (?)
 	}
 
-	for i := 0; i < 3; i++ {
-		CopyUnpad(buffer[i], hcomp[i])
-	}
+// 	for i := 0; i < 3; i++ {
+// 		CopyUnpad(buffer[i], hcomp[i])
+// 	}
 }
 
 
