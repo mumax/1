@@ -5,6 +5,7 @@ import (
 	"tensor"
  	"os"
 	"fmt"
+	"rand"
 )
 
 
@@ -14,19 +15,21 @@ func TestFFT(t *testing.T) {
 
 	sizes := [][]int{
 // 		[]int{1, 32, 64},
-	  []int{2, 4, 8}}
+	  []int{2, 16, 32}}
 
 	for _, size := range sizes {
     
-		fft := NewFFT(backend, size)
+    paddedsize := []int{2*size[0], 2*size[1], 2*size[2]}
+    
+		fft := NewFFTPadded(backend, size, paddedsize)
 		fmt.Println(fft)
 		outsize := fft.PhysicSize()
 
 		devIn, devOut := NewTensor(backend, size), NewTensor(backend, outsize)
 		host1, host2 := tensor.NewTensorN(size), tensor.NewTensorN(size)
 
-		for i := 0; i < tensor.N(host1); i+=2 {
-			host1.List()[i] = float(i%100) / 100
+		for i := 0; i < tensor.N(host1); i++ {
+			host1.List()[i] = rand.Float()//float(i%100) / 100
 		}
 
 // 		host1.List()[0] = 1.

@@ -101,7 +101,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   float* buffer3 = plan->buffer3;
   float* buffer3t = plan->buffer3t;
 
-  print("input", input, size[X], size[Y], size[Z]);
+  //print("input", input, size[X], size[Y], size[Z]);
   
   // (1) Zero-padding in Z direction
   /// @todo: only if necessary
@@ -111,7 +111,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   cudaThreadSynchronize();
   timer_stop("copy_pad_1");
 
-  print("buffer1", buffer1, size[X], size[Y], paddedSize[Z]);
+  //print("buffer1", buffer1, size[X], size[Y], paddedSize[Z]);
     
   // (2) Out-of-place R2C FFT Z
   timer_start("FFT_R2C");
@@ -119,7 +119,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   cudaThreadSynchronize();
   timer_stop("FFT_R2C");
 
-  print("buffer2", buffer2, size[X], size[Y], paddedComplexSize[Z]);
+  //print("buffer2", buffer2, size[X], size[Y], paddedComplexSize[Z]);
   
   // (3) transpose Y-Z
   timer_start("transposeYZ");
@@ -128,7 +128,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   timer_stop("transposeYZ");
 
 
-  print("buffer2t", buffer2t, size[X], paddedComplexSize[Z]/2, size[Y]*2);
+  //print("buffer2t", buffer2t, size[X], paddedComplexSize[Z]/2, size[Y]*2);
     
   // (4) Zero-padding in Z'
   gpu_zero(buffer3, size[X]*paddedComplexSize[Z]*paddedSize[Y]);
@@ -137,7 +137,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   cudaThreadSynchronize();
   timer_stop("copy_pad_2");
 
-  print("buffer3", buffer3, size[X], paddedComplexSize[Z]/2, paddedSize[Y]*2);
+  //print("buffer3", buffer3, size[X], paddedComplexSize[Z]/2, paddedSize[Y]*2);
   
   // (5) In-place C2C FFT Y
   timer_start("FFT_Y");
@@ -145,7 +145,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   cudaThreadSynchronize();
   timer_stop("FFT_Y");
 
-  print("buffer3", buffer3, size[X], paddedComplexSize[Z]/2, paddedSize[Y]*2);
+  //print("buffer3", buffer3, size[X], paddedComplexSize[Z]/2, paddedSize[Y]*2);
   
   ///@todo stop here in the 2D case, make sure the data goes to output and not buffer3
   
@@ -155,7 +155,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   cudaThreadSynchronize();
   timer_stop("transposeXZ");
 
-  print("buffer3t", buffer3t, paddedSize[Y], paddedComplexSize[Z]/2, size[X]*2);
+  //print("buffer3t", buffer3t, paddedSize[Y], paddedComplexSize[Z]/2, size[X]*2);
   
   // (7) Zero-padding in Z''
   gpu_zero(output, paddedSize[Y]*paddedComplexSize[Z]*paddedSize[X]);
@@ -164,7 +164,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   cudaThreadSynchronize();
   timer_stop("copy_pad_3");
 
-  print("output", output, paddedSize[Y], paddedComplexSize[Z]/2, paddedSize[X]*2);
+  //print("output", output, paddedSize[Y], paddedComplexSize[Z]/2, paddedSize[X]*2);
     
   // (8) In-place C2C FFT X
   timer_start("FFT_X");
@@ -172,7 +172,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   cudaThreadSynchronize();
   timer_stop("FFT_X");
 
-  print("output", output, paddedSize[Y], paddedComplexSize[Z]/2, paddedSize[X]*2);
+  //print("output", output, paddedSize[Y], paddedComplexSize[Z]/2, paddedSize[X]*2);
   
 }
 
@@ -190,7 +190,7 @@ int* size = plan->size;
   float* buffer3 = plan->buffer3;
   float* buffer3t = plan->buffer3t;
 
-  print("input", input, paddedSize[Y], paddedComplexSize[Z]/2, paddedSize[X]*2);
+  //print("input", input, paddedSize[Y], paddedComplexSize[Z]/2, paddedSize[X]*2);
     
   // (8) In-place C2C FFT X
   timer_start("-FFT_X");
@@ -198,7 +198,7 @@ int* size = plan->size;
   cudaThreadSynchronize();
   timer_stop("-FFT_X");
 
-  print("input", input, paddedSize[Y], paddedComplexSize[Z]/2, paddedSize[X]*2);
+  //print("input", input, paddedSize[Y], paddedComplexSize[Z]/2, paddedSize[X]*2);
   
   // (7) Zero-padding in Z''
   gpu_zero(buffer3t, paddedSize[Y]*paddedComplexSize[Z]*size[X]);
@@ -207,7 +207,7 @@ int* size = plan->size;
   cudaThreadSynchronize();
   timer_stop("-copy_pad_3");
 
-  print("buffer3t", buffer3t, paddedSize[Y], paddedComplexSize[Z]/2, size[X]*2);
+  //print("buffer3t", buffer3t, paddedSize[Y], paddedComplexSize[Z]/2, size[X]*2);
   
   // (6) Transpose X-Z
   timer_start("-transposeXZ");
@@ -215,7 +215,7 @@ int* size = plan->size;
   cudaThreadSynchronize();
   timer_stop("-transposeXZ");
 
-  print("buffer3", buffer3, size[X], paddedComplexSize[Z]/2, paddedSize[Y]*2);
+  //print("buffer3", buffer3, size[X], paddedComplexSize[Z]/2, paddedSize[Y]*2);
     
   // (5) In-place C2C FFT Y
   timer_start("-FFT_Y");
@@ -223,7 +223,7 @@ int* size = plan->size;
   cudaThreadSynchronize();
   timer_stop("-FFT_Y");
 
-  print("buffer3", buffer3, size[X], paddedComplexSize[Z]/2, paddedSize[Y]*2);
+  //print("buffer3", buffer3, size[X], paddedComplexSize[Z]/2, paddedSize[Y]*2);
     
   // (4) Zero-padding in Z'
   gpu_zero(buffer2t, size[X]*paddedComplexSize[Z]*size[Y]);
@@ -232,7 +232,7 @@ int* size = plan->size;
   cudaThreadSynchronize();
   timer_stop("-copy_pad_2");
 
-  print("buffer2t", buffer2t, size[X], paddedComplexSize[Z]/2, size[Y]*2);
+  //print("buffer2t", buffer2t, size[X], paddedComplexSize[Z]/2, size[Y]*2);
    
   // (3) transpose Y-Z
   timer_start("-transposeYZ");
@@ -240,7 +240,7 @@ int* size = plan->size;
   cudaThreadSynchronize();
   timer_stop("-transposeYZ");
 
-  print("buffer2", buffer2, size[X], size[Y], paddedComplexSize[Z]);
+  //print("buffer2", buffer2, size[X], size[Y], paddedComplexSize[Z]);
 
   // (2) Out-of-place R2C FFT Z
   timer_start("-FFT_C2R");
@@ -248,7 +248,7 @@ int* size = plan->size;
   cudaThreadSynchronize();
   timer_stop("-FFT_C2R");
 
-  print("buffer1", buffer1, size[X], size[Y], paddedSize[Z]);
+  //print("buffer1", buffer1, size[X], size[Y], paddedSize[Z]);
     
   // (1) Zero-padding in Z direction
   gpu_zero(output, size[X]*size[Y]*size[Z]);  // not neccesary for unpad?
@@ -257,7 +257,7 @@ int* size = plan->size;
   cudaThreadSynchronize();
   timer_stop("-copy_pad_1");
 
-  print("output", output, size[X], size[Y], size[Z]);
+  //print("output", output, size[X], size[Y], size[Z]);
 
 }
 
