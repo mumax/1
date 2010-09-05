@@ -3,62 +3,134 @@ package sim
 import (
 	"testing"
 	"tensor"
- 	"os"
+	"os"
 	"fmt"
-	"rand"
+	//"rand"
 )
 
+var fft_test_sizes [][]int = [][]int{
+	//    []int{1, 32, 64},
+	[]int{2, 4, 8}}
+
+
+func TestFFTPadded(t *testing.T) {
+
+	for _, size := range fft_test_sizes {
+
+		paddedsize := []int{2 * size[0], 2 * size[1], 2 * size[2]}
+
+		fft := NewFFTPadded(backend, size, paddedsize)
+		fftP := NewFFT(backend, paddedsize)           // with manual padding
+
+		fmt.Println(fft)
+		fmt.Println(fftP)
+
+		outsize := fft.PhysicSize()
+
+		dev, devT, devTT := NewTensor(backend, size), NewTensor(backend, outsize), NewTensor(backend, size)
+		devP, devPT, devPTT := NewTensor(backend, paddedsize), NewTensor(backend, outsize), NewTensor(backend, paddedsize)
+
+		host, hostT, hostTT := tensor.NewTensorN(size), tensor.NewTensorN(outsize), tensor.NewTensorN(size)
+		hostP, hostPT, hostPTT := tensor.NewTensorN(paddedsize), tensor.NewTensorN(outsize), tensor.NewTensorN(paddedsize)
+
+		for i := 0; i < size[0]; i++ {
+			for j := 0; j < size[1]; j++ {
+				for k := 0; k < size[2]; k++ {
+					host.List()[i*size[1]*size[2]+j*size[2]+k] = 1.//rand.Float()
+					hostP.List()[i*paddedsize[1]*paddedsize[2]+j*paddedsize[2]+k] = host.List()[i*size[1]*size[2]+j*size[2]+k]
+				}
+			}
+		}
+
+		TensorCopyTo(host, dev)
+		fmt.Println("dev")
+		tensor.Format(os.Stdout, dev)
+		TensorCopyTo(hostP, devP)
+		fmt.Println("devP")
+		tensor.Format(os.Stdout, devP)
+
+		fft.Forward(dev, devT)
+		fmt.Println("devT")
+		tensor.Format(os.Stdout, devT)
+		TensorCopyFrom(devT, hostT)
+		fftP.Forward(devP, devPT)
+		fmt.Println("devPT")
+		tensor.Format(os.Stdout, devPT)
+		TensorCopyFrom(devPT, hostPT)
+
+		fft.Inverse(devT, devTT)
+		fmt.Println("devTT")
+		tensor.Format(os.Stdout, devTT)
+		TensorCopyFrom(devTT, hostTT)
+		fftP.Inverse(devPT, devPTT)
+		fmt.Println("devPTT")
+		tensor.Format(os.Stdout, devPTT)
+		TensorCopyFrom(devPTT, hostPTT)
+
+		// 
+		// 		N := float(fft.Normalization())
+		// 		var maxError float = 0
+		// 		for i := range host2.List() {
+		// 			host2.List()[i] /= N
+		// 			if abs(host2.List()[i]-host1.List()[i]) > maxError {
+		// 				maxError = abs(host2.List()[i] - host1.List()[i])
+		// 			}
+		// 		}
+		// 		//tensor.Format(os.Stdout, host2)
+		// 		fmt.Println("FFT error:", maxError)
+		// 		if maxError > 1E-4 {
+		// 			t.Fail()
+		// 		}
+	}
+
+}
 
 
 func TestFFT(t *testing.T) {
 
-
-	sizes := [][]int{
-// 		[]int{1, 32, 64},
-	  []int{2, 16, 32}}
-
-	for _, size := range sizes {
-    
-    paddedsize := []int{2*size[0], 2*size[1], 2*size[2]}
-    
-		fft := NewFFTPadded(backend, size, paddedsize)
-		fmt.Println(fft)
-		outsize := fft.PhysicSize()
-
-		devIn, devOut := NewTensor(backend, size), NewTensor(backend, outsize)
-		host1, host2 := tensor.NewTensorN(size), tensor.NewTensorN(size)
-
-		for i := 0; i < tensor.N(host1); i++ {
-			host1.List()[i] = rand.Float()//float(i%100) / 100
-		}
-
-// 		host1.List()[0] = 1.
-
-    
-		TensorCopyTo(host1, devIn)
-		tensor.Format(os.Stdout, devIn)
-		fft.Forward(devIn, devOut)
-		tensor.Format(os.Stdout, devOut)
-		fft.Inverse(devOut, devIn)
-		tensor.Format(os.Stdout, devIn)
-		TensorCopyFrom(devIn, host2)
-
-		N := float(fft.Normalization())
-		var maxError float = 0
-		for i := range host2.List() {
-			host2.List()[i] /= N
-			if abs(host2.List()[i]-host1.List()[i]) > maxError {
-				maxError = abs(host2.List()[i] - host1.List()[i])
-			}
-		}
-		//tensor.Format(os.Stdout, host2)
-		fmt.Println("FFT error:", maxError)
-		if maxError > 1E-4 {
-			t.Fail()
-		}
-	}
+	// 	for _, size := range fft_test_sizes {
+	// 
+	// 		paddedsize := []int{2 * size[0], 2 * size[1], 2 * size[2]}
+	// 
+	// 		fft := NewFFTPadded(backend, size, paddedsize)
+	// 		fmt.Println(fft)
+	// 		outsize := fft.PhysicSize()
+	// 
+	// 		devIn, devOut := NewTensor(backend, size), NewTensor(backend, outsize)
+	// 		host1, host2 := tensor.NewTensorN(size), tensor.NewTensorN(size)
+	// 
+	// 		for i := 0; i < tensor.N(host1); i++ {
+	// 			host1.List()[i] = rand.Float() //float(i%100) / 100
+	// 		}
+	// 
+	// 		// 		host1.List()[0] = 1.
+	// 
+	// 
+	// 		TensorCopyTo(host1, devIn)
+	// 		tensor.Format(os.Stdout, devIn)
+	// 		fft.Forward(devIn, devOut)
+	// 		tensor.Format(os.Stdout, devOut)
+	// 		fft.Inverse(devOut, devIn)
+	// 		tensor.Format(os.Stdout, devIn)
+	// 		TensorCopyFrom(devIn, host2)
+	// 
+	// 		N := float(fft.Normalization())
+	// 		var maxError float = 0
+	// 		for i := range host2.List() {
+	// 			host2.List()[i] /= N
+	// 			if abs(host2.List()[i]-host1.List()[i]) > maxError {
+	// 				maxError = abs(host2.List()[i] - host1.List()[i])
+	// 			}
+	// 		}
+	// 		//tensor.Format(os.Stdout, host2)
+	// 		fmt.Println("FFT error:", maxError)
+	// 		if maxError > 1E-4 {
+	// 			t.Fail()
+	// 		}
+	// 	}
 
 }
+
 
 // func abs(r float) float {
 // 	if r < 0 {

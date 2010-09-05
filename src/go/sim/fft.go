@@ -53,31 +53,30 @@ func (fft *FFT) Forward(in, out *Tensor) {
 	assert(tensor.Rank(in) == 3)
 	assert(tensor.Rank(out) == 3)
 	for i, s := range fft.dataSize {
-    assert(in.size[i] == s)
-  }
-  for i, s := range fft.physicSize {
-    assert(out.size[i] == s)
-  }
+		assert(in.size[i] == s)
+	}
+	for i, s := range fft.physicSize {
+		assert(out.size[i] == s)
+	}
 	// actual fft
-  fft.Start("FFT forward")
+	fft.Start("FFT forward")
 	fft.fftForward(fft.plan, in.data, out.data)
 	fft.Stop("FFT forward")
 }
-
 
 
 func (fft *FFT) Inverse(in, out *Tensor) {
 	// size checks
 	assert(tensor.Rank(in) == 3)
 	assert(tensor.Rank(out) == 3)
-  for i, s := range fft.physicSize {
-    assert(in.size[i] == s)
-  }
-  for i, s := range fft.dataSize {
-    assert(out.size[i] == s)
-  }
+	for i, s := range fft.physicSize {
+		assert(in.size[i] == s)
+	}
+	for i, s := range fft.dataSize {
+		assert(out.size[i] == s)
+	}
 	// actual fft
-  fft.Start("FFT inverse")
+	fft.Start("FFT inverse")
 	fft.fftInverse(fft.plan, in.data, out.data)
 	fft.Stop("FFT inverse")
 }

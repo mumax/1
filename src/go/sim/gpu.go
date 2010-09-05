@@ -154,6 +154,6 @@ func (d Gpu) String() string {
 	return "GPU"
 }
 
-func (d Gpu) TimerPrintDetail(){
-  C.timer_printdetail()
+func (d Gpu) TimerPrintDetail() {
+	C.timer_printdetail()
 }

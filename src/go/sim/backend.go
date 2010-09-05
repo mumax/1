@@ -23,8 +23,8 @@ type Backend struct {
 	Timer
 }
 
-func NewBackend(d Device) *Backend{
-  return &Backend{d, false, NewTimer()}
+func NewBackend(d Device) *Backend {
+	return &Backend{d, false, NewTimer()}
 }
 
 //_________________________________________________________________________ safe wrappers for Device methods
@@ -123,7 +123,7 @@ func (dev *Backend) DeltaM(m, h *Tensor, alpha, dtGilbert float) {
 
 
 func (b Backend) OverrideStride(stride int) {
-  panic("OverrideStride is currently not compatible with the used FFT, it should always be 1")
+	panic("OverrideStride is currently not compatible with the used FFT, it should always be 1")
 	Debugv("Backend.OverrideStride(", stride, ")")
 	assert(stride > 0 || stride == -1)
 	b.overrideStride(stride)

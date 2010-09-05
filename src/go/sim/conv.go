@@ -57,12 +57,12 @@ func (conv *Conv) Convolve(source, dest *Tensor) {
 		hcomp[i].data = conv.arrayOffset(dest.data, i*mLen)
 	}
 
-// 	for i := 0; i < 3; i++ {
-// 		ZeroTensor(buffer[i])
-// 		CopyPad(mcomp[i], buffer[i])
-// 		//     fmt.Println("mPadded", i)
-// 		//     tensor.Format(os.Stdout, buffer[i])
-// 	}
+	// 	for i := 0; i < 3; i++ {
+	// 		ZeroTensor(buffer[i])
+	// 		CopyPad(mcomp[i], buffer[i])
+	// 		//     fmt.Println("mPadded", i)
+	// 		//     tensor.Format(os.Stdout, buffer[i])
+	// 	}
 
 	//Sync
 
@@ -86,14 +86,14 @@ func (conv *Conv) Convolve(source, dest *Tensor) {
 		conv.Inverse(buffer[i], hcomp[i]) // should not be asynchronous unless we have 3 fft's (?)
 	}
 
-// 	for i := 0; i < 3; i++ {
-// 		CopyUnpad(buffer[i], hcomp[i])
-// 	}
+	// 	for i := 0; i < 3; i++ {
+	// 		CopyUnpad(buffer[i], hcomp[i])
+	// 	}
 }
 
 
 func (conv *Conv) LoadKernel6(kernel []tensor.StoredTensor) {
-  
+
 	for _, k := range kernel {
 		if k != nil {
 			assert(tensor.EqualSize(k.Size(), conv.KernelSize()))

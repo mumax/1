@@ -222,7 +222,7 @@ func (d Cpu) String() string {
 	return "CPU"
 }
 
-func (d Cpu) TimerPrintDetail(){
-  //C.timer_printdetail()
-  fmt.Println("meh...")
+func (d Cpu) TimerPrintDetail() {
+	//C.timer_printdetail()
+	fmt.Println("meh...")
 }

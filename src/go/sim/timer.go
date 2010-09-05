@@ -8,8 +8,8 @@ import (
 
 type Timer map[string]*Stopwatch
 
-func NewTimer() Timer{
-  return Timer(make(map[string]*Stopwatch))
+func NewTimer() Timer {
+	return Timer(make(map[string]*Stopwatch))
 }
 
 type Stopwatch struct {

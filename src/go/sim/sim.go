@@ -51,7 +51,6 @@ type Sim struct {
 	mUpToDate   bool
 
 	hext [3]float
-
 }
 
 func New() *Sim {
