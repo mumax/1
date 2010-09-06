@@ -24,8 +24,8 @@ typedef struct{
   int* paddedSize;         ///< size after zero-padding. @note zero-padding is conditional and not necessarily performed in each direction. Therefore, "paddedSize" is not necessarily twice "dataSize".
   int  paddedN;            ///< total number of floats in paddedSize
 
-  int* paddedComplexSize;  ///< physical size of the (complex, padded) output data in half-complex format
-  int  paddedComplexN;
+//   int* paddedComplexSize;  ///< physical size of the (complex, padded) output data in half-complex format
+//   int  paddedComplexN;
   
   cufftHandle fwPlanZ;     ///< 1D real-to-complex plan for Z-direction
   cufftHandle invPlanZ;    ///< 1D complex-to-real plan for Z-direction
