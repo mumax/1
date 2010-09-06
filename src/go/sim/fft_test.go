@@ -3,9 +3,8 @@ package sim
 import (
 	"testing"
 	"tensor"
-// 	"os"
 	"fmt"
-// 	"rand"
+	"rand"
 )
 
 var fft_test_sizes [][]int = [][]int{
@@ -36,7 +35,7 @@ func TestFFTPadded(t *testing.T) {
 		for i := 0; i < size[0]; i++ {
 			for j := 0; j < size[1]; j++ {
 				for k := 0; k < size[2]; k++ {
-					host.List()[i*size[1]*size[2]+j*size[2]+k] = 1.
+					host.List()[i*size[1]*size[2]+j*size[2]+k] = rand.Float()//1.
 					hostP.List()[i*paddedsize[1]*paddedsize[2]+j*paddedsize[2]+k] = host.List()[i*size[1]*size[2]+j*size[2]+k]
 				}
 			}
