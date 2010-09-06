@@ -789,25 +789,58 @@ regcmp(const void *va, const void *vb)
 
 static	Prog*	throwpc;
 
+// We're only going to bother inlining if we can
+// convert all the arguments to 32 bits safely.  Can we?
+static int
+fix64(NodeList *nn, int n)
+{
+	NodeList *l;
+	Node *r;
+	int i;
+	
+	l = nn;
+	for(i=0; i<n; i++) {
+		r = l->n->right;
+		if(is64(r->type) && !smallintconst(r)) {
+			if(r->op == OCONV)
+				r = r->left;
+			if(is64(r->type))
+				return 0;
+		}
+		l = l->next;
+	}
+	return 1;
+}
+
 void
 getargs(NodeList *nn, Node *reg, int n)
 {
 	NodeList *l;
+	Node *r;
 	int i;
 
 	throwpc = nil;
 
 	l = nn;
 	for(i=0; i<n; i++) {
-		if(!smallintconst(l->n->right) && !isslice(l->n->right->type)) {
+		r = l->n->right;
+		if(is64(r->type)) {
+			if(r->op == OCONV)
+				r = r->left;
+			else if(smallintconst(r))
+				r->type = types[TUINT32];
+			if(is64(r->type))
+				fatal("getargs");
+		}
+		if(!smallintconst(r) && !isslice(r->type)) {
 			if(i < 3)	// AX CX DX
-				nodreg(reg+i, l->n->right->type, D_AX+i);
+				nodreg(reg+i, r->type, D_AX+i);
 			else
 				reg[i].op = OXXX;
-			regalloc(reg+i, l->n->right->type, reg+i);
-			cgen(l->n->right, reg+i);
+			regalloc(reg+i, r->type, reg+i);
+			cgen(r, reg+i);
 		} else
-			reg[i] = *l->n->right;
+			reg[i] = *r;
 		if(reg[i].local != 0)
 			yyerror("local used");
 		reg[i].local = l->n->left->xoffset;
@@ -821,44 +854,53 @@ getargs(NodeList *nn, Node *reg, int n)
 void
 cmpandthrow(Node *nl, Node *nr)
 {
-	vlong cl, cr;
+	vlong cl;
 	Prog *p1;
 	int op;
-	Node *c;
+	Node *c, n1;
+	Type *t;
 
 	op = OLE;
 	if(smallintconst(nl)) {
 		cl = mpgetfix(nl->val.u.xval);
 		if(cl == 0)
 			return;
-		if(smallintconst(nr)) {
-			cr = mpgetfix(nr->val.u.xval);
-			if(cl > cr) {
-				if(throwpc == nil) {
-					throwpc = pc;
-					ginscall(panicslice, 0);
-				} else
-					patch(gbranch(AJMP, T), throwpc);
-			}
+		if(smallintconst(nr))
 			return;
-		}
-
 		// put the constant on the right
 		op = brrev(op);
 		c = nl;
 		nl = nr;
 		nr = c;
 	}
-
-	gins(optoas(OCMP, types[TUINT32]), nl, nr);
+	
+	// Arguments are known not to be 64-bit,
+	// but they might be smaller than 32 bits.
+	// Check if we need to use a temporary.
+	// At least one of the arguments is 32 bits
+	// (the len or cap) so one temporary suffices.
+	n1.op = OXXX;
+	t = types[TUINT32];
+	if(nl->type->width != t->width) {
+		regalloc(&n1, t, nl);
+		gmove(nl, &n1);
+		nl = &n1;
+	} else if(nr->type->width != t->width) {
+		regalloc(&n1, t, nr);
+		gmove(nr, &n1);
+		nr = &n1;
+	}
+	gins(optoas(OCMP, t), nl, nr);
+	if(n1.op != OXXX)
+		regfree(&n1);
 	if(throwpc == nil) {
-		p1 = gbranch(optoas(op, types[TUINT32]), T);
+		p1 = gbranch(optoas(op, t), T);
 		throwpc = pc;
 		ginscall(panicslice, 0);
 		patch(p1, pc);
 	} else {
 		op = brcom(op);
-		p1 = gbranch(optoas(op, types[TUINT32]), T);
+		p1 = gbranch(optoas(op, t), T);
 		patch(p1, throwpc);
 	}
 }
@@ -907,6 +949,8 @@ cgen_inline(Node *n, Node *res)
 
 slicearray:
 	if(!sleasy(res))
+		goto no;
+	if(!fix64(n->list, 5))
 		goto no;
 	getargs(n->list, nodes, 5);
 
@@ -990,6 +1034,8 @@ slicearray:
 	return 1;
 
 sliceslice:
+	if(!fix64(n->list, narg))
+		goto no;
 	ntemp.op = OXXX;
 	if(!sleasy(n->list->n->right)) {
 		Node *n0;
@@ -1018,6 +1064,7 @@ sliceslice:
 		// if(lb[1] > old.nel[0]) goto throw;
 		n2 = nodes[0];
 		n2.xoffset += Array_nel;
+		n2.type = types[TUINT32];
 		cmpandthrow(&nodes[1], &n2);
 
 		// ret.nel = old.nel[0]-lb[1];
@@ -1037,6 +1084,7 @@ sliceslice:
 		// if(hb[2] > old.cap[0]) goto throw;
 		n2 = nodes[0];
 		n2.xoffset += Array_cap;
+		n2.type = types[TUINT32];
 		cmpandthrow(&nodes[2], &n2);
 
 		// if(lb[1] > hb[2]) goto throw;

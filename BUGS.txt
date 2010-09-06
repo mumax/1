@@ -1,0 +1,7 @@
+known bugs
+----------
+
+[0001] open  arne:
+ When retrieving the magnetization from the GPU, e.g., to save output, a CUDA error may occasionally be thrown. The CUDA error report says nothing about the cuda_memcpy() that originally caused it. E.g.: a CUFFT error: "the user passed an invalid plan pointer" may be thrown because the plan was (probably) corrupted by the memcpy(). The problem is not 100% reproducible and seems to depend on the exact timing. It can be worked around by saving output at slightly different times or even in a different order (e.g., first save a table and then a png file instead of vice-versa).
+
+

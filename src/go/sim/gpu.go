@@ -2,6 +2,7 @@ package sim
 
 /*
 #include "gpukern.h"
+#include "timer.h"
 
 // to allow some (evil but neccesary) pointer arithmetic in go
 float* gpu_array_offset(float* array, int index){
@@ -24,7 +25,7 @@ import (
 	"fmt"
 )
 
-var GPU *Backend = &Backend{Gpu{}, false}
+var GPU *Backend = NewBackend(&Gpu{})
 
 type Gpu struct {
 	// intentionally empty, but the methods implement sim.Device
@@ -144,15 +145,15 @@ func (d Gpu) zero(data unsafe.Pointer, nFloats int) {
 }
 
 
-// func (d Gpu) PrintProperties() {
-// 	C.gpu_print_properties_stdout()
-// }
+func (d Gpu) PrintProperties() {
+	C.gpu_print_properties_stdout()
+}
 
 
 func (d Gpu) String() string {
 	return "GPU"
 }
 
-// func TimerPrintDetail(){
-//   C.timer_printdetail()
-// }
+func (d Gpu) TimerPrintDetail() {
+	C.timer_printdetail()
+}

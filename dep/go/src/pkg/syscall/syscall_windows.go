@@ -143,13 +143,20 @@ func getSysProcAddr(m uint32, pname string) uintptr {
 //sys	CryptAcquireContext(provhandle *uint32, container *uint16, provider *uint16, provtype uint32, flags uint32) (ok bool, errno int) = advapi32.CryptAcquireContextW
 //sys	CryptReleaseContext(provhandle uint32, flags uint32) (ok bool, errno int) = advapi32.CryptReleaseContext
 //sys	CryptGenRandom(provhandle uint32, buflen uint32, buf *byte) (ok bool, errno int) = advapi32.CryptGenRandom
+//sys	GetEnvironmentStrings() (envs *uint16, errno int) [failretval=nil] = kernel32.GetEnvironmentStringsW
+//sys	FreeEnvironmentStrings(envs *uint16) (ok bool, errno int) = kernel32.FreeEnvironmentStringsW
+//sys	GetEnvironmentVariable(name *uint16, buffer *uint16, size uint32) (n uint32, errno int) = kernel32.GetEnvironmentVariableW
+//sys	SetEnvironmentVariable(name *uint16, value *uint16) (ok bool, errno int) = kernel32.SetEnvironmentVariableW
 
 // syscall interface implementation for other packages
 
 func Errstr(errno int) string {
-	if errno == EWINDOWS {
-		return "not supported by windows"
+	// deal with special go errors
+	e := errno - APPLICATION_ERROR
+	if 0 <= e && e < len(errors) {
+		return errors[e]
 	}
+	// ask windows for the remaining errors
 	var flags uint32 = FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY | FORMAT_MESSAGE_IGNORE_INSERTS
 	b := make([]uint16, 300)
 	n, err := FormatMessage(flags, 0, uint32(errno), 0, b, nil)
@@ -161,7 +168,7 @@ func Errstr(errno int) string {
 
 func Exit(code int) { ExitProcess(uint32(code)) }
 
-func Open(path string, mode int, perm int) (fd int, errno int) {
+func Open(path string, mode int, perm uint32) (fd int, errno int) {
 	if len(path) == 0 {
 		return -1, ERROR_FILE_NOT_FOUND
 	}
@@ -326,7 +333,7 @@ func Chdir(path string) (errno int) {
 	return 0
 }
 
-func Mkdir(path string, mode int) (errno int) {
+func Mkdir(path string, mode uint32) (errno int) {
 	if ok, e := CreateDirectory(&StringToUTF16(path)[0], nil); !ok {
 		return e
 	}
@@ -617,8 +624,8 @@ func Fchdir(fd int) (errno int)                           { return EWINDOWS }
 func Link(oldpath, newpath string) (errno int)            { return EWINDOWS }
 func Symlink(path, link string) (errno int)               { return EWINDOWS }
 func Readlink(path string, buf []byte) (n int, errno int) { return 0, EWINDOWS }
-func Chmod(path string, mode int) (errno int)             { return EWINDOWS }
-func Fchmod(fd int, mode int) (errno int)                 { return EWINDOWS }
+func Chmod(path string, mode uint32) (errno int)          { return EWINDOWS }
+func Fchmod(fd int, mode uint32) (errno int)              { return EWINDOWS }
 func Chown(path string, uid int, gid int) (errno int)     { return EWINDOWS }
 func Lchown(path string, uid int, gid int) (errno int)    { return EWINDOWS }
 func Fchown(fd int, uid int, gid int) (errno int)         { return EWINDOWS }

@@ -2,32 +2,32 @@
 
 
 # hardware selection
-# remote tcp 127.0.0.1 2527
 gpu
 
-# output
-outputdir:  	stdprobl4
-verbosity:  	3
 
-solvertype:  	euler
-dt:           	0.02E-12                  # s
+# output
+outputdir:    stdprobl4
+#verbosity:    2
+
+solvertype:   heun
+dt:           0.05E-12                  # s
 
 # material
-msat:       	800E3       # A/m
-aexch:      	1.3E-11     # J/m
-alpha:      	0.02
+msat:         800E3       # A/m
+aexch:        1.3E-11     # J/m
+alpha:        0.02
 
-# geometry 
-size:       	32     32          256
-cellsize:   	3E-9  3.90625E-9  3.90625E-9  # m
+# geometry
+size:         32     32          128
+cellsize:     1.5E-9  3.90625E-9  3.90625E-9  # m
 
 # initial magnetization
-load:    	s-state.t
+load:     s-state.t
 
 
 # run
-#autosave:	m	png	20E-12
-# autosave:	table	ascii	20E-12
-appliedfield: 	0     4.3E-3    -24.6E-3  # T
-run:          	0.1E-9                      # s
+#autosave:  m png 50E-12
+#autosave: table ascii 10E-12
+appliedfield:   0     4.3E-3    -24.6E-3  # T
+run:            0.1E-9                      # s
 

@@ -29,22 +29,22 @@ func TestPad(t *testing.T) {
 
 
 func TestStride(t *testing.T) {
-	s := backend.Stride()
-	backend.OverrideStride(10)
-	if backend.Stride() != 10 {
-		t.Fail()
-	}
-
-	for i := 1; i < 100; i++ {
-		if backend.PadToStride(i)%backend.Stride() != 0 {
-			t.Fail()
-		}
-	}
-
-	backend.OverrideStride(-1)
-	if backend.Stride() != s {
-		t.Fail()
-	}
+	// 	s := backend.Stride()
+	// 	backend.OverrideStride(10)
+	// 	if backend.Stride() != 10 {
+	// 		t.Fail()
+	// 	}
+	// 
+	// 	for i := 1; i < 100; i++ {
+	// 		if backend.PadToStride(i)%backend.Stride() != 0 {
+	// 			t.Fail()
+	// 		}
+	// 	}
+	// 
+	// 	backend.OverrideStride(-1)
+	// 	if backend.Stride() != s {
+	// 		t.Fail()
+	// 	}
 }
 
 

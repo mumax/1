@@ -57,17 +57,17 @@ func (conv *Conv) Convolve(source, dest *Tensor) {
 		hcomp[i].data = conv.arrayOffset(dest.data, i*mLen)
 	}
 
-	for i := 0; i < 3; i++ {
-		ZeroTensor(buffer[i])
-		CopyPad(mcomp[i], buffer[i])
-		//     fmt.Println("mPadded", i)
-		//     tensor.Format(os.Stdout, buffer[i])
-	}
+	// 	for i := 0; i < 3; i++ {
+	// 		ZeroTensor(buffer[i])
+	// 		CopyPad(mcomp[i], buffer[i])
+	// 		//     fmt.Println("mPadded", i)
+	// 		//     tensor.Format(os.Stdout, buffer[i])
+	// 	}
 
 	//Sync
 
 	for i := 0; i < 3; i++ {
-		conv.Forward(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
+		conv.Forward(mcomp[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
 		//     fmt.Println("fftm", i)
 		//     tensor.Format(os.Stdout, buffer[i])
 	}
@@ -83,16 +83,17 @@ func (conv *Conv) Convolve(source, dest *Tensor) {
 	//   }
 
 	for i := 0; i < 3; i++ {
-		conv.Inverse(buffer[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
+		conv.Inverse(buffer[i], hcomp[i]) // should not be asynchronous unless we have 3 fft's (?)
 	}
 
-	for i := 0; i < 3; i++ {
-		CopyUnpad(buffer[i], hcomp[i])
-	}
+	// 	for i := 0; i < 3; i++ {
+	// 		CopyUnpad(buffer[i], hcomp[i])
+	// 	}
 }
 
 
 func (conv *Conv) LoadKernel6(kernel []tensor.StoredTensor) {
+
 	for _, k := range kernel {
 		if k != nil {
 			assert(tensor.EqualSize(k.Size(), conv.KernelSize()))
@@ -108,19 +109,13 @@ func (conv *Conv) LoadKernel6(kernel []tensor.StoredTensor) {
 	for i := range conv.kernel {
 		if kernel[i] != nil { // nil means it would contain only zeros so we don't store it.
 			conv.kernel[i] = NewTensor(conv.Backend, conv.PhysicSize())
-
 			tensor.CopyTo(kernel[i], buffer)
-
 			for i := range buffer.List() {
 				buffer.List()[i] *= N
 			}
-
-			ZeroTensor(devbuf)
 			ZeroTensor(conv.kernel[i])
 			TensorCopyTo(buffer, devbuf)
-			CopyPad(devbuf, conv.kernel[i]) ///@todo padding should be done on host, not device, to save sim memory / avoid fragmentation
-
-			fft.Forward(conv.kernel[i], conv.kernel[i])
+			fft.Forward(devbuf, conv.kernel[i])
 		}
 	}
 }

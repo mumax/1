@@ -41,7 +41,7 @@ func NewFFTPadded(b *Backend, dataSize, logicSize []int) *FFT {
 		fft.dataSize[i] = dataSize[i]
 		fft.physicSize[i] = fft.logicSize[i] // Z will be overwritten
 	}
-	fft.physicSize[Z] = fft.PadToStride(logicSize[Z] + 2)
+	fft.physicSize[Z] = logicSize[Z] + 2
 	fft.plan = fft.newFFTPlan(dataSize, logicSize)
 
 	return fft
@@ -52,17 +52,16 @@ func (fft *FFT) Forward(in, out *Tensor) {
 	// size checks
 	assert(tensor.Rank(in) == 3)
 	assert(tensor.Rank(out) == 3)
-	for i, s := range fft.physicSize {
+	for i, s := range fft.dataSize {
 		assert(in.size[i] == s)
+	}
+	for i, s := range fft.physicSize {
 		assert(out.size[i] == s)
 	}
 	// actual fft
+	fft.Start("FFT forward")
 	fft.fftForward(fft.plan, in.data, out.data)
-}
-
-
-func (fft *FFT) ForwardInplace(data *Tensor) {
-	fft.Forward(data, data)
+	fft.Stop("FFT forward")
 }
 
 
@@ -72,10 +71,14 @@ func (fft *FFT) Inverse(in, out *Tensor) {
 	assert(tensor.Rank(out) == 3)
 	for i, s := range fft.physicSize {
 		assert(in.size[i] == s)
+	}
+	for i, s := range fft.dataSize {
 		assert(out.size[i] == s)
 	}
 	// actual fft
+	fft.Start("FFT inverse")
 	fft.fftInverse(fft.plan, in.data, out.data)
+	fft.Stop("FFT inverse")
 }
 
 
@@ -112,7 +115,7 @@ func (fft *FFT) DataSize() []int {
 
 
 func (fft *FFT) Normalization() int {
-	return fft.logicSize[X] * fft.logicSize[Y] * fft.logicSize[Z]
+	return (fft.logicSize[X] * fft.logicSize[Y] * fft.logicSize[Z])
 }
 
 func (fft *FFT) String() string {

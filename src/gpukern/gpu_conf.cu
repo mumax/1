@@ -91,7 +91,7 @@ void _make1dconf(int N, unsigned int* gridSize, unsigned int* blockSize, int max
 //     *blockSize = N;
 //     *gridSize = 1;
 //   }
-  debugv( fprintf(stderr, "_make1dconf(%d): %d x %d\n", N, *gridSize, *blockSize) );
+  debugvv( fprintf(stderr, "_make1dconf(%d): %d x %d\n", N, *gridSize, *blockSize) );
   check1dconf(*gridSize, *blockSize);
   assert((*blockSize) * (*gridSize) == N);
   assert(*blockSize <= maxBlockSize);

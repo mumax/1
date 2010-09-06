@@ -14,6 +14,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"runtime"
 	"strings"
 )
 
@@ -28,7 +29,7 @@ var (
 	errors  = false
 	gobin   = os.Getenv("GOBIN")
 	parents = make(map[string]string)
-	root    = os.Getenv("GOROOT")
+	root    = runtime.GOROOT()
 	visit   = make(map[string]status)
 
 	reportToDashboard = flag.Bool("dashboard", true, "report public packages at "+dashboardURL)
@@ -50,10 +51,10 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s: no $GOROOT\n", argv0)
 		os.Exit(1)
 	}
-	root += "/src/pkg/"
 	if gobin == "" {
-		gobin = os.Getenv("HOME") + "/bin"
+		gobin = root + "/bin"
 	}
+	root += "/src/pkg/"
 
 	// special case - "unsafe" is already installed
 	visit["unsafe"] = done
@@ -207,6 +208,9 @@ func genRun(dir string, stdin []byte, cmd []string, quiet bool) os.Error {
 	io.Copy(&buf, p.Stdout)
 	w, err := p.Wait(0)
 	p.Close()
+	if err != nil {
+		return err
+	}
 	if !w.Exited() || w.ExitStatus() != 0 {
 		if !quiet || *verbose {
 			if dir != "" {

@@ -27,8 +27,8 @@ var (
 
 	// debugging support
 	comments = flag.Bool("comments", true, "print comments")
-	debug    = flag.Bool("debug", false, "print debugging information")
 	trace    = flag.Bool("trace", false, "print parse trace")
+	printAST = flag.Bool("ast", false, "print AST (before rewrites)")
 
 	// layout control
 	tabWidth  = flag.Int("tabwidth", 8, "tab width")
@@ -92,14 +92,14 @@ func processFile(f *os.File) os.Error {
 		return err
 	}
 
-	var scope *ast.Scope
-	if *debug {
-		scope = ast.NewScope(nil)
-	}
-	file, err := parser.ParseFile(f.Name(), src, scope, parserMode)
+	file, err := parser.ParseFile(f.Name(), src, parserMode)
 
 	if err != nil {
 		return err
+	}
+
+	if *printAST {
+		ast.Print(file)
 	}
 
 	if rewrite != nil {
@@ -133,10 +133,10 @@ func processFile(f *os.File) os.Error {
 }
 
 
-func processFileByName(filename string) (err os.Error) {
+func processFileByName(filename string) os.Error {
 	file, err := os.Open(filename, os.O_RDONLY, 0)
 	if err != nil {
-		return
+		return err
 	}
 	defer file.Close()
 	return processFile(file)

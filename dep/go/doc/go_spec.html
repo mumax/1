@@ -4056,7 +4056,7 @@ RecvExpr =  [ Expression ( "=" | ":=" ) ] "&lt;-" Expression .
 For all the send and receive expressions in the "select"
 statement, the channel expressions are evaluated in top-to-bottom order, along with
 any expressions that appear on the right hand side of send expressions.
-A channel pointer may be <code>nil</code>,
+A channel may be <code>nil</code>,
 which is equivalent to that case not
 being present in the select statement
 except, if a send, its expression is still evaluated.
@@ -4661,7 +4661,7 @@ func IsPrintable(s string) (ok bool) {
 		}
 		// Panicking has stopped; execution will resume normally in caller.
 		// The return value will be true normally, false if a panic occurred.
-	}
+	}()
 	panicIfNotPrintable(s)	// will panic if validations fails.
 }
 </pre>
@@ -5150,8 +5150,4 @@ The following minimal alignment properties are guaranteed:
 	<li><span class="alert">Implementation does not honor the restriction on goto statements and targets (no intervening declarations).</span></li>
 	<li><span class="alert">Method expressions are partially implemented.</span></li>
 	<li><span class="alert">Gccgo: allows only one init() function per source file.</span></li>
-	<li><span class="alert">Gccgo: Deferred functions cannot access the surrounding function's result parameters.</span></li>
-	<li><span class="alert">Gccgo: Function results are not addressable.</span></li>
-	<li><span class="alert">Gccgo: Recover is not implemented.</span></li>
-	<li><span class="alert">Gccgo: The implemented version of panic differs from its specification.</span></li>
 </ul>

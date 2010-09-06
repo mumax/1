@@ -418,7 +418,7 @@ void
 agen(Node *n, Node *res)
 {
 	Node *nl, *nr;
-	Node n1, n2, n3, tmp, n4;
+	Node n1, n2, n3, tmp, n4, n5;
 	Prog *p1;
 	uint32 w;
 	uint64 v;
@@ -518,13 +518,12 @@ agen(Node *n, Node *res)
 		if(isconst(nr, CTINT)) {
 			v = mpgetfix(nr->val.u.xval);
 			if(isslice(nl->type)) {
-
 				if(!debug['B'] && !n->etype) {
 					n1 = n3;
 					n1.op = OINDREG;
 					n1.type = types[tptr];
 					n1.xoffset = Array_nel;
-					nodconst(&n2, types[TUINT64], v);
+					nodconst(&n2, types[TUINT32], v);
 					gins(optoas(OCMP, types[TUINT32]), &n1, &n2);
 					p1 = gbranch(optoas(OGT, types[TUINT32]), T);
 					ginscall(panicindex, 0);
@@ -536,13 +535,6 @@ agen(Node *n, Node *res)
 				n1.type = types[tptr];
 				n1.xoffset = Array_array;
 				gmove(&n1, &n3);
-			} else
-			if(!debug['B'] && !n->etype) {
-				if(v < 0)
-					yyerror("out of bounds on array");
-				else
-				if(v >= nl->type->bound)
-					yyerror("out of bounds on array");
 			}
 
 			nodconst(&n2, types[tptr], v*w);
@@ -564,15 +556,28 @@ agen(Node *n, Node *res)
 
 		if(!debug['B'] && !n->etype) {
 			// check bounds
+			n5.op = OXXX;
+			t = types[TUINT32];
 			if(isslice(nl->type)) {
 				n1 = n3;
 				n1.op = OINDREG;
-				n1.type = types[tptr];
+				n1.type = types[TUINT32];
 				n1.xoffset = Array_nel;
-			} else
-				nodconst(&n1, types[TUINT64], nl->type->bound);
-			gins(optoas(OCMP, types[TUINT32]), &n2, &n1);
-			p1 = gbranch(optoas(OLT, types[TUINT32]), T);
+				if(is64(nr->type)) {
+					t = types[TUINT64];
+					regalloc(&n5, t, N);
+					gmove(&n1, &n5);
+					n1 = n5;
+				}
+			} else {
+				if(is64(nr->type))
+					t = types[TUINT64];
+				nodconst(&n1, t, nl->type->bound);
+			}
+			gins(optoas(OCMP, t), &n2, &n1);
+			p1 = gbranch(optoas(OLT, t), T);
+			if(n5.op != OXXX)
+				regfree(&n5);
 			ginscall(panicindex, 0);
 			patch(p1, pc);
 		}
@@ -1006,6 +1011,10 @@ sgen(Node *n, Node *ns, int32 w)
 	if(w < 0)
 		fatal("sgen copy %d", w);
 
+	if(w == 16)
+		if(componentgen(n, ns))
+			return;
+
 	// offset on the stack
 	osrc = stkof(n);
 	odst = stkof(ns);
@@ -1098,4 +1107,164 @@ sgen(Node *n, Node *ns, int32 w)
 	restx(&nodl, &oldl);
 	restx(&nodr, &oldr);
 	restx(&cx, &oldcx);
+}
+
+static int
+cadable(Node *n)
+{
+	if(!n->addable) {
+		// dont know how it happens,
+		// but it does
+		return 0;
+	}
+
+	switch(n->op) {
+	case ONAME:
+		return 1;
+	}
+	return 0;
+}
+
+/*
+ * copy a structure component by component
+ * return 1 if can do, 0 if cant.
+ * nr is N for copy zero
+ */
+int
+componentgen(Node *nr, Node *nl)
+{
+	Node nodl, nodr;
+	int freel, freer;
+
+	freel = 0;
+	freer = 0;
+
+	switch(nl->type->etype) {
+	default:
+		goto no;
+
+	case TARRAY:
+		if(!isslice(nl->type))
+			goto no;
+	case TSTRING:
+	case TINTER:
+		break;
+	}
+
+	nodl = *nl;
+	if(!cadable(nl)) {
+		if(nr == N || !cadable(nr))
+			goto no;
+		igen(nl, &nodl, N);
+		freel = 1;
+	}
+
+	if(nr != N) {
+		nodr = *nr;
+		if(!cadable(nr)) {
+			igen(nr, &nodr, N);
+			freer = 1;
+		}
+	}
+
+	switch(nl->type->etype) {
+	case TARRAY:
+		if(!isslice(nl->type))
+			goto no;
+
+		nodl.xoffset += Array_array;
+		nodl.type = ptrto(nl->type->type);
+
+		if(nr != N) {
+			nodr.xoffset += Array_array;
+			nodr.type = nodl.type;
+		} else
+			nodconst(&nodr, nodl.type, 0);
+		gmove(&nodr, &nodl);
+
+		nodl.xoffset += Array_nel-Array_array;
+		nodl.type = types[TUINT32];
+
+		if(nr != N) {
+			nodr.xoffset += Array_nel-Array_array;
+			nodr.type = nodl.type;
+		} else
+			nodconst(&nodr, nodl.type, 0);
+		gmove(&nodr, &nodl);
+
+		nodl.xoffset += Array_cap-Array_nel;
+		nodl.type = types[TUINT32];
+
+		if(nr != N) {
+			nodr.xoffset += Array_cap-Array_nel;
+			nodr.type = nodl.type;
+		} else
+			nodconst(&nodr, nodl.type, 0);
+		gmove(&nodr, &nodl);
+
+		goto yes;
+
+	case TSTRING:
+		nodl.xoffset += Array_array;
+		nodl.type = ptrto(types[TUINT8]);
+
+		if(nr != N) {
+			nodr.xoffset += Array_array;
+			nodr.type = nodl.type;
+		} else
+			nodconst(&nodr, nodl.type, 0);
+		gmove(&nodr, &nodl);
+
+		nodl.xoffset += Array_nel-Array_array;
+		nodl.type = types[TUINT32];
+
+		if(nr != N) {
+			nodr.xoffset += Array_nel-Array_array;
+			nodr.type = nodl.type;
+		} else
+			nodconst(&nodr, nodl.type, 0);
+		gmove(&nodr, &nodl);
+
+		goto yes;
+
+	case TINTER:
+		nodl.xoffset += Array_array;
+		nodl.type = ptrto(types[TUINT8]);
+
+		if(nr != N) {
+			nodr.xoffset += Array_array;
+			nodr.type = nodl.type;
+		} else
+			nodconst(&nodr, nodl.type, 0);
+		gmove(&nodr, &nodl);
+
+		nodl.xoffset += Array_nel-Array_array;
+		nodl.type = ptrto(types[TUINT8]);
+
+		if(nr != N) {
+			nodr.xoffset += Array_nel-Array_array;
+			nodr.type = nodl.type;
+		} else
+			nodconst(&nodr, nodl.type, 0);
+		gmove(&nodr, &nodl);
+
+		goto yes;
+
+	case TSTRUCT:
+		goto no;
+	}
+
+no:
+	if(freer)
+		regfree(&nodr);
+	if(freel)
+		regfree(&nodl);
+	return 0;
+
+yes:
+	if(freer)
+		regfree(&nodr);
+	if(freel)
+		regfree(&nodl);
+	return 1;
 }

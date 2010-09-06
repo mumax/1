@@ -74,7 +74,7 @@ func main() {
 	flag.Parse()
 
 	var t0 int64
-	pkgroot := os.Getenv("GOROOT") + "/src/pkg/"
+	pkgroot := runtime.GOROOT() + "/src/pkg/"
 	for pass := 0; pass < 2; pass++ {
 		// Once the heap is grown to full size, reset counters.
 		// This hides the start-up pauses, which are much smaller
@@ -115,7 +115,6 @@ var packages = []string{
 	"archive/tar",
 	"asn1",
 	"big",
-	"bignum",
 	"bufio",
 	"bytes",
 	"cmath",
@@ -185,7 +184,6 @@ var packages = []string{
 	"mime",
 	"net",
 	"nntp",
-	"once",
 	"os",
 	"os/signal",
 	"patch",

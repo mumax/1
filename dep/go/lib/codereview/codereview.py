@@ -338,6 +338,7 @@ def ParseCL(text, name):
 		i = line.find('#')
 		if i >= 0:
 			line = line[0:i].rstrip()
+		line = line.strip()
 		if line == '':
 			continue
 		cl.files.append(line)
@@ -788,7 +789,7 @@ def change(ui, repo, *pats, **opts):
 		if opts["delete"]:
 			if cl.copied_from:
 				return "original author must delete CL; hg change -D will remove locally"
-			PostMessage(ui, cl.name, "*** Abandoned ***")
+			PostMessage(ui, cl.name, "*** Abandoned ***", send_mail=cl.mailed)
 			EditDesc(cl.name, closed="checked")
 		cl.Delete(ui, repo)
 		return

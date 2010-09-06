@@ -70,4 +70,6 @@ func exec(in io.Reader) {
 	refsh.CrashOnError = true
 	refsh.AddAllMethods(sim)
 	refsh.Exec(in)
+	sim.TimerPrintDetail()
+	sim.Print(os.Stdout)
 }

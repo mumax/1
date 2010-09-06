@@ -23,6 +23,11 @@
 
 # Names should be added to this file like so:
 #     Name <email address>
+#
+# An entry with two email addresses specifies that the
+# first address should be used in the submit logs and
+# that the second address should be recognized as the
+# same person when interacting with Rietveld.
 
 # Please keep the list sorted.
 
@@ -37,18 +42,21 @@ Andrew Skiba <skibaa@gmail.com>
 Andrey Mirtchovski <mirtchovski@gmail.com>
 Andy Davis <andy@bigandian.com>
 Anh Hai Trinh <anh.hai.trinh@gmail.com>
+Anschel Schaffer-Cohen <anschelsc@gmail.com>
+Anthony Martin <ality@pbrane.org>
 Anthony Starks <ajstarks@gmail.com>
 Aron Nopanen <aron.nopanen@gmail.com>
 Arvindh Rajesh Tamilmani <art@a-30.net>
 Austin Clements <aclements@csail.mit.edu>
 Ben Eitzen <eitzenb@golang.org>
 Ben Olive <sionide21@gmail.com>
-Bill Neubauer <wcn@golang.org>
-Brad Fitzpatrick <brad@danga.com>
+Bill Neubauer <wcn@golang.org> <wcn@google.com>
+Brad Fitzpatrick <brad@danga.com> <bradfitz@gmail.com>
 Brendan O'Dea <bod@golang.org>
 Cary Hull <chull@google.com>
 Charles L. Dorian <cldorian@gmail.com>
 Chris Lennert <calennert@gmail.com>
+Christian Himpel <chressie@googlemail.com>
 Christopher Wedgwood <cw@f00f.org>
 Conrad Meyer <cemeyer@cs.washington.edu>
 Daniel Fleischman <danielfleischman@gmail.com>
@@ -60,6 +68,7 @@ David Titarenco <david.titarenco@gmail.com>
 Dean Prichard <dean.prichard@gmail.com>
 Devon H. O'Dell <devon.odell@gmail.com>
 Eden Li <eden.li@gmail.com>
+Eric Clark <zerohp@gmail.com>
 Evan Shaw <chickencha@gmail.com>
 Fazlul Shahriar <fshahriar@gmail.com>
 Firmansyah Adiputra <frm.adiputra@gmail.com>
@@ -89,14 +98,19 @@ Kevin Ballard <kevin@sb.org>
 Kirklin McDonald <kirklin.mcdonald@gmail.com>
 Kyle Consalus <consalus@gmail.com>
 Larry Hosken <lahosken@golang.org>
+Luuk van Dijk <lvd@golang.org> <lvd@google.com>
 Mark Zavislak <zavislak@google.com>
 Markus Duft <markus.duft@salomon.at>
+Mathieu Lonjaret <mathieu.lonjaret@gmail.com>
 Maxim Ushakov <ushakov@google.com>
 Micah Stetson <micah.stetson@gmail.com>
 Michael Elkins <michael.elkins@gmail.com>
 Michael Hoisie <hoisie@gmail.com>
+Mikio Hara <mikioh.mikioh@gmail.com>
+Mikkel Krautz <mikkel@krautz.dk> <krautz@gmail.com>
 Moriyoshi Koizumi <mozo@mozo.jp>
 Môshe van der Sterre <moshevds@gmail.com>
+Nicholas Waples <nwaples@gmail.com>
 Nigel Tao <nigeltao@golang.org>
 Paolo Giarrusso <p.giarrusso@gmail.com>
 Petar Maymounkov <petarm@gmail.com>
@@ -115,6 +129,7 @@ Ross Light <rlight2@gmail.com>
 Russ Cox <rsc@golang.org>
 Sam Thorogood <thorogood@google.com>
 Scott Schwartz <scotts@golang.org>
+Scott Lawrence <bytbox@gmail.com>
 Sergei Skorobogatov <skorobo@rambler.ru>
 Sergey 'SnakE' Gromov <snake.scaly@gmail.com>
 Sergio Luis O. B. Correia <sergio@larces.uece.br>
@@ -122,6 +137,7 @@ Spring Mc <heresy.mc@gmail.com>
 Stephen Ma <stephenm@golang.org>
 Stephen Weinberg <stephen@q5comm.com>
 Sven Almgren <sven@tras.se>
+Tarmigan Casebolt <tarmigan@gmail.com>
 Tom Szymanski <tgs@google.com>
 Timo Savola <timo.savola@gmail.com>
 Tor Andersson <tor.andersson@gmail.com>

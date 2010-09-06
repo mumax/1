@@ -682,6 +682,29 @@ regcmp(const void *va, const void *vb)
 
 static	Prog*	throwpc;
 
+// We're only going to bother inlining if we can
+// convert all the arguments to 32 bits safely.  Can we?
+static int
+fix64(NodeList *nn, int n)
+{
+	NodeList *l;
+	Node *r;
+	int i;
+	
+	l = nn;
+	for(i=0; i<n; i++) {
+		r = l->n->right;
+		if(is64(r->type) && !smallintconst(r)) {
+			if(r->op == OCONV)
+				r = r->left;
+			if(is64(r->type))
+				return 0;
+		}
+		l = l->next;
+	}
+	return 1;
+}
+
 void
 getargs(NodeList *nn, Node *reg, int n)
 {
@@ -710,7 +733,7 @@ getargs(NodeList *nn, Node *reg, int n)
 void
 cmpandthrow(Node *nl, Node *nr)
 {
-	vlong cl, cr;
+	vlong cl;
 	Prog *p1;
 	int op;
 	Node *c, n1, n2;
@@ -720,17 +743,8 @@ cmpandthrow(Node *nl, Node *nr)
 		cl = mpgetfix(nl->val.u.xval);
 		if(cl == 0)
 			return;
-		if(smallintconst(nr)) {
-			cr = mpgetfix(nr->val.u.xval);
-			if(cl > cr) {
-				if(throwpc == nil) {
-					throwpc = pc;
-					ginscall(panicslice, 0);
-				} else
-					patch(gbranch(AB, T), throwpc);
-			}
+		if(smallintconst(nr))
 			return;
-		}
 
 		// put the constant on the right
 		op = brrev(op);
@@ -812,6 +826,8 @@ cgen_inline(Node *n, Node *res)
 
 slicearray:
 	if(!sleasy(res))
+		goto no;
+	if(!fix64(n->list, 5))
 		goto no;
 	getargs(n->list, nodes, 5);
 
@@ -904,6 +920,8 @@ slicearray:
 	return 1;
 
 sliceslice:
+	if(!fix64(n->list, narg))
+		goto no;
 	ntemp.op = OXXX;
 	if(!sleasy(n->list->n->right)) {
 		Node *n0;

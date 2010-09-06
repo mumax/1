@@ -5,7 +5,6 @@
 package net
 
 import (
-	"once"
 	"os"
 	"sync"
 	"syscall"
@@ -119,6 +118,7 @@ func (s *pollServer) Run() {
 // All the network FDs use a single pollServer.
 
 var pollserver *pollServer
+var onceStartServer sync.Once
 
 func startServer() {
 	p, err := newPollServer()
@@ -134,7 +134,7 @@ func newFD(fd, family, proto int, net string, laddr, raddr Addr) (f *netFD, err 
 	if initErr != nil {
 		return nil, initErr
 	}
-	once.Do(startServer)
+	onceStartServer.Do(startServer)
 	// Associate our socket with pollserver.iocp.
 	if _, e := syscall.CreateIoCompletionPort(int32(fd), pollserver.iocp, 0, 0); e != 0 {
 		return nil, &OpError{"CreateIoCompletionPort", net, laddr, os.Errno(e)}
@@ -303,7 +303,7 @@ func (fd *netFD) accept(toAddr func(syscall.Sockaddr) Addr) (nfd *netFD, err os.
 	syscall.ForkLock.RUnlock()
 
 	// Associate our new socket with IOCP.
-	once.Do(startServer)
+	onceStartServer.Do(startServer)
 	if _, e = syscall.CreateIoCompletionPort(int32(s), pollserver.iocp, 0, 0); e != 0 {
 		return nil, &OpError{"CreateIoCompletionPort", fd.net, fd.laddr, os.Errno(e)}
 	}

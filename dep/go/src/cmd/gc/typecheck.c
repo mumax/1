@@ -169,6 +169,16 @@ reswitch:
 			goto error;
 		break;
 
+	case OTPAREN:
+		ok |= Etype;
+		l = typecheck(&n->left, Etype);
+		if(l->type == T)
+			goto error;
+		n->op = OTYPE;
+		n->type = l->type;
+		n->left = N;
+		break;
+	
 	case OTARRAY:
 		ok |= Etype;
 		t = typ(TARRAY);
@@ -561,7 +571,7 @@ reswitch:
 			goto error;
 
 		case TARRAY:
-			defaultlit(&n->right, types[TUINT]);
+			defaultlit(&n->right, T);
 			if(n->right->type != T && !isint[n->right->type->etype])
 				yyerror("non-integer array index %#N", n->right);
 			n->type = t->type;
@@ -635,8 +645,8 @@ reswitch:
 		typecheck(&n->right->left, Erv);
 		typecheck(&n->right->right, Erv);
 		defaultlit(&n->left, T);
-		defaultlit(&n->right->left, types[TUINT]);
-		defaultlit(&n->right->right, types[TUINT]);
+		defaultlit(&n->right->left, T);
+		defaultlit(&n->right->right, T);
 		if(isfixedarray(n->left->type)) {
 			// Insert explicit & before fixed array
 			// so that back end knows to move to heap.
@@ -1056,7 +1066,7 @@ reswitch:
 		if(onearg(n, "panic") < 0)
 			goto error;
 		typecheck(&n->left, Erv);
-		defaultlit(&n->left, T);
+		defaultlit(&n->left, types[TINTER]);
 		if(n->left->type == T)
 			goto error;
 		goto ret;

@@ -28,8 +28,10 @@ func explode(s string, n int) []string {
 		a[i] = string(rune)
 		cur += size
 	}
-	// add the rest
-	a[i] = s[cur:]
+	// add the rest, if there is any
+	if cur < len(s) {
+		a[i] = s[cur:]
+	}
 	return a
 }
 
@@ -189,7 +191,7 @@ func Fields(s string) []string {
 	return FieldsFunc(s, unicode.IsSpace)
 }
 
-// FieldsFunc splits the string s at each run of Unicode code points c satifying f(c)
+// FieldsFunc splits the string s at each run of Unicode code points c satisfying f(c)
 // and returns an array of slices of s. If no code points in s satisfy f(c), an empty slice
 // is returned.
 func FieldsFunc(s string, f func(int) bool) []string {

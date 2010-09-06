@@ -11,7 +11,7 @@
  */
 
 
-#include "gpu_fft.h"
+#include "gpu_fft2.h"
 #include "gpu_kernmul.h"
 #include "gpu_linalg.h"
 #include "gpu_mem.h"

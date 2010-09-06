@@ -3038,7 +3038,7 @@ func open(s string) *bufio.Reader {
 	return bufio.NewReader(fi)
 }
 
-func create(s string, m int) *bufio.Writer {
+func create(s string, m uint32) *bufio.Writer {
 	fo, err := os.Open(s, os.O_WRONLY|os.O_CREAT|os.O_TRUNC, m)
 	if err != nil {
 		error("error opening %v: %v", s, err)
@@ -3244,7 +3244,7 @@ yydefault:
 			Errflag = 3
 
 			/* find a state where "error" is a legal shift action */
-			for yyp >= len(YYS) {
+			for yyp >= 0 {
 				yyn = yyPact[YYS[yyp].yys] + yyErrCode
 				if yyn >= 0 && yyn < yyLast {
 					yystate = yyAct[yyn] /* simulate a shift of "error" */

@@ -154,7 +154,7 @@ func (p *Package) writeDefsFunc(fc, fgo2 *os.File, n *Name, soprefix, sopath str
 	printer.Fprint(fgo2, d)
 	fmt.Fprintf(fgo2, "\n")
 
-	if name == "CString" || name == "GoString" {
+	if name == "CString" || name == "GoString" || name == "GoStringN" {
 		// The builtins are already defined in the C prolog.
 		return
 	}
@@ -230,7 +230,7 @@ func (p *Package) writeOutput(f *File, srcfile string) {
 
 func (p *Package) writeOutputFunc(fgcc *os.File, n *Name) {
 	name := n.Mangle
-	if name == "_Cfunc_CString" || name == "_Cfunc_GoString" || p.Written[name] {
+	if name == "_Cfunc_CString" || name == "_Cfunc_GoString" || name == "_Cfunc_GoStringN" || p.Written[name] {
 		// The builtins are already defined in the C prolog, and we don't
 		// want to duplicate function definitions we've already done.
 		return
@@ -403,9 +403,9 @@ func (p *Package) writeExports(fgo2, fc *os.File) {
 		fmt.Fprintf(fgcc, "}\n")
 
 		// Build the wrapper function compiled by 6c/8c
-		goname := exp.Func.Name.Name()
+		goname := exp.Func.Name.Name
 		if fn.Recv != nil {
-			goname = "_cgoexpwrap_" + fn.Recv.List[0].Names[0].Name() + "_" + goname
+			goname = "_cgoexpwrap_" + fn.Recv.List[0].Names[0].Name + "_" + goname
 		}
 		fmt.Fprintf(fc, "#pragma dynexport _cgoexp_%s _cgoexp_%s\n", exp.ExpName, exp.ExpName)
 		fmt.Fprintf(fc, "extern void ·%s();\n", goname)
@@ -529,23 +529,23 @@ func (p *Package) cgoType(e ast.Expr) *Type {
 				if !ok {
 					continue
 				}
-				if ts.Name.Name() == t.Name() {
+				if ts.Name.Name == t.Name {
 					return p.cgoType(ts.Type)
 				}
 			}
 		}
 		for name, def := range p.Typedef {
-			if name == t.Name() {
+			if name == t.Name {
 				return p.cgoType(def)
 			}
 		}
-		if t.Name() == "uintptr" {
+		if t.Name == "uintptr" {
 			return &Type{Size: p.PtrSize, Align: p.PtrSize, C: "uintptr"}
 		}
-		if t.Name() == "string" {
+		if t.Name == "string" {
 			return &Type{Size: p.PtrSize + 4, Align: p.PtrSize, C: "GoString"}
 		}
-		if r, ok := goTypes[t.Name()]; ok {
+		if r, ok := goTypes[t.Name]; ok {
 			if r.Align > p.PtrSize {
 				r.Align = p.PtrSize
 			}
@@ -580,6 +580,7 @@ __cgo_size_assert(double, 8)
 const builtinProlog = `
 typedef struct { char *p; int n; } _GoString_;
 _GoString_ GoString(char *p);
+_GoString_ GoStringN(char *p, int l);
 char *CString(_GoString_);
 `
 
@@ -599,6 +600,13 @@ void
 ·_Cfunc_GoString(int8 *p, String s)
 {
 	s = gostring((byte*)p);
+	FLUSH(&s);
+}
+
+void
+·_Cfunc_GoStringN(int8 *p, int32 l, String s)
+{
+	s = gostringn((byte*)p, l);
 	FLUSH(&s);
 }
 

@@ -1041,7 +1041,12 @@ clearfat(Node *nl)
 	if(debug['g'])
 		dump("\nclearfat", nl);
 
+
 	w = nl->type->width;
+	if(w == 16)
+		if(componentgen(N, nl))
+			return;
+
 	c = w % 8;	// bytes
 	q = w / 8;	// quads
 
@@ -1115,44 +1120,64 @@ getargs(NodeList *nn, Node *reg, int n)
 void
 cmpandthrow(Node *nl, Node *nr)
 {
-	vlong cl, cr;
+	vlong cl;
 	Prog *p1;
 	int op;
 	Node *c;
+	Type *t;
+	Node n1;
+	
+	if(nl->op == OCONV && is64(nl->type))
+		nl = nl->left;
+	if(nr->op == OCONV && is64(nr->type))
+		nr = nr->left;
 
 	op = OLE;
 	if(smallintconst(nl)) {
 		cl = mpgetfix(nl->val.u.xval);
 		if(cl == 0)
 			return;
-		if(smallintconst(nr)) {
-			cr = mpgetfix(nr->val.u.xval);
-			if(cl > cr) {
-				if(throwpc == nil) {
-					throwpc = pc;
-					ginscall(panicslice, 0);
-				} else
-					patch(gbranch(AJMP, T), throwpc);
-			}
+		if(smallintconst(nr))
 			return;
-		}
-
 		// put the constant on the right
 		op = brrev(op);
 		c = nl;
 		nl = nr;
 		nr = c;
 	}
+	if(is64(nr->type) && smallintconst(nr))
+		nr->type = types[TUINT32];
 
-	gins(optoas(OCMP, types[TUINT32]), nl, nr);
+	n1.op = OXXX;
+	t = types[TUINT32];
+	if(nl->type->width != t->width || nr->type->width != t->width) {
+		if((is64(nl->type) && nl->op != OLITERAL) || (is64(nr->type) && nr->op != OLITERAL))
+			t = types[TUINT64];
+
+		// Check if we need to use a temporary.
+		// At least one of the arguments is 32 bits
+		// (the len or cap) so one temporary suffices.
+		if(nl->type->width != t->width && nl->op != OLITERAL) {
+			regalloc(&n1, t, nl);
+			gmove(nl, &n1);
+			nl = &n1;
+		} else if(nr->type->width != t->width && nr->op != OLITERAL) {
+			regalloc(&n1, t, nr);
+			gmove(nr, &n1);
+			nr = &n1;
+		}
+	}
+	gins(optoas(OCMP, t), nl, nr);
+	if(n1.op != OXXX)
+		regfree(&n1);
 	if(throwpc == nil) {
-		p1 = gbranch(optoas(op, types[TUINT32]), T);
+		p1 = gbranch(optoas(op, t), T);
 		throwpc = pc;
 		ginscall(panicslice, 0);
 		patch(p1, pc);
 	} else {
 		op = brcom(op);
-		p1 = gbranch(optoas(op, types[TUINT32]), T);
+		p1 = gbranch(optoas(op, t), T);
 		patch(p1, throwpc);
 	}
 }
@@ -1312,6 +1337,7 @@ sliceslice:
 		// if(lb[1] > old.nel[0]) goto throw;
 		n2 = nodes[0];
 		n2.xoffset += Array_nel;
+		n2.type = types[TUINT32];
 		cmpandthrow(&nodes[1], &n2);
 
 		// ret.nel = old.nel[0]-lb[1];
@@ -1331,6 +1357,7 @@ sliceslice:
 		// if(hb[2] > old.cap[0]) goto throw;
 		n2 = nodes[0];
 		n2.xoffset += Array_cap;
+		n2.type = types[TUINT32];
 		cmpandthrow(&nodes[2], &n2);
 
 		// if(lb[1] > hb[2]) goto throw;

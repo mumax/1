@@ -24,7 +24,7 @@ import (
 	"fmt"
 )
 
-var CPU *Backend = &Backend{Cpu{}, false}
+var CPU *Backend = NewBackend(&Cpu{})
 
 type Cpu struct {
 	// intentionally empty, but the methods implement sim.Device
@@ -222,6 +222,7 @@ func (d Cpu) String() string {
 	return "CPU"
 }
 
-// func TimerPrintDetail(){
-//   C.timer_printdetail()
-// }
+func (d Cpu) TimerPrintDetail() {
+	//C.timer_printdetail()
+	fmt.Println("meh...")
+}

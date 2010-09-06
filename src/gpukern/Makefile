@@ -9,11 +9,12 @@ OFILES=\
 	gpu_normalize.o\
 	gpu_torque.o\
 	gpu_transpose.o\
-	gpu_fft.o\
+	gpu_fft2.o\
 	gpu_kernmul.o\
 	gpu_zeropad.o\
 	gpu_anal.o\
 	gpu_init.o\
+	timer.o\
 
 all: libgpukern.so libgpukern.a
 
@@ -24,6 +25,9 @@ libgpukern.so: $(OFILES)
 libgpukern.a:	$(OFILES)
 	ar rcs libgpukern.a $(OFILES)
 	ln -sf $(CURDIR)/libgpukern.a $(CURDIR)/../../lib
+
+timer.o:  timer.h timer.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) timer.cpp
 
 gpu_safe.o:  gpu_safe.h gpu_safe.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_safe.cu
@@ -49,8 +53,8 @@ gpu_torque.o:  gpu_torque.h gpu_torque.cu
 gpu_transpose.o:  gpu_transpose.h gpu_transpose.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_transpose.cu
 
-gpu_fft.o:  gpu_fft.h gpu_fft.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft.cu
+gpu_fft2.o:  gpu_fft2.h gpu_fft2.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft2.cu
 
 gpu_kernmul.o:  gpu_kernmul.h gpu_kernmul.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_kernmul.cu
@@ -63,6 +67,14 @@ gpu_anal.o:  gpu_anal.h gpu_anal.cu
 
 gpu_init.o:  gpu_init.h gpu_init.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_init.cu
+
+transpose_test:	transpose_test.cpp libgpukern.so
+	$(CPP) $(CFLAGS) libgpukern.so transpose_test.cpp -o transpose_test
+	./transpose_test
+
+fft_test:	fft_test.cpp libgpukern.so
+	$(CPP) libgpukern.so fft_test.cpp -o fft_test
+	./fft_test
 
 .PHONY:	clean
 clean:	

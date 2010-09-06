@@ -53,6 +53,10 @@ var (
 	procCryptAcquireContextW       = getSysProcAddr(modadvapi32, "CryptAcquireContextW")
 	procCryptReleaseContext        = getSysProcAddr(modadvapi32, "CryptReleaseContext")
 	procCryptGenRandom             = getSysProcAddr(modadvapi32, "CryptGenRandom")
+	procGetEnvironmentStringsW     = getSysProcAddr(modkernel32, "GetEnvironmentStringsW")
+	procFreeEnvironmentStringsW    = getSysProcAddr(modkernel32, "FreeEnvironmentStringsW")
+	procGetEnvironmentVariableW    = getSysProcAddr(modkernel32, "GetEnvironmentVariableW")
+	procSetEnvironmentVariableW    = getSysProcAddr(modkernel32, "SetEnvironmentVariableW")
 	procWSAStartup                 = getSysProcAddr(modwsock32, "WSAStartup")
 	procWSACleanup                 = getSysProcAddr(modwsock32, "WSACleanup")
 	procsocket                     = getSysProcAddr(modwsock32, "socket")
@@ -674,6 +678,66 @@ func CryptGenRandom(provhandle uint32, buflen uint32, buf *byte) (ok bool, errno
 	return
 }
 
+func GetEnvironmentStrings() (envs *uint16, errno int) {
+	r0, _, e1 := Syscall(procGetEnvironmentStringsW, 0, 0, 0)
+	envs = (*uint16)(unsafe.Pointer(r0))
+	if envs == nil {
+		if e1 != 0 {
+			errno = int(e1)
+		} else {
+			errno = EINVAL
+		}
+	} else {
+		errno = 0
+	}
+	return
+}
+
+func FreeEnvironmentStrings(envs *uint16) (ok bool, errno int) {
+	r0, _, e1 := Syscall(procFreeEnvironmentStringsW, uintptr(unsafe.Pointer(envs)), 0, 0)
+	ok = bool(r0 != 0)
+	if !ok {
+		if e1 != 0 {
+			errno = int(e1)
+		} else {
+			errno = EINVAL
+		}
+	} else {
+		errno = 0
+	}
+	return
+}
+
+func GetEnvironmentVariable(name *uint16, buffer *uint16, size uint32) (n uint32, errno int) {
+	r0, _, e1 := Syscall(procGetEnvironmentVariableW, uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(buffer)), uintptr(size))
+	n = uint32(r0)
+	if n == 0 {
+		if e1 != 0 {
+			errno = int(e1)
+		} else {
+			errno = EINVAL
+		}
+	} else {
+		errno = 0
+	}
+	return
+}
+
+func SetEnvironmentVariable(name *uint16, value *uint16) (ok bool, errno int) {
+	r0, _, e1 := Syscall(procSetEnvironmentVariableW, uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(value)), 0)
+	ok = bool(r0 != 0)
+	if !ok {
+		if e1 != 0 {
+			errno = int(e1)
+		} else {
+			errno = EINVAL
+		}
+	} else {
+		errno = 0
+	}
+	return
+}
+
 func WSAStartup(verreq uint32, data *WSAData) (sockerrno int) {
 	r0, _, _ := Syscall(procWSAStartup, uintptr(verreq), uintptr(unsafe.Pointer(data)), 0)
 	sockerrno = int(r0)
@@ -887,13 +951,13 @@ func GetServByName(name string, proto string) (s *Servent, errno int) {
 
 func Ntohs(netshort uint16) (u uint16) {
 	r0, _, _ := Syscall(procntohs, uintptr(netshort), 0, 0)
-	u = (uint16)(r0)
+	u = uint16(r0)
 	return
 }
 
 func DnsQuery(name string, qtype uint16, options uint32, extra *byte, qrs **DNSRecord, pr *byte) (status uint32) {
 	r0, _, _ := Syscall6(procDnsQuery_W, uintptr(unsafe.Pointer(StringToUTF16Ptr(name))), uintptr(qtype), uintptr(options), uintptr(unsafe.Pointer(extra)), uintptr(unsafe.Pointer(qrs)), uintptr(unsafe.Pointer(pr)))
-	status = (uint32)(r0)
+	status = uint32(r0)
 	return
 }
 

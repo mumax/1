@@ -58,7 +58,7 @@
 %type	<node>	name_or_type non_expr_type
 %type	<node>	new_name dcl_name oexpr typedclname
 %type	<node>	onew_name
-%type	<node>	osimple_stmt pexpr
+%type	<node>	osimple_stmt pexpr pexpr_no_paren
 %type	<node>	pseudocall range_stmt select_stmt
 %type	<node>	simple_stmt
 %type	<node>	switch_stmt uexpr
@@ -812,7 +812,7 @@ pseudocall:
 		$$->list = $3;
 	}
 
-pexpr:
+pexpr_no_paren:
 	LLITERAL
 	{
 		$$ = nodlit($1);
@@ -828,10 +828,6 @@ pexpr:
 			break;
 		}
 		$$ = nod(OXDOT, $1, newname($3));
-	}
-|	'(' expr_or_type ')'
-	{
-		$$ = $2;
 	}
 |	pexpr '.' '(' expr_or_type ')'
 	{
@@ -872,13 +868,27 @@ pexpr:
 		if($2 == LBODY)
 			loophack = 1;
 	}
-|	pexpr '{' braced_keyval_list '}'
+|	pexpr_no_paren '{' braced_keyval_list '}'
 	{
 		// composite expression
 		$$ = nod(OCOMPLIT, N, $1);
 		$$->list = $3;
 	}
+|	'(' expr_or_type ')' '{' braced_keyval_list '}'
+	{
+		yyerror("cannot parenthesize type in composite literal");
+		// composite expression
+		$$ = nod(OCOMPLIT, N, $2);
+		$$->list = $5;
+	}
 |	fnliteral
+
+pexpr:
+	pexpr_no_paren
+|	'(' expr_or_type ')'
+	{
+		$$ = $2;
+	}
 
 expr_or_type:
 	expr
@@ -962,7 +972,7 @@ ntype:
 |	dotname
 |	'(' ntype ')'
 	{
-		$$ = $2;
+		$$ = nod(OTPAREN, $2, N);
 	}
 
 non_expr_type:
@@ -981,7 +991,7 @@ non_recvchantype:
 |	dotname
 |	'(' ntype ')'
 	{
-		$$ = $2;
+		$$ = nod(OTPAREN, $2, N);
 	}
 
 convtype:
@@ -1141,6 +1151,8 @@ fndcl:
 			yyerror("bad receiver in method");
 			break;
 		}
+		if(rcvr->right->op == OTPAREN || (rcvr->right->op == OIND && rcvr->right->left->op == OTPAREN))
+			yyerror("cannot parenthesize receiver type");
 
 		$$ = nod(ODCLFUNC, N, N);
 		$$->nname = methodname1(name, rcvr->right);
@@ -1273,11 +1285,31 @@ structdcl:
 		$1->val = $2;
 		$$ = list1($1);
 	}
+|	'(' embed ')' oliteral
+	{
+		$2->val = $4;
+		$$ = list1($2);
+		yyerror("cannot parenthesize embedded type");
+	}
 |	'*' embed oliteral
 	{
 		$2->right = nod(OIND, $2->right, N);
 		$2->val = $3;
 		$$ = list1($2);
+	}
+|	'(' '*' embed ')' oliteral
+	{
+		$3->right = nod(OIND, $3->right, N);
+		$3->val = $5;
+		$$ = list1($3);
+		yyerror("cannot parenthesize embedded type");
+	}
+|	'*' '(' embed ')' oliteral
+	{
+		$3->right = nod(OIND, $3->right, N);
+		$3->val = $5;
+		$$ = list1($3);
+		yyerror("cannot parenthesize embedded type");
 	}
 
 packname:
@@ -1318,6 +1350,11 @@ interfacedcl:
 |	packname
 	{
 		$$ = nod(ODCLFIELD, N, oldname($1));
+	}
+|	'(' packname ')'
+	{
+		$$ = nod(ODCLFIELD, N, oldname($2));
+		yyerror("cannot parenthesize embedded type");
 	}
 
 indcl:

@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-include ../../Make.$(GOARCH)
+include ../../Make.inc
 
 TARG=runtime
 
@@ -132,7 +132,7 @@ version.go: mkversion
 	./mkversion >version.go
 
 %.c:	%.goc goc2c
-	./goc2c $< > $@.tmp
+	./goc2c `pwd`/$< > $@.tmp
 	mv -f $@.tmp $@
 
 %.$O:	$(GOARCH)/%.c

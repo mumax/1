@@ -410,6 +410,7 @@ enum
 	OTINTER,
 	OTFUNC,
 	OTARRAY,
+	OTPAREN,
 
 	// misc
 	ODDD,

@@ -39,6 +39,7 @@ DIRS=\
 	crypto/hmac\
 	crypto/md4\
 	crypto/md5\
+	crypto/ocsp\
 	crypto/rand\
 	crypto/rc4\
 	crypto/ripemd160\
@@ -82,6 +83,7 @@ DIRS=\
 	hash/adler32\
 	hash/crc32\
 	hash/crc64\
+	html\
 	http\
 	http/pprof\
 	image\
@@ -95,9 +97,10 @@ DIRS=\
 	mime\
 	mime/multipart\
 	net\
+	net/dict\
+	net/textproto\
 	netchan\
 	nntp\
-	once\
 	os\
 	os/signal\
 	patch\
@@ -139,6 +142,7 @@ NOTEST=\
 	http/pprof\
 	image\
 	image/jpeg\
+	net/dict\
 	rand\
 	runtime\
 	runtime/pprof\

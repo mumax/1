@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-include ../../Make.$(GOARCH)
+include ../../Make.inc
 
 TARG=math
 
@@ -10,6 +10,7 @@ OFILES_amd64=\
 	exp_amd64.$O\
 	fabs_amd64.$O\
 	fdim_amd64.$O\
+	hypot_amd64.$O\
 	log_amd64.$O\
 	sqrt_amd64.$O\
 

@@ -5,11 +5,9 @@
 package websocket
 
 import (
-	"encoding/binary"
 	"bufio"
 	"bytes"
 	"container/vector"
-	"crypto/md5"
 	"fmt"
 	"http"
 	"io"
@@ -123,14 +121,7 @@ func generateKeyNumber() (key string, number uint32) {
 	// to U+0039 DIGIT NINE (9).
 	key = fmt.Sprintf("%d", product)
 
-	// 21. Insert /spaces_n/ U+0020 SPACE characters into /key_n/ at random
-	//     posisions.
-	for i := 0; i < spaces; i++ {
-		pos := rand.Intn(len(key)-1) + 1
-		key = key[0:pos] + " " + key[pos:]
-	}
-
-	// 22. Insert between one and twelve random characters from the ranges
+	// 21. Insert between one and twelve random characters from the ranges
 	//     U+0021 to U+002F and U+003A to U+007E into /key_n/ at random
 	//     positions.
 	n := rand.Intn(12) + 1
@@ -139,6 +130,14 @@ func generateKeyNumber() (key string, number uint32) {
 		ch := secKeyRandomChars[rand.Intn(len(secKeyRandomChars))]
 		key = key[0:pos] + string(ch) + key[pos:]
 	}
+
+	// 22. Insert /spaces_n/ U+0020 SPACE characters into /key_n/ at random
+	//     positions other than the start or end of the string.
+	for i := 0; i < spaces; i++ {
+		pos := rand.Intn(len(key)-1) + 1
+		key = key[0:pos] + " " + key[pos:]
+	}
+
 	return
 }
 
@@ -153,32 +152,6 @@ func generateKey3() (key []byte) {
 	for i := 0; i < 8; i++ {
 		key[i] = byte(rand.Intn(256))
 	}
-	return
-}
-
-/*
-Gets expected from challenge as described in 4.1 Opening handshake
-step 42 to 43.
-cf. http://www.whatwg.org/specs/web-socket-protocol/
-*/
-func getExpectedForChallenge(number1, number2 uint32, key3 []byte) (expected []byte, err os.Error) {
-	// 41. Let /challenge/ be the concatenation of /number_1/, expressed
-	// a big-endian 32 bit integer, /number_2/, expressed in a big-
-	// endian 32 bit integer, and the eight bytes of /key_3/ in the
-	// order they were sent to the wire.
-	challenge := make([]byte, 16)
-	challengeBuf := bytes.NewBuffer(challenge)
-	binary.Write(challengeBuf, binary.BigEndian, number1)
-	binary.Write(challengeBuf, binary.BigEndian, number2)
-	copy(challenge[8:], key3)
-
-	// 42. Let /expected/ be the MD5 fingerprint of /challenge/ as a big-
-	// endian 128 bit string.
-	h := md5.New()
-	if _, err = h.Write(challenge); err != nil {
-		return
-	}
-	expected = h.Sum()
 	return
 }
 
@@ -257,7 +230,7 @@ func handshake(resourceName, host, origin, location, protocol string, br *bufio.
 	}
 
 	// Step 42-43. get expected data from challange data.
-	expected, err := getExpectedForChallenge(number1, number2, key3)
+	expected, err := getChallengeResponse(number1, number2, key3)
 	if err != nil {
 		return err
 	}

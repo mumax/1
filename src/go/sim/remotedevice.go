@@ -299,6 +299,16 @@ func (d *RemoteDevice) overrideStride(nFloats int) {
 	}
 }
 
+func (d *RemoteDevice) PrintProperties() {
+	fmt.Println(d.String())
+}
+
+
+func (d *RemoteDevice) TimerPrintDetail() {
+	//C.timer_printdetail()
+	fmt.Println("meh...")
+}
+
 func (d *RemoteDevice) String() string {
 	return "RemoteDevice: " + d.serverAddress + ":" + fmt.Sprint(d.serverPort)
 }

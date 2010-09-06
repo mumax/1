@@ -1,5 +1,5 @@
 include ../../../common.mk
-include $(GOROOT)/src/Make.$(GOARCH)
+include $(GOROOT)/src/Make.inc
 PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 
 TARG=sim
@@ -37,6 +37,7 @@ GOFILES=\
 	draw.go\
 	remotedevice.go\
 	simserver.go\
+	timer.go\
 
 CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so
 

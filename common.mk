@@ -13,16 +13,17 @@ NVCC=nvcc
 # Flags to be passed to CC and CPP
 CFLAGS+=\
   -Wall\
-  -Werror\
   -fPIC\
-  -g\
+  -O3\
+  -Werror\
 
 # Flags to be passed to NVCC
 NVCCFLAGS+=\
   --compiler-options -Werror\
   --compiler-options -fPIC\
-  --compiler-options -g\
-  -G\
+  --use_fast_math
+#  --compiler-options -O3\
+#  -G\
 # --compiler-options -DNDEBUG\
 # -DNDEBUG disables all assert() statements
 

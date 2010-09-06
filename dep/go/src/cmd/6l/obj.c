@@ -33,6 +33,7 @@
 #include	"../ld/lib.h"
 #include	"../ld/elf.h"
 #include	"../ld/macho.h"
+#include	"../ld/dwarf.h"
 #include	<ar.h>
 
 char	*noname		= "<none>";
@@ -165,6 +166,11 @@ main(int argc, char *argv[])
 			INITRND = 4096;
 		break;
 	case 6:	/* apple MACH */
+		/*
+		 * OS X system constant - offset from 0(GS) to our TLS.
+		 * Explained in ../../libcgo/darwin_amd64.c.
+		 */
+		tlsoffset = 0x8a0;
 		machoinit();
 		HEADR = MACHORESERVE;
 		if(INITRND == -1)
@@ -176,6 +182,13 @@ main(int argc, char *argv[])
 		break;
 	case 7:	/* elf64 executable */
 	case 9: /* freebsd */
+		/*
+		 * ELF uses TLS offset negative from FS.
+		 * Translate 0(FS) and 8(FS) into -16(FS) and -8(FS).
+		 * Also known to ../../pkg/runtime/linux/amd64/sys.s
+		 * and ../../libcgo/linux_amd64.s.
+		 */
+		tlsoffset = -16;
 		elfinit();
 		HEADR = ELFRESERVE;
 		if(INITTEXT == -1)
@@ -434,6 +447,8 @@ zaddr(char *pn, Biobuf *f, Adr *a, Sym *h[])
 		adrgotype = zsym(pn, f, h);
 	s = a->sym;
 	t = a->type;
+	if(t == D_INDIR+D_GS)
+		a->offset += tlsoffset;
 	if(t != D_AUTO && t != D_PARAM) {
 		if(s && adrgotype)
 			s->gotype = adrgotype;
@@ -561,6 +576,7 @@ loop:
 				histfrogp++;
 			} else
 				collapsefrog(s);
+                        dwarfaddfrag(s->value, s->name);
 		}
 		goto loop;
 	}
@@ -1044,4 +1060,3 @@ doprof2(void)
 		}
 	}
 }
-

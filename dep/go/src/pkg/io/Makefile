@@ -2,13 +2,12 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-include ../../Make.$(GOARCH)
+include ../../Make.inc
 
 TARG=io
 GOFILES=\
 	io.go\
-	multi_reader.go\
-	multi_writer.go\
+	multi.go\
 	pipe.go\
 
 include ../../Make.pkg
