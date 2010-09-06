@@ -115,7 +115,7 @@ func (fft *FFT) DataSize() []int {
 
 
 func (fft *FFT) Normalization() int {
-	return (fft.logicSize[X] * fft.logicSize[Y] * fft.logicSize[Z]) / 4
+	return (fft.logicSize[X] * fft.logicSize[Y] * fft.logicSize[Z])
 }
 
 func (fft *FFT) String() string {

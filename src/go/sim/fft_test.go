@@ -3,9 +3,9 @@ package sim
 import (
 	"testing"
 	"tensor"
-	"os"
+// 	"os"
 	"fmt"
-	"rand"
+// 	"rand"
 )
 
 var fft_test_sizes [][]int = [][]int{
@@ -19,13 +19,13 @@ func TestFFTPadded(t *testing.T) {
 
 		paddedsize := []int{2 * size[0], 2 * size[1], 2 * size[2]}
 
-		fft := NewFFTPadded(backend, size, paddedsize)
+ 		fft := NewFFTPadded(backend, size, paddedsize)
 		fftP := NewFFT(backend, paddedsize) // with manual padding
 
 		fmt.Println(fft)
 		fmt.Println(fftP)
 
-		outsize := fft.PhysicSize()
+		outsize := fftP.PhysicSize()
 
 		dev, devT, devTT := NewTensor(backend, size), NewTensor(backend, outsize), NewTensor(backend, size)
 		devP, devPT, devPTT := NewTensor(backend, paddedsize), NewTensor(backend, outsize), NewTensor(backend, paddedsize)
@@ -36,41 +36,30 @@ func TestFFTPadded(t *testing.T) {
 		for i := 0; i < size[0]; i++ {
 			for j := 0; j < size[1]; j++ {
 				for k := 0; k < size[2]; k++ {
-					host.List()[i*size[1]*size[2]+j*size[2]+k] = rand.Float()//1.
+					host.List()[i*size[1]*size[2]+j*size[2]+k] = 1.
 					hostP.List()[i*paddedsize[1]*paddedsize[2]+j*paddedsize[2]+k] = host.List()[i*size[1]*size[2]+j*size[2]+k]
 				}
 			}
 		}
 
-    host.List()[0] = 1.
-    hostP.List()[0] = 1.
-    
+
+
+
     
     TensorCopyTo(host, dev)
-		fmt.Println("dev")
-		tensor.Format(os.Stdout, dev)
 		TensorCopyTo(hostP, devP)
-		fmt.Println("devP")
-		tensor.Format(os.Stdout, devP)
+
 
 		fft.Forward(dev, devT)
-		fmt.Println("devT")
-		tensor.Format(os.Stdout, devT)
 		TensorCopyFrom(devT, hostT)
 		
 		fftP.Forward(devP, devPT)
-		fmt.Println("devPT")
-		tensor.Format(os.Stdout, devPT)
 		TensorCopyFrom(devPT, hostPT)
 
 		fft.Inverse(devT, devTT)
-		fmt.Println("devTT")
-		tensor.Format(os.Stdout, devTT)
 		TensorCopyFrom(devTT, hostTT)
 		
 		fftP.Inverse(devPT, devPTT)
-		fmt.Println("devPTT")
-		tensor.Format(os.Stdout, devPTT)
 		TensorCopyFrom(devPTT, hostPTT)
 
 		var (
@@ -78,6 +67,7 @@ func TestFFTPadded(t *testing.T) {
 			errorPTT float = 0
 			errorTPT float = 0
 		)
+		fmt.Println("normalization:", fft.Normalization(), fftP.Normalization())
 		for i := range hostTT.List() {
 			hostTT.List()[i] /= float(fft.Normalization())
 			if abs(host.List()[i]-hostTT.List()[i]) > errorTT {
