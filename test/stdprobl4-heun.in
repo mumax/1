@@ -7,7 +7,7 @@ gpu
 
 # output
 outputdir:  	stdprobl4-heun
-verbosity:  	3
+verbosity:  	1
 
 solvertype:  	heun
 dt:           0.2E-12                  # s
