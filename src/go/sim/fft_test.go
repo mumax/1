@@ -20,7 +20,7 @@ func TestFFTPadded(t *testing.T) {
 		paddedsize := []int{2 * size[0], 2 * size[1], 2 * size[2]}
 
 		fft := NewFFTPadded(backend, size, paddedsize)
-		fftP := NewFFT(backend, paddedsize)           // with manual padding
+		fftP := NewFFT(backend, paddedsize) // with manual padding
 
 		fmt.Println(fft)
 		fmt.Println(fftP)
@@ -33,16 +33,20 @@ func TestFFTPadded(t *testing.T) {
 		host, hostT, hostTT := tensor.NewTensorN(size), tensor.NewTensorN(outsize), tensor.NewTensorN(size)
 		hostP, hostPT, hostPTT := tensor.NewTensorN(paddedsize), tensor.NewTensorN(outsize), tensor.NewTensorN(paddedsize)
 
-		for i := 0; i < size[0]; i++ {
-			for j := 0; j < size[1]; j++ {
-				for k := 0; k < size[2]; k++ {
-					host.List()[i*size[1]*size[2]+j*size[2]+k] = 1.//rand.Float()
-					hostP.List()[i*paddedsize[1]*paddedsize[2]+j*paddedsize[2]+k] = host.List()[i*size[1]*size[2]+j*size[2]+k]
-				}
-			}
-		}
+// 		for i := 0; i < size[0]; i++ {
+// 			for j := 0; j < size[1]; j++ {
+// 				for k := 0; k < size[2]; k++ {
+// 					host.List()[i*size[1]*size[2]+j*size[2]+k] = 1. //rand.Float()
+// 					hostP.List()[i*paddedsize[1]*paddedsize[2]+j*paddedsize[2]+k] = host.List()[i*size[1]*size[2]+j*size[2]+k]
+// 				}
+// 			}
+// 		}
 
-		TensorCopyTo(host, dev)
+    host.List()[0] = 1.
+    hostP.List()[0] = 1.
+    
+    
+    TensorCopyTo(host, dev)
 		fmt.Println("dev")
 		tensor.Format(os.Stdout, dev)
 		TensorCopyTo(hostP, devP)
@@ -53,6 +57,7 @@ func TestFFTPadded(t *testing.T) {
 		fmt.Println("devT")
 		tensor.Format(os.Stdout, devT)
 		TensorCopyFrom(devT, hostT)
+		
 		fftP.Forward(devP, devPT)
 		fmt.Println("devPT")
 		tensor.Format(os.Stdout, devPT)
@@ -62,25 +67,41 @@ func TestFFTPadded(t *testing.T) {
 		fmt.Println("devTT")
 		tensor.Format(os.Stdout, devTT)
 		TensorCopyFrom(devTT, hostTT)
+		
 		fftP.Inverse(devPT, devPTT)
 		fmt.Println("devPTT")
 		tensor.Format(os.Stdout, devPTT)
 		TensorCopyFrom(devPTT, hostPTT)
 
-		// 
-		// 		N := float(fft.Normalization())
-		// 		var maxError float = 0
-		// 		for i := range host2.List() {
-		// 			host2.List()[i] /= N
-		// 			if abs(host2.List()[i]-host1.List()[i]) > maxError {
-		// 				maxError = abs(host2.List()[i] - host1.List()[i])
-		// 			}
-		// 		}
-		// 		//tensor.Format(os.Stdout, host2)
-		// 		fmt.Println("FFT error:", maxError)
-		// 		if maxError > 1E-4 {
-		// 			t.Fail()
-		// 		}
+		var (
+			errorTT  float = 0
+			errorPTT float = 0
+			errorTPT float = 0
+		)
+		for i := range hostTT.List() {
+			hostTT.List()[i] /= float(fft.Normalization())
+			if abs(host.List()[i]-hostTT.List()[i]) > errorTT {
+				errorTT = abs(host.List()[i] - hostTT.List()[i])
+			}
+		}
+		for i := range hostPTT.List() {
+			hostPTT.List()[i] /= float(fftP.Normalization())
+			if abs(hostP.List()[i]-hostPTT.List()[i]) > errorPTT {
+				errorPTT = abs(hostP.List()[i] - hostPTT.List()[i])
+			}
+		}
+		for i := range hostPT.List() {
+			if abs(hostPT.List()[i]-hostT.List()[i]) > errorTPT {
+				errorTPT = abs(hostPT.List()[i] - hostT.List()[i])
+			}
+		}
+		//tensor.Format(os.Stdout, host2)
+		fmt.Println("transformed² FFT error:                    ", errorTT)
+		fmt.Println("padded+transformed² FFT error:             ", errorPTT)
+		fmt.Println("transformed - padded+transformed FFT error:", errorTPT)
+		if errorTT > 1E-4 || errorTPT > 1E-4 || errorPTT > 1E-4 {
+			t.Fail()
+		}
 	}
 
 }
