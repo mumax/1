@@ -70,10 +70,15 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
   plan->paddedComplexN = paddedComplexSize[X] * paddedComplexSize[Y] * paddedComplexSize[Z];
   
 
+  //                                          # real's per transform            # transforms
   gpu_safefft( cufftPlan1d(&(plan->fwPlanZ),  plan->paddedSize[Z],   CUFFT_R2C, size[X] * size[Y]) );
   gpu_safefft( cufftPlan1d(&(plan->invPlanZ), plan->paddedSize[Z],   CUFFT_C2R, size[X] * size[Y]) );
-  gpu_safefft( cufftPlan1d(&(plan->planY),    plan->paddedSize[Y]/2, CUFFT_C2C, (paddedComplexSize[Z]/2) * size[X]) ); // IMPORTANT: the /2 is necessary because the complex transforms have only half the amount of elements (the elements are now complex numbers)
-  gpu_safefft( cufftPlan1d(&(plan->planX),   plan->paddedSize[X]/2,  CUFFT_C2C, (paddedComplexSize[Z]/2) * paddedSize[Y]) );
+
+  //                                          # complex's per transform         # transforms
+  gpu_safefft( cufftPlan1d(&(plan->planY),    plan->paddedSize[Y]/2, CUFFT_C2C, (paddedComplexSize[Z]) * size[X]) ); 
+  gpu_safefft( cufftPlan1d(&(plan->planX),    plan->paddedSize[X]/2, CUFFT_C2C, (paddedComplexSize[Z]) * paddedSize[Y]) );
+  // IMPORTANT: the /2 is necessary because the complex transforms have only half the amount of elements (the elements are now complex numbers)
+  
   
   plan->buffer1  = new_gpu_array(size[X] * size[Y] * paddedSize[Z]);               // padding in Z direction
   plan->buffer2  = new_gpu_array(size[X] * size[Y] * paddedComplexSize[Z]);        // half complex
