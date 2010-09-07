@@ -24,12 +24,12 @@ func TestConv(t *testing.T) {
 
 	//conv.LoadKernel6(kernel)
 
-	  for i:=range(conv.kernel){
-      fmt.Println("K", i)
-	    if conv.kernel[i] != nil{
-	      tensor.Format(os.Stdout, conv.kernel[i])
-	    }
-	  }
+	for i := range conv.kernel {
+		fmt.Println("K", i)
+		if conv.kernel[i] != nil {
+			tensor.Format(os.Stdout, conv.kernel[i])
+		}
+	}
 
 	m, h := NewTensor(backend, size4D), NewTensor(backend, size4D)
 

@@ -4,8 +4,8 @@ import ()
 
 
 type Heun struct {
-	m1est *Tensor
-	t0    *Tensor
+	m1est *DevTensor
+	t0    *DevTensor
 	SolverState
 }
 

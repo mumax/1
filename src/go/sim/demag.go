@@ -20,11 +20,13 @@ func FaceKernel6(size []int, cellsize []float, accuracy int) []*tensor.Tensor3 {
 	B := tensor.NewVector()
 	R := tensor.NewVector()
 
-  x1 := -(size[X] - 1) / 2
-  x2 := size[X]/2-1
-  // support for 2D simulations (thickness 1)
-  if size[X] == 1 {x2 = 0}
-  
+	x1 := -(size[X] - 1) / 2
+	x2 := size[X]/2 - 1
+	// support for 2D simulations (thickness 1)
+	if size[X] == 1 {
+		x2 = 0
+	}
+
 	for s := 0; s < 3; s++ { // source index Ksdxyz
 		for x := x1; x <= x2; x++ { // in each dimension, go from -(size-1)/2 to size/2 -1, wrapped. It's crucial that the unused rows remain zero, otherwise the FFT'ed kernel is not purely real anymore.
 			xw := wrap(x, size[X])

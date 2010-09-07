@@ -41,7 +41,7 @@ func NewField(dev *Backend, mag *Magnet, demag_accuracy int) *Field { // todo: d
 
 
 // Calculates the effective field of m and stores it in h
-func (f *Field) CalcHeff(m, h *Tensor) {
+func (f *Field) CalcHeff(m, h *DevTensor) {
 	Debugvv("Field.CalcHeff()")
 	f.Convolve(m, h)
 

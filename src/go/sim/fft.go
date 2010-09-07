@@ -48,7 +48,7 @@ func NewFFTPadded(b *Backend, dataSize, logicSize []int) *FFT {
 }
 
 
-func (fft *FFT) Forward(in, out *Tensor) {
+func (fft *FFT) Forward(in, out *DevTensor) {
 	// size checks
 	assert(tensor.Rank(in) == 3)
 	assert(tensor.Rank(out) == 3)
@@ -63,7 +63,7 @@ func (fft *FFT) Forward(in, out *Tensor) {
 }
 
 
-func (fft *FFT) Inverse(in, out *Tensor) {
+func (fft *FFT) Inverse(in, out *DevTensor) {
 	// size checks
 	assert(tensor.Rank(in) == 3)
 	assert(tensor.Rank(out) == 3)
@@ -78,7 +78,7 @@ func (fft *FFT) Inverse(in, out *Tensor) {
 }
 
 
-func (fft *FFT) InverseInplace(data *Tensor) {
+func (fft *FFT) InverseInplace(data *DevTensor) {
 	fft.Inverse(data, data)
 }
 

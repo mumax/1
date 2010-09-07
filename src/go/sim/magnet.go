@@ -7,17 +7,17 @@ import (
 // represents the thing being simulated
 type Magnet struct {
 	Material
-	size         []int   // Mesh Size, e.g. 4x64x64 TODO get rid of: already in FFT
-	paddedsize   []int   // Mesh size with zero padding.
-	cellSize     []float // Cell Size in exchange lengths, e.g. Inf x 0.5 x 0.5
-	m, h         *Tensor // on device
-	mComp, hComp [3]*Tensor
+	size         []int      // Mesh Size, e.g. 4x64x64 TODO get rid of: already in FFT
+	paddedsize   []int      // Mesh size with zero padding.
+	cellSize     []float    // Cell Size in exchange lengths, e.g. Inf x 0.5 x 0.5
+	m, h         *DevTensor // on device
+	mComp, hComp [3]*DevTensor
 }
 
 
 func NewMagnet(dev *Backend, mat *Material, size []int, cellSize []float) *Magnet {
 	m, h := NewTensor(dev, Size4D(size)), NewTensor(dev, Size4D(size))
-	mComp, hComp := [3]*Tensor{}, [3]*Tensor{}
+	mComp, hComp := [3]*DevTensor{}, [3]*DevTensor{}
 	for i := range mComp {
 		mComp[i] = m.Component(i)
 		hComp[i] = h.Component(i)
@@ -43,7 +43,7 @@ func (mag *Magnet) NSpins() int {
 // 	return mag.cellSize
 // }
 
-func (mag *Magnet) M() *Tensor {
+func (mag *Magnet) M() *DevTensor {
 	return mag.m
 }
 
