@@ -15,6 +15,7 @@ OFILES=\
 	gpu_anal.o\
 	gpu_init.o\
 	timer.o\
+	gpu_stream.o\
 
 all: libgpukern.so libgpukern.a
 
@@ -28,6 +29,9 @@ libgpukern.a:	$(OFILES)
 
 timer.o:  timer.h timer.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) timer.cpp
+
+gpu_stream.o:  gpu_stream.h gpu_stream.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) gpu_stream.cpp
 
 gpu_safe.o:  gpu_safe.h gpu_safe.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_safe.cu
