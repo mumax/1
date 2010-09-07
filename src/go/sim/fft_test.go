@@ -8,7 +8,7 @@ import (
 )
 
 var fft_test_sizes [][]int = [][]int{
-	//    []int{1, 32, 64},
+	[]int{1, 32, 64},
 	[]int{2, 4, 8}}
 
 
@@ -16,7 +16,7 @@ func TestFFTPadded(t *testing.T) {
 
 	for _, size := range fft_test_sizes {
 
-		paddedsize := []int{2 * size[0], 2 * size[1], 2 * size[2]}
+		paddedsize := padSize(size)
 
 		fft := NewFFTPadded(backend, size, paddedsize)
 		fftP := NewFFT(backend, paddedsize) // with manual padding
