@@ -1,5 +1,6 @@
 #include "gpu_transpose.h"
 #include "gpu_conf.h"
+#include "gpu_stream.h"
 #include <assert.h>
 #include "timer.h"
 
@@ -56,6 +57,13 @@ void gpu_transpose_complex(float *input, float *output, int N1, int N2){
     dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
     dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
     _gpu_transpose_complex<<<gridsize, blocksize>>>((complex*)input, (complex*)output, N2, N1);
+}
+
+void gpu_transpose_complex_async(float *input, float *output, int N1, int N2){
+    N2 /= 2;
+    dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
+    dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
+    _gpu_transpose_complex<<<gridsize, blocksize, gpu_getstream()>>>((complex*)input, (complex*)output, N2, N1);
 }
 
 /*
@@ -139,7 +147,11 @@ void gpu_transpose(float *input, float *output, int N1, int N2){
     _gpu_transpose<<<gridsize, blocksize>>>(input, output, N2, N1);
 }
 
-
+void gpu_transpose_async(float *input, float *output, int N1, int N2){
+    dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
+    dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
+    _gpu_transpose<<<gridsize, blocksize, gpu_getstream()>>>(input, output, N2, N1);
+}
 
 
 ///@internal kernel
@@ -185,8 +197,9 @@ void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2)
 
 //   timer_start("transposeYZ");
   for(int i=0; i<N0; i++){
-    gpu_transpose_complex(&source[i*N1*N2], &dest[i*N1*N2], N1, N2);  ///@todo STREAM
+    gpu_transpose_complex_async(&source[i*N1*N2], &dest[i*N1*N2], N1, N2);  ///@todo STREAM
   }
+  cudaThreadSynchronize();
 //   timer_stop("transposeYZ");
 }
 
