@@ -21,6 +21,8 @@ func NewField(dev *Backend, mag *Magnet, demag_accuracy int) *Field { // todo: d
 
 	field.Magnet = *mag
 	field.Hext = nil
+	//field.Start("Kernel calculation")
+	Debugv("Calculating kernel")
 	demag := FaceKernel6(field.paddedsize, field.cellSize, demag_accuracy)
 	exch := Exch6NgbrKernel(field.paddedsize, field.cellSize)
 	// Add Exchange kernel to demag kernel
@@ -31,6 +33,7 @@ func NewField(dev *Backend, mag *Magnet, demag_accuracy int) *Field { // todo: d
 			D[j] += E[j]
 		}
 	}
+	//field.Stop("Kernel calculation")
 	field.Conv = NewConv(dev, field.size, demag)
 
 	return field

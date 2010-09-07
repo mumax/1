@@ -59,9 +59,7 @@ func (fft *FFT) Forward(in, out *Tensor) {
 		assert(out.size[i] == s)
 	}
 	// actual fft
-	fft.Start("FFT forward")
 	fft.fftForward(fft.plan, in.data, out.data)
-	fft.Stop("FFT forward")
 }
 
 
@@ -76,9 +74,7 @@ func (fft *FFT) Inverse(in, out *Tensor) {
 		assert(out.size[i] == s)
 	}
 	// actual fft
-	fft.Start("FFT inverse")
 	fft.fftInverse(fft.plan, in.data, out.data)
-	fft.Stop("FFT inverse")
 }
 
 

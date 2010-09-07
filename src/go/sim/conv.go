@@ -50,7 +50,7 @@ func NewConv(backend *Backend, dataSize []int, kernel []*tensor.Tensor3) *Conv {
 
 
 func (conv *Conv) Convolve(source, dest *Tensor) {
-	Debugvv("Conv.Convolve()")
+	//Debugvv("Conv.Convolve()")
 	assert(len(source.size) == 4) // size checks
 	assert(len(dest.size) == 4)
 	for i, s := range conv.DataSize() {
@@ -71,20 +71,26 @@ func (conv *Conv) Convolve(source, dest *Tensor) {
 	//Sync
 
 	// Forward FFT
+  conv.Start("FFT")
 	for i := 0; i < 3; i++ {
 		conv.Forward(mcomp[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
 	}
+	conv.Stop("FFT")
 
 	// Point-wise kernel multiplication in reciprocal space
+  conv.Start("Kernel multiplication")
 	conv.kernelMul(buffer[X].data, buffer[Y].data, buffer[Z].data,
 		kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
 		kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
 		6, Len(buffer[X].size)) // nRealNumbers
-
+  conv.Stop("Kernel multiplication")
+ 
 	// Inverse FFT
+  conv.Start("FFT")
 	for i := 0; i < 3; i++ {
 		conv.Inverse(buffer[i], hcomp[i]) // should not be asynchronous unless we have 3 fft's (?)
 	}
+	conv.Stop("FFT")
 }
 
 // INTERNAL: Loads a convolution kernel.
