@@ -192,9 +192,8 @@ void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2)
 //   timer_stop("transposeXZ");
 }
 
-
+///@todo need to time this on 2.0 hardware
 void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
-
 //   timer_start("transposeYZ");
   for(int i=0; i<N0; i++){
     gpu_transpose_complex_async(&source[i*N1*N2], &dest[i*N1*N2], N1, N2);  ///@todo STREAM
