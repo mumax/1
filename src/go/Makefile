@@ -8,7 +8,7 @@ all:
 	make install -C refsh
 	
 	make -C tensor-main
-	make -C kernel-main
+# 	make -C kernel-main
 # 	make -C config-main
 	make -C draw
 	make -C main
@@ -20,7 +20,7 @@ clean:
 	make clean -C refsh
 
 	make clean -C tensor-main
-	make clean -C kernel-main
+# 	make clean -C kernel-main
 	make clean -C config-main
 	make clean -C draw
 	make clean -C main

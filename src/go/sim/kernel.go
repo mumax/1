@@ -42,22 +42,22 @@ func UnitKernel(paddedsize []int) tensor.StoredTensor {
 
 /* --------- Internal functions --------- */
 
-func toSymmetric(k9 tensor.StoredTensor) []*tensor.Tensor3 {
-	k9X := tensor.Component(k9, X)
-	k9Y := tensor.Component(k9, Y)
-	k9Z := tensor.Component(k9, Z)
-
-	k6 := make([]*tensor.Tensor3, 6)
-
-	k6[XX] = tensor.Buffer(tensor.Component(k9X, X)).(*tensor.Tensor3)
-	k6[YY] = tensor.Buffer(tensor.Component(k9Y, Y)).(*tensor.Tensor3)
-	k6[ZZ] = tensor.Buffer(tensor.Component(k9Z, Z)).(*tensor.Tensor3)
-	k6[YZ] = tensor.Buffer(tensor.Component(k9Y, Z)).(*tensor.Tensor3)
-	k6[XZ] = tensor.Buffer(tensor.Component(k9X, Z)).(*tensor.Tensor3)
-	k6[XY] = tensor.Buffer(tensor.Component(k9X, Y)).(*tensor.Tensor3)
-
-	return k6
-}
+// func toSymmetric(k9 tensor.StoredTensor) []*tensor.Tensor3 {
+// 	k9X := tensor.Component(k9, X)
+// 	k9Y := tensor.Component(k9, Y)
+// 	k9Z := tensor.Component(k9, Z)
+// 
+// 	k6 := make([]*tensor.Tensor3, 6)
+// 
+// 	k6[XX] = tensor.Buffer(tensor.Component(k9X, X)).(*tensor.Tensor3)
+// 	k6[YY] = tensor.Buffer(tensor.Component(k9Y, Y)).(*tensor.Tensor3)
+// 	k6[ZZ] = tensor.Buffer(tensor.Component(k9Z, Z)).(*tensor.Tensor3)
+// 	k6[YZ] = tensor.Buffer(tensor.Component(k9Y, Z)).(*tensor.Tensor3)
+// 	k6[XZ] = tensor.Buffer(tensor.Component(k9X, Z)).(*tensor.Tensor3)
+// 	k6[XY] = tensor.Buffer(tensor.Component(k9X, Y)).(*tensor.Tensor3)
+// 
+// 	return k6
+// }
 
 func wrap(number, max int) int {
 	for number < 0 {
@@ -95,8 +95,8 @@ const (
 // a length 6 array containing the upper triangular part:
 // (Kxx, Kyy, Kzz, Kyz, Kxz, Kxy)
 // Invalid (unused) indices like ZX return -1.
-var KernIdx [3][3]float{
-  [3]float{XX, XY, XZ},
-  [3]float{-1, YY, YZ},
-  [3]float{-1, -1, ZZ}
-}
+var KernIdx [3][3]int =
+[3][3]int{
+  [3]int{XX, XY, XZ},
+  [3]int{-1, YY, YZ},
+  [3]int{-1, -1, ZZ}}
