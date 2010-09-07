@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-#define MAXGPUSTREAMS 16
+#define MAXGPUSTREAMS 32
 
 /**
  * Gets a stream from the pool of streams.

@@ -1,5 +1,5 @@
 #include "gpu_stream.h"
-
+#include <stdio.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -18,6 +18,7 @@ cudaStream_t gpu_getstream(){
   if(gpu_current_stream == MAXGPUSTREAMS){
     gpu_current_stream = 0;
   }
+  //printf("gpu_getstream():%ld\n", (long int)stream);
   return stream;
 }
 
