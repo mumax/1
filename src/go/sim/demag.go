@@ -12,6 +12,9 @@ func FaceKernel6(unpaddedsize []int, cellsize []float, accuracy int) []*tensor.T
 	return toSymmetric(k9)
 }
 
+func FaceKernelSymm(size []int, cellsize []float, accuracy int) []*tensor.Tensor3{
+  
+}
 
 /// Integrates the demag field based on multiple points per face.
 func FaceKernel(size []int, cellsize []float, accuracy int) *tensor.Tensor5 {
@@ -43,7 +46,6 @@ func FaceKernel(size []int, cellsize []float, accuracy int) *tensor.Tensor5 {
 			}
 		}
 	}
-
 	return k
 }
 

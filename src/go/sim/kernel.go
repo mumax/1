@@ -79,7 +79,9 @@ func padSize(size []int) []int {
 	return paddedsize
 }
 
-
+// Maps the 3x3 indices of the symmetric demag kernel (K_ij) onto
+// a length 6 array containing the upper triangular part:
+// (Kxx, Kyy, Kzz, Kyz, Kxz, Kxy)
 const (
   XX = 0
   YY = 1
@@ -88,3 +90,13 @@ const (
   XZ = 4
   XY = 5
 )
+
+// Maps the 3x3 indices of the symmetric demag kernel (K_ij) onto
+// a length 6 array containing the upper triangular part:
+// (Kxx, Kyy, Kzz, Kyz, Kxz, Kxy)
+// Invalid (unused) indices like ZX return -1.
+var KernIdx [3][3]float{
+  [3]float{XX, XY, XZ},
+  [3]float{-1, YY, YZ},
+  [3]float{-1, -1, ZZ}
+}
