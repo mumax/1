@@ -25,7 +25,7 @@ type Conv struct {
 // The size of the kernel componenents (Kxx, Kxy, ...) must be at least the size of the input data,
 // but may be larger. Typically, there will be zero-padding by a factor of 2. e.g. the kernel
 // size may be 8 x 64 x 64.
-func NewConv(backend *Backend, dataSize []int, kernel []tensor.StoredTensor) *Conv {
+func NewConv(backend *Backend, dataSize []int, kernel []*tensor.Tensor3) *Conv {
 	// size checks
 	kernelSize := kernel[XX].Size()
 	assert(len(dataSize) == 3)
@@ -89,7 +89,7 @@ func (conv *Conv) Convolve(source, dest *Tensor) {
 
 // INTERNAL: Loads a convolution kernel.
 // This is automatically done during initialization.
-func (conv *Conv) loadKernel6(kernel []tensor.StoredTensor) {
+func (conv *Conv) loadKernel6(kernel []*tensor.Tensor3) {
 
 	for _, k := range kernel {
 		if k != nil {
@@ -124,11 +124,4 @@ func (conv *Conv) KernelSize() []int {
 }
 
 
-const (
-	XX = 0
-	YY = 1
-	ZZ = 2
-	YZ = 3
-	XZ = 4
-	XY = 5
-)
+

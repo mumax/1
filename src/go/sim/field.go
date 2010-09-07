@@ -23,8 +23,8 @@ func NewField(dev *Backend, mag *Magnet, demag_accuracy int) *Field { // todo: d
 
 	field.Magnet = *mag
 	field.Hext = nil
-	demag := FaceKernel(field.size, field.cellSize, demag_accuracy)
-	exch := Exch6NgbrKernel(field.size, field.cellSize)
+	demag := FaceKernel(field.paddedsize, field.cellSize, demag_accuracy)
+	exch := Exch6NgbrKernel(field.paddedsize, field.cellSize)
 	kernel := toSymmetric(tensor.Buffer(tensor.Add(demag, exch)))
 	field.Conv = NewConv(dev, field.size, kernel)
 

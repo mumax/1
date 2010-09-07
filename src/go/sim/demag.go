@@ -7,15 +7,15 @@ import (
 
 
 /// converts from the full "rank-5" kernel format to the symmetric "array-of-rank3-tensors" format
-func FaceKernel6(unpaddedsize []int, cellsize []float, accuracy int) []tensor.StoredTensor {
+func FaceKernel6(unpaddedsize []int, cellsize []float, accuracy int) []*tensor.Tensor3 {
 	k9 := FaceKernel(unpaddedsize, cellsize, accuracy)
 	return toSymmetric(k9)
 }
 
 
 /// Integrates the demag field based on multiple points per face.
-func FaceKernel(unpaddedsize []int, cellsize []float, accuracy int) *tensor.Tensor5 {
-	size := PadSize(unpaddedsize)
+func FaceKernel(size []int, cellsize []float, accuracy int) *tensor.Tensor5 {
+	//size := PadSize(unpaddedsize)
 	k := tensor.NewTensor5([]int{3, 3, size[0], size[1], size[2]})
 	B := tensor.NewVector()
 	R := tensor.NewVector()

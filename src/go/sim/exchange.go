@@ -22,8 +22,8 @@ import (
  * term compared to the usual - M . H. Outputting H_eff becomes less useful however,
  * it's better to look at torques. Away from the boundaries, H_eff is correct.
  */
-func Exch6NgbrKernel(unpaddedsize []int, cellsize []float) *tensor.Tensor5 {
-	size := PadSize(unpaddedsize)
+func Exch6NgbrKernel(paddedsize []int, cellsize []float) *tensor.Tensor5 {
+	size := paddedsize
 	k := tensor.NewTensor5([]int{3, 3, size[0], size[1], size[2]})
 
 	for s := 0; s < 3; s++ { // source index Ksdxyz
