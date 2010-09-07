@@ -13,7 +13,6 @@ typedef struct{
 }complex;
 
 /// The size of matrix blocks to be loaded into shared memory.
-/// @todo: optimize this for Fermi, play with non-square blocks.
 #define BLOCKSIZE 16
 
 
@@ -52,7 +51,6 @@ __global__ void _gpu_transpose_complex(complex* input, complex* output, int N1, 
 }
 
 
-
 void gpu_transpose_complex(float *input, float *output, int N1, int N2){
     N2 /= 2;
     dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
@@ -63,7 +61,6 @@ void gpu_transpose_complex(float *input, float *output, int N1, int N2){
 /*
  * Replacing BLOCKSIZE+1 by BLOCKSIZE (generating bank conflicts) barely makes it slower.
  */
-
 /*
  * Transposing a block matrix:
  * 1) Transpose the elements inside each block "internally"
@@ -162,7 +159,7 @@ __global__ void _gpu_transposeXZ_complex(float* source, float* dest, int N0, int
 
 
 void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2){
-  timer_start("transposeXZ");
+//   timer_start("transposeXZ");
   assert(source != dest);{ // must be out-of-place
 
   // we treat the complex array as a N0 x N1 x N2 x 2 real array
@@ -180,49 +177,17 @@ void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2)
   /*  else{
     gpu_transposeXZ_complex_inplace(source, N0, N1, N2*2); ///@todo see above
   }*/
-  timer_stop("transposeXZ");
+//   timer_stop("transposeXZ");
 }
 
-
-__global__ void _gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
-    // N1 <-> N2
-    // j  <-> k
-
-    int N3 = 2;
-
-        int i = blockIdx.x;
-    int j = blockIdx.y;
-    int k = threadIdx.x;
-
-//      int index_dest = i*N2*N1*N3 + k*N1*N3 + j*N3;
-//      int index_source = i*N1*N2*N3 + j*N2*N3 + k*N3;
-
-
-    dest[i*N2*N1*N3 + k*N1*N3 + j*N3 + 0] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 0];
-    dest[i*N2*N1*N3 + k*N1*N3 + j*N3 + 1] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 1];
-/*    dest[index_dest + 0] = source[index_source + 0];
-    dest[index_dest + 1] = source[index_source + 1];*/
-}
 
 void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
-  timer_start("transposeYZ");
-  assert(source != dest);{ // must be out-of-place
 
-  // we treat the complex array as a N0 x N1 x N2 x 2 real array
-  // after transposing it becomes N0 x N2 x N1 x 2
-  N2 /= 2;
-  //int N3 = 2;
-
-  dim3 gridsize(N0, N1, 1); ///@todo generalize!
-  dim3 blocksize(N2, 1, 1);
-  gpu_checkconf(gridsize, blocksize);
-  _gpu_transposeYZ_complex<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
-  cudaThreadSynchronize();
+//   timer_start("transposeYZ");
+  for(int i=0; i<N0; i++){
+    gpu_transpose_complex(&source[i*N1*N2], &dest[i*N1*N2], N1, N2);  ///@todo STREAM
   }
-/*  else{
-    gpu_transposeYZ_complex_inplace(source, N0, N1, N2*2); ///@todo see above
-  }*/
-  timer_stop("transposeYZ");
+//   timer_stop("transposeYZ");
 }
 
 

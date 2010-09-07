@@ -12,14 +12,15 @@ const (
 	Z = 2
 )
 
-
+// A tensor on the calculating device (CPU, GPU),
+// not directly accessible as a go array.
 type DevTensor struct {
 	*Backend ///< wraps the Device where the Tensor resides on (GPU/CPU/...)
 	size     []int
 	data     unsafe.Pointer // points to float array on the GPU/CPU
 }
 
-
+// Allocates a new tensor on the device represented by Backend
 func NewTensor(b *Backend, size []int) *DevTensor {
 	t := new(DevTensor)
 	t.Backend = b
@@ -35,6 +36,10 @@ func NewTensor(b *Backend, size []int) *DevTensor {
 	return t
 }
 
+// Wraps a pre-allocated device array in a tensor
+func AsTensor(b *Backend, data unsafe.Pointer, size []int) *DevTensor{
+  return &DevTensor{b, size, data}
+}
 
 func (t *DevTensor) Get(index []int) float {
 	i := tensor.Index(t.size, index)
