@@ -30,8 +30,8 @@ libgpukern.a:	$(OFILES)
 timer.o:  timer.h timer.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) timer.cpp
 
-gpu_stream.o:  gpu_stream.h gpu_stream.cpp
-	$(CPP) -c $(CFLAGS) $(OMPFLAGS) gpu_stream.cpp
+gpu_stream.o:  gpu_stream.h gpu_stream.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_stream.cu
 
 gpu_safe.o:  gpu_safe.h gpu_safe.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_safe.cu

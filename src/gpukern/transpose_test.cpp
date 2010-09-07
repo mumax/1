@@ -18,7 +18,7 @@ void format(float* array, int N1, int N2){
 }
 
 void test_complex_YZ(){
-  int N0 = 64, N1 = 256, N2 = 512, N3=2;
+  int N0 = 64, N1 = 256, N2 = 256, N3=2;
   int N = N0*N1*N2*N3;
 
   float* host = (float*)calloc(N, sizeof(float));
