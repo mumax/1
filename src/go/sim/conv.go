@@ -122,6 +122,3 @@ func (conv *Conv) loadKernel6(kernel []*tensor.Tensor3) {
 func (conv *Conv) KernelSize() []int {
 	return conv.LogicSize()
 }
-
-
-

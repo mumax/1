@@ -1,7 +1,6 @@
 package sim
 
-import (
-)
+import ()
 
 // Field contains everything neccesary to calculate the effective field H_eff
 type Field struct {
@@ -25,13 +24,13 @@ func NewField(dev *Backend, mag *Magnet, demag_accuracy int) *Field { // todo: d
 	demag := FaceKernel6(field.paddedsize, field.cellSize, demag_accuracy)
 	exch := Exch6NgbrKernel(field.paddedsize, field.cellSize)
 	// Add Exchange kernel to demag kernel
-  for i:= range demag{
-    D := demag[i].List()
-    E := exch[i].List()
-    for j:=range D{
-      D[j] += E[j]
-    }
-  }
+	for i := range demag {
+		D := demag[i].List()
+		E := exch[i].List()
+		for j := range D {
+			D[j] += E[j]
+		}
+	}
 	field.Conv = NewConv(dev, field.size, demag)
 
 	return field

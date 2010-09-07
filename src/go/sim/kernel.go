@@ -39,30 +39,17 @@ func UnitKernel(paddedsize []int) tensor.StoredTensor {
 	return k
 }
 
-
-/* --------- Internal functions --------- */
-
-// func toSymmetric(k9 tensor.StoredTensor) []*tensor.Tensor3 {
-// 	k9X := tensor.Component(k9, X)
-// 	k9Y := tensor.Component(k9, Y)
-// 	k9Z := tensor.Component(k9, Z)
-// 
-// 	k6 := make([]*tensor.Tensor3, 6)
-// 
-// 	k6[XX] = tensor.Buffer(tensor.Component(k9X, X)).(*tensor.Tensor3)
-// 	k6[YY] = tensor.Buffer(tensor.Component(k9Y, Y)).(*tensor.Tensor3)
-// 	k6[ZZ] = tensor.Buffer(tensor.Component(k9Z, Z)).(*tensor.Tensor3)
-// 	k6[YZ] = tensor.Buffer(tensor.Component(k9Y, Z)).(*tensor.Tensor3)
-// 	k6[XZ] = tensor.Buffer(tensor.Component(k9X, Z)).(*tensor.Tensor3)
-// 	k6[XY] = tensor.Buffer(tensor.Component(k9X, Y)).(*tensor.Tensor3)
-// 
-// 	return k6
-// }
-
+// Modulo-like function:
+// Wraps an index to [0, max] by adding/subtracting a multiple of max.
 func wrap(number, max int) int {
+	//fmt.Print("wrap(", number, max, ")=")
 	for number < 0 {
 		number += max
 	}
+	for number >= max {
+		number -= max
+	}
+// 	fmt.Println(number)
 	return number
 }
 
@@ -71,9 +58,11 @@ func FSqrt(x float64) float {
 	return float(Sqrt(x))
 }
 
+// Add padding x 2 in all directions, except when a dimension == 1 (no padding neccesary)
 func padSize(size []int) []int {
 	paddedsize := make([]int, len(size))
 	for i := range size {
+		// 		if size[i] > 1 {paddedsize[i] = 2 * size[i]}else{paddedsize[i] =  size[i]}
 		paddedsize[i] = 2 * size[i]
 	}
 	return paddedsize
@@ -83,20 +72,19 @@ func padSize(size []int) []int {
 // a length 6 array containing the upper triangular part:
 // (Kxx, Kyy, Kzz, Kyz, Kxz, Kxy)
 const (
-  XX = 0
-  YY = 1
-  ZZ = 2
-  YZ = 3
-  XZ = 4
-  XY = 5
+	XX = 0
+	YY = 1
+	ZZ = 2
+	YZ = 3
+	XZ = 4
+	XY = 5
 )
 
 // Maps the 3x3 indices of the symmetric demag kernel (K_ij) onto
 // a length 6 array containing the upper triangular part:
 // (Kxx, Kyy, Kzz, Kyz, Kxz, Kxy)
 // Invalid (unused) indices like ZX return -1.
-var KernIdx [3][3]int =
-[3][3]int{
-  [3]int{XX, XY, XZ},
-  [3]int{-1, YY, YZ},
-  [3]int{-1, -1, ZZ}}
+var KernIdx [3][3]int = [3][3]int{
+	[3]int{XX, XY, XZ},
+	[3]int{-1, YY, YZ},
+	[3]int{-1, -1, ZZ}}

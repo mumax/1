@@ -20,16 +20,16 @@ import (
  * of the exchange field anymore: an elegant and efficient solution.
  * The dynamics are still correct, only the total energy is offset with a constant
  * term compared to the usual - M . H. Outputting H_eff becomes less useful however,
- * it's better to look at torques. Away from the boundaries, H_eff is correct.
+ * it's better to look at torques. Away from the boundaries, H_eff is "correct".
  */
 func Exch6NgbrKernel(size []int, cellsize []float) []*tensor.Tensor3 {
-  k := make([]*tensor.Tensor3, 6)
-  for i:= range k{
-    k[i] = tensor.NewTensor3(size)
-  }
+	k := make([]*tensor.Tensor3, 6)
+	for i := range k {
+		k[i] = tensor.NewTensor3(size)
+	}
 
 	for s := 0; s < 3; s++ { // source index Ksdxyz
-    i := KernIdx[s][s]
+		i := KernIdx[s][s]
 		k[i].Array()[0][0][0] = -2./(cellsize[X]*cellsize[X]) - 2./(cellsize[Y]*cellsize[Y]) - 2./(cellsize[Z]*cellsize[Z])
 
 		for dir := X; dir <= Z; dir++ {
@@ -37,7 +37,7 @@ func Exch6NgbrKernel(size []int, cellsize []float) []*tensor.Tensor3 {
 				index := make([]int, 3)
 				i = KernIdx[s][s]
 				index[dir] = wrap(side, size[dir])
-				k[i].Array()[index[X]][index[Y]][index[Z]] = 1./(cellsize[dir]*cellsize[dir])
+				k[i].Array()[index[X]][index[Y]][index[Z]] = 1. / (cellsize[dir] * cellsize[dir])
 			}
 		}
 	}

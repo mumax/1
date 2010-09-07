@@ -12,34 +12,34 @@ import (
 // 	return toSymmetric(k9)
 // }
 
-func FaceKernel6(size []int, cellsize []float, accuracy int) []*tensor.Tensor3{
-  k := make([]*tensor.Tensor3, 6)
-  for i:= range k{
-    k[i] = tensor.NewTensor3(size)
-  }
-  B := tensor.NewVector()
-  R := tensor.NewVector()
+func FaceKernel6(size []int, cellsize []float, accuracy int) []*tensor.Tensor3 {
+	k := make([]*tensor.Tensor3, 6)
+	for i := range k {
+		k[i] = tensor.NewTensor3(size)
+	}
+	B := tensor.NewVector()
+	R := tensor.NewVector()
 
-  for s := 0; s < 3; s++ { // source index Ksdxyz
-    for x := -(size[X] - 1) / 2; x <= size[X]/2-1; x++ { // in each dimension, go from -(size-1)/2 to size/2 -1, wrapped. It's crucial that the unused rows remain zero, otherwise the FFT'ed kernel is not purely real anymore.
-      xw := wrap(x, size[X])
-      for y := -(size[Y] - 1) / 2; y <= size[Y]/2-1; y++ {
-        yw := wrap(y, size[Y])
-        for z := -(size[Z] - 1) / 2; z <= size[Z]/2-1; z++ {
-          zw := wrap(z, size[Z])
-          R.Set(float(x)*cellsize[X], float(y)*cellsize[Y], float(z)*cellsize[Z])
+	for s := 0; s < 3; s++ { // source index Ksdxyz
+		for x := -(size[X] - 1) / 2; x <= size[X]/2-1; x++ { // in each dimension, go from -(size-1)/2 to size/2 -1, wrapped. It's crucial that the unused rows remain zero, otherwise the FFT'ed kernel is not purely real anymore.
+			xw := wrap(x, size[X])
+			for y := -(size[Y] - 1) / 2; y <= size[Y]/2-1; y++ {
+				yw := wrap(y, size[Y])
+				for z := -(size[Z] - 1) / 2; z <= size[Z]/2-1; z++ {
+					zw := wrap(z, size[Z])
+					R.Set(float(x)*cellsize[X], float(y)*cellsize[Y], float(z)*cellsize[Z])
 
-          faceIntegral(B, R, cellsize, s, accuracy)
+					faceIntegral(B, R, cellsize, s, accuracy)
 
-          for d := s; d < 3; d++ { // destination index Ksdxyz
-            i := KernIdx[s][d]  // 3x3 symmetric index to 1x6 index
-            k[i].Array()[xw][yw][zw] = B.Component[d]
-          }
-        }
-      }
-    }
-  }
-  return k
+					for d := s; d < 3; d++ { // destination index Ksdxyz
+						i := KernIdx[s][d] // 3x3 symmetric index to 1x6 index
+						k[i].Array()[xw][yw][zw] = B.Component[d]
+					}
+				}
+			}
+		}
+	}
+	return k
 }
 
 /// Integrates the demag field based on multiple points per face.
