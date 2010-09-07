@@ -5,7 +5,14 @@ import (
 	"unsafe"
 )
 
-
+// "Conv" is a 3D vector convolution "plan".
+// It convolutes (mx, my, mz) (r) with a symmetric kernel
+// (Kxx Kxy Kxz)
+// (Kyx Kyy Kyz) (r)
+// (Kzx Kzy Kzz)
+// This is the convolution needed for calculating the magnetostatic field.
+// If the convolution kernel is larger than the input data, the extra
+// space is padded with zero's (which are efficiently handled).
 type Conv struct {
 	FFT
 	kernel [6]*Tensor
@@ -14,8 +21,12 @@ type Conv struct {
 	hcomp  [3]*Tensor // only a buffer, automatically set at each conv()
 }
 
-
+// dataSize = size of input data (one componenten of the magnetization), e.g., 4 x 32 x 32.
+// The size of the kernel componenents (Kxx, Kxy, ...) must be at least the size of the input data,
+// but may be larger. Typically, there will be zero-padding by a factor of 2. e.g. the kernel
+// size may be 8 x 64 x 64.
 func NewConv(backend *Backend, dataSize []int, kernel []tensor.StoredTensor) *Conv {
+	// size checks
 	kernelSize := kernel[XX].Size()
 	assert(len(dataSize) == 3)
 	assert(len(kernelSize) == 3)
@@ -32,7 +43,7 @@ func NewConv(backend *Backend, dataSize []int, kernel []tensor.StoredTensor) *Co
 		conv.mcomp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil)}
 		conv.hcomp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil)}
 	}
-	conv.LoadKernel6(kernel)
+	conv.loadKernel6(kernel)
 
 	return conv
 }
@@ -57,42 +68,28 @@ func (conv *Conv) Convolve(source, dest *Tensor) {
 		hcomp[i].data = conv.arrayOffset(dest.data, i*mLen)
 	}
 
-	// 	for i := 0; i < 3; i++ {
-	// 		ZeroTensor(buffer[i])
-	// 		CopyPad(mcomp[i], buffer[i])
-	// 		//     fmt.Println("mPadded", i)
-	// 		//     tensor.Format(os.Stdout, buffer[i])
-	// 	}
-
 	//Sync
 
+	// Forward FFT
 	for i := 0; i < 3; i++ {
 		conv.Forward(mcomp[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
-		//     fmt.Println("fftm", i)
-		//     tensor.Format(os.Stdout, buffer[i])
 	}
 
+	// Point-wise kernel multiplication in reciprocal space
 	conv.kernelMul(buffer[X].data, buffer[Y].data, buffer[Z].data,
 		kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
 		kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
 		6, Len(buffer[X].size)) // nRealNumbers
 
-	//   for i:=0; i<3; i++{
-	//     fmt.Println("mulM", i)
-	//     tensor.Format(os.Stdout, buffer[i])
-	//   }
-
+	// Inverse FFT
 	for i := 0; i < 3; i++ {
 		conv.Inverse(buffer[i], hcomp[i]) // should not be asynchronous unless we have 3 fft's (?)
 	}
-
-	// 	for i := 0; i < 3; i++ {
-	// 		CopyUnpad(buffer[i], hcomp[i])
-	// 	}
 }
 
-
-func (conv *Conv) LoadKernel6(kernel []tensor.StoredTensor) {
+// INTERNAL: Loads a convolution kernel.
+// This is automatically done during initialization.
+func (conv *Conv) loadKernel6(kernel []tensor.StoredTensor) {
 
 	for _, k := range kernel {
 		if k != nil {
@@ -121,22 +118,11 @@ func (conv *Conv) LoadKernel6(kernel []tensor.StoredTensor) {
 }
 
 
-/// size of the magnetization and field, this is the FFT dataSize
-// func (conv *Conv) DataSize() []int{
-//   return conv.fft.DataSize()
-// }
-
-
-/// size of magnetization + padding zeros, this is the FFT logicSize /// todo remove in favor of embedded LogicSize()
+// size of magnetization + padding zeros, this is the FFT logicSize
 func (conv *Conv) KernelSize() []int {
 	return conv.LogicSize()
 }
 
-
-/// size of magnetization + padding zeros + striding zeros, this is the FFT logicSize
-// func (conv *Conv) PhysicSize() []int{
-//   return conv.fft.PhysicSize()
-// }
 
 const (
 	XX = 0

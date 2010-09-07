@@ -18,7 +18,7 @@ func TestFFTPadded(t *testing.T) {
 
 		paddedsize := []int{2 * size[0], 2 * size[1], 2 * size[2]}
 
- 		fft := NewFFTPadded(backend, size, paddedsize)
+		fft := NewFFTPadded(backend, size, paddedsize)
 		fftP := NewFFT(backend, paddedsize) // with manual padding
 
 		fmt.Println(fft)
@@ -35,29 +35,24 @@ func TestFFTPadded(t *testing.T) {
 		for i := 0; i < size[0]; i++ {
 			for j := 0; j < size[1]; j++ {
 				for k := 0; k < size[2]; k++ {
-					host.List()[i*size[1]*size[2]+j*size[2]+k] = rand.Float()//1.
+					host.List()[i*size[1]*size[2]+j*size[2]+k] = rand.Float() //1.
 					hostP.List()[i*paddedsize[1]*paddedsize[2]+j*paddedsize[2]+k] = host.List()[i*size[1]*size[2]+j*size[2]+k]
 				}
 			}
 		}
 
-
-
-
-    
-    TensorCopyTo(host, dev)
+		TensorCopyTo(host, dev)
 		TensorCopyTo(hostP, devP)
-
 
 		fft.Forward(dev, devT)
 		TensorCopyFrom(devT, hostT)
-		
+
 		fftP.Forward(devP, devPT)
 		TensorCopyFrom(devPT, hostPT)
 
 		fft.Inverse(devT, devTT)
 		TensorCopyFrom(devTT, hostTT)
-		
+
 		fftP.Inverse(devPT, devPTT)
 		TensorCopyFrom(devPTT, hostPTT)
 
