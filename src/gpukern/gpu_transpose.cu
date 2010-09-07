@@ -197,9 +197,9 @@ void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2)
 
 //   timer_start("transposeYZ");
   for(int i=0; i<N0; i++){
-    gpu_transpose_complex(&source[i*N1*N2], &dest[i*N1*N2], N1, N2);  ///@todo STREAM
+    gpu_transpose_complex_async(&source[i*N1*N2], &dest[i*N1*N2], N1, N2);  ///@todo STREAM
   }
-//   cudaThreadSynchronize();
+   cudaThreadSynchronize();
 //   timer_stop("transposeYZ");
 }
 

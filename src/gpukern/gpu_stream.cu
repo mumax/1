@@ -27,6 +27,7 @@ void gpu_init_stream(){
   for(int i=0; i<MAXGPUSTREAMS; i++){
     cudaStreamCreate(&gpu_streamBuffer[i]);
   }
+  gpu_stream_uninitiated = 0;
 }
 
 #ifdef __cplusplus
