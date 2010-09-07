@@ -16,9 +16,9 @@ import (
 type Conv struct {
 	FFT
 	kernel [6]*Tensor
-	buffer [3]*Tensor
-	mcomp  [3]*Tensor // only a buffer, automatically set at each conv()
-	hcomp  [3]*Tensor // only a buffer, automatically set at each conv()
+	fftm [3]*Tensor
+	mcomp  [3]*Tensor // only a fftm, automatically set at each conv()
+	hcomp  [3]*Tensor // only a fftm, automatically set at each conv()
 }
 
 // dataSize = size of input data (one componenten of the magnetization), e.g., 4 x 32 x 32.
@@ -39,7 +39,7 @@ func NewConv(backend *Backend, dataSize []int, kernel []*tensor.Tensor3) *Conv {
 
 	///@todo do not allocate for infinite2D problem
 	for i := 0; i < 3; i++ {
-		conv.buffer[i] = NewTensor(conv.Backend, conv.PhysicSize())
+		conv.fftm[i] = NewTensor(conv.Backend, conv.PhysicSize())
 		conv.mcomp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil)}
 		conv.hcomp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil)}
 	}
@@ -60,7 +60,7 @@ func (conv *Conv) Convolve(source, dest *Tensor) {
 
 	// initialize mcomp, hcomp, re-using them from conv to avoid repeated allocation
 	mcomp, hcomp := conv.mcomp, conv.hcomp
-	buffer := conv.buffer
+	fftm := conv.fftm
 	kernel := conv.kernel
 	mLen := Len(mcomp[0].size)
 	for i := 0; i < 3; i++ {
@@ -73,22 +73,22 @@ func (conv *Conv) Convolve(source, dest *Tensor) {
 	// Forward FFT
   conv.Start("FFT")
 	for i := 0; i < 3; i++ {
-		conv.Forward(mcomp[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
+		conv.Forward(mcomp[i], fftm[i]) // should not be asynchronous unless we have 3 fft's (?)
 	}
 	conv.Stop("FFT")
 
 	// Point-wise kernel multiplication in reciprocal space
   conv.Start("Kernel multiplication")
-	conv.kernelMul(buffer[X].data, buffer[Y].data, buffer[Z].data,
+	conv.kernelMul(fftm[X].data, fftm[Y].data, fftm[Z].data,
 		kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
 		kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
-		6, Len(buffer[X].size)) // nRealNumbers
+		6, Len(fftm[X].size)) // nRealNumbers
   conv.Stop("Kernel multiplication")
  
 	// Inverse FFT
   conv.Start("FFT")
 	for i := 0; i < 3; i++ {
-		conv.Inverse(buffer[i], hcomp[i]) // should not be asynchronous unless we have 3 fft's (?)
+		conv.Inverse(fftm[i], hcomp[i]) // should not be asynchronous unless we have 3 fft's (?)
 	}
 	conv.Stop("FFT")
 }
@@ -103,7 +103,7 @@ func (conv *Conv) loadKernel6(kernel []*tensor.Tensor3) {
 		}
 	}
 
-	buffer := tensor.NewTensorN(conv.KernelSize())
+	fftm := tensor.NewTensorN(conv.KernelSize())
 	devbuf := NewTensor(conv.Backend, conv.KernelSize())
 
 	fft := NewFFT(conv.Backend, conv.KernelSize())
@@ -112,12 +112,12 @@ func (conv *Conv) loadKernel6(kernel []*tensor.Tensor3) {
 	for i := range conv.kernel {
 		if kernel[i] != nil { // nil means it would contain only zeros so we don't store it.
 			conv.kernel[i] = NewTensor(conv.Backend, conv.PhysicSize())
-			tensor.CopyTo(kernel[i], buffer)
-			for i := range buffer.List() {
-				buffer.List()[i] *= N
+			tensor.CopyTo(kernel[i], fftm)
+			for i := range fftm.List() {
+				fftm.List()[i] *= N
 			}
 			ZeroTensor(conv.kernel[i])
-			TensorCopyTo(buffer, devbuf)
+			TensorCopyTo(fftm, devbuf)
 			fft.Forward(devbuf, conv.kernel[i])
 		}
 	}
