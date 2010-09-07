@@ -1,6 +1,7 @@
 #include "gpu_kernmul.h"
 #include "gpu_conf.h"
 #include "assert.h"
+#include "timer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,7 +66,7 @@ void gpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
                                          float* fftKyz, float* fftKxz, float* fftKxy,
                                          int nRealNumbers){
   
-  //timer_start("kernel_mul");
+  timer_start("kernel_mul");
   assert(nRealNumbers > 0);
   assert(nRealNumbers % 2 == 0);
   
@@ -78,7 +79,7 @@ void gpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
                                       fftKxx, fftKyy, fftKzz,
                                       fftKyz, fftKxz, fftKxy);
   cudaThreadSynchronize();
-  //timer_stop("kernel_mul");
+  timer_stop("kernel_mul");
 }
 
 #ifdef __cplusplus
