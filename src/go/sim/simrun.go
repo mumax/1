@@ -31,6 +31,8 @@ func (s *Sim) Run(time float64) {
 			}
 		}
 
+    updateDashboard(s)
+
 		// step
 		Debugvv("Step", s.steps)
 		s.Start("Step")
