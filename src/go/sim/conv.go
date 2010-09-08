@@ -89,6 +89,12 @@ func (conv *Conv) Convolve(source, dest *DevTensor) {
 
 // INTERNAL: Loads a convolution kernel.
 // This is automatically done during initialization.
+// "kernel" is not FFT'ed yet, this is done here.
+// We use exactly the same fft as for the magnetizaion
+// so that the convolution definitely works.
+// After FFT'ing, the kernel is purely real,
+// so we discard the imaginary parts.
+// This saves a huge amount of memory
 func (conv *Conv) loadKernel6(kernel []*tensor.Tensor3) {
 
 	for _, k := range kernel {

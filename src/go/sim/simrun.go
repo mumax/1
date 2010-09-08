@@ -1,5 +1,6 @@
 package sim
 
+import("os")
 // This file implements the methods for time stepping
 
 // Set the solver time step, defined in seconds
@@ -29,12 +30,15 @@ func (s *Sim) Run(time float64) {
 
 		// step
 		Debugvv("Step", s.steps)
+		s.Start("Step")
 		s.Step()
 		s.steps++
 		s.time += float64(s.dt)
 		s.mUpToDate = false
+		s.Stop("Step")
 
 	}
+	s.PrintTimer(os.Stdout)
 	//does not invalidate
 }
 
