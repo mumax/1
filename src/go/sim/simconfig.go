@@ -32,6 +32,7 @@ func (s *Sim) Uniform(mx, my, mz float) {
 			}
 		}
 	}
+	normalize(a)
 	s.invalidate() // todo: we do not need to invalidate everything here!
 }
 

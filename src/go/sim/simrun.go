@@ -1,6 +1,9 @@
 package sim
 
-import("os")
+import (
+	"os"
+)
+
 // This file implements the methods for time stepping
 
 // Set the solver time step, defined in seconds

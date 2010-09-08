@@ -12,6 +12,9 @@ func (s *Sim) AppliedField(hx, hy, hz float) {
 	s.invalidate()
 }
 
+// Control the accuracy of the demag kernel.
+// 2^accuracy points are used to integrate the field.
+// A high value is accurate and slows down (only) the initialization.
 func (s *Sim) DemagAccuracy(accuracy int) {
 	Debugv("Demag accuracy:", accuracy)
 	s.demag_accuracy = accuracy

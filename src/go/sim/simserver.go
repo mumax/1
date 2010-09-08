@@ -10,6 +10,14 @@ import (
 	"strings"
 )
 
+// Runs a simulation server over the network.
+// On one end, a "RemoteDevice" interface is used to access the remote server.
+// On the other end of the connection, a DeviceServer accepts remote function
+// calls and does the number-crunching.
+//
+// This code is not yet ready for prime-time.
+// It is mainly intended for playing with networked devices.
+//
 type DeviceServer struct {
 	*DeviceWrapper
 	transport string // udp or tcp

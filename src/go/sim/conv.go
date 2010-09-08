@@ -103,34 +103,29 @@ func (conv *Conv) loadKernel6(kernel []*tensor.Tensor3) {
 		}
 	}
 
+	fft := NewFFT(conv.Backend, conv.LogicSize())
+	norm := 1.0 / float(fft.Normalization())
+	devIn := NewTensor(conv.Backend, conv.LogicSize())
+	devOut := NewTensor(conv.Backend, fft.PhysicSize())
+	hostOut := tensor.NewTensor3(fft.PhysicSize())
 
-  fft := NewFFT(conv.Backend, conv.LogicSize())
-  norm := 1.0 / float(fft.Normalization())
-  devIn := NewTensor(conv.Backend, conv.LogicSize())
-  devOut := NewTensor(conv.Backend, fft.PhysicSize())
-  hostOut := tensor.NewTensor3(fft.PhysicSize())
-  
-  for i := range conv.kernel {
-    TensorCopyTo(kernel[i], devIn)
-    fft.Forward(devIn, devOut)
-    TensorCopyFrom(devOut, hostOut)
-    listOut := hostOut.List()
+	for i := range conv.kernel {
+		TensorCopyTo(kernel[i], devIn)
+		fft.Forward(devIn, devOut)
+		TensorCopyFrom(devOut, hostOut)
+		listOut := hostOut.List()
 
-    for j:=0; j<len(listOut)/2; j++{
-      listOut[j] = listOut[2*j] * norm
-    }
+		for j := 0; j < len(listOut)/2; j++ {
+			listOut[j] = listOut[2*j] * norm
+		}
 
-    conv.kernel[i] = NewTensor(conv.Backend, conv.KernelSize())
-    conv.memcpyTo(&listOut[0], conv.kernel[i].data, Len(conv.kernel[i].Size()))
-  }
+		conv.kernel[i] = NewTensor(conv.Backend, conv.KernelSize())
+		conv.memcpyTo(&listOut[0], conv.kernel[i].data, Len(conv.kernel[i].Size()))
+	}
 }
-
-
-
-
 
 
 // size of the (real) kernel
 func (conv *Conv) KernelSize() []int {
-	return []int{conv.PhysicSize()[X], conv.PhysicSize()[Y], conv.PhysicSize()[Z]/2}
+	return []int{conv.PhysicSize()[X], conv.PhysicSize()[Y], conv.PhysicSize()[Z] / 2}
 }
