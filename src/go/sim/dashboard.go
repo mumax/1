@@ -8,9 +8,10 @@ import (
 
 func updateDashboard(sim *Sim) {
   savePos()
-  fmt.Print("step:", sim.steps)
+  fmt.Print("step:", sim.steps, " time:", float(sim.time), "s")
   erase()
   fmt.Println()
+  
   restorePos()
 }
 
