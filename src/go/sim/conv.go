@@ -93,32 +93,38 @@ func (conv *Conv) loadKernel6(kernel []*tensor.Tensor3) {
 
 	for _, k := range kernel {
 		if k != nil {
-			assert(tensor.EqualSize(k.Size(), conv.KernelSize()))
+			assert(tensor.EqualSize(k.Size(), conv.LogicSize()))
 		}
 	}
 
-	buffer := tensor.NewTensorN(conv.KernelSize())
-	devbuf := NewTensor(conv.Backend, conv.KernelSize())
 
-	fft := NewFFT(conv.Backend, conv.KernelSize())
-	N := 1.0 / float(fft.Normalization())
+  fft := NewFFT(conv.Backend, conv.LogicSize())
+  norm := 1.0 / float(fft.Normalization())
+  devIn := NewTensor(conv.Backend, conv.LogicSize())
+  devOut := NewTensor(conv.Backend, fft.PhysicSize())
+  hostOut := tensor.NewTensor3(fft.PhysicSize())
+  
+  for i := range conv.kernel {
+    TensorCopyTo(kernel[i], devIn)
+    fft.Forward(devIn, devOut)
+    TensorCopyFrom(devOut, hostOut)
+    listOut := hostOut.List()
 
-	for i := range conv.kernel {
-		if kernel[i] != nil { // nil means it would contain only zeros so we don't store it.
-			conv.kernel[i] = NewTensor(conv.Backend, conv.PhysicSize())
-			tensor.CopyTo(kernel[i], buffer)
-			for i := range buffer.List() {
-				buffer.List()[i] *= N
-			}
-			ZeroTensor(conv.kernel[i])
-			TensorCopyTo(buffer, devbuf)
-			fft.Forward(devbuf, conv.kernel[i])
-		}
-	}
+    for j:=0; j<len(listOut)/2; j++{
+      listOut[j] = listOut[2*j] * norm
+    }
+
+    conv.kernel[i] = NewTensor(conv.Backend, conv.KernelSize())
+    conv.memcpyTo(&listOut[0], conv.kernel[i].data, Len(conv.kernel[i].Size()))
+  }
 }
 
 
-// size of magnetization + padding zeros, this is the FFT logicSize
+
+
+
+
+// size of the (real) kernel
 func (conv *Conv) KernelSize() []int {
-	return conv.LogicSize()
+	return []int{conv.LogicSize()[X], conv.LogicSize()[Y], conv.LogicSize()[Z]/2}
 }

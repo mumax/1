@@ -37,8 +37,8 @@ func NewTensor(b *Backend, size []int) *DevTensor {
 }
 
 // Wraps a pre-allocated device array in a tensor
-func AsTensor(b *Backend, data unsafe.Pointer, size []int) *DevTensor{
-  return &DevTensor{b, size, data}
+func AsTensor(b *Backend, data unsafe.Pointer, size []int) *DevTensor {
+	return &DevTensor{b, size, data}
 }
 
 func (t *DevTensor) Get(index []int) float {

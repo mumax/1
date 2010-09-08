@@ -20,8 +20,7 @@ void gpu_extract_real(float* complex, float* real, int NReal);
 
 /**
  * @internal 
- * Kernel is in interleaved complex format (imaginary part is zero and not read, but still stored),
- * and assummed symmetric.
+ * FFT'ed Kernel is purely real and assummed symmetric in Kij.
  * The multiplication is in-place, fftMi is overwritten by fftHi
  */
 ///@todo 6, 4, 3...
