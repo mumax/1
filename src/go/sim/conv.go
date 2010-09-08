@@ -126,5 +126,5 @@ func (conv *Conv) loadKernel6(kernel []*tensor.Tensor3) {
 
 // size of the (real) kernel
 func (conv *Conv) KernelSize() []int {
-	return []int{conv.LogicSize()[X], conv.LogicSize()[Y], conv.LogicSize()[Z]/2}
+	return []int{conv.PhysicSize()[X], conv.PhysicSize()[Y], conv.PhysicSize()[Z]/2}
 }
