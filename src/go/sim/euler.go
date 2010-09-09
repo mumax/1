@@ -9,20 +9,13 @@ type Euler struct {
 }
 
 func (this *Euler) String() string {
-	return "Euler\n" + this.Field.String() + "--\n"
+	return "Euler"
 }
 
-// func NewEuler(field *Field) *Euler {
-// 	this := new(Euler)
-// 	this.Field = field
-// 	return this
-// }
+
 
 func (this *Euler) Step() {
-	Debugvv("Euler.Step()")
-	//TODO normalize m before first step (sim.go)
-	//TODO make them private!
-	m, h := this.m, this.h
+	m, h := this.mDev, this.h
 	alpha, dt := this.Alpha, this.Dt
 
 	// 	this.Normalize(this.m)
@@ -35,7 +28,7 @@ func (this *Euler) Step() {
 }
 
 
-// embedding tree:
+// embedding tree :
 
 // Simulation{ ? to avoid typing backend backend backend...(but sim. sim. sim.)
 // Euler{

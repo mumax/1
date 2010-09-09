@@ -41,7 +41,7 @@ type Sim struct {
 	cellsize       [3]float
 	demag_accuracy int
 
-	m *tensor.Tensor4
+	mLocal *tensor.Tensor4
 
 	dt         float
 	time       float64
@@ -56,9 +56,9 @@ type Sim struct {
   Conv
   AppliedField //function
   hext [3]float
-  m, h         *DevTensor // on device
+  mDev, h         *DevTensor // on device
   mComp, hComp [3]*DevTensor
-	Solver
+  Solver
 
   // output
 	outschedule []Output //TODO vector...
@@ -111,31 +111,42 @@ func (s *Sim) init() {
 	dev.Init()
 
 	s.Material.Init()
-	s.MSat = s.msat
-	s.AExch = s.aexch
-	s.Alpha = s.alpha
+// 	s.MSat = s.msat
+// 	s.AExch = s.aexch
+// 	s.Alpha = s.alpha
 
-	size := s.size[0:]
-	L := mat.UnitLength()
-	cellsize := []float{s.cellsize[X] / L, s.cellsize[Y] / L, s.cellsize[Z] / L}
-	magnet := NewMagnet(dev, mat, size, cellsize)
-	s.Field = NewField(dev, magnet, s.demag_accuracy)
+// 	size := s.size[0:]
+//	L := s.UnitLength()
+// 	cellsize := []float{s.cellsize[X] / L, s.cellsize[Y] / L, s.cellsize[Z] / L}
+	//magnet := NewMagnet(dev, mat, size, cellsize)
+	//s.Field = NewField(dev, magnet, s.demag_accuracy)
 
-	dt := s.dt / mat.UnitTime()
-	s.Solver = NewSolver(s.solvertype, s.Field) //NewEuler(dev, s.Field, dt) //TODO solver dt should be float64(?)
+	dt := s.dt / s.UnitTime()
+	s.Solver = NewSolver(s.solvertype, s) //NewEuler(dev, s.Field, dt) //TODO solver dt should be float64(?)
 	s.Solver.SetDt(dt)
 
-	B := s.UnitField()
-	s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
+// 	B := s.UnitField()
+// 	s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
 
-	if !tensor.EqualSize(s.m.Size(), s.M().Size()) {
-		s.m = resample(s.m, s.M().size)
+	if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
+		s.mLocal = resample(s.mLocal, s.mDev.size)
 	}
-	TensorCopyTo(s.m, s.M()) // TODO it's not clear which is local/remote
-	Debug("debug")
-	TensorCopyFrom(s.M(), s.m) //DEBUG
+	TensorCopyTo(s.mLocal, s.mDev)
 
-	s.Normalize(s.M())
+	s.Normalize(s.mDev)
+}
+
+
+// Calculates the effective field of m and stores it in h
+func (s *Sim) CalcHeff(m, h *DevTensor) {
+ 
+ s.Convolve(m, h)
+
+//  if s.Hext != nil {
+//      for i := range s.hComp {
+//          f.AddConstant(f.hComp[i], f.Hext[i])
+//      }
+//  }
 }
 
 // Set how much debug info is printed. Level=0,1,2 or 3 for none, normal, verbose and very verbose.

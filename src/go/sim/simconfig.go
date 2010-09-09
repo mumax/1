@@ -13,8 +13,8 @@ import (
 // INTERNAL: to be called before setting a magnetization state,
 // ensures local memory for m has been allocated already
 func (s *Sim) ensure_m() {
-	if s.m == nil {
-		s.m = tensor.NewTensor4([]int{3, s.size[X], s.size[Y], s.size[Z]})
+	if s.mLocal == nil {
+		s.mLocal = tensor.NewTensor4([]int{3, s.size[X], s.size[Y], s.size[Z]})
 	}
 }
 
@@ -22,7 +22,7 @@ func (s *Sim) ensure_m() {
 // (mx, my, mz) needs not to be normalized.
 func (s *Sim) Uniform(mx, my, mz float) {
 	s.ensure_m()
-	a := s.m.Array()
+	a := s.mLocal.Array()
 	for i := range a[0] {
 		for j := range a[0][i] {
 			for k := range a[0][i][j] {
@@ -42,7 +42,7 @@ func (s *Sim) Uniform(mx, my, mz float) {
 func (s *Sim) Vortex(circulation, polarization int) {
 	s.ensure_m()
 	cy, cx := s.size[1]/2, s.size[2]/2
-	a := s.m.Array()
+	a := s.mLocal.Array()
 	for i := range a[0] {
 		for j := range a[0][i] {
 			for k := range a[0][i][j] {
@@ -72,8 +72,8 @@ func (s *Sim) Load(file string) {
 	s.ensure_m()
 	//TODO this allocates too much buffers!
 	m1 := tensor.Read(in)
-	s.m = tensor.NewTensor4(m1.Size())
-	tensor.CopyTo(m1, s.m)
+	s.mLocal = tensor.NewTensor4(m1.Size())
+	tensor.CopyTo(m1, s.mLocal)
 	//TODO this should not invalidate the entire sim
 	s.invalidate()
 }
@@ -84,11 +84,11 @@ func (s *Sim) Load(file string) {
 func (s *Sim) AddNoise(amplitude float) {
 	s.ensure_m()
 	amplitude *= 2
-	list := s.m.List()
+	list := s.mLocal.List()
 	for i := range list {
 		list[i] += amplitude * (rand.Float() - 0.5)
 	}
-	normalize(s.m.Array())
+	normalize(s.mLocal.Array())
 	s.invalidate()
 }
 
