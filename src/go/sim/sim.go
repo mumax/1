@@ -53,7 +53,7 @@ type Sim struct {
 
 	hext [3]float
 
-  starttime int64 // when the simulation was started, seconds since unix epoch
+	starttime int64 // when the simulation was started, seconds since unix epoch
 }
 
 func New() *Sim {
