@@ -4,14 +4,10 @@ import ()
 
 // Field contains everything neccesary to calculate the effective field H_eff
 type Field struct {
-	Magnet
-
-	*Conv
+	Conv
 	Hext []float
-
 	// Exchange
 	// Anis
-	// External
 }
 
 // Takes the parameters from a Magnet struct and

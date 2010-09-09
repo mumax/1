@@ -11,12 +11,10 @@ type Material struct {
 	Mu0    float ///< Mu0 in N/A^2
 	Gamma0 float ///< Gyromagnetic ratio in m/As
 	Alpha  float ///< Damping parameter
-
 }
 
 
 func NewMaterial() *Material {
-
 	mat := new(Material)
 	mat.Mu0 = 4.0E-7 * Pi
 	mat.Gamma0 = 2.211E5
