@@ -3,6 +3,7 @@ package sim
 
 import (
 	"tensor"
+	"time"
 )
 
 // The Sim struct stores a simulation state.
@@ -51,6 +52,8 @@ type Sim struct {
 	mUpToDate   bool
 
 	hext [3]float
+
+  starttime int64 // when the simulation was started, seconds since unix epoch
 }
 
 func New() *Sim {
@@ -66,6 +69,7 @@ func NewSim() *Sim {
 	sim.invalidate() //just to make sure we will init()
 	sim.demag_accuracy = 8
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
+	sim.starttime = time.Seconds()
 	return sim
 }
 
