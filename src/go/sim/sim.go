@@ -28,8 +28,8 @@ import (
 type Sim struct {
 
   starttime int64 // when the simulation was started, seconds since unix epoch -> dashboard
-
   valid bool
+  
   // what we want
 	backend *Backend
 

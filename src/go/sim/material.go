@@ -6,19 +6,23 @@ import (
 )
 
 type Material struct {
-	AExch  float ///< Exchange constant in J/m
-	MSat   float ///< Saturation magnetization in A/m
-	Mu0    float ///< Mu0 in N/A^2
-	Gamma0 float ///< Gyromagnetic ratio in m/As
-	Alpha  float ///< Damping parameter
+	AExch  float // Exchange constant in J/m
+	MSat   float // Saturation magnetization in A/m
+	Mu0    float // Mu0 in N/A^2
+	Gamma0 float // Gyromagnetic ratio in m/As
+	Alpha  float // Damping parameter
 }
 
 
 func NewMaterial() *Material {
 	mat := new(Material)
-	mat.Mu0 = 4.0E-7 * Pi
-	mat.Gamma0 = 2.211E5
+  mat.Init()
 	return mat
+}
+
+func (mat *Material) Init(){
+  mat.Mu0 = 4.0E-7 * Pi
+  mat.Gamma0 = 2.211E5
 }
 
 
