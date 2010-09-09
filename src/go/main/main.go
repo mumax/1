@@ -24,6 +24,7 @@ var (
 	port      *int    = flag.Int("port", 2527, "Which network port to use")
 	transport *string = flag.String("transport", "tcp", "Which transport to use (tcp / udp)")
 	device    *string = flag.String("device", "gpu", "The default computing device to use with -server") //TODO: also for master
+  updatedb  *int    = flag.Int("updatedisp", 100, "Update the terminal output every x milliseconds")
 )
 
 func main() {
@@ -45,6 +46,8 @@ func main_master() {
 		os.Exit(-1)
 	}
 
+  UpdateDashboardEvery = int64(*updatedb * 1000 * 1000)
+  
 	for i := 0; i < flag.NArg(); i++ {
 		in, err := os.Open(flag.Arg(i), os.O_RDONLY, 0666)
 		if err != nil {

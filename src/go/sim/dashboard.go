@@ -7,12 +7,12 @@ import (
 )
 
 var lastDashUpdate int64 = 0
-var updateDashEvery int64 = 100 * 1000 * 1000
+var UpdateDashboardEvery int64 = 100 * 1000 * 1000 // in ns
 
 func updateDashboard(sim *Sim) {
 
   nanotime := time.Nanoseconds()
-  if (nanotime - lastDashUpdate) < updateDashEvery{
+  if (nanotime - lastDashUpdate) < UpdateDashboardEvery{
     return // too soon to update display yet
   }
   lastDashUpdate = nanotime
