@@ -7,17 +7,17 @@ package sim
 // Note: for performance reasons the last size should be big.
 // TODO: if the above is not the case, transparently transpose.
 func (s *Sim) Size(x, y, z int) {
-	s.size[X] = x
-	s.size[Y] = y
-	s.size[Z] = z
+	s.input.size[X] = x
+	s.input.size[Y] = y
+	s.input.size[Z] = z
 	s.invalidate()
 }
 
 // Defines the cell size in meters
 func (s *Sim) CellSize(x, y, z float) {
-	s.cellsize[X] = x
-	s.cellsize[Y] = y
-	s.cellsize[Z] = z
+	s.input.cellsize[X] = x
+	s.input.cellsize[Y] = y
+	s.input.cellsize[Z] = z
 	s.invalidate()
 }
 

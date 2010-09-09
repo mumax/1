@@ -11,12 +11,12 @@ var UpdateDashboardEvery int64 = 100 * 1000 * 1000 // in ns
 
 func updateDashboard(sim *Sim) {
 
-  nanotime := time.Nanoseconds()
-  if (nanotime - lastDashUpdate) < UpdateDashboardEvery{
-    return // too soon to update display yet
-  }
-  lastDashUpdate = nanotime
-  
+	nanotime := time.Nanoseconds()
+	if (nanotime - lastDashUpdate) < UpdateDashboardEvery {
+		return // too soon to update display yet
+	}
+	lastDashUpdate = nanotime
+
 	savePos()
 	fmt.Print(HIDECURSOR)
 	// Walltime

@@ -8,13 +8,6 @@ import (
 
 // The Sim struct stores a simulation state.
 //
-// Here, all parameters are STILL IN SI UNITS.
-// When Sim.init() is called, a solver is initiated
-// with these values converted to internal units.
-// We need to keep the originial SI values in case a
-// parameter gets changed during the simulation and
-// we need to re-initialize everything.
-//
 // The Sim struct has a lot of exported methods.
 // When an input file is processed, reflection is used
 // to resolve commands in the file to methods and call them.
@@ -26,46 +19,34 @@ import (
 // TODO order of initialization is too important in input file, should be more versatile
 //
 type Sim struct {
+	starttime int64 // when the simulation was started, seconds since unix epoch -> dashboard
+	valid     bool
 
-  starttime int64 // when the simulation was started, seconds since unix epoch -> dashboard
-  valid bool
-  
-  // what we want
+	input Input
+
+	// what we want
 	backend *Backend
-
-	aexch float
-	msat  float
-	alpha float
-
-	size           [3]int
-	cellsize       [3]float
-	demag_accuracy int
 
 	mLocal *tensor.Tensor4
 
-	dt         float
-	time       float64
-	steps      int
-	solvertype string
-
-  
-  
-  // what we have
-  Material
-  Mesh
-  Conv
-  AppliedField //function
-  hext [3]float
-  mDev, h         *DevTensor // on device
-  mComp, hComp [3]*DevTensor
-  Solver
-
-  // output
+	// what we have
+	Material
+	Mesh
+	Conv
+	AppliedField //function
+	hext         [3]float
+	mDev, h      *DevTensor // on device
+	mComp, hComp [3]*DevTensor
+	Solver
+  time           float64
+  dt  float
+    steps          int
+    
+	// output
 	outschedule []Output //TODO vector...
 	autosaveIdx int
 	outputdir   string
 	mUpToDate   bool
-
 }
 
 func New() *Sim {
@@ -79,7 +60,7 @@ func NewSim() *Sim {
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
 	sim.invalidate() //just to make sure we will init()
-	sim.demag_accuracy = 8
+	sim.input.demag_accuracy = 8
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
 	sim.starttime = time.Seconds()
 	return sim
@@ -111,22 +92,22 @@ func (s *Sim) init() {
 	dev.Init()
 
 	s.Material.Init()
-// 	s.MSat = s.msat
-// 	s.AExch = s.aexch
-// 	s.Alpha = s.alpha
+	s.mSat = s.input.msat
+	s.aExch = s.input.aexch
+	s.alpha = s.input.alpha
 
-// 	size := s.size[0:]
-//	L := s.UnitLength()
-// 	cellsize := []float{s.cellsize[X] / L, s.cellsize[Y] / L, s.cellsize[Z] / L}
+	// 	size := s.size[0:]
+	//	L := s.UnitLength()
+	// 	cellsize := []float{s.cellsize[X] / L, s.cellsize[Y] / L, s.cellsize[Z] / L}
 	//magnet := NewMagnet(dev, mat, size, cellsize)
 	//s.Field = NewField(dev, magnet, s.demag_accuracy)
 
-	dt := s.dt / s.UnitTime()
-	s.Solver = NewSolver(s.solvertype, s) //NewEuler(dev, s.Field, dt) //TODO solver dt should be float64(?)
+	dt := s.input.dt / s.UnitTime()
+	s.Solver = NewSolver(s.input.solvertype, s) //NewEuler(dev, s.Field, dt) //TODO solver dt should be float64(?)
 	s.Solver.SetDt(dt)
 
-// 	B := s.UnitField()
-// 	s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
+	// 	B := s.UnitField()
+	// 	s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
 
 	if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
 		s.mLocal = resample(s.mLocal, s.mDev.size)
@@ -139,14 +120,14 @@ func (s *Sim) init() {
 
 // Calculates the effective field of m and stores it in h
 func (s *Sim) CalcHeff(m, h *DevTensor) {
- 
- s.Convolve(m, h)
 
-//  if s.Hext != nil {
-//      for i := range s.hComp {
-//          f.AddConstant(f.hComp[i], f.Hext[i])
-//      }
-//  }
+	s.Convolve(m, h)
+
+	//  if s.Hext != nil {
+	//      for i := range s.hComp {
+	//          f.AddConstant(f.hComp[i], f.Hext[i])
+	//      }
+	//  }
 }
 
 // Set how much debug info is printed. Level=0,1,2 or 3 for none, normal, verbose and very verbose.

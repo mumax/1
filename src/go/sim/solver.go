@@ -25,10 +25,10 @@ func NewSolver(solvertype string, sim *Sim) Solver {
 
 // stores the common data for fixed-step solvers
 type SolverState struct {
-	Dt float
+	dt float
 	*Sim
 }
 
 func (s *SolverState) SetDt(dt float) {
-	s.Dt = dt
+	s.dt = dt
 }

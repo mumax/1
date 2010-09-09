@@ -21,12 +21,12 @@ func NewHeun(f *Sim) *Heun {
 
 func (s *Heun) Step() {
 	Debugvv("Heun.Step()")
-	gilbertDt := s.Dt / (1 + s.Alpha*s.Alpha)
-    m := s.mDev
-    m1est := s.m1est
-    
+	gilbertDt := s.dt / (1 + s.alpha*s.alpha)
+	m := s.mDev
+	m1est := s.m1est
+
 	s.CalcHeff(m, s.h)
-	s.DeltaM(m, s.h, s.Alpha, gilbertDt)
+	s.DeltaM(m, s.h, s.alpha, gilbertDt)
 	TensorCopyOn(s.h, s.t0)
 	TensorCopyOn(m, m1est)
 	s.Add(m1est, s.t0)
@@ -36,7 +36,7 @@ func (s *Heun) Step() {
 	//     TensorCopyOn(m1est, m) // estimator is ok
 
 	s.CalcHeff(s.m1est, s.h)
-	s.DeltaM(s.m1est, s.h, s.Alpha, gilbertDt)
+	s.DeltaM(s.m1est, s.h, s.alpha, gilbertDt)
 	tm1est := s.h
 	t := tm1est
 	s.LinearCombination(t, s.t0, 0.5, 0.5)

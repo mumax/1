@@ -41,6 +41,7 @@ GOFILES=\
 	dashboard.go\
 	appliedfield.go\
 	mesh.go\
+	input.go\
 
 CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so
 

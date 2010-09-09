@@ -13,10 +13,9 @@ func (this *Euler) String() string {
 }
 
 
-
 func (this *Euler) Step() {
 	m, h := this.mDev, this.h
-	alpha, dt := this.Alpha, this.Dt
+	alpha, dt := this.alpha, this.dt
 
 	// 	this.Normalize(this.m)
 	this.CalcHeff(m, h)

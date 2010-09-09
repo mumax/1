@@ -17,6 +17,6 @@ package sim
 // A high value is accurate and slows down (only) the initialization.
 func (s *Sim) DemagAccuracy(accuracy int) {
 	Debugv("Demag accuracy:", accuracy)
-	s.demag_accuracy = accuracy
+	s.input.demag_accuracy = accuracy
 	s.invalidate()
 }
