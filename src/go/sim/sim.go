@@ -111,9 +111,7 @@ func (s *Sim) init() {
 	if s.isValid() {
 		return //no work to do
 	}
-	Debugv("Re-initializing simulation state")
-
-//   fmt.Println(s)
+	Debugv("Initializing simulation state")
   
 	dev := s.backend
 	dev.InitBackend()
@@ -144,23 +142,27 @@ func (s *Sim) init() {
 // 		// TODO: free
 // 		s.mDev = nil
 // 		s.h = nil
-// 		s.mLocal = resample(s.mLocal, s.mDev.size)
 // 	}
-// 	if s.mLocal == nil {
-		s.mLocal = tensor.NewTensor4(s.size4D[0:])
-// 	}
+
 // 	if s.mDev == nil {
 		Debugv("Allocating device memory " + fmt.Sprint(s.size4D))
-
 		s.mDev = NewTensor(dev, s.size4D[0:])
 		s.h = NewTensor(dev, s.size4D[0:])
-
 		s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
 		for i := range s.mComp {
 			s.mComp[i] = s.mDev.Component(i)
 			s.hComp[i] = s.h.Component(i)
 		}
 // 	}
+
+    if s.mLocal == nil {
+      Debugv("Allocating local memory " + fmt.Sprint(s.size4D))
+      s.mLocal = tensor.NewTensor4(s.size4D[0:])
+    }
+
+    if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()){
+      s.mLocal = resample(s.mLocal, s.mDev.size)
+    }
 
 	// (3b) resize the previous magnetization state
 // 	if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
