@@ -2,7 +2,7 @@ package sim
 
 import (
 	. "math"
-	"fmt"
+// 	"fmt"
 )
 
 type Material struct {
@@ -26,18 +26,18 @@ func (mat *Material) InitMaterial() {
 }
 
 
-func (mat *Material) String() string {
-	s := "Material:\n"
-	s += fmt.Sprintln("aExch      : \t", mat.aExch, " J/m")
-	s += fmt.Sprintln("mSat       : \t", mat.mSat, " A/m")
-	s += fmt.Sprintln("gamma0     : \t", mat.gamma0, " m/As")
-	s += fmt.Sprintln("mu0        : \t", mat.mu0, " N/A^2")
-	s += fmt.Sprintln("exch length: \t", mat.UnitLength(), " m")
-	s += fmt.Sprintln("unit time  : \t", mat.UnitTime(), " s")
-	s += fmt.Sprintln("unit energy: \t", mat.UnitEnergy(), " J")
-	s += fmt.Sprintln("unit field : \t", mat.UnitField(), " T")
-	return s
-}
+// func (mat *Material) String() string {
+// 	s := "Material:\n"
+// 	s += fmt.Sprintln("aExch      : \t", mat.aExch, " J/m")
+// 	s += fmt.Sprintln("mSat       : \t", mat.mSat, " A/m")
+// 	s += fmt.Sprintln("gamma0     : \t", mat.gamma0, " m/As")
+// 	s += fmt.Sprintln("mu0        : \t", mat.mu0, " N/A^2")
+// 	s += fmt.Sprintln("exch length: \t", mat.UnitLength(), " m")
+// 	s += fmt.Sprintln("unit time  : \t", mat.UnitTime(), " s")
+// 	s += fmt.Sprintln("unit energy: \t", mat.UnitEnergy(), " J")
+// 	s += fmt.Sprintln("unit field : \t", mat.UnitField(), " T")
+// 	return s
+// }
 
 
 //  FIELD = Ms

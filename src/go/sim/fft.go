@@ -1,7 +1,7 @@
 package sim
 
 import (
-	"fmt"
+// 	"fmt"
 	"unsafe"
 	"tensor"
 )
@@ -114,6 +114,6 @@ func (fft *FFT) Normalization() int {
 	return (fft.logicSize[X] * fft.logicSize[Y] * fft.logicSize[Z])
 }
 
-func (fft *FFT) String() string {
-	return fmt.Sprint("FFT{ dataSize", fft.dataSize, "logicSize", fft.logicSize, "physicSize", fft.physicSize, "}")
-}
+// func (fft *FFT) String() string {
+// 	return fmt.Sprint("FFT{ dataSize", fft.dataSize, "logicSize", fft.logicSize, "physicSize", fft.physicSize, "}")
+// }

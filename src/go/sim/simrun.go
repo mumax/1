@@ -6,16 +6,10 @@ import (
 
 // This file implements the methods for time stepping
 
-// Set the solver time step, defined in seconds
-// TODO this should imply or require a fixed-step solver
-func (s *Sim) Dt(t float) {
-	s.dt = t
-	s.invalidate()
-}
-
 // Run the simulation for a certain duration, specified in seconds
 func (s *Sim) Run(time float64) {
 	Debug("Running for", time, "s")
+	time /= float64(s.UnitTime())
 	s.init()
 	stop := s.time + time
 

@@ -81,7 +81,7 @@ func New() *Sim {
 
 func NewSim() *Sim {
 	sim := new(Sim)
-	sim.backend = nil //TODO: check if GPU is present, use CPU otherwise
+	sim.backend = GPU//nil //TODO: check if GPU is present, use CPU otherwise
 	sim.outputdir = "."
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
@@ -113,8 +113,11 @@ func (s *Sim) init() {
 	}
 	Debugv("Re-initializing simulation state")
 
+//   fmt.Println(s)
+  
 	dev := s.backend
 	dev.InitBackend()
+	assert(dev != nil)
 
 	// (1) Material parameters control the units,
 	// so they need to be set up first
@@ -136,16 +139,17 @@ func (s *Sim) init() {
 
 	// (3) Allocate memory, but only if needed
 	// Free previous memory only if it has the wrong size
-	if s.mDev != nil && !tensor.EqualSize(s.mDev.Size(), s.size4D[0:]) {
-		// TODO: free
-		s.mDev = nil
-		s.h = nil
-		s.mLocal = resample(s.mLocal, s.mDev.size)
-	}
-	if s.mLocal == nil {
+  // Todo device should not have been changed
+// 	if s.mDev != nil && !tensor.EqualSize(s.mDev.Size(), s.size4D[0:]) {
+// 		// TODO: free
+// 		s.mDev = nil
+// 		s.h = nil
+// 		s.mLocal = resample(s.mLocal, s.mDev.size)
+// 	}
+// 	if s.mLocal == nil {
 		s.mLocal = tensor.NewTensor4(s.size4D[0:])
-	}
-	if s.mDev == nil {
+// 	}
+// 	if s.mDev == nil {
 		Debugv("Allocating device memory " + fmt.Sprint(s.size4D))
 
 		s.mDev = NewTensor(dev, s.size4D[0:])
@@ -156,15 +160,14 @@ func (s *Sim) init() {
 			s.mComp[i] = s.mDev.Component(i)
 			s.hComp[i] = s.h.Component(i)
 		}
-	}
+// 	}
 
 	// (3b) resize the previous magnetization state
-	if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
-
-	}
+// 	if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
+// xxx
+// 	}
 	TensorCopyTo(s.mLocal, s.mDev)
-
-	s.Normalize(s.mDev)
+// 	s.Normalize(s.mDev)
 
 	// (4) Calculate kernel & set up convolution
 
@@ -191,6 +194,8 @@ func (s *Sim) init() {
 	s.Solver = NewSolver(s.input.solvertype, s)
 
   s.valid = true
+
+//   fmt.Println(s)
 }
 
 

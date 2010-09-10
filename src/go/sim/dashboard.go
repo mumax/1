@@ -11,6 +11,8 @@ var UpdateDashboardEvery int64 = 100 * 1000 * 1000 // in ns
 
 func updateDashboard(sim *Sim) {
 
+  T := sim.UnitTime()
+    
 	nanotime := time.Nanoseconds()
 	if (nanotime - lastDashUpdate) < UpdateDashboardEvery {
 		return // too soon to update display yet
@@ -18,7 +20,7 @@ func updateDashboard(sim *Sim) {
 	lastDashUpdate = nanotime
 
 	savePos()
-	fmt.Print(HIDECURSOR)
+	//fmt.Print(HIDECURSOR)
 	// Walltime
 	time := time.Seconds() - sim.starttime
 	fmt.Printf(
@@ -30,7 +32,7 @@ func updateDashboard(sim *Sim) {
 		BOLD+"step: "+RESET+"%-11d "+
 			BOLD+"time: "+RESET+"%.4es      "+
 			BOLD+"Δt:   "+RESET+" %.3es",
-		sim.steps, sim.time, sim.dt)
+		sim.steps, float(sim.time)*T, sim.dt*T)
 	erase()
 	fmt.Println()
 
