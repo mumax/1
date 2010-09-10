@@ -11,13 +11,7 @@ package sim
 // 
 // 
 // func NewMagnet(dev *Backend, mat *Material, size []int, cellSize []float) *Magnet {
-// 	m, h := NewTensor(dev, Size4D(size)), NewTensor(dev, Size4D(size))
-// 	mComp, hComp := [3]*DevTensor{}, [3]*DevTensor{}
-// 	for i := range mComp {
-// 		mComp[i] = m.Component(i)
-// 		hComp[i] = h.Component(i)
-// 	}
-// 	paddedsize := padSize(size)
+//
 // 	return &Magnet{*mat, size, paddedsize, cellSize, m, h, mComp, hComp}
 // }
 // 

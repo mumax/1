@@ -15,9 +15,9 @@ func (s *Sim) Size(x, y, z int) {
 
 // Defines the cell size in meters
 func (s *Sim) CellSize(x, y, z float) {
-	s.input.cellsize[X] = x
-	s.input.cellsize[Y] = y
-	s.input.cellsize[Z] = z
+	s.input.cellSize[X] = x
+	s.input.cellSize[Y] = y
+	s.input.cellSize[Z] = z
 	s.invalidate()
 }
 

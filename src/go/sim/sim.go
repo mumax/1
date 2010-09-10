@@ -4,7 +4,34 @@ package sim
 import (
 	"tensor"
 	"time"
+	"fmt"
 )
+
+// Sim has an "input" member of type Input.
+//
+// In this struct, all parameters are STILL IN SI UNITS.
+// When Sim.init() is called, a solver is initiated
+// with these values converted to internal units.
+// We need to keep the originial SI values in case a
+// parameter gets changed during the simulation and
+// we need to re-initialize everything.
+//
+// This struct is not embedded in Sim but appears as
+// a member "input" so that we have to write, e.g.,
+// sim.input.dt to make clear it is not necessarily the
+// same as sim.dt (which is in internal units)
+//
+type Input struct {
+	aexch          float
+	msat           float
+	alpha          float
+	size           [3]int
+	cellSize       [3]float
+	demag_accuracy int
+	dt             float
+	solvertype     string
+}
+
 
 // The Sim struct stores a simulation state.
 //
@@ -26,8 +53,7 @@ type Sim struct {
 
 	// what we want
 	backend *Backend
-
-	mLocal *tensor.Tensor4
+	mLocal  *tensor.Tensor4
 
 	// what we have
 	Material
@@ -38,10 +64,10 @@ type Sim struct {
 	mDev, h      *DevTensor // on device
 	mComp, hComp [3]*DevTensor
 	Solver
-  time           float64
-  dt  float
-    steps          int
-    
+	time  float64
+	dt    float
+	steps int
+
 	// output
 	outschedule []Output //TODO vector...
 	autosaveIdx int
@@ -86,35 +112,77 @@ func (s *Sim) init() {
 	}
 	Debugv("Re-initializing simulation state")
 
-	s.ensure_m()
-
 	dev := s.backend
 	dev.Init()
 
+	// (1) Material parameters control the units,
+	// so they need to be set up first
 	s.Material.Init()
 	s.mSat = s.input.msat
 	s.aExch = s.input.aexch
 	s.alpha = s.input.alpha
 
-	// 	size := s.size[0:]
-	//	L := s.UnitLength()
-	// 	cellsize := []float{s.cellsize[X] / L, s.cellsize[Y] / L, s.cellsize[Z] / L}
-	//magnet := NewMagnet(dev, mat, size, cellsize)
-	//s.Field = NewField(dev, magnet, s.demag_accuracy)
-
-	dt := s.input.dt / s.UnitTime()
-	s.Solver = NewSolver(s.input.solvertype, s) //NewEuler(dev, s.Field, dt) //TODO solver dt should be float64(?)
-	s.Solver.SetDt(dt)
-
-	// 	B := s.UnitField()
-	// 	s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
-
-	if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
-		s.mLocal = resample(s.mLocal, s.mDev.size)
+	// (2) Size must be set before memory allocation
+	L := s.UnitLength()
+	s.size4D[0] = 3 // 3-component vectors
+	for i := range s.size {
+		s.size[i] = s.input.size[i]
+		s.size4D[i+1] = s.size[i]
+		s.cellSize[i] = s.input.cellSize[i] / L
 	}
-	TensorCopyTo(s.mLocal, s.mDev)
 
-	s.Normalize(s.mDev)
+	// (3) Allocate memory, but only if needed
+	// Free previous memory only if it has the wrong size
+	if s.mDev != nil && !tensor.EqualSize(s.mDev.Size(), s.size4D[0:]) {
+		// TODO: free
+		s.mDev = nil
+		s.h = nil
+	}
+	if s.mDev == nil {
+		Debugv("Allocating device memory " + fmt.Sprint(s.size4D))
+		s.mDev = NewTensor(dev, s.size4D[0:])
+		s.h = NewTensor(dev, s.size4D[0:])
+		s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
+		for i := range s.mComp {
+			s.mComp[i] = s.mDev.Component(i)
+			s.hComp[i] = s.h.Component(i)
+		}
+	}
+
+  // (3b) resize the previous magnetization state
+  s.ensure_m()
+  if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
+    s.mLocal = resample(s.mLocal, s.mDev.size)
+  }
+  TensorCopyTo(s.mLocal, s.mDev)
+
+  s.Normalize(s.mDev)
+  
+	// (4) Calculate kernel & set up convolution
+  
+	s.paddedsize = padSize(s.size[0:])
+	
+	Debugv("Calculating kernel")
+	demag := FaceKernel6(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy)
+	exch := Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
+	// Add Exchange kernel to demag kernel
+	for i := range demag {
+		D := demag[i].List()
+		E := exch[i].List()
+		for j := range D {
+			D[j] += E[j]
+		}
+	}
+	s.Conv = *NewConv(dev, s.size[0:], demag)
+
+  //  B := s.UnitField()
+  //  s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
+  
+  // (5) Time stepping
+// 	s.dt = s.input.dt / s.UnitTime()
+// 	s.Solver = NewSolver(s.input.solvertype, s) //NewEuler(dev, s.Field, dt) //TODO solver dt should be float64(?)
+// 	s.Solver.SetDt(dt)
+
 }
 
 
