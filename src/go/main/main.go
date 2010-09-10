@@ -21,7 +21,7 @@ import (
 
 var (
 	server    *bool   = flag.Bool("server", false, "Run as a slave node in a cluster")
-	verbosity *int    = flag.Int("verbosity", 1, "Control the debug verbosity (0 - 3)")
+	verbosity *int    = flag.Int("verbosity", 2, "Control the debug verbosity (0 - 3)")
 	port      *int    = flag.Int("port", 2527, "Which network port to use")
 	transport *string = flag.String("transport", "tcp", "Which transport to use (tcp / udp)")
 	device    *string = flag.String("device", "gpu", "The default computing device to use with -server") //TODO: also for master

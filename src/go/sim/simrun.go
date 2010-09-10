@@ -17,7 +17,7 @@ func (s *Sim) Run(time float64) {
 
 		// save output if so scheduled
 		for _, out := range s.outschedule {
-			if out.NeedSave(float(s.time)) {
+			if out.NeedSave(float(s.time) * s.UnitTime() ) {  // output entries want SI units
 				// assure the local copy of m is up to date and increment the autosave counter if neccesary
 				s.assureMUpToDate()
 				// save

@@ -29,9 +29,9 @@ func (s *Sim) OutputDir(outputdir string) {
 }
 
 // Schedules a quantity for autosave
+// We use SI units! So that the autosave information is independent of the material parameters!
 // E.g.: "autosave m binary 1E-9" will save the magnetization in binary format every ns
 func (s *Sim) Autosave(what, format string, interval float) {
-	interval /= s.UnitTime()
 	s.outschedule = s.outschedule[0 : len(s.outschedule)+1]
 	output := resolve(what, format)
 	output.SetInterval(interval)
@@ -51,9 +51,9 @@ func (s *Sim) Save(what, format string) {
 
 // INTERNAL: Entries in the list of scheduled output have this interface
 type Output interface {
-	// Set the autosave interval in seconds
+	// Set the autosave interval in seconds - SI units!
 	SetInterval(interval float)
-	// Returns true if the output needs to saved at this time
+	// Returns true if the output needs to saved at this time - SI units!
 	NeedSave(time float) bool
 	// After NeedSave() returned true, the simulation will make sure the local copy of m is up to date and the autosaveIdx gets updated. Then Save() is called to save the output
 	Save(sim *Sim)
