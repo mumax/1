@@ -46,10 +46,8 @@ type Input struct {
 // TODO order of initialization is too important in input file, should be more versatile
 //
 type Sim struct {
-	starttime int64 // when the simulation was started, seconds since unix epoch -> dashboard
-	valid     bool
-
-	input Input
+	input Input // stores the original input parameters in SI units
+	valid bool  // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
 
 	// what we want
 	backend *Backend
@@ -59,8 +57,8 @@ type Sim struct {
 	Material
 	Mesh
 	Conv
-	AppliedField //function
-	hext         [3]float
+	AppliedField            // returns a field in function of time
+	hext         [3]float   // stores the field returned by AppliedField
 	mDev, h      *DevTensor // on device
 	mComp, hComp [3]*DevTensor
 	Solver
@@ -69,6 +67,7 @@ type Sim struct {
 	steps int
 
 	// output
+	starttime   int64    // when the simulation was started, seconds since unix epoch -> dashboard
 	outschedule []Output //TODO vector...
 	autosaveIdx int
 	outputdir   string
@@ -206,11 +205,12 @@ func (s *Sim) CalcHeff(m, h *DevTensor) {
 
 	s.Convolve(m, h)
 
-	//  if s.Hext != nil {
-	//      for i := range s.hComp {
-	//          f.AddConstant(f.hComp[i], f.Hext[i])
-	//      }
-	//  }
+	if s.AppliedField != nil {
+		s.hext = s.GetAppliedField(s.time)
+		for i := range s.hComp {
+			s.AddConstant(s.hComp[i], s.hext[i])
+		}
+	}
 }
 
 // Set how much debug info is printed. Level=0,1,2 or 3 for none, normal, verbose and very verbose.
