@@ -16,11 +16,11 @@ type Material struct {
 
 func NewMaterial() *Material {
 	mat := new(Material)
-	mat.Init()
+	mat.InitMaterial()
 	return mat
 }
 
-func (mat *Material) Init() {
+func (mat *Material) InitMaterial() {
 	mat.mu0 = 4.0E-7 * Pi
 	mat.gamma0 = 2.211E5
 }

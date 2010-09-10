@@ -89,6 +89,7 @@ func NewSim() *Sim {
 	sim.input.demag_accuracy = 8
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
 	sim.starttime = time.Seconds()
+	sim.valid = false
 	return sim
 }
 
@@ -113,11 +114,11 @@ func (s *Sim) init() {
 	Debugv("Re-initializing simulation state")
 
 	dev := s.backend
-	dev.Init()
+	dev.InitBackend()
 
 	// (1) Material parameters control the units,
 	// so they need to be set up first
-	s.Material.Init()
+	s.InitMaterial()
 	s.mSat = s.input.msat
 	s.aExch = s.input.aexch
 	s.alpha = s.input.alpha
@@ -127,8 +128,10 @@ func (s *Sim) init() {
 	s.size4D[0] = 3 // 3-component vectors
 	for i := range s.size {
 		s.size[i] = s.input.size[i]
+		assert(s.size[i] > 0)
 		s.size4D[i+1] = s.size[i]
 		s.cellSize[i] = s.input.cellSize[i] / L
+		assert(s.cellSize[i] > 0.)
 	}
 
 	// (3) Allocate memory, but only if needed
@@ -137,11 +140,17 @@ func (s *Sim) init() {
 		// TODO: free
 		s.mDev = nil
 		s.h = nil
+		s.mLocal = resample(s.mLocal, s.mDev.size)
+	}
+	if s.mLocal == nil {
+		s.mLocal = tensor.NewTensor4(s.size4D[0:])
 	}
 	if s.mDev == nil {
 		Debugv("Allocating device memory " + fmt.Sprint(s.size4D))
+
 		s.mDev = NewTensor(dev, s.size4D[0:])
 		s.h = NewTensor(dev, s.size4D[0:])
+
 		s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
 		for i := range s.mComp {
 			s.mComp[i] = s.mDev.Component(i)
@@ -149,19 +158,18 @@ func (s *Sim) init() {
 		}
 	}
 
-  // (3b) resize the previous magnetization state
-  s.ensure_m()
-  if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
-    s.mLocal = resample(s.mLocal, s.mDev.size)
-  }
-  TensorCopyTo(s.mLocal, s.mDev)
+	// (3b) resize the previous magnetization state
+	if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
 
-  s.Normalize(s.mDev)
-  
+	}
+	TensorCopyTo(s.mLocal, s.mDev)
+
+	s.Normalize(s.mDev)
+
 	// (4) Calculate kernel & set up convolution
-  
+
 	s.paddedsize = padSize(s.size[0:])
-	
+
 	Debugv("Calculating kernel")
 	demag := FaceKernel6(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy)
 	exch := Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
@@ -175,13 +183,14 @@ func (s *Sim) init() {
 	}
 	s.Conv = *NewConv(dev, s.size[0:], demag)
 
-  //  B := s.UnitField()
-  //  s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
-  
-  // (5) Time stepping
+	//  B := s.UnitField()
+	//  s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
+
+	// (5) Time stepping
 	s.dt = s.input.dt / s.UnitTime()
 	s.Solver = NewSolver(s.input.solvertype, s)
 
+  s.valid = true
 }
 
 

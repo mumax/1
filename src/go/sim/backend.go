@@ -31,7 +31,7 @@ func NewBackend(d Device) *Backend {
 
 // more or less safe initialization, calls the underlying init() only once
 // (given you allocate only one unique CPU, GPU, ...)
-func (dev *Backend) Init() {
+func (dev *Backend) InitBackend() {
 	if !dev.Initiated {
 		dev.init()
 		dev.Initiated = true

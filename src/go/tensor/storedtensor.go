@@ -440,7 +440,6 @@ func Buffer(t Tensor) StoredTensor {
 
 
 /** We mimic fftw's malloc here, so that the array is aligned for SIMD instructions. */
-
 func mallocAligned(size int) []float {
 	log.Stderr("mallocAligned(", size, ")")
 	array := make([]float, size)
