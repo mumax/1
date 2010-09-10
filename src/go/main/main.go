@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"flag"
 	"io"
+	"runtime"
 )
 
 var (
@@ -41,6 +42,10 @@ func main() {
 
 // when running in the normal "master" mode, i.e. given an input file to process locally
 func main_master() {
+
+  Debugv("Locked OS thread")
+  runtime.LockOSThread()
+  
 	if flag.NArg() == 0 {
 		fmt.Fprintln(os.Stderr, "No input files.")
 		os.Exit(-1)
