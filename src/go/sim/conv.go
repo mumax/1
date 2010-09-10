@@ -15,10 +15,10 @@ import (
 // space is padded with zero's (which are efficiently handled).
 type Conv struct {
 	FFT
-	kernel [6]*Tensor
-	buffer [3]*Tensor
-	mcomp  [3]*Tensor // only a buffer, automatically set at each conv()
-	hcomp  [3]*Tensor // only a buffer, automatically set at each conv()
+	kernel [6]*DevTensor
+	buffer [3]*DevTensor
+	mcomp  [3]*DevTensor // only a buffer, automatically set at each conv()
+	hcomp  [3]*DevTensor // only a buffer, automatically set at each conv()
 }
 
 // dataSize = size of input data (one componenten of the magnetization), e.g., 4 x 32 x 32.
@@ -40,8 +40,8 @@ func NewConv(backend *Backend, dataSize []int, kernel []*tensor.Tensor3) *Conv {
 	///@todo do not allocate for infinite2D problem
 	for i := 0; i < 3; i++ {
 		conv.buffer[i] = NewTensor(conv.Backend, conv.PhysicSize())
-		conv.mcomp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil)}
-		conv.hcomp[i] = &Tensor{conv.Backend, dataSize, unsafe.Pointer(nil)}
+		conv.mcomp[i] = &DevTensor{conv.Backend, dataSize, unsafe.Pointer(nil)}
+		conv.hcomp[i] = &DevTensor{conv.Backend, dataSize, unsafe.Pointer(nil)}
 	}
 	conv.loadKernel6(kernel)
 
@@ -49,7 +49,7 @@ func NewConv(backend *Backend, dataSize []int, kernel []*tensor.Tensor3) *Conv {
 }
 
 
-func (conv *Conv) Convolve(source, dest *Tensor) {
+func (conv *Conv) Convolve(source, dest *DevTensor) {
 	Debugvv("Conv.Convolve()")
 	assert(len(source.size) == 4) // size checks
 	assert(len(dest.size) == 4)
@@ -89,36 +89,43 @@ func (conv *Conv) Convolve(source, dest *Tensor) {
 
 // INTERNAL: Loads a convolution kernel.
 // This is automatically done during initialization.
+// "kernel" is not FFT'ed yet, this is done here.
+// We use exactly the same fft as for the magnetizaion
+// so that the convolution definitely works.
+// After FFT'ing, the kernel is purely real,
+// so we discard the imaginary parts.
+// This saves a huge amount of memory
 func (conv *Conv) loadKernel6(kernel []*tensor.Tensor3) {
 
 	for _, k := range kernel {
 		if k != nil {
-			assert(tensor.EqualSize(k.Size(), conv.KernelSize()))
+			assert(tensor.EqualSize(k.Size(), conv.LogicSize()))
 		}
 	}
 
-	buffer := tensor.NewTensorN(conv.KernelSize())
-	devbuf := NewTensor(conv.Backend, conv.KernelSize())
-
-	fft := NewFFT(conv.Backend, conv.KernelSize())
-	N := 1.0 / float(fft.Normalization())
+	fft := NewFFT(conv.Backend, conv.LogicSize())
+	norm := 1.0 / float(fft.Normalization())
+	devIn := NewTensor(conv.Backend, conv.LogicSize())
+	devOut := NewTensor(conv.Backend, fft.PhysicSize())
+	hostOut := tensor.NewTensor3(fft.PhysicSize())
 
 	for i := range conv.kernel {
-		if kernel[i] != nil { // nil means it would contain only zeros so we don't store it.
-			conv.kernel[i] = NewTensor(conv.Backend, conv.PhysicSize())
-			tensor.CopyTo(kernel[i], buffer)
-			for i := range buffer.List() {
-				buffer.List()[i] *= N
-			}
-			ZeroTensor(conv.kernel[i])
-			TensorCopyTo(buffer, devbuf)
-			fft.Forward(devbuf, conv.kernel[i])
+		TensorCopyTo(kernel[i], devIn)
+		fft.Forward(devIn, devOut)
+		TensorCopyFrom(devOut, hostOut)
+		listOut := hostOut.List()
+
+		for j := 0; j < len(listOut)/2; j++ {
+			listOut[j] = listOut[2*j] * norm
 		}
+
+		conv.kernel[i] = NewTensor(conv.Backend, conv.KernelSize())
+		conv.memcpyTo(&listOut[0], conv.kernel[i].data, Len(conv.kernel[i].Size()))
 	}
 }
 
 
-// size of magnetization + padding zeros, this is the FFT logicSize
+// size of the (real) kernel
 func (conv *Conv) KernelSize() []int {
-	return conv.LogicSize()
+	return []int{conv.PhysicSize()[X], conv.PhysicSize()[Y], conv.PhysicSize()[Z] / 2}
 }

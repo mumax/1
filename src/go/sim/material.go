@@ -2,78 +2,80 @@ package sim
 
 import (
 	. "math"
-	"fmt"
+	// 	"fmt"
 )
 
 type Material struct {
-	AExch  float ///< Exchange constant in J/m
-	MSat   float ///< Saturation magnetization in A/m
-	Mu0    float ///< Mu0 in N/A^2
-	Gamma0 float ///< Gyromagnetic ratio in m/As
-	Alpha  float ///< Damping parameter
-
+	aExch  float // Exchange constant in J/m
+	mSat   float // Saturation magnetization in A/m
+	mu0    float // mu0 in N/A^2
+	gamma0 float // Gyromagnetic ratio in m/As
+	alpha  float // Damping parameter
 }
 
 
 func NewMaterial() *Material {
-
 	mat := new(Material)
-	mat.Mu0 = 4.0E-7 * Pi
-	mat.Gamma0 = 2.211E5
+	mat.InitMaterial()
 	return mat
 }
 
-
-func (mat *Material) String() string {
-	s := "Material:\n"
-	s += fmt.Sprintln("AExch      : \t", mat.AExch, " J/m")
-	s += fmt.Sprintln("MSat       : \t", mat.MSat, " A/m")
-	s += fmt.Sprintln("Gamma0     : \t", mat.Gamma0, " m/As")
-	s += fmt.Sprintln("Mu0        : \t", mat.Mu0, " N/A^2")
-	s += fmt.Sprintln("exch length: \t", mat.UnitLength(), " m")
-	s += fmt.Sprintln("unit time  : \t", mat.UnitTime(), " s")
-	s += fmt.Sprintln("unit energy: \t", mat.UnitEnergy(), " J")
-	s += fmt.Sprintln("unit field : \t", mat.UnitField(), " T")
-	return s
+func (mat *Material) InitMaterial() {
+	mat.mu0 = 4.0E-7 * Pi
+	mat.gamma0 = 2.211E5
 }
 
 
+// func (mat *Material) String() string {
+// 	s := "Material:\n"
+// 	s += fmt.Sprintln("aExch      : \t", mat.aExch, " J/m")
+// 	s += fmt.Sprintln("mSat       : \t", mat.mSat, " A/m")
+// 	s += fmt.Sprintln("gamma0     : \t", mat.gamma0, " m/As")
+// 	s += fmt.Sprintln("mu0        : \t", mat.mu0, " N/A^2")
+// 	s += fmt.Sprintln("exch length: \t", mat.UnitLength(), " m")
+// 	s += fmt.Sprintln("unit time  : \t", mat.UnitTime(), " s")
+// 	s += fmt.Sprintln("unit energy: \t", mat.UnitEnergy(), " J")
+// 	s += fmt.Sprintln("unit field : \t", mat.UnitField(), " T")
+// 	return s
+// }
+
+
 //  FIELD = Ms
-//  LENGTH = sqrt(2.0*A/(Mu0*Ms*Ms))
+//  LENGTH = sqrt(2.0*A/(mu0*Ms*Ms))
 //  TIME = 1.0 / (gamma * Ms)
 //  ENERGY = A * LENGTH
 
 // The internal unit of length, expressed in meters.
 func (mat *Material) UnitLength() float {
 	assert(mat.Valid())
-	return float(Sqrt(2. * float64(mat.AExch/(mat.Mu0*mat.MSat*mat.MSat))))
+	return float(Sqrt(2. * float64(mat.aExch/(mat.mu0*mat.mSat*mat.mSat))))
 }
 
 
 // The internal unit of time, expressed in seconds.
 func (mat *Material) UnitTime() float {
 	assert(mat.Valid())
-	return 1.0 / (mat.Gamma0 * mat.MSat)
+	return 1.0 / (mat.gamma0 * mat.mSat)
 }
 
 
 // The internal unit of field, expressed in tesla.
 func (mat *Material) UnitField() float {
 	assert(mat.Valid())
-	return mat.Mu0 * mat.MSat
+	return mat.mu0 * mat.mSat
 }
 
 
 // The internal unit of energy, expressed in J.
 func (mat *Material) UnitEnergy() float {
 	assert(mat.Valid())
-	return mat.AExch * mat.UnitLength()
+	return mat.aExch * mat.UnitLength()
 }
 
 
 // Returns true if the material parameters are valid
 func (mat *Material) Valid() bool {
-	return mat.AExch > 0. && mat.MSat > 0. && mat.Gamma0 > 0 && mat.Mu0 > 0
+	return mat.aExch > 0. && mat.mSat > 0. && mat.gamma0 > 0 && mat.mu0 > 0
 }
 
 

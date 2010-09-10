@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define RUNS 100000
+#define RUNS 100
 
 void format(float* array, int N1, int N2){
   for(int i=0; i<N1; i++){
@@ -17,6 +17,52 @@ void format(float* array, int N1, int N2){
   printf("\n");
 }
 
+void test_complex_YZ(){
+  int N0 = 64, N1 = 256, N2 = 256, N3=2;
+  int N = N0*N1*N2*N3;
+
+  float* host = (float*)calloc(N, sizeof(float));
+  float* dev = new_gpu_array(N);
+
+  printf("%p\n", dev);
+
+  float* dev2 = new_gpu_array(N);
+  float* host2 = (float*)calloc(N, sizeof(float));
+
+  for(int x=0; x<N0; x++)
+    for(int i=0; i<N1; i++){
+      for(int j=0; j<N2; j++){
+        host[x*N1*N2*N3 + i*N2*N3 + j*N3 + 0] = 10*x + i + j / 100.;
+        host[x*N1*N2*N3 + i*N2*N3 + j*N3 + 1] = - (10*x + i + j / 100.);
+      }
+    }
+
+    memcpy_to_gpu(host, dev, N);
+
+  // do one to initialize CUDA before the actual timing
+  gpu_transposeYZ_complex(dev, dev2, N0, N1, N2*N3);
+
+  timer_start("transpose_YZ_complex");
+  for(int i=0; i<RUNS; i++)
+    gpu_transposeYZ_complex(dev, dev2, N0, N1, N2*N3);
+  timer_stop("transpose_YZ_complex");
+
+  memcpy_from_gpu(dev2, host2, N);
+  //   format(host, N1, N2*N3);
+  //   format(host2, N2, N1*N3);
+
+  for(int x=0; x<N0; x++)
+    for(int i=0; i<N1; i++){
+      for(int j=0; j<N2; j++){
+        assert( host[x*N1*N2*N3 + i*N2*N3 + j*N3 + 0] == host2[x*N1*N2*N3 + j*N1*N3 + i*N3 + 0] );
+        assert( host[x*N1*N2*N3 + i*N2*N3 + j*N3 + 1] == host2[x*N1*N2*N3 + j*N1*N3 + i*N3 + 1] );
+      }
+    }
+
+    printf("PASS\n");
+}
+
+
 void test_complex(){
   int N1 = 256, N2 = 512, N3=2;
   int N = N1*N2*N3;
@@ -25,7 +71,7 @@ void test_complex(){
   float* dev = new_gpu_array(N);
 
   printf("%p\n", dev);
-  
+
   float* dev2 = new_gpu_array(N);
   float* host2 = (float*)calloc(N, sizeof(float));
 
@@ -47,8 +93,8 @@ void test_complex(){
   timer_stop("transpose_complex");
 
   memcpy_from_gpu(dev2, host2, N);
-//   format(host, N1, N2*N3);
-//   format(host2, N2, N1*N3);
+  //   format(host, N1, N2*N3);
+  //   format(host2, N2, N1*N3);
 
   for(int i=0; i<N1; i++){
     for(int j=0; j<N2; j++){
@@ -86,8 +132,8 @@ void test_real(){
   timer_stop("transpose");
 
   memcpy_from_gpu(dev2, host2, N);
-//   format(host, N1, N2);
-//   format(host2, N2, N1);
+  //   format(host, N1, N2);
+  //   format(host2, N2, N1);
 
   for(int i=0; i<N1; i++){
     for(int j=0; j<N2; j++){
@@ -99,6 +145,7 @@ void test_real(){
 
 int main(){
   test_real();
-   test_complex();
-    timer_printdetail();
+  test_complex();
+  test_complex_YZ();
+  timer_printdetail();
 }

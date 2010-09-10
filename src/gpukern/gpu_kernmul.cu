@@ -8,19 +8,19 @@ extern "C" {
 #endif
 
 
-__global__ void _gpu_extract_real(float* complex, float* real){
-  int e = ((blockIdx.x * blockDim.x) + threadIdx.x);
-  real[e] = complex[2*e];
-}
-
-void gpu_extract_real(float* complex, float* real, int NReal){
-  
-  int gridSize = -1, blockSize = -1;
-  make1dconf(NReal, &gridSize, &blockSize);
-
-  _gpu_extract_real<<<gridSize, blockSize>>>(complex, real);
-  cudaThreadSynchronize();
-}
+// __global__ void _gpu_extract_real(float* complex, float* real){
+//   int e = ((blockIdx.x * blockDim.x) + threadIdx.x);
+//   real[e] = complex[2*e];
+// }
+// 
+// void gpu_extract_real(float* complex, float* real, int NReal){
+//   
+//   int gridSize = -1, blockSize = -1;
+//   make1dconf(NReal, &gridSize, &blockSize);
+// 
+//   _gpu_extract_real<<<gridSize, blockSize>>>(complex, real);
+//   cudaThreadSynchronize();
+// }
 
 
 
@@ -41,13 +41,13 @@ __global__ void _gpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
   float reMz = fftMz[e  ];
   float imMz = fftMz[e+1];
 
-  float Kxx = fftKxx[e];
-  float Kyy = fftKyy[e];
-  float Kzz = fftKzz[e];
+  float Kxx = fftKxx[e/2];
+  float Kyy = fftKyy[e/2];
+  float Kzz = fftKzz[e/2];
 
-  float Kyz = fftKyz[e];
-  float Kxz = fftKxz[e];
-  float Kxy = fftKxy[e];
+  float Kyz = fftKyz[e/2];
+  float Kxz = fftKxz[e/2];
+  float Kxy = fftKxy[e/2];
   
   fftMx[e  ] = reMx * Kxx + reMy * Kxy + reMz * Kxz;
   fftMx[e+1] = imMx * Kxx + imMy * Kxy + imMz * Kxz;

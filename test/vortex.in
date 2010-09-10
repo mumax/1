@@ -1,38 +1,31 @@
 
 # hardware selection
-cpu
+gpu
 
 
 # output
-outputdir:  vortex
-verbosity:  1
+outputdir:      vortex
 
-solvertype: euler
 
 # material parameters
-msat:       800E3       # A/m
-aexch:      1.3E-11     # J/m    
+msat:           800E3       # A/m
+aexch:          1.3E-11     # J/m    
 
 
 # geometry
-size       1     64           64
-cellsize   12E-9  5E-9  5E-9
+size          64     64  128
+cellsize      2E-9  2E-9  2E-9
 
 
 # initial magnetization
-vortex    1 1
+vortex        1 1
 
 # relax
-alpha      1.0
-save       m png
-save       m binary
-autosave   m png  10E-12
-dt         0.5E-12
-run        0.01E-9
+demagaccuracy 2
+solvertype    heun
+alpha         1.0
+#autosave      table ascii  20E-12
+#autosave      m     binary 20E-12
+dt            0.5E-12
+run           0.1E-9
 
-size       4  64  128
-cellsize   3E-9 5E-9 5E-9
-run        0.01E-9
-
-load       vortex/m00000000.t
-run 0.1E-9

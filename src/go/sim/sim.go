@@ -3,16 +3,37 @@ package sim
 
 import (
 	"tensor"
+	"time"
+	"fmt"
 )
 
-// The Sim struct stores a simulation state.
+// Sim has an "input" member of type Input.
 //
-// Here, all parameters are STILL IN SI UNITS.
+// In this struct, all parameters are STILL IN SI UNITS.
 // When Sim.init() is called, a solver is initiated
 // with these values converted to internal units.
 // We need to keep the originial SI values in case a
 // parameter gets changed during the simulation and
 // we need to re-initialize everything.
+//
+// This struct is not embedded in Sim but appears as
+// a member "input" so that we have to write, e.g.,
+// sim.input.dt to make clear it is not necessarily the
+// same as sim.dt (which is in internal units)
+//
+type Input struct {
+	aexch          float
+	msat           float
+	alpha          float
+	size           [3]int
+	cellSize       [3]float
+	demag_accuracy int
+	dt             float
+	solvertype     string
+}
+
+
+// The Sim struct stores a simulation state.
 //
 // The Sim struct has a lot of exported methods.
 // When an input file is processed, reflection is used
@@ -25,32 +46,32 @@ import (
 // TODO order of initialization is too important in input file, should be more versatile
 //
 type Sim struct {
+	input Input // stores the original input parameters in SI units
+	valid bool  // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
+
+	// what we want
 	backend *Backend
+	mLocal  *tensor.Tensor4
 
-	aexch float
-	msat  float
-	alpha float
-
-	size           [3]int
-	cellsize       [3]float
-	demag_accuracy int
-
-	m *tensor.Tensor4
-
-	dt         float
-	time       float64
-	steps      int
-	solvertype string
+	// what we have
+	Material
+	Mesh
+	Conv
+	AppliedField            // returns a field in function of time
+	hext         [3]float   // stores the field returned by AppliedField
+	mDev, h      *DevTensor // on device
+	mComp, hComp [3]*DevTensor
 	Solver
+	time  float64
+	dt    float
+	steps int
 
-	*Field //TODO: rename magnet->mesh, field->magnet?
-
+	// output
+	starttime   int64    // when the simulation was started, seconds since unix epoch -> dashboard
 	outschedule []Output //TODO vector...
 	autosaveIdx int
 	outputdir   string
 	mUpToDate   bool
-
-	hext [3]float
 }
 
 func New() *Sim {
@@ -59,13 +80,15 @@ func New() *Sim {
 
 func NewSim() *Sim {
 	sim := new(Sim)
-	sim.backend = nil //TODO: check if GPU is present, use CPU otherwise
+	sim.backend = GPU //nil //TODO: check if GPU is present, use CPU otherwise
 	sim.outputdir = "."
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
 	sim.invalidate() //just to make sure we will init()
-	sim.demag_accuracy = 8
+	sim.input.demag_accuracy = 8
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
+	sim.starttime = time.Seconds()
+	sim.valid = false
 	return sim
 }
 
@@ -74,13 +97,12 @@ func (s *Sim) invalidate() {
 	if s.isValid() {
 		Debugv("Simulation state invalidated")
 	}
-	s.Solver = nil
-	s.Field = nil
+	s.valid = false
 }
 
 // When it returns false, init() needs to be called before running.
 func (s *Sim) isValid() bool {
-	return s.Solver != nil && s.Field != nil
+	return s.valid
 }
 
 // (Re-)initialize the simulation tree, necessary before running.
@@ -88,39 +110,107 @@ func (s *Sim) init() {
 	if s.isValid() {
 		return //no work to do
 	}
-	Debugv("Re-initializing simulation state")
-
-	s.ensure_m()
+	Debugv("Initializing simulation state")
 
 	dev := s.backend
-	dev.Init()
+	dev.InitBackend()
+	assert(dev != nil)
 
-	mat := NewMaterial()
-	mat.MSat = s.msat
-	mat.AExch = s.aexch
-	mat.Alpha = s.alpha
+	// (1) Material parameters control the units,
+	// so they need to be set up first
+	s.InitMaterial()
+	s.mSat = s.input.msat
+	s.aExch = s.input.aexch
+	s.alpha = s.input.alpha
 
-	size := s.size[0:]
-	L := mat.UnitLength()
-	cellsize := []float{s.cellsize[X] / L, s.cellsize[Y] / L, s.cellsize[Z] / L}
-	magnet := NewMagnet(dev, mat, size, cellsize)
-	s.Field = NewField(dev, magnet, s.demag_accuracy)
-
-	dt := s.dt / mat.UnitTime()
-	s.Solver = NewSolver(s.solvertype, s.Field) //NewEuler(dev, s.Field, dt) //TODO solver dt should be float64(?)
-	s.Solver.SetDt(dt)
-
-	B := s.UnitField()
-	s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
-
-	if !tensor.EqualSize(s.m.Size(), s.M().Size()) {
-		s.m = resample(s.m, s.M().size)
+	// (2) Size must be set before memory allocation
+	L := s.UnitLength()
+	s.size4D[0] = 3 // 3-component vectors
+	for i := range s.size {
+		s.size[i] = s.input.size[i]
+		assert(s.size[i] > 0)
+		s.size4D[i+1] = s.size[i]
+		s.cellSize[i] = s.input.cellSize[i] / L
+		assert(s.cellSize[i] > 0.)
 	}
-	TensorCopyTo(s.m, s.M()) // TODO it's not clear which is local/remote
-	Debug("debug")
-	TensorCopyFrom(s.M(), s.m) //DEBUG
 
-	s.Normalize(s.M())
+	// (3) Allocate memory, but only if needed
+	// Free previous memory only if it has the wrong size
+	// Todo device should not have been changed
+	// 	if s.mDev != nil && !tensor.EqualSize(s.mDev.Size(), s.size4D[0:]) {
+	// 		// TODO: free
+	// 		s.mDev = nil
+	// 		s.h = nil
+	// 	}
+
+	// 	if s.mDev == nil {
+	Debugv("Allocating device memory " + fmt.Sprint(s.size4D))
+	s.mDev = NewTensor(dev, s.size4D[0:])
+	s.h = NewTensor(dev, s.size4D[0:])
+	s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
+	for i := range s.mComp {
+		s.mComp[i] = s.mDev.Component(i)
+		s.hComp[i] = s.h.Component(i)
+	}
+	// 	}
+
+	if s.mLocal == nil {
+		Debugv("Allocating local memory " + fmt.Sprint(s.size4D))
+		s.mLocal = tensor.NewTensor4(s.size4D[0:])
+	}
+
+	if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
+		s.mLocal = resample(s.mLocal, s.mDev.size)
+	}
+
+	// (3b) resize the previous magnetization state
+	// 	if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
+	// xxx
+	// 	}
+	TensorCopyTo(s.mLocal, s.mDev)
+	// 	s.Normalize(s.mDev)
+
+	// (4) Calculate kernel & set up convolution
+
+	s.paddedsize = padSize(s.size[0:])
+
+	Debugv("Calculating kernel")
+	demag := FaceKernel6(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy)
+	exch := Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
+	// Add Exchange kernel to demag kernel
+	for i := range demag {
+		D := demag[i].List()
+		E := exch[i].List()
+		for j := range D {
+			D[j] += E[j]
+		}
+	}
+	s.Conv = *NewConv(dev, s.size[0:], demag)
+
+	//  B := s.UnitField()
+	//  s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
+
+	// (5) Time stepping
+	s.dt = s.input.dt / s.UnitTime()
+	s.Solver = NewSolver(s.input.solvertype, s)
+
+	s.valid = true
+
+	//   fmt.Println(s)
+}
+
+
+// Calculates the effective field of m and stores it in h
+func (s *Sim) CalcHeff(m, h *DevTensor) {
+
+	s.Convolve(m, h)
+
+	if s.AppliedField != nil {
+		s.hext = s.GetAppliedField(s.time)
+		for i := range s.hComp {
+			s.AddConstant(s.hComp[i], s.hext[i])
+		}
+	}
 }
 
 // Set how much debug info is printed. Level=0,1,2 or 3 for none, normal, verbose and very verbose.

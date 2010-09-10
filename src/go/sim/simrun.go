@@ -1,17 +1,15 @@
 package sim
 
-// This file implements the methods for time stepping
+import (
+	"os"
+)
 
-// Set the solver time step, defined in seconds
-// TODO this should imply or require a fixed-step solver
-func (s *Sim) Dt(t float) {
-	s.dt = t
-	s.invalidate()
-}
+// This file implements the methods for time stepping
 
 // Run the simulation for a certain duration, specified in seconds
 func (s *Sim) Run(time float64) {
 	Debug("Running for", time, "s")
+	time /= float64(s.UnitTime())
 	s.init()
 	stop := s.time + time
 
@@ -27,14 +25,19 @@ func (s *Sim) Run(time float64) {
 			}
 		}
 
+		updateDashboard(s)
+
 		// step
 		Debugvv("Step", s.steps)
+		s.Start("Step")
 		s.Step()
 		s.steps++
 		s.time += float64(s.dt)
 		s.mUpToDate = false
+		s.Stop("Step")
 
 	}
+	s.PrintTimer(os.Stdout)
 	//does not invalidate
 }
 
@@ -45,7 +48,7 @@ func (s *Sim) assureMUpToDate() {
 	s.init()
 	if !s.mUpToDate {
 		Debugv("Copying m from device to local memory")
-		TensorCopyFrom(s.M(), s.m)
+		TensorCopyFrom(s.mDev, s.mLocal)
 		s.autosaveIdx++
 		s.mUpToDate = true
 	}

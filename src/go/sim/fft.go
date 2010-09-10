@@ -1,7 +1,7 @@
 package sim
 
 import (
-	"fmt"
+	// 	"fmt"
 	"unsafe"
 	"tensor"
 )
@@ -13,7 +13,7 @@ type FFT struct {
 	plan       unsafe.Pointer ///< points to the simFFT3dPlan struct that does the actual FFT
 	dataSize   [3]int         ///< size of the non-zero data inside the logic input data. Must be <= logicSize
 	logicSize  [3]int         ///< logical size of the FFT, including padding: number of reals in each dimension
-	physicSize [3]int         ///< The input data needs to be padded with zero's to physicSize, in order to accomodate for the extra complex number in the last dimension needed by real-to-complex FFTS. Additionally, even extra zero's are probably going to be added to fit the sim stride.
+	physicSize [3]int         ///< @todo: rename complexsize. The input data needs to be padded with zero's to physicSize, in order to accomodate for the extra complex number in the last dimension needed by real-to-complex FFTS. Additionally, even extra zero's are probably going to be added to fit the sim stride.
 }
 
 
@@ -48,7 +48,7 @@ func NewFFTPadded(b *Backend, dataSize, logicSize []int) *FFT {
 }
 
 
-func (fft *FFT) Forward(in, out *Tensor) {
+func (fft *FFT) Forward(in, out *DevTensor) {
 	// size checks
 	assert(tensor.Rank(in) == 3)
 	assert(tensor.Rank(out) == 3)
@@ -59,13 +59,11 @@ func (fft *FFT) Forward(in, out *Tensor) {
 		assert(out.size[i] == s)
 	}
 	// actual fft
-	fft.Start("FFT forward")
 	fft.fftForward(fft.plan, in.data, out.data)
-	fft.Stop("FFT forward")
 }
 
 
-func (fft *FFT) Inverse(in, out *Tensor) {
+func (fft *FFT) Inverse(in, out *DevTensor) {
 	// size checks
 	assert(tensor.Rank(in) == 3)
 	assert(tensor.Rank(out) == 3)
@@ -76,13 +74,11 @@ func (fft *FFT) Inverse(in, out *Tensor) {
 		assert(out.size[i] == s)
 	}
 	// actual fft
-	fft.Start("FFT inverse")
 	fft.fftInverse(fft.plan, in.data, out.data)
-	fft.Stop("FFT inverse")
 }
 
 
-func (fft *FFT) InverseInplace(data *Tensor) {
+func (fft *FFT) InverseInplace(data *DevTensor) {
 	fft.Inverse(data, data)
 }
 
@@ -118,6 +114,6 @@ func (fft *FFT) Normalization() int {
 	return (fft.logicSize[X] * fft.logicSize[Y] * fft.logicSize[Z])
 }
 
-func (fft *FFT) String() string {
-	return fmt.Sprint("FFT{ dataSize", fft.dataSize, "logicSize", fft.logicSize, "physicSize", fft.physicSize, "}")
-}
+// func (fft *FFT) String() string {
+// 	return fmt.Sprint("FFT{ dataSize", fft.dataSize, "logicSize", fft.logicSize, "physicSize", fft.physicSize, "}")
+// }

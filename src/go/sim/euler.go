@@ -5,25 +5,17 @@ import ()
 
 // 1st order Euler method
 type Euler struct {
-	SolverState
+	*Sim
 }
 
 func (this *Euler) String() string {
-	return "Euler\n" + this.Field.String() + "--\n"
+	return "Euler"
 }
 
-// func NewEuler(field *Field) *Euler {
-// 	this := new(Euler)
-// 	this.Field = field
-// 	return this
-// }
 
 func (this *Euler) Step() {
-	Debugvv("Euler.Step()")
-	//TODO normalize m before first step (sim.go)
-	//TODO make them private!
-	m, h := this.m, this.h
-	alpha, dt := this.Alpha, this.Dt
+	m, h := this.mDev, this.h
+	alpha, dt := this.alpha, this.dt
 
 	// 	this.Normalize(this.m)
 	this.CalcHeff(m, h)
@@ -35,7 +27,7 @@ func (this *Euler) Step() {
 }
 
 
-// embedding tree:
+// embedding tree :
 
 // Simulation{ ? to avoid typing backend backend backend...(but sim. sim. sim.)
 // Euler{

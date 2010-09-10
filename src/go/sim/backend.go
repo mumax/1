@@ -31,7 +31,7 @@ func NewBackend(d Device) *Backend {
 
 // more or less safe initialization, calls the underlying init() only once
 // (given you allocate only one unique CPU, GPU, ...)
-func (dev *Backend) Init() {
+func (dev *Backend) InitBackend() {
 	if !dev.Initiated {
 		dev.init()
 		dev.Initiated = true
@@ -79,20 +79,20 @@ func (dev *Backend) arraySet(array unsafe.Pointer, index int, value float) {
 
 
 // adds b to a
-func (dev *Backend) Add(a, b *Tensor) {
+func (dev *Backend) Add(a, b *DevTensor) {
 	assert(tensor.EqualSize(a.size, b.size))
 	dev.add(a.data, b.data, tensor.N(a))
 }
 
 
 // overwrites a with weightA * a + weightB * b
-func (dev *Backend) LinearCombination(a, b *Tensor, weightA, weightB float) {
+func (dev *Backend) LinearCombination(a, b *DevTensor, weightA, weightB float) {
 	assert(tensor.EqualSize(a.size, b.size))
 	dev.linearCombination(a.data, b.data, weightA, weightB, tensor.N(a))
 }
 
 // adds the constant cnst to each element of a. N = length of a
-func (dev *Backend) AddConstant(a *Tensor, cnst float) {
+func (dev *Backend) AddConstant(a *DevTensor, cnst float) {
 	Debugvv("Backend.AddConstant(", a, cnst, ")")
 	dev.addConstant(a.data, cnst, tensor.N(a))
 }
@@ -105,7 +105,7 @@ func (dev *Backend) AddConstant(a *Tensor, cnst float) {
 //   }
 // }
 
-func (dev *Backend) Normalize(m *Tensor) {
+func (dev *Backend) Normalize(m *DevTensor) {
 	//Debugvv( "Backend.Normalize()" )
 	assert(len(m.size) == 4)
 	N := m.size[1] * m.size[2] * m.size[3]
@@ -114,7 +114,7 @@ func (dev *Backend) Normalize(m *Tensor) {
 
 
 // calculates torque * dt, overwrites h with the result
-func (dev *Backend) DeltaM(m, h *Tensor, alpha, dtGilbert float) {
+func (dev *Backend) DeltaM(m, h *DevTensor, alpha, dtGilbert float) {
 	assert(len(m.size) == 4)
 	assert(tensor.EqualSize(m.size, h.size))
 	N := m.size[1] * m.size[2] * m.size[3]

@@ -31,6 +31,7 @@ func (s *Sim) OutputDir(outputdir string) {
 // Schedules a quantity for autosave
 // E.g.: "autosave m binary 1E-9" will save the magnetization in binary format every ns
 func (s *Sim) Autosave(what, format string, interval float) {
+	interval /= s.UnitTime()
 	s.outschedule = s.outschedule[0 : len(s.outschedule)+1]
 	output := resolve(what, format)
 	output.SetInterval(interval)
@@ -123,7 +124,7 @@ func (m *MAscii) Save(s *Sim) {
 	if err != nil {
 		panic(err)
 	}
-	tensor.Format(out, s.m)
+	tensor.Format(out, s.mLocal)
 	m.sinceoutput = float(s.time)
 }
 
@@ -148,8 +149,8 @@ func (t *Table) Save(s *Sim) {
 		Debugv("Opened data table file")
 		fmt.Fprintln(out, TABLE_HEADER)
 	}
-	mx, my, mz := m_average(s.m)
-	fmt.Fprint(t.out, s.time, mx, my, mz, " ")
+	mx, my, mz := m_average(s.mLocal)
+	fmt.Fprint(t.out, float(s.time)*s.UnitTime(), mx, my, mz, " ")
 	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
 	fmt.Fprintln(t.out)
 	t.sinceoutput = float(s.time)
@@ -184,7 +185,7 @@ type MBinary struct {
 // INTERNAL
 func (m *MBinary) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".t"
-	tensor.WriteFile(fname, s.m)
+	tensor.WriteFile(fname, s.mLocal)
 	m.sinceoutput = float(s.time)
 }
 
@@ -204,6 +205,6 @@ func (m *MPng) Save(s *Sim) {
 	if err != nil {
 		panic(err)
 	}
-	PNG(out, s.m)
+	PNG(out, s.mLocal)
 	m.sinceoutput = float(s.time)
 }

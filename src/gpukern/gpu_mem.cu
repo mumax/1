@@ -38,12 +38,12 @@ __global__ void _gpu_zero(float* a){
 
 void gpu_zero(float* data, int nElements){
   debugvv(fprintf(stderr, "gpu_zero(%p, %d)\n", data, nElements));
-//   gpu_safe( cudaMemset(data, 0, nElements*sizeof(float)) );
+   gpu_safe( cudaMemset(data, 0, nElements*sizeof(float)) );
 
-  int gridSize = -1, blockSize = -1;
-  make1dconf(nElements, &gridSize, &blockSize);
-  _gpu_zero<<<gridSize, blockSize>>>(data);
-  cudaThreadSynchronize();
+//   int gridSize = -1, blockSize = -1;
+//   make1dconf(nElements, &gridSize, &blockSize);
+//   _gpu_zero<<<gridSize, blockSize>>>(data);
+//   cudaThreadSynchronize();
   
 }
 

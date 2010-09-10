@@ -1,8 +1,6 @@
-all:	manual.pdf
-
-manual.pdf:	*.tex	#manual.bbl
+all:
 	pdflatex -halt-on-error manual.tex
-	pdflatex -halt-on-error manual.tex
+	makeindex manual
 
 # manual.bbl:	*.bib
 # 	pdflatex -halt-on-error manual.tex
@@ -11,4 +9,4 @@ manual.pdf:	*.tex	#manual.bbl
 
 .PHONY: clean
 clean:
-	rm -f *.aux *.bbl *.blg *.ind *.ilg *.log *.toc *.out *.idx
+	rm -f *.aux *.bbl *.blg *.ind *.ilg *.log *.toc *.out *.pdf *.idx

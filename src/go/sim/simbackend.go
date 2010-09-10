@@ -15,7 +15,7 @@ func (s *Sim) Cpu() {
 // Select the GPU as backend
 func (s *Sim) Gpu() {
 	s.backend = GPU
-	Debugv("Selected CPU backend")
+	Debugv("Selected GPU backend")
 	s.invalidate()
 }
 

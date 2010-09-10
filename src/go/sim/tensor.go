@@ -12,16 +12,17 @@ const (
 	Z = 2
 )
 
-
-type Tensor struct {
+// A tensor on the calculating device (CPU, GPU),
+// not directly accessible as a go array.
+type DevTensor struct {
 	*Backend ///< wraps the Device where the Tensor resides on (GPU/CPU/...)
 	size     []int
 	data     unsafe.Pointer // points to float array on the GPU/CPU
 }
 
-
-func NewTensor(b *Backend, size []int) *Tensor {
-	t := new(Tensor)
+// Allocates a new tensor on the device represented by Backend
+func NewTensor(b *Backend, size []int) *DevTensor {
+	t := new(DevTensor)
 	t.Backend = b
 	t.size = make([]int, len(size))
 	length := 1
@@ -35,28 +36,32 @@ func NewTensor(b *Backend, size []int) *Tensor {
 	return t
 }
 
+// Wraps a pre-allocated device array in a tensor
+func AsTensor(b *Backend, data unsafe.Pointer, size []int) *DevTensor {
+	return &DevTensor{b, size, data}
+}
 
-func (t *Tensor) Get(index []int) float {
+func (t *DevTensor) Get(index []int) float {
 	i := tensor.Index(t.size, index)
 	return t.arrayGet(t.data, i)
 }
 
 
-func (t *Tensor) Set(index []int, value float) {
+func (t *DevTensor) Set(index []int, value float) {
 	i := tensor.Index(t.size, index)
 	t.arraySet(t.data, i, value)
 }
 
-func (t *Tensor) Size() []int {
+func (t *DevTensor) Size() []int {
 	return t.size
 }
 
 
-func (t *Tensor) Component(comp int) *Tensor {
+func (t *DevTensor) Component(comp int) *DevTensor {
 	assert(comp >= 0 && comp < t.size[0])
 	size := t.size[1:]
 	data := t.arrayOffset(t.data, comp*Len(size))
-	return &Tensor{t.Backend, size, data}
+	return &DevTensor{t.Backend, size, data}
 }
 
 
@@ -78,13 +83,13 @@ func assertEqualSize(sizeA, sizeB []int) {
 
 
 /// copies between two Tensors on the sim
-func TensorCopyOn(source, dest *Tensor) {
+func TensorCopyOn(source, dest *DevTensor) {
 	assert(tensor.EqualSize(source.size, dest.size))
 	source.memcpyOn(source.data, dest.data, tensor.N(source))
 }
 
 /// copies a tensor to the GPU
-func TensorCopyTo(source tensor.StoredTensor, dest *Tensor) {
+func TensorCopyTo(source tensor.StoredTensor, dest *DevTensor) {
 	///@todo sim.Set(), allow tensor.Tensor source, type switch for efficient copying
 	///@todo TensorCpy() with type switch for auto On/To/From
 	assert(tensor.EqualSize(source.Size(), dest.size))
@@ -92,7 +97,7 @@ func TensorCopyTo(source tensor.StoredTensor, dest *Tensor) {
 }
 
 /// copies a tensor to the GPU
-func TensorCopyFrom(source *Tensor, dest tensor.StoredTensor) {
+func TensorCopyFrom(source *DevTensor, dest tensor.StoredTensor) {
 	///@todo sim.Set(), allow tensor.Tensor source, type switch for efficient copying
 	///@todo TensorCpy() with type switch for auto On/To/From
 	assert(tensor.EqualSize(source.Size(), dest.Size()))
@@ -100,21 +105,21 @@ func TensorCopyFrom(source *Tensor, dest tensor.StoredTensor) {
 }
 
 
-func ZeroTensor(t *Tensor) {
+func ZeroTensor(t *DevTensor) {
 	t.zero(t.data, tensor.N(t))
 }
 
 
-func CopyPad(source, dest *Tensor) {
+func CopyPad(source, dest *DevTensor) {
 	source.copyPad(source.data, dest.data, source.size, dest.size)
 }
 
 
-func CopyUnpad(source, dest *Tensor) {
+func CopyUnpad(source, dest *DevTensor) {
 	source.copyUnpad(source.data, dest.data, source.size, dest.size)
 }
 
 
-func (t *Tensor) String() string {
+func (t *DevTensor) String() string {
 	return fmt.Sprint("Tensor{", t.size, "}")
 }
