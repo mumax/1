@@ -179,9 +179,8 @@ func (s *Sim) init() {
   //  s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
   
   // (5) Time stepping
-// 	s.dt = s.input.dt / s.UnitTime()
-// 	s.Solver = NewSolver(s.input.solvertype, s) //NewEuler(dev, s.Field, dt) //TODO solver dt should be float64(?)
-// 	s.Solver.SetDt(dt)
+	s.dt = s.input.dt / s.UnitTime()
+	s.Solver = NewSolver(s.input.solvertype, s)
 
 }
 

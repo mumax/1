@@ -5,7 +5,7 @@ import ()
 
 // 1st order Euler method
 type Euler struct {
-	SolverState
+	*Sim
 }
 
 func (this *Euler) String() string {

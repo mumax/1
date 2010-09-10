@@ -4,9 +4,9 @@ import ()
 
 
 type Heun struct {
+  *Sim
 	m1est *DevTensor
 	t0    *DevTensor
-	SolverState
 }
 
 
