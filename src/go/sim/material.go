@@ -2,7 +2,7 @@ package sim
 
 import (
 	. "math"
-// 	"fmt"
+	// 	"fmt"
 )
 
 type Material struct {

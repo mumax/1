@@ -12,7 +12,6 @@ func (s *Sim) SolverType(stype string) {
 // Set the solver time step, defined in seconds
 // TODO this should imply or require a fixed-step solver
 func (s *Sim) Dt(t float) {
-  s.input.dt = t
-  s.invalidate()
+	s.input.dt = t
+	s.invalidate()
 }
-

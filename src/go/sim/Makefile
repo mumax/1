@@ -14,7 +14,6 @@ GOFILES=\
 	tensor.go\
 	fft.go\
 	conv.go\
-	field.go\
 	solver.go\
 	euler.go\
 	heun.go\
@@ -23,7 +22,6 @@ GOFILES=\
 	demag.go\
 	exchange.go\
 	material.go\
-	magnet.go\
 	util.go\
 	sim.go\
 	simbackend.go\
@@ -41,7 +39,6 @@ GOFILES=\
 	dashboard.go\
 	appliedfield.go\
 	mesh.go\
-	input.go\
 
 CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so
 

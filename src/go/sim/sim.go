@@ -81,7 +81,7 @@ func New() *Sim {
 
 func NewSim() *Sim {
 	sim := new(Sim)
-	sim.backend = GPU//nil //TODO: check if GPU is present, use CPU otherwise
+	sim.backend = GPU //nil //TODO: check if GPU is present, use CPU otherwise
 	sim.outputdir = "."
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
@@ -112,7 +112,7 @@ func (s *Sim) init() {
 		return //no work to do
 	}
 	Debugv("Initializing simulation state")
-  
+
 	dev := s.backend
 	dev.InitBackend()
 	assert(dev != nil)
@@ -137,39 +137,39 @@ func (s *Sim) init() {
 
 	// (3) Allocate memory, but only if needed
 	// Free previous memory only if it has the wrong size
-  // Todo device should not have been changed
-// 	if s.mDev != nil && !tensor.EqualSize(s.mDev.Size(), s.size4D[0:]) {
-// 		// TODO: free
-// 		s.mDev = nil
-// 		s.h = nil
-// 	}
+	// Todo device should not have been changed
+	// 	if s.mDev != nil && !tensor.EqualSize(s.mDev.Size(), s.size4D[0:]) {
+	// 		// TODO: free
+	// 		s.mDev = nil
+	// 		s.h = nil
+	// 	}
 
-// 	if s.mDev == nil {
-		Debugv("Allocating device memory " + fmt.Sprint(s.size4D))
-		s.mDev = NewTensor(dev, s.size4D[0:])
-		s.h = NewTensor(dev, s.size4D[0:])
-		s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
-		for i := range s.mComp {
-			s.mComp[i] = s.mDev.Component(i)
-			s.hComp[i] = s.h.Component(i)
-		}
-// 	}
+	// 	if s.mDev == nil {
+	Debugv("Allocating device memory " + fmt.Sprint(s.size4D))
+	s.mDev = NewTensor(dev, s.size4D[0:])
+	s.h = NewTensor(dev, s.size4D[0:])
+	s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
+	for i := range s.mComp {
+		s.mComp[i] = s.mDev.Component(i)
+		s.hComp[i] = s.h.Component(i)
+	}
+	// 	}
 
-    if s.mLocal == nil {
-      Debugv("Allocating local memory " + fmt.Sprint(s.size4D))
-      s.mLocal = tensor.NewTensor4(s.size4D[0:])
-    }
+	if s.mLocal == nil {
+		Debugv("Allocating local memory " + fmt.Sprint(s.size4D))
+		s.mLocal = tensor.NewTensor4(s.size4D[0:])
+	}
 
-    if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()){
-      s.mLocal = resample(s.mLocal, s.mDev.size)
-    }
+	if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
+		s.mLocal = resample(s.mLocal, s.mDev.size)
+	}
 
 	// (3b) resize the previous magnetization state
-// 	if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
-// xxx
-// 	}
+	// 	if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
+	// xxx
+	// 	}
 	TensorCopyTo(s.mLocal, s.mDev)
-// 	s.Normalize(s.mDev)
+	// 	s.Normalize(s.mDev)
 
 	// (4) Calculate kernel & set up convolution
 
@@ -195,9 +195,9 @@ func (s *Sim) init() {
 	s.dt = s.input.dt / s.UnitTime()
 	s.Solver = NewSolver(s.input.solvertype, s)
 
-  s.valid = true
+	s.valid = true
 
-//   fmt.Println(s)
+	//   fmt.Println(s)
 }
 
 
