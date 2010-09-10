@@ -6,7 +6,7 @@ gpu
 
 
 # output
-outputdir:  	stdprobl4-heun
+outputdir:  	output
 #verbosity:  	3
 
 solvertype:  	heun
@@ -16,6 +16,7 @@ dt:           	0.15E-12                  # s
 msat:       	800E3       # A/m
 aexch:      	1.3E-11     # J/m
 alpha:      	0.02
+demagaccuracy: 10
 
 # geometry 
 size:       	1     32          128    
@@ -29,5 +30,5 @@ load:    	s-state.t
 autosave:	m	png	50E-12
 autosave:	table	ascii	10E-12
 staticfield: 	0     4.3E-3    -24.6E-3  # T
-run:          	3E-9                      # s
+run:          	1E-9                      # s
 
