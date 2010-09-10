@@ -13,8 +13,8 @@ cellsize:     3E-9  3.90625E-9  3.90625E-9  # m
 
 uniform 1 1 1
 
-#autosave  m png 50E-12
-#autosave  m ascii 50E-12
+autosave  m png 50E-12
+autosave  m ascii 50E-12
 autosave table ascii 50E-12
 
 alpha 1

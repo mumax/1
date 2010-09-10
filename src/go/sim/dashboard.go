@@ -36,6 +36,8 @@ func updateDashboard(sim *Sim) {
 	erase()
 	fmt.Println()
 
+	fmt.Println(BOLD + "IO: " + RESET, sim.autosaveIdx)
+
 	// Conditions
 	fmt.Printf(
 		BOLD+"B:    "+RESET+"(%.3e, %.3e, %.3e)T",
