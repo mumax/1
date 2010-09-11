@@ -32,6 +32,7 @@ func (s *Sim) OutputDir(outputdir string) {
 // We use SI units! So that the autosave information is independent of the material parameters!
 // E.g.: "autosave m binary 1E-9" will save the magnetization in binary format every ns
 func (s *Sim) Autosave(what, format string, interval float) {
+    // interval in SI units
 	s.outschedule = s.outschedule[0 : len(s.outschedule)+1]
 	output := resolve(what, format)
 	output.SetInterval(interval)
@@ -125,7 +126,7 @@ func (m *MAscii) Save(s *Sim) {
 		panic(err)
 	}
 	tensor.Format(out, s.mLocal)
-	m.sinceoutput = float(s.time)
+	m.sinceoutput = float(s.time) * s.UnitTime()
 }
 
 type Table struct {
@@ -186,7 +187,7 @@ type MBinary struct {
 func (m *MBinary) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".t"
 	tensor.WriteFile(fname, s.mLocal)
-	m.sinceoutput = float(s.time)
+	m.sinceoutput = float(s.time) * s.UnitTime()
 }
 
 
@@ -206,5 +207,5 @@ func (m *MPng) Save(s *Sim) {
 		panic(err)
 	}
 	PNG(out, s.mLocal)
-	m.sinceoutput = float(s.time)
+	m.sinceoutput = float(s.time) * s.UnitTime()
 }

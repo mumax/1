@@ -6,20 +6,21 @@ import (
 	"time"
 )
 
-var( lastDashUpdate int64 = 0
- UpdateDashboardEvery int64 = 100 * 1000 * 1000 // in ns
-  dashboardNeedsUp bool = false
-  )
-  
+var (
+	lastDashUpdate       int64 = 0
+	UpdateDashboardEvery int64 = 25 * 1000 * 1000 // in ns
+	dashboardNeedsUp     bool  = false
+)
+
 func updateDashboard(sim *Sim) {
-/*/*
-    if dashboardNeedsUp{
-      //fmt.Printf(ESC + "2F") // move up N lines
-      up()
-    }
-  */
-    fmt.Print(HIDECURSOR)
-    
+	/*/*
+	  if dashboardNeedsUp{
+	    //fmt.Printf(ESC + "2F") // move up N lines
+	    up()
+	  }
+	*/
+	fmt.Print(HIDECURSOR)
+
 	T := sim.UnitTime()
 
 	nanotime := time.Nanoseconds()
@@ -34,9 +35,9 @@ func updateDashboard(sim *Sim) {
 	fmt.Printf(
 		BOLD+"running:"+RESET+"%3dd:%02dh:%02dm:%02ds",
 		time/DAY, (time/HOUR)%24, (time/MIN)%60, time%60)
-    erase()
-    fmt.Println()
-    
+	erase()
+	fmt.Println()
+
 	// Time stepping
 	fmt.Printf(
 		BOLD+"step: "+RESET+"%-11d "+
@@ -47,9 +48,9 @@ func updateDashboard(sim *Sim) {
 	fmt.Println()
 
 	fmt.Print(BOLD+"IO: "+RESET, sim.autosaveIdx)
-    erase()
-    fmt.Println()
-    
+	erase()
+	fmt.Println()
+
 	// Conditions
 	fmt.Printf(
 		BOLD+"B:    "+RESET+"(%.3e, %.3e, %.3e)T",
@@ -57,24 +58,28 @@ func updateDashboard(sim *Sim) {
 	erase()
 	fmt.Println()
 
-   up()
-   up()
-   up()
-   up()
+	up()
+	up()
+	up()
+	up()
 }
 
 
 func erase() {
-	fmt.Fprintf(os.Stdout, ERASE)
+	fmt.Fprint(os.Stdout, ERASE)
 }
 
-func up(){
-    fmt.Printf(LINEUP)
+func eraseln() {
+	fmt.Fprintln(os.Stdout, ERASE)
+}
+
+func up() {
+	fmt.Printf(LINEUP)
 }
 
 // ANSI escape sequences
 const (
-    ESC = "\033["
+	ESC = "\033["
 	// Erase rest of line
 	ERASE = "\033[K"
 	// Restore cursor position
@@ -82,11 +87,11 @@ const (
 	// Bold
 	BOLD = "\033[1m"
 	// Line up
-    LINEUP = "\033[1A"
-    // Hide cursor
-    HIDECURSOR = "\033[?25l"
-    // Show cursor
-    SHOWCURSOR = "\033[?25h"
+	LINEUP = "\033[1A"
+	// Hide cursor
+	HIDECURSOR = "\033[?25l"
+	// Show cursor
+	SHOWCURSOR = "\033[?25h"
 )
 
 const (
