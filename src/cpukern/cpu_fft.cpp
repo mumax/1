@@ -106,7 +106,7 @@ cpuFFT3dPlan* new_cpuFFT3dPlan_inplace(int* datasize, int* paddedSize){
 
 
 void cpuFFT3dPlan_forward(cpuFFT3dPlan* plan, float* input, float* output){
-  fftwf_execute_dft_r2c((fftwf_plan) plan->fwPlan, input, (complex_t*)output);
+//  fftwf_execute_dft_r2c((fftwf_plan) plan->fwPlan, input, (complex_t*)output);
 //   int* size = plan->size;
 //   int* pSSize = plan->paddedStorageSize;
 //   int N0 = pSSize[X];
@@ -162,7 +162,7 @@ void cpuFFT3dPlan_forward(cpuFFT3dPlan* plan, float* input, float* output){
 // }
 
 void cpuFFT3dPlan_inverse(cpuFFT3dPlan* plan, float* input, float* output){
-  fftwf_execute_dft_c2r((fftwf_plan) plan->bwPlan, (complex_t*)input, output);
+//  fftwf_execute_dft_c2r((fftwf_plan) plan->bwPlan, (complex_t*)input, output);
 //   int* size = plan->size;
 //   int* pSSize = plan->paddedStorageSize;
 //   int N0 = pSSize[X];

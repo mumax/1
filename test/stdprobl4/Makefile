@@ -3,4 +3,4 @@ all:
 	autoplot.sh plot
 
 clean:
-	rm -rf output *.eps *.svg *.pdf
+	rm -rf output *.eps *.svg *.pdf m*.png m*.t

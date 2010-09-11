@@ -32,13 +32,13 @@ void cpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
     float reMz = fftMz[e  ];
     float imMz = fftMz[e+1];
 
-    float Kxx = fftKxx[e];
-    float Kyy = fftKyy[e];
-    float Kzz = fftKzz[e];
+    float Kxx = fftKxx[e/2];
+    float Kyy = fftKyy[e/2];
+    float Kzz = fftKzz[e/2];
 
-    float Kyz = fftKyz[e];
-    float Kxz = fftKxz[e];
-    float Kxy = fftKxy[e];
+    float Kyz = fftKyz[e/2];
+    float Kxz = fftKxz[e/2];
+    float Kxy = fftKxy[e/2];
 
     fftMx[e  ] = reMx * Kxx + reMy * Kxy + reMz * Kxz;
     fftMx[e+1] = imMx * Kxx + imMy * Kxy + imMz * Kxz;
