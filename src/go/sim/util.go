@@ -43,10 +43,11 @@ var Verbosity int = 2
 
 func Debug(msg ...interface{}) {
 	if Verbosity > 0 {
-		fmt.Fprintln(os.Stderr, msg)
+		fmt.Fprint(os.Stderr, msg)
+		fmt.Fprint(os.Stderr, ERASE) // Erase rest of line
+		fmt.Fprintln(os.Stderr)
 	}
 }
-
 
 func Debugv(msg ...interface{}) {
 	if Verbosity > 1 {

@@ -6,11 +6,18 @@ import (
 	"time"
 )
 
-var lastDashUpdate int64 = 0
-var UpdateDashboardEvery int64 = 100 * 1000 * 1000 // in ns
-
+var( lastDashUpdate int64 = 0
+ UpdateDashboardEvery int64 = 100 * 1000 * 1000 // in ns
+  dashboardNeedsUp bool = false
+  )
+  
 func updateDashboard(sim *Sim) {
-
+/*/*
+    if dashboardNeedsUp{
+      //fmt.Printf(ESC + "2F") // move up N lines
+      up()
+    }
+  */
 	T := sim.UnitTime()
 
 	nanotime := time.Nanoseconds()
@@ -19,14 +26,15 @@ func updateDashboard(sim *Sim) {
 	}
 	lastDashUpdate = nanotime
 
-	savePos()
 	//fmt.Print(HIDECURSOR)
 	// Walltime
 	time := time.Seconds() - sim.starttime
 	fmt.Printf(
-		BOLD+"running:"+RESET+"%3dd:%02dh:%02dm:%02ds\n",
+		BOLD+"running:"+RESET+"%3dd:%02dh:%02dm:%02ds",
 		time/DAY, (time/HOUR)%24, (time/MIN)%60, time%60)
-
+    erase()
+    fmt.Println()
+    
 	// Time stepping
 	fmt.Printf(
 		BOLD+"step: "+RESET+"%-11d "+
@@ -36,8 +44,10 @@ func updateDashboard(sim *Sim) {
 	erase()
 	fmt.Println()
 
-	fmt.Println(BOLD+"IO: "+RESET, sim.autosaveIdx)
-
+	fmt.Print(BOLD+"IO: "+RESET, sim.autosaveIdx)
+    erase()
+    fmt.Println()
+    
 	// Conditions
 	fmt.Printf(
 		BOLD+"B:    "+RESET+"(%.3e, %.3e, %.3e)T",
@@ -45,36 +55,32 @@ func updateDashboard(sim *Sim) {
 	erase()
 	fmt.Println()
 
-	restorePos()
+   up()
+   up()
+   up()
+   up()
 }
 
-
-func savePos() {
-	fmt.Fprintf(os.Stdout, SAVEPOS)
-}
 
 func erase() {
 	fmt.Fprintf(os.Stdout, ERASE)
 }
 
-func restorePos() {
-	fmt.Fprintf(os.Stdout, RESTOREPOS)
+func up(){
+    fmt.Printf(LINEUP)
 }
 
 // ANSI escape sequences
 const (
-	// Save cursor position
-	SAVEPOS = "\033[s"
+    ESC = "\033["
 	// Erase rest of line
 	ERASE = "\033[K"
 	// Restore cursor position
-	RESTOREPOS = "\033[u"
-	// Hide cursor
-	HIDECURSOR = "\033[?25l"
-	// Reset font
 	RESET = "\033[0m"
 	// Bold
 	BOLD = "\033[1m"
+	// Line up
+    LINEUP = "\033[1A"
 )
 
 const (
