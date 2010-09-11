@@ -26,7 +26,10 @@ var (
 	transport *string = flag.String("transport", "tcp", "Which transport to use (tcp / udp)")
 	device    *string = flag.String("device", "gpu", "The default computing device to use with -server") //TODO: also for master
   updatedb  *int    = flag.Int("updatedisp", 100, "Update the terminal output every x milliseconds")
+    dryrun *bool = flag.Bool("dryrun", false, "Go quickly through the simulation sequence without calculating anything. Useful for debugging") // todo implement
 )
+
+
 
 func main() {
     defer fmt.Print(SHOWCURSOR) // make sure the cursor does not stay hidden if we crash
