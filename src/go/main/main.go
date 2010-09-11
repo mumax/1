@@ -29,7 +29,9 @@ var (
 )
 
 func main() {
-	flag.Parse()
+    defer fmt.Print(SHOWCURSOR) // make sure the cursor does not stay hidden if we crash
+    
+    flag.Parse()
 
 	Verbosity = *verbosity
 

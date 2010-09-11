@@ -18,6 +18,8 @@ func updateDashboard(sim *Sim) {
       up()
     }
   */
+    fmt.Print(HIDECURSOR)
+    
 	T := sim.UnitTime()
 
 	nanotime := time.Nanoseconds()
@@ -81,6 +83,10 @@ const (
 	BOLD = "\033[1m"
 	// Line up
     LINEUP = "\033[1A"
+    // Hide cursor
+    HIDECURSOR = "\033[?25l"
+    // Show cursor
+    SHOWCURSOR = "\033[?25h"
 )
 
 const (
