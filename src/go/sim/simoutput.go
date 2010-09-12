@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"tensor"
 	"os"
-// 	"io"
+	// 	"io"
 	"tabwriter"
 )
 
@@ -33,7 +33,7 @@ func (s *Sim) OutputDir(outputdir string) {
 // We use SI units! So that the autosave information is independent of the material parameters!
 // E.g.: "autosave m binary 1E-9" will save the magnetization in binary format every ns
 func (s *Sim) Autosave(what, format string, interval float) {
-    // interval in SI units
+	// interval in SI units
 	s.outschedule = s.outschedule[0 : len(s.outschedule)+1]
 	output := resolve(what, format)
 	output.SetInterval(interval)
@@ -136,9 +136,11 @@ type Table struct {
 }
 
 // table output settings
-const( TABLE_HEADER = "# time (s)\t mx\t my\t mz\t Bx\t By\t Bz\tid"
- COL_WIDTH = 14
+const (
+	TABLE_HEADER = "# time (s)\t mx\t my\t mz\t Bx\t By\t Bz\tid"
+	COL_WIDTH    = 14
 )
+
 func (t *Table) Save(s *Sim) {
 	if t.out == nil {
 		fname := s.outputdir + "/" + "datatable.txt"
@@ -153,8 +155,8 @@ func (t *Table) Save(s *Sim) {
 	}
 	mx, my, mz := m_average(s.mLocal)
 	B := s.UnitField()
- fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float(s.time)*s.UnitTime(), mx, my, mz)
-  fmt.Fprintf(t.out, "% g\t% g\t% g\t", s.hext[X]*B, s.hext[Y]*B, s.hext[Z]*B)
+	fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float(s.time)*s.UnitTime(), mx, my, mz)
+	fmt.Fprintf(t.out, "% g\t% g\t% g\t", s.hext[X]*B, s.hext[Y]*B, s.hext[Z]*B)
 	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
 	fmt.Fprintln(t.out)
 	t.out.Flush()

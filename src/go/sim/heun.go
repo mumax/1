@@ -25,7 +25,7 @@ func (s *Heun) Step() {
 	m := s.mDev
 	m1est := s.m1est
 
-	s.CalcHeff(m, s.h)
+	s.calcHeff(m, s.h)
 	s.DeltaM(m, s.h, s.alpha, gilbertDt)
 	TensorCopyOn(s.h, s.t0)
 	TensorCopyOn(m, m1est)
@@ -35,7 +35,7 @@ func (s *Heun) Step() {
 	// debug: euler
 	//     TensorCopyOn(m1est, m) // estimator is ok
 
-	s.CalcHeff(s.m1est, s.h)
+	s.calcHeff(s.m1est, s.h)
 	s.DeltaM(s.m1est, s.h, s.alpha, gilbertDt)
 	tm1est := s.h
 	t := tm1est

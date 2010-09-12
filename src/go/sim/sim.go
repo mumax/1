@@ -188,22 +188,6 @@ func (s *Sim) init() {
 }
 
 
-// Calculates the effective field of m and stores it in h
-func (s *Sim) CalcHeff(m, h *DevTensor) {
-	// (1) Self-magnetostatic field
-	// The convolution may include the exchange field
-	s.Convolve(m, h)
-
-	// (2) Add the externally applied field
-	if s.AppliedField != nil {
-		s.hext = s.GetAppliedField(s.time)
-		for i := range s.hComp {
-			s.AddConstant(s.hComp[i], s.hext[i])
-		}
-	}
-}
-
-
 // Set how much debug info is printed. Level=0,1,2 or 3 for none, normal, verbose and very verbose.
 func (s *Sim) Verbosity(level int) {
 	Verbosity = level

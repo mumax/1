@@ -18,7 +18,7 @@ func (this *Euler) Step() {
 	alpha, dt := this.alpha, this.dt
 
 	// 	this.Normalize(this.m)
-	this.CalcHeff(m, h)
+	this.calcHeff(m, h)
 	this.DeltaM(m, h, alpha, dt/(1+alpha*alpha))
 	deltaM := h // h is overwritten by deltaM
 

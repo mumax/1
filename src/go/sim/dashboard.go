@@ -52,7 +52,7 @@ func updateDashboard(sim *Sim) {
 	fmt.Println()
 
 	// Conditions
-  B := sim.UnitField()
+	B := sim.UnitField()
 	fmt.Printf(
 		BOLD+"B:    "+RESET+"(%.3e, %.3e, %.3e)T",
 		sim.hext[0]*B, sim.hext[1]*B, sim.hext[2]*B)
