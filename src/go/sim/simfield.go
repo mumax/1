@@ -7,8 +7,7 @@ import("fmt")
 
 // Apply a static field defined in Tesla
 func (s *Sim) StaticField(hx, hy, hz float) {
-	s.AppliedField = &staticField{[3]float{hx, hy, hz}}
-	//does not invalidate
+	s.AppliedField = &staticField{[3]float{hx, hy, hz}} // pass it on in tesla so that it stays independent of other problem parameters
 }
 
 type staticField struct {
