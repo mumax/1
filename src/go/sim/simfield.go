@@ -1,5 +1,7 @@
 package sim
 
+import("fmt")
+
 // This file implements the methods for defining
 // the applied magnetic field.
 
@@ -22,6 +24,9 @@ func (field *staticField) GetAppliedField(time float64) [3]float {
 // A high value is accurate and slows down (only) the initialization.
 func (s *Sim) DemagAccuracy(accuracy int) {
 	Debugv("Demag accuracy:", accuracy)
+	if accuracy < 4{
+    Warn("Low demag accuracy: " + fmt.Sprint(accuracy))
+  }
 	s.input.demag_accuracy = accuracy
 	s.invalidate()
 }
