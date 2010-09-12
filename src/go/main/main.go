@@ -21,15 +21,20 @@ import (
 
 var (
 	server    *bool   = flag.Bool("server", false, "Run as a slave node in a cluster")
-	verbosity *int    = flag.Int("verbosity", 1, "Control the debug verbosity (0 - 3)")
+	verbosity *int    = flag.Int("verbosity", 2, "Control the debug verbosity (0 - 3)")
 	port      *int    = flag.Int("port", 2527, "Which network port to use")
 	transport *string = flag.String("transport", "tcp", "Which transport to use (tcp / udp)")
 	device    *string = flag.String("device", "gpu", "The default computing device to use with -server") //TODO: also for master
   updatedb  *int    = flag.Int("updatedisp", 100, "Update the terminal output every x milliseconds")
+    dryrun *bool = flag.Bool("dryrun", false, "Go quickly through the simulation sequence without calculating anything. Useful for debugging") // todo implement
 )
 
+
+
 func main() {
-	flag.Parse()
+    defer fmt.Print(SHOWCURSOR) // make sure the cursor does not stay hidden if we crash
+    
+    flag.Parse()
 
 	Verbosity = *verbosity
 
@@ -51,6 +56,7 @@ func main_master() {
 		os.Exit(-1)
 	}
 
+  
   UpdateDashboardEvery = int64(*updatedb * 1000 * 1000)
   
 	for i := 0; i < flag.NArg(); i++ {

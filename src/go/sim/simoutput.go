@@ -11,7 +11,8 @@ import (
 	"fmt"
 	"tensor"
 	"os"
-	"io"
+// 	"io"
+	"tabwriter"
 )
 
 // Sets the output directory where all output files are stored
@@ -29,9 +30,10 @@ func (s *Sim) OutputDir(outputdir string) {
 }
 
 // Schedules a quantity for autosave
+// We use SI units! So that the autosave information is independent of the material parameters!
 // E.g.: "autosave m binary 1E-9" will save the magnetization in binary format every ns
 func (s *Sim) Autosave(what, format string, interval float) {
-	interval /= s.UnitTime()
+    // interval in SI units
 	s.outschedule = s.outschedule[0 : len(s.outschedule)+1]
 	output := resolve(what, format)
 	output.SetInterval(interval)
@@ -51,9 +53,9 @@ func (s *Sim) Save(what, format string) {
 
 // INTERNAL: Entries in the list of scheduled output have this interface
 type Output interface {
-	// Set the autosave interval in seconds
+	// Set the autosave interval in seconds - SI units!
 	SetInterval(interval float)
-	// Returns true if the output needs to saved at this time
+	// Returns true if the output needs to saved at this time - SI units!
 	NeedSave(time float) bool
 	// After NeedSave() returned true, the simulation will make sure the local copy of m is up to date and the autosaveIdx gets updated. Then Save() is called to save the output
 	Save(sim *Sim)
@@ -125,18 +127,18 @@ func (m *MAscii) Save(s *Sim) {
 		panic(err)
 	}
 	tensor.Format(out, s.mLocal)
-	m.sinceoutput = float(s.time)
+	m.sinceoutput = float(s.time) * s.UnitTime()
 }
 
 type Table struct {
 	*Periodic
-	out io.Writer
+	out *tabwriter.Writer
 }
 
-const TABLE_HEADER = "# time\t mx\t my\t mz\t id"
-
-
-// TODO use a tabwriter
+// table output settings
+const( TABLE_HEADER = "# time (s)\t mx\t my\t mz\t Bx\t By\t Bz\tid"
+ COL_WIDTH = 14
+)
 func (t *Table) Save(s *Sim) {
 	if t.out == nil {
 		fname := s.outputdir + "/" + "datatable.txt"
@@ -145,15 +147,18 @@ func (t *Table) Save(s *Sim) {
 		if err != nil {
 			panic(err)
 		}
-		t.out = out
+		t.out = tabwriter.NewWriter(out, COL_WIDTH, 4, 0, ' ', 0)
 		Debugv("Opened data table file")
-		fmt.Fprintln(out, TABLE_HEADER)
+		fmt.Fprintln(t.out, TABLE_HEADER)
 	}
 	mx, my, mz := m_average(s.mLocal)
-	fmt.Fprint(t.out, float(s.time)*s.UnitTime(), mx, my, mz, " ")
+	B := s.UnitField()
+ fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float(s.time)*s.UnitTime(), mx, my, mz)
+  fmt.Fprintf(t.out, "% g\t% g\t% g\t", s.hext[X]*B, s.hext[Y]*B, s.hext[Z]*B)
 	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
 	fmt.Fprintln(t.out)
-	t.sinceoutput = float(s.time)
+	t.out.Flush()
+	t.sinceoutput = float(s.time) * s.UnitTime()
 }
 
 func m_average(m *tensor.Tensor4) (mx, my, mz float) {
@@ -186,7 +191,7 @@ type MBinary struct {
 func (m *MBinary) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".t"
 	tensor.WriteFile(fname, s.mLocal)
-	m.sinceoutput = float(s.time)
+	m.sinceoutput = float(s.time) * s.UnitTime()
 }
 
 
@@ -206,5 +211,5 @@ func (m *MPng) Save(s *Sim) {
 		panic(err)
 	}
 	PNG(out, s.mLocal)
-	m.sinceoutput = float(s.time)
+	m.sinceoutput = float(s.time) * s.UnitTime()
 }

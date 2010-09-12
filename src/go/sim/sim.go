@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-// Sim has an "input" member of type Input.
+// Sim has an "input" member of type "Input".
 //
 // In this struct, all parameters are STILL IN SI UNITS.
 // When Sim.init() is called, a solver is initiated
@@ -46,32 +46,26 @@ type Input struct {
 // TODO order of initialization is too important in input file, should be more versatile
 //
 type Sim struct {
-	input Input // stores the original input parameters in SI units
-	valid bool  // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
-
-	// what we want
-	backend *Backend
-	mLocal  *tensor.Tensor4
-
-	// what we have
-	Material
-	Mesh
-	Conv
-	AppliedField            // returns a field in function of time
-	hext         [3]float   // stores the field returned by AppliedField
-	mDev, h      *DevTensor // on device
-	mComp, hComp [3]*DevTensor
-	Solver
-	time  float64
-	dt    float
-	steps int
-
-	// output
-	starttime   int64    // when the simulation was started, seconds since unix epoch -> dashboard
-	outschedule []Output //TODO vector...
-	autosaveIdx int
-	outputdir   string
-	mUpToDate   bool
+	input        Input           // stores the original input parameters in SI units
+	valid        bool            // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
+	backend      *Backend        // GPU or CPU
+	mLocal       *tensor.Tensor4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
+	Material                     // Stores material parameters and manages the internal units
+	Mesh                         // Stores the size of the simulation grid
+	Conv                         // Convolution plan for the magnetostatic field
+	AppliedField                 // returns the externally applied in function of time
+	hext         [3]float        // stores the externally applied field returned by AppliedField
+	mDev, h      *DevTensor      // magnetization/effective field on the device (GPU), 4D tensor
+	mComp, hComp [3]*DevTensor   // magnetization/field components, 3 x 3D tensors
+	Solver                       // Does the time stepping, can be euler, heun, ...
+	time         float64         // The total time (internal units)
+	dt           float           // The time step (internal units). May be updated by adaptive-step solvers 
+	steps        int             // The total number of steps taken so far
+	starttime    int64           // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
+	outschedule  []Output        // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
+	autosaveIdx  int             // Unique identifier of output state. Updated each time output is saved.
+	outputdir    string          // Where to save output files.
+	mUpToDate    bool            // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
 }
 
 func New() *Sim {
@@ -80,15 +74,14 @@ func New() *Sim {
 
 func NewSim() *Sim {
 	sim := new(Sim)
-	sim.backend = GPU //nil //TODO: check if GPU is present, use CPU otherwise
+	sim.starttime = time.Seconds()
+	sim.backend = GPU //TODO: check if GPU is present, use CPU otherwise
 	sim.outputdir = "."
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
-	sim.invalidate() //just to make sure we will init()
 	sim.input.demag_accuracy = 8
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
-	sim.starttime = time.Seconds()
-	sim.valid = false
+	sim.invalidate()     //just to make sure we will init()
 	return sim
 }
 
@@ -187,24 +180,21 @@ func (s *Sim) init() {
 	}
 	s.Conv = *NewConv(dev, s.size[0:], demag)
 
-	//  B := s.UnitField()
-	//  s.Hext = []float{s.hext[X] / B, s.hext[Y] / B, s.hext[Z] / B}
-
 	// (5) Time stepping
 	s.dt = s.input.dt / s.UnitTime()
 	s.Solver = NewSolver(s.input.solvertype, s)
 
-	s.valid = true
-
-	//   fmt.Println(s)
+	s.valid = true // we can start the real work now
 }
 
 
 // Calculates the effective field of m and stores it in h
 func (s *Sim) CalcHeff(m, h *DevTensor) {
-
+	// (1) Self-magnetostatic field
+	// The convolution may include the exchange field
 	s.Convolve(m, h)
 
+	// (2) Add the externally applied field
 	if s.AppliedField != nil {
 		s.hext = s.GetAppliedField(s.time)
 		for i := range s.hComp {
@@ -213,11 +203,13 @@ func (s *Sim) CalcHeff(m, h *DevTensor) {
 	}
 }
 
+
 // Set how much debug info is printed. Level=0,1,2 or 3 for none, normal, verbose and very verbose.
 func (s *Sim) Verbosity(level int) {
 	Verbosity = level
 	// does not invalidate
 }
+
 
 func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {
 	Debugv("Resampling magnetization from", in.Size(), "to", size2)

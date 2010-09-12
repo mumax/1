@@ -6,10 +6,20 @@ import (
 	"time"
 )
 
-var lastDashUpdate int64 = 0
-var UpdateDashboardEvery int64 = 100 * 1000 * 1000 // in ns
+var (
+	lastDashUpdate       int64 = 0
+	UpdateDashboardEvery int64 = 25 * 1000 * 1000 // in ns
+	dashboardNeedsUp     bool  = false
+)
 
 func updateDashboard(sim *Sim) {
+	/*/*
+	  if dashboardNeedsUp{
+	    //fmt.Printf(ESC + "2F") // move up N lines
+	    up()
+	  }
+	*/
+	fmt.Print(HIDECURSOR)
 
 	T := sim.UnitTime()
 
@@ -19,13 +29,14 @@ func updateDashboard(sim *Sim) {
 	}
 	lastDashUpdate = nanotime
 
-	savePos()
 	//fmt.Print(HIDECURSOR)
 	// Walltime
 	time := time.Seconds() - sim.starttime
 	fmt.Printf(
-		BOLD+"running:"+RESET+"%3dd:%02dh:%02dm:%02ds\n",
+		BOLD+"running:"+RESET+"%3dd:%02dh:%02dm:%02ds",
 		time/DAY, (time/HOUR)%24, (time/MIN)%60, time%60)
+	erase()
+	fmt.Println()
 
 	// Time stepping
 	fmt.Printf(
@@ -36,45 +47,52 @@ func updateDashboard(sim *Sim) {
 	erase()
 	fmt.Println()
 
-	fmt.Println(BOLD+"IO: "+RESET, sim.autosaveIdx)
-
-	// Conditions
-	fmt.Printf(
-		BOLD+"B:    "+RESET+"(%.3e, %.3e, %.3e)T",
-		sim.hext[0], sim.hext[1], sim.hext[2])
+	fmt.Print(BOLD+"IO: "+RESET, sim.autosaveIdx)
 	erase()
 	fmt.Println()
 
-	restorePos()
+	// Conditions
+  B := sim.UnitField()
+	fmt.Printf(
+		BOLD+"B:    "+RESET+"(%.3e, %.3e, %.3e)T",
+		sim.hext[0]*B, sim.hext[1]*B, sim.hext[2]*B)
+	erase()
+	fmt.Println()
+
+	up()
+	up()
+	up()
+	up()
 }
 
-
-func savePos() {
-	fmt.Fprintf(os.Stdout, SAVEPOS)
-}
 
 func erase() {
-	fmt.Fprintf(os.Stdout, ERASE)
+	fmt.Fprint(os.Stdout, ERASE)
 }
 
-func restorePos() {
-	fmt.Fprintf(os.Stdout, RESTOREPOS)
+func eraseln() {
+	fmt.Fprintln(os.Stdout, ERASE)
+}
+
+func up() {
+	fmt.Printf(LINEUP)
 }
 
 // ANSI escape sequences
 const (
-	// Save cursor position
-	SAVEPOS = "\033[s"
+	ESC = "\033["
 	// Erase rest of line
 	ERASE = "\033[K"
 	// Restore cursor position
-	RESTOREPOS = "\033[u"
-	// Hide cursor
-	HIDECURSOR = "\033[?25l"
-	// Reset font
 	RESET = "\033[0m"
 	// Bold
 	BOLD = "\033[1m"
+	// Line up
+	LINEUP = "\033[1A"
+	// Hide cursor
+	HIDECURSOR = "\033[?25l"
+	// Show cursor
+	SHOWCURSOR = "\033[?25h"
 )
 
 const (
