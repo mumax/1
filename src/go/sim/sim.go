@@ -98,6 +98,28 @@ func (s *Sim) isValid() bool {
 	return s.valid
 }
 
+func (s *Sim) initSize(){
+  s.size4D[0] = 3 // 3-component vectors
+  for i := range s.size {
+    s.size[i] = s.input.size[i]
+    assert(s.size[i] > 0)
+    s.size4D[i+1] = s.size[i]
+  }
+  Debugv("Simulation size ", s.size)
+}
+
+func (s *Sim) initMLocal(){
+ s.initSize()
+ if s.mLocal == nil {
+    Debugv("Allocating local memory " + fmt.Sprint(s.size4D))
+    s.mLocal = tensor.NewTensor4(s.size4D[0:])
+  }
+
+  if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
+    s.mLocal = resample(s.mLocal, s.input.size[0:])
+  }
+}
+
 // (Re-)initialize the simulation tree, necessary before running.
 func (s *Sim) init() {
 	if s.isValid() {
@@ -118,11 +140,7 @@ func (s *Sim) init() {
 
 	// (2) Size must be set before memory allocation
 	L := s.UnitLength()
-	s.size4D[0] = 3 // 3-component vectors
 	for i := range s.size {
-		s.size[i] = s.input.size[i]
-		assert(s.size[i] > 0)
-		s.size4D[i+1] = s.size[i]
 		s.cellSize[i] = s.input.cellSize[i] / L
 		assert(s.cellSize[i] > 0.)
 	}
@@ -147,19 +165,9 @@ func (s *Sim) init() {
 	}
 	// 	}
 
-	if s.mLocal == nil {
-		Debugv("Allocating local memory " + fmt.Sprint(s.size4D))
-		s.mLocal = tensor.NewTensor4(s.size4D[0:])
-	}
 
-	if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
-		s.mLocal = resample(s.mLocal, s.mDev.size)
-	}
-
-	// (3b) resize the previous magnetization state
-	// 	if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
-	// xxx
-	// 	}
+  s.initMLocal()
+	
 	TensorCopyTo(s.mLocal, s.mDev)
 	// 	s.Normalize(s.mDev)
 
@@ -185,22 +193,6 @@ func (s *Sim) init() {
 	s.Solver = NewSolver(s.input.solvertype, s)
 
 	s.valid = true // we can start the real work now
-}
-
-
-// Calculates the effective field of m and stores it in h
-func (s *Sim) CalcHeff(m, h *DevTensor) {
-	// (1) Self-magnetostatic field
-	// The convolution may include the exchange field
-	s.Convolve(m, h)
-
-	// (2) Add the externally applied field
-	if s.AppliedField != nil {
-		s.hext = s.GetAppliedField(s.time)
-		for i := range s.hComp {
-			s.AddConstant(s.hComp[i], s.hext[i])
-		}
-	}
 }
 
 
