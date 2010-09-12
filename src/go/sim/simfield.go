@@ -5,9 +5,7 @@ package sim
 
 // Apply a static field defined in Tesla
 func (s *Sim) StaticField(hx, hy, hz float) {
-  s.init()
-	B := s.UnitField()
-	s.AppliedField = &staticField{[3]float{hx / B, hy / B, hz / B}}
+	s.AppliedField = &staticField{[3]float{hx, hy, hz}}
 	//does not invalidate
 }
 
@@ -39,7 +37,7 @@ func (s *Sim) calcHeff(m, h *DevTensor) {
 	if s.AppliedField != nil {
 		s.hext = s.GetAppliedField(s.time)
 		for i := range s.hComp {
-			s.AddConstant(s.hComp[i], s.hext[i])
+			s.AddConstant(s.hComp[i], s.hext[i] / s.UnitField())
 		}
 	}
 }
