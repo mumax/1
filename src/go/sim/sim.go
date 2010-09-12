@@ -98,6 +98,17 @@ func (s *Sim) isValid() bool {
 	return s.valid
 }
 
+func (s *Sim) initMLocal(){
+ if s.mLocal == nil {
+    Debugv("Allocating local memory " + fmt.Sprint(s.size4D))
+    s.mLocal = tensor.NewTensor4(s.size4D[0:])
+  }
+
+  if !tensor.EqualSize(s.mLocal.Size(), s.input.size[0:]) {
+    s.mLocal = resample(s.mLocal, s.mDev.size)
+  }
+}
+
 // (Re-)initialize the simulation tree, necessary before running.
 func (s *Sim) init() {
 	if s.isValid() {
@@ -147,19 +158,9 @@ func (s *Sim) init() {
 	}
 	// 	}
 
-	if s.mLocal == nil {
-		Debugv("Allocating local memory " + fmt.Sprint(s.size4D))
-		s.mLocal = tensor.NewTensor4(s.size4D[0:])
-	}
 
-	if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
-		s.mLocal = resample(s.mLocal, s.mDev.size)
-	}
-
-	// (3b) resize the previous magnetization state
-	// 	if !tensor.EqualSize(s.mLocal.Size(), s.mDev.Size()) {
-	// xxx
-	// 	}
+  s.initMLocal()
+	
 	TensorCopyTo(s.mLocal, s.mDev)
 	// 	s.Normalize(s.mDev)
 
