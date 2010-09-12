@@ -48,7 +48,7 @@ func (s *Sim) Run(time float64) {
 func (s *Sim) assureMUpToDate() {
 	s.init()
 	if !s.mUpToDate {
-		Debugv("Copying m from device to local memory")
+		Debugvv("Copying m from device to local memory")
 		TensorCopyFrom(s.mDev, s.mLocal)
 		s.autosaveIdx++
 		s.mUpToDate = true

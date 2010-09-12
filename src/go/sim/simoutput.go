@@ -135,10 +135,10 @@ type Table struct {
 	out *tabwriter.Writer
 }
 
-const TABLE_HEADER = "# time (s)\tmx\tmy\tmz\tid"
-
-
-// TODO use a tabwriter
+// table output settings
+const( TABLE_HEADER = "# time (s)\t mx\t my\t mz\t Bx\t By\t Bz\tid"
+ COL_WIDTH = 14
+)
 func (t *Table) Save(s *Sim) {
 	if t.out == nil {
 		fname := s.outputdir + "/" + "datatable.txt"
@@ -147,12 +147,14 @@ func (t *Table) Save(s *Sim) {
 		if err != nil {
 			panic(err)
 		}
-		t.out = tabwriter.NewWriter(out, 15, 4, 0, ' ', 0)
+		t.out = tabwriter.NewWriter(out, COL_WIDTH, 4, 0, ' ', 0)
 		Debugv("Opened data table file")
 		fmt.Fprintln(t.out, TABLE_HEADER)
 	}
 	mx, my, mz := m_average(s.mLocal)
-	fmt.Fprintf(t.out, "%e\t%g\t%g\t%g\t", float(s.time)*s.UnitTime(), mx, my, mz)
+	B := s.UnitField()
+ fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float(s.time)*s.UnitTime(), mx, my, mz)
+  fmt.Fprintf(t.out, "% g\t% g\t% g\t", s.hext[X]*B, s.hext[Y]*B, s.hext[Z]*B)
 	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
 	fmt.Fprintln(t.out)
 	t.out.Flush()
