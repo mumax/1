@@ -5,6 +5,7 @@ package sim
 
 // Apply a static field defined in Tesla
 func (s *Sim) StaticField(hx, hy, hz float) {
+  s.init()
 	B := s.UnitField()
 	s.AppliedField = &staticField{[3]float{hx / B, hy / B, hz / B}}
 	//does not invalidate

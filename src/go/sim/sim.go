@@ -98,14 +98,25 @@ func (s *Sim) isValid() bool {
 	return s.valid
 }
 
+func (s *Sim) initSize(){
+  s.size4D[0] = 3 // 3-component vectors
+  for i := range s.size {
+    s.size[i] = s.input.size[i]
+    assert(s.size[i] > 0)
+    s.size4D[i+1] = s.size[i]
+  }
+  Debugv("Simulation size ", s.size)
+}
+
 func (s *Sim) initMLocal(){
+ s.initSize()
  if s.mLocal == nil {
     Debugv("Allocating local memory " + fmt.Sprint(s.size4D))
     s.mLocal = tensor.NewTensor4(s.size4D[0:])
   }
 
-  if !tensor.EqualSize(s.mLocal.Size(), s.input.size[0:]) {
-    s.mLocal = resample(s.mLocal, s.mDev.size)
+  if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
+    s.mLocal = resample(s.mLocal, s.input.size[0:])
   }
 }
 
@@ -129,11 +140,7 @@ func (s *Sim) init() {
 
 	// (2) Size must be set before memory allocation
 	L := s.UnitLength()
-	s.size4D[0] = 3 // 3-component vectors
 	for i := range s.size {
-		s.size[i] = s.input.size[i]
-		assert(s.size[i] > 0)
-		s.size4D[i+1] = s.size[i]
 		s.cellSize[i] = s.input.cellSize[i] / L
 		assert(s.cellSize[i] > 0.)
 	}
