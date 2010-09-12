@@ -11,7 +11,8 @@ import (
 	"fmt"
 	"tensor"
 	"os"
-	"io"
+// 	"io"
+	"tabwriter"
 )
 
 // Sets the output directory where all output files are stored
@@ -131,10 +132,10 @@ func (m *MAscii) Save(s *Sim) {
 
 type Table struct {
 	*Periodic
-	out io.Writer
+	out *tabwriter.Writer
 }
 
-const TABLE_HEADER = "# time\t mx\t my\t mz\t id"
+const TABLE_HEADER = "# time (s)\tmx\tmy\tmz\tid"
 
 
 // TODO use a tabwriter
@@ -146,15 +147,16 @@ func (t *Table) Save(s *Sim) {
 		if err != nil {
 			panic(err)
 		}
-		t.out = out
+		t.out = tabwriter.NewWriter(out, 15, 4, 0, ' ', 0)
 		Debugv("Opened data table file")
-		fmt.Fprintln(out, TABLE_HEADER)
+		fmt.Fprintln(t.out, TABLE_HEADER)
 	}
 	mx, my, mz := m_average(s.mLocal)
-	fmt.Fprint(t.out, float(s.time)*s.UnitTime(), mx, my, mz, " ")
+	fmt.Fprintf(t.out, "%e\t%g\t%g\t%g\t", float(s.time)*s.UnitTime(), mx, my, mz)
 	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
 	fmt.Fprintln(t.out)
-	t.sinceoutput = float(s.time)
+	t.out.Flush()
+	t.sinceoutput = float(s.time) * s.UnitTime()
 }
 
 func m_average(m *tensor.Tensor4) (mx, my, mz float) {
