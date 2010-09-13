@@ -16,23 +16,23 @@ extern "C" {
 
 //______________________________________________________________________________________ check conf
 
-/**
+/*
  * Checks if the CUDA 3D kernel launch configuration is valid. 
  * CUDA tends to ignore invalid configurations silently, which is painfull for debugging.
  * @deprecated use check3dconf(), which uses the actual device properties
  */
-void gpu_checkconf(dim3 gridsize, ///< 3D size of the thread grid
-           dim3 blocksize ///< 3D size of the trhead blocks on the grid
-           );
+// void gpu_checkconf(dim3 gridsize, ///< 3D size of the thread grid
+//            dim3 blocksize ///< 3D size of the trhead blocks on the grid
+//            );
 
-/**
+/*
  * Checks if the CUDA 1D kernel launch configuration is valid. 
  * CUDA tends to ignore invalid configurations silently, which is painfull for debugging.
  * @deprecated use check1dconf(), which uses the actual device properties
  */    
-void gpu_checkconf_int(int gridsize, ///< 1D size of the thread grid
-               int blocksize ///< 1D size of the trhead blocks on the grid
-               );
+// void gpu_checkconf_int(int gridsize, ///< 1D size of the thread grid
+//                int blocksize ///< 1D size of the trhead blocks on the grid
+//                );
                
 /**
  * Checks if the CUDA 3D kernel launch configuration is valid. 

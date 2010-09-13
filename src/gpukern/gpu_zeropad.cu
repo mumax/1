@@ -28,7 +28,7 @@ void gpu_copy_pad(float* source, float* dest,
 
   dim3 gridSize(S0, S1, 1); ///@todo generalize!
   dim3 blockSize(S2, 1, 1);
-  gpu_checkconf(gridSize, blockSize);
+  check3dconf(gridSize, blockSize);
 
   _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, D1, D2);
   cudaThreadSynchronize();
@@ -44,7 +44,7 @@ void gpu_copy_unpad(float* source, float* dest,
 
   dim3 gridSize(D0, D1, 1); ///@todo generalize!
   dim3 blockSize(D2, 1, 1);
-  gpu_checkconf(gridSize, blockSize);
+  check3dconf(gridSize, blockSize);
 
   _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, D1, D2);
   cudaThreadSynchronize();

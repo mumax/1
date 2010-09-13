@@ -181,7 +181,7 @@ void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2)
 
   dim3 gridsize(N0, N1, 1); ///@todo generalize!
   dim3 blocksize(N2, 1, 1);
-  gpu_checkconf(gridsize, blocksize);
+  check3dconf(gridsize, blocksize);
   _gpu_transposeXZ_complex<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
   cudaThreadSynchronize();
 

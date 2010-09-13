@@ -9,33 +9,31 @@ extern "C" {
 
 //_____________________________________________________________________________________________ check conf
 
-/** @todo use cudaDeviceProperties */
-#define MAX_THREADS_PER_BLOCK 512
-#define MAX_BLOCKSIZE_X 512
-#define MAX_BLOCKSIZE_Y 512
-#define MAX_BLOCKSIZE_Z 64
-
-#define MAX_GRIDSIZE_Z 1
-
-/** @todo: uses deviced props.  */
-void gpu_checkconf(dim3 gridsize, dim3 blocksize){
-  assert(blocksize.x * blocksize.y * blocksize.z <= MAX_THREADS_PER_BLOCK);
-  assert(blocksize.x * blocksize.y * blocksize.z >  0);
-  
-  assert(blocksize.x <= MAX_BLOCKSIZE_X);
-  assert(blocksize.y <= MAX_BLOCKSIZE_Y);
-  assert(blocksize.z <= MAX_BLOCKSIZE_Z);
-  
-  assert(gridsize.z <= MAX_GRIDSIZE_Z);
-  assert(gridsize.x > 0);
-  assert(gridsize.y > 0);
-  assert(gridsize.z > 0);
-}
-
-void gpu_checkconf_int(int gridsize, int blocksize){
-  assert(blocksize <= MAX_BLOCKSIZE_X);
-  assert(gridsize > 0);
-}
+/* @todo use cudaDeviceProperties */
+// #define MAX_THREADS_PER_BLOCK 512
+// #define MAX_BLOCKSIZE_X 512
+// #define MAX_BLOCKSIZE_Y 512
+// #define MAX_BLOCKSIZE_Z 64
+// #define MAX_GRIDSIZE_Z 1
+/* @todo: uses deviced props.  */
+// void gpu_checkconf(dim3 gridsize, dim3 blocksize){
+//   assert(blocksize.x * blocksize.y * blocksize.z <= MAX_THREADS_PER_BLOCK);
+//   assert(blocksize.x * blocksize.y * blocksize.z >  0);
+//   
+//   assert(blocksize.x <= MAX_BLOCKSIZE_X);
+//   assert(blocksize.y <= MAX_BLOCKSIZE_Y);
+//   assert(blocksize.z <= MAX_BLOCKSIZE_Z);
+//   
+//   assert(gridsize.z <= MAX_GRIDSIZE_Z);
+//   assert(gridsize.x > 0);
+//   assert(gridsize.y > 0);
+//   assert(gridsize.z > 0);
+// }
+// 
+// void gpu_checkconf_int(int gridsize, int blocksize){
+//   assert(blocksize <= MAX_BLOCKSIZE_X);
+//   assert(gridsize > 0);
+// }
 
 void check3dconf(dim3 gridSize, dim3 blockSize){
  
