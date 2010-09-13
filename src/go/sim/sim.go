@@ -130,6 +130,7 @@ func (s *Sim) init() {
 	dev := s.backend
 	dev.InitBackend()
 	assert(dev != nil)
+	assert(s != nil)
 
 	// (1) Material parameters control the units,
 	// so they need to be set up first
@@ -158,6 +159,7 @@ func (s *Sim) init() {
 	Debugv("Allocating device memory " + fmt.Sprint(s.size4D))
 	s.mDev = NewTensor(dev, s.size4D[0:])
 	s.h = NewTensor(dev, s.size4D[0:])
+	s.printMem()
 	s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
 	for i := range s.mComp {
 		s.mComp[i] = s.mDev.Component(i)
@@ -175,7 +177,7 @@ func (s *Sim) init() {
 
 	s.paddedsize = padSize(s.size[0:])
 
-	Debugv("Calculating kernel")
+	Debugv("Calculating kernel (may take a moment)")
 	demag := FaceKernel6(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy)
 	exch := Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
 	// Add Exchange kernel to demag kernel
@@ -187,11 +189,14 @@ func (s *Sim) init() {
 		}
 	}
 	s.Conv = *NewConv(dev, s.size[0:], demag)
+	s.printMem()
 
 	// (5) Time stepping
+  Debugv("Initializing solver: ", s.input.solvertype)
 	s.dt = s.input.dt / s.UnitTime()
 	s.Solver = NewSolver(s.input.solvertype, s)
-
+  s.printMem()
+  
 	s.valid = true // we can start the real work now
 }
 
