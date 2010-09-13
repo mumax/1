@@ -96,9 +96,33 @@ void _make1dconf(int N, unsigned int* gridSize, unsigned int* blockSize, int max
   assert(*gridSize <= maxGridSize);
 }
 
-void make1dconf(int N, int* gridSize, int* blockSize){
+
+
+void make1dconf(int N, dim3* gridSize, dim3* blockSize){
+  
   cudaDeviceProp* prop = (cudaDeviceProp*)gpu_getproperties();
-  _make1dconf(N, (unsigned int*)gridSize, (unsigned int*)blockSize, prop->maxGridSize[X], prop->maxThreadsPerBlock);
+  int maxBlockSize = prop->maxThreadsPerBlock;
+    if(maxBlockSize > 128){
+    debugvv( fprintf(stderr, "WARNING: using 128 as max block size! \n") );
+    maxBlockSize = 128;
+  }
+  int maxGridSize = prop->maxGridSize[X];
+
+  (*blockSize).x = maxBlockSize;
+  (*blockSize).y = 1;
+  (*blockSize).z = 1;
+
+  N = divUp(N, maxBlockSize); // N blocks left
+
+  int NX = divUp(N, maxGridSize);
+  int NY = divUp(N, NX);
+
+  (*gridSize).x = NX;
+  (*gridSize).y = NY;
+  (*gridSize).z = 1;
+
+  assert((*gridSize).x * (*gridSize).y * (*gridSize).z * (*blockSize).x * (*blockSize).y * (*blockSize).z == N);
+  check3dconf(*gridSize, *blockSize);
 }
 
 void make3dconf(int N0, int N1, int N2, dim3* gridSize, dim3* blockSize ){

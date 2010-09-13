@@ -14,7 +14,18 @@ extern "C" {
 #endif
 
 
-//______________________________________________________________________________________ check conf
+/**
+ * Macro for 1D index "i" in a CUDA kernel.
+ @code
+  i = threadindex;
+ @endcode
+ */
+#define threadindex ((blockIdx.y * blockSize.y + blockIdx.x) * blockSize.x + threadIdx.x)
+
+/**
+ * Macro for integer division, but rounded UP
+ */
+#define divUp(x, y) ( ((x)-1)/(y)+1 )
 
 /*
  * Checks if the CUDA 3D kernel launch configuration is valid. 
@@ -105,8 +116,8 @@ void make3dconf(int N0,     ///< size of 3D array to span
  * @endcode
  */
 void make1dconf(int N,          ///< size of array to span (number of floats)
-                int* gridSize,  ///< grid size is returned here
-                int* blockSize  ///< block size is returned here
+                dim3* gridSize,  ///< grid size is returned here
+                dim3* blockSize  ///< block size is returned here
                 );
 
 
