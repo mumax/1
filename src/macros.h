@@ -30,7 +30,7 @@
  * @note Do not worry about performance. When compiling with verbosity = 0,
  * all debug messages are suppressed.
  */
-#define _debug_verbosity 2
+#define _debug_verbosity 3
 
 #include "assert.h"
 #include <stdio.h>

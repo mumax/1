@@ -8,7 +8,9 @@ extern "C" {
 #endif
 
 void check3dconf(dim3 gridSize, dim3 blockSize){
- 
+
+  debugvv( printf("check3dconf((%d, %d, %d),(%d, %d, %d))\n", gridSize.x, gridSize.y, gridSize.z, blockSize.x, blockSize.y, blockSize.z) );
+  
   cudaDeviceProp* prop = (cudaDeviceProp*)gpu_getproperties();
   int maxThreadsPerBlock = prop->maxThreadsPerBlock;
   int* maxBlockSize = prop->maxThreadsDim;
@@ -41,6 +43,8 @@ void check1dconf(int gridsize, int blocksize){
 
 
 void make1dconf(int N, dim3* gridSize, dim3* blockSize){
+
+  debugvv( printf("make1dconf(%d)\n", N) );
   
   cudaDeviceProp* prop = (cudaDeviceProp*)gpu_getproperties();
   int maxBlockSize = prop->maxThreadsPerBlock;
