@@ -7,12 +7,19 @@
 extern "C" {
 #endif
 
+unsigned long long int _gpu_usedmem = 0;
+
+
+unsigned long long int gpu_usedmem(){
+  return _gpu_usedmem;
+}
+
 
 float* new_gpu_array(int size){
   assert(size > 0);
   float* array = NULL;
   gpu_safe( cudaMalloc((void**)(&array), size * sizeof(float)) );
-
+  _gpu_usedmem += size * sizeof(float);
   assert(array != NULL); // strange: it seems cuda can return 0 as a valid address?? 
   gpu_zero(array, size);
   return array;
