@@ -210,6 +210,9 @@ func (d Cpu) zero(data unsafe.Pointer, nFloats int) {
 	C.cpu_zero((*C.float)(data), C.int(nFloats))
 }
 
+func (d Cpu) UsedMem() uint64 {
+	return 0 // meh
+}
 
 // Print the GPU properties to stdout
 func (d Cpu) PrintProperties() {

@@ -7,3 +7,6 @@ known bugs
  Solution: runtime.LockOSThread(). Probably the go png encoder uses goroutines which causes the CUDA context be accessed by a thread that didn't create it.
 
 
+[0002] OPEN arne:
+ We can not handle big simulations yet:
+ make3dconf(), cufft() fail and we allocate to much memory as well.

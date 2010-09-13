@@ -299,6 +299,10 @@ func (d *RemoteDevice) overrideStride(nFloats int) {
 	}
 }
 
+func (d *RemoteDevice) UsedMem() uint64 {
+	return 0 // meh
+}
+
 func (d *RemoteDevice) PrintProperties() {
 	fmt.Println(d.String())
 }

@@ -3,8 +3,6 @@
 
 gpu
 
-demagaccuracy 1
-
 # schedule output
 outputdir     output
 autosave      m     png   10E-12

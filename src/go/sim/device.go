@@ -125,6 +125,9 @@ type Device interface {
 	// The GPU stride in number of floats (!)
 	Stride() int
 
+	// Bytes allocated on the device
+	UsedMem() uint64
+
 	// Print the GPU properties to stdout
 	// TODO: return string
 	PrintProperties()

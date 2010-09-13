@@ -98,26 +98,26 @@ func (s *Sim) isValid() bool {
 	return s.valid
 }
 
-func (s *Sim) initSize(){
-  s.size4D[0] = 3 // 3-component vectors
-  for i := range s.size {
-    s.size[i] = s.input.size[i]
-    assert(s.size[i] > 0)
-    s.size4D[i+1] = s.size[i]
-  }
-  Debugv("Simulation size ", s.size)
+func (s *Sim) initSize() {
+	s.size4D[0] = 3 // 3-component vectors
+	for i := range s.size {
+		s.size[i] = s.input.size[i]
+		assert(s.size[i] > 0)
+		s.size4D[i+1] = s.size[i]
+	}
+	Debugv("Simulation size ", s.size, " = ", s.size[0] * s.size[1] * s.size[2] ," cells")
 }
 
-func (s *Sim) initMLocal(){
- s.initSize()
- if s.mLocal == nil {
-    Debugv("Allocating local memory " + fmt.Sprint(s.size4D))
-    s.mLocal = tensor.NewTensor4(s.size4D[0:])
-  }
+func (s *Sim) initMLocal() {
+	s.initSize()
+	if s.mLocal == nil {
+		Debugv("Allocating local memory " + fmt.Sprint(s.size4D))
+		s.mLocal = tensor.NewTensor4(s.size4D[0:])
+	}
 
-  if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
-    s.mLocal = resample(s.mLocal, s.input.size[0:])
-  }
+	if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
+		s.mLocal = resample(s.mLocal, s.input.size[0:])
+	}
 }
 
 // (Re-)initialize the simulation tree, necessary before running.
@@ -130,6 +130,7 @@ func (s *Sim) init() {
 	dev := s.backend
 	dev.InitBackend()
 	assert(dev != nil)
+	assert(s != nil)
 
 	// (1) Material parameters control the units,
 	// so they need to be set up first
@@ -158,6 +159,7 @@ func (s *Sim) init() {
 	Debugv("Allocating device memory " + fmt.Sprint(s.size4D))
 	s.mDev = NewTensor(dev, s.size4D[0:])
 	s.h = NewTensor(dev, s.size4D[0:])
+	s.printMem()
 	s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
 	for i := range s.mComp {
 		s.mComp[i] = s.mDev.Component(i)
@@ -166,8 +168,8 @@ func (s *Sim) init() {
 	// 	}
 
 
-  s.initMLocal()
-	
+	s.initMLocal()
+
 	TensorCopyTo(s.mLocal, s.mDev)
 	// 	s.Normalize(s.mDev)
 
@@ -175,7 +177,7 @@ func (s *Sim) init() {
 
 	s.paddedsize = padSize(s.size[0:])
 
-	Debugv("Calculating kernel")
+	Debugv("Calculating kernel (may take a moment)")
 	demag := FaceKernel6(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy)
 	exch := Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
 	// Add Exchange kernel to demag kernel
@@ -187,11 +189,14 @@ func (s *Sim) init() {
 		}
 	}
 	s.Conv = *NewConv(dev, s.size[0:], demag)
+	s.printMem()
 
 	// (5) Time stepping
+  Debugv("Initializing solver: ", s.input.solvertype)
 	s.dt = s.input.dt / s.UnitTime()
 	s.Solver = NewSolver(s.input.solvertype, s)
-
+  s.printMem()
+  
 	s.valid = true // we can start the real work now
 }
 

@@ -20,6 +20,8 @@ extern "C" {
 float* new_gpu_array(int size	///< size of the array
                     );
 
+/// Returns how much bytes are allocated on the GPU                    
+unsigned long long int gpu_usedmem();
                     
 /**
  * Returns the optimal array stride (in number of floats):
@@ -62,9 +64,6 @@ void gpu_override_stride(int nFloats    ///< The stride (in number of floats) to
  */
 int gpu_pad_to_stride(int nFloats);
 
-
-
-//______________________________________________________________________________________ copy
 
 #define DIR_TO 1
 #define DIR_ON 2
