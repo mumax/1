@@ -6,8 +6,8 @@ demagaccuracy 1
 
 # schedule output
 outputdir     output
-autosave      m     png   10E-12
-autosave      table ascii  5E-12
+autosave      m     png   100E-12
+autosave      table ascii  50E-12
 
 # time stepping
 solvertype   heun
@@ -18,7 +18,7 @@ aexch        1.3E-11
 
 
 # geometry
-size         64    64     64
+size         1    128     128
 cellsize     2E-9  2E-9   2E-9
 
 # initial magnetization
@@ -27,7 +27,7 @@ vortex      1 1
 
 # relax
 alpha       2
-dt          2E-12
+dt          0.25E-12
 run         5E-9
 
 
