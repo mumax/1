@@ -99,6 +99,8 @@ void _make1dconf(int N, unsigned int* gridSize, unsigned int* blockSize, int max
 
 
 void make1dconf(int N, dim3* gridSize, dim3* blockSize){
+
+  //printf("make1dconf(%d)\n", N);
   
   cudaDeviceProp* prop = (cudaDeviceProp*)gpu_getproperties();
   int maxBlockSize = prop->maxThreadsPerBlock;
@@ -112,19 +114,24 @@ void make1dconf(int N, dim3* gridSize, dim3* blockSize){
   (*blockSize).y = 1;
   (*blockSize).z = 1;
 
-  N = divUp(N, maxBlockSize); // N blocks left
-
-  int NX = divUp(N, maxGridSize);
-  int NY = divUp(N, NX);
+  int N2 = divUp(N, maxBlockSize); // N blocks left
+  printf("N2=%d\n", N2);
+  
+  int NX = divUp(N2, maxGridSize);
+  int NY = divUp(N2, NX);
 
   (*gridSize).x = NX;
   (*gridSize).y = NY;
   (*gridSize).z = 1;
 
-  assert((*gridSize).x * (*gridSize).y * (*gridSize).z * (*blockSize).x * (*blockSize).y * (*blockSize).z == N);
+  //printf("make1dconf(%d): (%d, %d, %d) x (%d, %d, %d)\n", N, (*gridSize).x , (*gridSize).y, (*gridSize).z , (*blockSize).x ,(*blockSize).y , (*blockSize).z);
+  assert((*gridSize).x * (*gridSize).y * (*gridSize).z * (*blockSize).x * (*blockSize).y * (*blockSize).z >= N);
+  assert((*gridSize).x * (*gridSize).y * (*gridSize).z * (*blockSize).x * (*blockSize).y * (*blockSize).z < N + maxBlockSize); ///@todo remove this assertion for very large problems
+  
   check3dconf(*gridSize, *blockSize);
 }
 
+///@todo is not in use. clean dead code?
 void make3dconf(int N0, int N1, int N2, dim3* gridSize, dim3* blockSize ){
   
   cudaDeviceProp* prop = (cudaDeviceProp*)gpu_getproperties();
@@ -149,7 +156,7 @@ void make3dconf(int N0, int N1, int N2, dim3* gridSize, dim3* blockSize ){
       N0, N1, N2, 
       gridSize->x, gridSize->y, gridSize->z,
       blockSize->x, blockSize->y, blockSize->z);
-      
+   
    check3dconf(*gridSize, *blockSize);
 }
 

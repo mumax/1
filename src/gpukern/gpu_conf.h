@@ -20,12 +20,12 @@ extern "C" {
   i = threadindex;
  @endcode
  */
-#define threadindex ((blockIdx.y * blockSize.y + blockIdx.x) * blockSize.x + threadIdx.x)
+#define threadindex ((blockIdx.y * gridDim.y + blockIdx.x) * gridDim.x + threadIdx.x)
 
 /**
  * Macro for integer division, but rounded UP
  */
-#define divUp(x, y) ( ((x)-1)/(y)+1 )
+#define divUp(x, y) ( (((x)-1)/(y)) +1 )
 
 /*
  * Checks if the CUDA 3D kernel launch configuration is valid. 
