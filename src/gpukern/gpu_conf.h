@@ -26,6 +26,8 @@ extern "C" {
  * Macro for integer division, but rounded UP
  */
 #define divUp(x, y) ( (((x)-1)/(y)) +1 )
+// It's almost like LISP ;-)
+
 
 /*
  * Checks if the CUDA 3D kernel launch configuration is valid. 
@@ -66,7 +68,7 @@ void check1dconf(int gridsize, ///< 1D size of the thread grid
 
 //______________________________________________________________________________________ make conf
 
-/**
+/*
  * Makes a 3D thread configuration suited for a float array of size N0 x N1 x N2.
  * The returned configuration will:
  *  - span the entire N0 x N1 x N2 array
@@ -92,27 +94,33 @@ void check1dconf(int gridsize, ///< 1D size of the thread grid
   }
  * @endcode
  */
-void make3dconf(int N0,     ///< size of 3D array to span
-        int N1,     ///< size of 3D array to span
-        int N2,     ///< size of 3D array to span
-        dim3* gridSize, ///< grid size is returned here
-        dim3* blockSize ///< block size is returned here
-        );
+// void make3dconf(int N0,     ///< size of 3D array to span
+//         int N1,     ///< size of 3D array to span
+//         int N2,     ///< size of 3D array to span
+//         dim3* gridSize, ///< grid size is returned here
+//         dim3* blockSize ///< block size is returned here
+//         );
         
 /**
  * Makes a 1D thread configuration suited for a float array of size N
- * The returned configuration will:
- *  - span the entire array
- *  - have the largest valid block size that fits in the  array
- *  - be valid
- *
- * @see make3dconf()
+ * The returned configuration will span at least the entire array but
+ * can be larger. Your kernel should use the threadindex macro to
+ * get the index "i", and check if it is smaller than the size "N" of
+ * the array it is meant to iterate over.
+ * @see make3dconf() threadindex
  *
  * Example:
  * @code
- * int gridSize, blockSize;
+ * dim3 gridSize, blockSize;
  * make1dconf(arraySize, &gridSize, &blockSize);
- * mykernel<<<gridSize, blockSize>>>(arrrrgh);
+ * mykernel<<<gridSize, blockSize>>>(arrrrghs, arraySize);
+
+   __global__ void mykernel(int aargs, int N){
+    int i = threadindex; //built-in macro
+    if(i < N){  // check if i is in range!
+      do_work();
+    }
+   }
  * @endcode
  */
 void make1dconf(int N,          ///< size of array to span (number of floats)
