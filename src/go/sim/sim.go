@@ -105,7 +105,7 @@ func (s *Sim) initSize() {
 		assert(s.size[i] > 0)
 		s.size4D[i+1] = s.size[i]
 	}
-	Debugv("Simulation size ", s.size)
+	Debugv("Simulation size ", s.size, " = ", s.size[0] * s.size[1] * s.size[2] ," cells")
 }
 
 func (s *Sim) initMLocal() {

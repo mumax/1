@@ -9,7 +9,7 @@ import (
 // Run the simulation for a certain duration, specified in seconds
 func (s *Sim) Run(time float64) {
 	s.init()
-	Debug("Running for", time, "s")
+	Debug("Running for ", time, "s")
 	time /= float64(s.UnitTime())
 	stop := s.time + time
 
