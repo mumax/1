@@ -51,6 +51,9 @@ func updateDashboard(sim *Sim) {
 	erase()
 	fmt.Println()
 
+	fmt.Print(BOLD+"GPU mem: "+RESET, sim.UsedMem()/MiB, " MiB")
+	eraseln()
+
 	// Conditions
 	//B := sim.UnitField()
 	fmt.Printf(
@@ -59,6 +62,7 @@ func updateDashboard(sim *Sim) {
 	erase()
 	fmt.Println()
 
+	up()
 	up()
 	up()
 	up()
@@ -99,4 +103,8 @@ const (
 	MIN  = 60
 	HOUR = 60 * MIN
 	DAY  = 24 * HOUR
+)
+
+const (
+	MiB = 1024 * 1024
 )

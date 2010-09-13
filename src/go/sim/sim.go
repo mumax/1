@@ -98,26 +98,26 @@ func (s *Sim) isValid() bool {
 	return s.valid
 }
 
-func (s *Sim) initSize(){
-  s.size4D[0] = 3 // 3-component vectors
-  for i := range s.size {
-    s.size[i] = s.input.size[i]
-    assert(s.size[i] > 0)
-    s.size4D[i+1] = s.size[i]
-  }
-  Debugv("Simulation size ", s.size)
+func (s *Sim) initSize() {
+	s.size4D[0] = 3 // 3-component vectors
+	for i := range s.size {
+		s.size[i] = s.input.size[i]
+		assert(s.size[i] > 0)
+		s.size4D[i+1] = s.size[i]
+	}
+	Debugv("Simulation size ", s.size)
 }
 
-func (s *Sim) initMLocal(){
- s.initSize()
- if s.mLocal == nil {
-    Debugv("Allocating local memory " + fmt.Sprint(s.size4D))
-    s.mLocal = tensor.NewTensor4(s.size4D[0:])
-  }
+func (s *Sim) initMLocal() {
+	s.initSize()
+	if s.mLocal == nil {
+		Debugv("Allocating local memory " + fmt.Sprint(s.size4D))
+		s.mLocal = tensor.NewTensor4(s.size4D[0:])
+	}
 
-  if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
-    s.mLocal = resample(s.mLocal, s.input.size[0:])
-  }
+	if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
+		s.mLocal = resample(s.mLocal, s.input.size[0:])
+	}
 }
 
 // (Re-)initialize the simulation tree, necessary before running.
@@ -166,8 +166,8 @@ func (s *Sim) init() {
 	// 	}
 
 
-  s.initMLocal()
-	
+	s.initMLocal()
+
 	TensorCopyTo(s.mLocal, s.mDev)
 	// 	s.Normalize(s.mDev)
 

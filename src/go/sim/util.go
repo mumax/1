@@ -41,10 +41,10 @@ func Size3D(size4D []int) []int {
 var Verbosity int = 2
 
 func Warn(msg ...interface{}) {
-    fmt.Fprint(os.Stderr, BOLD + "WARNING: " + RESET)
-    fmt.Fprint(os.Stderr, msg)
-    fmt.Fprint(os.Stderr, ERASE) // Erase rest of line
-    fmt.Fprintln(os.Stderr)
+	fmt.Fprint(os.Stderr, BOLD+"WARNING: "+RESET)
+	fmt.Fprint(os.Stderr, msg)
+	fmt.Fprint(os.Stderr, ERASE) // Erase rest of line
+	fmt.Fprintln(os.Stderr)
 }
 
 func Debug(msg ...interface{}) {
