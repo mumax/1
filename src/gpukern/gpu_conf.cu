@@ -69,32 +69,32 @@ void check1dconf(int gridsize, int blocksize){
 
 //_____________________________________________________________________________________________ make conf
 
-void _make1dconf(int N, unsigned int* gridSize, unsigned int* blockSize, int maxGridSize, int maxBlockSize){
-
-  ///// HACK ////
-  if(maxBlockSize > 128){
-    debugvv( fprintf(stderr, "WARNING: using 128 as max block size! \n") );
-    maxBlockSize = 128;
-  }
-
-  
-  //if(N >= maxBlockSize){
-    *blockSize = maxBlockSize;
-    while(N % (*blockSize) != 0){
-      (*blockSize)/=2;
-    }
-    *gridSize = N / *blockSize;
+// void _make1dconf(int N, unsigned int* gridSize, unsigned int* blockSize, int maxGridSize, int maxBlockSize){
+// 
+//   ///// HACK ////
+//   if(maxBlockSize > 128){
+//     debugvv( fprintf(stderr, "WARNING: using 128 as max block size! \n") );
+//     maxBlockSize = 128;
 //   }
-//   else{ // N < maxBlockSize
-//     *blockSize = N;
-//     *gridSize = 1;
-//   }
-  debugvv( fprintf(stderr, "_make1dconf(%d): %d x %d\n", N, *gridSize, *blockSize) );
-  check1dconf(*gridSize, *blockSize);
-  assert((*blockSize) * (*gridSize) == N);
-  assert(*blockSize <= maxBlockSize);
-  assert(*gridSize <= maxGridSize);
-}
+// 
+//   
+//   //if(N >= maxBlockSize){
+//     *blockSize = maxBlockSize;
+//     while(N % (*blockSize) != 0){
+//       (*blockSize)/=2;
+//     }
+//     *gridSize = N / *blockSize;
+// //   }
+// //   else{ // N < maxBlockSize
+// //     *blockSize = N;
+// //     *gridSize = 1;
+// //   }
+//   debugvv( fprintf(stderr, "_make1dconf(%d): %d x %d\n", N, *gridSize, *blockSize) );
+//   check1dconf(*gridSize, *blockSize);
+//   assert((*blockSize) * (*gridSize) == N);
+//   assert(*blockSize <= maxBlockSize);
+//   assert(*gridSize <= maxGridSize);
+// }
 
 
 
@@ -104,10 +104,10 @@ void make1dconf(int N, dim3* gridSize, dim3* blockSize){
   
   cudaDeviceProp* prop = (cudaDeviceProp*)gpu_getproperties();
   int maxBlockSize = prop->maxThreadsPerBlock;
-  if(maxBlockSize > 256){
-    debugvv( fprintf(stderr, "WARNING: using 256 as max block size! \n") );
-    maxBlockSize = 256;
-  }
+//   if(maxBlockSize > 256){
+//     debugvv( fprintf(stderr, "WARNING: using 256 as max block size! \n") );
+//     maxBlockSize = 256;
+//   }
   int maxGridSize = prop->maxGridSize[X];
 
   (*blockSize).x = maxBlockSize;
