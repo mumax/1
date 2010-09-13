@@ -20,7 +20,7 @@ extern "C" {
   i = threadindex;
  @endcode
  */
-#define threadindex ((blockIdx.y * gridDim.y + blockIdx.x) * gridDim.x + threadIdx.x)
+#define threadindex ( blockIdx.y * gridDim.x * blockDim.x  + blockIdx.x * blockDim.x + threadIdx.x )
 
 /**
  * Macro for integer division, but rounded UP

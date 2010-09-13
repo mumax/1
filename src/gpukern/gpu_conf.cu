@@ -115,7 +115,7 @@ void make1dconf(int N, dim3* gridSize, dim3* blockSize){
   (*blockSize).z = 1;
 
   int N2 = divUp(N, maxBlockSize); // N blocks left
-  printf("N2=%d\n", N2);
+//   printf("N2=%d\n", N2);
   
   int NX = divUp(N2, maxGridSize);
   int NY = divUp(N2, NX);
