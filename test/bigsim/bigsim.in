@@ -1,7 +1,8 @@
-# We propose standard problem 5,
-# a 3D alternative for standard problem 4
+# BIG simulation
 
 gpu
+
+demagaccuracy 3
 
 # schedule output
 outputdir     output
@@ -12,23 +13,22 @@ autosave      table ascii  5E-12
 solvertype   heun
 
 # material: permalloy
-msat         800E3       # A/m
-aexch        1.3E-11     # J/m
+msat         800E3
+aexch        1.3E-11
 
 
 # geometry
-size         16     32          128
-cellsize     3.90625E-9  3.90625E-9  3.90625E-9  # m
+size         64    64     64
+cellsize     2E-9  2E-9   2E-9
 
 # initial magnetization
-uniform      1 1 1
+vortex      1 1 
 
 
 # relax
 alpha       2
 dt          2E-12
-run         2E-9
-
+run         5E-9
 
 
 # run
