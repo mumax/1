@@ -50,6 +50,7 @@ void printc(char* tag, float* data, int N0, int N1, int N2, int N3){
  * Zero-padding in each dimension is optional, and rows with
  * only zero's are not transformed.
  * @TODO interleave with streams: fft_z(MX), transpose(MX) async, FFT_z(MY), transpose(MY) async, ... threadsync, FFT_Y(MX)...
+ * @TODO CUFFT crashes on more than one million cells, seems to be exactly the limit of 8 million elements (after zero-padding)
  */
 gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
   

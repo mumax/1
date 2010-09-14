@@ -3,6 +3,7 @@
 #include "gpu_stream.h"
 #include <assert.h>
 #include "timer.h"
+#include "../macros.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -181,7 +182,8 @@ void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2)
 
   dim3 gridsize(N0, N1, 1); ///@todo generalize!
   dim3 blocksize(N2, 1, 1);
-  gpu_checkconf(gridsize, blocksize);
+  debugvv( printf("transposeXZ %d %d %d\n", N0, N1, N2) );
+  check3dconf(gridsize, blocksize);
   _gpu_transposeXZ_complex<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
   cudaThreadSynchronize();
 

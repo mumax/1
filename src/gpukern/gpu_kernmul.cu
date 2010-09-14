@@ -25,59 +25,58 @@ extern "C" {
 
 
 __global__ void _gpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
-                                                     float* fftKxx, float* fftKyy, float* fftKzz,
-                                                     float* fftKyz, float* fftKxz, float* fftKxy){
-  
-  int e = 2 * ((blockIdx.x * blockDim.x) + threadIdx.x);
-  
+                                float* fftKxx, float* fftKyy, float* fftKzz,
+                                float* fftKyz, float* fftKxz, float* fftKxy, int N){
+  int i = threadindex;
+  int e = 2 * i;
+
   // we some shared memory here, which saves an "8N" buffer in the global memory
-  ///@todo coalescale read/writes
-  float reMx = fftMx[e  ];
-  float imMx = fftMx[e+1];
+  ///@todo coalescale read/writes, cleanup indices
+  if(i < N){
+    float reMx = fftMx[e  ];
+    float imMx = fftMx[e+1];
 
-  float reMy = fftMy[e  ];
-  float imMy = fftMy[e+1];
+    float reMy = fftMy[e  ];
+    float imMy = fftMy[e+1];
 
-  float reMz = fftMz[e  ];
-  float imMz = fftMz[e+1];
+    float reMz = fftMz[e  ];
+    float imMz = fftMz[e+1];
 
-  float Kxx = fftKxx[e/2];
-  float Kyy = fftKyy[e/2];
-  float Kzz = fftKzz[e/2];
+    float Kxx = fftKxx[i];
+    float Kyy = fftKyy[i];
+    float Kzz = fftKzz[i];
 
-  float Kyz = fftKyz[e/2];
-  float Kxz = fftKxz[e/2];
-  float Kxy = fftKxy[e/2];
-  
-  fftMx[e  ] = reMx * Kxx + reMy * Kxy + reMz * Kxz;
-  fftMx[e+1] = imMx * Kxx + imMy * Kxy + imMz * Kxz;
+    float Kyz = fftKyz[i];
+    float Kxz = fftKxz[i];
+    float Kxy = fftKxy[i];
 
-  fftMy[e  ] = reMx * Kxy + reMy * Kyy + reMz * Kyz;
-  fftMy[e+1] = imMx * Kxy + imMy * Kyy + imMz * Kyz;
+    fftMx[e  ] = reMx * Kxx + reMy * Kxy + reMz * Kxz;
+    fftMx[e+1] = imMx * Kxx + imMy * Kxy + imMz * Kxz;
 
-  fftMz[e  ] = reMx * Kxz + reMy * Kyz + reMz * Kzz;
-  fftMz[e+1] = imMx * Kxz + imMy * Kyz + imMz * Kzz;
+    fftMy[e  ] = reMx * Kxy + reMy * Kyy + reMz * Kyz;
+    fftMy[e+1] = imMx * Kxy + imMy * Kyy + imMz * Kyz;
 
+    fftMz[e  ] = reMx * Kxz + reMy * Kyz + reMz * Kzz;
+    fftMz[e+1] = imMx * Kxz + imMy * Kyz + imMz * Kzz;
+  }
 }
 
 
 void gpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
-                                         float* fftKxx, float* fftKyy, float* fftKzz,
-                                         float* fftKyz, float* fftKxz, float* fftKxy,
-                                         int nRealNumbers){
-  
+                    float* fftKxx, float* fftKyy, float* fftKzz,
+                    float* fftKyz, float* fftKxz, float* fftKxy,
+                    int nRealNumbers){
+
   timer_start("kernel_mul");
   assert(nRealNumbers > 0);
   assert(nRealNumbers % 2 == 0);
-  
-   int gridSize = -1;
-   int blockSize = -1;
-   make1dconf(nRealNumbers/2, &gridSize, &blockSize);
 
-  _gpu_kernelmul6<<<gridSize, blockSize>>>(
-                                      fftMx,  fftMy,  fftMz, 
-                                      fftKxx, fftKyy, fftKzz,
-                                      fftKyz, fftKxz, fftKxy);
+  dim3 gridSize, blockSize;
+  make1dconf(nRealNumbers/2, &gridSize, &blockSize);
+
+  _gpu_kernelmul6<<<gridSize, blockSize>>>(fftMx,  fftMy,  fftMz,
+                                           fftKxx, fftKyy, fftKzz,
+                                           fftKyz, fftKxz, fftKxy, nRealNumbers/2);
   cudaThreadSynchronize();
   timer_stop("kernel_mul");
 }

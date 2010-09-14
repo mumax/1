@@ -7,9 +7,10 @@ extern "C" {
 #endif
 
 ///@internal kernel
-__global__ void _gpu_anal_fw_step (float *mx, float *my, float *mz, float *hx, float *hy, float *hz, float dt, float alpha){
+__global__ void _gpu_anal_fw_step (float *mx, float *my, float *mz, float *hx, float *hy, float *hz, float dt, float alpha, int N){
 
-  int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
+  int i = threadindex;
+  if(i < N){
   float hxy_r, hxyz_r;
   float rot0, rot1, rot2, rot3, rot4, rot5, rot6, rot8;
 
@@ -68,7 +69,7 @@ __global__ void _gpu_anal_fw_step (float *mx, float *my, float *mz, float *hx, f
   my[i] = mx_rotnw*rot3 + my_rotnw*rot4 + mz_rotnw*rot5;
   mz[i] = mx_rotnw*rot6 + mz_rotnw*rot8;
 // -----------------------------------
-
+  }
 
   return;
 }
@@ -76,11 +77,11 @@ __global__ void _gpu_anal_fw_step (float *mx, float *my, float *mz, float *hx, f
 
 void gpu_anal_fw_step_unsafe(float* m, float* h, float dt, float alpha, int N){
 
-  int gridSize = -1, blockSize = -1;
+  dim3 gridSize, blockSize;
   make1dconf(N, &gridSize, &blockSize);
 
   //timer_start("gpu_anal_fw_step");
-  _gpu_anal_fw_step <<<gridSize, blockSize>>> (&m[X*N], &m[Y*N], &m[Z*N], &h[X*N], &h[Y*N], &h[Z*N], dt, alpha);
+  _gpu_anal_fw_step <<<gridSize, blockSize>>> (&m[X*N], &m[Y*N], &m[Z*N], &h[X*N], &h[Y*N], &h[Z*N], dt, alpha, N);
   cudaThreadSynchronize();
   //timer_stop("gpu_anal_fw_step");
 

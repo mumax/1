@@ -5,30 +5,31 @@
 extern "C" {
 #endif
 
-/// @internal kernel
-__global__ void _gpu_deltaM(float* mx, float* my, float* mz, float* hx, float* hy, float* hz, float alpha, float dt_gilb){
+/// @internal
+__global__ void _gpu_deltaM(float* mx, float* my, float* mz, float* hx, float* hy, float* hz, float alpha, float dt_gilb, int N){
 
-  int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
+  int i = threadindex;
 
-  // - m cross H
-  float _mxHx = -my[i] * hz[i] + hy[i] * mz[i];
-  float _mxHy =  mx[i] * hz[i] - hx[i] * mz[i];
-  float _mxHz = -mx[i] * hy[i] + hx[i] * my[i];
+  if(i < N){
+    // - m cross H
+    float _mxHx = -my[i] * hz[i] + hy[i] * mz[i];
+    float _mxHy =  mx[i] * hz[i] - hx[i] * mz[i];
+    float _mxHz = -mx[i] * hy[i] + hx[i] * my[i];
 
-  // - m cross (m cross H)
-  float _mxmxHx =  my[i] * _mxHz - _mxHy * mz[i];
-  float _mxmxHy = -mx[i] * _mxHz + _mxHx * mz[i];
-  float _mxmxHz =  mx[i] * _mxHy - _mxHx * my[i];
+    // - m cross (m cross H)
+    float _mxmxHx =  my[i] * _mxHz - _mxHy * mz[i];
+    float _mxmxHy = -mx[i] * _mxHz + _mxHx * mz[i];
+    float _mxmxHz =  mx[i] * _mxHy - _mxHx * my[i];
 
-  hx[i] = dt_gilb * (_mxHx + _mxmxHx * alpha);
-  hy[i] = dt_gilb * (_mxHy + _mxmxHy * alpha);
-  hz[i] = dt_gilb * (_mxHz + _mxmxHz * alpha);
-  
+    hx[i] = dt_gilb * (_mxHx + _mxmxHx * alpha);
+    hy[i] = dt_gilb * (_mxHy + _mxmxHy * alpha);
+    hz[i] = dt_gilb * (_mxHz + _mxmxHz * alpha);
+  }
 }
 
 void gpu_deltaM(float* m, float* h, float alpha, float dt_gilb, int N){
 
-  int gridSize = -1, blockSize = -1;
+  dim3 gridSize, blockSize;
   make1dconf(N, &gridSize, &blockSize);
 
   float* mx = &(m[0*N]);
@@ -39,7 +40,7 @@ void gpu_deltaM(float* m, float* h, float alpha, float dt_gilb, int N){
   float* hy = &(h[1*N]);
   float* hz = &(h[2*N]);
 
-  _gpu_deltaM<<<gridSize, blockSize>>>(mx, my, mz, hx, hy, hz, alpha, dt_gilb);
+  _gpu_deltaM<<<gridSize, blockSize>>>(mx, my, mz, hx, hy, hz, alpha, dt_gilb, N);
   cudaThreadSynchronize();
 }
 

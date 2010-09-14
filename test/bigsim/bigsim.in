@@ -2,7 +2,7 @@
 
 gpu
 
-demagaccuracy 1
+demagaccuracy 0
 
 # schedule output
 outputdir     output
@@ -18,7 +18,7 @@ aexch        1.3E-11
 
 
 # geometry
-size         1    128     128
+size         1	512 512
 cellsize     2E-9  2E-9   2E-9
 
 # initial magnetization

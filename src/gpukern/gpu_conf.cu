@@ -7,38 +7,10 @@
 extern "C" {
 #endif
 
-//_____________________________________________________________________________________________ check conf
-
-/** @todo use cudaDeviceProperties */
-#define MAX_THREADS_PER_BLOCK 512
-#define MAX_BLOCKSIZE_X 512
-#define MAX_BLOCKSIZE_Y 512
-#define MAX_BLOCKSIZE_Z 64
-
-#define MAX_GRIDSIZE_Z 1
-
-/** @todo: uses deviced props.  */
-void gpu_checkconf(dim3 gridsize, dim3 blocksize){
-  assert(blocksize.x * blocksize.y * blocksize.z <= MAX_THREADS_PER_BLOCK);
-  assert(blocksize.x * blocksize.y * blocksize.z >  0);
-  
-  assert(blocksize.x <= MAX_BLOCKSIZE_X);
-  assert(blocksize.y <= MAX_BLOCKSIZE_Y);
-  assert(blocksize.z <= MAX_BLOCKSIZE_Z);
-  
-  assert(gridsize.z <= MAX_GRIDSIZE_Z);
-  assert(gridsize.x > 0);
-  assert(gridsize.y > 0);
-  assert(gridsize.z > 0);
-}
-
-void gpu_checkconf_int(int gridsize, int blocksize){
-  assert(blocksize <= MAX_BLOCKSIZE_X);
-  assert(gridsize > 0);
-}
-
 void check3dconf(dim3 gridSize, dim3 blockSize){
- 
+
+  debugvv( printf("check3dconf((%d, %d, %d),(%d, %d, %d))\n", gridSize.x, gridSize.y, gridSize.z, blockSize.x, blockSize.y, blockSize.z) );
+  
   cudaDeviceProp* prop = (cudaDeviceProp*)gpu_getproperties();
   int maxThreadsPerBlock = prop->maxThreadsPerBlock;
   int* maxBlockSize = prop->maxThreadsDim;
@@ -69,66 +41,36 @@ void check1dconf(int gridsize, int blocksize){
   assert(blocksize <= ((cudaDeviceProp*)gpu_getproperties())->maxThreadsPerBlock);
 }
 
-//_____________________________________________________________________________________________ make conf
 
-void _make1dconf(int N, unsigned int* gridSize, unsigned int* blockSize, int maxGridSize, int maxBlockSize){
+void make1dconf(int N, dim3* gridSize, dim3* blockSize){
 
-  ///// HACK ////
-  if(maxBlockSize > 128){
-    debugvv( fprintf(stderr, "WARNING: using 128 as max block size! \n") );
-    maxBlockSize = 128;
-  }
-
-  
-  //if(N >= maxBlockSize){
-    *blockSize = maxBlockSize;
-    while(N % (*blockSize) != 0){
-      (*blockSize)/=2;
-    }
-    *gridSize = N / *blockSize;
-//   }
-//   else{ // N < maxBlockSize
-//     *blockSize = N;
-//     *gridSize = 1;
-//   }
-  debugvv( fprintf(stderr, "_make1dconf(%d): %d x %d\n", N, *gridSize, *blockSize) );
-  check1dconf(*gridSize, *blockSize);
-  assert((*blockSize) * (*gridSize) == N);
-  assert(*blockSize <= maxBlockSize);
-  assert(*gridSize <= maxGridSize);
-}
-
-void make1dconf(int N, int* gridSize, int* blockSize){
-  cudaDeviceProp* prop = (cudaDeviceProp*)gpu_getproperties();
-  _make1dconf(N, (unsigned int*)gridSize, (unsigned int*)blockSize, prop->maxGridSize[X], prop->maxThreadsPerBlock);
-}
-
-void make3dconf(int N0, int N1, int N2, dim3* gridSize, dim3* blockSize ){
+  debugvv( printf("make1dconf(%d)\n", N) );
   
   cudaDeviceProp* prop = (cudaDeviceProp*)gpu_getproperties();
-  int maxThreadsPerBlock = prop->maxThreadsPerBlock;
-  int* maxBlockSize = prop->maxThreadsDim;
-  int* maxGridSize = prop->maxGridSize;
+  int maxBlockSize = prop->maxThreadsPerBlock;
+//   if(maxBlockSize > 256){
+//     debugvv( fprintf(stderr, "WARNING: using 256 as max block size! \n") );
+//     maxBlockSize = 256;
+//   }
+  int maxGridSize = prop->maxGridSize[X];
+
+  (*blockSize).x = maxBlockSize;
+  (*blockSize).y = 1;
+  (*blockSize).z = 1;
   
-  _make1dconf(N2, &(gridSize->z), &(blockSize->z), maxGridSize[Z], maxBlockSize[Z]);
+  int N2 = divUp(N, maxBlockSize); // N2 blocks left
   
-  int newMaxBlockSizeY = min(maxBlockSize[Y], maxThreadsPerBlock / blockSize->z);
-  _make1dconf(N1, &(gridSize->y), &(blockSize->y), maxGridSize[Y], newMaxBlockSizeY);
+  int NX = divUp(N2, maxGridSize);
+  int NY = divUp(N2, NX);
+
+  (*gridSize).x = NX;
+  (*gridSize).y = NY;
+  (*gridSize).z = 1;
+
+  assert((*gridSize).x * (*gridSize).y * (*gridSize).z * (*blockSize).x * (*blockSize).y * (*blockSize).z >= N);
+  //assert((*gridSize).x * (*gridSize).y * (*gridSize).z * (*blockSize).x * (*blockSize).y * (*blockSize).z < N + maxBlockSize); ///@todo remove this assertion for very large problems
   
-  int newMaxBlockSizeX = min(maxBlockSize[X], maxThreadsPerBlock / (blockSize->z * blockSize->y));
-  _make1dconf(N0, &(gridSize->x), &(blockSize->x), maxGridSize[X], newMaxBlockSizeX);
-  
-  assert(blockSize->x * gridSize->x == N0);
-  assert(blockSize->y * gridSize->y == N1);
-  assert(blockSize->z * gridSize->z == N2);
-  
-  
-  fprintf(stderr, "make3dconf(%d, %d, %d): (%d x %d x %d) x (%d x %d x %d)\n", 
-      N0, N1, N2, 
-      gridSize->x, gridSize->y, gridSize->z,
-      blockSize->x, blockSize->y, blockSize->z);
-      
-   check3dconf(*gridSize, *blockSize);
+  check3dconf(*gridSize, *blockSize);
 }
 
 #ifdef __cplusplus
