@@ -1,7 +1,7 @@
 # Micromagnetic standard problem 4
 
 # hardware selection
-cpu
+gpu
 
 
 # output
@@ -26,7 +26,7 @@ vortex		1	1
 alpha		2
 autosave:	m	png	50E-12
 autosave:	table	ascii	10E-12
-staticfield: 	0	10E-3	0  
+staticfield: 	0	0	0  
 run:          	10E-9
 
 
