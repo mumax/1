@@ -8,8 +8,8 @@ OFILES=\
 	gpu_linalg.o\
 	gpu_normalize.o\
 	gpu_torque.o\
-	gpu_transpose.o\
-	gpu_fft2.o\
+	gpu_transpose2.o\
+	gpu_fft3.o\
 	gpu_kernmul.o\
 	gpu_zeropad.o\
 	gpu_anal.o\
@@ -54,11 +54,11 @@ gpu_normalize.o:  gpu_normalize.h gpu_normalize.cu
 gpu_torque.o:  gpu_torque.h gpu_torque.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_torque.cu
 
-gpu_transpose.o:  gpu_transpose.h gpu_transpose.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_transpose.cu
+gpu_transpose2.o:  gpu_transpose2.h gpu_transpose2.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_transpose2.cu
 
-gpu_fft2.o:  gpu_fft2.h gpu_fft2.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft2.cu
+gpu_fft3.o:  gpu_fft3.h gpu_fft3.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft3.cu
 
 gpu_kernmul.o:  gpu_kernmul.h gpu_kernmul.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_kernmul.cu
@@ -72,9 +72,9 @@ gpu_anal.o:  gpu_anal.h gpu_anal.cu
 gpu_init.o:  gpu_init.h gpu_init.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_init.cu
 
-transpose_test:	transpose_test.cpp libgpukern.so
-	$(CPP) $(CFLAGS) libgpukern.so transpose_test.cpp -o transpose_test
-	./transpose_test
+transpose2_test:	transpose2_test.cpp libgpukern.so
+	$(CPP) $(CFLAGS) libgpukern.so transpose2_test.cpp -o transpose2_test
+	./transpose2_test
 
 fft_test:	fft_test.cpp libgpukern.so
 	$(CPP) libgpukern.so fft_test.cpp -o fft_test

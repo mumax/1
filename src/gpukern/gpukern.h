@@ -11,14 +11,14 @@
  */
 
 
-#include "gpu_fft2.h"
+#include "gpu_fft3.h"
 #include "gpu_kernmul.h"
 #include "gpu_linalg.h"
 #include "gpu_mem.h"
 #include "gpu_normalize.h"
 #include "gpu_tensor.h"
 #include "gpu_torque.h"
-#include "gpu_transpose.h"
+#include "gpu_transpose2.h"
 #include "gpu_zeropad.h"
 #include "gpu_properties.h"
 #include "gpu_anal.h"
