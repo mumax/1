@@ -48,7 +48,7 @@ func main() {
 // when running in the normal "master" mode, i.e. given an input file to process locally
 func main_master() {
 
-  Debugv("Locked OS thread")
+  Debugvv("Locked OS thread")
   runtime.LockOSThread()
   
 	if flag.NArg() == 0 {
@@ -84,6 +84,17 @@ func exec(in io.Reader) {
 	refsh.CrashOnError = true
 	refsh.AddAllMethods(sim)
 	refsh.Exec(in)
-	sim.TimerPrintDetail()
-	sim.PrintTimer(os.Stdout)
+
+	// Idiot-proof error reports
+	if refsh.CallCount == 0{
+    Error("Input file contains no commands.")
+  }
+  if !sim.BeenValid{
+    Error("Input file does not contain any commands to make the simulation run. Use, e.g., \"run\".")
+  }
+	// The next two lines cause a nil pointer panic when the simulation is not fully initialized
+  if sim.BeenValid{
+    sim.TimerPrintDetail()
+    sim.PrintTimer(os.Stdout)
+  }
 }

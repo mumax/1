@@ -132,6 +132,8 @@ func (refsh *Refsh) ExecFlags() {
 func (refsh *Refsh) Call(fname string, argv []string) []Value {
   // Debug
   fmt.Print(">>> ", fname, "\t ")
+  refsh.CallCount++
+  
   for _,a := range argv{
     fmt.Print(a, "\t ")
   }
@@ -155,6 +157,7 @@ type Refsh struct {
 	funcnames    []string
 	funcs        []Caller
 	CrashOnError bool
+	CallCount    int  //counts number of commands executed
 }
 
 func NewRefsh() *Refsh {

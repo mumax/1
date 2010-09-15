@@ -11,5 +11,5 @@ known bugs
  We can not handle big simulations yet:
  make3dconf(), cufft() fail and we allocate to much memory as well.
 
-[0003] OPEN arne:
- simulate crashes on empty input file or on directory as input.
+[0003] SOLVED arne:
+ simulate crashes on empty input file (also when not really empty but no commands, only comments/whitespace) or on directory as input.

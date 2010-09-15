@@ -69,10 +69,10 @@ func updateDashboard(sim *Sim) {
 	up()
 }
 
-func (s *Sim) printMem(){
-  // SEGFAULTS !
-  //fmt.Println("s", s)
-//   fmt.Println("GPU memory used: ", s.UsedMem()/MiB, " MiB")
+func (s *Sim) printMem() {
+	// SEGFAULTS !
+	//fmt.Println("s", s)
+	//   fmt.Println("GPU memory used: ", s.UsedMem()/MiB, " MiB")
 }
 
 func erase() {
