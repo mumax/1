@@ -21,7 +21,7 @@ void test(){
   int N1 = 4, N2 = 5;
   int N = N1*N2;
 
-  int M1 = 2*N1, M2 = 2*N2;
+  int M1 = N1, M2 = 2*N2;
   int M = M1 * M2;
 
   float* host = (float*)calloc(N, sizeof(float));
@@ -40,10 +40,10 @@ void test(){
   // do one to initialize CUDA before the actual timing
   gpu_copy_pad2D(dev, dev2, N1, N2, M1, M2);
 
-  timer_start("transpose");
+  timer_start("zeropad");
   for(int i=0; i<RUNS; i++)
     gpu_copy_pad2D(dev, dev2, N1, N2, M1, M2);
-  timer_stop("transpose");
+  timer_stop("zeropad");
 
   memcpy_from_gpu(dev2, host2, N);
     format(host, N1, N2);

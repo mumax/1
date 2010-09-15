@@ -1,6 +1,7 @@
 #include "gpu_zeropad.h"
 #include "gpu_conf.h"
 #include <assert.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -8,6 +9,7 @@ extern "C" {
 
 #define BLOCKSIZE 16
 
+/// @todo DOES NOT WORK YET
 /// @internal Does padding and unpadding, not necessarily by a factor 2
 __global__ void _gpu_copy_pad2D(float* source, float* dest,
                                 int S1, int S2,
@@ -31,7 +33,7 @@ void gpu_copy_pad2D(float* source, float* dest,
   dim3 gridSize(divUp(S2, BLOCKSIZE), divUp(S1, BLOCKSIZE), 1);
   dim3 blockSize(BLOCKSIZE, BLOCKSIZE, 1);
   check3dconf(gridSize, blockSize);
-
+  //printf("S1 %d  S2 %d  D1 %d  D2 %d  \n", S1, S2, D1, D2);
   _gpu_copy_pad2D<<<gridSize, blockSize>>>(source, dest, S1, S2, D1, D2);
   cudaThreadSynchronize();
 }
