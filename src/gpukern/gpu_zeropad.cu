@@ -17,7 +17,7 @@ __global__ void _gpu_copy_pad2D(float* source, float* dest,
    int j = blockIdx.x * BLOCKSIZE + threadIdx.x;
 
    if (i<S1 && j < S2){
-    dest[i*D1 + j] = source[i*S1 + j];
+    dest[i*D2 + j] = source[i*S2 + j];
    }
 }
 
