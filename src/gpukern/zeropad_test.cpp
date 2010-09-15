@@ -45,7 +45,7 @@ void test(){
     gpu_copy_pad2D(dev, dev2, N1, N2, M1, M2);
   timer_stop("zeropad");
 
-  memcpy_from_gpu(dev2, host2, N);
+  memcpy_from_gpu(dev2, host2, M);
     format(host, N1, N2);
     format(host2, M1, M2);
 
