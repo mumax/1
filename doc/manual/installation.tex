@@ -1,4 +1,4 @@
-\section{Getting started}
+\section{Installation}
 
 \subsection{Requirements}
 
@@ -8,15 +8,18 @@ This program was devolped and tested on Ubuntu Linux version 10.04, and we expec
 
 \subsubsection{Hardware and drivers}
 
-
 To take advantage of the GPU acceleration, you need a \idx{CUDA capable} \textsc{NVIDIA} GPU. All recent GPUs should work, though it is highly recommended to use a ``Fermi''-architecture GPU with a \idx{compute capability} of at least 2.0.
 
-You will also need to install the proprietary \textsc{NVIDIA} \idx{driver}. Under Ubuntu, the ``Hardware drivers'' 
+You will also need to install the proprietary \textsc{NVIDIA} \idx{driver}. Under Ubuntu, the ``Hardware drivers'' program will probably propose to install this driver. You can also download the driver directly from \textsc{NVIDIA}. In that case you will have to install it when your X-server is not running and you will have to re-install it after every kernel upgrade.
 
+To check your system, run the progam \cmd{nvidia-settings} which shows information about your GPU and driver.
+
+
+\subsection{Setup}
+
+We recommend downloading a pre-compiled version of the program for either a 32-bit or 64-bit architecture.
 
 \subsection{Running}
-
-
 
 \subsection{Re-compiling}
 

@@ -10,7 +10,9 @@ extern "C" {
 
 #define BLOCKSIZE 16
 
-/// @internal Does padding and unpadding, not necessarily by a factor 2
+///@todo Many of these functions have unused arguments that I left in for clarity but could be removed.
+
+/// @internal Does padding and unpadding of a 2D matrix, not necessarily by a factor 2
 __global__ void _gpu_copy_pad2D(float* source, float* dest,
                                 int S1, int S2,
                                 int D1, int D2){
@@ -24,7 +26,7 @@ __global__ void _gpu_copy_pad2D(float* source, float* dest,
    }
 }
 
-
+/// @internal Does padding of a 2D matrix, not necessarily by a factor 2
 void gpu_copy_pad2D_async(float* source, float* dest,
                          int S1, int S2,
                          int D1, int D2){
@@ -37,7 +39,7 @@ void gpu_copy_pad2D_async(float* source, float* dest,
   _gpu_copy_pad2D<<<gridSize, blockSize, gpu_getstream()>>>(source, dest, S1, S2, D1, D2);
 }
 
-
+/// @internal Does unpadding of a 2D matrix, not necessarily by a factor 2
 void gpu_copy_unpad2D_async(float* source, float* dest,
                          int S1, int S2,
                          int D1, int D2){
