@@ -17,7 +17,8 @@ __global__ void _gpu_copy_pad2D(float* source, float* dest,
    int i = blockIdx.y * BLOCKSIZE + threadIdx.y;
    int j = blockIdx.x * BLOCKSIZE + threadIdx.x;
 
-   if (i<S1 && j < S2){
+   if (i<S1 && j<S2 && i<D1 && j<D2){ //this check makes it work for padding as well as for unpadding.
+                                      //2 separate functions are probably not more efficient due to memory bandwidth limitations
     dest[i*D2 + j] = source[i*S2 + j];
    }
 }
@@ -32,24 +33,23 @@ void gpu_copy_pad2D(float* source, float* dest,
   dim3 gridSize(divUp(S2, BLOCKSIZE), divUp(S1, BLOCKSIZE), 1);
   dim3 blockSize(BLOCKSIZE, BLOCKSIZE, 1);
   check3dconf(gridSize, blockSize);
-  //printf("S1 %d  S2 %d  D1 %d  D2 %d  \n", S1, S2, D1, D2);
   _gpu_copy_pad2D<<<gridSize, blockSize>>>(source, dest, S1, S2, D1, D2);
   cudaThreadSynchronize();
 }
 
 
+void gpu_copy_unpad2D(float* source, float* dest,
+                         int S1, int S2,
+                         int D1, int D2){
 
-/// @internal Does padding and unpadding, not necessarily by a factor 2
-// __global__ void _gpu_copy_pad(float* source, float* dest,
-//                                    int S1, int S2,                  ///< source sizes Y and Z
-//                                    int D1, int D2                   ///< destination size Y and Z
-//                                    ){
-//   int i = blockIdx.x;
-//   int j = blockIdx.y;
-//   int k = threadIdx.x;
-// 
-//   dest[(i*D1 + j)*D2 + k] = source[(i*S1 + j)*S2 + k];
-// }
+  assert(S1 >= D1 && S2 >= D2);
+
+  dim3 gridSize(divUp(D2, BLOCKSIZE), divUp(D1, BLOCKSIZE), 1);
+  dim3 blockSize(BLOCKSIZE, BLOCKSIZE, 1);
+  check3dconf(gridSize, blockSize);
+  _gpu_copy_pad2D<<<gridSize, blockSize>>>(source, dest, S1, S2, D1, D2);
+  cudaThreadSynchronize();
+}
 
 
 void gpu_copy_pad(float* source, float* dest,
@@ -61,7 +61,6 @@ void gpu_copy_pad(float* source, float* dest,
   for(int i=0; i<S0; i++){
     gpu_copy_pad2D(&source[i*S1*S2], &dest[i*D1*D2], S1, S2, D1, D2); ///@todo async, inline call to 2D (see also transpose)
   }
-
 }
 
 
@@ -71,7 +70,9 @@ void gpu_copy_unpad(float* source, float* dest,
 
   assert(S0 >= D0 && S1 >= D1 && S2 >= D2);
 
-
+  for(int i=0; i<S0; i++){
+    gpu_copy_unpad2D(&source[i*S1*S2], &dest[i*D1*D2], S1, S2, D1, D2); ///@todo async, inline call to 2D (see also transpose)
+  }
 }
 
 
