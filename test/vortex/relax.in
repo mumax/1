@@ -24,10 +24,17 @@ vortex		1	1
 
 # relax
 alpha		2
-autosave:	m	png	50E-12
+autosave:	m	png	100E-12
 autosave:	table	ascii	10E-12
-staticfield: 	0	0	0  
-run:          	10E-9
+staticfield: 	0	20E-3	0  
+run:          	5E-9
+save		m 	binary
+
+#run
+alpha		0.01
+dt		0.05E-12
+staticfield	0	0	0
+run 		10E-9
 
 
 
