@@ -12,4 +12,4 @@ known bugs
  make3dconf(), cufft() fail and we allocate to much memory as well.
 
 [0003] OPEN arne:
- simulate crashes on non-existing input file.
+ simulate crashes on empty input file or on directory as input.

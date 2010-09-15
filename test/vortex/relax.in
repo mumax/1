@@ -15,7 +15,7 @@ msat:       	800E3
 aexch:      	1.3E-11
 
 # geometry 
-size:       	1     64          64    
+size:       	1     128          128    
 cellsize:   	20E-9  3.125E-9  3.125E-9
 
 # initial magnetization
