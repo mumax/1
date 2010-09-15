@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define RUNS 1000
+#define RUNS 10000
 
 void format(float* array, int N1, int N2){
   for(int i=0; i<N1; i++){
@@ -18,10 +18,10 @@ void format(float* array, int N1, int N2){
 }
 
 void test(){
-  int N1 = 4, N2 = 5;
+  int N1 = 129, N2 = 255;
   int N = N1*N2;
 
-  int M1 = N1, M2 = 2*N2;
+  int M1 = 2*N1, M2 = 2*N2;
   int M = M1 * M2;
 
   float* host = (float*)calloc(N, sizeof(float));
@@ -54,6 +54,7 @@ void test(){
       assert( host[i*N2+j] == host2[i*M2+j]);
     }
   }
+  timer_printdetail();
   printf("PASS\n");
 }
 
