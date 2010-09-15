@@ -130,15 +130,15 @@ func (refsh *Refsh) ExecFlags() {
 // Calls a function. Function name and arguments are passed as strings.
 // The function name should first have been added by refsh.Add();
 func (refsh *Refsh) Call(fname string, argv []string) []Value {
-  // Debug
-  fmt.Print(">>> ", fname, "\t ")
-  refsh.CallCount++
-  
-  for _,a := range argv{
-    fmt.Print(a, "\t ")
-  }
-  fmt.Println()
-  
+	// Debug
+	fmt.Print(">>> ", fname, "\t ")
+	refsh.CallCount++
+
+	for _, a := range argv {
+		fmt.Print(a, "\t ")
+	}
+	fmt.Println()
+
 	function := refsh.resolve(fname)
 	if function == nil {
 		fmt.Fprintln(os.Stderr, "Unknown command: \""+fname+"\". Options are:", refsh.funcnames)
@@ -157,7 +157,7 @@ type Refsh struct {
 	funcnames    []string
 	funcs        []Caller
 	CrashOnError bool
-	CallCount    int  //counts number of commands executed
+	CallCount    int //counts number of commands executed
 }
 
 func NewRefsh() *Refsh {

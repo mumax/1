@@ -48,7 +48,7 @@ type Input struct {
 type Sim struct {
 	input        Input           // stores the original input parameters in SI units
 	valid        bool            // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
-  BeenValid    bool            // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
+	BeenValid    bool            // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
 	backend      *Backend        // GPU or CPU
 	mLocal       *tensor.Tensor4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
 	Material                     // Stores material parameters and manages the internal units
