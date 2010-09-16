@@ -26,7 +26,7 @@ void test_reduction(){
 
     memcpy_to_gpu(host, dev1, N);
 
-    float sum = gpu_reduce(dev1, N);
+    float sum = gpu_sum(dev1, N);
 
     assert(sum == N);
     printf("PASS\n");

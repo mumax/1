@@ -13,7 +13,7 @@ extern "C" {
 
 float gpu_sum(float* data, int size);
 
-void gpu_sum_reduce(int size, int threads, int blocks, float* d_idata, float* d_odata);
+void gpu_sum_reduce(float* input, float* output, int blocks, int threadsPerBlock, int N);
 
 #ifdef __cplusplus
 }
