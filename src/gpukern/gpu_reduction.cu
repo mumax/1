@@ -35,8 +35,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gpu_mem.h"
 
 extern "C"
-bool isPow2(unsigned int x)
-{
+bool isPow2(unsigned int x){
   return ((x&(x-1))==0);
 }
 

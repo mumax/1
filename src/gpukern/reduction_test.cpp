@@ -25,20 +25,11 @@ void test_reduction(){
     }
 
     memcpy_to_gpu(host, dev1, N);
-    
-    int threads = 64;
-    while (N <= threads){
-      threads /= 2;
-    }
-    int blocks = divUp(N, threads*2);
-    
-    float* dev2 = new_gpu_array(blocks);
-    float* host2 = new float[blocks];
-    
+
     float sum = gpu_reduce(dev1, N);
 
     assert(sum == N);
-    printf("PASS");
+    printf("PASS\n");
 //   }
 }
 
