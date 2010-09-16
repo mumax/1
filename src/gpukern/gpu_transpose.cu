@@ -159,12 +159,12 @@ void gpu_transpose_async(float *input, float *output, int N1, int N2){
 
 ///@todo need to time this on 2.0 hardware
 void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
-//   timer_start("transposeYZ");
+  timer_start("transposeYZ");
   for(int i=0; i<N0; i++){
     gpu_transpose_complex_async(&source[i*N1*N2], &dest[i*N1*N2], N1, N2);
   }
    cudaThreadSynchronize();
-//   timer_stop("transposeYZ");
+   timer_stop("transposeYZ");
 }
 
 
@@ -177,8 +177,6 @@ __global__ void _gpu_transposeXZ_complex(float* source, float* dest, int N0, int
     // i  <-> k
     int N3 = 2;
 
-//     int i = blockIdx.x;
-//     int k = threadIdx.x;
     int i = blockIdx.y * BLOCKSIZE + threadIdx.y;
     int k = blockIdx.x * BLOCKSIZE + threadIdx.x;
 
@@ -189,9 +187,9 @@ __global__ void _gpu_transposeXZ_complex(float* source, float* dest, int N0, int
 }
 
 
-
+///@todo this implementation is too slow, especially for "thin" geometries
 void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2){
-//   timer_start("transposeXZ");
+   timer_start("transposeXZ");
   assert(source != dest);{ // must be out-of-place
 
   // we treat the complex array as a N0 x N1 x N2 x 2 real array
@@ -204,15 +202,12 @@ void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2)
   check3dconf(gridSize, blockSize);
 
   for(int j=0; j<N1; j++){
-    _gpu_transposeXZ_complex<<<gridSize, blockSize>>>(source, dest, N0, N1, N2, j);
+    _gpu_transposeXZ_complex<<<gridSize, blockSize, gpu_getstream()>>>(source, dest, N0, N1, N2, j);
   }
   cudaThreadSynchronize();
 
   }
-  /*  else{
-    gpu_transposeXZ_complex_inplace(source, N0, N1, N2*2); ///@todo see above
-  }*/
-//   timer_stop("transposeXZ");
+ timer_stop("transposeXZ");
 }
 
 

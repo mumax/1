@@ -211,7 +211,8 @@ func (s *Sim) Verbosity(level int) {
 
 
 func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {
-	Debugv("Resampling magnetization from", in.Size(), "to", size2)
+	Debugv("Resampling magnetization from ", in.Size(), " to ", size2)
+	assert(len(size2) == 4)
 	out := tensor.NewTensor4(size2)
 	out_a := out.Array()
 	in_a := in.Array()
