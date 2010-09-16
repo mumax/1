@@ -11,7 +11,9 @@
 extern "C" {
 #endif
 
+float gpu_reduce(float* data, int size);
 
+// void _gpu_reduce(int size, int threads, int blocks, float* d_idata, float* d_odata);
 
 #ifdef __cplusplus
 }

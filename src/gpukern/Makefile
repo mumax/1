@@ -85,6 +85,10 @@ zeropad_test:	zeropad_test.cpp libgpukern.so
 	$(CPP) $(CFLAGS) libgpukern.so zeropad_test.cpp -o zeropad_test
 	./zeropad_test
 
+reduction_test:	reduction_test.cpp libgpukern.so
+	$(CPP) -g libgpukern.so reduction_test.cpp -o reduction_test
+	./reduction_test
+
 fft_test:	fft_test.cpp libgpukern.so
 	$(CPP) libgpukern.so fft_test.cpp -o fft_test
 	./fft_test

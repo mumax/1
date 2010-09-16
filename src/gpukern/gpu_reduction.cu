@@ -30,11 +30,13 @@ constitute or imply its endorsement, recommendation, or favoring by the United S
 // This code has been significantly modified from its original version.
 
 #include "gpu_reduction.h"
+#include "gpu_conf.h"
+#include "gpu_mem.h"
 
 extern "C"
 bool isPow2(unsigned int x)
 {
-    return ((x&(x-1))==0);
+  return ((x&(x-1))==0);
 }
 
 // Utility class used to avoid linker errors with extern
@@ -42,17 +44,17 @@ bool isPow2(unsigned int x)
 template<class T>
 struct SharedMemory
 {
-    __device__ inline operator       T*()
-    {
-        extern __shared__ int __smem[];
-        return (T*)__smem;
-    }
+  __device__ inline operator       T*()
+  {
+    extern __shared__ int __smem[];
+    return (T*)__smem;
+  }
 
-    __device__ inline operator const T*() const
-    {
-        extern __shared__ int __smem[];
-        return (T*)__smem;
-    }
+  __device__ inline operator const T*() const
+  {
+    extern __shared__ int __smem[];
+    return (T*)__smem;
+  }
 };
 
 /*
@@ -68,62 +70,61 @@ template <unsigned int blockSize, bool nIsPow2>
 __global__ void
 reduce6(float* g_idata, float* g_odata, unsigned int n)
 {
-    float* sdata = SharedMemory<float>();
+  float* sdata = SharedMemory<float>();
 
-    // perform first level of reduction,
-    // reading from global memory, writing to shared memory
-    unsigned int tid = threadIdx.x;
-    unsigned int i = blockIdx.x*blockSize*2 + threadIdx.x;
-    unsigned int gridSize = blockSize*2*gridDim.x;
+  // perform first level of reduction,
+  // reading from global memory, writing to shared memory
+  unsigned int tid = threadIdx.x;
+  unsigned int i = blockIdx.x*blockSize*2 + threadIdx.x;
+  unsigned int gridSize = blockSize*2*gridDim.x;
 
-    float mySum = 0;
+  float mySum = 0;
 
-    // we reduce multiple elements per thread.  The number is determined by the
-    // number of active thread blocks (via gridDim).  More blocks will result
-    // in a larger gridSize and therefore fewer elements per thread
-    while (i < n)
-    {
-        mySum += g_idata[i];
-        // ensure we don't read out of bounds -- this is optimized away for powerOf2 sized arrays
-        if (nIsPow2 || i + blockSize < n)
-            mySum += g_idata[i+blockSize];
-        i += gridSize;
-    }
+  // we reduce multiple elements per thread.  The number is determined by the
+  // number of active thread blocks (via gridDim).  More blocks will result
+  // in a larger gridSize and therefore fewer elements per thread
+  while (i < n)
+  {
+    mySum += g_idata[i];
+    // ensure we don't read out of bounds -- this is optimized away for powerOf2 sized arrays
+    if (nIsPow2 || i + blockSize < n)
+      mySum += g_idata[i+blockSize];
+    i += gridSize;
+  }
 
-    // each thread puts its local sum into shared memory
-    sdata[tid] = mySum;
-    __syncthreads();
-
-
-    // do reduction in shared mem
-    if (blockSize >= 512) { if (tid < 256) { sdata[tid] = mySum = mySum + sdata[tid + 256]; } __syncthreads(); }
-    if (blockSize >= 256) { if (tid < 128) { sdata[tid] = mySum = mySum + sdata[tid + 128]; } __syncthreads(); }
-    if (blockSize >= 128) { if (tid <  64) { sdata[tid] = mySum = mySum + sdata[tid +  64]; } __syncthreads(); }
+  // each thread puts its local sum into shared memory
+  sdata[tid] = mySum;
+  __syncthreads();
 
 
-    {
-        // now that we are using warp-synchronous programming (below)
-        // we need to declare our shared memory volatile so that the compiler
-        // doesn't reorder stores to it and induce incorrect behavior.
-        volatile float* smem = sdata;
-        if (blockSize >=  64) { smem[tid] = mySum = mySum + smem[tid + 32];  }
-        if (blockSize >=  32) { smem[tid] = mySum = mySum + smem[tid + 16];  }
-        if (blockSize >=  16) { smem[tid] = mySum = mySum + smem[tid +  8];  }
-        if (blockSize >=   8) { smem[tid] = mySum = mySum + smem[tid +  4];  }
-        if (blockSize >=   4) { smem[tid] = mySum = mySum + smem[tid +  2];  }
-        if (blockSize >=   2) { smem[tid] = mySum = mySum + smem[tid +  1];  }
-    }
+  // do reduction in shared mem
+  if (blockSize >= 512) { if (tid < 256) { sdata[tid] = mySum = mySum + sdata[tid + 256]; } __syncthreads(); }
+  if (blockSize >= 256) { if (tid < 128) { sdata[tid] = mySum = mySum + sdata[tid + 128]; } __syncthreads(); }
+  if (blockSize >= 128) { if (tid <  64) { sdata[tid] = mySum = mySum + sdata[tid +  64]; } __syncthreads(); }
 
-    // write result for this block to global mem
-    if (tid == 0)
-        g_odata[blockIdx.x] = sdata[0];
+
+  {
+    // now that we are using warp-synchronous programming (below)
+    // we need to declare our shared memory volatile so that the compiler
+    // doesn't reorder stores to it and induce incorrect behavior.
+    volatile float* smem = sdata;
+    if (blockSize >=  64) { smem[tid] = mySum = mySum + smem[tid + 32];  }
+    if (blockSize >=  32) { smem[tid] = mySum = mySum + smem[tid + 16];  }
+    if (blockSize >=  16) { smem[tid] = mySum = mySum + smem[tid +  8];  }
+    if (blockSize >=   8) { smem[tid] = mySum = mySum + smem[tid +  4];  }
+    if (blockSize >=   4) { smem[tid] = mySum = mySum + smem[tid +  2];  }
+    if (blockSize >=   2) { smem[tid] = mySum = mySum + smem[tid +  1];  }
+  }
+
+  // write result for this block to global mem
+  if (tid == 0)
+    g_odata[blockIdx.x] = sdata[0];
 }
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-void gpu_reduce(int size, int threads, int blocks, float* d_idata, float* d_odata) {
+  #endif
+void _gpu_reduce(int size, int threads, int blocks, float* d_idata, float* d_odata) {
     dim3 dimBlock(threads, 1, 1);
     dim3 dimGrid(blocks, 1, 1);
 
@@ -185,8 +186,32 @@ void gpu_reduce(int size, int threads, int blocks, float* d_idata, float* d_odat
     }
   }
 
+///@ todo leaks memory, should not allocate
+float gpu_reduce(float* data, int N){
 
+  int threads = 128;
+  while (N <= threads){
+    threads /= 2;
+  }
+  int blocks = divUp(N, threads*2);
 
-  #ifdef __cplusplus
+  float* dev2 = new_gpu_array(blocks);
+  float* host2 = new float[blocks];
+
+  _gpu_reduce(N, threads, blocks, data, dev2);
+
+  memcpy_from_gpu(dev2, host2, blocks);
+
+  float sum = 0.;
+
+  for(int i=0; i<blocks; i++){
+    sum += host2[i];
+  }
+  //gpu_free(dev2);
+  //delete[] host2;
+  return sum;
+}
+
+#ifdef __cplusplus
 }
 #endif
