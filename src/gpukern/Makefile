@@ -16,6 +16,7 @@ OFILES=\
 	gpu_init.o\
 	timer.o\
 	gpu_stream.o\
+	gpu_reduction.o\
 
 all: libgpukern.so libgpukern.a
 
@@ -71,6 +72,10 @@ gpu_anal.o:  gpu_anal.h gpu_anal.cu
 
 gpu_init.o:  gpu_init.h gpu_init.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_init.cu
+
+gpu_reduction.o:  gpu_reduction.h gpu_reduction.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_reduction.cu
+
 
 transpose_test:	transpose_test.cpp libgpukern.so
 	$(CPP) $(CFLAGS) libgpukern.so transpose_test.cpp -o transpose_test
