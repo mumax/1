@@ -117,7 +117,7 @@ func (s *Sim) initMLocal() {
 	}
 
 	if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
-		s.mLocal = resample(s.mLocal, s.input.size[0:])
+		s.mLocal = resample(s.mLocal, Size4D(s.input.size[0:]))
 	}
 }
 
