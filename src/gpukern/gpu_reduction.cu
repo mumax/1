@@ -119,7 +119,7 @@ __global__ void _gpu_sum_kernel(float* g_idata, float* g_odata, unsigned int n) 
 extern "C" {
 #endif
 
-void gpu_sum_reduce(float* d_idata, float* d_odata, int blocks, int threads, int size) {
+void gpu_partial_sums(float* d_idata, float* d_odata, int blocks, int threads, int size) {
     dim3 dimBlock(threads, 1, 1);
     dim3 dimGrid(blocks, 1, 1);
 
@@ -193,7 +193,7 @@ float gpu_sum(float* data, int N){
   float* dev2 = new_gpu_array(blocks);
   float* host2 = new float[blocks];
 
-  gpu_sum_reduce(data, dev2, blocks, threads, N);
+  gpu_partial_sums(data, dev2, blocks, threads, N);
 
   memcpy_from_gpu(dev2, host2, blocks);
 
