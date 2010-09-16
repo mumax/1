@@ -42,8 +42,7 @@ bool isPow2(unsigned int x){
 // Utility class used to avoid linker errors with extern
 // unsized shared memory arrays with templated type
 template<class T>
-struct SharedMemory
-{
+struct SharedMemory {
   __device__ inline operator       T*()
   {
     extern __shared__ int __smem[];
@@ -67,19 +66,17 @@ In other words if blockSize <= 32, allocate 64*sizeof(T) bytes.
 If blockSize > 32, allocate blockSize*sizeof(T) bytes.
 */
 template <unsigned int blockSize, bool nIsPow2>
-__global__ void
-reduce6(float* g_idata, float* g_odata, unsigned int n)
-{
+__global__ void _gpu_sum_kernel(float* g_idata, float* g_odata, unsigned int n) {
   float* sdata = SharedMemory<float>();
-
+  
   // perform first level of reduction,
   // reading from global memory, writing to shared memory
   unsigned int tid = threadIdx.x;
   unsigned int i = blockIdx.x*blockSize*2 + threadIdx.x;
   unsigned int gridSize = blockSize*2*gridDim.x;
-
+  
   float mySum = 0;
-
+  
   // we reduce multiple elements per thread.  The number is determined by the
   // number of active thread blocks (via gridDim).  More blocks will result
   // in a larger gridSize and therefore fewer elements per thread
@@ -91,31 +88,28 @@ reduce6(float* g_idata, float* g_odata, unsigned int n)
       mySum += g_idata[i+blockSize];
     i += gridSize;
   }
-
+  
   // each thread puts its local sum into shared memory
   sdata[tid] = mySum;
   __syncthreads();
-
-
+  
+  
   // do reduction in shared mem
   if (blockSize >= 512) { if (tid < 256) { sdata[tid] = mySum = mySum + sdata[tid + 256]; } __syncthreads(); }
   if (blockSize >= 256) { if (tid < 128) { sdata[tid] = mySum = mySum + sdata[tid + 128]; } __syncthreads(); }
   if (blockSize >= 128) { if (tid <  64) { sdata[tid] = mySum = mySum + sdata[tid +  64]; } __syncthreads(); }
-
-
-  {
-    // now that we are using warp-synchronous programming (below)
-    // we need to declare our shared memory volatile so that the compiler
-    // doesn't reorder stores to it and induce incorrect behavior.
-    volatile float* smem = sdata;
-    if (blockSize >=  64) { smem[tid] = mySum = mySum + smem[tid + 32];  }
-    if (blockSize >=  32) { smem[tid] = mySum = mySum + smem[tid + 16];  }
-    if (blockSize >=  16) { smem[tid] = mySum = mySum + smem[tid +  8];  }
-    if (blockSize >=   8) { smem[tid] = mySum = mySum + smem[tid +  4];  }
-    if (blockSize >=   4) { smem[tid] = mySum = mySum + smem[tid +  2];  }
-    if (blockSize >=   2) { smem[tid] = mySum = mySum + smem[tid +  1];  }
-  }
-
+  
+  // now that we are using warp-synchronous programming (below)
+  // we need to declare our shared memory volatile so that the compiler
+  // doesn't reorder stores to it and induce incorrect behavior.
+  volatile float* smem = sdata;
+  if (blockSize >=  64) { smem[tid] = mySum = mySum + smem[tid + 32];  }
+  if (blockSize >=  32) { smem[tid] = mySum = mySum + smem[tid + 16];  }
+  if (blockSize >=  16) { smem[tid] = mySum = mySum + smem[tid +  8];  }
+  if (blockSize >=   8) { smem[tid] = mySum = mySum + smem[tid +  4];  }
+  if (blockSize >=   4) { smem[tid] = mySum = mySum + smem[tid +  2];  }
+  if (blockSize >=   2) { smem[tid] = mySum = mySum + smem[tid +  1];  }
+  
   // write result for this block to global mem
   if (tid == 0)
     g_odata[blockIdx.x] = sdata[0];
@@ -123,8 +117,9 @@ reduce6(float* g_idata, float* g_odata, unsigned int n)
 
 #ifdef __cplusplus
 extern "C" {
-  #endif
-void _gpu_reduce(int size, int threads, int blocks, float* d_idata, float* d_odata) {
+#endif
+
+void gpu_sum_reduce(int size, int threads, int blocks, float* d_idata, float* d_odata) {
     dim3 dimBlock(threads, 1, 1);
     dim3 dimGrid(blocks, 1, 1);
 
@@ -137,25 +132,25 @@ void _gpu_reduce(int size, int threads, int blocks, float* d_idata, float* d_oda
       switch (threads)
       {
         case 512:
-          reduce6<512, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel<512, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case 256:
-          reduce6<256, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel<256, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case 128:
-          reduce6<128, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel<128, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case 64:
-          reduce6< 64, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel< 64, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case 32:
-          reduce6< 32, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel< 32, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case 16:
-          reduce6< 16, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel< 16, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case  8:
-          reduce6<  8, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel<  8, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case  4:
-          reduce6<  4, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel<  4, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case  2:
-          reduce6<  2, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel<  2, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case  1:
-          reduce6<  1, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel<  1, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
       }
     }
     else
@@ -163,31 +158,31 @@ void _gpu_reduce(int size, int threads, int blocks, float* d_idata, float* d_oda
       switch (threads)
       {
         case 512:
-          reduce6<512, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel<512, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case 256:
-          reduce6<256, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel<256, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case 128:
-          reduce6<128, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel<128, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case 64:
-          reduce6< 64, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel< 64, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case 32:
-          reduce6< 32, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel< 32, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case 16:
-          reduce6< 16, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel< 16, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case  8:
-          reduce6<  8, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel<  8, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case  4:
-          reduce6<  4, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel<  4, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case  2:
-          reduce6<  2, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel<  2, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
         case  1:
-          reduce6<  1, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+          _gpu_sum_kernel<  1, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
       }
     }
   }
 
 ///@ todo leaks memory, should not allocate
-float gpu_reduce(float* data, int N){
+float gpu_sum(float* data, int N){
 
   int threads = 128;
   while (N <= threads){
@@ -198,7 +193,7 @@ float gpu_reduce(float* data, int N){
   float* dev2 = new_gpu_array(blocks);
   float* host2 = new float[blocks];
 
-  _gpu_reduce(N, threads, blocks, data, dev2);
+  gpu_sum_reduce(N, threads, blocks, data, dev2);
 
   memcpy_from_gpu(dev2, host2, blocks);
 

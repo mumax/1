@@ -13,6 +13,9 @@
 extern "C" {
 #endif
 
+/// Returns the maximum number of threads per block for this GPU
+int gpu_maxthreads();
+
 
 /**
  * Macro for 1D index "i" in a CUDA kernel.
