@@ -47,7 +47,7 @@ func Main() {
 
 // when running in the normal "master" mode, i.e. given an input file to process locally
 func main_master() {
-
+  
   Debugvv("Locked OS thread")
   runtime.LockOSThread()
 

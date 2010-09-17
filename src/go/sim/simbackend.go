@@ -16,6 +16,7 @@ func (s *Sim) Cpu() {
 func (s *Sim) Gpu() {
 	s.backend = GPU
 	Debugv("Selected GPU backend")
+	s.backend.PrintProperties()
 	s.invalidate()
 }
 
