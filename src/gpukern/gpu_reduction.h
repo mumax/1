@@ -14,7 +14,7 @@ extern "C" {
 #define REDUCE_SUM 1
 #define REDUCE_MAX 2
 
-void gpu_reduce(int operation, float* input, float* output, int blocks, int threadsPerBlock, int N);
+void gpu_partial_reduce(int operation, float* input, float* output, int blocks, int threadsPerBlock, int N);
 
 float gpu_sum(float* data, int size);
   
