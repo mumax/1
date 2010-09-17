@@ -1,0 +1,3 @@
+OOMMF 2.9GHz core2 duo single threaded
+5050 field updates in 20s = 3.9ms / update
+solves problem in 12s
