@@ -4,8 +4,9 @@ include ../../common.mk
 
 all:
 	make install -C tensor
-	make install -C sim
 	make install -C refsh
+	make install -C sim
+
 	
 	make -C tensor-main
 # 	make -C kernel-main
