@@ -2,7 +2,7 @@
 
 gpu
 
-demagaccuracy 4
+demagaccuracy 0
 
 # schedule output
 outputdir     output

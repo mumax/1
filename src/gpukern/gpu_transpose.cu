@@ -65,7 +65,7 @@ void gpu_transpose_complex_async(float *input, float *output, int N1, int N2){
     N2 /= 2;
     dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
     dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
-    _gpu_transpose_complex<<<gridsize, blocksize, gpu_getstream()>>>((complex*)input, (complex*)output, N2, N1);
+    _gpu_transpose_complex<<<gridsize, blocksize>>>((complex*)input, (complex*)output, N2, N1);  /// ///////////////// @todo STREAM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
 /*
@@ -153,7 +153,8 @@ void gpu_transpose(float *input, float *output, int N1, int N2){
 void gpu_transpose_async(float *input, float *output, int N1, int N2){
     dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
     dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
-    _gpu_transpose<<<gridsize, blocksize, gpu_getstream()>>>(input, output, N2, N1);
+    //_gpu_transpose<<<gridsize, blocksize, gpu_getstream()>>>(input, output, N2, N1);
+    _gpu_transpose<<<gridsize, blocksize>>>(input, output, N2, N1); ///@todo STREAM!
 }
 
 
@@ -202,7 +203,8 @@ void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2)
   check3dconf(gridSize, blockSize);
 
   for(int j=0; j<N1; j++){
-    _gpu_transposeXZ_complex<<<gridSize, blockSize, gpu_getstream()>>>(source, dest, N0, N1, N2, j);
+    //_gpu_transposeXZ_complex<<<gridSize, blockSize, gpu_getstream()>>>(source, dest, N0, N1, N2, j);
+    _gpu_transposeXZ_complex<<<gridSize, blockSize>>>(source, dest, N0, N1, N2, j); ///@todo STREAM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! (x2)
   }
   cudaThreadSynchronize();
 
