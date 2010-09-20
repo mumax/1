@@ -16,7 +16,7 @@ extern "C" {
 #define REDUCE_MAXABS 3
 
 
-void gpu_reduce(int operation, float* input, float* output, int blocks, int threadsPerBlock, int N);
+float gpu_reduce(int operation, float* input, float* output, float* buffer, int blocks, int threadsPerBlock, int N);
 
 float gpu_sum(float* data, int size);
   

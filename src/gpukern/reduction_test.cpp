@@ -14,12 +14,10 @@ void test_reduction(){
 //   for(int i=0; i<21; i++){
 //     int N = Ns[i];
 
-  int N = 50000;
+  int N = 128;
 
   float* host = (float*)calloc(N, sizeof(float));
   float* dev1 = new_gpu_array(N);
-
-
 
     for(int i=0; i<N; i++){
       host[i] = 1.;

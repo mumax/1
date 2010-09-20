@@ -39,9 +39,9 @@ func (r *Reductor) InitSum(b *Backend, N int) {
 
 // TODO this should be done by the device code, given the two buffers...
 func (r *Reductor) Reduce(data unsafe.Pointer) float {
-	r.reduce(r.operation, data, r.devbuffer, r.blocks, r.threads, r.N)
-	r.memcpyFrom(r.devbuffer, &(r.hostbuffer[0]), r.blocks)
-	return local_reduce(r.operation, r.hostbuffer)
+	return r.reduce(r.operation, data, r.devbuffer, &(r.hostbuffer[0]), r.blocks, r.threads, r.N)
+// 	r.memcpyFrom(r.devbuffer, &(r.hostbuffer[0]), r.blocks)
+// 	return local_reduce(r.operation, r.hostbuffer)
 }
 
 // Integer division but rounded UP

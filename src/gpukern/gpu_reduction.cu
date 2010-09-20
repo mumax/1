@@ -168,10 +168,22 @@ void gpu_partial_sums(float* d_idata, float* d_odata, int blocks, int threads, i
   }
 
 
-void gpu_reduce(int operation, float* input, float* output, int blocks, int threadsPerBlock, int N){
+float gpu_reduce(int operation, float* input, float* dev2, float* host2, int blocks, int threads, int N){
+  fprintf(stderr, "reduce(%d, %p, %p, %p, %d, %d, %d)\n", operation, input, dev2, host2, blocks, threads, N);
   switch(operation){
     default: abort(); break;
-    case REDUCE_ADD: gpu_partial_sums(input, output, blocks, threadsPerBlock, N); break;
+    case REDUCE_ADD:
+    {
+      gpu_partial_sums(input, dev2, blocks, threads, N);
+      memcpy_from_gpu(dev2, host2, blocks);
+      gpu_sync();
+      float sum = 0.;
+      for(int i=0; i<blocks; i++){
+        sum += host2[i];
+      }
+      fprintf(stderr, "sum=%f\n", sum);
+      return sum;
+    }
   }
 }
 
@@ -190,18 +202,18 @@ float gpu_sum(float* data, int N){
   float* dev2 = new_gpu_array(blocks);
   float* host2 = (float*)calloc(blocks, sizeof(float));
 
-  gpu_partial_sums(data, dev2, blocks, threads, N);
+  return gpu_reduce(REDUCE_ADD, data, dev2, host2, blocks, threads, N);
   
-  memcpy_from_gpu(dev2, host2, blocks);
-
-  float sum = 0.;
-
-  for(int i=0; i<blocks; i++){
-    sum += host2[i];
-  }
-  //gpu_free(dev2);
-  //delete[] host2;
-  return sum;
+//   memcpy_from_gpu(dev2, host2, blocks);
+// 
+//   float sum = 0.;
+// 
+//   for(int i=0; i<blocks; i++){
+//     sum += host2[i];
+//   }
+//   //gpu_free(dev2);
+//   //delete[] host2;
+//   return sum;
 }
 
 #ifdef __cplusplus
