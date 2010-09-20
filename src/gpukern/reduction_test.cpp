@@ -14,7 +14,7 @@ void test_reduction(){
 //   for(int i=0; i<21; i++){
 //     int N = Ns[i];
 
-  int N = 2048;
+  int N = 50000;
 
   float* host = (float*)calloc(N, sizeof(float));
   float* dev1 = new_gpu_array(N);
@@ -27,9 +27,8 @@ void test_reduction(){
 
     memcpy_to_gpu(host, dev1, N);
 
-    float sum = gpu_sum(dev1, N);
-
-
+    float sum = 4.13;
+    sum = gpu_sum(dev1, N);
 
 
 
@@ -52,8 +51,6 @@ void test_reduction(){
 //     for(int i=0; i<blocks; i++){
 //       sum += host2[i];
 //     }
-  
-    
 
 
     assert(sum == N);

@@ -164,13 +164,14 @@ void gpu_partial_sums(float* d_idata, float* d_odata, int blocks, int threads, i
         case   1: _gpu_sum_kernel<  1, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
       }
     }
+    gpu_sync();
   }
 
 
 void gpu_reduce(int operation, float* input, float* output, int blocks, int threadsPerBlock, int N){
   switch(operation){
     default: abort(); break;
-    case REDUCE_ADD: gpu_partial_sums(input, output, blocks, threadsPerBlock, N);
+    case REDUCE_ADD: gpu_partial_sums(input, output, blocks, threadsPerBlock, N); break;
   }
 }
 
@@ -190,7 +191,6 @@ float gpu_sum(float* data, int N){
   float* host2 = (float*)calloc(blocks, sizeof(float));
 
   gpu_partial_sums(data, dev2, blocks, threads, N);
-  gpu_sync();
   
   memcpy_from_gpu(dev2, host2, blocks);
 

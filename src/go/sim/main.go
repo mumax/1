@@ -38,11 +38,11 @@ func Main() {
 
 	Verbosity = *verbosity
 
-// 	if *server {
-// 		main_slave()
-// 	} else {
-		main_master()
-// 	}
+	// 	if *server {
+	// 		main_slave()
+	// 	} else {
+	main_master()
+	// 	}
 }
 
 // when running in the normal "master" mode, i.e. given an input file to process locally

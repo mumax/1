@@ -54,7 +54,7 @@ type Device interface {
 	// patially reduce in "blocks" blocks, partial results in output. blocks = divUp(N, threadsPerBlock*2)
 	// use "threads" threads per block: @warning must be < N
 	// size "N" of input data, must be > threadsPerBlock
-  reduce(operation int, input, output unsafe.Pointer, blocks, threads, N int)
+	reduce(operation int, input, output unsafe.Pointer, blocks, threads, N int)
 
 	// normalizes a vector field. N = length of one component
 	normalize(m unsafe.Pointer, N int)

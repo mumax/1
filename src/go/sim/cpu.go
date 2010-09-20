@@ -42,8 +42,8 @@ func (d Cpu) linearCombination(a, b unsafe.Pointer, weightA, weightB float, N in
 	C.cpu_linear_combination((*C.float)(a), (*C.float)(b), C.float(weightA), C.float(weightB), C.int(N))
 }
 
-func (d Cpu)  reduce(operation int, input, output unsafe.Pointer, blocks, threads, N int){
-  C.cpu_reduce(C.int(operation), (*C.float)(input), (*C.float)(output), C.int(blocks),  C.int(threads),  C.int(N))
+func (d Cpu) reduce(operation int, input, output unsafe.Pointer, blocks, threads, N int) {
+	C.cpu_reduce(C.int(operation), (*C.float)(input), (*C.float)(output), C.int(blocks), C.int(threads), C.int(N))
 }
 
 func (d Cpu) addConstant(a unsafe.Pointer, cnst float, N int) {
