@@ -17,7 +17,7 @@ import (
 	"io"
 	"os"
 	"refsh"
-	"runtime"
+// 	"runtime"
 )
 
 var (
@@ -38,42 +38,42 @@ func Main() {
 
 	Verbosity = *verbosity
 
-	if *server {
-		main_slave()
-	} else {
-		main_master()
-	}
+// 	if *server {
+// 		main_slave()
+// 	} else {
+// 		main_master()
+// 	}
 }
 
 // when running in the normal "master" mode, i.e. given an input file to process locally
-func main_master() {
-
-	Debugvv("Locked OS thread")
-	runtime.LockOSThread()
-
-	if flag.NArg() == 0 {
-		fmt.Fprintln(os.Stderr, "No input files.")
-		os.Exit(-1)
-	}
-
-	UpdateDashboardEvery = int64(*updatedb * 1000 * 1000)
-
-	for i := 0; i < flag.NArg(); i++ {
-		in, err := os.Open(flag.Arg(i), os.O_RDONLY, 0666)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(-2)
-		}
-		defer in.Close()
-		exec(in)
-	}
-}
+// func main_master() {
+// 
+// 	Debugvv("Locked OS thread")
+// 	runtime.LockOSThread()
+// 
+// 	if flag.NArg() == 0 {
+// 		fmt.Fprintln(os.Stderr, "No input files.")
+// 		os.Exit(-1)
+// 	}
+// 
+// 	UpdateDashboardEvery = int64(*updatedb * 1000 * 1000)
+// 
+// 	for i := 0; i < flag.NArg(); i++ {
+// 		in, err := os.Open(flag.Arg(i), os.O_RDONLY, 0666)
+// 		if err != nil {
+// 			fmt.Fprintln(os.Stderr, err)
+// 			os.Exit(-2)
+// 		}
+// 		defer in.Close()
+// 		exec(in)
+// 	}
+// }
 
 // when running in "slave" mode, i.e. accepting commands over the network as part of a cluster
-func main_slave() {
-	server := NewDeviceServer(*device, *transport, *port)
-	server.Listen()
-}
+// func main_slave() {
+// 	server := NewDeviceServer(*device, *transport, *port)
+// 	server.Listen()
+// }
 
 
 func exec(in io.Reader) {
