@@ -99,21 +99,25 @@ __global__ void _gpu_sum_kernel(float* g_idata, float* g_odata, unsigned int n) 
   if (blockSize >= 512) { if (tid < 256) { sdata[tid] = mySum = mySum + sdata[tid + 256]; } __syncthreads(); }
   if (blockSize >= 256) { if (tid < 128) { sdata[tid] = mySum = mySum + sdata[tid + 128]; } __syncthreads(); }
   if (blockSize >= 128) { if (tid <  64) { sdata[tid] = mySum = mySum + sdata[tid +  64]; } __syncthreads(); }
-  
-  // now that we are using warp-synchronous programming (below)
-  // we need to declare our shared memory volatile so that the compiler
-  // doesn't reorder stores to it and induce incorrect behavior.
-  volatile float* smem = sdata;
-  if (blockSize >=  64) { smem[tid] = mySum = mySum + smem[tid + 32];  }
-  if (blockSize >=  32) { smem[tid] = mySum = mySum + smem[tid + 16];  }
-  if (blockSize >=  16) { smem[tid] = mySum = mySum + smem[tid +  8];  }
-  if (blockSize >=   8) { smem[tid] = mySum = mySum + smem[tid +  4];  }
-  if (blockSize >=   4) { smem[tid] = mySum = mySum + smem[tid +  2];  }
-  if (blockSize >=   2) { smem[tid] = mySum = mySum + smem[tid +  1];  }
-  
-  // write result for this block to global mem
-  if (tid == 0)
-    g_odata[blockIdx.x] = sdata[0];
+
+  #ifndef __DEVICE_EMULATION__
+  if (tid < 32)
+    #endif
+    {
+      // now that we are using warp-synchronous programming (below)
+      // we need to declare our shared memory volatile so that the compiler
+      // doesn't reorder stores to it and induce incorrect behavior.
+      volatile float* smem = sdata;
+      if (blockSize >=  64) { smem[tid] = mySum = mySum + smem[tid + 32];  }
+      if (blockSize >=  32) { smem[tid] = mySum = mySum + smem[tid + 16];  }
+      if (blockSize >=  16) { smem[tid] = mySum = mySum + smem[tid +  8];  }
+      if (blockSize >=   8) { smem[tid] = mySum = mySum + smem[tid +  4];  }
+      if (blockSize >=   4) { smem[tid] = mySum = mySum + smem[tid +  2];  }
+      if (blockSize >=   2) { smem[tid] = mySum = mySum + smem[tid +  1];  }
+    }
+    // write result for this block to global mem
+    if (tid == 0)
+      g_odata[blockIdx.x] = sdata[0];
 }
 
 #ifdef __cplusplus
