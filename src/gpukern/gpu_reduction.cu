@@ -181,6 +181,15 @@ void gpu_partial_sums(float* d_idata, float* d_odata, int blocks, int threads, i
     }
   }
 
+
+void gpu_reduce(int operation, float* input, float* output, int blocks, int threadsPerBlock, int N){
+  switch(operation){
+    default: abort(); break;
+    case REDUCE_ADD: gpu_partial_sums(input, output, blocks, threadsPerBlock, N);
+  }
+}
+
+
 ///@ todo leaks memory, should not allocate
 float gpu_sum(float* data, int N){
 

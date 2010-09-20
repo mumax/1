@@ -48,6 +48,14 @@ type Device interface {
 	// a = a * weightA + b * weightB
 	linearCombination(a, b unsafe.Pointer, weightA, weightB float, N int)
 
+	// partial data reduction (operation = add, max, maxabs, ...)
+	// input data size = N
+	// output = partially reduced data, usually reduced further on CPU. size = blocks
+	// patially reduce in "blocks" blocks, partial results in output. blocks = divUp(N, threadsPerBlock*2)
+	// use "threads" threads per block: @warning must be < N
+	// size "N" of input data, must be > threadsPerBlock
+  reduce(operation int, input, output unsafe.Pointer, blocks, threads, N int)
+
 	// normalizes a vector field. N = length of one component
 	normalize(m unsafe.Pointer, N int)
 
@@ -150,7 +158,15 @@ const (
 	CPY_UNPAD = 2
 )
 
+// direction flag for FFT
 const (
 	FFT_FORWARD = 1
 	FFT_INVERSE = -1
+)
+
+// Reduction operation flags for reduce()
+const (
+	ADD    = 1
+	MAX    = 2
+	MAXABS = 3
 )
