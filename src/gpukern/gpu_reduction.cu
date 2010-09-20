@@ -169,26 +169,25 @@ void gpu_partial_sums(float* d_idata, float* d_odata, int blocks, int threads, i
 
 
 float gpu_reduce(int operation, float* input, float* dev2, float* host2, int blocks, int threads, int N){
-  fprintf(stderr, "reduce(%d, %p, %p, %p, %d, %d, %d)\n", operation, input, dev2, host2, blocks, threads, N);
+//   fprintf(stderr, "reduce(%d, %p, %p, %p, %d, %d, %d)\n", operation, input, dev2, host2, blocks, threads, N);
   switch(operation){
     default: abort(); break;
     case REDUCE_ADD:
     {
       gpu_partial_sums(input, dev2, blocks, threads, N);
       memcpy_from_gpu(dev2, host2, blocks);
-      gpu_sync();
       float sum = 0.;
       for(int i=0; i<blocks; i++){
         sum += host2[i];
       }
-      fprintf(stderr, "sum=%f\n", sum);
+//       fprintf(stderr, "sum=%f\n", sum);
       return sum;
     }
   }
 }
 
 
-///@ todo leaks memory, should not allocate
+///@todo leaks memory, should not allocate, for debugging only, use gpu_reduce()
 float gpu_sum(float* data, int N){
 
   assertDevice(data);
@@ -203,17 +202,6 @@ float gpu_sum(float* data, int N){
   float* host2 = (float*)calloc(blocks, sizeof(float));
 
   return gpu_reduce(REDUCE_ADD, data, dev2, host2, blocks, threads, N);
-  
-//   memcpy_from_gpu(dev2, host2, blocks);
-// 
-//   float sum = 0.;
-// 
-//   for(int i=0; i<blocks; i++){
-//     sum += host2[i];
-//   }
-//   //gpu_free(dev2);
-//   //delete[] host2;
-//   return sum;
 }
 
 #ifdef __cplusplus
