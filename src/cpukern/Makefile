@@ -63,7 +63,7 @@ cpu_init.o:  cpu_init.h cpu_init.cpp
 cpu_reduction.o:  cpu_reduction.h cpu_reduction.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_reduction.cpp
 
-test: test.cpp libcpukern.so
+test:
 
 .PHONY:	clean
 clean:	
