@@ -200,10 +200,11 @@ float gpu_sum(float* data, int N){
   int blocks = divUp(N, threads*2);
 
   float* dev2 = new_gpu_array(blocks);
-  float* host2 = new float[blocks];
+  float* host2 = (float*)calloc(blocks, sizeof(float));
 
   gpu_partial_sums(data, dev2, blocks, threads, N);
-
+  cudaThreadSynchronize();
+  
   memcpy_from_gpu(dev2, host2, blocks);
 
   float sum = 0.;
