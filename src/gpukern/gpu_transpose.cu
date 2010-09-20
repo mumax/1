@@ -1,4 +1,5 @@
 #include "gpu_transpose.h"
+#include "gpu_safe.h"
 #include "gpu_conf.h"
 #include "gpu_stream.h"
 #include <assert.h>
@@ -164,7 +165,7 @@ void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2)
   for(int i=0; i<N0; i++){
     gpu_transpose_complex_async(&source[i*N1*N2], &dest[i*N1*N2], N1, N2);
   }
-   cudaThreadSynchronize();
+   gpu_sync();
    timer_stop("transposeYZ");
 }
 
@@ -206,7 +207,7 @@ void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2)
     //_gpu_transposeXZ_complex<<<gridSize, blockSize, gpu_getstream()>>>(source, dest, N0, N1, N2, j);
     _gpu_transposeXZ_complex<<<gridSize, blockSize>>>(source, dest, N0, N1, N2, j); ///@todo STREAM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! (x2)
   }
-  cudaThreadSynchronize();
+  gpu_sync();
 
   }
  timer_stop("transposeXZ");

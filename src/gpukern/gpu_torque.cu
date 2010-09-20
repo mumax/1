@@ -1,4 +1,5 @@
 #include "gpu_torque.h"
+#include "gpu_safe.h"
 #include "gpu_conf.h"
 
 #ifdef __cplusplus
@@ -41,7 +42,7 @@ void gpu_deltaM(float* m, float* h, float alpha, float dt_gilb, int N){
   float* hz = &(h[2*N]);
 
   _gpu_deltaM<<<gridSize, blockSize>>>(mx, my, mz, hx, hy, hz, alpha, dt_gilb, N);
-  cudaThreadSynchronize();
+  gpu_sync();
 }
 
 #ifdef __cplusplus

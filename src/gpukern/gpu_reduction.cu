@@ -32,6 +32,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "gpu_reduction.h"
 #include "gpu_conf.h"
+#include "gpu_safe.h"
 #include "gpu_mem.h"
 
 extern "C"
@@ -193,6 +194,8 @@ void gpu_reduce(int operation, float* input, float* output, int blocks, int thre
 ///@ todo leaks memory, should not allocate
 float gpu_sum(float* data, int N){
 
+  assertDevice(data);
+  
   int threads = 128;
   while (N <= threads){
     threads /= 2;
@@ -203,7 +206,7 @@ float gpu_sum(float* data, int N){
   float* host2 = (float*)calloc(blocks, sizeof(float));
 
   gpu_partial_sums(data, dev2, blocks, threads, N);
-  cudaThreadSynchronize();
+  gpu_sync();
   
   memcpy_from_gpu(dev2, host2, blocks);
 

@@ -1,5 +1,6 @@
 #include "gpu_kernmul.h"
 #include "gpu_conf.h"
+#include "gpu_safe.h"
 #include "assert.h"
 #include "timer.h"
 
@@ -19,7 +20,7 @@ extern "C" {
 //   make1dconf(NReal, &gridSize, &blockSize);
 // 
 //   _gpu_extract_real<<<gridSize, blockSize>>>(complex, real);
-//   cudaThreadSynchronize();
+//   gpu_sync();
 // }
 
 
@@ -77,7 +78,7 @@ void gpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
   _gpu_kernelmul6<<<gridSize, blockSize>>>(fftMx,  fftMy,  fftMz,
                                            fftKxx, fftKyy, fftKzz,
                                            fftKyz, fftKxz, fftKxy, nRealNumbers/2);
-  cudaThreadSynchronize();
+  gpu_sync();
   timer_stop("kernel_mul");
 }
 

@@ -136,7 +136,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   gpu_zero(buffer1, size[X]*size[Y]*paddedSize[Z]);
   timer_start("copy_pad_1");
   gpu_copy_pad(input, buffer1, size[X], size[Y], size[Z], size[X], size[Y], paddedSize[Z]);
-  cudaThreadSynchronize();
+  gpu_sync.();
   timer_stop("copy_pad_1");
 
   //print("buffer1", buffer1, size[X], size[Y], paddedSize[Z]);
@@ -144,7 +144,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   // (2) Out-of-place R2C FFT Z
   timer_start("FFT_R2C");
   gpu_safefft( cufftExecR2C(plan->fwPlanZ, (cufftReal*)buffer1,  (cufftComplex*)buffer2) );
-  cudaThreadSynchronize();
+  gpu_sync.();
   timer_stop("FFT_R2C");
 
   //printc("buffer2", buffer2, size[X], size[Y], complexZ, 2);
@@ -152,7 +152,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   // (3) transpose Y-Z
   timer_start("transposeYZ");
   gpu_transposeYZ_complex(buffer2, buffer2t, size[X], size[Y], complexZ*2);
-  cudaThreadSynchronize();
+  gpu_sync.();
   timer_stop("transposeYZ");
 
 
@@ -162,7 +162,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   gpu_zero(buffer3, size[X]*complexZ*paddedSize[Y]*2);
   timer_start("copy_pad_2");
   gpu_copy_pad(buffer2t, buffer3, size[X], complexZ, size[Y]*2, size[X], complexZ, paddedSize[Y]*2);
-  cudaThreadSynchronize();
+  gpu_sync.();
   timer_stop("copy_pad_2");
 
   //printc("buffer3", buffer3, size[X], complexZ, paddedSize[Y], 2);
@@ -170,7 +170,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   // (5) In-place C2C FFT Y
   timer_start("FFT_Y");
   gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)buffer3,  (cufftComplex*)buffer3, CUFFT_FORWARD) );
-  cudaThreadSynchronize();
+  gpu_sync.();
   timer_stop("FFT_Y");
 
   //printc("buffer3", buffer3, size[X], complexZ, paddedSize[Y], 2);
@@ -182,7 +182,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
     // (6) Transpose X-Z
     timer_start("transposeXZ");
     gpu_transposeXZ_complex(buffer3, buffer3t, size[X], complexZ, paddedSize[Y]*2);
-    cudaThreadSynchronize();
+    gpu_sync.();
     timer_stop("transposeXZ");
 
     //printc("buffer3t", buffer3t, paddedSize[Y], complexZ, size[X], 2);
@@ -191,7 +191,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
     gpu_zero(output, paddedSize[Y]*complexZ*paddedSize[X]*2);
     timer_start("copy_pad_3");
     gpu_copy_pad(buffer3t, output, paddedSize[Y], complexZ, size[X]*2, paddedSize[Y], complexZ, paddedSize[X]*2);
-    cudaThreadSynchronize();
+    gpu_sync.();
     timer_stop("copy_pad_3");
 
     //printc("output", output, paddedSize[Y], complexZ, paddedSize[X], 2);
@@ -199,7 +199,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
     // (8) In-place C2C FFT X
     timer_start("FFT_X");
     gpu_safefft( cufftExecC2C(plan->planX, (cufftComplex*)output,  (cufftComplex*)output, CUFFT_FORWARD) );
-    cudaThreadSynchronize();
+    gpu_sync.();
     timer_stop("FFT_X");
 
     //printc("output", output, paddedSize[Y], complexZ, paddedSize[X], 2);
@@ -229,7 +229,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
     // (8) In-place C2C FFT X
     timer_start("-FFT_X");
     gpu_safefft( cufftExecC2C(plan->planX, (cufftComplex*)input,  (cufftComplex*)input, CUFFT_INVERSE) );
-    cudaThreadSynchronize();
+    gpu_sync.();
     timer_stop("-FFT_X");
 
     //printc("input", input, paddedSize[Y], complexZ, paddedSize[X], 2);
@@ -238,7 +238,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
     gpu_zero(buffer3t, paddedSize[Y]*complexZ*size[X]*2);
     timer_start("-copy_pad_3");
     gpu_copy_unpad(input, buffer3t,   paddedSize[Y], complexZ, paddedSize[X]*2,   paddedSize[Y], complexZ, size[X]*2);
-    cudaThreadSynchronize();
+    gpu_sync.();
     timer_stop("-copy_pad_3");
 
     //printc("buffer3t", buffer3t, paddedSize[Y], complexZ, size[X], 2);
@@ -246,7 +246,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
     // (6) Transpose X-Z
     timer_start("-transposeXZ");
     gpu_transposeXZ_complex(buffer3t, buffer3, paddedSize[Y], complexZ, size[X]*2);
-    cudaThreadSynchronize();
+    gpu_sync.();
     timer_stop("-transposeXZ");
   }
   //printc("buffer3", buffer3, size[X], complexZ, paddedSize[Y], 2);
@@ -254,7 +254,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
   // (5) In-place C2C FFT Y
   timer_start("-FFT_Y");
   gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)buffer3,  (cufftComplex*)buffer3, CUFFT_INVERSE) );
-  cudaThreadSynchronize();
+  gpu_sync.();
   timer_stop("-FFT_Y");
 
   //printc("buffer3", buffer3, size[X], complexZ, paddedSize[Y], 2);
@@ -263,7 +263,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
   gpu_zero(buffer2t, size[X]*complexZ*size[Y]*2);
   timer_start("-copy_pad_2");
   gpu_copy_unpad(buffer3, buffer2t,   size[X], complexZ, paddedSize[Y]*2,    size[X], complexZ, size[Y]*2);
-  cudaThreadSynchronize();
+  gpu_sync.();
   timer_stop("-copy_pad_2");
 
   //printc("buffer2t", buffer2t, size[X], complexZ, size[Y], 2);
@@ -271,7 +271,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
   // (3) transpose Y-Z
   timer_start("-transposeYZ");
   gpu_transposeYZ_complex(buffer2t, buffer2,   size[X], complexZ, size[Y]*2);
-  cudaThreadSynchronize();
+  gpu_sync.();
   timer_stop("-transposeYZ");
 
   //printc("buffer2", buffer2, size[X], size[Y], complexZ, 2);
@@ -279,7 +279,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
   // (2) Out-of-place R2C FFT Z
   timer_start("-FFT_C2R");
   gpu_safefft( cufftExecC2R(plan->invPlanZ, (cufftComplex*)buffer2,  (cufftReal*)buffer1) );
-  cudaThreadSynchronize();
+  gpu_sync.();
   timer_stop("-FFT_C2R");
 
   //print("buffer1", buffer1, size[X], size[Y], paddedSize[Z]);
@@ -288,7 +288,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
   gpu_zero(output, size[X]*size[Y]*size[Z]);  // not neccesary for unpad?
   timer_start("-copy_pad_1");
   gpu_copy_unpad(buffer1, output,   size[X], size[Y], paddedSize[Z],   size[X], size[Y], size[Z]);
-  cudaThreadSynchronize();
+  gpu_sync.();
   timer_stop("-copy_pad_1");
 
   //print("output", output, size[X], size[Y], size[Z]);

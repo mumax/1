@@ -1,5 +1,6 @@
 #include "gpu_zeropad.h"
 #include "gpu_conf.h"
+#include "gpu_safe.h"
 #include "gpu_stream.h"
 #include <assert.h>
 #include <stdio.h>
@@ -45,7 +46,7 @@ void gpu_copy_pad2D(float* source, float* dest,
                          int D1, int D2){
 
   gpu_copy_pad2D_async(source, dest, S1, S2, D1, D2);
-  cudaThreadSynchronize();
+  gpu_sync();
 }
 
 
@@ -67,7 +68,7 @@ void gpu_copy_unpad2D(float* source, float* dest,
                          int D1, int D2){
 
   gpu_copy_unpad2D_async(source, dest, S1, S2, D1, D2);
-  cudaThreadSynchronize();
+  gpu_sync();
 }
 
 void gpu_copy_pad(float* source, float* dest,
@@ -79,7 +80,7 @@ void gpu_copy_pad(float* source, float* dest,
   for(int i=0; i<S0; i++){
     gpu_copy_pad2D_async(&source[i*S1*S2], &dest[i*D1*D2], S1, S2, D1, D2); ///@todo inline call to 2D (see also transpose)
   }
-  cudaThreadSynchronize();
+  gpu_sync();
 }
 
 
@@ -92,7 +93,7 @@ void gpu_copy_unpad(float* source, float* dest,
   for(int i=0; i<S0; i++){
     gpu_copy_unpad2D_async(&source[i*S1*S2], &dest[i*D1*D2], S1, S2, D1, D2); ///@todo inline call to 2D (see also transpose)
   }
-  cudaThreadSynchronize();
+  gpu_sync();
 }
 
 

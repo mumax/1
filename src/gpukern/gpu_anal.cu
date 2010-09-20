@@ -1,5 +1,6 @@
 #include "gpu_anal.h"
 #include "gpu_conf.h"
+#include "gpu_safe.h"
 #include "../macros.h"
 
 #ifdef __cplusplus
@@ -82,7 +83,7 @@ void gpu_anal_fw_step_unsafe(float* m, float* h, float dt, float alpha, int N){
 
   //timer_start("gpu_anal_fw_step");
   _gpu_anal_fw_step <<<gridSize, blockSize>>> (&m[X*N], &m[Y*N], &m[Z*N], &h[X*N], &h[Y*N], &h[Z*N], dt, alpha, N);
-  cudaThreadSynchronize();
+  gpu_sync();
   //timer_stop("gpu_anal_fw_step");
 
 }
