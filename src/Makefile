@@ -12,6 +12,11 @@ tensor.so: tensor/*.cpp
 gopkgs:
 	make -C go
 
+test:   all
+	make test -C gpukern
+	make test -C cpukern
+	make test -C go
+
 .PHONY: clean
 clean:
 	rm -rf *.so *.a

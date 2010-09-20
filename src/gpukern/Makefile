@@ -76,6 +76,7 @@ gpu_init.o:  gpu_init.h gpu_init.cu
 gpu_reduction.o:  gpu_reduction.h gpu_reduction.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_reduction.cu
 
+test:	all transpose_test zeropad_test reduction_test fft_test
 
 transpose_test:	transpose_test.cpp libgpukern.so
 	$(CPP) $(CFLAGS) libgpukern.so transpose_test.cpp -o transpose_test

@@ -39,6 +39,16 @@ void gpu_copy_pad2D_async(float* source, float* dest,
   _gpu_copy_pad2D<<<gridSize, blockSize>>>(source, dest, S1, S2, D1, D2);/// @todo STREAM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
+
+void gpu_copy_pad2D(float* source, float* dest,
+                         int S1, int S2,
+                         int D1, int D2){
+
+  gpu_copy_pad2D_async(source, dest, S1, S2, D1, D2);
+  cudaThreadSynchronize();
+}
+
+
 /// @internal Does unpadding of a 2D matrix, not necessarily by a factor 2
 void gpu_copy_unpad2D_async(float* source, float* dest,
                          int S1, int S2,
@@ -52,6 +62,13 @@ void gpu_copy_unpad2D_async(float* source, float* dest,
   _gpu_copy_pad2D<<<gridSize, blockSize>>>(source, dest, S1, S2, D1, D2); /// @todo STREAM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
+void gpu_copy_unpad2D(float* source, float* dest,
+                         int S1, int S2,
+                         int D1, int D2){
+
+  gpu_copy_unpad2D_async(source, dest, S1, S2, D1, D2);
+  cudaThreadSynchronize();
+}
 
 void gpu_copy_pad(float* source, float* dest,
                          int S0, int S1, int S2,
@@ -77,6 +94,8 @@ void gpu_copy_unpad(float* source, float* dest,
   }
   cudaThreadSynchronize();
 }
+
+
 
 
 #ifdef __cplusplus
