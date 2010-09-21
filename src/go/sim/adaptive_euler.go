@@ -10,8 +10,6 @@ type AdaptiveEuler struct {
 }
 
 
-
-
 func (this *AdaptiveEuler) Step() {
 	m, h := this.mDev, this.h
 	alpha, dt := this.alpha, this.dt
@@ -26,5 +24,5 @@ func (this *AdaptiveEuler) Step() {
 }
 
 func (this *Euler) String() string {
-  return "Adaptive Euler"
+	return "Adaptive Euler"
 }

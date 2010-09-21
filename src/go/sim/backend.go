@@ -39,33 +39,33 @@ func (dev *Backend) InitBackend() {
 }
 
 // Copies a number of floats from host to GPU
-func (dev *Backend) memcpyTo(source *float, dest unsafe.Pointer, nFloats int) {
-	dev.memcpy(unsafe.Pointer(source), dest, nFloats, CPY_TO)
+func (dev *Backend) memcpyTo(source *float, dest uintptr, nFloats int) {
+	dev.memcpy(uintptr(unsafe.Pointer(source)), dest, nFloats, CPY_TO)
 }
 
 // Copies a number of floats from GPU to host
-func (dev *Backend) memcpyFrom(source unsafe.Pointer, dest *float, nFloats int) {
-	dev.memcpy(source, unsafe.Pointer(dest), nFloats, CPY_FROM)
+func (dev *Backend) memcpyFrom(source uintptr, dest *float, nFloats int) {
+	dev.memcpy(source, uintptr(unsafe.Pointer(dest)), nFloats, CPY_FROM)
 }
 
 // Copies a number of floats from GPU to GPU
-func (dev *Backend) memcpyOn(source, dest unsafe.Pointer, nFloats int) {
-	dev.memcpy(unsafe.Pointer(source), unsafe.Pointer(dest), nFloats, CPY_ON)
+func (dev *Backend) memcpyOn(source, dest uintptr, nFloats int) {
+	dev.memcpy(source, dest, nFloats, CPY_ON)
 }
 
 // Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
-func (dev *Backend) copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int) {
+func (dev *Backend) copyPad(source, dest uintptr, sourceSize, destSize []int) {
 	dev.copyPadded(source, dest, sourceSize, destSize, CPY_PAD)
 }
 
 //Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
-func (dev *Backend) copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int) {
+func (dev *Backend) copyUnpad(source, dest uintptr, sourceSize, destSize []int) {
 	dev.copyPadded(source, dest, sourceSize, destSize, CPY_UNPAD)
 }
 
 // Gets one float from a Device array.
 // Slow, for debug only
-func (dev *Backend) arrayGet(array unsafe.Pointer, index int) float {
+func (dev *Backend) arrayGet(array uintptr, index int) float {
 	var f float
 	dev.memcpyFrom(dev.arrayOffset(array, index), &f, 1)
 	return f
@@ -73,7 +73,7 @@ func (dev *Backend) arrayGet(array unsafe.Pointer, index int) float {
 
 // Sets one float on a Device array.
 // Slow, for debug only
-func (dev *Backend) arraySet(array unsafe.Pointer, index int, value float) {
+func (dev *Backend) arraySet(array uintptr, index int, value float) {
 	dev.memcpyTo(&value, dev.arrayOffset(array, index), 1)
 }
 
@@ -130,12 +130,12 @@ func (b Backend) OverrideStride(stride int) {
 }
 
 // unsafe FFT
-func (b Backend) fftForward(plan unsafe.Pointer, in, out unsafe.Pointer) {
+func (b Backend) fftForward(plan uintptr, in, out uintptr) {
 	b.fft(plan, in, out, FFT_FORWARD)
 }
 
 // unsafe FFT
-func (b Backend) fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer) {
+func (b Backend) fftInverse(plan uintptr, in, out uintptr) {
 	b.fft(plan, in, out, FFT_INVERSE)
 }
 

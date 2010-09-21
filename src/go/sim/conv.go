@@ -2,7 +2,6 @@ package sim
 
 import (
 	"tensor"
-	"unsafe"
 )
 
 // "Conv" is a 3D vector convolution "plan".
@@ -40,8 +39,8 @@ func NewConv(backend *Backend, dataSize []int, kernel []*tensor.Tensor3) *Conv {
 	///@todo do not allocate for infinite2D problem
 	for i := 0; i < 3; i++ {
 		conv.buffer[i] = NewTensor(conv.Backend, conv.PhysicSize())
-		conv.mcomp[i] = &DevTensor{conv.Backend, dataSize, unsafe.Pointer(nil)}
-		conv.hcomp[i] = &DevTensor{conv.Backend, dataSize, unsafe.Pointer(nil)}
+		conv.mcomp[i] = &DevTensor{conv.Backend, dataSize, uintptr(0)}
+		conv.hcomp[i] = &DevTensor{conv.Backend, dataSize, uintptr(0)}
 	}
 	conv.loadKernel6(kernel)
 

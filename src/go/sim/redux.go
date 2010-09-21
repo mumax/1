@@ -1,14 +1,13 @@
 package sim
 
 import (
-	"unsafe"
 	"fmt"
 )
 
 type Reductor struct {
 	*Backend
 	operation          int
-	devbuffer          unsafe.Pointer
+	devbuffer          uintptr
 	hostbuffer         []float
 	blocks, threads, N int
 }
@@ -28,25 +27,25 @@ func (r *Reductor) InitSum(b *Backend, N int) {
 
 
 func NewMax(b *Backend, N int) *Reductor {
-  r := new(Reductor)
-  r.InitMax(b, N)
-  return r
+	r := new(Reductor)
+	r.InitMax(b, N)
+	return r
 }
 
 func (r *Reductor) InitMax(b *Backend, N int) {
-  r.init(b, N)
-  r.operation = MAX
+	r.init(b, N)
+	r.operation = MAX
 }
 
 func NewMaxAbs(b *Backend, N int) *Reductor {
-  r := new(Reductor)
-  r.InitMaxAbs(b, N)
-  return r
+	r := new(Reductor)
+	r.InitMaxAbs(b, N)
+	return r
 }
 
 func (r *Reductor) InitMaxAbs(b *Backend, N int) {
-  r.init(b, N)
-  r.operation = MAXABS
+	r.init(b, N)
+	r.operation = MAXABS
 }
 
 
@@ -67,7 +66,7 @@ func (r *Reductor) init(b *Backend, N int) {
 }
 
 // TODO this should be done by the device code, given the two buffers...
-func (r *Reductor) Reduce(data unsafe.Pointer) float {
+func (r *Reductor) Reduce(data uintptr) float {
 	return r.reduce(r.operation, data, r.devbuffer, &(r.hostbuffer[0]), r.blocks, r.threads, r.N)
 	// 	r.memcpyFrom(r.devbuffer, &(r.hostbuffer[0]), r.blocks)
 	// 	return local_reduce(r.operation, r.hostbuffer)

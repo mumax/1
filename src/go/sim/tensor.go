@@ -1,7 +1,6 @@
 package sim
 
 import (
-	"unsafe"
 	"tensor"
 	"fmt"
 )
@@ -17,7 +16,7 @@ const (
 type DevTensor struct {
 	*Backend ///< wraps the Device where the Tensor resides on (GPU/CPU/...)
 	size     []int
-	data     unsafe.Pointer // points to float array on the GPU/CPU
+	data     uintptr // points to float array on the GPU/CPU
 }
 
 // Allocates a new tensor on the device represented by Backend
@@ -37,7 +36,7 @@ func NewTensor(b *Backend, size []int) *DevTensor {
 }
 
 // Wraps a pre-allocated device array in a tensor
-func AsTensor(b *Backend, data unsafe.Pointer, size []int) *DevTensor {
+func AsTensor(b *Backend, data uintptr, size []int) *DevTensor {
 	return &DevTensor{b, size, data}
 }
 

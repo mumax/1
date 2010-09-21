@@ -2,7 +2,6 @@ package sim
 
 import (
 	// 	"fmt"
-	"unsafe"
 	"tensor"
 )
 
@@ -10,10 +9,10 @@ import (
 // 3D real-to-complex / complex-to-real transform. Handles zero-padding efficiently (if applicable)
 type FFT struct {
 	*Backend
-	plan       unsafe.Pointer ///< points to the simFFT3dPlan struct that does the actual FFT
-	dataSize   [3]int         ///< size of the non-zero data inside the logic input data. Must be <= logicSize
-	logicSize  [3]int         ///< logical size of the FFT, including padding: number of reals in each dimension
-	physicSize [3]int         ///< @todo: rename complexsize. The input data needs to be padded with zero's to physicSize, in order to accomodate for the extra complex number in the last dimension needed by real-to-complex FFTS. Additionally, even extra zero's are probably going to be added to fit the sim stride.
+	plan       uintptr ///< points to the simFFT3dPlan struct that does the actual FFT
+	dataSize   [3]int  ///< size of the non-zero data inside the logic input data. Must be <= logicSize
+	logicSize  [3]int  ///< logical size of the FFT, including padding: number of reals in each dimension
+	physicSize [3]int  ///< @todo: rename complexsize. The input data needs to be padded with zero's to physicSize, in order to accomodate for the extra complex number in the last dimension needed by real-to-complex FFTS. Additionally, even extra zero's are probably going to be added to fit the sim stride.
 }
 
 
