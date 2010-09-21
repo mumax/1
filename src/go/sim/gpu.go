@@ -39,6 +39,10 @@ func (d Gpu) add(a, b uintptr, N int) {
 	C.gpu_add((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.int(N))
 }
 
+func (d Gpu) madd(a uintptr, cnst float, b uintptr, N int){
+  C.gpu_madd((*C.float)(unsafe.Pointer(a)), C.float(cnst), (*C.float)(unsafe.Pointer(b)), C.int(N))
+}
+
 func (d Gpu) linearCombination(a, b uintptr, weightA, weightB float, N int) {
 	C.gpu_linear_combination((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(weightA), C.float(weightB), C.int(N))
 }

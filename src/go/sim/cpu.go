@@ -38,6 +38,10 @@ func (d Cpu) add(a, b uintptr, N int) {
 	C.cpu_add((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.int(N))
 }
 
+func (d Cpu) madd(a uintptr, cnst float, b uintptr, N int){
+  C.cpu_madd((*C.float)(unsafe.Pointer(a)), C.float(cnst), (*C.float)(unsafe.Pointer(b)), C.int(N))
+}
+
 func (d Cpu) linearCombination(a, b uintptr, weightA, weightB float, N int) {
 	C.cpu_linear_combination((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(weightA), C.float(weightB), C.int(N))
 }

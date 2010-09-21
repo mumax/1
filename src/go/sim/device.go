@@ -40,6 +40,9 @@ type Device interface {
 	// adds b to a. N = length of a = length of b
 	add(a, b uintptr, N int)
 
+  // vector multiply-add a[i] += cnst * b[i]
+  madd(a uintptr, cnst float, b uintptr, N int)
+  
 	// adds the constant cnst to a. N = length of a
 	addConstant(a uintptr, cnst float, N int)
 

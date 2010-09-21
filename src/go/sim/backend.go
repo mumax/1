@@ -78,20 +78,25 @@ func (dev *Backend) arraySet(array uintptr, index int, value float) {
 }
 
 
-// adds b to a
+// a[i] += b[i]
 func (dev *Backend) Add(a, b *DevTensor) {
 	assert(tensor.EqualSize(a.size, b.size))
 	dev.add(a.data, b.data, tensor.N(a))
 }
 
+// a[i] += b[i]
+func (dev *Backend) MAdd(a *DevTensor, cnst float, b *DevTensor) {
+  assert(tensor.EqualSize(a.size, b.size))
+  dev.madd(a.data, cnst, b.data, tensor.N(a))
+}
 
-// overwrites a with weightA * a + weightB * b
+// a[i]  = weightA * a[i] + weightB * b[i]
 func (dev *Backend) LinearCombination(a, b *DevTensor, weightA, weightB float) {
 	assert(tensor.EqualSize(a.size, b.size))
 	dev.linearCombination(a.data, b.data, weightA, weightB, tensor.N(a))
 }
 
-// adds the constant cnst to each element of a. N = length of a
+// a[i] += cnst
 func (dev *Backend) AddConstant(a *DevTensor, cnst float) {
 	Debugvv("Backend.AddConstant(", a, cnst, ")")
 	dev.addConstant(a.data, cnst, tensor.N(a))
@@ -120,6 +125,16 @@ func (dev *Backend) DeltaM(m, h *DevTensor, alpha, dtGilbert float) {
 	N := m.size[1] * m.size[2] * m.size[3]
 	dev.deltaM(m.data, h.data, alpha, dtGilbert, N)
 }
+
+
+// calculates torque, overwrites h with the result
+func (dev *Backend) Torque(m, h *DevTensor, alpha float) {
+  assert(len(m.size) == 4)
+  assert(tensor.EqualSize(m.size, h.size))
+  N := m.size[1] * m.size[2] * m.size[3]
+  dev.deltaM(m.data, h.data, alpha, 1.0, N) // we (ab)use DeltaM with dt=1.
+}
+
 
 
 func (b Backend) OverrideStride(stride int) {
