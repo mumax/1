@@ -29,6 +29,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // This code has been significantly modified from its original version.
+// Note that you have to comply with both the above BSD and GPL licences.
 
 #include "gpu_reduction.h"
 #include "gpu_conf.h"
@@ -399,7 +400,7 @@ float gpu_reduce(int operation, float* input, float* dev2, float* host2, int blo
 }
 
 ///@internal for debugging only, use gpu_reduce() instead of this function
-///@todo leaks memory, should not allocate
+///@warning leaks memory
 float gpu_sum(float* data, int N){
   
   int threads = 128;

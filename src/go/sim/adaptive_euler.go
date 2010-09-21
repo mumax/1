@@ -4,16 +4,15 @@ import ()
 
 
 // 1st order Euler method
-type Euler struct {
+type AdaptiveEuler struct {
 	*Sim
-}
-
-func (this *Euler) String() string {
-	return "Euler"
+	Reductor
 }
 
 
-func (this *Euler) Step() {
+
+
+func (this *AdaptiveEuler) Step() {
 	m, h := this.mDev, this.h
 	alpha, dt := this.alpha, this.dt
 
@@ -24,4 +23,8 @@ func (this *Euler) Step() {
 
 	this.Add(m, deltaM)
 	this.Normalize(m)
+}
+
+func (this *Euler) String() string {
+  return "Adaptive Euler"
 }
