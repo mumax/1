@@ -36,7 +36,7 @@ func TestMax(t *testing.T) {
 			host[i] = 1.
 		}
 
-		host[12349%N] = 10.
+		host[12349%N] = 10. //insert 10. in some quasi-random position
 
 		dev := backend.newArray(N)
 		backend.memcpyTo(&(host[0]), dev, N)
@@ -45,7 +45,7 @@ func TestMax(t *testing.T) {
 		result := max.Reduce(dev)
 
 		if result != 10. {
-			t.Error("expected ", N, " got ", result)
+			t.Error("expected ", 10., " got ", result)
 		}
 	}
 }
