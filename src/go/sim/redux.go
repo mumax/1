@@ -64,7 +64,7 @@ func (r *Reductor) InitMaxAbs(b *Backend, N int) {
 // initiates the common pieces of all reductors
 func (r *Reductor) init(b *Backend, N int) {
 	assert(N > 1)
-  assert(b != nil)
+	assert(b != nil)
 	r.Backend = b
 
 	r.threads = 128 //TODO use device default

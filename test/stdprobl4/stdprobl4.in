@@ -9,7 +9,8 @@ gpu
 outputdir:  	output
 
 solvertype:  	euler
-#dt:           	0.01E-12    # s
+dt:           	0.01E-12    # s
+#maxdm		0.01
 
 # material
 msat:       	800E3       # A/m

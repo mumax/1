@@ -142,7 +142,7 @@ func (s *Sim) init() {
 	s.alpha = s.input.alpha
 
 	// (2) Size must be set before memory allocation
-  s.initSize()
+	s.initSize()
 	L := s.UnitLength()
 	for i := range s.size {
 		s.cellSize[i] = s.input.cellSize[i] / L

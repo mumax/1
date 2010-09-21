@@ -19,7 +19,7 @@ func NewAdaptiveEuler(s *Sim) *AdaptiveEuler {
 	e.Sim = s
 	assert(e.backend != nil)
 	// We use the "maximum norm" of the torque to set dt.
-  // Using the Euclidian norm would give a better step size.
+	// Using the Euclidian norm would give a better step size.
 	e.Reductor.InitMaxAbs(e.backend, prod(s.size4D[0:]))
 	if s.maxDm == 0. {
 		s.maxDm = EULER_DEFAULT_MAXDM
