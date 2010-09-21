@@ -12,7 +12,7 @@ func NewSolver(solvertype string, sim *Sim) Solver {
 	default:
 		panic("Unknown solver type: " + solvertype + ". Options are: euler, semianal, heun.")
 	case "euler":
-		return &Euler{sim}
+		return NewAdaptiveEuler(sim)
 	case "heun":
 		return NewHeun(sim)
 		// 	case "semianal":

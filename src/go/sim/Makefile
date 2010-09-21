@@ -40,6 +40,7 @@ GOFILES=\
 	appliedfield.go\
 	mesh.go\
 	redux.go\
+	adaptive_euler.go\
 	main.go\
 
 CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so

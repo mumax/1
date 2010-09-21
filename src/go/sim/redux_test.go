@@ -19,7 +19,7 @@ func TestSum(t *testing.T) {
 		backend.memcpyTo(&(host[0]), dev, N)
 
 		sum := NewSum(backend, N)
-		result := sum.Reduce(dev)
+		result := sum.reduce_(dev)
 
 		if result != float(N) {
 			t.Error("expected ", N, " got ", result)
@@ -42,7 +42,7 @@ func TestMax(t *testing.T) {
 		backend.memcpyTo(&(host[0]), dev, N)
 
 		max := NewMax(backend, N)
-		result := max.Reduce(dev)
+		result := max.reduce_(dev)
 
 		if result != 10. {
 			t.Error("expected ", 10., " got ", result)
@@ -65,7 +65,7 @@ func TestMaxAbs(t *testing.T) {
 		backend.memcpyTo(&(host[0]), dev, N)
 
 		max := NewMaxAbs(backend, N)
-		result := max.Reduce(dev)
+		result := max.reduce_(dev)
 
 		if result != 10. {
 			t.Error("expected ", 10., " got ", result)

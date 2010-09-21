@@ -15,3 +15,10 @@ func (s *Sim) Dt(t float) {
 	s.input.dt = t
 	s.invalidate()
 }
+
+// Set the maximum "delta m" the solver can take.
+// 0 means not used.
+// Some solvers ignore this value
+func (s *Sim) MaxDm(t float) {
+	s.maxDm = t
+}

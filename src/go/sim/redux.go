@@ -12,6 +12,18 @@ type Reductor struct {
 	blocks, threads, N int
 }
 
+// Reduces the data,
+// i.e., calucates the sum, maximum, ...
+// depending on the value of "operation".
+func (r *Reductor) Reduce(input *DevTensor) float {
+	assert(prod(input.size) == r.N)
+	return r.reduce(r.operation, input.data, r.devbuffer, &(r.hostbuffer[0]), r.blocks, r.threads, r.N)
+}
+
+// Unsafe version of Reduce().
+func (r *Reductor) reduce_(data uintptr) float {
+	return r.reduce(r.operation, data, r.devbuffer, &(r.hostbuffer[0]), r.blocks, r.threads, r.N)
+}
 
 func NewSum(b *Backend, N int) *Reductor {
 	r := new(Reductor)
@@ -52,6 +64,7 @@ func (r *Reductor) InitMaxAbs(b *Backend, N int) {
 // initiates the common pieces of all reductors
 func (r *Reductor) init(b *Backend, N int) {
 	assert(N > 1)
+  assert(b != nil)
 	r.Backend = b
 
 	r.threads = 128 //TODO use device default
@@ -65,18 +78,13 @@ func (r *Reductor) init(b *Backend, N int) {
 	r.hostbuffer = make([]float, r.blocks)
 }
 
-// TODO this should be done by the device code, given the two buffers...
-func (r *Reductor) Reduce(data uintptr) float {
-	return r.reduce(r.operation, data, r.devbuffer, &(r.hostbuffer[0]), r.blocks, r.threads, r.N)
-	// 	r.memcpyFrom(r.devbuffer, &(r.hostbuffer[0]), r.blocks)
-	// 	return local_reduce(r.operation, r.hostbuffer)
-}
 
 // Integer division but rounded UP
 func divUp(x, y int) int {
 	return ((x - 1) / y) + 1
 }
 
+// OBSOLETE now done in C code.
 // Reduce data locally, i.e., not on the GPU.
 // This is usually the last step after a partial reduction on the GPU.
 // When there are only a few numbers left, it becomes more efficient

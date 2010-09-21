@@ -37,6 +37,15 @@ func Size3D(size4D []int) []int {
 	return size3D
 }
 
+// Product of integers.
+// Used to get the total number of elements from a tensor size.
+func prod(size []int) int {
+	prod := 1
+	for _,s := range size {
+		prod *= s
+	}
+	return prod
+}
 
 var Verbosity int = 2
 

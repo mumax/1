@@ -86,8 +86,8 @@ func (dev *Backend) Add(a, b *DevTensor) {
 
 // a[i] += b[i]
 func (dev *Backend) MAdd(a *DevTensor, cnst float, b *DevTensor) {
-  assert(tensor.EqualSize(a.size, b.size))
-  dev.madd(a.data, cnst, b.data, tensor.N(a))
+	assert(tensor.EqualSize(a.size, b.size))
+	dev.madd(a.data, cnst, b.data, tensor.N(a))
 }
 
 // a[i]  = weightA * a[i] + weightB * b[i]
@@ -129,12 +129,11 @@ func (dev *Backend) DeltaM(m, h *DevTensor, alpha, dtGilbert float) {
 
 // calculates torque, overwrites h with the result
 func (dev *Backend) Torque(m, h *DevTensor, alpha float) {
-  assert(len(m.size) == 4)
-  assert(tensor.EqualSize(m.size, h.size))
-  N := m.size[1] * m.size[2] * m.size[3]
-  dev.deltaM(m.data, h.data, alpha, 1.0, N) // we (ab)use DeltaM with dt=1.
+	assert(len(m.size) == 4)
+	assert(tensor.EqualSize(m.size, h.size))
+	N := m.size[1] * m.size[2] * m.size[3]
+	dev.deltaM(m.data, h.data, alpha, 1.0, N) // we (ab)use DeltaM with dt=1.
 }
-
 
 
 func (b Backend) OverrideStride(stride int) {

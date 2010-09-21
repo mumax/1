@@ -60,7 +60,8 @@ type Sim struct {
 	mComp, hComp [3]*DevTensor   // magnetization/field components, 3 x 3D tensors
 	Solver                       // Does the time stepping, can be euler, heun, ...
 	time         float64         // The total time (internal units)
-	dt           float           // The time step (internal units). May be updated by adaptive-step solvers 
+	dt           float           // The time step (internal units). May be updated by adaptive-step solvers
+	maxDm        float           // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers. 
 	steps        int             // The total number of steps taken so far
 	starttime    int64           // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
 	outschedule  []Output        // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
@@ -130,7 +131,7 @@ func (s *Sim) init() {
 
 	dev := s.backend
 	dev.InitBackend()
-	assert(dev != nil)
+	assert(s.backend != nil)
 	assert(s != nil)
 
 	// (1) Material parameters control the units,
@@ -141,6 +142,7 @@ func (s *Sim) init() {
 	s.alpha = s.input.alpha
 
 	// (2) Size must be set before memory allocation
+  s.initSize()
 	L := s.UnitLength()
 	for i := range s.size {
 		s.cellSize[i] = s.input.cellSize[i] / L
