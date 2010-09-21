@@ -28,14 +28,25 @@ func (r *Reductor) InitSum(b *Backend, N int) {
 
 
 func NewMax(b *Backend, N int) *Reductor {
-	r := new(Reductor)
-	r.InitMax(b, N)
-	return r
+  r := new(Reductor)
+  r.InitMax(b, N)
+  return r
 }
 
 func (r *Reductor) InitMax(b *Backend, N int) {
-	r.init(b, N)
-	r.operation = MAX
+  r.init(b, N)
+  r.operation = MAX
+}
+
+func NewMaxAbs(b *Backend, N int) *Reductor {
+  r := new(Reductor)
+  r.InitMaxAbs(b, N)
+  return r
+}
+
+func (r *Reductor) InitMaxAbs(b *Backend, N int) {
+  r.init(b, N)
+  r.operation = MAXABS
 }
 
 
