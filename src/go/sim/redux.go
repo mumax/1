@@ -22,9 +22,27 @@ func NewSum(b *Backend, N int) *Reductor {
 
 
 func (r *Reductor) InitSum(b *Backend, N int) {
-  assert(N > 1)
-  r.Backend = b
+	r.init(b, N)
 	r.operation = ADD
+}
+
+
+func NewMax(b *Backend, N int) *Reductor {
+	r := new(Reductor)
+	r.InitMax(b, N)
+	return r
+}
+
+func (r *Reductor) InitMax(b *Backend, N int) {
+	r.init(b, N)
+	r.operation = MAX
+}
+
+
+// initiates the common pieces of all reductors
+func (r *Reductor) init(b *Backend, N int) {
+	assert(N > 1)
+	r.Backend = b
 
 	r.threads = 128 //TODO use device default
 	for N <= r.threads {
@@ -40,8 +58,8 @@ func (r *Reductor) InitSum(b *Backend, N int) {
 // TODO this should be done by the device code, given the two buffers...
 func (r *Reductor) Reduce(data unsafe.Pointer) float {
 	return r.reduce(r.operation, data, r.devbuffer, &(r.hostbuffer[0]), r.blocks, r.threads, r.N)
-// 	r.memcpyFrom(r.devbuffer, &(r.hostbuffer[0]), r.blocks)
-// 	return local_reduce(r.operation, r.hostbuffer)
+	// 	r.memcpyFrom(r.devbuffer, &(r.hostbuffer[0]), r.blocks)
+	// 	return local_reduce(r.operation, r.hostbuffer)
 }
 
 // Integer division but rounded UP
@@ -55,7 +73,7 @@ func divUp(x, y int) int {
 // to reduce them on the CPU (we need a copy from the device anyway,
 // so why not copy a few numbers).
 func local_reduce(operation int, data []float) float {
-  fmt.Println(data)
+	fmt.Println(data)
 	result := 0.
 	switch operation {
 	default:

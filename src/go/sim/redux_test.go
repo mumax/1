@@ -4,8 +4,10 @@ import (
 	"testing"
 )
 
+var Ns []int = []int{2, 8, 16, 31, 33, 128, 255, 511, 1023, 1024, 1025, 20000}
+
 func TestSum(t *testing.T) {
-	Ns := []int{2, 8, 16, 31, 33, 128, 255, 511, 1023, 1024, 1025, 20000}
+
 	for _, N := range Ns {
 
 		host := make([]float, N)
@@ -20,6 +22,29 @@ func TestSum(t *testing.T) {
 		result := sum.Reduce(dev)
 
 		if result != float(N) {
+			t.Error("expected ", N, " got ", result)
+		}
+	}
+}
+
+func TestMax(t *testing.T) {
+
+	for _, N := range Ns {
+
+		host := make([]float, N)
+		for i := range host {
+			host[i] = 1.
+		}
+
+		host[12349%N] = 10.
+
+		dev := backend.newArray(N)
+		backend.memcpyTo(&(host[0]), dev, N)
+
+		max := NewMax(backend, N)
+		result := max.Reduce(dev)
+
+		if result != 10. {
 			t.Error("expected ", N, " got ", result)
 		}
 	}

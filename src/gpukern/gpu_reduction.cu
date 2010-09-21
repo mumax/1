@@ -61,11 +61,11 @@ struct SharedMemory {
 This version adds multiple elements per thread sequentially.  This reduces the overall
 cost of the algorithm while keeping the work complexity O(n) and the step complexity O(log n).
 (Brent's Theorem optimization)
-
 Note, this kernel needs a minimum of 64*sizeof(T) bytes of shared memory.
 In other words if blockSize <= 32, allocate 64*sizeof(T) bytes.
 If blockSize > 32, allocate blockSize*sizeof(T) bytes.
 */
+
 template <unsigned int blockSize, bool nIsPow2>
 __global__ void _gpu_sum_kernel(float* g_idata, float* g_odata, unsigned int n) {
   float* sdata = SharedMemory<float>();
@@ -96,9 +96,12 @@ __global__ void _gpu_sum_kernel(float* g_idata, float* g_odata, unsigned int n) 
 
 
   // do reduction in shared mem
-  if (blockSize >= 512) { if (tid < 256) { sdata[tid] = mySum = mySum + sdata[tid + 256]; } __syncthreads(); }
-  if (blockSize >= 256) { if (tid < 128) { sdata[tid] = mySum = mySum + sdata[tid + 128]; } __syncthreads(); }
-  if (blockSize >= 128) { if (tid <  64) { sdata[tid] = mySum = mySum + sdata[tid +  64]; } __syncthreads(); }
+//   if (blockSize >= 512) { if (tid < 256) { sdata[tid] = mySum = mySum + sdata[tid + 256]; } __syncthreads(); }
+//   if (blockSize >= 256) { if (tid < 128) { sdata[tid] = mySum = mySum + sdata[tid + 128]; } __syncthreads(); }
+//   if (blockSize >= 128) { if (tid <  64) { sdata[tid] = mySum = mySum + sdata[tid +  64]; } __syncthreads(); }
+  if (blockSize >= 512) { if (tid < 256) { mySum = mySum + sdata[tid + 256]; sdata[tid] = mySum; } __syncthreads(); }
+  if (blockSize >= 256) { if (tid < 128) { mySum = mySum + sdata[tid + 128]; sdata[tid] = mySum; } __syncthreads(); }
+  if (blockSize >= 128) { if (tid <  64) { mySum = mySum + sdata[tid +  64]; sdata[tid] = mySum; } __syncthreads(); }
 
   if (tid < 32)
     {
@@ -117,6 +120,58 @@ __global__ void _gpu_sum_kernel(float* g_idata, float* g_odata, unsigned int n) 
     if (tid == 0)
       g_odata[blockIdx.x] = sdata[0];
 }
+
+// template <unsigned int blockSize, bool nIsPow2>
+// __global__ void _gpu_max_kernel(float* g_idata, float* g_odata, unsigned int n) {
+//   float* sdata = SharedMemory<float>();
+// 
+//   // perform first level of reduction,
+//   // reading from global memory, writing to shared memory
+//   unsigned int tid = threadIdx.x;
+//   unsigned int i = blockIdx.x*blockSize*2 + threadIdx.x;
+//   unsigned int gridSize = blockSize*2*gridDim.x;
+// 
+//   float myMax = -1E37;
+// 
+//   // we reduce multiple elements per thread.  The number is determined by the
+//   // number of active thread blocks (via gridDim).  More blocks will result
+//   // in a larger gridSize and therefore fewer elements per thread
+//   while (i < n)
+//   {
+//     myMax = fmax(myMax, g_idata[i]);
+//     // ensure we don't read out of bounds -- this is optimized away for powerOf2 sized arrays
+//     if (nIsPow2 || i + blockSize < n)
+//       myMax = fmax(myMax, g_idata[i+blockSize]);
+//     i += gridSize;
+//   }
+// 
+//   // each thread puts its local sum into shared memory
+//   sdata[tid] = myMax;
+//   __syncthreads();
+// 
+// 
+//   // do reduction in shared mem
+//   if (blockSize >= 512) { if (tid < 256) { mySum = mySum + sdata[tid + 256]; sdata[tid] = mySum; } __syncthreads(); }
+//   if (blockSize >= 256) { if (tid < 128) { mySum = mySum + sdata[tid + 128]; sdata[tid] = mySum; } __syncthreads(); }
+//   if (blockSize >= 128) { if (tid <  64) { mySum = mySum + sdata[tid +  64]; sdata[tid] = mySum; } __syncthreads(); }
+// 
+//   if (tid < 32)
+//     {
+//       // now that we are using warp-synchronous programming (below)
+//       // we need to declare our shared memory volatile so that the compiler
+//       // doesn't reorder stores to it and induce incorrect behavior.
+//       volatile float* smem = sdata;
+//       if (blockSize >=  64) { smem[tid] = mySum = mySum + smem[tid + 32];  }
+//       if (blockSize >=  32) { smem[tid] = mySum = mySum + smem[tid + 16];  }
+//       if (blockSize >=  16) { smem[tid] = mySum = mySum + smem[tid +  8];  }
+//       if (blockSize >=   8) { smem[tid] = mySum = mySum + smem[tid +  4];  }
+//       if (blockSize >=   4) { smem[tid] = mySum = mySum + smem[tid +  2];  }
+//       if (blockSize >=   2) { smem[tid] = mySum = mySum + smem[tid +  1];  }
+//     }
+//     // write result for this block to global mem
+//     if (tid == 0)
+//       g_odata[blockIdx.x] = sdata[0];
+// }
 
 #ifdef __cplusplus
 extern "C" {

@@ -47,8 +47,8 @@ func (d Gpu) addConstant(a unsafe.Pointer, cnst float, N int) {
 	C.gpu_add_constant((*C.float)(a), C.float(cnst), C.int(N))
 }
 
-func (d Gpu) reduce(operation int, input, output unsafe.Pointer, buffer *float, blocks, threads, N int) float{
-	return float( C.gpu_reduce(C.int(operation), (*C.float)(input), (*C.float)(output), (*C.float)(unsafe.Pointer(buffer)), C.int(blocks), C.int(threads), C.int(N)) )
+func (d Gpu) reduce(operation int, input, output unsafe.Pointer, buffer *float, blocks, threads, N int) float {
+	return float(C.gpu_reduce(C.int(operation), (*C.float)(input), (*C.float)(output), (*C.float)(unsafe.Pointer(buffer)), C.int(blocks), C.int(threads), C.int(N)))
 }
 
 func (d Gpu) normalize(m unsafe.Pointer, N int) {
