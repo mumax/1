@@ -48,6 +48,7 @@ type Input struct {
 type Sim struct {
 	input        Input           // stores the original input parameters in SI units
 	valid        bool            // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
+	BeenValid    bool            // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
 	backend      *Backend        // GPU or CPU
 	mLocal       *tensor.Tensor4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
 	Material                     // Stores material parameters and manages the internal units
@@ -87,14 +88,14 @@ func NewSim() *Sim {
 
 // When a parmeter is changed, the simulation state is invalidated until it gets (re-)initialized by init().
 func (s *Sim) invalidate() {
-	if s.isValid() {
+	if s.IsValid() {
 		Debugv("Simulation state invalidated")
 	}
 	s.valid = false
 }
 
 // When it returns false, init() needs to be called before running.
-func (s *Sim) isValid() bool {
+func (s *Sim) IsValid() bool {
 	return s.valid
 }
 
@@ -105,7 +106,7 @@ func (s *Sim) initSize() {
 		assert(s.size[i] > 0)
 		s.size4D[i+1] = s.size[i]
 	}
-	Debugv("Simulation size ", s.size, " = ", s.size[0] * s.size[1] * s.size[2] ," cells")
+	Debugv("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
 }
 
 func (s *Sim) initMLocal() {
@@ -116,13 +117,13 @@ func (s *Sim) initMLocal() {
 	}
 
 	if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
-		s.mLocal = resample(s.mLocal, s.input.size[0:])
+		s.mLocal = resample(s.mLocal, Size4D(s.input.size[0:]))
 	}
 }
 
 // (Re-)initialize the simulation tree, necessary before running.
 func (s *Sim) init() {
-	if s.isValid() {
+	if s.IsValid() {
 		return //no work to do
 	}
 	Debugv("Initializing simulation state")
@@ -192,12 +193,13 @@ func (s *Sim) init() {
 	s.printMem()
 
 	// (5) Time stepping
-  Debugv("Initializing solver: ", s.input.solvertype)
+	Debugv("Initializing solver: ", s.input.solvertype)
 	s.dt = s.input.dt / s.UnitTime()
 	s.Solver = NewSolver(s.input.solvertype, s)
-  s.printMem()
-  
+	s.printMem()
+
 	s.valid = true // we can start the real work now
+	s.BeenValid = true
 }
 
 
@@ -209,7 +211,8 @@ func (s *Sim) Verbosity(level int) {
 
 
 func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {
-	Debugv("Resampling magnetization from", in.Size(), "to", size2)
+	Debugv("Resampling magnetization from ", in.Size(), " to ", size2)
+	assert(len(size2) == 4)
 	out := tensor.NewTensor4(size2)
 	out_a := out.Array()
 	in_a := in.Array()

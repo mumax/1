@@ -2,6 +2,7 @@ package sim
 
 import (
 	"fmt"
+	. "math"
 )
 
 // This file implements the methods for defining
@@ -18,6 +19,21 @@ type staticField struct {
 
 func (field *staticField) GetAppliedField(time float64) [3]float {
 	return field.b
+}
+
+// Apply an alternating field
+func (s *Sim) RfField(hx, hy, hz float, freq float64) {
+	s.AppliedField = &rfField{[3]float{hx, hy, hz}, freq}
+}
+
+type rfField struct {
+	b    [3]float
+	freq float64
+}
+
+func (field *rfField) GetAppliedField(time float64) [3]float {
+	sin := float(Sin(field.freq * Pi * time))
+	return [3]float{field.b[X] * sin, field.b[Y] * sin, field.b[Z] * sin}
 }
 
 // Control the accuracy of the demag kernel.

@@ -1,4 +1,5 @@
 #include "gpu_linalg.h"
+#include "gpu_safe.h"
 #include "gpu_conf.h"
 
 #ifdef __cplusplus
@@ -18,7 +19,7 @@ void gpu_add(float* a, float* b, int N){
   dim3 gridSize, blockSize;
   make1dconf(N, &gridSize, &blockSize);
   _gpu_add<<<gridSize, blockSize>>>(a, b, N);
-  cudaThreadSynchronize();
+  gpu_sync();
 }
 
 
@@ -34,7 +35,7 @@ void gpu_add_constant(float* a, float cnst, int N){
   dim3 gridSize, blockSize;
   make1dconf(N, &gridSize, &blockSize);
   _gpu_add_constant<<<gridSize, blockSize>>>(a, cnst, N);
-  cudaThreadSynchronize();
+  gpu_sync();
 }
 
 
@@ -50,7 +51,7 @@ void gpu_linear_combination(float* a, float* b, float weightA, float weightB, in
   dim3 gridSize, blockSize;
   make1dconf(N, &gridSize, &blockSize);
   _gpu_linear_combination<<<gridSize, blockSize>>>(a, b, weightA, weightB, N);
-  cudaThreadSynchronize();
+  gpu_sync();
 }
 
 #ifdef __cplusplus

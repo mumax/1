@@ -1,4 +1,5 @@
 #include "gpu_normalize.h"
+#include "gpu_safe.h"
 #include "gpu_conf.h"
 
 #ifdef __cplusplus
@@ -26,7 +27,7 @@ void gpu_normalize_uniform(float* m, int N){
   float* mz = &(m[2*N]);
 
   _gpu_normalize_uniform<<<gridSize, blockSize>>>(mx, my, mz, N);
-  cudaThreadSynchronize();
+  gpu_sync();
 
 }
 
@@ -53,7 +54,7 @@ void gpu_normalize_map(float* m, float* map, int N){
   float* mz = &(m[2*N]);
 
   _gpu_normalize_map<<<gridSize, blockSize>>>(mx, my, mz, map, N);
-  cudaThreadSynchronize();
+  gpu_sync();
   
 }
 

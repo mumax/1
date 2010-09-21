@@ -21,3 +21,4 @@
 #include "cpu_properties.h"
 #include "cpu_anal.h"
 #include "cpu_init.h"
+#include "cpu_reduction.h"

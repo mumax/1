@@ -1,4 +1,4 @@
-\section{Getting started}
+\section{Installation}
 
 \subsection{Requirements}
 
@@ -6,15 +6,22 @@
 
 This program was devolped and tested on Ubuntu Linux version 10.04, and we expect it to run on most Linux distributions. It should in principle be possible to compile it on any Unix-like system, perhaps with minor modifications to the make scripts or source files. You are welcome to report issues or submit patches for other platforms.
 
-\subsubsection{Hardware and drivers}
+\subsubsection{Hardware}
+
+To take advantage of the GPU acceleration, you need a \idx{CUDA capable} \textsc{NVIDIA} GPU. All recent \textsc{NVIDIA} GPUs should work, though it is highly recommended to use a ``Fermi''-architecture GPU with a \idx{compute capability} of at least 2.0 like the GeForce GTX series, Quadro 4000 or later, Tesla *2050 or later. For more info see \url{http://www.nvidia.com/object/cuda_gpus.html}
+
+\subsubsection{Drivers}
+
+You will also need to install the proprietary \textsc{NVIDIA} graphics \idx{driver}. This driver may already be installed on your system. E.g., under Ubuntu, the ``Hardware drivers'' program may propose to install this driver. You should try to run a simulation on the GPU -- if that works, it means your driver is up to date.
+
+Otherwise, you can install the driver located in \file{dep/cuda}. You have to install it when your X-server is not running: logout from your grahpical session, then use the ``\idx{Console login}'' of your login manager (or press Ctrl-Alt-F1) to obtain a text console. Login and \cmd{cd} to \file{dep/cuda} the \sim root directory. Type \cmd{sudo ./devdriver\_3.1\_linux\_64\_256.40.run}\footnote{Or \cmd{sudo ./devdriver\_3.1\_linux\_32\_256.40.run} on a 32-bit system.}\footnote{} and follow the instructions. Then reboot your computer. Note that you may have to re-install this driver after every kernel upgrade. To check your system, you can run the progam \cmd{nvidia-settings} which shows information about your GPU and driver.
 
 
-To take advantage of the GPU acceleration, you need a CUDA capable \textsc{NVIDIA} GPU. All recent GPUs should be fine, though it is highly recommended to use a ``Fermi''-architecture GPU with a \idx{compute capability} of at least 2.0. 
+\subsection{Setup}
 
+We recommend downloading a pre-compiled version of the program for either a 32-bit or 64-bit architecture.
 
 \subsection{Running}
-
-
 
 \subsection{Re-compiling}
 

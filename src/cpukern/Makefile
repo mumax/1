@@ -14,6 +14,7 @@ OFILES=\
 	cpu_transpose.o\
 	cpu_fft.o\
 	cpu_init.o\
+	cpu_reduction.o\
 
 all: libcpukern.so libcpukern.a
 
@@ -59,8 +60,10 @@ cpu_fft.o:  cpu_fft.h cpu_fft.cpp
 cpu_init.o:  cpu_init.h cpu_init.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_init.cpp
 
+cpu_reduction.o:  cpu_reduction.h cpu_reduction.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_reduction.cpp
 
-test: test.cpp libcpukern.so
+test:
 
 .PHONY:	clean
 clean:	

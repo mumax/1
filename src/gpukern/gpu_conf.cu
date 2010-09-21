@@ -41,6 +41,10 @@ void check1dconf(int gridsize, int blocksize){
   assert(blocksize <= ((cudaDeviceProp*)gpu_getproperties())->maxThreadsPerBlock);
 }
 
+int gpu_maxthreads(){
+  cudaDeviceProp* prop = (cudaDeviceProp*)gpu_getproperties();
+  return prop->maxThreadsPerBlock;
+}
 
 void make1dconf(int N, dim3* gridSize, dim3* blockSize){
 
@@ -48,10 +52,10 @@ void make1dconf(int N, dim3* gridSize, dim3* blockSize){
   
   cudaDeviceProp* prop = (cudaDeviceProp*)gpu_getproperties();
   int maxBlockSize = prop->maxThreadsPerBlock;
-//   if(maxBlockSize > 256){
-//     debugvv( fprintf(stderr, "WARNING: using 256 as max block size! \n") );
-//     maxBlockSize = 256;
-//   }
+  if(maxBlockSize > 128){
+    debugvv( fprintf(stderr, "WARNING: using 128 as max block size! \n") );
+    maxBlockSize = 128;
+  }
   int maxGridSize = prop->maxGridSize[X];
 
   (*blockSize).x = maxBlockSize;
