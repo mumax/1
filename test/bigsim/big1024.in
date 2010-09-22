@@ -5,7 +5,6 @@ gpu
 demagaccuracy 0
 
 # schedule output
-outputdir     output
 #autosave      m     png   100E-12
 #autosave      table ascii  50E-12
 

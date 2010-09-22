@@ -1,6 +1,5 @@
 # Relax a vortex state
 
-outputdir  	relax
 
 #solver
 solvertype  	heun

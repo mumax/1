@@ -1,7 +1,5 @@
 # Vortex eigenfrequency
 
-outputdir  	rf
-
 #solver
 solvertype  	heun
 maxerror 	1E-5
