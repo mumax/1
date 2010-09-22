@@ -16,7 +16,7 @@ import (
 )
 
 // Sets the output directory where all output files are stored
-func (s *Sim) OutputDir(outputdir string) {
+func (s *Sim) outputDir(outputdir string) {
 	// remove trailing slash if present
 	//   if outputdir[len(outputdir)-1] == '/'{
 	//     outputdir = outputdir[0:len(outputdir)-1]
