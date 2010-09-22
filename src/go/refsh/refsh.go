@@ -165,5 +165,17 @@ func NewRefsh() *Refsh {
 	refsh.funcnames = make([]string, CAPACITY)[0:0]
 	refsh.funcs = make([]Caller, CAPACITY)[0:0]
 	refsh.CrashOnError = true
+	// built-in functions
+	refsh.AddMethod("include", refsh, "Include");
 	return refsh
 }
+
+// executes the file
+func (refsh *Refsh) Include(file string){
+  in, err := os.Open(file, os.O_RDONLY, 0666)
+  if err != nil{
+    panic(err)
+  }
+  refsh.Exec(in)
+}
+
