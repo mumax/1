@@ -14,7 +14,6 @@ package sim
 import (
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"refsh"
 	"runtime"
