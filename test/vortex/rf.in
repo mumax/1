@@ -1,6 +1,6 @@
 # Vortex eigenfrequency
 
-outputdir  	eigenfreq
+outputdir  	rf
 
 #solver
 solvertype  	heun
