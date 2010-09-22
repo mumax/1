@@ -19,6 +19,13 @@ func (s *Sim) Dt(t float) {
 // Set the maximum "delta m" the solver can take.
 // 0 means not used.
 // Some solvers ignore this value
-func (s *Sim) MaxDm(t float) {
-	s.maxDm = t
+func (s *Sim) MaxDm(deltaM float) {
+	s.maxDm = deltaM
+}
+
+// Set the maximum "delta m" the solver can take.
+// 0 means not used.
+// Some solvers ignore this value
+func (s *Sim) MaxError(errorPerStep float) {
+	s.maxError = errorPerStep
 }

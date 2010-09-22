@@ -61,7 +61,9 @@ type Sim struct {
 	Solver                       // Does the time stepping, can be euler, heun, ...
 	time         float64         // The total time (internal units)
 	dt           float           // The time step (internal units). May be updated by adaptive-step solvers
-	maxDm        float           // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers. 
+	maxDm        float           // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
+	maxError     float           // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
+	stepError    float           // The actual error estimate of the last step. Not all solvers update this value.
 	steps        int             // The total number of steps taken so far
 	starttime    int64           // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
 	outschedule  []Output        // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
