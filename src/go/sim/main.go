@@ -68,7 +68,7 @@ func main_master() {
 		defer in.Close()
 
 		sim := NewSim()
-		sim.outputDir = flag.Arg(i) + ".out"
+		sim.outputDir(flag.Arg(i) + ".out")
 		refsh := refsh.New()
 		refsh.CrashOnError = true
 		refsh.AddAllMethods(sim)
