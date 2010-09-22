@@ -58,6 +58,7 @@ func main_master() {
 
 	UpdateDashboardEvery = int64(*updatedb * 1000 * 1000)
 
+  // Process all input files
 	for i := 0; i < flag.NArg(); i++ {
 		in, err := os.Open(flag.Arg(i), os.O_RDONLY, 0666)
 		if err != nil {
@@ -96,4 +97,6 @@ func exec(in io.Reader) {
 		sim.TimerPrintDetail()
 		sim.PrintTimer(os.Stdout)
 	}
+
+	// TODO need to free sim
 }

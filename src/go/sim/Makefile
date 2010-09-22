@@ -43,6 +43,7 @@ GOFILES=\
 	adaptive_euler.go\
 	adaptive_heun.go\
 	main.go\
+        batchserver.go\
 
 CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so
 
