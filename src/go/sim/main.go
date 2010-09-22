@@ -58,7 +58,7 @@ func main_master() {
 
 	UpdateDashboardEvery = int64(*updatedb * 1000 * 1000)
 
-  // Process all input files
+	// Process all input files
 	for i := 0; i < flag.NArg(); i++ {
 		in, err := os.Open(flag.Arg(i), os.O_RDONLY, 0666)
 		if err != nil {
@@ -66,7 +66,29 @@ func main_master() {
 			os.Exit(-2)
 		}
 		defer in.Close()
-		exec(in)
+
+		sim := NewSim()
+		sim.outputDir = flag.Arg(i) + ".out"
+		refsh := refsh.New()
+		refsh.CrashOnError = true
+		refsh.AddAllMethods(sim)
+		refsh.Exec(in)
+
+		// Idiot-proof error reports
+		if refsh.CallCount == 0 {
+			Error("Input file contains no commands.")
+		}
+		if !sim.BeenValid {
+			Error("Input file does not contain any commands to make the simulation run. Use, e.g., \"run\".")
+		}
+		// The next two lines cause a nil pointer panic when the simulation is not fully initialized
+		if sim.BeenValid {
+			sim.TimerPrintDetail()
+			sim.PrintTimer(os.Stdout)
+		}
+
+		// TODO need to free sim
+
 	}
 }
 
@@ -75,28 +97,3 @@ func main_master() {
 // 	server := NewDeviceServer(*device, *transport, *port)
 // 	server.Listen()
 // }
-
-
-func exec(in io.Reader) {
-	sim := NewSim()
-
-	refsh := refsh.New()
-	refsh.CrashOnError = true
-	refsh.AddAllMethods(sim)
-	refsh.Exec(in)
-
-	// Idiot-proof error reports
-	if refsh.CallCount == 0 {
-		Error("Input file contains no commands.")
-	}
-	if !sim.BeenValid {
-		Error("Input file does not contain any commands to make the simulation run. Use, e.g., \"run\".")
-	}
-	// The next two lines cause a nil pointer panic when the simulation is not fully initialized
-	if sim.BeenValid {
-		sim.TimerPrintDetail()
-		sim.PrintTimer(os.Stdout)
-	}
-
-	// TODO need to free sim
-}

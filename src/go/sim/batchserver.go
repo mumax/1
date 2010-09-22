@@ -1,7 +1,7 @@
 package sim
 
-import()
+import ()
 
-func BatchMain(){
+func BatchMain() {
 
 }
