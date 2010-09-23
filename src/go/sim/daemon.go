@@ -19,8 +19,24 @@ func DaemonMain() {
 		watchdirs = []string{"."}
 	}
 
-	infile := findInputFile(watchdirs[0])
+	infile := findInputFileAll(watchdirs)
 	fmt.Println(infile)
+}
+
+// Searches for a pending input file in all the given directories.
+// Looks for a file ending in ".in" for which no corresponding
+// ".out" file exists yet.
+// Returns an empty string when no suitable input file is present
+// in any of the directories.
+//
+func findInputFileAll(dirs []string) string {
+	for _, dir := range dirs {
+		file := findInputFile(dir)
+		if file != "" {
+			return file
+		}
+	}
+	return "" // nothing found
 }
 
 // Searches for a pending input file in the given directory.
@@ -31,7 +47,7 @@ func DaemonMain() {
 func findInputFile(dir string) string {
 	d, err := os.Open(dir, os.O_RDONLY, 0666)
 	// if we can not read a directory, we should not necessarily crash,
-  // instead report it and go on so other directories can still be searched.
+	// instead report it and go on so other directories can still be searched.
 	if err != nil {
 		Debugv(err)
 		return ""
@@ -45,11 +61,11 @@ func findInputFile(dir string) string {
 		}
 		file := filenames[0]
 		if strings.HasSuffix(file, ".in") && !fileExists(dir+"/"+removeExtension(file)+".out") {
-			return file
+			return dir + "/" + file
 		}
 	}
 
-  // nothing found
+	// nothing found
 	return ""
 }
 
