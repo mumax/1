@@ -53,7 +53,7 @@ func daemon_startsim(file string){
   // should another daemon already have started this simulation in the meanwhile,
   // then this directory exists and we should abort.
   outfile := removeExtension(file) + ".out"
-  err := os.Mkdir(outfile, 0666)
+  err := os.Mkdir(outfile, 0777)
   // if the directory already exists, then another daemon had already started the simulation in the meanwhile
   // TODO: we should check if the error really is a "file exists"
   if err != nil{
