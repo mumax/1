@@ -20,7 +20,7 @@ import (
 )
 
 var (
-  daemon    *bool   = flag.Bool("daemon", false, "Run in the background and watch a directory for input files to process.")
+	daemon    *bool   = flag.Bool("daemon", false, "Run in the background and watch a directory for input files to process.")
 	server    *bool   = flag.Bool("server", false, "Run as a slave node in a cluster")
 	verbosity *int    = flag.Int("verbosity", 2, "Control the debug verbosity (0 - 3)")
 	port      *int    = flag.Int("port", 2527, "Which network port to use")
@@ -33,13 +33,13 @@ var (
 // to be called by main.main()
 func Main() {
 	defer fmt.Print(SHOWCURSOR) // make sure the cursor does not stay hidden if we crash
-	
+
 	flag.Parse()
 	Verbosity = *verbosity
-  if *daemon {
-    DaemonMain()
-    return
-  }
+	if *daemon {
+		DaemonMain()
+		return
+	}
 
 	// 	if *server {
 	// 		main_slave()
@@ -63,7 +63,7 @@ func main_master() {
 
 	// Process all input files
 	for i := 0; i < flag.NArg(); i++ {
-    infile := flag.Arg(i)
+		infile := flag.Arg(i)
 		in, err := os.Open(infile, os.O_RDONLY, 0666)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -98,12 +98,12 @@ func main_master() {
 
 // Removes a filename extension.
 // I.e., the part after the dot, if present.
-func removeExtension(str string) string{
-  dotpos :=  len(str)-1
-  for dotpos >= 0 && str[dotpos] != '.'{
-    dotpos--
-  }
-  return str[0:dotpos]
+func removeExtension(str string) string {
+	dotpos := len(str) - 1
+	for dotpos >= 0 && str[dotpos] != '.' {
+		dotpos--
+	}
+	return str[0:dotpos]
 }
 
 // when running in "slave" mode, i.e. accepting commands over the network as part of a cluster
