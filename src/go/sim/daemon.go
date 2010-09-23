@@ -9,18 +9,19 @@ import (
 	"exec"
 )
 
-const DAEMON_WATCHTIME = 2 // search for new input files every X s
-// const DAEMON_MOTD =
-// `
-// 
-// `
+const (
+	DAEMON_WATCHTIME = 2 // search for new input files every X s
+	DAEMON_PREFIX    = BOLD + "[daemon] "
+	DAEMON_SUFFIX    = RESET
+)
+
 const SIMCOMMAND = "bin/simulate"
 
 func DaemonMain() {
-  sleeping := false
+	sleeping := false
 
-  fmt.Println("Input files should end with .in and the corresponding .out directory should not yet exist.")
-  
+	fmt.Println(DAEMON_PREFIX, "Input files should end with .in and the corresponding .out directory should not yet exist.", DAEMON_SUFFIX)
+
 	// TODO check that the watchdirs do not end with a slash
 	watchdirs := make([]string, flag.NArg())
 	for i := range watchdirs {
@@ -30,56 +31,56 @@ func DaemonMain() {
 	if len(watchdirs) == 0 {
 		watchdirs = []string{"."}
 	}
-	for{
-    infile := findInputFileAll(watchdirs)
-    if infile == ""{
-      if !sleeping{
-        fmt.Println("Looking for new input files every ", DAEMON_WATCHTIME, " seconds")
-      }
-      sleeping = true
-      time.Sleep(DAEMON_WATCHTIME * 1E9)
-    }else{
-      sleeping = false
-      daemon_startsim(infile);
-    }
-  }
+	for {
+		infile := findInputFileAll(watchdirs)
+		if infile == "" {
+			if !sleeping {
+				fmt.Println(DAEMON_PREFIX, "Looking for new input files every ", DAEMON_WATCHTIME, " seconds", DAEMON_SUFFIX)
+			}
+			sleeping = true
+			time.Sleep(DAEMON_WATCHTIME * 1E9)
+		} else {
+			sleeping = false
+			daemon_startsim(infile)
+		}
+	}
 }
 
-func daemon_startsim(file string){
-  fmt.Println("Starting simulation: ", file)
+func daemon_startsim(file string) {
+	fmt.Println(DAEMON_PREFIX, "Starting simulation: ", file, DAEMON_SUFFIX)
 
-  // We try to create the output directory before starting the simulation.
-  // This acts as a synchronization mechanism between multiple daemons:
-  // should another daemon already have started this simulation in the meanwhile,
-  // then this directory exists and we should abort.
-  outfile := removeExtension(file) + ".out"
-  err := os.Mkdir(outfile, 0777)
-  // if the directory already exists, then another daemon had already started the simulation in the meanwhile
-  // TODO: we should check if the error really is a "file exists"
-  if err != nil{
-    fmt.Fprintln(os.Stderr, err)
-    return
-  }
+	// We try to create the output directory before starting the simulation.
+	// This acts as a synchronization mechanism between multiple daemons:
+	// should another daemon already have started this simulation in the meanwhile,
+	// then this directory exists and we should abort.
+	outfile := removeExtension(file) + ".out"
+	err := os.Mkdir(outfile, 0777)
+	// if the directory already exists, then another daemon had already started the simulation in the meanwhile
+	// TODO: we should check if the error really is a "file exists"
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
 
-  wd, err3 := os.Getwd()
-  if err3 != nil{
-    panic(err3)
-  }
+	wd, err3 := os.Getwd()
+	if err3 != nil {
+		panic(err3)
+	}
 
-  cmdstr := os.Getenv("SIMROOT") + "/" + SIMCOMMAND
-  args := []string{"simulate", file}    // aparently argument 1, not argument 0 is the first real argument, we pass "simulate" as a dummy argument (probably program name)
-  //fmt.Println("exec ", cmdstr, args)
-  cmd, err2 := exec.Run(cmdstr, args, os.Environ(), wd, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
-  if err2 != nil{
-    fmt.Fprintln(os.Stderr, err2)
-  }else{
-    _, err4 := cmd.Wait(0)
-    if err4 != nil{
-      fmt.Fprintln(os.Stderr, err4)
-    }else{
-      fmt.Println("Finished simulation ", file)
-    }
-  }
+	cmdstr := os.Getenv("SIMROOT") + "/" + SIMCOMMAND
+	args := []string{"simulate", file} // aparently argument 1, not argument 0 is the first real argument, we pass "simulate" as a dummy argument (probably program name)
+	//fmt.Println("exec ", cmdstr, args)
+	cmd, err2 := exec.Run(cmdstr, args, os.Environ(), wd, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
+	if err2 != nil {
+		fmt.Fprintln(os.Stderr, err2)
+	} else {
+		_, err4 := cmd.Wait(0)
+		if err4 != nil {
+			fmt.Fprintln(os.Stderr, err4)
+		} else {
+			fmt.Println(DAEMON_PREFIX, "Finished simulation ", file, DAEMON_SUFFIX)
+		}
+	}
 }
 
 
