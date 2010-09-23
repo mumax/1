@@ -59,7 +59,8 @@ func main_master() {
 
 	// Process all input files
 	for i := 0; i < flag.NArg(); i++ {
-		in, err := os.Open(flag.Arg(i), os.O_RDONLY, 0666)
+    infile := flag.Arg(i)
+		in, err := os.Open(infile, os.O_RDONLY, 0666)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(-2)
@@ -67,7 +68,7 @@ func main_master() {
 		defer in.Close()
 
 		sim := NewSim()
-		sim.outputDir(flag.Arg(i) + ".out")
+		sim.outputDir(removeExtension(infile) + ".out")
 		refsh := refsh.New()
 		refsh.CrashOnError = true
 		refsh.AddAllMethods(sim)
@@ -89,6 +90,16 @@ func main_master() {
 		// TODO need to free sim
 
 	}
+}
+
+// Removes a filename extension.
+// I.e., the part after the dot, if present.
+func removeExtension(str string) string{
+  dotpos :=  len(str)-1
+  for dotpos >= 0 && str[dotpos] != '.'{
+    dotpos--
+  }
+  return str[0:dotpos]
 }
 
 // when running in "slave" mode, i.e. accepting commands over the network as part of a cluster
