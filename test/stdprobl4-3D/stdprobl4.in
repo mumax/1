@@ -5,9 +5,6 @@
 gpu
 
 
-# output
-outputdir:  	output
-
 solvertype:  	heun
 dt:           	0.05E-12                  # s
 

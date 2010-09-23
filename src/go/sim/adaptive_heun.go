@@ -18,9 +18,9 @@ func NewAdaptiveHeun(sim *Sim) *AdaptiveHeun {
 	this.t0 = NewTensor(sim.backend, Size4D(sim.size[0:]))
 	this.Reductor.InitMaxAbs(this.backend, prod(sim.size4D[0:]))
 	// There has to be an initial dt set so we can start
-  if this.dt == 0.{
-    this.dt = 0.001 // initial dt guess (internal units)
-  }
+	if this.dt == 0. {
+		this.dt = 0.001 // initial dt guess (internal units)
+	}
 	return this
 }
 
@@ -52,8 +52,8 @@ func (s *AdaptiveHeun) Step() {
 		s.stepError = error
 		// TODO if error is too large, undo the step
 
-    // calculate new step
-    s.dt = s.dt * s.maxError / error
+		// calculate new step
+		s.dt = s.dt * s.maxError / error
 	}
 }
 

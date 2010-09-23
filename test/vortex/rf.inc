@@ -1,4 +1,3 @@
-# Vortex eigenfrequency
 
 #solver
 solvertype  	heun
@@ -14,5 +13,4 @@ load 		relaxed.t
 # excite
 autosave	table	ascii	 50E-12
 autosave	m	png	250E-12
-rffield		0	5E-3	0  640E6
-run          	10E-9
+

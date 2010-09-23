@@ -57,7 +57,7 @@ func (s *Sim) calcHeff(m, h *DevTensor) {
 
 	// (2) Add the externally applied field
 	if s.AppliedField != nil {
-		s.hext = s.GetAppliedField(s.time*float64(s.UnitTime()))
+		s.hext = s.GetAppliedField(s.time * float64(s.UnitTime()))
 		for i := range s.hComp {
 			s.AddConstant(s.hComp[i], s.hext[i]/s.UnitField())
 		}

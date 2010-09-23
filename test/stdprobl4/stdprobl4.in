@@ -4,10 +4,6 @@
 # hardware selection
 gpu
 
-
-# output
-outputdir:  	output
-
 solvertype:  	heun
 dt:           	0.01E-12    # s
 maxerror	1E-4
