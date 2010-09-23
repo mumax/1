@@ -5,10 +5,22 @@ import (
 	"os"
 	"fmt"
 	"strings"
+	"time"
+	"exec"
 )
 
+const DAEMON_WATCHTIME = 2 // search for new input files every X s
+// const DAEMON_MOTD =
+// `
+// 
+// `
+const SIMCOMMAND = "bin/simulate"
 
 func DaemonMain() {
+  sleeping := false
+
+  fmt.Println("Input files should end with .in and the corresponding .out directory should not yet exist.")
+  
 	// TODO check that the watchdirs do not end with a slash
 	watchdirs := make([]string, flag.NArg())
 	for i := range watchdirs {
@@ -18,16 +30,65 @@ func DaemonMain() {
 	if len(watchdirs) == 0 {
 		watchdirs = []string{"."}
 	}
-
-	infile := findInputFileAll(watchdirs)
-	fmt.Println(infile)
+	for{
+    infile := findInputFileAll(watchdirs)
+    if infile == ""{
+      if !sleeping{
+        fmt.Println("Looking for new input files every ", DAEMON_WATCHTIME, " seconds")
+      }
+      sleeping = true
+      time.Sleep(DAEMON_WATCHTIME * 1E9)
+    }else{
+      sleeping = false
+      daemon_startsim(infile);
+    }
+  }
 }
+
+func daemon_startsim(file string){
+  fmt.Println("Starting simulation: ", file)
+
+  // We try to create the output directory before starting the simulation.
+  // This acts as a synchronization mechanism between multiple daemons:
+  // should another daemon already have started this simulation in the meanwhile,
+  // then this directory exists and we should abort.
+  outfile := removeExtension(file) + ".out"
+  err := os.Mkdir(outfile, 0666)
+  // if the directory already exists, then another daemon had already started the simulation in the meanwhile
+  // TODO: we should check if the error really is a "file exists"
+  if err != nil{
+    fmt.Fprintln(os.Stderr, err)
+    return
+  }
+
+  wd, err3 := os.Getwd()
+  if err3 != nil{
+    panic(err3)
+  }
+
+  cmdstr := os.Getenv("SIMROOT") + "/" + SIMCOMMAND
+  args := []string{"simulate", file}    // aparently argument 1, not argument 0 is the first real argument, we pass "simulate" as a dummy argument (probably program name)
+  //fmt.Println("exec ", cmdstr, args)
+  cmd, err2 := exec.Run(cmdstr, args, os.Environ(), wd, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
+  if err2 != nil{
+    fmt.Fprintln(os.Stderr, err2)
+  }else{
+    _, err4 := cmd.Wait(0)
+    if err4 != nil{
+      fmt.Fprintln(os.Stderr, err4)
+    }else{
+      fmt.Println("Finished simulation ", file)
+    }
+  }
+}
+
 
 // Searches for a pending input file in all the given directories.
 // Looks for a file ending in ".in" for which no corresponding
 // ".out" file exists yet.
 // Returns an empty string when no suitable input file is present
 // in any of the directories.
+// TODO: Should we look recursively?
 //
 func findInputFileAll(dirs []string) string {
 	for _, dir := range dirs {
