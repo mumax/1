@@ -1,5 +1,5 @@
 #include "gpu_transpose.h"
-// #include "gpu_conf.h"
+#include "gpukern.h"
 #include <assert.h>
 #include "timer.h"
 #include "gputil.h"
@@ -18,7 +18,7 @@ typedef struct{
 #define BLOCKSIZE 16
 
 
-__global__ void _gpu_transpose_complex(complex* input, complex* output, int N1, int N2, int offset_in, int offset_out){
+__global__ void _gpu_transpose_complex_offset(complex* input, complex* output, int N1, int N2, int offset_in, int offset_out){
   
   __shared__ complex block[BLOCKSIZE][BLOCKSIZE+1];
 
@@ -52,12 +52,12 @@ __global__ void _gpu_transpose_complex(complex* input, complex* output, int N1, 
   return;
 }
 
-void gpu_transpose_complex(float *input, float *output, int N1, int N2, int offset_in, int offset_out){
+void gpu_transpose_complex_offset(float *input, float *output, int N1, int N2, int offset_in, int offset_out){
   N2 /= 2;
 
   dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
   dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
-  _gpu_transpose_complex<<<gridsize, blocksize>>>((complex*)input, (complex*)output, N2, N1, offset_in, offset_out);
+  _gpu_transpose_complex_offset<<<gridsize, blocksize>>>((complex*)input, (complex*)output, N2, N1, offset_in, offset_out);
 }
 
 
@@ -188,82 +188,6 @@ void gpu_transpose_complex_in_plane_inv(float *data, int N1, int N2){
 
 
 
-
-
-__global__ void _gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2){
-    // N0 <-> N2
-    // i  <-> k
-    int N3 = 2;
-
-    int i = blockIdx.x;
-    int j = blockIdx.y;
-    int k = threadIdx.x;
-
-    dest[k*N1*N0*N3 + j*N0*N3 + i*N3 + 0] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 0];
-    dest[k*N1*N0*N3 + j*N0*N3 + i*N3 + 1] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 1];
-}
-
-void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2){
-  timer_start("transposeXZ"); /// @todo section is double-timed with FFT exec
-
-  if(source != dest){ // must be out-of-place
-
-  // we treat the complex array as a N0 x N1 x N2 x 2 real array
-  // after transposing it becomes N0 x N2 x N1 x 2
-  N2 /= 2;  ///@todo: should have new variable here!
-  //int N3 = 2;
-
-  dim3 gridsize(N0, N1, 1); ///@todo generalize!
-  dim3 blocksize(N2, 1, 1);
-  gpu_checkconf(gridsize, blocksize);
-  _gpu_transposeXZ_complex<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
-  cudaThreadSynchronize();
-
-  }
-/*  else{
-    gpu_transposeXZ_complex_inplace(source, N0, N1, N2*2); ///@todo see above
-  }*/
-  timer_stop("transposeXZ");
-}
-
-
-
-__global__ void _gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
-    // N1 <-> N2
-    // j  <-> k
-
-    int N3 = 2;
-
-    int i = blockIdx.x;
-    int j = blockIdx.y;
-    int k = threadIdx.x;
-
-    dest[i*N2*N1*N3 + k*N1*N3 + j*N3 + 0] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 0];
-    dest[i*N2*N1*N3 + k*N1*N3 + j*N3 + 1] = source[i*N1*N2*N3 + j*N2*N3 + k*N3 + 1];
-
-}
-
-void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
-  timer_start("transposeYZ");
-
-  if(source != dest){ // must be out-of-place
-
-  // we treat the complex array as a N0 x N1 x N2 x 2 real array
-  // after transposing it becomes N0 x N2 x N1 x 2
-  N2 /= 2;
-  //int N3 = 2;
-
-  dim3 gridsize(N0, N1, 1); ///@todo generalize!
-  dim3 blocksize(N2, 1, 1);
-  gpu_checkconf(gridsize, blocksize);
-  _gpu_transposeYZ_complex<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
-  cudaThreadSynchronize();
-  }
-/*  else{
-    gpu_transposeYZ_complex_inplace(source, N0, N1, N2*2); ///@todo see above
-  }*/
-  timer_stop("transposeYZ");
-}
 
 
 

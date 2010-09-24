@@ -1,4 +1,6 @@
 #include "main-ben.h"
+#include "gpukern.h"
+#include "gputil.h"
 
 param* read_param();
 void initialize_m(tensor *, param *);
