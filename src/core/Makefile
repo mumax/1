@@ -39,7 +39,6 @@ OFILES=\
 	tensor.o\
 	param.o\
 	timer.o\
-	gputil.o\
 	gpu_heun.o\
 	gpu_anal.o\
 	gpunormalize.o\

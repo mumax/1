@@ -11,7 +11,7 @@
 
 #include "tensor.h"
 #include "param.h"
-#include "gputil.h"
+#include "gpukern.h"
 #include "timer.h"
 
 #ifdef __cplusplus

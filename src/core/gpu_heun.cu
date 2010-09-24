@@ -1,5 +1,5 @@
 #include "gpu_heun.h"
-#include "gputil.h"
+#include "gpukern.h"
 #include "timer.h"
 #include <stdio.h>
 #include <assert.h>
@@ -98,7 +98,7 @@ void gpuheun_stage0(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
                                              solver-> torque0Comp[X]->list, solver-> torque0Comp[Y]->list,  solver-> torque0Comp[Z]->list,
                                              solver->params->hExt[X],       solver->params->hExt[Y],        solver->params->hExt[Z],
                                              1.0f * solver->params->maxDt, solver->params->alpha);
-    cudaThreadSynchronize();
+    gpu_sync();
 
   }timer_stop("gpuheun_step");
 }
@@ -116,7 +116,7 @@ void gpuheun_stage1(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
                                              solver->      m0Comp[X]->list,  solver->     m0Comp[Y]->list,  solver->     m0Comp[Z]->list,
                                              solver->params->hExt[X],       solver->params->hExt[Y],        solver->params->hExt[Z],
                                              0.5f * solver->params->maxDt, solver->params->alpha);
-    cudaThreadSynchronize();
+    gpu_sync();
   
   }timer_stop("gpuheun_step");
 }

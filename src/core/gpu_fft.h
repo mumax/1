@@ -18,7 +18,7 @@
 #define GPU_FFT_H
 
 #include "tensor.h"
-#include "gputil.h"
+#include "gpukern.h"
 #include <cufft.h>
 #include <gpu_transpose2.h>
 

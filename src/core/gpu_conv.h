@@ -7,7 +7,7 @@
 #ifndef GPU_CONV_H
 #define GPU_CONV_H
 
-#include "gputil.h"
+#include "gpukern.h"
 #include "tensor.h"
 #include "param.h"
 #include "kernel.h"

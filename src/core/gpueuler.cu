@@ -38,7 +38,7 @@ void gpu_euler_stage(float* m, float* torque, int N){
 
   timer_start("euler_stage");
   _gpu_euler_stage<<<gridSize, blockSize>>>(mx, my, mz, tqx, tqy, tqz);
-  cudaThreadSynchronize();
+  gpu_sync();
   timer_stop("euler_stage");
   
   return;
@@ -87,7 +87,7 @@ void gpueuler_step(gpueuler* solver, tensor* m, tensor* h, double* dt){
 //   gpu_checkconf_int(blocks, threadsPerBlock);
 //   timer_start("gpueuler_step");
 //   _gpu_eulerstep<<<blocks, threadsPerBlock>>>(solver->convplan->m_comp[0], solver->convplan->m_comp[1], solver->convplan->m_comp[2], solver->convplan->h_comp[0], solver->convplan->h_comp[1], solver->convplan->h_comp[2], dt);
-//   cudaThreadSynchronize();
+//   gpu_sync();
 //   timer_stop("gpueuler_step");
 }
 

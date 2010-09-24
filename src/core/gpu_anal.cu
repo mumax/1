@@ -1,4 +1,5 @@
 #include "gpu_anal.h"
+#include "gpukern.h"
 #include "timer.h"
 #include <stdio.h>
 #include <assert.h>
@@ -16,7 +17,7 @@ void gpu_anal_fw_step(param *p, tensor *m_in, tensor *m_out, tensor *h){
   
   timer_start("gpu_anal_fw_step");
   _gpu_anal_fw_step <<<gridSize, blockSize>>> (&m_in->list[X*length], &m_in->list[Y*length], &m_in->list[Z*length], &m_out->list[X*length], &m_out->list[Y*length], &m_out->list[Z*length], &h->list[X*length], &h->list[Y*length], &h->list[Z*length], p->maxDt, p->alpha);
-  cudaThreadSynchronize();
+  gpu_sync();
   timer_stop("gpu_anal_fw_step");
   
 
@@ -103,7 +104,7 @@ void gpu_anal_pc_mean_h(tensor *h1, tensor *h2){
 
   timer_start("gpu_anal_pc_mean_h");
   _gpu_anal_pc_meah_h <<<gridSize, blockSize>>> (h1->list, h2->list);
-  cudaThreadSynchronize();
+  gpu_sync();
   timer_stop("gpu_anal_pc_mean_h");
 
   return;
