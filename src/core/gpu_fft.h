@@ -59,16 +59,7 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size,
                                       int* paddedSize
                                       );
 
-/**
- * Forward FFT of real possibly zero-padded data with 2D or 3D dimensions. FFTs on rows containing only zeros are not performed.
- * The input is checked for compatibility: input data are tensors.
- */
-void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, 
-                          tensor* input, 
-                          tensor* output
-                          );
-                          
-                          
+                         
 /**
  * Forward FFT of real possibly zero-padded data with 2D or 3D dimensions. FFTs on rows containing only zeros are not performed.
  * Routine is called 'unsafe' since the input is not checked for compatibility: input data are float arrays.
