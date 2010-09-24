@@ -49,7 +49,7 @@ type Sim struct {
 	input        Input           // stores the original input parameters in SI units
 	valid        bool            // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
 	BeenValid    bool            // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
-	backend      *Backend        // GPU or CPU
+	backend      *Backend        // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
 	mLocal       *tensor.Tensor4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
 	Material                     // Stores material parameters and manages the internal units
 	Mesh                         // Stores the size of the simulation grid
@@ -60,7 +60,10 @@ type Sim struct {
 	mComp, hComp [3]*DevTensor   // magnetization/field components, 3 x 3D tensors
 	Solver                       // Does the time stepping, can be euler, heun, ...
 	time         float64         // The total time (internal units)
-	dt           float           // The time step (internal units). May be updated by adaptive-step solvers 
+	dt           float           // The time step (internal units). May be updated by adaptive-step solvers
+	maxDm        float           // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
+	maxError     float           // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
+	stepError    float           // The actual error estimate of the last step. Not all solvers update this value.
 	steps        int             // The total number of steps taken so far
 	starttime    int64           // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
 	outschedule  []Output        // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
@@ -130,7 +133,7 @@ func (s *Sim) init() {
 
 	dev := s.backend
 	dev.InitBackend()
-	assert(dev != nil)
+	assert(s.backend != nil)
 	assert(s != nil)
 
 	// (1) Material parameters control the units,
@@ -141,6 +144,7 @@ func (s *Sim) init() {
 	s.alpha = s.input.alpha
 
 	// (2) Size must be set before memory allocation
+	s.initSize()
 	L := s.UnitLength()
 	for i := range s.size {
 		s.cellSize[i] = s.input.cellSize[i] / L

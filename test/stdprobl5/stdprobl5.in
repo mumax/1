@@ -4,7 +4,6 @@
 gpu
 
 # schedule output
-outputdir     output
 autosave      m     png   10E-12
 autosave      table ascii  5E-12
 

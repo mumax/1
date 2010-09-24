@@ -34,60 +34,64 @@ func (d Cpu) init() {
 	C.cpu_init()
 }
 
-func (d Cpu) add(a, b unsafe.Pointer, N int) {
-	C.cpu_add((*C.float)(a), (*C.float)(b), C.int(N))
+func (d Cpu) add(a, b uintptr, N int) {
+	C.cpu_add((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.int(N))
 }
 
-func (d Cpu) linearCombination(a, b unsafe.Pointer, weightA, weightB float, N int) {
-	C.cpu_linear_combination((*C.float)(a), (*C.float)(b), C.float(weightA), C.float(weightB), C.int(N))
+func (d Cpu) madd(a uintptr, cnst float, b uintptr, N int) {
+	C.cpu_madd((*C.float)(unsafe.Pointer(a)), C.float(cnst), (*C.float)(unsafe.Pointer(b)), C.int(N))
 }
 
-func (d Cpu) reduce(operation int, input, output unsafe.Pointer, buffer *float, blocks, threads, N int) float {
+func (d Cpu) linearCombination(a, b uintptr, weightA, weightB float, N int) {
+	C.cpu_linear_combination((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(weightA), C.float(weightB), C.int(N))
+}
+
+func (d Cpu) reduce(operation int, input, output uintptr, buffer *float, blocks, threads, N int) float {
 	//C.cpu_reduce(C.int(operation), (*C.float)(input), (*C.float)(output), C.int(blocks), C.int(threads), C.int(N))
-  panic("unimplemented")
+	panic("unimplemented")
 }
 
-func (d Cpu) addConstant(a unsafe.Pointer, cnst float, N int) {
-	C.cpu_add_constant((*C.float)(a), C.float(cnst), C.int(N))
+func (d Cpu) addConstant(a uintptr, cnst float, N int) {
+	C.cpu_add_constant((*C.float)(unsafe.Pointer(a)), C.float(cnst), C.int(N))
 }
 
-func (d Cpu) normalize(m unsafe.Pointer, N int) {
-	C.cpu_normalize_uniform((*C.float)(m), C.int(N))
+func (d Cpu) normalize(m uintptr, N int) {
+	C.cpu_normalize_uniform((*C.float)(unsafe.Pointer(m)), C.int(N))
 }
 
-func (d Cpu) normalizeMap(m, normMap unsafe.Pointer, N int) {
-	C.cpu_normalize_map((*C.float)(m), (*C.float)(normMap), C.int(N))
+func (d Cpu) normalizeMap(m, normMap uintptr, N int) {
+	C.cpu_normalize_map((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(normMap)), C.int(N))
 }
 
-func (d Cpu) deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int) {
-	C.cpu_deltaM((*C.float)(m), (*C.float)(h), C.float(alpha), C.float(dtGilbert), C.int(N))
+func (d Cpu) deltaM(m, h uintptr, alpha, dtGilbert float, N int) {
+	C.cpu_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha), C.float(dtGilbert), C.int(N))
 }
 
-func (d Cpu) semianalStep(m, h unsafe.Pointer, dt, alpha float, order, N int) {
+func (d Cpu) semianalStep(m, h uintptr, dt, alpha float, order, N int) {
 	switch order {
 	default:
 		panic(fmt.Sprintf("Unknown semianal order:", order))
 	case 0:
-		C.cpu_anal_fw_step_unsafe((*C.float)(m), (*C.float)(h), C.float(dt), C.float(alpha), C.int(N))
+		C.cpu_anal_fw_step_unsafe((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(dt), C.float(alpha), C.int(N))
 	}
 }
 
 //___________________________________________________________________________________________________ Kernel multiplication
 
 
-func (d Cpu) extractReal(complex, real unsafe.Pointer, NReal int) {
-	C.cpu_extract_real((*C.float)(complex), (*C.float)(real), C.int(NReal))
+func (d Cpu) extractReal(complex, real uintptr, NReal int) {
+	C.cpu_extract_real((*C.float)(unsafe.Pointer(complex)), (*C.float)(unsafe.Pointer(real)), C.int(NReal))
 }
 
-func (d Cpu) kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, kerneltype, nRealNumbers int) {
+func (d Cpu) kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, kerneltype, nRealNumbers int) {
 	switch kerneltype {
 	default:
 		panic(fmt.Sprintf("Unknown kernel type:", kerneltype))
 	case 6:
 		C.cpu_kernelmul6(
-			(*C.float)(mx), (*C.float)(my), (*C.float)(mz),
-			(*C.float)(kxx), (*C.float)(kyy), (*C.float)(kzz),
-			(*C.float)(kyz), (*C.float)(kxz), (*C.float)(kxy),
+			(*C.float)(unsafe.Pointer(mx)), (*C.float)(unsafe.Pointer(my)), (*C.float)(unsafe.Pointer(mz)),
+			(*C.float)(unsafe.Pointer(kxx)), (*C.float)(unsafe.Pointer(kyy)), (*C.float)(unsafe.Pointer(kzz)),
+			(*C.float)(unsafe.Pointer(kyz)), (*C.float)(unsafe.Pointer(kxz)), (*C.float)(unsafe.Pointer(kxy)),
 			C.int(nRealNumbers))
 	}
 
@@ -96,16 +100,16 @@ func (d Cpu) kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, 
 //___________________________________________________________________________________________________ Copy-pad
 
 
-func (d Cpu) copyPadded(source, dest unsafe.Pointer, sourceSize, destSize []int, direction int) {
+func (d Cpu) copyPadded(source, dest uintptr, sourceSize, destSize []int, direction int) {
 	switch direction {
 	default:
 		panic(fmt.Sprintf("Unknown padding direction:", direction))
 	case CPY_PAD:
-		C.cpu_copy_pad((*C.float)(source), (*C.float)(dest),
+		C.cpu_copy_pad((*C.float)(unsafe.Pointer(source)), (*C.float)(unsafe.Pointer(dest)),
 			C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
 			C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
 	case CPY_UNPAD:
-		C.cpu_copy_unpad((*C.float)(source), (*C.float)(dest),
+		C.cpu_copy_unpad((*C.float)(unsafe.Pointer(source)), (*C.float)(unsafe.Pointer(dest)),
 			C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
 			C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
 	}
@@ -116,31 +120,31 @@ func (d Cpu) copyPadded(source, dest unsafe.Pointer, sourceSize, destSize []int,
 
 // unsafe creation of C fftPlan INPLACE
 // TODO outplace, check placeness
-func (d Cpu) newFFTPlan(dataSize, logicSize []int) unsafe.Pointer {
+func (d Cpu) newFFTPlan(dataSize, logicSize []int) uintptr {
 	Csize := (*C.int)(unsafe.Pointer(&dataSize[0]))
 	CpaddedSize := (*C.int)(unsafe.Pointer(&logicSize[0]))
-	return unsafe.Pointer(C.new_cpuFFT3dPlan_inplace(Csize, CpaddedSize))
+	return uintptr(unsafe.Pointer(C.new_cpuFFT3dPlan_inplace(Csize, CpaddedSize)))
 }
 
-func (d Cpu) fft(plan unsafe.Pointer, in, out unsafe.Pointer, direction int) {
+func (d Cpu) fft(plan uintptr, in, out uintptr, direction int) {
 	switch direction {
 	default:
 		panic(fmt.Sprintf("Unknown FFT direction:", direction))
 	case FFT_FORWARD:
-		C.cpuFFT3dPlan_forward((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
+		C.cpuFFT3dPlan_forward((*C.cpuFFT3dPlan)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
 	case FFT_INVERSE:
-		C.cpuFFT3dPlan_inverse((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
+		C.cpuFFT3dPlan_inverse((*C.cpuFFT3dPlan)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
 	}
 }
 
 /// unsafe FFT
-// func (d Cpu) fftForward(plan unsafe.Pointer, in, out unsafe.Pointer) {
+// func (d Cpu) fftForward(plan uintptr, in, out uintptr) {
 // 	C.cpuFFT3dPlan_forward((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
 // }
 //
 //
 // /// unsafe FFT
-// func (d Cpu) fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer) {
+// func (d Cpu) fftInverse(plan uintptr, in, out uintptr) {
 // 	C.cpuFFT3dPlan_inverse((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
 // }
 
@@ -153,42 +157,42 @@ func (d Cpu) fft(plan unsafe.Pointer, in, out unsafe.Pointer, direction int) {
 //_______________________________________________________________________________ GPU memory allocation
 
 // Allocates an array of floats on the CPU.
-// By convention, GPU arrays are represented by an unsafe.Pointer,
+// By convention, GPU arrays are represented by an uintptr,
 // while host arrays are *float's.
-func (d Cpu) newArray(nFloats int) unsafe.Pointer {
-	return unsafe.Pointer(C.new_cpu_array(C.int(nFloats)))
+func (d Cpu) newArray(nFloats int) uintptr {
+	return uintptr(unsafe.Pointer(C.new_cpu_array(C.int(nFloats))))
 }
 
-func (d Cpu) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
-	C.cpu_memcpy((*C.float)(source), (*C.float)(dest), C.int(nFloats)) //direction is ignored, it's always "CPY_ON" because there is no separate device
+func (d Cpu) memcpy(source, dest uintptr, nFloats, direction int) {
+	C.cpu_memcpy((*C.float)(unsafe.Pointer(source)), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats)) //direction is ignored, it's always "CPY_ON" because there is no separate device
 }
 
 // ///
-// func (d Cpu) memcpyTo(source *float, dest unsafe.Pointer, nFloats int) {
+// func (d Cpu) memcpyTo(source *float, dest uintptr, nFloats int) {
 // 	C.cpu_memcpy((*C.float)(unsafe.Pointer(source)), (*C.float)(dest), C.int(nFloats))
 // }
 //
 // ///
-// func (d Cpu) memcpyFrom(source unsafe.Pointer, dest *float, nFloats int) {
+// func (d Cpu) memcpyFrom(source uintptr, dest *float, nFloats int) {
 // 	C.cpu_memcpy((*C.float)(source), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats))
 // }
 //
 // ///
-// func (d Cpu) memcpyOn(source, dest unsafe.Pointer, nFloats int) {
+// func (d Cpu) memcpyOn(source, dest uintptr, nFloats int) {
 // 	C.cpu_memcpy((*C.float)(source), (*C.float)(dest), C.int(nFloats))
 //}
 
 /// Gets one float from a GPU array
-// func (d Cpu) arrayGet(array unsafe.Pointer, index int) float {
+// func (d Cpu) arrayGet(array uintptr, index int) float {
 // 	return float(C.cpu_array_get((*C.float)(array), C.int(index)))
 // }
 //
-// func (d Cpu) arraySet(array unsafe.Pointer, index int, value float) {
+// func (d Cpu) arraySet(array uintptr, index int, value float) {
 // 	C.cpu_array_set((*C.float)(array), C.int(index), C.float(value))
 // }
 
-func (d Cpu) arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer {
-	return unsafe.Pointer(C.cpu_array_offset((*C.float)(array), C.int(index)))
+func (d Cpu) arrayOffset(array uintptr, index int) uintptr {
+	return uintptr(unsafe.Pointer(C.cpu_array_offset((*C.float)(unsafe.Pointer(array)), C.int(index))))
 }
 
 //___________________________________________________________________________________________________ GPU Stride
@@ -211,8 +215,8 @@ func (d Cpu) overrideStride(nFloats int) {
 //___________________________________________________________________________________________________ tensor utilities
 
 /// Overwrite n floats with zeros
-func (d Cpu) zero(data unsafe.Pointer, nFloats int) {
-	C.cpu_zero((*C.float)(data), C.int(nFloats))
+func (d Cpu) zero(data uintptr, nFloats int) {
+	C.cpu_zero((*C.float)(unsafe.Pointer(data)), C.int(nFloats))
 }
 
 func (d Cpu) UsedMem() uint64 {

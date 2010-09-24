@@ -25,32 +25,3 @@ func (this *Euler) Step() {
 	this.Add(m, deltaM)
 	this.Normalize(m)
 }
-
-
-// embedding tree :
-
-// Simulation{ ? to avoid typing backend backend backend...(but sim. sim. sim.)
-// Euler{
-//   TimeStep{
-//     Field{
-//       Magnet{
-//         Material
-//         Size
-//       }
-//       Conv{
-//         FFT{
-//           size
-//           Device{  //sim.Device or cpu.Device
-//             // low-level, unsafe simulation primitives
-//             NewTensor
-//             FFT,
-//             Copy,
-//             Torque,
-//             ...
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
-//}

@@ -106,7 +106,7 @@ package sim
 // 
 // 
 // func (s *DeviceWrapper) NewFFTPlan(in *NewFFTPlanArgs, out *Ptr) os.Error {
-// 	out.Value = uintptr(s.dev.newFFTPlan(in.DataSize, in.LogicSize))
+// 	out.Value = unsafe.Pointer(s.dev.newFFTPlan(in.DataSize, in.LogicSize))
 // 	return nil
 // }
 // 
@@ -118,7 +118,7 @@ package sim
 // 
 // 
 // func (s *DeviceWrapper) NewArray(in *Int, out *Ptr) os.Error {
-// 	out.Value = uintptr(s.dev.newArray(in.Value))
+// 	out.Value = unsafe.Pointer(s.dev.newArray(in.Value))
 // 	Debugvv("NewArray(", in, ") :", out)
 // 	return nil
 // }
@@ -140,7 +140,7 @@ package sim
 // 
 // 
 // func (s *DeviceWrapper) ArrayOffset(in *ArrayOffsetArgs, out *Ptr) os.Error {
-// 	out.Value = uintptr(s.dev.arrayOffset(unsafe.Pointer(in.Array), in.Index))
+// 	out.Value = unsafe.Pointer(s.dev.arrayOffset(unsafe.Pointer(in.Array), in.Index))
 // 	Debugvv("ArrayOffset(", in, "):", out)
 // 	return nil
 // }

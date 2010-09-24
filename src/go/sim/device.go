@@ -1,8 +1,6 @@
 package sim
 
-import (
-	"unsafe"
-)
+import ()
 
 /**
  * The Device interface makes an abstraction from a library with
@@ -40,13 +38,16 @@ type Device interface {
 	//____________________________________________________________________ general purpose (use Backend safe wrappers)
 
 	// adds b to a. N = length of a = length of b
-	add(a, b unsafe.Pointer, N int)
+	add(a, b uintptr, N int)
+
+	// vector multiply-add a[i] += cnst * b[i]
+	madd(a uintptr, cnst float, b uintptr, N int)
 
 	// adds the constant cnst to a. N = length of a
-	addConstant(a unsafe.Pointer, cnst float, N int)
+	addConstant(a uintptr, cnst float, N int)
 
 	// a = a * weightA + b * weightB
-	linearCombination(a, b unsafe.Pointer, weightA, weightB float, N int)
+	linearCombination(a, b uintptr, weightA, weightB float, N int)
 
 	// partial data reduction (operation = add, max, maxabs, ...)
 	// input data size = N
@@ -54,16 +55,16 @@ type Device interface {
 	// patially reduce in "blocks" blocks, partial results in output. blocks = divUp(N, threadsPerBlock*2)
 	// use "threads" threads per block: @warning must be < N
 	// size "N" of input data, must be > threadsPerBlock
-	reduce(operation int, input, output unsafe.Pointer, buffer *float, blocks, threads, N int) float
+	reduce(operation int, input, output uintptr, buffer *float, blocks, threads, N int) float
 
 	// normalizes a vector field. N = length of one component
-	normalize(m unsafe.Pointer, N int)
+	normalize(m uintptr, N int)
 
 	// normalizes a vector field and multiplies with normMap. N = length of one component = length of normMap
-	normalizeMap(m, normMap unsafe.Pointer, N int)
+	normalizeMap(m, normMap uintptr, N int)
 
 	// overwrites h with torque(m, h) * dtGilbert. N = length of one component
-	deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int)
+	deltaM(m, h uintptr, alpha, dtGilbert float, N int)
 
 	// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
 	// TODO: get rid of? decide the stride by yourself instead of globally storing it?
@@ -71,40 +72,40 @@ type Device interface {
 
 	//____________________________________________________________________ tensor (safe wrappers in tensor.go)
 
-	copyPadded(source, dest unsafe.Pointer, sourceSize, destSize []int, direction int)
+	copyPadded(source, dest uintptr, sourceSize, destSize []int, direction int)
 
 	// Allocates an array of floats on the Device.
-	// By convention, Device arrays are represented by an unsafe.Pointer,
+	// By convention, Device arrays are represented by an uintptr,
 	// while host arrays are *float's.
 	// Does not need to be initialized with zeros
-	newArray(nFloats int) unsafe.Pointer
+	newArray(nFloats int) uintptr
 
 	// Copies nFloats to, on or from the device, depending on the direction flag (1, 2 or 3)
-	memcpy(source, dest unsafe.Pointer, nFloats, direction int)
+	memcpy(source, dest uintptr, nFloats, direction int)
 
 	// Offset the array pointer by "index" floats, useful for taking sub-arrays
 	// TODO: on a multi-device this will not work
-	arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer
+	arrayOffset(array uintptr, index int) uintptr
 
 	// Overwrite n floats with zeros
-	zero(data unsafe.Pointer, nFloats int)
+	zero(data uintptr, nFloats int)
 
 	//____________________________________________________________________ specialized (used in only one place)
 
 
-	semianalStep(m, h unsafe.Pointer, dt, alpha float, order, N int)
+	semianalStep(m, h uintptr, dt, alpha float, order, N int)
 
 	// Extract only the real parts form in interleaved complex array
-	// 	extractReal(complex, real unsafe.Pointer, NReal int)
+	// 	extractReal(complex, real uintptr, NReal int)
 
 	// Automatically selects between kernelmul3/4/6
-	kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, kerntype, nRealNumbers int)
+	kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, kerntype, nRealNumbers int)
 
 	// In-place kernel multiplication (m gets overwritten by h).
 	// The kernel is symmetric so only 6 of the 9 components need to be passed (xx, yy, zz, yz, xz, xy).
 	// The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
 	// This is the typical situation for a 3D micromagnetic problem
-	// kernelMul6(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, nRealNumbers int)
+	// kernelMul6(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, nRealNumbers int)
 
 	// In-place kernel multiplication (m gets overwritten by h).
 	// The kernel is symmetric and contains no mixing between x and (y, z),
@@ -112,7 +113,7 @@ type Device interface {
 	// The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
 	// This is the typical situation for a finite 2D micromagnetic problem
 	// TODO
-	// kernelMul4(mx, my, mz, kxx, kyy, kzz, kyz unsafe.Pointer, nRealNumbers int)
+	// kernelMul4(mx, my, mz, kxx, kyy, kzz, kyz uintptr, nRealNumbers int)
 
 	// In-place kernel multiplication (m gets overwritten by h).
 	// The kernel is symmetric and contains no x contributions.
@@ -121,12 +122,12 @@ type Device interface {
 	// This is the typical situation for a infinitely thick 2D micromagnetic problem,
 	// which has no demag effects in the out-of-plane direction
 	// TODO
-	// kernelMul3(my, mz, kyy, kzz, kyz unsafe.Pointer, nRealNumbers int)
+	// kernelMul3(my, mz, kyy, kzz, kyz uintptr, nRealNumbers int)
 
 	// unsafe creation of C fftPlan
-	newFFTPlan(dataSize, logicSize []int) unsafe.Pointer
+	newFFTPlan(dataSize, logicSize []int) uintptr
 
-	fft(plan unsafe.Pointer, in, out unsafe.Pointer, direction int)
+	fft(plan uintptr, in, out uintptr, direction int)
 
 	//______________________________________________________________________________ already safe
 

@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 
-///@internal kernel
+///@internal
 __global__ void _gpu_add(float* a, float* b, int N){
   int i = threadindex;
   if(i < N){
@@ -22,8 +22,22 @@ void gpu_add(float* a, float* b, int N){
   gpu_sync();
 }
 
+///@internal
+__global__ void _gpu_madd(float* a, float cnst, float* b, int N){
+  int i = threadindex;
+  if(i < N){
+    a[i] += cnst * b[i];
+  }
+}
 
-///@internal kernel
+void gpu_madd(float* a, float cnst, float* b, int N){
+  dim3 gridSize, blockSize;
+  make1dconf(N, &gridSize, &blockSize);
+  _gpu_madd<<<gridSize, blockSize>>>(a, cnst, b, N);
+  gpu_sync();
+}
+
+///@internal
 __global__ void _gpu_add_constant(float* a, float cnst, int N){
   int i = threadindex;
   if(i < N){

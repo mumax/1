@@ -14,16 +14,18 @@ To take advantage of the GPU acceleration, you need a \idx{CUDA capable} \textsc
 
 You will also need to install the proprietary \textsc{NVIDIA} graphics \idx{driver}. This driver may already be installed on your system. E.g., under Ubuntu, the ``Hardware drivers'' program may propose to install this driver. You should try to run a simulation on the GPU -- if that works, it means your driver is up to date.
 
-Otherwise, you can install the driver located in \file{dep/cuda}. You have to install it when your X-server is not running: logout from your grahpical session, then use the ``\idx{Console login}'' of your login manager (or press Ctrl-Alt-F1) to obtain a text console. Login and \cmd{cd} to \file{dep/cuda} the \sim root directory. Type \cmd{sudo ./devdriver\_3.1\_linux\_64\_256.40.run}\footnote{Or \cmd{sudo ./devdriver\_3.1\_linux\_32\_256.40.run} on a 32-bit system.}\footnote{} and follow the instructions. Then reboot your computer. Note that you may have to re-install this driver after every kernel upgrade. To check your system, you can run the progam \cmd{nvidia-settings} which shows information about your GPU and driver.
+Otherwise, you can install the driver located in \file{dep/cuda}. You have to install it when your X-server is not running: logout from your grahpical session, then use the ``\idx{Console login}'' of your login manager (or press Ctrl-Alt-F1) to obtain a text console. Log in and \cmd{cd} to \file{dep/cuda} the \prog root directory. Type \cmd{sudo ./devdriver\_3.1\_linux\_64\_256.40.run}\footnote{Or \cmd{sudo ./devdriver\_3.1\_linux\_32\_256.40.run} on a 32-bit system.}\footnote{Possibly a later version of this driver may be present} and follow the instructions. Then reboot your computer. Note that you may have to re-install this driver after every kernel upgrade. To check your system, you can run the progam \idxcmd{nvidia-settings} which shows information about your GPU and driver.
 
 
 \subsection{Setup}
 
-We recommend downloading a pre-compiled version of the program for either a 32-bit or 64-bit architecture.
+We recommend downloading a pre-compiled version of the program for either a 32-bit or 64-bit architecture. You can place the \prog directory anywhere on your system. 
 
 \subsection{Running}
 
 \subsection{Re-compiling}
+
+
 
 
 

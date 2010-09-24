@@ -20,7 +20,6 @@ func NewHeun(f *Sim) *Heun {
 
 
 func (s *Heun) Step() {
-	Debugvv("Heun.Step()")
 	gilbertDt := s.dt / (1 + s.alpha*s.alpha)
 	m := s.mDev
 	m1est := s.m1est
@@ -32,9 +31,6 @@ func (s *Heun) Step() {
 	s.Add(m1est, s.t0)
 	s.Normalize(m1est)
 
-	// debug: euler
-	//     TensorCopyOn(m1est, m) // estimator is ok
-
 	s.calcHeff(s.m1est, s.h)
 	s.DeltaM(s.m1est, s.h, s.alpha, gilbertDt)
 	tm1est := s.h
@@ -43,28 +39,6 @@ func (s *Heun) Step() {
 	s.Add(m, t)
 
 	s.Normalize(m)
-
-	// 	// backup m
-	// 	TensorCopyOn(thim, thim0)
-	//
-	// 	// euler step for m0
-	// 	h0 := this.torque0
-	// 	this.CalcHeff(thim0, h0)
-	// 	this.DeltaM(thim0, this.torque0, this.Alpha, gilbertDt)
-	// 	this.Add(thim0, this.torque0)
-	// 	this.Normalize(thim0)
-	// 	m1 := thim0
-	//
-	// 	// field after euler step
-	// 	// todo need to update the time here, for time-dependent fields etc
-	// 	torque1 := this.h
-	// 	this.CalcHeff(m1, this.h)
-	// 	this.DeltaM(m1, torque1, this.Alpha, gilbertDt)
-	//
-	// 	// combine deltaM of beginning and end of interval
-	// 	this.LinearCombination(torque1, this.torque0, 0.5, 0.5)
-	// 	this.Add(thim, torque1)
-	// 	this.Normalize(thim)
 }
 
 

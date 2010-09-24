@@ -15,6 +15,9 @@ extern "C" {
 /// Adds array b to a
 void cpu_add(float* a, float* b, int N);
 
+/// a[i] += cnst * b[i]
+void cpu_madd(float* a, float cnst, float* b, int N);
+
 /// Adds a constant to array a
 void cpu_add_constant(float* a, float cnst, int N);
 

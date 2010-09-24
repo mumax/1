@@ -1,9 +1,8 @@
-# Relax a vortex state
-
+# Vortex eigenfrequency
 
 #solver
 solvertype  	heun
-maxerror 	1E-6
+maxerror 	1E-5
 
 #material
 msat:       	800E3 
@@ -15,16 +14,21 @@ cellsize:   	50E-9  3.90625E-9  3.90625E-9
 demagaccuracy	10
 
 #initial magnetization
-vortex		1	1
+load 		relaxed.t
 
 
-# relax
+# excite
 alpha		2
 autosave	table	ascii	 50E-12
 autosave	m	png	250E-12
+staticfield	0	0	15E-3
 run          	10E-9
 save		m 	binary
 
+# release
+alpha		0.005
+staticfield	0 0 0
+run             100E-9
 
 
 

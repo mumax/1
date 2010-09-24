@@ -58,8 +58,8 @@ package sim
 // 	N    int
 // }
 // 
-// func (d *RemoteDevice) add(a, b unsafe.Pointer, N int) {
-// 	args := &AddArgs{uintptr(a), uintptr(b), N}
+// func (d *RemoteDevice) add(a, b uintptr, N int) {
+// 	args := &AddArgs{unsafe.Pointer(a), unsafe.Pointer(b), N}
 // 	reply := &Void{0}
 // 	err := d.Client.Call("DeviceWrapper.Add", args, reply)
 // 	if err != nil {
@@ -74,8 +74,8 @@ package sim
 // 	N                int
 // }
 // 
-// func (d *RemoteDevice) linearCombination(a, b unsafe.Pointer, weightA, weightB float, N int) {
-// 	args := &LinearCombinationArgs{uintptr(a), uintptr(b), weightA, weightB, N}
+// func (d *RemoteDevice) linearCombination(a, b uintptr, weightA, weightB float, N int) {
+// 	args := &LinearCombinationArgs{unsafe.Pointer(a), unsafe.Pointer(b), weightA, weightB, N}
 // 	reply := &Void{0}
 // 	err := d.Client.Call("DeviceWrapper.LinearCombination", args, reply)
 // 	if err != nil {
@@ -89,8 +89,8 @@ package sim
 // 	N    int
 // }
 // 
-// func (d *RemoteDevice) addConstant(a unsafe.Pointer, cnst float, N int) {
-// 	args := &AddConstantArgs{uintptr(a), cnst, N}
+// func (d *RemoteDevice) addConstant(a uintptr, cnst float, N int) {
+// 	args := &AddConstantArgs{unsafe.Pointer(a), cnst, N}
 // 	reply := &Void{0}
 // 	err := d.Client.Call("DeviceWrapper.AddConstant", args, reply)
 // 	if err != nil {
@@ -103,8 +103,8 @@ package sim
 // 	N int
 // }
 // 
-// func (d *RemoteDevice) normalize(m unsafe.Pointer, N int) {
-// 	args := &NormalizeArgs{uintptr(m), N}
+// func (d *RemoteDevice) normalize(m uintptr, N int) {
+// 	args := &NormalizeArgs{unsafe.Pointer(m), N}
 // 	reply := &Void{0}
 // 	err := d.Client.Call("DeviceWrapper.Normalize", args, reply)
 // 	if err != nil {
@@ -117,8 +117,8 @@ package sim
 // 	N          int
 // }
 // 
-// func (d *RemoteDevice) normalizeMap(m, normMap unsafe.Pointer, N int) {
-// 	args := &NormalizeMapArgs{uintptr(m), uintptr(normMap), N}
+// func (d *RemoteDevice) normalizeMap(m, normMap uintptr, N int) {
+// 	args := &NormalizeMapArgs{unsafe.Pointer(m), unsafe.Pointer(normMap), N}
 // 	reply := &Void{0}
 // 	err := d.Client.Call("DeviceWrapper.NormalizeMap", args, reply)
 // 	if err != nil {
@@ -132,8 +132,8 @@ package sim
 // 	N                int
 // }
 // 
-// func (d *RemoteDevice) deltaM(m, h unsafe.Pointer, alpha, dtGilbert float, N int) {
-// 	args := &DeltaMArgs{uintptr(m), uintptr(h), alpha, dtGilbert, N}
+// func (d *RemoteDevice) deltaM(m, h uintptr, alpha, dtGilbert float, N int) {
+// 	args := &DeltaMArgs{unsafe.Pointer(m), unsafe.Pointer(h), alpha, dtGilbert, N}
 // 	reply := &Void{0}
 // 	err := d.Client.Call("DeviceWrapper.DeltaM", args, reply)
 // 	if err != nil {
@@ -147,8 +147,8 @@ package sim
 // 	Order, N  int
 // }
 // 
-// func (d *RemoteDevice) semianalStep(m, h unsafe.Pointer, dt, alpha float, order, N int) {
-// 	var args = &SemianalStepArgs{uintptr(m), uintptr(h), dt, alpha, order, N}
+// func (d *RemoteDevice) semianalStep(m, h uintptr, dt, alpha float, order, N int) {
+// 	var args = &SemianalStepArgs{unsafe.Pointer(m), unsafe.Pointer(h), dt, alpha, order, N}
 // 	reply := &Void{0}
 // 	err := d.Client.Call("DeviceWrapper.SemiAnalStep", &args, reply)
 // 	if err != nil {
@@ -160,7 +160,7 @@ package sim
 // 	Value int
 // }
 // 
-// func (d *RemoteDevice) newArray(nFloats int) unsafe.Pointer {
+// func (d *RemoteDevice) newArray(nFloats int) uintptr {
 // 	var args = &Int{nFloats}
 // 	reply := &Ptr{0}
 // 	err := d.Client.Call("DeviceWrapper.NewArray", args, reply)
@@ -177,9 +177,9 @@ package sim
 // 	NFloats, Direction int
 // }
 // 
-// func (d *RemoteDevice) memcpy(source, dest unsafe.Pointer, nFloats, direction int) {
+// func (d *RemoteDevice) memcpy(source, dest uintptr, nFloats, direction int) {
 // 
-// 	args := &MemcpyArgs{uintptr(unsafe.Pointer(source)), uintptr(dest), nFloats, direction}
+// 	args := &MemcpyArgs{unsafe.Pointer(unsafe.Pointer(source)), unsafe.Pointer(dest), nFloats, direction}
 // 	reply := &Void{0}
 // 	err := d.Client.Call("DeviceWrapper.Memcpy", args, reply)
 // 	if err != nil {
@@ -194,8 +194,8 @@ package sim
 // 	NFloats int
 // }
 // 
-// func (d *RemoteDevice) zero(data unsafe.Pointer, nFloats int) {
-// 	args := &ZeroArgs{uintptr(data), nFloats}
+// func (d *RemoteDevice) zero(data uintptr, nFloats int) {
+// 	args := &ZeroArgs{unsafe.Pointer(data), nFloats}
 // 	reply := &Void{0}
 // 	Debugvv("zero(", args, ")")
 // 	err := d.Client.Call("DeviceWrapper.Zero", args, reply)
@@ -209,8 +209,8 @@ package sim
 // 	Kerneltype, NRealNumbers                 int
 // }
 // 
-// func (d *RemoteDevice) kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy unsafe.Pointer, kerneltype, nRealNumbers int) {
-// 	args := &KernelMulArgs{uintptr(mx), uintptr(my), uintptr(mz), uintptr(kxx), uintptr(kyy), uintptr(kzz), uintptr(kyz), uintptr(kxz), uintptr(kxy), kerneltype, nRealNumbers}
+// func (d *RemoteDevice) kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, kerneltype, nRealNumbers int) {
+// 	args := &KernelMulArgs{unsafe.Pointer(mx), unsafe.Pointer(my), unsafe.Pointer(mz), unsafe.Pointer(kxx), unsafe.Pointer(kyy), unsafe.Pointer(kzz), unsafe.Pointer(kyz), unsafe.Pointer(kxz), unsafe.Pointer(kxy), kerneltype, nRealNumbers}
 // 	reply := &Void{0}
 // 	err := d.Client.Call("DeviceWrapper.KernelMul", args, reply)
 // 	if err != nil {
@@ -222,7 +222,7 @@ package sim
 // 	DataSize, LogicSize []int
 // }
 // 
-// func (d *RemoteDevice) newFFTPlan(dataSize, logicSize []int) unsafe.Pointer {
+// func (d *RemoteDevice) newFFTPlan(dataSize, logicSize []int) uintptr {
 // 	args := &NewFFTPlanArgs{dataSize, logicSize}
 // 	reply := &Ptr{0}
 // 	err := d.Client.Call("DeviceWrapper.NewFFTPlan", args, reply)
@@ -241,8 +241,8 @@ package sim
 // 	Value uintptr
 // }
 // 
-// func (d *RemoteDevice) fft(plan unsafe.Pointer, in, out unsafe.Pointer, direction int) {
-// 	args := &FFTArgs{uintptr(plan), uintptr(in), uintptr(out), direction}
+// func (d *RemoteDevice) fft(plan uintptr, in, out uintptr, direction int) {
+// 	args := &FFTArgs{unsafe.Pointer(plan), unsafe.Pointer(in), unsafe.Pointer(out), direction}
 // 	reply := &Void{0}
 // 	err := d.Client.Call("DeviceWrapper.FFT", args, reply)
 // 	if err != nil {
@@ -256,8 +256,8 @@ package sim
 // 	Direction            int
 // }
 // 
-// func (d *RemoteDevice) copyPadded(source, dest unsafe.Pointer, sourceSize, destSize []int, direction int) {
-// 	args := &CopyPaddedArgs{uintptr(source), uintptr(dest), sourceSize, destSize, direction}
+// func (d *RemoteDevice) copyPadded(source, dest uintptr, sourceSize, destSize []int, direction int) {
+// 	args := &CopyPaddedArgs{unsafe.Pointer(source), unsafe.Pointer(dest), sourceSize, destSize, direction}
 // 	reply := &Void{0}
 // 	err := d.Client.Call("DeviceWrapper.CopyPadded", args, reply)
 // 	if err != nil {
@@ -271,8 +271,8 @@ package sim
 // 	Index int
 // }
 // 
-// func (d *RemoteDevice) arrayOffset(array unsafe.Pointer, index int) unsafe.Pointer {
-// 	args := &ArrayOffsetArgs{uintptr(array), index}
+// func (d *RemoteDevice) arrayOffset(array uintptr, index int) uintptr {
+// 	args := &ArrayOffsetArgs{unsafe.Pointer(array), index}
 // 	reply := &Ptr{0}
 // 	err := d.Client.Call("DeviceWrapper.ArrayOffset", args, reply)
 // 	if err != nil {

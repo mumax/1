@@ -1,12 +1,12 @@
 # Micromagnetic standard problem 4
-# but 3D version
+
 
 # hardware selection
 gpu
 
-
-solvertype:  	heun
-dt:           	0.05E-12                  # s
+solvertype:  	euler
+dt:           	0.01E-12    # s
+#maxdm		0.01
 
 # material
 msat:       	800E3       # A/m
@@ -14,8 +14,8 @@ aexch:      	1.3E-11     # J/m
 alpha:      	0.02
 
 # geometry 
-size:       	2     32          128
-cellsize:   	1.5E-9  3.90625E-9  3.90625E-9  # m
+size:       	1     32          128    
+cellsize:   	3E-9  3.90625E-9  3.90625E-9  # m
 
 # initial magnetization
 load:    	s-state.t

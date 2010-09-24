@@ -39,33 +39,33 @@ func (dev *Backend) InitBackend() {
 }
 
 // Copies a number of floats from host to GPU
-func (dev *Backend) memcpyTo(source *float, dest unsafe.Pointer, nFloats int) {
-	dev.memcpy(unsafe.Pointer(source), dest, nFloats, CPY_TO)
+func (dev *Backend) memcpyTo(source *float, dest uintptr, nFloats int) {
+	dev.memcpy(uintptr(unsafe.Pointer(source)), dest, nFloats, CPY_TO)
 }
 
 // Copies a number of floats from GPU to host
-func (dev *Backend) memcpyFrom(source unsafe.Pointer, dest *float, nFloats int) {
-	dev.memcpy(source, unsafe.Pointer(dest), nFloats, CPY_FROM)
+func (dev *Backend) memcpyFrom(source uintptr, dest *float, nFloats int) {
+	dev.memcpy(source, uintptr(unsafe.Pointer(dest)), nFloats, CPY_FROM)
 }
 
 // Copies a number of floats from GPU to GPU
-func (dev *Backend) memcpyOn(source, dest unsafe.Pointer, nFloats int) {
-	dev.memcpy(unsafe.Pointer(source), unsafe.Pointer(dest), nFloats, CPY_ON)
+func (dev *Backend) memcpyOn(source, dest uintptr, nFloats int) {
+	dev.memcpy(source, dest, nFloats, CPY_ON)
 }
 
 // Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
-func (dev *Backend) copyPad(source, dest unsafe.Pointer, sourceSize, destSize []int) {
+func (dev *Backend) copyPad(source, dest uintptr, sourceSize, destSize []int) {
 	dev.copyPadded(source, dest, sourceSize, destSize, CPY_PAD)
 }
 
 //Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
-func (dev *Backend) copyUnpad(source, dest unsafe.Pointer, sourceSize, destSize []int) {
+func (dev *Backend) copyUnpad(source, dest uintptr, sourceSize, destSize []int) {
 	dev.copyPadded(source, dest, sourceSize, destSize, CPY_UNPAD)
 }
 
 // Gets one float from a Device array.
 // Slow, for debug only
-func (dev *Backend) arrayGet(array unsafe.Pointer, index int) float {
+func (dev *Backend) arrayGet(array uintptr, index int) float {
 	var f float
 	dev.memcpyFrom(dev.arrayOffset(array, index), &f, 1)
 	return f
@@ -73,25 +73,30 @@ func (dev *Backend) arrayGet(array unsafe.Pointer, index int) float {
 
 // Sets one float on a Device array.
 // Slow, for debug only
-func (dev *Backend) arraySet(array unsafe.Pointer, index int, value float) {
+func (dev *Backend) arraySet(array uintptr, index int, value float) {
 	dev.memcpyTo(&value, dev.arrayOffset(array, index), 1)
 }
 
 
-// adds b to a
+// a[i] += b[i]
 func (dev *Backend) Add(a, b *DevTensor) {
 	assert(tensor.EqualSize(a.size, b.size))
 	dev.add(a.data, b.data, tensor.N(a))
 }
 
+// a[i] += b[i]
+func (dev *Backend) MAdd(a *DevTensor, cnst float, b *DevTensor) {
+	assert(tensor.EqualSize(a.size, b.size))
+	dev.madd(a.data, cnst, b.data, tensor.N(a))
+}
 
-// overwrites a with weightA * a + weightB * b
+// a[i]  = weightA * a[i] + weightB * b[i]
 func (dev *Backend) LinearCombination(a, b *DevTensor, weightA, weightB float) {
 	assert(tensor.EqualSize(a.size, b.size))
 	dev.linearCombination(a.data, b.data, weightA, weightB, tensor.N(a))
 }
 
-// adds the constant cnst to each element of a. N = length of a
+// a[i] += cnst
 func (dev *Backend) AddConstant(a *DevTensor, cnst float) {
 	Debugvv("Backend.AddConstant(", a, cnst, ")")
 	dev.addConstant(a.data, cnst, tensor.N(a))
@@ -122,6 +127,15 @@ func (dev *Backend) DeltaM(m, h *DevTensor, alpha, dtGilbert float) {
 }
 
 
+// calculates torque, overwrites h with the result
+func (dev *Backend) Torque(m, h *DevTensor, alpha float) {
+	assert(len(m.size) == 4)
+	assert(tensor.EqualSize(m.size, h.size))
+	N := m.size[1] * m.size[2] * m.size[3]
+	dev.deltaM(m.data, h.data, alpha, 1.0, N) // we (ab)use DeltaM with dt=1.
+}
+
+
 func (b Backend) OverrideStride(stride int) {
 	panic("OverrideStride is currently not compatible with the used FFT, it should always be 1")
 	Debugv("Backend.OverrideStride(", stride, ")")
@@ -130,12 +144,12 @@ func (b Backend) OverrideStride(stride int) {
 }
 
 // unsafe FFT
-func (b Backend) fftForward(plan unsafe.Pointer, in, out unsafe.Pointer) {
+func (b Backend) fftForward(plan uintptr, in, out uintptr) {
 	b.fft(plan, in, out, FFT_FORWARD)
 }
 
 // unsafe FFT
-func (b Backend) fftInverse(plan unsafe.Pointer, in, out unsafe.Pointer) {
+func (b Backend) fftInverse(plan uintptr, in, out uintptr) {
 	b.fft(plan, in, out, FFT_INVERSE)
 }
 
