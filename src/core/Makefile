@@ -237,7 +237,6 @@ main-ben: $(OFILES) main-ben.cpp
 .PHONY:	clean
 clean:	
 	rm -f *.o *.so *.a iotest *_test
-	chmod u+x make-emu.sh
 
 doc:
 	doxygen doxygen.cfg
