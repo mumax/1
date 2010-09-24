@@ -4,7 +4,7 @@
 
 \subsubsection{Operating system}
 
-This program was devolped and tested on Ubuntu Linux 10.04 64-bit. We expect it to run on most Linux distributions supported by CUDA (Fedora, RedHat, OpenSUSE, SUSE). It should in principle be possible to compile it on other Unix-like systems, perhaps with minor modifications to the make scripts or source files. You are welcome to report issues or submit patches for other platforms.
+This program was devolped and tested on Ubuntu Linux version 10.04, and we expect it to run on most Linux distributions. It should in principle be possible to compile it on any Unix-like system, perhaps with minor modifications to the make scripts or source files. You are welcome to report issues or submit patches for other platforms.
 
 \subsubsection{Hardware}
 
@@ -15,6 +15,19 @@ To take advantage of the GPU acceleration, you need a \idx{CUDA capable} \textsc
 You will also need to install the proprietary \textsc{NVIDIA} graphics \idx{driver}. This driver may already be installed on your system. E.g., under Ubuntu, the ``Hardware drivers'' program may propose to install this driver. You should try to run a simulation on the GPU -- if that works, it means your driver is up to date.
 
 Otherwise, you can install the driver located in \file{dep/cuda}. You have to install it when your X-server is not running: logout from your grahpical session, then use the ``\idx{Console login}'' of your login manager (or press Ctrl-Alt-F1) to obtain a text console. Log in and \cmd{cd} to \file{dep/cuda} the \prog root directory. Type \cmd{sudo ./devdriver\_3.1\_linux\_64\_256.40.run}\footnote{Or \cmd{sudo ./devdriver\_3.1\_linux\_32\_256.40.run} on a 32-bit system.}\footnote{Possibly a later version of this driver may be present} and follow the instructions. Then reboot your computer. Note that you may have to re-install this driver after every kernel upgrade. To check your system, you can run the progam \idxcmd{nvidia-settings} which shows information about your GPU and driver.
+
+It is possible that the required driver conflicts with Ubuntu's default version. If installing the driver fails, a possible workaround is to edit \file{/etc/modprobe.d/blacklist.conf} (as root) and add these lines:
+\small
+\begin{verbatim}
+blacklist vga16fb
+blacklist nouveau
+blacklist rivafb
+blacklist nvidiafb
+blacklist rivatv
+\end{verbatim}
+\normalsize
+
+Then also remove all distribution-provided \textsc{NVIDIA} drivers with \cmd{sudo apt-get --purge remove nvidia-*}. Then follow the above instructions to re-install the driver provided by \textsc{NVIDIA}.
 
 
 \subsection{Setup}
