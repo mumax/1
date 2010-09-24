@@ -1,4 +1,8 @@
 TODO (Arne)
 
+* check if input parameters make sense and are set before sim.init() (size, material, ...)
+* replace all panic() calls by clear error messages
+* save log file
+* should warn when alpha=0
 * tensor package is not idiomatic Go. Should use [][][]float as much as possible and cast it to a tensor only when needed.
 
