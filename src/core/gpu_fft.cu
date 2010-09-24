@@ -154,7 +154,6 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
   return;
 }
 
-
 void gpuFFT3dPlan_inverse_unsafe(gpuFFT3dPlan* plan, float* input, float* output){
   
   timer_start("gpu_plan3d_real_input_inverse_exec");
@@ -270,6 +269,68 @@ void yz_transpose_in_place_inv(float *data, int *size, int *pSSize){
   
   return;
 }
+
+
+
+// functions for copying to and from padded matrix ****************************************************
+/// @internal Does padding and unpadding, not necessarily by a factor 2
+__global__ void _gpu_copy_pad(float* source, float* dest, 
+                                   int S1, int S2,                  ///< source sizes Y and Z
+                                   int D1, int D2                   ///< destination size Y and Z
+                                   ){
+  int i = blockIdx.x;
+  int j = blockIdx.y;
+  int k = threadIdx.x;
+
+  dest[(i*D1 + j)*D2 + k] = source[(i*S1 + j)*S2 + k];
+  
+  return;
+}
+
+
+
+
+void gpu_copy_to_pad(float* source, float* dest, int *unpad_size4d, int *pad_size4d){          //for padding of the tensor, 2d and 3d applicable
+  
+  int S0 = unpad_size4d[1];
+  int S1 = unpad_size4d[2];
+  int S2 = unpad_size4d[3];
+
+  dim3 gridSize(S0, S1, 1); ///@todo generalize!
+  dim3 blockSize(S2, 1, 1);
+  gpu_checkconf(gridSize, blockSize);
+  
+  if ( pad_size4d[1]!=unpad_size4d[1] || pad_size4d[2]!=unpad_size4d[2])
+    _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size4d[3]-2);      // for out of place forward FFTs in z-direction, contiguous data arrays
+  else
+    _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size4d[3]);        // for in place forward FFTs in z-direction, contiguous data arrays
+
+  cudaThreadSynchronize();
+  
+  return;
+}
+
+void gpu_copy_to_unpad(float* source, float* dest, int *pad_size4d, int *unpad_size4d){        //for unpadding of the tensor, 2d and 3d applicable
+  
+  int D0 = unpad_size4d[1];
+  int D1 = unpad_size4d[2];
+  int D2 = unpad_size4d[3];
+
+  dim3 gridSize(D0, D1, 1); ///@todo generalize!
+  dim3 blockSize(D2, 1, 1);
+  gpu_checkconf(gridSize, blockSize);
+
+  if ( pad_size4d[1]!=unpad_size4d[1] || pad_size4d[2]!=unpad_size4d[2])
+    _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, D1,  pad_size4d[3]-2, D1, D2);       // for out of place inverse FFTs in z-direction, contiguous data arrays
+  else
+    _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, D1,  pad_size4d[3], D1, D2);         // for in place inverse FFTs in z-direction, contiguous data arrays
+
+    cudaThreadSynchronize();
+  
+  return;
+}
+// ****************************************************************************************************
+
 
 
 #ifdef __cplusplus
