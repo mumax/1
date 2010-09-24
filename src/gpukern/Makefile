@@ -8,11 +8,7 @@ OFILES=\
 	gpu_linalg.o\
 	gpu_normalize.o\
 	gpu_torque.o\
-<<<<<<< HEAD
 	gpu_transpose2.o\
-=======
-	gpu_transpose.o\
->>>>>>> arne
 	gpu_fft3.o\
 	gpu_kernmul.o\
 	gpu_zeropad.o\
@@ -77,11 +73,6 @@ gpu_anal.o:  gpu_anal.h gpu_anal.cu
 gpu_init.o:  gpu_init.h gpu_init.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_init.cu
 
-<<<<<<< HEAD
-transpose2_test:	transpose2_test.cpp libgpukern.so
-	$(CPP) $(CFLAGS) libgpukern.so transpose2_test.cpp -o transpose2_test
-	./transpose2_test
-=======
 gpu_reduction.o:  gpu_reduction.h gpu_reduction.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_reduction.cu
 
@@ -90,7 +81,6 @@ test:	all transpose_test zeropad_test reduction_test fft_test
 transpose_test:	transpose_test.cpp libgpukern.so
 	$(CPP) $(CFLAGS) libgpukern.so transpose_test.cpp -o transpose_test
 	./transpose_test
->>>>>>> arne
 
 zeropad_test:	zeropad_test.cpp libgpukern.so
 	$(CPP) $(CFLAGS) libgpukern.so zeropad_test.cpp -o zeropad_test
