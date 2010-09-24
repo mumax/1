@@ -39,9 +39,9 @@ OFILES=\
 	tensor.o\
 	param.o\
 	timer.o\
+	gputil.o\
 	gpu_heun.o\
 	gpu_anal.o\
-	gpunormalize.o\
 	field.o\
 	timestep.o\
 	kernel.o\
@@ -64,7 +64,7 @@ OFILES=\
 #	gpuconv1.o\
 #	gpuconv2.o\
 
-# all: core.so core.a doc
+all: main-ben
 
 tensor.o:	tensor.h tensor.cpp
 	$(NVCC) -c $(NVCCFLAGS) tensor.cpp

@@ -1,4 +1,5 @@
 #include "gpu_anal.h"
+#include "gputil.h"
 #include "gpukern.h"
 #include "timer.h"
 #include <stdio.h>
@@ -12,7 +13,7 @@ void gpu_anal_fw_step(param *p, tensor *m_in, tensor *m_out, tensor *h){
 
   int length = m_in->len/3;
   
-  int gridSize = -1, blockSize = -1;
+  dim3 gridSize, blockSize;
   make1dconf(length, &gridSize, &blockSize); ///@todo cache in gpu_anal struct
   
   timer_start("gpu_anal_fw_step");
@@ -99,7 +100,7 @@ __global__ void _gpu_anal_fw_step (float *minx, float *miny, float *minz, float 
 
 void gpu_anal_pc_mean_h(tensor *h1, tensor *h2){
 
-  int gridSize = -1, blockSize = -1;
+  dim3 gridSize, blockSize;
   make1dconf(h1->len, &gridSize, &blockSize); ///@todo cache in gpu_anal struct
 
   timer_start("gpu_anal_pc_mean_h");
