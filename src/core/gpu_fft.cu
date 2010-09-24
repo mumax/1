@@ -88,9 +88,13 @@ void gpuFFT3dPlan_forward_unsafe(gpuFFT3dPlan* plan, float* input, float* output
   
   int half_pSSize = plan->paddedStorageN/2;
   
-  float* data = input;
+  float* data = output;
   float* data2 = plan->transp; 
 
+    // padding of the input matrix
+  gpu_copy_to_pad(input, output, size, pSSize);
+
+  
   if ( pSSize[X]!=size[X] || pSSize[Y]!=size[Y]){
       // out of place FFTs in Z-direction from the 0-element towards second half of the zeropadded matrix (out of place: no +2 on input!)
     gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)data,  (cufftComplex*) (data + half_pSSize) ) );     // it's in data
@@ -292,9 +296,15 @@ __global__ void _gpu_copy_pad(float* source, float* dest,
 
 void gpu_copy_to_pad(float* source, float* dest, int *unpad_size4d, int *pad_size4d){          //for padding of the tensor, 2d and 3d applicable
   
-  int S0 = unpad_size4d[1];
+/*  int S0 = unpad_size4d[1];
   int S1 = unpad_size4d[2];
   int S2 = unpad_size4d[3];
+*/
+  int S0 = unpad_size4d[X];
+  int S1 = unpad_size4d[Y];
+  int S2 = unpad_size4d[Z];
+
+  printf("%d, %d, %d\n", S0, S1, S2);
 
   dim3 gridSize(S0, S1, 1); ///@todo generalize!
   dim3 blockSize(S2, 1, 1);

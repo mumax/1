@@ -48,13 +48,20 @@ void evaluate_micromag3d_conv(tensor *m, tensor *h, conv_data *conv){
      // zero out fft1
   gpu_zero_tensor(conv->fft1);
   
+//   for(int i=0; i<3; i++){
+//       //padding of m_i
+//     gpu_copy_to_pad(m_comp[i], fft1_comp[i], m->size, conv->fft1->size);
+//       //Fourier transforming of fft_mi
+//     gpuFFT3dPlan_forward_unsafe(conv->fftplan, fft1_comp[i], fft1_comp[i]);  ///@todo out-of-place
+//   }
+
   for(int i=0; i<3; i++){
-      //padding of m_i
-    gpu_copy_to_pad(m_comp[i], fft1_comp[i], m->size, conv->fft1->size);
+/*      //padding of m_i
+    gpu_copy_to_pad(m_comp[i], fft1_comp[i], m->size, conv->fft1->size);*/
       //Fourier transforming of fft_mi
-    gpuFFT3dPlan_forward_unsafe(conv->fftplan, fft1_comp[i], fft1_comp[i]);  ///@todo out-of-place
+    gpuFFT3dPlan_forward_unsafe(conv->fftplan, m_comp[i], fft1_comp[i]);    //padding within routine
   }
-  
+
     // kernel multiplication
   gpu_kernel_mul_micromag3d(conv->fft1, conv->kernel);
 
@@ -146,11 +153,17 @@ void evaluate_micromag3d_conv_Xthickness_1(tensor *m, tensor *h, conv_data *conv
   gpu_zero_tensor(conv->fft1);
   
   for(int i=0; i<3; i++){
-      //padding of m_i
-    gpu_copy_to_pad(m_comp[i], fft1_comp[i], m->size, conv->fft1->size);
+/*      //padding of m_i
+    gpu_copy_to_pad(m_comp[i], fft1_comp[i], m->size, conv->fft1->size);*/
       //Fourier transforming of fft_mi
-    gpuFFT3dPlan_forward_unsafe(conv->fftplan, fft1_comp[i], fft1_comp[i]);  ///@todo out-of-place
+    gpuFFT3dPlan_forward_unsafe(conv->fftplan, m_comp[i], fft1_comp[i]);    //padding within routine
   }
+//   for(int i=0; i<3; i++){
+//       //padding of m_i
+//     gpu_copy_to_pad(m_comp[i], fft1_comp[i], m->size, conv->fft1->size);
+//       //Fourier transforming of fft_mi
+//     gpuFFT3dPlan_forward_unsafe(conv->fftplan, fft1_comp[i], fft1_comp[i]);  ///@todo out-of-place
+//   }
 
     // kernel multiplication
   gpu_kernel_mul_micromag3d_Xthickness_1(conv->fft1, conv->kernel);
@@ -239,11 +252,17 @@ void evaluate_micromag2d_conv(tensor *m, tensor *h, conv_data *conv){
     // zero out fft1
   gpu_zero_tensor(conv->fft1);
   
-  for(int i=0; i<2; i++){
+/*  for(int i=0; i<2; i++){
       //padding of m_i
     gpu_copy_to_pad(m_comp[i], fft1_comp[i], m->size, conv->fft1->size);
       //Fourier transforming of fft_mi
     gpuFFT3dPlan_forward_unsafe(conv->fftplan, fft1_comp[i], fft1_comp[i]);  ///@todo out-of-place
+  }*/
+  for(int i=0; i<2; i++){
+/*      //padding of m_i
+    gpu_copy_to_pad(m_comp[i], fft1_comp[i], m->size, conv->fft1->size);*/
+      //Fourier transforming of fft_mi
+    gpuFFT3dPlan_forward_unsafe(conv->fftplan, m_comp[i], fft1_comp[i]);    //padding within routine
   }
 
     // kernel multiplication
