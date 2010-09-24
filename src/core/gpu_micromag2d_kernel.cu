@@ -41,8 +41,10 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(tensor *dev_kernel, int 
   // Define gpugrids and blocks ___________________________________________________________________
     int gridsize1 = 1;
     dim3 blocksize1(kernelSize[Y]/2, kernelSize[Z]/2);
-    gpu_checkconf(gridsize1, blocksize1);
-    int gridsize2, blocksize2;
+    /// @todo: this is not compatible with large simulations yet
+    //check1dconf(gridsize1, blocksize1);
+    
+    dim3 gridsize2, blocksize2;
     make1dconf(kernelStorageN/2, &gridsize2, &blocksize2);
   // ______________________________________________________________________________________________
   

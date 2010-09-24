@@ -1,4 +1,5 @@
 #include "gpu_conv.h"
+#include "gputil.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -71,8 +72,7 @@ void evaluate_micromag3d_conv(tensor *m, tensor *h, conv_data *conv){
 void gpu_kernel_mul_micromag3d(tensor *fft1, tensor *kernel){
   
   int fft_length = fft1->len/3;
-  int gridSize = -1;
-  int blockSize = -1;
+  dim3 gridSize, blockSize;
   make1dconf(fft_length/2, &gridSize, &blockSize);
 
   float *fftMx = &fft1->list[0*fft_length];
@@ -169,8 +169,7 @@ void gpu_kernel_mul_micromag3d_Xthickness_1(tensor *fft1, tensor *kernel){
   
   int fft_length = fft1->len/3;
 
-  int gridSize = -1;
-  int blockSize = -1;
+  dim3 gridSize, blockSize;
   make1dconf(fft_length/2, &gridSize, &blockSize);
   
   float *fftMx = &fft1->list[0*fft_length];
@@ -262,8 +261,7 @@ void evaluate_micromag2d_conv(tensor *m, tensor *h, conv_data *conv){
 void gpu_kernel_mul_micromag2d(tensor *fft1, tensor *kernel){
   
   int fft_length = fft1->len/3;
-  int gridSize = -1;
-  int blockSize = -1;
+  dim3 gridSize, blockSize;
   make1dconf(fft_length/2, &gridSize, &blockSize);
 
   float *fftMy = &fft1->list[0*fft_length];
