@@ -51,7 +51,7 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int 
     check3dconf(gridsize1, blocksize1);
 //    dim3 gridsize1, blocksize1;
 //    make3dconf((kernelSize[X]+1)/2, kernelSize[Y]/2, kernelSize[Z]/2, &gridsize1, &blocksize1);
-		int gridsize2, blocksize2;
+		dim3 gridsize2, blocksize2;
 		make1dconf(kernelStorageN/2, &gridsize2, &blocksize2);
   // ______________________________________________________________________________________________
 	
