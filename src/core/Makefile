@@ -128,7 +128,7 @@ main-ben.o:	main-ben.h main-ben.cpp
 
 main-ben: $(OFILES) main-ben.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) main-ben.cpp
-	$(NVCC) $(CUDALIBS) $(OFILES) main-ben.o -o main-ben
+	$(NVCC) $(CUDALIBS) $(OFILES) $(SIMROOT)/src/gpukern/libgpukern.so main-ben.o -o main-ben
 
 
 
