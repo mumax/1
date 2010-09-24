@@ -20,7 +20,7 @@
 #include "tensor.h"
 #include "gputil.h"
 #include <cufft.h>
-#include <gpu_transpose.h>
+#include <gpu_transpose2.h>
 
 #ifdef __cplusplus
 extern "C" {

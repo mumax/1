@@ -12,28 +12,28 @@ CPPFILES=\
 #	pipes.cpp\
 #	debug.cpp\
 
-CUFILES=\
-	gputil.cu\
-	gpueuler.cu\
-	gpu_heun.cu\
-	gpu_anal.cu\
-	gpunormalize.cu\
-	gpu_micromag3d_kernel.cu\
-	gpu_micromag2d_kernel.cu\
-	gpu_conv.cu\
-	gputorque.cu\
-	gpu_exch.cu\
-	gpu_transpose.cu\
-	gpu_fft.cu\
-# 	gpufft2.cu\
-# 	gpu_conf.cu\
-# 	gpurk4.cu\
-#	gpukernel1.cu\
-#	gpupad.cu\
-#	gpuconv1.cu\
-#	gpuconv2.cu\
-#	gpufft.cu\
-# NOTE: commented files must be LAST in the list, otherwise all the rest is also commented out
+# CUFILES=\
+# 	gputil.cu\
+# 	gpueuler.cu\
+# 	gpu_heun.cu\
+# 	gpu_anal.cu\
+# 	gpunormalize.cu\
+# 	gpu_micromag3d_kernel.cu\
+# 	gpu_micromag2d_kernel.cu\
+# 	gpu_conv.cu\
+# 	gputorque.cu\
+# 	gpu_exch.cu\
+# 	gpu_transpose2.cu\
+# 	gpu_fft.cu\
+# # 	gpufft2.cu\
+# # 	gpu_conf.cu\
+# # 	gpurk4.cu\
+# #	gpukernel1.cu\
+# #	gpupad.cu\
+# #	gpuconv1.cu\
+# #	gpuconv2.cu\
+# #	gpufft.cu\
+# # NOTE: commented files must be LAST in the list, otherwise all the rest is also commented out
 
 OFILES=\
 	tensor.o\
@@ -53,7 +53,7 @@ OFILES=\
 	gputorque.o\
 	cpu_exch.o\
 	gpu_exchange.o\
-	gpu_transpose.o\
+	gpu_transpose2.o\
 	gpu_fft.o
 # 	gpufft2.o\
 # 	gpu_conf.o\
@@ -118,8 +118,8 @@ cpu_exch.o:	cpu_exch.h cpu_exch.cpp
 gpu_exchange.o:	gpu_exchange.h gpu_exchange.cu
 	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_exchange.cu
 
-gpu_transpose.o: gpu_transpose.h gpu_transpose.cu
-	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_transpose.cu
+gpu_transpose2.o: gpu_transpose2.h gpu_transpose2.cu
+	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_transpose2.cu
 
 gpu_fft.o: gpu_fft.h gpu_fft.cu
 	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft.cu
