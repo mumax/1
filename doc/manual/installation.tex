@@ -32,9 +32,14 @@ Then also remove all distribution-provided \textsc{NVIDIA} drivers with \cmd{sud
 
 \subsection{Setup}
 
-We recommend downloading a pre-compiled version of the program for either a 32-bit or 64-bit architecture. You can place the \prog directory anywhere on your system. 
+We recommend downloading a pre-compiled version of the program for either a 32-bit or 64-bit architecture. The 64-bit version is recommended if your system supports it. You can place the \prog directory anywhere on your hard drive. The only needed setup is running \idxcmd{./setup\_64bit.sh} (or \cmd{./setup\_32bit.sh}). This will create the \cmd{\prog} program in the \file{bin/} directory. Note that you have to re-run the setup 
+script if you moved the \prog directory to a different location on your hard drive. You can now start the the program by typing \cmd{/path/to/\prog/bin/\prog} in a terminal, where you replace \file{/path/to/\prog} by the actual location where you put the \prog directory.
+
+It is recommended to edit the (hidden) \file{.bashrc} file in your home directory and the following line: \cmd{export PATH=\$PATH:/path/to/\prog} where you replace \file{/path/to/\prog} by the actual location where you put the \prog directory. When you now open a new terminal, you will be able to start the program by just typing \prog.
 
 \subsection{Running}
+
+
 
 \subsection{Re-compiling}
 
