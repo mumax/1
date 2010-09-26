@@ -1,12 +1,14 @@
 \section{The \prog daemon}
 
-When you run \prog \idxcmd{-daemon} \cmd{directory1} \cmd{directory2} \cmd{...}, \prog will run in \idx{daemon} mode: it will search the directories \emph{directory1 directory2 ...} for input files to run. This provides a way to sequentially run a large batch of simulations or to distribute simulations on a cluster or cloud --- as described below.
+You can run \prog in the background in \idx{daemon} mode, letting it search for input files and run them automatically. This provides a way to sequentially run a large batch of simulations or to distribute simulations on a cluster or cloud --- as described below.
+
 
 \subsection{Batch execution}
 
-When you run \prog \idxcmd{-daemon} \cmd{directory}, all input files in the directory will be executed sequentially. The program will run all files ending with \file{.in}, for which the corresponding output directory (ending with \file{.out}) does not yet exist.  When all simulations are finished, the directory will be re-checked for new input files every few seconds. So you can add new input files to the directory at any moment and they will queued for execution.
+When you run \prog \idxcmd{-daemon} \cmd{directory1} \cmd{directory2} \cmd{...}, \prog will run in \idx{daemon} mode: it will search the directories \emph{directory1 directory2 ...} for input files to run. The program will run all files ending with \file{.in}, for which the corresponding output directory (ending with \file{.out}) \emph{does not yet exist}.  When all simulations are finished, the directory will be re-checked for new input files every few seconds. So you can add new input files to the directory at any moment and they will queued for execution.
 
-Note that the existence of the \file{.out} directory signals that the corresponding simulation is running or finished. 
+Note that when a directory \file{XXX.out} exists, the corresponding \file{XXX.in} file will not be run. Thus, when you want to re-run a simulation (e.g., after you have edited the input file), you need to remove the 
+\file{.out} directory.
 
 \subsection{Simulating on a cluster}
 
