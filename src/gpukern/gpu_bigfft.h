@@ -31,17 +31,14 @@ typedef struct{
   cufftHandle plan;
 }bigfft;
 
-void init_bigfftR2C(bigfft* target, int size, int batch);
+void init_bigfft(bigfft* target, int size, cufftType type, int batch);
 
-void init_bigfftC2R(bigfft* target, int size, int batch);
 
-void init_bigfftC2C(bigfft* target, int size, int batch);
+void bigfft_execR2C(bigfft* plan, cufftReal* input, cufftComplex* output);
 
-void bigfft_execR2C(bigfft* plan, float* input, float* output);
+void bigfft_execC2R(bigfft* plan, cufftComplex* input, cufftReal* output);
 
-void bigfft_execC2R(bigfft* plan, float* input, float* output);
-
-void bigfft_execC2C(bigfft* plan, float* input, float* output, int direction);
+void bigfft_execC2C(bigfft* plan, cufftComplex* input, cufftComplex* output, int direction);
 
 
 #ifdef __cplusplus

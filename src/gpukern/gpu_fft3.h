@@ -7,7 +7,7 @@
 #ifndef gpu_fft3_h
 #define gpu_fft3_h
 
-#include <cufft.h>
+#include "gpu_bigfft.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,10 +27,10 @@ typedef struct{
 //   int* paddedComplexSize;  ///< physical size of the (complex, padded) output data in half-complex format
 //   int  paddedComplexN;
   
-  cufftHandle fwPlanZ;     ///< 1D real-to-complex plan for Z-direction
-  cufftHandle invPlanZ;    ///< 1D complex-to-real plan for Z-direction
-  cufftHandle planY;       ///< 1D complex-to-complex plan for Y-direction, forward or inverse
-  cufftHandle planX;       ///< 1D complex-to-complex plan for X-direction, forward or inverse
+  bigfft fwPlanZ;     ///< 1D real-to-complex plan for Z-direction
+  bigfft invPlanZ;    ///< 1D complex-to-real plan for Z-direction
+  bigfft planY;       ///< 1D complex-to-complex plan for Y-direction, forward or inverse
+  bigfft planX;       ///< 1D complex-to-complex plan for X-direction, forward or inverse
 
   float* buffer1;          ///< Buffer for zero-padding in Z
   float* buffer2;          ///< Buffer for result of out-of-place FFT_z
