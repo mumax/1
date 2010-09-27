@@ -182,7 +182,7 @@ func (s *Sim) init() {
 
 	s.paddedsize = padSize(s.size[0:])
 
-	Debugv("Calculating kernel (may take a moment)")
+	Debugv("Calculating kernel (may take a moment)")  // --- In fact, it takes 3 moments, one in each direction.
 	demag := FaceKernel6(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy)
 	exch := Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
 	// Add Exchange kernel to demag kernel

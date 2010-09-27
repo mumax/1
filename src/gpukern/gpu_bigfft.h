@@ -43,7 +43,8 @@ typedef struct{
   cufftHandle plan1;
   int nPlan2;         ///< Execute plan2 nPlan2 times (O or 1). If N is divisible by MAX_FFTSIZE, plan2 does not need to be executed.
   cufftHandle plan2;
-  
+  int size;           ///< Logical size of the individual transforms (in complex numbers)
+  int maxBatch;       ///< The maximum number of batches in a plan, plan1 has this number of batches.
 }bigfft;
 
 void init_bigfft(bigfft* target, int size, cufftType type, int batch);
