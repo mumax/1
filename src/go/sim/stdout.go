@@ -9,6 +9,14 @@ import (
 	"fmt"
 )
 
+func (sim *Sim) Println(msg ...interface{}){
+  fmt.Fprintln(sim.stdout, msg)
+}
+
+func (sim *Sim) Errorln(msg ...interface{}){
+  fmt.Fprintln(sim.stderr, msg)
+}
+
 // Initiates the stderr and stdout files of sim.
 // If not silent, they will print on the screen.
 // If log=true, they will also log to outputdir/output.log
