@@ -110,7 +110,7 @@ void gpu_transpose_complex_in_plane_fw(float *data, int N1, int N2){
   for(int k=N2+1; k<2*N2; k=k+2){              ///> @todo copies can be parrallized (streamed)!
     int ind1 = k*N1x2;
     int ind2 = (k - N2)*N1x2;
-    memcpy_gpu_to_gpu(data + ind1, data + ind2, N1x2);
+    memcpy_on_gpu(data + ind1, data + ind2, N1x2);
   }
 
   dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
@@ -175,7 +175,7 @@ void gpu_transpose_complex_in_plane_inv(float *data, int N1, int N2){
   for(int k=N1+1; k<2*N1; k=k+2){                ///> @todo copies can be parrallized (streamed)!
     int ind1 = k*N2x2;
     int ind2 = (k - N1)*N2x2;
-    memcpy_gpu_to_gpu(data + ind1, data + ind2, N2x2);
+    memcpy_on_gpu(data + ind1, data + ind2, N2x2);
   }
 
   dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1

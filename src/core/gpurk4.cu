@@ -201,7 +201,7 @@ void gpurk4_step(gpurk4* solver, float dt){
   float* k3z = &(solver->k[3][Z*solver->len_m_comp]);
 
   // first backup starting point m0
-  memcpy_gpu_to_gpu(solver->m, solver->m0, solver->len_m);
+  memcpy_on_gpu(solver->m, solver->m0, solver->len_m);
   // calc the field
   gpuconv1_exec(solver->convplan, solver->m, solver->h);
   
@@ -265,7 +265,7 @@ void gpurk4_init_h(gpurk4* solver){
 void gpurk4_init_k(gpurk4* solver){
   solver->k = (float**)calloc(3, sizeof(float*));
   // painful bugfix: was initialized up to 3 instead of 4.
-  // result: error in memcpy_gpu_to_gpu, AFTER execution of the offending kernel and acting on legal addresses
+  // result: error in memcpy_on_gpu, AFTER execution of the offending kernel and acting on legal addresses
   // FOLLOWED by : unspecified launch failure
   for(int i=0; i<4; i++){
     solver->k[i] = new_gpu_array(solver->len_m);

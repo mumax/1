@@ -99,7 +99,7 @@ void assertDevice(float* pointer){
   if(_device_array == NULL){
     _device_array = new_gpu_array(1);
   }
-  memcpy_gpu_to_gpu(pointer, _device_array, 1); // may throw segfault
+  memcpy_on_gpu(pointer, _device_array, 1); // may throw segfault
 }
 
 //_____________________________________________________________________________________________ copy
@@ -123,8 +123,8 @@ void assertDevice(float* pointer){
 //   }
 // }
 
-// void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
-//   timer_start("memcpy_gpu_to_gpu");
+// void memcpy_on_gpu(float* source, float* dest, int nElements){
+//   timer_start("memcpy_on_gpu");
 //   
 //   assert(nElements > 0);
 //   int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyDeviceToDevice);
@@ -134,7 +134,7 @@ void assertDevice(float* pointer){
 //   }
 //   gpu_sync();
 //   
-//   timer_stop("memcpy_gpu_to_gpu");
+//   timer_stop("memcpy_on_gpu");
 // }
 
 float gpu_array_get(float* dataptr, int index){
@@ -160,7 +160,7 @@ void tensor_copy_from_gpu(tensor* source, tensor* dest){
 
 void tensor_copy_on_gpu(tensor* source, tensor* dest){
   assert(tensor_equalsize(source, dest));
-  memcpy_gpu_to_gpu(source->list, dest->list, source->len);
+  memcpy_on_gpu(source->list, dest->list, source->len);
 }
 
 //_____________________________________________________________________________________________ misc

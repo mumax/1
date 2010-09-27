@@ -89,7 +89,7 @@ void gpu_override_stride(int nFloats    ///< The stride (in number of floats) to
 
 /**
  * Copies floats from the main RAM to the GPU.
- * @see memcpy_from_gpu(), memcpy_gpu_to_gpu()
+ * @see memcpy_from_gpu(), memcpy_on_gpu()
  */
 void memcpy_to_gpu(float* source,	///< source data pointer in the RAM
 		   float* dest,		///< destination data pointer on the GPU
@@ -98,7 +98,7 @@ void memcpy_to_gpu(float* source,	///< source data pointer in the RAM
 
 /**
  * Copies floats from GPU to the main RAM.
- * @see memcpy_to_gpu(), memcpy_gpu_to_gpu()
+ * @see memcpy_to_gpu(), memcpy_on_gpu()
  */
 void memcpy_from_gpu(float* source,	///< source data pointer on the GPU
 		     float* dest,	///< destination data pointer in the RAM
@@ -109,7 +109,7 @@ void memcpy_from_gpu(float* source,	///< source data pointer on the GPU
  * Copies floats from GPU to GPU.
  * @see memcpy_to_gpu(), memcpy_from_gpu()
  */
-void memcpy_gpu_to_gpu(float* source,	///< source data pointer on the GPU
+void memcpy_on_gpu(float* source,	///< source data pointer on the GPU
                        float* dest, 	///< destination data pointer on the GPU
                        int nElements	///< number of floats (not bytes) to be copied
                        );
