@@ -44,6 +44,7 @@ GOFILES=\
 	adaptive_heun.go\
 	main.go\
         daemon.go\
+	stdout.go\
 
 CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so
 

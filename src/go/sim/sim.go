@@ -5,6 +5,7 @@ import (
 	"tensor"
 	"time"
 	"fmt"
+	"io"
 )
 
 // Sim has an "input" member of type "Input".
@@ -70,11 +71,11 @@ type Sim struct {
 	autosaveIdx    int             // Unique identifier of output state. Updated each time output is saved.
 	outputdir      string          // Where to save output files.
 	mUpToDate      bool            // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
-	stdout, stderr io.Writer       // The sim's very own output streams. They may pass trough to os.Stout/Stderr and/or be tee'ed to a log file.
+	stdout, stderr io.Writer       // The sim's very own output streams. They may pass trough to os.Stout/Stderr and/or be tee'ed to a log file. Initiated by sim.initWriters()
 }
 
-func New() *Sim {
-	return NewSim()
+func New(outputdir string, silent, log bool) *Sim {
+	return NewSim(outputdir, silent, log)
 }
 
 func NewSim(outputdir string, silent, log bool) *Sim {
@@ -85,9 +86,9 @@ func NewSim(outputdir string, silent, log bool) *Sim {
 	sim.mUpToDate = false
 	sim.input.demag_accuracy = 8
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
-	sim.setOutputDir(outputdir)
+	sim.outputDir(outputdir)
 	sim.initWriters(outputdir, silent, log)
-	sim.invalidate()     //just to make sure we will init()
+	sim.invalidate() //just to make sure we will init()
 	return sim
 }
 

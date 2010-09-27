@@ -72,8 +72,7 @@ func main_master() {
 		}
 		defer in.Close()
 
-		sim := NewSim()
-		sim.outputDir(removeExtension(infile) + ".out")
+		sim := NewSim(removeExtension(infile) + ".out", false, true)
 		refsh := refsh.New()
 		refsh.CrashOnError = true
 		refsh.AddAllMethods(sim)
