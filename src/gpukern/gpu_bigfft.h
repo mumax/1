@@ -14,6 +14,9 @@
  * @note The FFT's are initiated with CUFFT "native" compatibility, which optimizes
  * performance.
  *
+ * @note All functions are "safe", i.e. they will never fail silently but print
+ * an error report and abort() when an error occurs.
+ *
  * @author Arne Vansteenkiste
  * @author Ben Van de Wiele
  */
@@ -26,9 +29,21 @@
 extern "C" {
 #endif
 
+/// Maximum size of a CUFFT FFT
+#define MAX_FFTSIZE = (8*1024*1024)
 
+/// @internal
+/// The batch is split into plan1 (with the largest possible size),
+/// which is executed many times, and plan2 (with the remainder of the elements),
+/// which is executed once.
+/// plan1->size = MAX_FFTSIZE, executed N / MAX_FFTSIZE times
+/// plan2->size = N % MAX_FFTSIZE, executed once.
 typedef struct{
-  cufftHandle plan;
+  int nPlan1;         ///< For an FFT with N elements, N = nPlan1 x plan1->size + plan2->size
+  cufftHandle plan1;
+  int nPlan2;         ///< Execute plan2 nPlan2 times (O or 1). If N is divisible by MAX_FFTSIZE, plan2 does not need to be executed.
+  cuffthandle plan2;
+  
 }bigfft;
 
 void init_bigfft(bigfft* target, int size, cufftType type, int batch);
