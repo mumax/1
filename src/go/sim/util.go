@@ -1,7 +1,6 @@
 package sim
 
 import (
-	"log"
 	"os"
 	"fmt"
 )
@@ -9,7 +8,7 @@ import (
 // crashes if the test is false
 func assert(test bool) {
 	if !test {
-		log.Crash("assertion failed")
+		panic("assertion failed")
 	}
 }
 

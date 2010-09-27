@@ -15,7 +15,7 @@ aexch:      	1.3E-11     # J/m
 alpha:      	0.02
 
 # geometry 
-size:       	1     32          128    
+#size:       	1     32          128    
 cellsize:   	3E-9  3.90625E-9  3.90625E-9  # m
 
 # initial magnetization
