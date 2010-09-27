@@ -15,6 +15,21 @@ To take advantage of the GPU acceleration, you need a \idx{CUDA capable} \textsc
 You will also need to install the proprietary \textsc{NVIDIA} graphics \idx{driver}. This driver may already be installed on your system. E.g., under Ubuntu, the ``Hardware drivers'' program may propose to install this driver. You should try to run a simulation on the GPU -- if that works, it means your driver is up to date.
 
 Otherwise, you can install the driver located in \file{dep/cuda}. You have to install it when your X-server is not running: logout from your grahpical session, then use the ``\idx{Console login}'' of your login manager (or press Ctrl-Alt-F1) to obtain a text console. Log in and \cmd{cd} to \file{dep/cuda} the \prog root directory. Type \cmd{sudo ./devdriver\_3.1\_linux\_64\_256.40.run}\footnote{Or \cmd{sudo ./devdriver\_3.1\_linux\_32\_256.40.run} on a 32-bit system.}\footnote{Possibly a later version of this driver may be present} and follow the instructions. Then reboot your computer. Note that you may have to re-install this driver after every kernel upgrade. To check your system, you can run the progam \idxcmd{nvidia-settings} which shows information about your GPU and driver.
+% 
+% gksudo gedit /etc/modprobe.d/blacklist.conf
+% 
+% Add these lines and save:
+% 
+% blacklist vga16fb
+% blacklist nouveau
+% blacklist rivafb
+% blacklist nvidiafb
+% blacklist rivatv
+% 
+% 3) Uninstall any previously installed Nvidia drivers:
+% 
+% sudo apt-get --purge remove nvidia-*
+% 
 
 It is possible that the required driver conflicts with Ubuntu's default version. If installing the driver fails, a possible workaround is to edit \file{/etc/modprobe.d/blacklist.conf} (as root) and add these lines:
 \small

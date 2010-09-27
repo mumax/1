@@ -1,4 +1,4 @@
-include ../common.mk
+include common.mk
 
 CPPFILES=\
 	tensor.cpp\
@@ -12,28 +12,28 @@ CPPFILES=\
 #	pipes.cpp\
 #	debug.cpp\
 
-CUFILES=\
-	gputil.cu\
-	gpueuler.cu\
-	gpu_heun.cu\
-	gpu_anal.cu\
-	gpunormalize.cu\
-	gpu_micromag3d_kernel.cu\
-	gpu_micromag2d_kernel.cu\
-	gpu_conv.cu\
-	gputorque.cu\
-	gpu_exch.cu\
-	gpu_transpose.cu\
-	gpu_fft.cu\
-# 	gpufft2.cu\
-# 	gpu_conf.cu\
-# 	gpurk4.cu\
-#	gpukernel1.cu\
-#	gpupad.cu\
-#	gpuconv1.cu\
-#	gpuconv2.cu\
-#	gpufft.cu\
-# NOTE: commented files must be LAST in the list, otherwise all the rest is also commented out
+# CUFILES=\
+# 	gputil.cu\
+# 	gpueuler.cu\
+# 	gpu_heun.cu\
+# 	gpu_anal.cu\
+# 	gpunormalize.cu\
+# 	gpu_micromag3d_kernel.cu\
+# 	gpu_micromag2d_kernel.cu\
+# 	gpu_conv.cu\
+# 	gputorque.cu\
+# 	gpu_exch.cu\
+# 	gpu_transpose2.cu\
+# 	gpu_fft.cu\
+# # 	gpufft2.cu\
+# # 	gpu_conf.cu\
+# # 	gpurk4.cu\
+# #	gpukernel1.cu\
+# #	gpupad.cu\
+# #	gpuconv1.cu\
+# #	gpuconv2.cu\
+# #	gpufft.cu\
+# # NOTE: commented files must be LAST in the list, otherwise all the rest is also commented out
 
 OFILES=\
 	tensor.o\
@@ -42,7 +42,6 @@ OFILES=\
 	gputil.o\
 	gpu_heun.o\
 	gpu_anal.o\
-	gpunormalize.o\
 	field.o\
 	timestep.o\
 	kernel.o\
@@ -50,11 +49,10 @@ OFILES=\
 	gpu_micromag3d_kernel.o\
 	gpu_micromag2d_kernel.o\
 	gpu_conv.o\
-	gputorque.o\
 	cpu_exch.o\
 	gpu_exchange.o\
-	gpu_transpose.o\
-	gpu_fft.o
+	gpu_transpose2.o\
+	gpu_fft.o\
 # 	gpufft2.o\
 # 	gpu_conf.o\
 # 	gpurk4.o\
@@ -65,7 +63,7 @@ OFILES=\
 #	gpuconv1.o\
 #	gpuconv2.o\
 
-# all: core.so core.a doc
+all: main-ben
 
 tensor.o:	tensor.h tensor.cpp
 	$(NVCC) -c $(NVCCFLAGS) tensor.cpp
@@ -118,8 +116,8 @@ cpu_exch.o:	cpu_exch.h cpu_exch.cpp
 gpu_exchange.o:	gpu_exchange.h gpu_exchange.cu
 	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_exchange.cu
 
-gpu_transpose.o: gpu_transpose.h gpu_transpose.cu
-	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_transpose.cu
+gpu_transpose2.o: gpu_transpose2.h gpu_transpose2.cu
+	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_transpose2.cu
 
 gpu_fft.o: gpu_fft.h gpu_fft.cu
 	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft.cu
@@ -130,7 +128,7 @@ main-ben.o:	main-ben.h main-ben.cpp
 
 main-ben: $(OFILES) main-ben.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) main-ben.cpp
-	$(NVCC) $(CUDALIBS) $(OFILES) main-ben.o -o main-ben
+	$(NVCC) $(CUDALIBS) $(OFILES) $(SIMROOT)/src/gpukern/libgpukern.so main-ben.o -o main-ben
 
 
 
@@ -237,7 +235,6 @@ main-ben: $(OFILES) main-ben.cpp
 .PHONY:	clean
 clean:	
 	rm -f *.o *.so *.a iotest *_test
-	chmod u+x make-emu.sh
 
 doc:
 	doxygen doxygen.cfg

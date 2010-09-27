@@ -89,7 +89,7 @@ void gpu_override_stride(int nFloats    ///< The stride (in number of floats) to
 
 /**
  * Copies floats from the main RAM to the GPU.
- * @see memcpy_from_gpu(), memcpy_gpu_to_gpu()
+ * @see memcpy_from_gpu(), memcpy_on_gpu()
  */
 void memcpy_to_gpu(float* source,	///< source data pointer in the RAM
 		   float* dest,		///< destination data pointer on the GPU
@@ -98,7 +98,7 @@ void memcpy_to_gpu(float* source,	///< source data pointer in the RAM
 
 /**
  * Copies floats from GPU to the main RAM.
- * @see memcpy_to_gpu(), memcpy_gpu_to_gpu()
+ * @see memcpy_to_gpu(), memcpy_on_gpu()
  */
 void memcpy_from_gpu(float* source,	///< source data pointer on the GPU
 		     float* dest,	///< destination data pointer in the RAM
@@ -109,7 +109,7 @@ void memcpy_from_gpu(float* source,	///< source data pointer on the GPU
  * Copies floats from GPU to GPU.
  * @see memcpy_to_gpu(), memcpy_from_gpu()
  */
-void memcpy_gpu_to_gpu(float* source,	///< source data pointer on the GPU
+void memcpy_on_gpu(float* source,	///< source data pointer on the GPU
                        float* dest, 	///< destination data pointer on the GPU
                        int nElements	///< number of floats (not bytes) to be copied
                        );
@@ -124,14 +124,14 @@ void gpu_array_set(float* dataptr, int index, float value);
 /**
  * Copies the source tensor (in RAM) to the the destination tensor (on the GPU).
  * They should have equal sizes.
- * @see tensor_copy_from_gpu(), tensor_copy_gpu_to_gpu()
+ * @see tensor_copy_from_gpu(), tensor_copy_on_gpu()
  */
 void tensor_copy_to_gpu(tensor* source, tensor* dest);
 
 /**
  * Copies the source tensor (on the GPU) to the the destination tensor (in RAM).
  * They should have equal sizes.
- * @see tensor_copy_to_gpu(), tensor_copy_gpu_to_gpu()
+ * @see tensor_copy_to_gpu(), tensor_copy_on_gpu()
  */
 void tensor_copy_from_gpu(tensor* source, tensor* dest);
 
@@ -140,7 +140,7 @@ void tensor_copy_from_gpu(tensor* source, tensor* dest);
  * They should have equal sizes.
  * @see tensor_copy_to_gpu(), tensor_copy_from_gpu()
  */
-void tensor_copy_gpu_to_gpu(tensor* source, tensor* dest);
+void tensor_copy_on_gpu(tensor* source, tensor* dest);
 
 
 //______________________________________________________________________________________ util
@@ -148,9 +148,9 @@ void tensor_copy_gpu_to_gpu(tensor* source, tensor* dest);
 /**
  * Set a range of floats on the GPU to zero.
  */
-void gpu_zero(float* data,	///< data pointer on the GPU
-              int nElements	///< number of floats (not bytes) to be zeroed
-              );
+// void gpu_zero(float* data,	///< data pointer on the GPU
+//               int nElements	///< number of floats (not bytes) to be zeroed
+//               );
 
 /**
  * Sets all the tensor's elements to zero. The tensor should be allocated on the GPU.
@@ -164,8 +164,8 @@ void gpu_zero_tensor(tensor* t);
  * gpu_safe( cudaMalloc(...) );
  * @endcode
  */
-void gpu_safe(int status	///< CUDA return status
-	      );
+// void gpu_safe(int status	///< CUDA return status
+// 	      );
 
 /**
  * @internal
@@ -198,36 +198,36 @@ void assertDevice(float* pointer);
  * CUDA tends to ignore invalid configurations silently, which is painfull for debugging.
  * @deprecated use check3dconf(), which uses the actual device properties
  */
-void gpu_checkconf(dim3 gridsize, ///< 3D size of the thread grid
-		   dim3 blocksize ///< 3D size of the trhead blocks on the grid
-		   );
+// void gpu_checkconf(dim3 gridsize, ///< 3D size of the thread grid
+// 		   dim3 blocksize ///< 3D size of the trhead blocks on the grid
+// 		   );
 
 /**
  * Checks if the CUDA 1D kernel launch configuration is valid. 
  * CUDA tends to ignore invalid configurations silently, which is painfull for debugging.
  * @deprecated use check1dconf(), which uses the actual device properties
  */	   
-void gpu_checkconf_int(int gridsize, ///< 1D size of the thread grid
-		       int blocksize ///< 1D size of the trhead blocks on the grid
-		       );
+// void gpu_checkconf_int(int gridsize, ///< 1D size of the thread grid
+// 		       int blocksize ///< 1D size of the trhead blocks on the grid
+// 		       );
 		       
 /**
  * Checks if the CUDA 3D kernel launch configuration is valid. 
  * CUDA tends to ignore invalid configurations silently, which is painfull for debugging.
  * Uses device properties
  */
-void check3dconf(dim3 gridsize, ///< 3D size of the thread grid
-		   dim3 blocksize ///< 3D size of the trhead blocks on the grid
-		   );
+// void check3dconf(dim3 gridsize, ///< 3D size of the thread grid
+// 		   dim3 blocksize ///< 3D size of the trhead blocks on the grid
+// 		   );
 
 /**
  * Checks if the CUDA 1D kernel launch configuration is valid. 
  * CUDA tends to ignore invalid configurations silently, which is painfull for debugging.
  * Uses device properties
  */	   
-void check1dconf(int gridsize, ///< 1D size of the thread grid
-		       int blocksize ///< 1D size of the trhead blocks on the grid
-		       );
+// void check1dconf(int gridsize, ///< 1D size of the thread grid
+// 		       int blocksize ///< 1D size of the trhead blocks on the grid
+// 		       );
 		       
 
 //______________________________________________________________________________________ make conf
@@ -249,12 +249,12 @@ void check1dconf(int gridsize, ///< 1D size of the thread grid
   mykernel<<<gridSize, blockSize>>>(arrrrgh);
  * @endcode
  */
-void make3dconf(int N0, 	///< size of 3D array to span
-		int N1, 	///< size of 3D array to span
-		int N2, 	///< size of 3D array to span
-		dim3* gridSize, ///< grid size is returned here
-		dim3* blockSize ///< block size is returned here
-		);
+// void make3dconf(int N0, 	///< size of 3D array to span
+// 		int N1, 	///< size of 3D array to span
+// 		int N2, 	///< size of 3D array to span
+// 		dim3* gridSize, ///< grid size is returned here
+// 		dim3* blockSize ///< block size is returned here
+// 		);
 		
 /**
  * Makes a 1D thread configuration suited for a float array of size N
@@ -272,10 +272,10 @@ void make3dconf(int N0, 	///< size of 3D array to span
  * mykernel<<<gridSize, blockSize>>>(arrrrgh);
  * @endcode
  */
-void make1dconf(int N,          ///< size of array to span (number of floats)
-                int* gridSize,  ///< grid size is returned here
-                int* blockSize  ///< block size is returned here
-                );
+// void make1dconf(int N,          ///< size of array to span (number of floats)
+//                 int* gridSize,  ///< grid size is returned here
+//                 int* blockSize  ///< block size is returned here
+//                 );
 
 
 /**

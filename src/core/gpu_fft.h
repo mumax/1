@@ -18,9 +18,9 @@
 #define GPU_FFT_H
 
 #include "tensor.h"
-#include "gputil.h"
+#include "gpukern.h"
 #include <cufft.h>
-#include <gpu_transpose.h>
+// #include <gpu_transpose2.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,21 +59,13 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size,
                                       int* paddedSize
                                       );
 
-/**
- * Forward FFT of real possibly zero-padded data with 2D or 3D dimensions. FFTs on rows containing only zeros are not performed.
- * The input is checked for compatibility: input data are tensors.
- */
-void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, 
-                          tensor* input, 
-                          tensor* output
-                          );
-                          
-                          
+// void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output);
+                                      
 /**
  * Forward FFT of real possibly zero-padded data with 2D or 3D dimensions. FFTs on rows containing only zeros are not performed.
  * Routine is called 'unsafe' since the input is not checked for compatibility: input data are float arrays.
  */
-void gpuFFT3dPlan_forward_unsafe(gpuFFT3dPlan* plan, 
+void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, 
                                  float* input, 
                                  float* output
                                  );                          
@@ -84,16 +76,16 @@ void gpuFFT3dPlan_forward_unsafe(gpuFFT3dPlan* plan,
  * Forward FFT of real possibly zero-padded data with 2D or 3D dimensions. FFTs on rows containing only zeros are not performed.
  * The input is checked for compatibility: input data are tensors.
  */
-void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, 
+/*void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, 
                           tensor* input, 
-                          tensor* output);                            
+                          tensor* output);    */                        
                                  
                                  
 /**
  * Inverse FFT of real possibly zero-padded data with 2D or 3D dimensions. FFTs on rows containing only zeros are not performed.
  * Routine is called 'unsafe' since the input is not checked for compatibility: input data are float arrays.
  */
-void gpuFFT3dPlan_inverse_unsafe(gpuFFT3dPlan* plan, 
+void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, 
                                  float* input, 
                                  float* output
                                  );                               

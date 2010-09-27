@@ -6,7 +6,7 @@
  */
 
 #include "timer.h"
-#include "gputil.h"
+#include "gpukern.h"
 #include "gpuconv2.h"
 #include "tensor.h"
 #include "assert.h"

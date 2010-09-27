@@ -52,7 +52,7 @@ extern "C" {
  * @TODO interleave with streams: fft_z(MX), transpose(MX) async, FFT_z(MY), transpose(MY) async, ... threadsync, FFT_Y(MX)...
  * @TODO CUFFT crashes on more than one million cells, seems to be exactly the limit of 8 million elements (after zero-padding + 2 extra rows)
  */
-gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
+gpuFFT3dPlanArne* new_gpuFFT3dPlanArne_padded(int* size, int* paddedSize){
   
   int N0 = size[X];
   int N1 = size[Y];
@@ -62,7 +62,7 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
   assert(paddedSize[Y] > 1);
   assert(paddedSize[Z] > 1);
   
-  gpuFFT3dPlan* plan = (gpuFFT3dPlan*)malloc(sizeof(gpuFFT3dPlan));
+  gpuFFT3dPlanArne* plan = (gpuFFT3dPlanArne*)malloc(sizeof(gpuFFT3dPlanArne));
   
   plan->size = (int*)calloc(3, sizeof(int));
   plan->paddedSize = (int*)calloc(3, sizeof(int));
@@ -99,11 +99,11 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
 }
 
 
-gpuFFT3dPlan* new_gpuFFT3dPlan(int* size){
-  return new_gpuFFT3dPlan_padded(size, size); // when size == paddedsize, there is no padding
+gpuFFT3dPlanArne* new_gpuFFT3dPlanArne(int* size){
+  return new_gpuFFT3dPlanArne_padded(size, size); // when size == paddedsize, there is no padding
 }
 
-void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
+void gpuFFT3dPlanArne_forward(gpuFFT3dPlanArne* plan, float* input, float* output){
 
   // complex numbers in the (original) Z direction after the R2C transform
   int complexZ = (plan->paddedSize[Z] + 2)/2;
@@ -196,7 +196,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
 
 
 
-void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
+void gpuFFT3dPlanArne_inverse(gpuFFT3dPlanArne* plan, float* input, float* output){
   
   int complexZ = (plan->paddedSize[Z] + 2)/2;
   int* size = plan->size;
@@ -283,7 +283,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
 }
 
 
-int gpuFFT3dPlan_normalization(gpuFFT3dPlan* plan){
+int gpuFFT3dPlanArne_normalization(gpuFFT3dPlanArne* plan){
   return plan->paddedSize[X] * plan->paddedSize[Y] * plan->paddedSize[Z];
 }
 

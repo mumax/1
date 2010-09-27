@@ -13,7 +13,7 @@
 #define GPU_MICROMAG3D_KERNEL_H
 
 #include "tensor.h"
-#include "gputil.h"
+#include "gpukern.h"
 #include "param.h"
 //#include "gpufft2.h"
 #include "gpu_fft.h"
@@ -70,7 +70,6 @@ __global__ void _gpu_init_Greens_kernel_elements_micromag3d(float *dev_temp, 			
                                                             int Nkernel_X, 				///< Non-strided size of the kernel data (x-direction)
                                                             int Nkernel_Y, 				///< Non-strided size of the kernel data (y-direction) 
                                                             int Nkernel_Z,  				///< Non-strided size of the kernel data (z-direction) 
-                                                            int Nkernel_storage_Z, ///< Strided size of the kernel data in z-direction
                                                             int exchInConv_X,      ///< 1 if exchange is to be included in the x-direction
                                                             int exchInConv_Y,      ///< 1 if exchange is to be included in the y-direction
                                                             int exchInConv_Z,      ///< 1 if exchange is to be included in the z-direction

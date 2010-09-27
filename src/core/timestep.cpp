@@ -1,4 +1,5 @@
 #include "timestep.h"
+#include "gputil.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,7 +38,7 @@ void evaluate_heun_step(timestepper *ts, tensor *m, double *totalTime){
     gpu_heun_step(heun, m, ts->h, totalTime);  // difference between stage 0 and 1 is taken care of internally by heun
     ts->totalSteps++;
     if(ts->totalSteps % ts->params->normalizeEvery == 0){
-      gpu_normalize(ts->params, m);
+      gpu_normalize_uniform(m->list, m->len/3);
     }
   }
   

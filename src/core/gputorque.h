@@ -9,7 +9,7 @@
 #ifndef GPUTORQUE_H
 #define GPUTORQUE_H
 
-#include "gputil.h"
+#include "gpukern.h"
 #include "timer.h"
 
 #ifdef __cplusplus

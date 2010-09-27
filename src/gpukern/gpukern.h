@@ -24,3 +24,5 @@
 #include "gpu_anal.h"
 #include "gpu_init.h"
 #include "gpu_reduction.h"
+#include "gpu_conf.h"
+#include "gpu_safe.h"
