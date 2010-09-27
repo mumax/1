@@ -69,7 +69,7 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(tensor *dev_kernel, int 
         _gpu_init_Greens_kernel_elements_micromag2d<<<gridsize1, blocksize1>>>(dev_temp, kernelSize[Y], kernelSize[Z], kernelStorageSize[Z], exchInConv[Y], exchInConv[Z], co1, co2, FD_cell_size[Y], FD_cell_size[Z], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
         gpu_sync();
         // Fourier transform the kernel component.
-        gpuFFT3dPlan_forward(kernel_plan, FFT_input, FFT_output); 
+        gpuFFT3dPlan_forward(kernel_plan, FFT_input->list, FFT_output->list); 
         gpu_sync();
         // Copy the real parts to the corresponding place in the dev_kernel tensor.
         _gpu_extract_real_parts_micromag2d<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*kernelStorageN/2], dev_temp);

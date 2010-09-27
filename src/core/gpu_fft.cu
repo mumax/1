@@ -1,6 +1,7 @@
 // #include "gpufft2.h"
 #include "gpu_fft.h"
 #include "gpukern.h"
+#include "gpu_transpose2.h"
 #include "timer.h"
 #include <stdio.h>
 #include <assert.h>

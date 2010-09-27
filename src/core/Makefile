@@ -52,7 +52,7 @@ OFILES=\
 	cpu_exch.o\
 	gpu_exchange.o\
 	gpu_transpose2.o\
-#	gpu_fft.o
+	gpu_fft.o\
 # 	gpufft2.o\
 # 	gpu_conf.o\
 # 	gpurk4.o\

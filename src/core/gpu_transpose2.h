@@ -8,8 +8,8 @@
  * @author Arne Vansteenkiste
  * @author Ben Van de Wiele
  */
-#ifndef gpu_transpose_h
-#define gpu_transpose_h
+#ifndef gpu_transpose2_h
+#define gpu_transpose2_h
 
 #ifdef __cplusplus
 extern "C" {
