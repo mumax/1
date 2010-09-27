@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void init_bigfftR2C(bigfft* target, int size, cufftType type, int batch){
+void init_bigfft(bigfft* target, int size, cufftType type, int batch){
   gpu_safefft( cufftPlan1d(&(target->plan), size, type, batch) );
   gpu_safefft( cufftSetCompatibilityMode((target->plan), CUFFT_COMPATIBILITY_NATIVE) );
 }

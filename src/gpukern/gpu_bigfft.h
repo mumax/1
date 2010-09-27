@@ -33,7 +33,6 @@ typedef struct{
 
 void init_bigfft(bigfft* target, int size, cufftType type, int batch);
 
-
 void bigfft_execR2C(bigfft* plan, cufftReal* input, cufftComplex* output);
 
 void bigfft_execC2R(bigfft* plan, cufftComplex* input, cufftReal* output);
