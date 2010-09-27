@@ -9,12 +9,25 @@ import (
 	"fmt"
 )
 
+func (sim *Sim) Print(msg ...interface{}){
+  fmt.Fprint(sim.stdout, msg)
+}
+
 func (sim *Sim) Println(msg ...interface{}){
   fmt.Fprintln(sim.stdout, msg)
 }
 
 func (sim *Sim) Errorln(msg ...interface{}){
   fmt.Fprintln(sim.stderr, msg)
+}
+
+func (sim *Sim) Warn(msg ...interface{}) {
+  fmt.Fprint(os.Stdout, BOLD)
+  
+  sim.Print("WARNING: ")
+  sim.Print(msg)
+  fmt.Fprint(os.Stdout, RESET+ERASE) // Erase rest of line
+  sim.Println()
 }
 
 // Initiates the stderr and stdout files of sim.

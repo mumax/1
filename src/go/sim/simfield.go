@@ -42,7 +42,7 @@ func (field *rfField) GetAppliedField(time float64) [3]float {
 func (s *Sim) DemagAccuracy(accuracy int) {
 	Debugv("Demag accuracy:", accuracy)
 	if accuracy < 4 {
-		Warn("Low demag accuracy: " + fmt.Sprint(accuracy))
+		s.Warn("Low demag accuracy: " + fmt.Sprint(accuracy))
 	}
 	s.input.demag_accuracy = accuracy
 	s.invalidate()
