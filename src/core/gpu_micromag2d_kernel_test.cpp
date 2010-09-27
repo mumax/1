@@ -1,5 +1,5 @@
 #include "gpu_micromag2d_kernel.h"
-#include "gputil.h"
+#include "gpukern.h"
 #include "kernel.h"
 #include "field.h"
 #include "timestep.h"

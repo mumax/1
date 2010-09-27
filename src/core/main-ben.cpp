@@ -1,4 +1,6 @@
 #include "main-ben.h"
+#include "gpukern.h"
+#include "gputil.h"
 
 param* read_param();
 void initialize_m(tensor *, param *);
@@ -43,14 +45,14 @@ int main(int argc, char** argv){
 //   delete_tensor (hHost);
 
   
-//   int *size = kernel->size;
-//   printf("size: %d, %d\n", size[0], size[1]);
-//   tensor* gHost = new_tensorN(2, size);
-//   FILE *temp_g = fopen("temp_g", "w");
-//   tensor_copy_from_gpu(kernel, gHost);
-//   format_tensor(gHost, temp_g);
-//   fclose(temp_g);
-//   delete_tensor (gHost);
+  int *size = kernel->size;
+  printf("size: %d, %d\n", size[0], size[1]);
+  tensor* gHost = new_tensorN(2, size);
+  FILE *temp_g = fopen("temp_g", "w");
+  tensor_copy_from_gpu(kernel, gHost);
+  format_tensor(gHost, temp_g);
+  fclose(temp_g);
+  delete_tensor (gHost);
 
    return(0);
 //   FILE *av =fopen("./Data/m_av_fw_2e-1", "w");

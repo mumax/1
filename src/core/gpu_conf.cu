@@ -2,7 +2,7 @@
 #include "gpu_properties.h"
 #include "../macros.h"
 #include <assert.h>
-#include "gputil.h"
+#include "gpukern.h"
 
 #ifdef __cplusplus
 extern "C" {

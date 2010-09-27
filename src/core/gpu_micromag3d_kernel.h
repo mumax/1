@@ -13,7 +13,7 @@
 #define GPU_MICROMAG3D_KERNEL_H
 
 #include "tensor.h"
-#include "gputil.h"
+#include "gpukern.h"
 #include "param.h"
 //#include "gpufft2.h"
 #include "gpu_fft.h"

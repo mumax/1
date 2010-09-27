@@ -42,7 +42,6 @@ OFILES=\
 	gputil.o\
 	gpu_heun.o\
 	gpu_anal.o\
-	gpunormalize.o\
 	field.o\
 	timestep.o\
 	kernel.o\
@@ -50,11 +49,10 @@ OFILES=\
 	gpu_micromag3d_kernel.o\
 	gpu_micromag2d_kernel.o\
 	gpu_conv.o\
-	gputorque.o\
 	cpu_exch.o\
 	gpu_exchange.o\
 	gpu_transpose2.o\
-	gpu_fft.o
+#	gpu_fft.o
 # 	gpufft2.o\
 # 	gpu_conf.o\
 # 	gpurk4.o\
@@ -65,7 +63,7 @@ OFILES=\
 #	gpuconv1.o\
 #	gpuconv2.o\
 
-# all: core.so core.a doc
+all: main-ben
 
 tensor.o:	tensor.h tensor.cpp
 	$(NVCC) -c $(NVCCFLAGS) tensor.cpp
@@ -130,7 +128,7 @@ main-ben.o:	main-ben.h main-ben.cpp
 
 main-ben: $(OFILES) main-ben.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) main-ben.cpp
-	$(NVCC) $(CUDALIBS) $(OFILES) main-ben.o -o main-ben
+	$(NVCC) $(CUDALIBS) $(OFILES) $(SIMROOT)/src/gpukern/libgpukern.so main-ben.o -o main-ben
 
 
 
