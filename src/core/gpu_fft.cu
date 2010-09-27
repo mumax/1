@@ -336,7 +336,7 @@ void gpu_copy_to_pad(float* source, float* dest, int *unpad_size, int *pad_size)
   
   dim3 gridSize(S0, S1, 1); ///@todo generalize!
   dim3 blockSize(S2, 1, 1);
-  gpu_checkconf(gridSize, blockSize);
+  check3dconf(gridSize, blockSize);
   
   if ( pad_size[X]!=unpad_size[X] || pad_size[Y]!=unpad_size[Y])
     _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size[Z]-2);      // for out of place forward FFTs in z-direction, contiguous data arrays
@@ -356,7 +356,7 @@ void gpu_copy_to_unpad(float* source, float* dest, int *pad_size4d, int *unpad_s
 
   dim3 gridSize(D0, D1, 1); ///@todo generalize!
   dim3 blockSize(D2, 1, 1);
-  gpu_checkconf(gridSize, blockSize);
+  check3dconf(gridSize, blockSize);
 
   if ( pad_size4d[1]!=unpad_size4d[1] || pad_size4d[2]!=unpad_size4d[2])
     _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, D1,  pad_size4d[3]-2, D1, D2);       // for out of place inverse FFTs in z-direction, contiguous data arrays
