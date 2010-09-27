@@ -95,7 +95,7 @@ func NewSim(outputdir string, silent, log bool) *Sim {
 // When a parmeter is changed, the simulation state is invalidated until it gets (re-)initialized by init().
 func (s *Sim) invalidate() {
 	if s.IsValid() {
-		Debugv("Simulation state invalidated")
+		s.Println("Simulation state invalidated")
 	}
 	s.valid = false
 }
@@ -112,17 +112,18 @@ func (s *Sim) initSize() {
 		assert(s.size[i] > 0)
 		s.size4D[i+1] = s.size[i]
 	}
-	Debugv("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
+	s.Println("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
 }
 
 func (s *Sim) initMLocal() {
 	s.initSize()
 	if s.mLocal == nil {
-		Debugv("Allocating local memory " + fmt.Sprint(s.size4D))
+		s.Println("Allocating local memory " + fmt.Sprint(s.size4D))
 		s.mLocal = tensor.NewTensor4(s.size4D[0:])
 	}
 
 	if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
+    s.Println("Resampling magnetization from ", s.mLocal.Size(), " to ", Size4D(s.input.size[0:]))
 		s.mLocal = resample(s.mLocal, Size4D(s.input.size[0:]))
 	}
 }
@@ -132,7 +133,7 @@ func (s *Sim) init() {
 	if s.IsValid() {
 		return //no work to do
 	}
-	Debugv("Initializing simulation state")
+	s.Println("Initializing simulation state")
 
 	dev := s.backend
 	dev.InitBackend()
@@ -164,7 +165,7 @@ func (s *Sim) init() {
 	// 	}
 
 	// 	if s.mDev == nil {
-	Debugv("Allocating device memory " + fmt.Sprint(s.size4D))
+	s.Println("Allocating device memory " + fmt.Sprint(s.size4D))
 	s.mDev = NewTensor(dev, s.size4D[0:])
 	s.h = NewTensor(dev, s.size4D[0:])
 	s.printMem()
@@ -185,7 +186,7 @@ func (s *Sim) init() {
 
 	s.paddedsize = padSize(s.size[0:])
 
-	Debugv("Calculating kernel (may take a moment)") // --- In fact, it takes 3 moments, one in each direction.
+	s.Println("Calculating kernel (may take a moment)") // --- In fact, it takes 3 moments, one in each direction.
 	demag := FaceKernel6(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy)
 	exch := Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
 	// Add Exchange kernel to demag kernel
@@ -200,7 +201,7 @@ func (s *Sim) init() {
 	s.printMem()
 
 	// (5) Time stepping
-	Debugv("Initializing solver: ", s.input.solvertype)
+	s.Println("Initializing solver: ", s.input.solvertype)
 	s.dt = s.input.dt / s.UnitTime()
 	s.Solver = NewSolver(s.input.solvertype, s)
 	s.printMem()
@@ -218,7 +219,6 @@ func (s *Sim) Verbosity(level int) {
 
 
 func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {
-	Debugv("Resampling magnetization from ", in.Size(), " to ", size2)
 	assert(len(size2) == 4)
 	out := tensor.NewTensor4(size2)
 	out_a := out.Array()
