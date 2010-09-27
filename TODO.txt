@@ -1,5 +1,14 @@
 TODO (Arne)
 
+* bigfft
+* higher-order solvers
+* dashboard:
+   time     ETA
+   step     out
+   time     dt
+   steptime performance
+   Bx, By, Bz
+   mx, my, mz
 * check if input parameters make sense and are set before sim.init() (size, material, ...)
 * replace all panic() calls by clear error messages
 * save log file
