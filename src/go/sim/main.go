@@ -32,8 +32,8 @@ var (
 
 // to be called by main.main()
 func Main() {
-  defer crashreport()               // if we crash, catch it here and print a nice crash report
-	defer fmt.Print(SHOWCURSOR)   // make sure the cursor does not stay hidden if we crash
+	defer crashreport()         // if we crash, catch it here and print a nice crash report
+	defer fmt.Print(SHOWCURSOR) // make sure the cursor does not stay hidden if we crash
 
 	flag.Parse()
 	Verbosity = *verbosity
@@ -116,9 +116,9 @@ func removeExtension(str string) string {
 // This function is deferred from Main(). If a panic()
 // occurs, it prints a nice explanation and asks to
 // mail the crash report.
-func crashreport(){
-  error := recover()
-  if error != nil{
-    panic(error)
-  }
+func crashreport() {
+	error := recover()
+	if error != nil {
+		panic(error)
+	}
 }
