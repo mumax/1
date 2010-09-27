@@ -90,7 +90,7 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int 
         
          // Fourier transform the kernel component.
 //        gpuFFT3dPlan_forward(kernel_plan, FFT_input, FFT_output); 
-        gpuFFT3dPlan_forward_unsafe(kernel_plan, dev_temp1, dev_temp2); 
+        gpuFFT3dPlan_forward(kernel_plan, dev_temp1, dev_temp2); 
         cudaThreadSynchronize();
          // Copy the real parts to the corresponding place in the dev_kernel tensor.
 				_gpu_extract_real_parts_micromag3d<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*kernelStorageN/2], dev_temp2);

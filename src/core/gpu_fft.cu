@@ -60,23 +60,23 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
 
 
 
-void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
-  assertDevice(input->list);
-  assertDevice(output->list);
-  assert(input->list == output->list); ///@todo works only in-place for now
-  assert(input->rank == 3);
-  assert(output->rank == 3);
-  for(int i=0; i<3; i++){
-    assert( input->size[i] == plan->paddedStorageSize[i]);
-    assert(output->size[i] == plan->paddedStorageSize[i]);
-  }
-  
-  gpuFFT3dPlan_forward_unsafe(plan, input->list, output->list);
+// void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
+//   assertDevice(input->list);
+//   assertDevice(output->list);
+//   assert(input->list == output->list); ///@todo works only in-place for now
+//   assert(input->rank == 3);
+//   assert(output->rank == 3);
+//   for(int i=0; i<3; i++){
+//     assert( input->size[i] == plan->paddedStorageSize[i]);
+//     assert(output->size[i] == plan->paddedStorageSize[i]);
+//   }
+//   
+//   gpuFFT3dPlan_forward(plan, input->list, output->list);
+// 
+//   return;
+// }
 
-  return;
-}
-
-void gpuFFT3dPlan_forward_unsafe(gpuFFT3dPlan* plan, float* input, float* output){
+void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   timer_start("gpu_plan3d_real_input_forward_exec");
   
   int* size = plan->size;
@@ -176,22 +176,22 @@ printf("pSSize: %d, %d, %d\n", pSSize[X], pSSize[Y], pSSize[Z]);*/
 
 
 
-void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
-  assertDevice(input->list);
-  assertDevice(output->list);
-  assert(input->list == output->list); ///@todo works only in-place for now
-  assert(input->rank == 3);
-  assert(output->rank == 3);
-  for(int i=0; i<3; i++){
-    assert( input->size[i] == plan->paddedStorageSize[i]);
-    assert(output->size[i] == plan->paddedStorageSize[i]);
-  }
-  gpuFFT3dPlan_inverse_unsafe(plan, input->list, output->list);
-  
-  return;
-}
+// void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
+//   assertDevice(input->list);
+//   assertDevice(output->list);
+//   assert(input->list == output->list); ///@todo works only in-place for now
+//   assert(input->rank == 3);
+//   assert(output->rank == 3);
+//   for(int i=0; i<3; i++){
+//     assert( input->size[i] == plan->paddedStorageSize[i]);
+//     assert(output->size[i] == plan->paddedStorageSize[i]);
+//   }
+//   gpuFFT3dPlan_inverse(plan, input->list, output->list);
+//   
+//   return;
+// }
 
-void gpuFFT3dPlan_inverse_unsafe(gpuFFT3dPlan* plan, float* input, float* output){
+void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
   
   timer_start("gpu_plan3d_real_input_inverse_exec");
   
