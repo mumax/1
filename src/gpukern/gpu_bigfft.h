@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 /// Maximum size of a CUFFT FFT
-#define MAX_FFTSIZE = (8*1024*1024)
+#define MAX_FFTSIZE (8*1024*1024)
 
 /// @internal
 /// The batch is split into plan1 (with the largest possible size),
@@ -42,7 +42,7 @@ typedef struct{
   int nPlan1;         ///< For an FFT with N elements, N = nPlan1 x plan1->size + plan2->size
   cufftHandle plan1;
   int nPlan2;         ///< Execute plan2 nPlan2 times (O or 1). If N is divisible by MAX_FFTSIZE, plan2 does not need to be executed.
-  cuffthandle plan2;
+  cufftHandle plan2;
   
 }bigfft;
 
