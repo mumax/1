@@ -14,35 +14,35 @@ extern "C" {
 #endif
 
 /// DEBUG: print real block
-void print(char* tag, float* data, int N0, int N1, int N2){
-  printf("%s (%d x %d x %d)\n", tag, N0, N1, N2);
-  for(int i=0; i<N0; i++){
-    for(int j=0; j<N1; j++){
-      for(int k=0; k<N2; k++){
-        fprintf(stdout, "%g\t", gpu_array_get(data, i*N1*N2 + j*N2 + k));
-      }
-      printf("\n");
-    }
-    printf("\n");
-  }
-}
+// void print(char* tag, float* data, int N0, int N1, int N2){
+//   printf("%s (%d x %d x %d)\n", tag, N0, N1, N2);
+//   for(int i=0; i<N0; i++){
+//     for(int j=0; j<N1; j++){
+//       for(int k=0; k<N2; k++){
+//         fprintf(stdout, "%g\t", gpu_array_get(data, i*N1*N2 + j*N2 + k));
+//       }
+//       printf("\n");
+//     }
+//     printf("\n");
+//   }
+// }
 
 /// DEBUG: print complex block
-void printc(char* tag, float* data, int N0, int N1, int N2, int N3){
-  printf("%s (%d x %d x %d x %d)\n", tag, N0, N1, N2, N3);
-  for(int i=0; i<N0; i++){
-    for(int j=0; j<N1; j++){
-      for(int k=0; k<N2; k++){
-        for(int l=0; l<N3; l++){
-          fprintf(stdout, "%g\t", gpu_array_get(data, i*N1*N2*N3 + j*N2*N3 + k*N3 + l));
-        }
-        printf("  ");
-      }
-      printf("\n");
-    }
-    printf("\n");
-  }
-}
+// void printc(char* tag, float* data, int N0, int N1, int N2, int N3){
+//   printf("%s (%d x %d x %d x %d)\n", tag, N0, N1, N2, N3);
+//   for(int i=0; i<N0; i++){
+//     for(int j=0; j<N1; j++){
+//       for(int k=0; k<N2; k++){
+//         for(int l=0; l<N3; l++){
+//           fprintf(stdout, "%g\t", gpu_array_get(data, i*N1*N2*N3 + j*N2*N3 + k*N3 + l));
+//         }
+//         printf("  ");
+//       }
+//       printf("\n");
+//     }
+//     printf("\n");
+//   }
+// }
 
 
 /**
