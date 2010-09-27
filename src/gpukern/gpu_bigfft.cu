@@ -40,8 +40,8 @@ void bigfft_execR2C(bigfft* plan, cufftReal* input, cufftComplex* output){
   
   for(int i=0; i<plan->nPlan1; i++){
     gpu_safefft( cufftExecR2C(plan->plan1,&(input[in_offset]), &(output[out_offset])) );
-    in_offset += plan->maxBatch * (plan->size);
-    out_offset += plan->maxBatch * (plan->size + 1);
+//     in_offset += plan->maxBatch * (plan->size);
+//     out_offset += plan->maxBatch * (plan->size/2 + 1);
   }
   for(int i=0; i<plan->nPlan2; i++){
     gpu_safefft( cufftExecR2C(plan->plan2, &(input[in_offset]), &(output[out_offset])) );
@@ -54,8 +54,8 @@ void bigfft_execC2R(bigfft* plan, cufftComplex* input, cufftReal* output){
 
   for(int i=0; i<plan->nPlan1; i++){
     gpu_safefft( cufftExecC2R(plan->plan1, &(input[in_offset]), &(output[out_offset])) );
-    in_offset += plan->maxBatch * (plan->size + 1);
-    out_offset += plan->maxBatch * (plan->size);
+//     in_offset += plan->maxBatch * (plan->size/2 + 1);
+//     out_offset += plan->maxBatch * (plan->size);
   }
   for(int i=0; i<plan->nPlan2; i++){
     gpu_safefft( cufftExecC2R(plan->plan2, &(input[in_offset]), &(output[out_offset])) );
@@ -69,8 +69,8 @@ void bigfft_execC2C(bigfft* plan, cufftComplex* input, cufftComplex* output, int
 
   for(int i=0; i<plan->nPlan1; i++){
     gpu_safefft( cufftExecC2C(plan->plan1, &(input[in_offset]), &(output[out_offset]), direction) );
-    in_offset += plan->maxBatch * (plan->size);
-    out_offset += plan->maxBatch * (plan->size);
+//     in_offset += plan->maxBatch * (plan->size);
+//     out_offset += plan->maxBatch * (plan->size);
   }
   for(int i=0; i<plan->nPlan2; i++){
     gpu_safefft( cufftExecC2C(plan->plan2, &(input[in_offset]), &(output[out_offset]), direction) );

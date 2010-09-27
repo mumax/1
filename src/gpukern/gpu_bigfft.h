@@ -20,6 +20,7 @@
  * @author Arne Vansteenkiste
  * @author Ben Van de Wiele
  */
+///@todo does not work for large fft's yet!!
 #ifndef gpu_bigfft_h
 #define gpu_bigfft_h
 
