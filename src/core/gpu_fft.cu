@@ -337,21 +337,12 @@ void gpu_copy_to_pad(float* source, float* dest, int *unpad_size, int *pad_size)
   dim3 blockSize(S2, 1, 1);
   gpu_checkconf(gridSize, blockSize);
   
-<<<<<<< HEAD
   if ( pad_size[X]!=unpad_size[X] || pad_size[Y]!=unpad_size[Y])
     _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size[Z]-2);      // for out of place forward FFTs in z-direction, contiguous data arrays
   else{
     _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size[Z]);        // for in place forward FFTs in z-direction, contiguous data arrays
   }
-  cudaThreadSynchronize();
-=======
-  if ( pad_size4d[1]!=unpad_size4d[1] || pad_size4d[2]!=unpad_size4d[2])
-    _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size4d[3]-2);      // for out of place forward FFTs in z-direction, contiguous data arrays
-  else
-    _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size4d[3]);        // for in place forward FFTs in z-direction, contiguous data arrays
-
   gpu_sync();
->>>>>>> af881eb1f10232f5ddd928ad7bc3943dd871e177
   
   return;
 }
