@@ -91,9 +91,42 @@ void gpuFFT3dPlan_forward_unsafe(gpuFFT3dPlan* plan, float* input, float* output
   float* data = output;
   float* data2 = plan->transp; 
 
-    // padding of the input matrix
+  
+//   float *host_temp1 = (float *)calloc(size[X]*size[Y]*size[Z], sizeof(float));      // temp array on host for storage of each component in real + i*complex format in serie (only for debugging purposes)
+//   memcpy_from_gpu(input, host_temp1, size[X]*size[Y]*size[Z]);
+//   for (int cnt1=0; cnt1<size[X]; cnt1++){
+//     for (int cnt2=0; cnt2<size[Y]; cnt2++)
+//       for (int cnt3=0; cnt3<size[Z]; cnt3++){
+//         int index = cnt1*size[Y]*size[Z] + cnt2*size[Z] + cnt3;
+//         printf("%3.2e  ", host_temp1[index]);
+//       }
+//       printf("\n");
+//     }
+//   printf("\n\n");
+//   free (host_temp1);
+
+/*printf("  size: %d, %d, %d\n", size[X], size[Y], size[Z]);
+printf("pSSize: %d, %d, %d\n", pSSize[X], pSSize[Y], pSSize[Z]);*/
+  
+    // zero out the output matrix
+  gpu_zero(output, plan->paddedStorageN);
+    // padding of the input matrix towards the output matrix
   gpu_copy_to_pad(input, output, size, pSSize);
 
+
+/*  float *host_temp = (float *)calloc(plan->paddedStorageN, sizeof(float));      // temp array on host for storage of each component in real + i*complex format in serie (only for debugging purposes)
+  memcpy_from_gpu(output, host_temp, plan->paddedStorageN);
+  for (int cnt1=0; cnt1<pSSize[X]; cnt1++){
+    for (int cnt2=0; cnt2<pSSize[Y]; cnt2++)
+      for (int cnt3=0; cnt3<pSSize[Z]; cnt3++){
+        int index = cnt1*pSSize[Y]*pSSize[Z] + cnt2*pSSize[Z] + cnt3;
+        printf("%3.2e  ", host_temp[index]);
+      }
+      printf("\n");
+    }
+  printf("\n\n");
+  free(host_temp);*/
+  
   
   if ( pSSize[X]!=size[X] || pSSize[Y]!=size[Y]){
       // out of place FFTs in Z-direction from the 0-element towards second half of the zeropadded matrix (out of place: no +2 on input!)
@@ -294,27 +327,21 @@ __global__ void _gpu_copy_pad(float* source, float* dest,
 
 
 
-void gpu_copy_to_pad(float* source, float* dest, int *unpad_size4d, int *pad_size4d){          //for padding of the tensor, 2d and 3d applicable
+void gpu_copy_to_pad(float* source, float* dest, int *unpad_size, int *pad_size){          //for padding of the tensor, 2d and 3d applicable
   
-/*  int S0 = unpad_size4d[1];
-  int S1 = unpad_size4d[2];
-  int S2 = unpad_size4d[3];
-*/
-  int S0 = unpad_size4d[X];
-  int S1 = unpad_size4d[Y];
-  int S2 = unpad_size4d[Z];
-
-  printf("%d, %d, %d\n", S0, S1, S2);
-
+  int S0 = unpad_size[X];
+  int S1 = unpad_size[Y];
+  int S2 = unpad_size[Z];
+  
   dim3 gridSize(S0, S1, 1); ///@todo generalize!
   dim3 blockSize(S2, 1, 1);
   gpu_checkconf(gridSize, blockSize);
   
-  if ( pad_size4d[1]!=unpad_size4d[1] || pad_size4d[2]!=unpad_size4d[2])
-    _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size4d[3]-2);      // for out of place forward FFTs in z-direction, contiguous data arrays
-  else
-    _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size4d[3]);        // for in place forward FFTs in z-direction, contiguous data arrays
-
+  if ( pad_size[X]!=unpad_size[X] || pad_size[Y]!=unpad_size[Y])
+    _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size[Z]-2);      // for out of place forward FFTs in z-direction, contiguous data arrays
+  else{
+    _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size[Z]);        // for in place forward FFTs in z-direction, contiguous data arrays
+  }
   cudaThreadSynchronize();
   
   return;

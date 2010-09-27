@@ -32,47 +32,57 @@ int main(int argc, char** argv){
   int* size4D = tensor_size4D(p->size);
   tensor* Host = new_tensorN(4, size4D);
   
-  evaluate_field(ts->field, m, ts->h);
+//   evaluate_field(ts->field, m, ts->h);
+//   
+//   int* size4d_h = tensor_size4D(p->size);
+//   tensor* hHost = new_tensorN(4, size4d_h);
+//   FILE *temp_h = fopen("temp_h", "w");
+//   tensor_copy_from_gpu(ts->h, hHost);
+//   format_tensor(hHost, temp_h);
+//   fclose(temp_h);
+//   delete_tensor (hHost);
+
   
-  int* size4d_h = tensor_size4D(p->size);
-  tensor* hHost = new_tensorN(4, size4d_h);
-  FILE *temp_h = fopen("temp_h", "w");
-  tensor_copy_from_gpu(ts->h, hHost);
-  format_tensor(hHost, temp_h);
-  fclose(temp_h);
-  delete_tensor (hHost);
+//   int *size = kernel->size;
+//   printf("size: %d, %d\n", size[0], size[1]);
+//   tensor* gHost = new_tensorN(2, size);
+//   FILE *temp_g = fopen("temp_g", "w");
+//   tensor_copy_from_gpu(kernel, gHost);
+//   format_tensor(gHost, temp_g);
+//   fclose(temp_g);
+//   delete_tensor (gHost);
 
-//   return(0);
+   return(0);
 //   FILE *av =fopen("./Data/m_av_fw_2e-1", "w");
-  for(int i=0; i<100; i++){
-
-    
-//     tensor_copy_from_gpu(m, Host);
-//     sprintf(fname, "./Data/m_%010d.t", i);
-//     write_tensor_fname(Host, fname);
+//   for(int i=0; i<0; i++){
 // 
-//     tensor_copy_from_gpu(ts->h, Host);
-//     sprintf(fname, "./Data/h_%010d.t", i);
-//     write_tensor_fname(Host, fname);
-
-    tensor_copy_from_gpu(m, Host);
-    float mx = 0.0f;
-    float my = 0.0f;
-    float mz = 0.0f;
-    for(int j=0; j<m->len/3; j++){
-      mx += Host->list[0*m->len/3 + j];
-      my += Host->list[1*m->len/3 + j];
-      mz += Host->list[2*m->len/3 + j];
-    }
-    printf("total steps: %d\n", ts->totalSteps);
-    printf("%e\t%f\t%f\t%f\n", totalTime*unittime(p), mx/(float)(m->len/3), my/(float)(m->len/3), mz/(float)(m->len/3));
-//     fprintf(av, "%e\t%f\t%f\t%f\t%f\n", totalTime*unittime(p), mx/(float)(m->len/3), my/(float)(m->len/3), mz/(float)(m->len/3), (mx*mx+my*my+mz*mz)/(float)(m->len/3*m->len/3));
-//     printf("\n%f\t%f\t%f\t%f\n", mx/(float)(m->len/3), my/(float)(m->len/3), mz/(float)(m->len/3), (mx*mx+my*my+mz*mz)/(float)(m->len/3*m->len/3));
-    
-    for(int j=0; j<100; j++)
-      timestep(ts, m, &totalTime);
-
-  }
+//     
+// //     tensor_copy_from_gpu(m, Host);
+// //     sprintf(fname, "./Data/m_%010d.t", i);
+// //     write_tensor_fname(Host, fname);
+// // 
+// //     tensor_copy_from_gpu(ts->h, Host);
+// //     sprintf(fname, "./Data/h_%010d.t", i);
+// //     write_tensor_fname(Host, fname);
+// 
+//     tensor_copy_from_gpu(m, Host);
+//     float mx = 0.0f;
+//     float my = 0.0f;
+//     float mz = 0.0f;
+//     for(int j=0; j<m->len/3; j++){
+//       mx += Host->list[0*m->len/3 + j];
+//       my += Host->list[1*m->len/3 + j];
+//       mz += Host->list[2*m->len/3 + j];
+//     }
+//     printf("total steps: %d\n", ts->totalSteps);
+//     printf("%e\t%f\t%f\t%f\n", totalTime*unittime(p), mx/(float)(m->len/3), my/(float)(m->len/3), mz/(float)(m->len/3));
+// //     fprintf(av, "%e\t%f\t%f\t%f\t%f\n", totalTime*unittime(p), mx/(float)(m->len/3), my/(float)(m->len/3), mz/(float)(m->len/3), (mx*mx+my*my+mz*mz)/(float)(m->len/3*m->len/3));
+// //     printf("\n%f\t%f\t%f\t%f\n", mx/(float)(m->len/3), my/(float)(m->len/3), mz/(float)(m->len/3), (mx*mx+my*my+mz*mz)/(float)(m->len/3*m->len/3));
+//     
+//     for(int j=0; j<100; j++)
+//       timestep(ts, m, &totalTime);
+// 
+//   }
 
 //   fclose(av);
 
@@ -114,13 +124,13 @@ param* read_param(){
   p->aexch = 1.3E-11;
   p->alpha = 1.0;
 
-  p->size[X] = 1;
-  p->size[Y] = 32;
-  p->size[Z] = 128;
+//   p->size[X] = 1;
+//   p->size[Y] = 32;
+//   p->size[Z] = 128;
 
-//   p->size[X] = 2;
-//   p->size[Y] = 4;
-//   p->size[Z] = 8;
+  p->size[X] = 2;
+  p->size[Y] = 4;
+  p->size[Z] = 8;
 
   double L = unitlength(p);
   printf("unitlength: %e\n", L);

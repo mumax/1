@@ -56,8 +56,6 @@ void evaluate_micromag3d_conv(tensor *m, tensor *h, conv_data *conv){
 //   }
 
   for(int i=0; i<3; i++){
-/*      //padding of m_i
-    gpu_copy_to_pad(m_comp[i], fft1_comp[i], m->size, conv->fft1->size);*/
       //Fourier transforming of fft_mi
     gpuFFT3dPlan_forward_unsafe(conv->fftplan, m_comp[i], fft1_comp[i]);    //padding within routine
   }
