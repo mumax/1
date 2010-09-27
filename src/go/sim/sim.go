@@ -86,7 +86,7 @@ func NewSim(outputdir string, silent, log bool) *Sim {
 	sim.input.demag_accuracy = 8
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
 	sim.setOutputDir(outputdir)
-	sim.initWriters(outputdir string, silent, log bool)
+	sim.initWriters(outputdir, silent, log)
 	sim.invalidate()     //just to make sure we will init()
 	return sim
 }
