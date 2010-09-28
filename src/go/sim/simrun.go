@@ -9,7 +9,7 @@ import (
 // Run the simulation for a certain duration, specified in seconds
 func (s *Sim) Run(time float64) {
 	s.init()
-	Debug("Running for ", time, "s")
+	s.Println("Running for ", time, "s")
 	time /= float64(s.UnitTime())
 	stop := s.time + time
 
@@ -29,7 +29,6 @@ func (s *Sim) Run(time float64) {
 		updateDashboard(s)
 
 		// step
-		Debugvv("Step", s.steps)
 		s.Start("Step")
 		s.Step()
 		s.steps++
@@ -48,7 +47,7 @@ func (s *Sim) Run(time float64) {
 func (s *Sim) assureMUpToDate() {
 	s.init()
 	if !s.mUpToDate {
-		Debugvv("Copying m from device to local memory")
+// 		Debugvv("Copying m from device to local memory")
 		TensorCopyFrom(s.mDev, s.mLocal)
 		s.autosaveIdx++
 		s.mUpToDate = true

@@ -150,7 +150,7 @@ func (t *Table) Save(s *Sim) {
 			panic(err)
 		}
 		t.out = tabwriter.NewWriter(out, COL_WIDTH, 4, 0, ' ', 0)
-		Debugv("Opened data table file")
+		s.Println("Opened data table file")
 		fmt.Fprintln(t.out, TABLE_HEADER)
 	}
 	mx, my, mz := m_average(s.mLocal)

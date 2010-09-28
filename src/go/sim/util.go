@@ -49,25 +49,25 @@ func prod(size []int) int {
 var Verbosity int = 2
 
 
-func Debug(msg ...interface{}) {
-	if Verbosity > 0 {
+// func Debug(msg ...interface{}) {
+// 	if Verbosity > 0 {
+// 		fmt.Fprint(os.Stderr, msg)
+// 		fmt.Fprint(os.Stderr, ERASE) // Erase rest of line
+// 		fmt.Fprintln(os.Stderr)
+// 	}
+// }
+// 
+// func Debugv(msg ...interface{}) {
+// 	if Verbosity > 1 {
+// 		Debug(msg)
+// 	}
+// }
+
+
+func Debugvv(msg ...interface{}) {
+	if Verbosity > 2 {
 		fmt.Fprint(os.Stderr, msg)
 		fmt.Fprint(os.Stderr, ERASE) // Erase rest of line
 		fmt.Fprintln(os.Stderr)
 	}
 }
-
-func Debugv(msg ...interface{}) {
-	if Verbosity > 1 {
-		Debug(msg)
-	}
-}
-
-
-func Debugvv(msg ...interface{}) {
-	if Verbosity > 2 {
-		Debug(msg)
-	}
-}
-
-
