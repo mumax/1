@@ -49,7 +49,6 @@ func prod(size []int) int {
 var Verbosity int = 2
 
 
-
 func Debug(msg ...interface{}) {
 	if Verbosity > 0 {
 		fmt.Fprint(os.Stderr, msg)

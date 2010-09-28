@@ -8,13 +8,13 @@ extern "C" {
 void init_bigfft(bigfft* target, int size, cufftType type, int batch){
   assert(size <= MAX_FFTSIZE);
   
-  fprintf(stderr, "init_bigfft(%p, %d, %d)\n", target, size, batch);
+//   fprintf(stderr, "init_bigfft(%p, %d, %d)\n", target, size, batch);
   target->maxBatch = MAX_FFTSIZE / size;  // the maximum number of batches we can run in one plan
-  fprintf(stderr, "maxBatch=%d\n", target->maxBatch);
+//   fprintf(stderr, "maxBatch=%d\n", target->maxBatch);
   
   target->nPlan1 = batch / target->maxBatch;
   if (target->nPlan1 > 0){
-    fprintf(stderr, "plan1 = cufftPlan1d(%d, %d); nPlan1 = %d\n", size, target->maxBatch, target->nPlan1);
+//     fprintf(stderr, "plan1 = cufftPlan1d(%d, %d); nPlan1 = %d\n", size, target->maxBatch, target->nPlan1);
     gpu_safefft( cufftPlan1d(&(target->plan1), size, type, target->maxBatch) );
     gpu_safefft( cufftSetCompatibilityMode((target->plan1), CUFFT_COMPATIBILITY_NATIVE) );
   }
@@ -28,7 +28,7 @@ void init_bigfft(bigfft* target, int size, cufftType type, int batch){
   }
   
   if (target->nPlan2 > 0){
-    fprintf(stderr, "plan2 = cufftPlan1d(%d, %d); nPlan2 = %d\n", size, batch2, target->nPlan2);
+//     fprintf(stderr, "plan2 = cufftPlan1d(%d, %d); nPlan2 = %d\n", size, batch2, target->nPlan2);
     gpu_safefft( cufftPlan1d(&(target->plan2), size, type, batch2) );
     gpu_safefft( cufftSetCompatibilityMode((target->plan2), CUFFT_COMPATIBILITY_NATIVE) );
   }
