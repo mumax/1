@@ -30,7 +30,7 @@ func main() {
 	}
 }
 
-/** stores the tensor that is being maipulated. should be accessed through setbuffer(), getbuffer(). */
+// stores the tensor that is being maipulated. should be accessed through setbuffer(), getbuffer().
 var tensor_ Tensor
 
 
@@ -38,7 +38,7 @@ func setbuffer(t Tensor) {
 	tensor_ = t
 }
 
-/** gets the buffered tensor, or reads from stdin if no tensor was created yet. */
+//gets the buffered tensor, or reads from stdin if no tensor was created yet. 
 func getbuffer() Tensor {
 	if tensor_ == nil {
 		setbuffer(Read(os.Stdin))
@@ -46,7 +46,7 @@ func getbuffer() Tensor {
 	return tensor_
 }
 
-/** Has SOME output been written already? If not, we will write the tensor buffer to stdout before the program exits. */
+//Has SOME output been written already? If not, we will write the tensor buffer to stdout before the program exits.
 var written bool = false
 
 func exec(command string, args []string) {
