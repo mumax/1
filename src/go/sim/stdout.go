@@ -26,7 +26,7 @@ func (sim *Sim) Println(msg ...interface{}) {
 // Prints to stderr (unless sim.silent=true) and also to output.log
 func (sim *Sim) Errorln(msg ...interface{}) {
 	if !sim.silent {
-    sim.Escape(BOLD)
+    sim.Escape(BOLD+RED)
 		fmt.Fprintln(os.Stderr, msg)
 		sim.Escape(RESET)
 	}
@@ -36,10 +36,10 @@ func (sim *Sim) Errorln(msg ...interface{}) {
 // Prints to stdout (unless sim.silent=true) in bold font
 // and also to output.log in plain text
 func (sim *Sim) Warn(msg ...interface{}) {
-	sim.Escape(BOLD)
+	sim.Escape(BOLD+RED)
 	sim.Print("WARNING: ")
 	sim.Print(msg)
-	sim.Escape(RESET + ERASE + "\n") // Erase rest of line
+	sim.Escape(RESET + ERASE) // Erase rest of line
 	sim.Println()
 }
 
