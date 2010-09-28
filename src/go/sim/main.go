@@ -32,8 +32,8 @@ var (
 
 // to be called by main.main()
 func Main() {
-	defer crashreport()         // if we crash, catch it here and print a nice crash report
-	defer fmt.Print(SHOWCURSOR) // make sure the cursor does not stay hidden if we crash
+	defer crashreport()                 // if we crash, catch it here and print a nice crash report
+	defer fmt.Print(RESET + SHOWCURSOR) // make sure the cursor does not stay hidden if we crash
 
 	flag.Parse()
 	Verbosity = *verbosity
@@ -78,6 +78,7 @@ func main_master() {
 		refsh := refsh.New()
 		refsh.CrashOnError = true
 		refsh.AddAllMethods(sim)
+		refsh.Output = sim
 		refsh.Exec(in)
 
 		// Idiot-proof error reports
