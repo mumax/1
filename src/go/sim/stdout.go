@@ -13,7 +13,8 @@ func (sim *Sim) Print(msg ...interface{}) {
 	if !sim.silent {
 		fmt.Fprint(os.Stdout, msg)
 	}
-	fmt.Fprint(sim.out, msg)
+	_, err := fmt.Fprint(sim.out, msg)
+	if err != nil {panic(err)}
 }
 
 func (sim *Sim) Println(msg ...interface{}) {
@@ -86,7 +87,7 @@ func (sim *Sim) Warn(msg ...interface{}) {
 func (sim *Sim) initWriters() {
 
 	outname := sim.outputdir + "/output.log"
-	outfile, err := os.Open(outname, os.O_CREATE|os.O_TRUNC, 0666)
+	outfile, err := os.Open(outname, os.O_WRONLY|os.O_CREAT, 0666)
 	if err != nil {
 		// We can not do much more than reporting that we can not save the output,
 		// it's not like we can put this message in the log or anything...
@@ -99,7 +100,7 @@ func (sim *Sim) initWriters() {
 	}
 
 	errname := sim.outputdir + "/error.log"
-	errfile, err2 := os.Open(errname, os.O_CREATE|os.O_TRUNC, 0666)
+	errfile, err2 := os.Open(errname, os.O_WRONLY|os.O_CREAT, 0666)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err2)
 		sim.err, _ = os.Open(os.DevNull, 0, 0666)
