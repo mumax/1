@@ -1,0 +1,20 @@
+\section{The \prog daemon}
+
+You can run \prog in the background (in ``\idx{daemon}'' mode), which makes it search for input files to run automatically. This provides a way to sequentially run a large batch of simulations or to distribute simulations on a cluster or cloud --- as described below.
+
+
+\subsection{Batch execution}
+
+You can run \prog \idxcmd{-daemon} \cmd{directory1} \cmd{directory2} \cmd{...} to search these directories for input files which will be automatically run. It will run all files ending with \file{.in}, for which the corresponding output directory (ending with \file{.out}) \emph{does not yet exist}.  When all simulations are finished, the directories will be re-checked for new input files every few seconds. So you can add new input files at any moment and they will queued for execution.
+
+Note that when a directory \file{XXX.out} exists, the corresponding \file{XXX.in} file will not be run. Thus, when you want to re-run a simulation (e.g., after you have edited the input file), you need to remove the 
+\file{.out} directory.
+
+\subsection{Simulating on a cluster}
+
+To distribute a batch of simulations over a cluster, you can simply create a shared network directory for your input files. Then start \prog \idxcmd{-daemon} \emph{\cmd{networkdir}} on each of the cluster nodes
+and they will all start to run the input files on the share in parallel. All the output is convieniently written back to the network share.
+
+\subsection{Simulating in a cloud}
+
+It often happens that someone has a local machine or cluster that is not used 100\% of the time. In that case, the idle time can easily be ``donated'' to an other group, and they can do the same with their idle time. To set up such collaborative network, create \emph{two} input file directories. E.g.: a local directory \file{mySims} for your own simulations and a remotely accessible directory \file{theirSims}. The remote directory could, e.g., be mounted with \idxcmd{sshfs} to provide secure access over the internet. Then run \prog \cmd{-daemon mySims theirSims} (on your local machine or on all of your cluster nodes). The program will then \emph{first} search \file{mySims} for input files to run. When there are no pending input files left on \file{mySims}, it will start running the input files in \file{theirSims}. Also, as soon as new input files are added to \file{mySims}, they will again be run with first priority. Thus, only time otherwise spent idle is donated to your collaborators. They can then of course use exactly the same setup to donate their idle time to you.

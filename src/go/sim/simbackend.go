@@ -8,14 +8,14 @@ package sim
 // Select the CPU as backend
 func (s *Sim) Cpu() {
 	s.backend = CPU
-	Debugv("Selected CPU backend")
+	s.Println("Selected CPU backend")
 	s.invalidate()
 }
 
 // Select the GPU as backend
 func (s *Sim) Gpu() {
 	s.backend = GPU
-	Debugv("Selected GPU backend")
+	s.Println("Selected GPU backend")
 	s.backend.PrintProperties()
 	s.invalidate()
 }

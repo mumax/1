@@ -110,7 +110,7 @@ func (d Gpu) copyPadded(source, dest uintptr, sourceSize, destSize []int, direct
 func (d Gpu) newFFTPlan(dataSize, logicSize []int) uintptr {
 	Csize := (*C.int)(unsafe.Pointer(&dataSize[0]))
 	CpaddedSize := (*C.int)(unsafe.Pointer(&logicSize[0]))
-	return uintptr(unsafe.Pointer(C.new_gpuFFT3dPlan_padded(Csize, CpaddedSize)))
+	return uintptr(unsafe.Pointer(C.new_gpuFFT3dPlanArne_padded(Csize, CpaddedSize)))
 }
 
 
@@ -119,9 +119,9 @@ func (d Gpu) fft(plan uintptr, in, out uintptr, direction int) {
 	default:
 		panic(fmt.Sprintf("Unknown FFT direction:", direction))
 	case FFT_FORWARD:
-		C.gpuFFT3dPlan_forward((*C.gpuFFT3dPlan)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
+		C.gpuFFT3dPlanArne_forward((*C.gpuFFT3dPlanArne)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
 	case FFT_INVERSE:
-		C.gpuFFT3dPlan_inverse((*C.gpuFFT3dPlan)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
+		C.gpuFFT3dPlanArne_inverse((*C.gpuFFT3dPlanArne)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
 	}
 }
 
@@ -130,6 +130,9 @@ func (d Gpu) newArray(nFloats int) uintptr {
 	return uintptr(unsafe.Pointer(C.new_gpu_array(C.int(nFloats))))
 }
 
+func (d Gpu) freeArray(ptr uintptr) {
+	C.free_gpu_array((*C.float)(unsafe.Pointer(ptr)))
+}
 
 func (d Gpu) memcpy(source, dest uintptr, nFloats, direction int) {
 	C.memcpy_gpu_dir((*C.float)(unsafe.Pointer(source)), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats), C.int(direction))

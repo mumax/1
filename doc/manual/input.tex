@@ -1,5 +1,7 @@
 \section{Input file specification}
 
+To run the program, type \prog \idx{arguments} \idx{inputfiles}. The program arguments are optinal and described in section \ref{arguments}
+
 A \prog input file specifies an entire simulation, including which output should be saved. Each file contains a series of \idx{commands} which are executed in the order they are provided. Let us start with a simple example:
 
 
@@ -17,3 +19,8 @@ uniform		1 1 1
 autosave:	table	ascii	10E-12
 run:          	1E-9
 \end{verbatim}
+
+
+\subsection{Program arguments}\label{arguments}
+
+To obtain a list of program arguments, run \prog \cmd{-help}.

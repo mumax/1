@@ -32,7 +32,8 @@ var (
 
 // to be called by main.main()
 func Main() {
-	defer fmt.Print(SHOWCURSOR) // make sure the cursor does not stay hidden if we crash
+	defer crashreport()                 // if we crash, catch it here and print a nice crash report
+	defer fmt.Print(RESET + SHOWCURSOR) // make sure the cursor does not stay hidden if we crash
 
 	flag.Parse()
 	Verbosity = *verbosity
@@ -71,19 +72,21 @@ func main_master() {
 		}
 		defer in.Close()
 
-		sim := NewSim()
-		sim.outputDir(removeExtension(infile) + ".out")
+		//TODO it would be safer to abort when the output dir is not empty
+		sim := NewSim(removeExtension(infile) + ".out")
+		defer sim.out.Close()
 		refsh := refsh.New()
 		refsh.CrashOnError = true
 		refsh.AddAllMethods(sim)
+		refsh.Output = sim
 		refsh.Exec(in)
 
 		// Idiot-proof error reports
 		if refsh.CallCount == 0 {
-			Error("Input file contains no commands.")
+			sim.Errorln("Input file contains no commands.")
 		}
 		if !sim.BeenValid {
-			Error("Input file does not contain any commands to make the simulation run. Use, e.g., \"run\".")
+			sim.Errorln("Input file does not contain any commands to make the simulation run. Use, e.g., \"run\".")
 		}
 		// The next two lines cause a nil pointer panic when the simulation is not fully initialized
 		if sim.BeenValid {
@@ -111,3 +114,13 @@ func removeExtension(str string) string {
 // 	server := NewDeviceServer(*device, *transport, *port)
 // 	server.Listen()
 // }
+
+// This function is deferred from Main(). If a panic()
+// occurs, it prints a nice explanation and asks to
+// mail the crash report.
+func crashreport() {
+	error := recover()
+	if error != nil {
+		panic(error)
+	}
+}

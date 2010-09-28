@@ -98,20 +98,10 @@ func (dev *Backend) LinearCombination(a, b *DevTensor, weightA, weightB float) {
 
 // a[i] += cnst
 func (dev *Backend) AddConstant(a *DevTensor, cnst float) {
-	Debugvv("Backend.AddConstant(", a, cnst, ")")
 	dev.addConstant(a.data, cnst, tensor.N(a))
 }
 
-// // adds the constant vector cnst to each element a. len(cnst) == Size(a)[0]
-// func(dev *Backend) AddVector(a *Tensor, cnst []float){
-//   assert(len(cnst) == a.size[0])
-//   for i:=range a.size{
-//     dev.addConstant(
-//   }
-// }
-
 func (dev *Backend) Normalize(m *DevTensor) {
-	//Debugvv( "Backend.Normalize()" )
 	assert(len(m.size) == 4)
 	N := m.size[1] * m.size[2] * m.size[3]
 	dev.normalize(m.data, N)
@@ -138,7 +128,7 @@ func (dev *Backend) Torque(m, h *DevTensor, alpha float) {
 
 func (b Backend) OverrideStride(stride int) {
 	panic("OverrideStride is currently not compatible with the used FFT, it should always be 1")
-	Debugv("Backend.OverrideStride(", stride, ")")
+	Debugvv("Backend.OverrideStride(", stride, ")")
 	assert(stride > 0 || stride == -1)
 	b.overrideStride(stride)
 }

@@ -36,7 +36,7 @@ int main(){
   printf("%d %d %d\n", paddedsize[0], paddedsize[1], paddedsize[2]);
 
   
-  gpuFFT3dPlan* plan = new_gpuFFT3dPlan_padded(size, paddedsize);
+  gpuFFT3dPlanArne* plan = new_gpuFFT3dPlanArne_padded(size, paddedsize);
     
   float* host1 = (float*)calloc(8*paddedN, sizeof(float));
   float* host2 = (float*)calloc(8*paddedN, sizeof(float));
@@ -61,8 +61,8 @@ int main(){
   memcpy_to_gpu(host1, devin, N);
 
     
-  gpuFFT3dPlan_forward(plan, devin, devout);
-  gpuFFT3dPlan_inverse(plan, devout, devin);
+  gpuFFT3dPlanArne_forward(plan, devin, devout);
+  gpuFFT3dPlanArne_inverse(plan, devout, devin);
 
   
 }

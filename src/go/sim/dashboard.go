@@ -102,6 +102,8 @@ const (
 	HIDECURSOR = "\033[?25l"
 	// Show cursor
 	SHOWCURSOR = "\033[?25h"
+
+	RED = "\033[31m"
 )
 
 const (

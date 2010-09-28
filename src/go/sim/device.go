@@ -80,6 +80,9 @@ type Device interface {
 	// Does not need to be initialized with zeros
 	newArray(nFloats int) uintptr
 
+	// Frees device memory allocated by newArray
+	freeArray(ptr uintptr)
+
 	// Copies nFloats to, on or from the device, depending on the direction flag (1, 2 or 3)
 	memcpy(source, dest uintptr, nFloats, direction int)
 

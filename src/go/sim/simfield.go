@@ -40,9 +40,9 @@ func (field *rfField) GetAppliedField(time float64) [3]float {
 // 2^accuracy points are used to integrate the field.
 // A high value is accurate and slows down (only) the initialization.
 func (s *Sim) DemagAccuracy(accuracy int) {
-	Debugv("Demag accuracy:", accuracy)
+	s.Println("Demag accuracy:", accuracy)
 	if accuracy < 4 {
-		Warn("Low demag accuracy: " + fmt.Sprint(accuracy))
+		s.Warn("Low demag accuracy: " + fmt.Sprint(accuracy))
 	}
 	s.input.demag_accuracy = accuracy
 	s.invalidate()

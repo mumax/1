@@ -111,7 +111,7 @@ func findInputFile(dir string) string {
 	// if we can not read a directory, we should not necessarily crash,
 	// instead report it and go on so other directories can still be searched.
 	if err != nil {
-		Debugv(err)
+		fmt.Fprintln(os.Stderr, err)
 		return ""
 	}
 	defer d.Close()

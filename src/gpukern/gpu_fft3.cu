@@ -14,35 +14,35 @@ extern "C" {
 #endif
 
 /// DEBUG: print real block
-void print(char* tag, float* data, int N0, int N1, int N2){
-  printf("%s (%d x %d x %d)\n", tag, N0, N1, N2);
-  for(int i=0; i<N0; i++){
-    for(int j=0; j<N1; j++){
-      for(int k=0; k<N2; k++){
-        fprintf(stdout, "%g\t", gpu_array_get(data, i*N1*N2 + j*N2 + k));
-      }
-      printf("\n");
-    }
-    printf("\n");
-  }
-}
+// void print(char* tag, float* data, int N0, int N1, int N2){
+//   printf("%s (%d x %d x %d)\n", tag, N0, N1, N2);
+//   for(int i=0; i<N0; i++){
+//     for(int j=0; j<N1; j++){
+//       for(int k=0; k<N2; k++){
+//         fprintf(stdout, "%g\t", gpu_array_get(data, i*N1*N2 + j*N2 + k));
+//       }
+//       printf("\n");
+//     }
+//     printf("\n");
+//   }
+// }
 
 /// DEBUG: print complex block
-void printc(char* tag, float* data, int N0, int N1, int N2, int N3){
-  printf("%s (%d x %d x %d x %d)\n", tag, N0, N1, N2, N3);
-  for(int i=0; i<N0; i++){
-    for(int j=0; j<N1; j++){
-      for(int k=0; k<N2; k++){
-        for(int l=0; l<N3; l++){
-          fprintf(stdout, "%g\t", gpu_array_get(data, i*N1*N2*N3 + j*N2*N3 + k*N3 + l));
-        }
-        printf("  ");
-      }
-      printf("\n");
-    }
-    printf("\n");
-  }
-}
+// void printc(char* tag, float* data, int N0, int N1, int N2, int N3){
+//   printf("%s (%d x %d x %d x %d)\n", tag, N0, N1, N2, N3);
+//   for(int i=0; i<N0; i++){
+//     for(int j=0; j<N1; j++){
+//       for(int k=0; k<N2; k++){
+//         for(int l=0; l<N3; l++){
+//           fprintf(stdout, "%g\t", gpu_array_get(data, i*N1*N2*N3 + j*N2*N3 + k*N3 + l));
+//         }
+//         printf("  ");
+//       }
+//       printf("\n");
+//     }
+//     printf("\n");
+//   }
+// }
 
 
 /**
@@ -52,7 +52,7 @@ void printc(char* tag, float* data, int N0, int N1, int N2, int N3){
  * @TODO interleave with streams: fft_z(MX), transpose(MX) async, FFT_z(MY), transpose(MY) async, ... threadsync, FFT_Y(MX)...
  * @TODO CUFFT crashes on more than one million cells, seems to be exactly the limit of 8 million elements (after zero-padding + 2 extra rows)
  */
-gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
+gpuFFT3dPlanArne* new_gpuFFT3dPlanArne_padded(int* size, int* paddedSize){
   
   int N0 = size[X];
   int N1 = size[Y];
@@ -62,7 +62,7 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
   assert(paddedSize[Y] > 1);
   assert(paddedSize[Z] > 1);
   
-  gpuFFT3dPlan* plan = (gpuFFT3dPlan*)malloc(sizeof(gpuFFT3dPlan));
+  gpuFFT3dPlanArne* plan = (gpuFFT3dPlanArne*)malloc(sizeof(gpuFFT3dPlanArne));
   
   plan->size = (int*)calloc(3, sizeof(int));
   plan->paddedSize = (int*)calloc(3, sizeof(int));
@@ -78,15 +78,11 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
 
   int complexZ = (paddedSize[Z] + 2)/2;
 
-  gpu_safefft( cufftPlan1d(&(plan->fwPlanZ),  plan->paddedSize[Z],   CUFFT_R2C, size[X] * size[Y]) );
-  gpu_safefft( cufftPlan1d(&(plan->invPlanZ), plan->paddedSize[Z],   CUFFT_C2R, size[X] * size[Y]) );
-  gpu_safefft( cufftPlan1d(&(plan->planY),    plan->paddedSize[Y], CUFFT_C2C, complexZ * size[X]) );
-  gpu_safefft( cufftPlan1d(&(plan->planX),    plan->paddedSize[X], CUFFT_C2C, complexZ * paddedSize[Y]) );
+  init_bigfft(&(plan->fwPlanZ),  plan->paddedSize[Z],   CUFFT_R2C, size[X] * size[Y]);
+  init_bigfft(&(plan->invPlanZ), plan->paddedSize[Z],   CUFFT_C2R, size[X] * size[Y]);
+  init_bigfft(&(plan->planY),    plan->paddedSize[Y], CUFFT_C2C, complexZ * size[X]);
+  init_bigfft(&(plan->planX),    plan->paddedSize[X], CUFFT_C2C, complexZ * paddedSize[Y]);
 
-  gpu_safefft( cufftSetCompatibilityMode(plan->fwPlanZ, CUFFT_COMPATIBILITY_NATIVE) );
-  gpu_safefft( cufftSetCompatibilityMode(plan->invPlanZ, CUFFT_COMPATIBILITY_NATIVE) );
-  gpu_safefft( cufftSetCompatibilityMode(plan->planY, CUFFT_COMPATIBILITY_NATIVE) );
-  gpu_safefft( cufftSetCompatibilityMode(plan->planX, CUFFT_COMPATIBILITY_NATIVE) );
 
 
   // IMPORTANT: the /2 is necessary because the complex transforms have only half the amount of elements (the elements are now complex numbers)
@@ -103,11 +99,11 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
 }
 
 
-gpuFFT3dPlan* new_gpuFFT3dPlan(int* size){
-  return new_gpuFFT3dPlan_padded(size, size); // when size == paddedsize, there is no padding
+gpuFFT3dPlanArne* new_gpuFFT3dPlanArne(int* size){
+  return new_gpuFFT3dPlanArne_padded(size, size); // when size == paddedsize, there is no padding
 }
 
-void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
+void gpuFFT3dPlanArne_forward(gpuFFT3dPlanArne* plan, float* input, float* output){
 
   // complex numbers in the (original) Z direction after the R2C transform
   int complexZ = (plan->paddedSize[Z] + 2)/2;
@@ -134,7 +130,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
     
   // (2) Out-of-place R2C FFT Z
   timer_start("FFT_R2C");
-  gpu_safefft( cufftExecR2C(plan->fwPlanZ, (cufftReal*)buffer1,  (cufftComplex*)buffer2) );
+  bigfft_execR2C(&(plan->fwPlanZ), (cufftReal*)buffer1,  (cufftComplex*)buffer2);
   gpu_sync();
   timer_stop("FFT_R2C");
 
@@ -160,7 +156,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   
   // (5) In-place C2C FFT Y
   timer_start("FFT_Y");
-  gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)buffer3,  (cufftComplex*)buffer3, CUFFT_FORWARD) );
+  bigfft_execC2C(&(plan->planY), (cufftComplex*)buffer3,  (cufftComplex*)buffer3, CUFFT_FORWARD);
   gpu_sync();
   timer_stop("FFT_Y");
 
@@ -189,7 +185,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
 
     // (8) In-place C2C FFT X
     timer_start("FFT_X");
-    gpu_safefft( cufftExecC2C(plan->planX, (cufftComplex*)output,  (cufftComplex*)output, CUFFT_FORWARD) );
+    bigfft_execC2C(&(plan->planX), (cufftComplex*)output,  (cufftComplex*)output, CUFFT_FORWARD);
     gpu_sync();
     timer_stop("FFT_X");
 
@@ -200,7 +196,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
 
 
 
-void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
+void gpuFFT3dPlanArne_inverse(gpuFFT3dPlanArne* plan, float* input, float* output){
   
   int complexZ = (plan->paddedSize[Z] + 2)/2;
   int* size = plan->size;
@@ -219,7 +215,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
   }else{
     // (8) In-place C2C FFT X
     timer_start("-FFT_X");
-    gpu_safefft( cufftExecC2C(plan->planX, (cufftComplex*)input,  (cufftComplex*)input, CUFFT_INVERSE) );
+    bigfft_execC2C(&(plan->planX), (cufftComplex*)input,  (cufftComplex*)input, CUFFT_INVERSE);
     gpu_sync();
     timer_stop("-FFT_X");
 
@@ -244,7 +240,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
     
   // (5) In-place C2C FFT Y
   timer_start("-FFT_Y");
-  gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)buffer3,  (cufftComplex*)buffer3, CUFFT_INVERSE) );
+  bigfft_execC2C(&(plan->planY), (cufftComplex*)buffer3,  (cufftComplex*)buffer3, CUFFT_INVERSE);
   gpu_sync();
   timer_stop("-FFT_Y");
 
@@ -269,7 +265,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
 
   // (2) Out-of-place R2C FFT Z
   timer_start("-FFT_C2R");
-  gpu_safefft( cufftExecC2R(plan->invPlanZ, (cufftComplex*)buffer2,  (cufftReal*)buffer1) );
+  bigfft_execC2R(&(plan->invPlanZ), (cufftComplex*)buffer2,  (cufftReal*)buffer1);
   gpu_sync();
   timer_stop("-FFT_C2R");
 
@@ -287,7 +283,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
 }
 
 
-int gpuFFT3dPlan_normalization(gpuFFT3dPlan* plan){
+int gpuFFT3dPlanArne_normalization(gpuFFT3dPlanArne* plan){
   return plan->paddedSize[X] * plan->paddedSize[Y] * plan->paddedSize[Z];
 }
 
