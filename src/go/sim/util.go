@@ -70,8 +70,4 @@ func Debugvv(msg ...interface{}) {
 	}
 }
 
-func Error(msg ...interface{}) {
-	fmt.Fprint(os.Stderr, msg)
-	eraseln()
-	os.Exit(-2)
-}
+

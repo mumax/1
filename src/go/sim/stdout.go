@@ -26,7 +26,9 @@ func (sim *Sim) Println(msg ...interface{}) {
 // Prints to stderr (unless sim.silent=true) and also to output.log
 func (sim *Sim) Errorln(msg ...interface{}) {
 	if !sim.silent {
+    sim.Escape(BOLD)
 		fmt.Fprintln(os.Stderr, msg)
+		sim.Escape(RESET)
 	}
 	fmt.Fprintln(sim.out, msg)
 }

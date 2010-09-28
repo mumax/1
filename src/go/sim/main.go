@@ -82,10 +82,10 @@ func main_master() {
 
 		// Idiot-proof error reports
 		if refsh.CallCount == 0 {
-			Error("Input file contains no commands.")
+			sim.Errorln("Input file contains no commands.")
 		}
 		if !sim.BeenValid {
-			Error("Input file does not contain any commands to make the simulation run. Use, e.g., \"run\".")
+			sim.Errorln("Input file does not contain any commands to make the simulation run. Use, e.g., \"run\".")
 		}
 		// The next two lines cause a nil pointer panic when the simulation is not fully initialized
 		if sim.BeenValid {
