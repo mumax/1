@@ -1,5 +1,6 @@
 TODO (Arne)
 
+* it seems CUFFT allocates memory for its FFT plans, check if this is a lot!
 * bigfft
 * higher-order solvers
 * dashboard:

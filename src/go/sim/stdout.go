@@ -1,41 +1,49 @@
 package sim
 
 // This file implements functions for writing to stdout/stderr
-// and simultaneously to a log file. (Unix "tee" functionality)
+// and simultaneously to a log file.
+// Inside simulation code, use *Sim.Println() etc, not fmt.Println().
 
 import (
 	"os"
-	// 	"io"
 	"fmt"
 )
 
+// Prints to stdout (unless sim.silent=true) and also to output.log
 func (sim *Sim) Print(msg ...interface{}) {
-	if !sim.silent {
-		fmt.Fprint(os.Stdout, msg)
-	}
-	_, err := fmt.Fprint(sim.out, msg)
-	if err != nil {panic(err)}
+	if !sim.silent {fmt.Fprint(os.Stdout, msg)}
+	fmt.Fprint(sim.out, msg)
 }
 
+// Prints to stdout (unless sim.silent=true) and also to output.log
 func (sim *Sim) Println(msg ...interface{}) {
 	sim.Print(msg)
 	sim.Print("\n")
 }
 
+// Prints to stderr (unless sim.silent=true) and also to error.log
 func (sim *Sim) Errorln(msg ...interface{}) {
-	if !sim.silent {
-		fmt.Fprint(os.Stderr, msg)
-	}
+  if !sim.silent{fmt.Fprintln(os.Stderr, msg)}
 	fmt.Fprintln(sim.err, msg)
 }
 
-// TODO it would be easier if we had an ansi escape code filter
+// Prints to stdout (unless sim.silent=true) in bold font
+// and also to output.log in plain text
 func (sim *Sim) Warn(msg ...interface{}) {
-	fmt.Fprint(os.Stdout, BOLD)
+	sim.Escape(BOLD)
 	sim.Print("WARNING: ")
 	sim.Print(msg)
-	fmt.Fprint(os.Stdout, RESET+ERASE) // Erase rest of line
+	sim.Escape(RESET+ERASE+"\n") // Erase rest of line
 	sim.Println()
+}
+
+// Prints to stdout (unless sim.silent=true) but not to output.log.
+// Use this for printing ANSI escape characters that should not
+// appear in the output file.
+func (sim *Sim) Escape(msg ...interface{}){
+  if !sim.silent {
+    fmt.Fprint(os.Stdout, msg)
+  }
 }
 
 // Initiates the stderr and stdout files of sim.
