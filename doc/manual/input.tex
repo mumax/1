@@ -30,7 +30,9 @@ run          	1E-9
 
 \paragraph{Comments} All text after a hashmark (\#) is considered a \idx{comment} and is ignored by the simulation. In the above example, the statements \cmd{\# material}, \cmd{\# geometry}, \ldots are thus comments. They are only included for clarity and could be omitted.
 
-\paragraph{Commands} All the other text in the input file is treated as a series of \idx{commands} that are executed in the order they are specified.
+\paragraph{Commands} All the other text in the input file is treated as a series of \idx{commands} that are executed in the order they are specified. In general, the order of the commands matters but should be easy to deduce.  E.g., you can not call \cmd{run} to start the time evolution when you have not first specified the material parameters, simulation size, etc\ldots. Either way, the program will tell you if can not run a certain command yet because some parameters should be set first.
+
+
 
 \subsection{Output}
 
