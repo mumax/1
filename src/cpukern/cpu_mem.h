@@ -22,7 +22,7 @@ extern "C" {
 float* new_cpu_array(int size	///< number of floats
                     );
 
-void delete_cpu_array(float* array);
+void free_cpu_array(float* array);
                     
 /**
  * Returns the optimal array stride (in number of floats):

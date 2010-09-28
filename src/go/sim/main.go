@@ -72,8 +72,8 @@ func main_master() {
 		}
 		defer in.Close()
 
-    //TODO it would be safer to abort when the output dir is not empty
-		sim := NewSim(removeExtension(infile)+".out")
+		//TODO it would be safer to abort when the output dir is not empty
+		sim := NewSim(removeExtension(infile) + ".out")
 		defer sim.out.Close()
 		defer sim.err.Close()
 		refsh := refsh.New()

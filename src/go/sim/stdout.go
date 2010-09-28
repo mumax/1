@@ -11,7 +11,9 @@ import (
 
 // Prints to stdout (unless sim.silent=true) and also to output.log
 func (sim *Sim) Print(msg ...interface{}) {
-	if !sim.silent {fmt.Fprint(os.Stdout, msg)}
+	if !sim.silent {
+		fmt.Fprint(os.Stdout, msg)
+	}
 	fmt.Fprint(sim.out, msg)
 }
 
@@ -23,7 +25,9 @@ func (sim *Sim) Println(msg ...interface{}) {
 
 // Prints to stderr (unless sim.silent=true) and also to error.log
 func (sim *Sim) Errorln(msg ...interface{}) {
-  if !sim.silent{fmt.Fprintln(os.Stderr, msg)}
+	if !sim.silent {
+		fmt.Fprintln(os.Stderr, msg)
+	}
 	fmt.Fprintln(sim.err, msg)
 }
 
@@ -33,17 +37,17 @@ func (sim *Sim) Warn(msg ...interface{}) {
 	sim.Escape(BOLD)
 	sim.Print("WARNING: ")
 	sim.Print(msg)
-	sim.Escape(RESET+ERASE+"\n") // Erase rest of line
+	sim.Escape(RESET + ERASE + "\n") // Erase rest of line
 	sim.Println()
 }
 
 // Prints to stdout (unless sim.silent=true) but not to output.log.
 // Use this for printing ANSI escape characters that should not
 // appear in the output file.
-func (sim *Sim) Escape(msg ...interface{}){
-  if !sim.silent {
-    fmt.Fprint(os.Stdout, msg)
-  }
+func (sim *Sim) Escape(msg ...interface{}) {
+	if !sim.silent {
+		fmt.Fprint(os.Stdout, msg)
+	}
 }
 
 // Initiates the stderr and stdout files of sim.

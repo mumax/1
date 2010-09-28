@@ -130,6 +130,9 @@ func (d Gpu) newArray(nFloats int) uintptr {
 	return uintptr(unsafe.Pointer(C.new_gpu_array(C.int(nFloats))))
 }
 
+func (d Gpu) freeArray(ptr uintptr) {
+	C.free_gpu_array((*C.float)(unsafe.Pointer(ptr)))
+}
 
 func (d Gpu) memcpy(source, dest uintptr, nFloats, direction int) {
 	C.memcpy_gpu_dir((*C.float)(unsafe.Pointer(source)), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats), C.int(direction))

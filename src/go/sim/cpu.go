@@ -163,6 +163,10 @@ func (d Cpu) newArray(nFloats int) uintptr {
 	return uintptr(unsafe.Pointer(C.new_cpu_array(C.int(nFloats))))
 }
 
+func (d Cpu) freeArray(ptr uintptr) {
+	C.free_cpu_array((*C.float)(unsafe.Pointer(ptr)))
+}
+
 func (d Cpu) memcpy(source, dest uintptr, nFloats, direction int) {
 	C.cpu_memcpy((*C.float)(unsafe.Pointer(source)), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats)) //direction is ignored, it's always "CPY_ON" because there is no separate device
 }

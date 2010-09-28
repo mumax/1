@@ -25,6 +25,10 @@ float* new_gpu_array(int size){
   return array;
 }
 
+void free_gpu_array(float* ptr){
+  gpu_safe(cudaFree(ptr));
+}
+
 
 float* new_ram_array(int size){
   assert(size > 0);
