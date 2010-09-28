@@ -72,7 +72,7 @@ type Sim struct {
 	outputdir    string          // Where to save output files.
 	mUpToDate    bool            // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
 	silent       bool
-	out, err     *os.File
+	out          *os.File
 }
 
 func New(outputdir string) *Sim {

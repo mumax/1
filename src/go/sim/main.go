@@ -75,7 +75,6 @@ func main_master() {
 		//TODO it would be safer to abort when the output dir is not empty
 		sim := NewSim(removeExtension(infile) + ".out")
 		defer sim.out.Close()
-		defer sim.err.Close()
 		refsh := refsh.New()
 		refsh.CrashOnError = true
 		refsh.AddAllMethods(sim)
