@@ -1,4 +1,3 @@
-
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -42,9 +41,9 @@ import ()
 type Device interface {
 	init()
 
-  // selects a device when more than one is present
-  // (typically used for multiple GPU's, not useful for CPU)
-  setDevice(devid int)
+	// selects a device when more than one is present
+	// (typically used for multiple GPU's, not useful for CPU)
+	setDevice(devid int)
 
 	//____________________________________________________________________ general purpose (use Backend safe wrappers)
 

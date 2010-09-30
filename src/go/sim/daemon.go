@@ -1,4 +1,3 @@
-
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -16,8 +15,8 @@ import (
 	"exec"
 )
 
+var DAEMON_WATCHTIME int = 2 // search for new input files every X s
 const (
-	DAEMON_WATCHTIME = 2 // search for new input files every X s
 	DAEMON_PREFIX    = BOLD + "[daemon] "
 	DAEMON_SUFFIX    = RESET
 )
@@ -40,12 +39,22 @@ func DaemonMain() {
 	}
 	for {
 		infile := findInputFileAll(watchdirs)
+		// If no new input files found
 		if infile == "" {
+      // When not periodically watching for new files: exit
+      if DAEMON_WATCHTIME == 0{
+        fmt.Println(DAEMON_PREFIX, "No new input files and -watch=0: exiting", DAEMON_SUFFIX)
+        os.Exit(0)
+      }
+      // When periodically wathcing for new input files:
+      // Say we are watching, but only once (not every N seconds which would be annoying)
 			if !sleeping {
 				fmt.Println(DAEMON_PREFIX, "Looking for new input files every ", DAEMON_WATCHTIME, " seconds", DAEMON_SUFFIX)
 			}
 			sleeping = true
-			time.Sleep(DAEMON_WATCHTIME * 1E9)
+			// Then wait for N seconds and re-check for new files
+			time.Sleep(int64(DAEMON_WATCHTIME) * 1E9)
+    // Else if a new input file was found: wake up and run it!
 		} else {
 			sleeping = false
 			daemon_startsim(infile)

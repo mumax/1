@@ -1,4 +1,3 @@
-
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -42,8 +41,8 @@ func (d Cpu) init() {
 	C.cpu_init()
 }
 
-func (d Cpu) setDevice(devid int){
-  fmt.Fprintln(os.Stderr, "setDevice(", devid, ") has no effect on CPU")
+func (d Cpu) setDevice(devid int) {
+	fmt.Fprintln(os.Stderr, "setDevice(", devid, ") has no effect on CPU")
 }
 
 func (d Cpu) add(a, b uintptr, N int) {
