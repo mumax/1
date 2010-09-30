@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 	"exec"
+	"container/vector"
 )
 
 var DAEMON_WATCHTIME int = 2 // search for new input files every X s
@@ -32,6 +33,7 @@ func DaemonMain() {
 	watchdirs := make([]string, flag.NArg())
 	for i := range watchdirs {
 		watchdirs[i] = flag.Arg(i)
+		// TODO: check if watchdir exists and is a directory
 	}
 	// if no watch dir is specified, look in the current directory
 	if len(watchdirs) == 0 {
@@ -62,6 +64,7 @@ func DaemonMain() {
 	}
 }
 
+// Let the daemon start the simulation file
 func daemon_startsim(file string) {
 	fmt.Println(DAEMON_PREFIX, "Starting simulation: ", file, DAEMON_SUFFIX)
 
@@ -84,8 +87,12 @@ func daemon_startsim(file string) {
 	}
 
 	cmdstr := os.Getenv("SIMROOT") + "/" + SIMCOMMAND
-	args := []string{"simulate", file} // aparently argument 1, not argument 0 is the first real argument, we pass "simulate" as a dummy argument (probably program name)
-	//fmt.Println("exec ", cmdstr, args)
+
+	args := vector.StringVector([]string{"simulate"}) // aparently argument 1, not argument 0 is the first real argument, we pass "simulate" as a dummy argument (probably program name)
+	passthrough_cli_args(&args)
+	args.Push(file)
+
+	fmt.Println(DAEMON_PREFIX, "exec ", cmdstr, []string(args), DAEMON_SUFFIX)
 	cmd, err2 := exec.Run(cmdstr, args, os.Environ(), wd, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
 	if err2 != nil {
 		fmt.Fprintln(os.Stderr, err2)
@@ -99,6 +106,17 @@ func daemon_startsim(file string) {
 	}
 }
 
+// Adds the relevant command line flags to the args list,
+// to be passed through to the child simulation process.
+// Note: need to pass the address of the slice, otherwise
+// we will append to a copy, not affecting the original.
+func passthrough_cli_args(args *vector.StringVector) {
+	(*args).Push(fmt.Sprint("-silent=", *silent))
+	(*args).Push(fmt.Sprint("-verbosity=", *verbosity))
+	(*args).Push(fmt.Sprint("-gpu=", *gpuid))
+	(*args).Push(fmt.Sprint("-cpu=", *cpu))
+	(*args).Push(fmt.Sprint("-updatedisp=", *updatedb))
+}
 
 // Searches for a pending input file in all the given directories.
 // Looks for a file ending in ".in" for which no corresponding

@@ -6,9 +6,7 @@
 
 package sim
 
-import (
-	"os"
-)
+import ()
 
 // This file implements the methods for time stepping
 
@@ -28,7 +26,7 @@ func (s *Sim) Run(time float64) {
 				s.assureMUpToDate()
 				// save
 				out.Save(s)
-				// here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
+				// TODO here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
 			}
 		}
 
@@ -43,7 +41,7 @@ func (s *Sim) Run(time float64) {
 		s.Stop("Step")
 
 	}
-// 	s.PrintTimer(os.Stdout)
+	// 	s.PrintTimer(os.Stdout)
 	//does not invalidate
 }
 
