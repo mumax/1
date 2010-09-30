@@ -141,6 +141,19 @@ func removeExtension(str string) string {
 func crashreport() {
 	error := recover()
 	if error != nil {
+		fmt.Fprintln(os.Stderr,
+			`
+			
+---------------------------------------------------------------------
+Aw snap, the program has crahsed.
+If you would like to see this issue fixed, please mail a bugreport to
+Arne.Vansteenkiste@UGent.be and/or Ben.VandeWiele@UGent.be.
+Be sure to include the output of your terminal, both the parts above
+and below this message (in most terminals you can copy the output
+with Ctrl+Shift+C).
+---------------------------------------------------------------------
+
+`)
 		panic(error)
 	}
 }
