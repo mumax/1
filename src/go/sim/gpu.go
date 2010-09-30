@@ -42,6 +42,11 @@ func (d Gpu) init() {
 	C.gpu_init()
 }
 
+func (d Gpu) setDevice(devid int){
+  C.gpu_set_device(C.int(devid))
+}
+
+
 func (d Gpu) add(a, b uintptr, N int) {
 	C.gpu_add((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.int(N))
 }

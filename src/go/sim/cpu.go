@@ -29,6 +29,7 @@ import "unsafe"
 
 import (
 	"fmt"
+	"os"
 )
 
 var CPU *Backend = NewBackend(&Cpu{})
@@ -39,6 +40,10 @@ type Cpu struct {
 
 func (d Cpu) init() {
 	C.cpu_init()
+}
+
+func (d Cpu) setDevice(devid int){
+  fmt.Fprintln(os.Stderr, "setDevice(", devid, ") has no effect on CPU")
 }
 
 func (d Cpu) add(a, b uintptr, N int) {

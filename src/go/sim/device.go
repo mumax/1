@@ -42,6 +42,10 @@ import ()
 type Device interface {
 	init()
 
+  // selects a device when more than one is present
+  // (typically used for multiple GPU's, not useful for CPU)
+  setDevice(devid int)
+
 	//____________________________________________________________________ general purpose (use Backend safe wrappers)
 
 	// adds b to a. N = length of a = length of b
