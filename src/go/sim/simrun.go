@@ -43,7 +43,7 @@ func (s *Sim) Run(time float64) {
 		s.Stop("Step")
 
 	}
-	s.PrintTimer(os.Stdout)
+// 	s.PrintTimer(os.Stdout)
 	//does not invalidate
 }
 

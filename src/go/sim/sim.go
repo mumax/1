@@ -218,11 +218,12 @@ func (s *Sim) init() {
 }
 
 
+// OBSOLETE: CLI flag
 // Set how much debug info is printed. Level=0,1,2 or 3 for none, normal, verbose and very verbose.
-func (s *Sim) Verbosity(level int) {
-	Verbosity = level
-	// does not invalidate
-}
+// func (s *Sim) Verbosity(level int) {
+// 	Verbosity = level
+// 	// does not invalidate
+// }
 
 
 func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {
