@@ -1,11 +1,15 @@
 \section{The \prog daemon}
 
-You can run \prog in the background (in ``\idx{daemon}'' mode), which makes it search for input files to run automatically. This provides a way to sequentially run a large batch of simulations or to distribute simulations on a cluster or cloud --- as described below.
+You can run \prog in the background (in ``\idx{daemon}'' mode), which makes it search for input files in a number of directories. The general command is
+
+\shell{\prog \space -daemon \textit{arguments directory1 directory2 ...}}
+
+This provides a way to sequentially run a large batch of simulations or to distribute simulations on a cluster or cloud --- as described below.
 
 
 \subsection{Batch execution}
 
-You can run \prog \idxcmd{-daemon} \cmd{directory1} \cmd{directory2} \cmd{...} to search these directories for input files which will be automatically run. It will run all files ending with \file{.in}, for which the corresponding output directory (ending with \file{.out}) \emph{does not yet exist}.  When all simulations are finished, the directories will be re-checked for new input files every few seconds. So you can add new input files at any moment and they will queued for execution.
+You can run  to search these directories for input files which will be automatically run. It will run all files ending with \file{.in}, for which the corresponding output directory (ending with \file{.out}) \emph{does not yet exist}.  When all simulations are finished, the directories will be re-checked for new input files every few seconds. So you can add new input files at any moment and they will queued for execution.
 
 Note that when a directory \file{XXX.out} exists, the corresponding \file{XXX.in} file will not be run. Thus, when you want to re-run a simulation (e.g., after you have edited the input file), you need to remove the 
 \file{.out} directory.
