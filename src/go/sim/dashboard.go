@@ -19,12 +19,11 @@ var (
 )
 
 func updateDashboard(sim *Sim) {
-	/*/*
-	  if dashboardNeedsUp{
-	    //fmt.Printf(ESC + "2F") // move up N lines
-	    up()
-	  }
-	*/
+
+	if sim.silent {
+		return
+	}
+
 	fmt.Print(HIDECURSOR)
 
 	T := sim.UnitTime()

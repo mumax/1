@@ -25,7 +25,7 @@ import (
 
 type Backend struct {
 	Device
-// 	Initiated bool
+	// 	Initiated bool
 	Timer
 }
 

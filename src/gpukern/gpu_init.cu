@@ -8,7 +8,7 @@ extern "C" {
 
 /// Doesn't do much for the moment, but here for uniformity with CPU, where init() _is_ neccesary (to initialize FFTW)
 void gpu_init(){
-  fprintf(stderr, "GPU initiated\n");
+  
 }
 
 void gpu_set_device(int devid){

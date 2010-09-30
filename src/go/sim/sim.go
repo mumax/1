@@ -143,7 +143,7 @@ func (s *Sim) init() {
 	s.Println("Initializing simulation state")
 
 	dev := s.backend
-// 	dev.InitBackend()
+	// 	dev.InitBackend()
 	assert(s.backend != nil)
 	assert(s != nil)
 
