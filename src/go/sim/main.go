@@ -26,12 +26,13 @@ import (
 )
 
 var (
-	daemon    *bool   = flag.Bool("daemon", false, "Watch directories for new input files and run them automatically.")
-	watch     *int    = flag.Int("watch", 2, "When running with -daemon, re-check for new input files every N seconds. -watch=0 disables watching, program exits when no new input files are left.")
-	verbosity *int    = flag.Int("verbosity", 2, "Control the debug verbosity (0 - 3)")
-	gpuid     *int = flag.Int("gpu", 0, "Select a GPU when more than one is present. Default GPU = 0") //TODO: also for master
-	cpu       *bool   = flag.Bool("cpu", false, "Run on the CPU instead of GPU.")
-	updatedb  *int    = flag.Int("updatedisp", 100, "Update the terminal output every x milliseconds")
+	silent    *bool = flag.Bool("silent", false, "Do not show simulation output on the screen, only save to output.log")
+	daemon    *bool = flag.Bool("daemon", false, "Watch directories for new input files and run them automatically.")
+	watch     *int  = flag.Int("watch", 2, "When running with -daemon, re-check for new input files every N seconds. -watch=0 disables watching, program exits when no new input files are left.")
+	verbosity *int  = flag.Int("verbosity", 2, "Control the debug verbosity (0 - 3)")
+	gpuid     *int  = flag.Int("gpu", 0, "Select a GPU when more than one is present. Default GPU = 0") //TODO: also for master
+	cpu       *bool = flag.Bool("cpu", false, "Run on the CPU instead of GPU.")
+	updatedb  *int  = flag.Int("updatedisp", 100, "Update the terminal output every x milliseconds")
 	// 	dryrun    *bool   = flag.Bool("dryrun", false, "Go quickly through the simulation sequence without calculating anything. Useful for debugging") // todo implement
 	//  server    *bool   = flag.Bool("server", false, "Run as a slave node in a cluster")
 	//  port      *int    = flag.Int("port", 2527, "Which network port to use")
@@ -46,7 +47,7 @@ func Main() {
 	flag.Parse()
 	Verbosity = *verbosity
 	if *daemon {
-    DAEMON_WATCHTIME = *watch
+		DAEMON_WATCHTIME = *watch
 		DaemonMain()
 		return
 	}
@@ -84,15 +85,16 @@ func main_master() {
 		//TODO it would be safer to abort when the output dir is not empty
 		sim := NewSim(removeExtension(infile) + ".out")
 		defer sim.out.Close()
-    // Set the device
-		if *cpu{
-      sim.backend = CPU
-      sim.backend.init()
-    }else{
-      sim.backend = GPU
-      sim.backend.setDevice(*gpuid)
-      sim.backend.init()
-    }
+		sim.silent = *silent
+		// Set the device
+		if *cpu {
+			sim.backend = CPU
+			sim.backend.init()
+		} else {
+			sim.backend = GPU
+			sim.backend.setDevice(*gpuid)
+			sim.backend.init()
+		}
 		refsh := refsh.New()
 		refsh.CrashOnError = true
 		refsh.AddAllMethods(sim)

@@ -6,25 +6,28 @@
 
 package sim
 
+// OBSOLETE: backend selection is not done by input file anymore,
+// but as flag to the main program.
+
 // This file implements the methods
 // for backend (hardware) selection
 
 // import "strings"
 
 // Select the CPU as backend
-func (s *Sim) Cpu() {
-	s.backend = CPU
-	s.Println("Selected CPU backend")
-	s.invalidate()
-}
+// func (s *Sim) Cpu() {
+// 	s.backend = CPU
+// 	s.Println("Selected CPU backend")
+// 	s.invalidate()
+// }
 
 // Select the GPU as backend
-func (s *Sim) Gpu() {
-	s.backend = GPU
-	s.Println("Selected GPU backend")
-	s.backend.PrintProperties()
-	s.invalidate()
-}
+// func (s *Sim) Gpu() {
+// 	s.backend = GPU
+// 	s.Println("Selected GPU backend")
+// 	s.backend.PrintProperties()
+// 	s.invalidate()
+// }
 
 // DEBUG select a remote device.
 // Only useful to test the connection.

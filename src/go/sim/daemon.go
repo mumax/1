@@ -17,8 +17,8 @@ import (
 
 var DAEMON_WATCHTIME int = 2 // search for new input files every X s
 const (
-	DAEMON_PREFIX    = BOLD + "[daemon] "
-	DAEMON_SUFFIX    = RESET
+	DAEMON_PREFIX = BOLD + "[daemon] "
+	DAEMON_SUFFIX = RESET
 )
 
 const SIMCOMMAND = "bin/simulate"
@@ -41,20 +41,20 @@ func DaemonMain() {
 		infile := findInputFileAll(watchdirs)
 		// If no new input files found
 		if infile == "" {
-      // When not periodically watching for new files: exit
-      if DAEMON_WATCHTIME == 0{
-        fmt.Println(DAEMON_PREFIX, "No new input files and -watch=0: exiting", DAEMON_SUFFIX)
-        os.Exit(0)
-      }
-      // When periodically wathcing for new input files:
-      // Say we are watching, but only once (not every N seconds which would be annoying)
+			// When not periodically watching for new files: exit
+			if DAEMON_WATCHTIME == 0 {
+				fmt.Println(DAEMON_PREFIX, "No new input files and -watch=0: exiting", DAEMON_SUFFIX)
+				os.Exit(0)
+			}
+			// When periodically wathcing for new input files:
+			// Say we are watching, but only once (not every N seconds which would be annoying)
 			if !sleeping {
 				fmt.Println(DAEMON_PREFIX, "Looking for new input files every ", DAEMON_WATCHTIME, " seconds", DAEMON_SUFFIX)
 			}
 			sleeping = true
 			// Then wait for N seconds and re-check for new files
 			time.Sleep(int64(DAEMON_WATCHTIME) * 1E9)
-    // Else if a new input file was found: wake up and run it!
+			// Else if a new input file was found: wake up and run it!
 		} else {
 			sleeping = false
 			daemon_startsim(infile)

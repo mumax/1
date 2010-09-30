@@ -25,24 +25,24 @@ import (
 
 type Backend struct {
 	Device
-	Initiated bool
+// 	Initiated bool
 	Timer
 }
 
 func NewBackend(d Device) *Backend {
-	return &Backend{d, false, NewTimer()}
+	return &Backend{d, NewTimer()}
 }
 
 //_________________________________________________________________________ safe wrappers for Device methods
 
 // more or less safe initialization, calls the underlying init() only once
 // (given you allocate only one unique CPU, GPU, ...)
-func (dev *Backend) InitBackend() {
-	if !dev.Initiated {
-		dev.init()
-		dev.Initiated = true
-	}
-}
+// func (dev *Backend) InitBackend() {
+// 	if !dev.Initiated {
+// 		dev.init()
+// 		dev.Initiated = true
+// 	}
+// }
 
 // Copies a number of floats from host to GPU
 func (dev *Backend) memcpyTo(source *float, dest uintptr, nFloats int) {
