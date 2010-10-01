@@ -1,18 +1,34 @@
-\section{The \prog daemon}
+\section{Batch and cluster support}\label{daemon}
 
-You can run \prog in the background (in ``\idx{daemon}'' mode), which makes it search for input files in a number of directories. The general command is
+
+You can run \prog in the background (in ``\idx{daemon}'' mode), which makes it search for input files in a number of directories. The general command is:
 
 \shell{\prog \space -daemon \textit{arguments directory1 directory2 ...}}
 
-This provides a way to sequentially run a large batch of simulations or to distribute simulations on a cluster or cloud --- as described below.
-
-
-\subsection{Batch execution}
-
-You can run  to search these directories for input files which will be automatically run. It will run all files ending with \file{.in}, for which the corresponding output directory (ending with \file{.out}) \emph{does not yet exist}.  When all simulations are finished, the directories will be re-checked for new input files every few seconds. So you can add new input files at any moment and they will queued for execution.
+This lets the program search the listed directories for input files which will be automatically run. It will run all files ending with \file{.in}, for which the corresponding output directory (ending with \file{.out}) \emph{does not yet exist}.  When all simulations are finished, the directories will be re-checked for new input files every few seconds. So you can add new input files at any moment and they will queued for execution.
 
 Note that when a directory \file{XXX.out} exists, the corresponding \file{XXX.in} file will not be run. Thus, when you want to re-run a simulation (e.g., after you have edited the input file), you need to remove the 
 \file{.out} directory.
+
+The actual simulations are run as child processes of the simulate daemon, so if a simulation happens to crash (e.g. because it tries to use more than the available amount of video memory), the daemon stays alive and will simply start the next simulation. All command line arguments except \cmd{-daemon} and \cmd{-watch} are passed through to the child process.
+
+Running in daemon mode provides a way to sequentially run a large batch of simulations or to distribute simulations on a cluster or cloud --- as described in the examples below.
+
+\subsection{Example: batch execution}
+
+As a first example of the simulate deamon we illustrate how to run a batch of simulations on your local machine.
+
+First, prepare all your input files in a local directory, e.g. \file{/home/me/sims}. The input files should end with ``\file{.in}''. Then run
+
+\shell{\prog\space -daemon -watch=0 /home/me/sims}
+
+This will run al the simulations and exit when done. Due to \cmd{-watch=0}, the deamon will not search for new input files when done but just exit. The progress will be reported on the screen so it can be followed live, but a log is also saved in each of the ``\file{.out}'' directories.
+
+This simple example is not very different from sequentially running the simulations directly from bash, as could be done with the command:
+
+\shell{for i in *.in; do simulate \$i; done}
+
+In this exammple the only difference is that with the simulate daemon you can still add additional files while the simulations are running. Below we show more advanced examples that would be rather hard to code in bash.
 
 \subsection{Simulating on a cluster}
 
