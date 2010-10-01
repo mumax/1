@@ -38,9 +38,14 @@ tensor *gpu_micromag3d_kernel(param* p){
 void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int *kernelSize, int *exchInConv, float *FD_cell_size, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10, gpuFFT3dPlan* kernel_plan){
 
   
- 	int kernelStorageN = 2*dev_kernel->size[1];				  // size of kernel component in real + i*complex format
-	float *dev_temp = new_gpu_array(kernelStorageN);		// temp tensor on device for storage of each component in real + i*complex format
- 	
+//  	int kernelStorageN = 2*dev_kernel->size[1];				  // size of kernel component in real + i*complex format
+// 	float *dev_temp = new_gpu_array(kernelStorageN);		// temp tensor on device for storage of each component in real + i*complex format
+
+  int kernelN = kernelSize[X]*kernelSize[Y]*kernelSize[Z];         // size of kernel in real space
+  float *dev_temp1 = new_gpu_array(kernelN);                       // temp tensor on device for storage of each component in real + i*complex format
+  int kernelStorageN = 2*dev_kernel->size[1];                      // size of kernel component in real + i*complex format
+  float *dev_temp2 = new_gpu_array(kernelStorageN);                // temp tensor on device for storage of each component in real + i*complex format
+  
 	// Define gpugrids and blocks ___________________________________________________________________
     /// @todo use 'make3dconf' here when this function is working properly!
     dim3 gridsize1((kernelSize[X]+1)/2,kernelSize[Y]/2, 1);
@@ -58,8 +63,8 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int 
     kernelStorageSize[X] = kernelSize[X];
     kernelStorageSize[Y] = kernelSize[Y];
     kernelStorageSize[Z] = gpu_pad_to_stride(kernelSize[Z]+2);
-    tensor *FFT_input = as_tensorN(dev_temp, 3, kernelStorageSize);
-    tensor *FFT_output = FFT_input;
+/*    tensor *FFT_input = as_tensorN(dev_temp, 3, kernelStorageSize);
+    tensor *FFT_output = FFT_input;*/
   // ______________________________________________________________________________________________
 
 	// Main function operations _____________________________________________________________________
@@ -68,16 +73,17 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int 
       for (int co2=co1; co2<3; co2++){
         if (co1==0 && co2>0 && kernelSize[0]==1)  continue;    // N0=1 -> xy and xz components have only zeros, so left out.
 					// Put all elements in 'dev_temp' to zero.
-				gpu_zero(dev_temp, kernelStorageN);		 
+				gpu_zero(dev_temp1, kernelN);		 
 				cudaThreadSynchronize();
           // Fill in the elements.
-				_gpu_init_Greens_kernel_elements_micromag3d<<<gridsize1, blocksize1>>>(dev_temp, kernelSize[X], kernelSize[Y], kernelSize[Z], kernelStorageSize[Z], exchInConv[X], exchInConv[Y], exchInConv[Z], co1, co2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
+				_gpu_init_Greens_kernel_elements_micromag3d<<<gridsize1, blocksize1>>>(dev_temp1, kernelSize[X], kernelSize[Y], kernelSize[Z], kernelStorageSize[Z], exchInConv[X], exchInConv[Y], exchInConv[Z], co1, co2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
 				cudaThreadSynchronize();
           // Fourier transform the kernel component.
-        gpuFFT3dPlan_forward(kernel_plan, FFT_input, FFT_output); 
+//        gpuFFT3dPlan_forward(kernel_plan, FFT_input, FFT_output); 
+        gpuFFT3dPlan_forward_unsafe(kernel_plan, dev_temp1, dev_temp2); 
         cudaThreadSynchronize();
           // Copy the real parts to the corresponding place in the dev_kernel tensor.
-				_gpu_extract_real_parts_micromag3d<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*kernelStorageN/2], dev_temp);
+				_gpu_extract_real_parts_micromag3d<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*kernelStorageN/2], dev_temp2);
 				cudaThreadSynchronize();
 				rank0++;																				// get ready for next component
       }
@@ -85,7 +91,8 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int 
 	// ______________________________________________________________________________________________
 
 
-	cudaFree (dev_temp);
+	cudaFree (dev_temp1);
+  cudaFree (dev_temp2);
   free (kernelStorageSize);
 	
 	return;
@@ -104,7 +111,7 @@ __global__ void _gpu_init_Greens_kernel_elements_micromag3d(float *dev_temp, int
 //   int j = threadIdx.y;
 //   int k = threadIdx.z;
 
-  int N2 = Nkernel_storage_Z;
+  int N2 = Nkernel_Z;
 	int N12 = Nkernel_Y * N2;
 
 		dev_temp[            i*N12 +             j*N2 +           k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2,  i,  j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);

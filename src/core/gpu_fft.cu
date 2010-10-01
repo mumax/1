@@ -88,7 +88,14 @@ void gpuFFT3dPlan_forward_unsafe(gpuFFT3dPlan* plan, float* input, float* output
   
   int half_pSSize = plan->paddedStorageN/2;
   
-  float* data = input;
+  //     zero out the output matrix
+    gpu_zero(output, plan->paddedStorageN);
+  //     padding of the input matrix towards the output matrix
+    gpu_copy_to_pad(input, output, size, pSSize);
+
+  
+//  float* data = input;
+  float* data = output;
   float* data2 = plan->transp; 
 
   if ( pSSize[X]!=size[X] || pSSize[Y]!=size[Y]){
@@ -290,20 +297,20 @@ __global__ void _gpu_copy_pad(float* source, float* dest,
 
 
 
-void gpu_copy_to_pad(float* source, float* dest, int *unpad_size4d, int *pad_size4d){          //for padding of the tensor, 2d and 3d applicable
+void gpu_copy_to_pad(float* source, float* dest, int *unpad_size, int *pad_size){          //for padding of the tensor, 2d and 3d applicable
   
-  int S0 = unpad_size4d[1];
-  int S1 = unpad_size4d[2];
-  int S2 = unpad_size4d[3];
+  int S0 = unpad_size[0];
+  int S1 = unpad_size[1];
+  int S2 = unpad_size[2];
 
   dim3 gridSize(S0, S1, 1); ///@todo generalize!
   dim3 blockSize(S2, 1, 1);
   gpu_checkconf(gridSize, blockSize);
   
-  if ( pad_size4d[1]!=unpad_size4d[1] || pad_size4d[2]!=unpad_size4d[2])
-    _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size4d[3]-2);      // for out of place forward FFTs in z-direction, contiguous data arrays
+  if ( pad_size[0]!=unpad_size[0] || pad_size[1]!=unpad_size[1])
+    _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size[2]-2);      // for out of place forward FFTs in z-direction, contiguous data arrays
   else
-    _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size4d[3]);        // for in place forward FFTs in z-direction, contiguous data arrays
+    _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size[2]);        // for in place forward FFTs in z-direction, contiguous data arrays
 
   cudaThreadSynchronize();
   
