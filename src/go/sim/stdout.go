@@ -18,14 +18,14 @@ import (
 // Prints to stdout (unless sim.silent=true) and also to output.log
 func (sim *Sim) Print(msg ...interface{}) {
 	if !sim.silent {
-		fmt.Fprint(os.Stdout, msg)
+		fmt.Fprint(os.Stdout, msg...)
 	}
-	fmt.Fprint(sim.out, msg)
+	fmt.Fprint(sim.out, msg...)
 }
 
 // Prints to stdout (unless sim.silent=true) and also to output.log
 func (sim *Sim) Println(msg ...interface{}) {
-	sim.Print(msg)
+	sim.Print(msg...)
 	sim.Print("\n")
 }
 
@@ -33,10 +33,10 @@ func (sim *Sim) Println(msg ...interface{}) {
 func (sim *Sim) Errorln(msg ...interface{}) {
 	if !sim.silent {
 		sim.Escape(BOLD + RED)
-		fmt.Fprintln(os.Stderr, msg)
+		fmt.Fprintln(os.Stderr, msg...)
 		sim.Escape(RESET)
 	}
-	fmt.Fprintln(sim.out, msg)
+	fmt.Fprintln(sim.out, msg...)
 }
 
 // Prints to stdout (unless sim.silent=true) in bold font
@@ -44,7 +44,7 @@ func (sim *Sim) Errorln(msg ...interface{}) {
 func (sim *Sim) Warn(msg ...interface{}) {
 	sim.Escape(BOLD + RED)
 	sim.Print("WARNING: ")
-	sim.Print(msg)
+	sim.Print(msg...)
 	sim.Escape(RESET + ERASE) // Erase rest of line
 	sim.Println()
 }
@@ -54,7 +54,7 @@ func (sim *Sim) Warn(msg ...interface{}) {
 // appear in the output file.
 func (sim *Sim) Escape(msg ...interface{}) {
 	if !sim.silent {
-		fmt.Fprint(os.Stdout, msg)
+		fmt.Fprint(os.Stdout, msg...)
 	}
 }
 
