@@ -174,19 +174,19 @@ type Printer interface {
 
 func (refsh *Refsh) Print(msg ...interface{}) {
 	if refsh.Output != nil {
-		refsh.Output.Print(msg)
+		refsh.Output.Print(msg...)
 	}
 }
 
 func (refsh *Refsh) Println(msg ...interface{}) {
 	if refsh.Output != nil {
-		refsh.Output.Println(msg)
+		refsh.Output.Println(msg...)
 	}
 }
 
 func (refsh *Refsh) Errorln(msg ...interface{}) {
 	if refsh.Output != nil {
-		refsh.Output.Errorln(msg)
+		refsh.Output.Errorln(msg...)
 	}
 }
 
