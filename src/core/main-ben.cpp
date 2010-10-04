@@ -13,13 +13,12 @@ int main(int argc, char** argv){
   param* p = read_param();
   param_print(stdout, p);
 
+    // initialization of kernel
+  tensor* kernel = new_kernel(p);
     // initialization of m
   int* size4d = tensor_size4D(p->size);
   tensor *m = new_gputensor(4, size4d);
   initialize_m (m, p);
-
-    // initialization of kernel
-  tensor* kernel = new_kernel(p);
     // initialization of convolution
   conv_data *conv = new_conv_data(p, kernel);
     // initialization of the field evaluation plan
