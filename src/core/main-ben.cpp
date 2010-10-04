@@ -32,17 +32,17 @@ int main(int argc, char** argv){
   int* size4D = tensor_size4D(p->size);
   tensor* Host = new_tensorN(4, size4D);
   
-  evaluate_field(ts->field, m, ts->h);
-  
-  int* size4d_h = tensor_size4D(p->size);
-  tensor* hHost = new_tensorN(4, size4d_h);
-  FILE *temp_h = fopen("temp_h", "w");
-  tensor_copy_from_gpu(ts->h, hHost);
-  format_tensor(hHost, temp_h);
-  fclose(temp_h);
-  delete_tensor (hHost);
+//   evaluate_field(ts->field, m, ts->h);
+//   
+//   int* size4d_h = tensor_size4D(p->size);
+//   tensor* hHost = new_tensorN(4, size4d_h);
+//   FILE *temp_h = fopen("temp_h", "w");
+//   tensor_copy_from_gpu(ts->h, hHost);
+//   format_tensor(hHost, temp_h);
+//   fclose(temp_h);
+//   delete_tensor (hHost);
 
-//   return(0);
+//    return(0);
 //   FILE *av =fopen("./Data/m_av_fw_2e-1", "w");
   for(int i=0; i<100; i++){
 
@@ -103,7 +103,15 @@ int main(int argc, char** argv){
 //     format_tensor(mHost, temp_m);
 //     fclose(temp_m);
 //     delete_tensor (mHost);
-// 
+
+//   tensor* gHost = new_tensorN(2, kernel->size);
+//   FILE *temp_g = fopen("temp_g", "w");
+//   tensor_copy_from_gpu(kernel, gHost);
+//   format_tensor(gHost, temp_g);
+//   fclose(temp_g);
+//   delete_tensor (gHost);
+
+
 
 
 param* read_param(){
@@ -153,8 +161,8 @@ param* read_param(){
 
 ///Depending on the kerneltype and/or a coarse grid evaluation of the demag field, some/all components of the exchange fields need to be added classically
 ///   exchInConv[comp] = -1 : for component 'comp' of the field, exchange is not computed (not classically, nor in convolution)
-///   exchInConv[comp] = 0 : for component 'comp' of the field, exchange is computed classically 
-///   exchInConv[comp] = 1 : for component 'comp' of the field, exchange is included in the convolution
+///   exchInConv[comp] =  0 : for component 'comp' of the field, exchange is computed classically 
+///   exchInConv[comp] =  1 : for component 'comp' of the field, exchange is included in the convolution
 
   if (p->demagCoarse[X]==1 && p->demagCoarse[Y]==1 && p->demagCoarse[Z]==1){
     switch (p->kernelType){

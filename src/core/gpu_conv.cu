@@ -45,25 +45,16 @@ void evaluate_micromag3d_conv(tensor *m, tensor *h, conv_data *conv){
     h_comp[i]    = &h->list[i*m_length];
   }
 
-     // zero out fft1
-  gpu_zero_tensor(conv->fft1);
-  
-  for(int i=0; i<3; i++){
-      //padding of m_i
-    gpu_copy_to_pad(m_comp[i], fft1_comp[i], m->size, conv->fft1->size);
-      //Fourier transforming of fft_mi
-    gpuFFT3dPlan_forward_unsafe(conv->fftplan, fft1_comp[i], fft1_comp[i]);  ///@todo out-of-place
-  }
+    //Fourier transforming of fft_mi
+  for(int i=0; i<3; i++)
+    gpuFFT3dPlan_forward_unsafe(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
   
     // kernel multiplication
   gpu_kernel_mul_micromag3d(conv->fft1, conv->kernel);
 
-  for(int i=0; i<3; i++){
-      //inverse Fourier transforming fft_hi
-    gpuFFT3dPlan_inverse_unsafe(conv->fftplan, fft1_comp[i], fft1_comp[i]);  ///@todo out-of-place
-      //unpadding of fft_hi
-    gpu_copy_to_unpad(fft1_comp[i], h_comp[i], conv->fft1->size, m->size);
-  }
+    //inverse Fourier transforming fft_hi
+  for(int i=0; i<3; i++)
+    gpuFFT3dPlan_inverse_unsafe(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
 
   return;
 }
@@ -142,25 +133,17 @@ void evaluate_micromag3d_conv_Xthickness_1(tensor *m, tensor *h, conv_data *conv
     h_comp[i]    = &h->list[i*m_length];
   }
 
-    // zero out fft1
-  gpu_zero_tensor(conv->fft1);
-  
-  for(int i=0; i<3; i++){
-      //padding of m_i
-    gpu_copy_to_pad(m_comp[i], fft1_comp[i], m->size, conv->fft1->size);
-      //Fourier transforming of fft_mi
-    gpuFFT3dPlan_forward_unsafe(conv->fftplan, fft1_comp[i], fft1_comp[i]);  ///@todo out-of-place
-  }
+  //Fourier transforming of fft_mi
+  for(int i=0; i<3; i++)
+    gpuFFT3dPlan_forward_unsafe(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
 
     // kernel multiplication
   gpu_kernel_mul_micromag3d_Xthickness_1(conv->fft1, conv->kernel);
 
-  for(int i=0; i<3; i++){
-      //inverse Fourier transforming fft_hi
-    gpuFFT3dPlan_inverse_unsafe(conv->fftplan, fft1_comp[i], fft1_comp[i]);  ///@todo out-of-place
-      //unpadding of fft_hi
-    gpu_copy_to_unpad(fft1_comp[i], h_comp[i], conv->fft1->size, m->size);
-  }
+    //inverse Fourier transforming fft_hi
+  for(int i=0; i<3; i++)
+    gpuFFT3dPlan_inverse_unsafe(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
+
 
   return;
 }
@@ -236,25 +219,16 @@ void evaluate_micromag2d_conv(tensor *m, tensor *h, conv_data *conv){
     h_comp[i-1]    = &h->list[i*m_length];
   }
 
-    // zero out fft1
-  gpu_zero_tensor(conv->fft1);
-  
-  for(int i=0; i<2; i++){
-      //padding of m_i
-    gpu_copy_to_pad(m_comp[i], fft1_comp[i], m->size, conv->fft1->size);
-      //Fourier transforming of fft_mi
-    gpuFFT3dPlan_forward_unsafe(conv->fftplan, fft1_comp[i], fft1_comp[i]);  ///@todo out-of-place
-  }
+    //Fourier transforming of fft_mi
+  for(int i=0; i<2; i++)
+    gpuFFT3dPlan_forward_unsafe(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
 
     // kernel multiplication
   gpu_kernel_mul_micromag2d(conv->fft1, conv->kernel);
 
-  for(int i=0; i<2; i++){
-      //inverse Fourier transforming fft_hi
-    gpuFFT3dPlan_inverse_unsafe(conv->fftplan, fft1_comp[i], fft1_comp[i]);  ///@todo out-of-place
-      //unpadding of fft_hi
-    gpu_copy_to_unpad(fft1_comp[i], h_comp[i], conv->fft1->size, m->size);
-  }
+    //inverse Fourier transforming fft_hi
+  for(int i=0; i<2; i++)
+    gpuFFT3dPlan_inverse_unsafe(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
 
   return;
 }
