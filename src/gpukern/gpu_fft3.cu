@@ -85,14 +85,16 @@ gpuFFT3dPlanArne* new_gpuFFT3dPlanArne_padded(int* size, int* paddedSize){
 
   // IMPORTANT: the /2 is necessary because the complex transforms have only half the amount of elements (the elements are now complex numbers)
 
-  float* packedbuf new_gpu_array(paddedSize[Y] * complexZ * size[X] * 2); 
-
+  /* to save some memory
+   *
+   */
+  float* packedbuf = new_gpu_array(paddedSize[Y] * complexZ * size[X] * 2);
   
   plan->buffer1  = packedbuf;//new_gpu_array(size[X] * size[Y] * paddedSize[Z]);       // padding in Z direction
   plan->buffer2  = NULL; //new_gpu_array(size[X] * size[Y] * complexZ * 2);        // half complex
   plan->buffer2t = packedbuf;//new_gpu_array(size[X] * complexZ * size[Y] * 2);        // transposed @todo: get rid of: combine transpose+pad in one operation
-  plan->buffer3  = NULL; ://new_gpu_array(size[X] * complexZ * paddedSize[Y] * 2);  //transposed and padded
-  plan->buffer3t =  packedbuf //transposed @todo: get rid of: combine transpose+pad in one operation
+  plan->buffer3  = NULL; //new_gpu_array(size[X] * complexZ * paddedSize[Y] * 2);  //transposed and padded
+  plan->buffer3t =  packedbuf; //transposed @todo: get rid of: combine transpose+pad in one operation
   //output size  :               paddedSize[Y] * paddedComplexSize[Z] * paddedSize[X]
   
   return plan;
@@ -202,9 +204,9 @@ void gpuFFT3dPlanArne_inverse(gpuFFT3dPlanArne* plan, float* input, float* outpu
   int* size = plan->size;
   int* paddedSize = plan->paddedSize;
 //   int* paddedComplexSize = plan->paddedComplexSize;
-  float* buffer1 = plan->packedbuf;
+  float* buffer1 = plan->buffer1;
   float* buffer2 = input;
-  float* buffer2t = plan->packedbuf;
+  float* buffer2t = plan->buffer2t;
   float* buffer3 = input;
   float* buffer3t = plan->buffer3t;
 
