@@ -58,6 +58,7 @@ type Sim struct {
 	BeenValid    bool            // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
 	backend      *Backend        // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
 	mLocal       *tensor.Tensor4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
+	normMap      *tensor.Tensor3 
 	Material                     // Stores material parameters and manages the internal units
 	Mesh                         // Stores the size of the simulation grid
 	Conv                         // Convolution plan for the magnetostatic field
@@ -246,3 +247,25 @@ func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {
 	}
 	return out
 }
+
+
+
+
+
+
+func (sim *Sim) Normalize(m *DevTensor) {
+ assert(len(m.size) == 4)
+ N := m.size[1] * m.size[2] * m.size[3]
+ if sim.normMap == nil{
+  sim.normalize(m.data, N)
+ }
+}
+
+
+
+
+
+
+
+
+
