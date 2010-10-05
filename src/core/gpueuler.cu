@@ -36,10 +36,10 @@ void gpu_euler_stage(float* m, float* torque, int N){
   float* tqz = &(torque[2*N]);
 
 
-  timer_start("euler_stage");
+//   timer_start("euler_stage");
   _gpu_euler_stage<<<gridSize, blockSize>>>(mx, my, mz, tqx, tqy, tqz);
   cudaThreadSynchronize();
-  timer_stop("euler_stage");
+//   timer_stop("euler_stage");
   
   return;
 }

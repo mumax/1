@@ -90,7 +90,7 @@ void gpuheun_stage0(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
   int gridSize = -1, blockSize = -1;
   make1dconf(solver->mComp[X]->len, &gridSize, &blockSize); ///@todo cache in heun struct
 
-  timer_start("gpuheun_step");{
+//   timer_start("gpuheun_step");{
 
     tensor_copy_gpu_to_gpu(solver->m, solver->m0);
     _gpu_heunstage0<<<gridSize, blockSize>>>(solver->       mComp[X]->list, solver->       mComp[Y]->list,  solver->       mComp[Z]->list,
@@ -100,7 +100,8 @@ void gpuheun_stage0(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
                                              1.0f * solver->params->maxDt, solver->params->alpha);
     cudaThreadSynchronize();
 
-  }timer_stop("gpuheun_step");
+//   }
+  timer_stop("gpuheun_step");
 }
 
 void gpuheun_stage1(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
@@ -108,7 +109,7 @@ void gpuheun_stage1(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
   int gridSize = -1, blockSize = -1;
   make1dconf(solver->mComp[X]->len, &gridSize, &blockSize); ///@todo cache in heun struct
   
-  timer_start("gpuheun_step");{
+//   timer_start("gpuheun_step");{
   
     _gpu_heunstage1<<<gridSize, blockSize>>>(solver->       mComp[X]->list,  solver->      mComp[Y]->list,  solver->      mComp[Z]->list,
                                              solver->       hComp[X]->list,  solver->      hComp[Y]->list,  solver->      hComp[Z]->list,
@@ -118,7 +119,8 @@ void gpuheun_stage1(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
                                              0.5f * solver->params->maxDt, solver->params->alpha);
     cudaThreadSynchronize();
   
-  }timer_stop("gpuheun_step");
+//   }
+  timer_stop("gpuheun_step");
 }
 
 

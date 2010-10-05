@@ -32,10 +32,10 @@ void gpu_normalize_uniform(float* m, int N){
   float* my = &(m[1*N]);
   float* mz = &(m[2*N]);
 
-  timer_start("normalize");
+//   timer_start("normalize");
   _gpu_normalize<<<gridSize, blockSize>>>(mx, my, mz);
   cudaThreadSynchronize();
-  timer_stop("normalize");
+//   timer_stop("normalize");
 }
 
 void gpu_normalize_map(float* m, float* map, int N){
@@ -47,10 +47,10 @@ void gpu_normalize_map(float* m, float* map, int N){
   float* my = &(m[1*N]);
   float* mz = &(m[2*N]);
 
-  timer_start("normalize");
+//   timer_start("normalize");
   _gpu_normalize_map<<<gridSize, blockSize>>>(mx, my, mz, map);
   cudaThreadSynchronize();
-  timer_stop("normalize");
+//   timer_stop("normalize");
   
 }
 
@@ -66,7 +66,7 @@ void gpu_normalize(param* p, tensor* m){
   float* my = &(m->list[1*complen]);
   float* mz = &(m->list[2*complen]);
 
-  timer_start("normalize");
+//   timer_start("normalize");
   if(p->msatMap == NULL){
     _gpu_normalize<<<gridSize, blockSize>>>(mx, my, mz);
   }
@@ -74,7 +74,7 @@ void gpu_normalize(param* p, tensor* m){
     _gpu_normalize_map<<<gridSize, blockSize>>>(mx, my, mz, p->msatMap->list);
   }
   cudaThreadSynchronize();
-  timer_stop("normalize");
+//   timer_stop("normalize");
 }
 
 

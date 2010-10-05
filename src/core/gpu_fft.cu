@@ -1,9 +1,5 @@
-// #include "gpufft2.h"
+
 #include "gpu_fft.h"
-#include "gputil.h"
-#include "timer.h"
-#include <stdio.h>
-#include <assert.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,10 +41,10 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
   plan->paddedStorageSize[Z] = gpu_pad_to_stride( plan->paddedSize[Z] + 2 );
   plan->paddedStorageN = paddedStorageSize[X] * paddedStorageSize[Y] * paddedStorageSize[Z];
   
-  gpu_safe( cufftPlan1d(&(plan->fwPlanZ), plan->paddedSize[Z], CUFFT_R2C, size[X]*size[Y]) );
-  gpu_safe( cufftPlan1d(&(plan->planY), plan->paddedSize[Y], CUFFT_C2C, paddedStorageSize[Z] * size[X] / 2) );          // IMPORTANT: the /2 is necessary because the complex transforms have only half the amount of elements (the elements are now complex numbers)
-  gpu_safe( cufftPlan1d(&(plan->planX), plan->paddedSize[X], CUFFT_C2C, paddedStorageSize[Z] * paddedSize[Y] / 2) );
-  gpu_safe( cufftPlan1d(&(plan->invPlanZ), plan->paddedSize[Z], CUFFT_C2R, size[X]*size[Y]) );
+  gpu_safefft( cufftPlan1d(&(plan->fwPlanZ), plan->paddedSize[Z], CUFFT_R2C, size[X]*size[Y]) );
+  gpu_safefft( cufftPlan1d(&(plan->planY), plan->paddedSize[Y], CUFFT_C2C, paddedStorageSize[Z] * size[X] / 2) );          // IMPORTANT: the /2 is necessary because the complex transforms have only half the amount of elements (the elements are now complex numbers)
+  gpu_safefft( cufftPlan1d(&(plan->planX), plan->paddedSize[X], CUFFT_C2C, paddedStorageSize[Z] * paddedSize[Y] / 2) );
+  gpu_safefft( cufftPlan1d(&(plan->invPlanZ), plan->paddedSize[Z], CUFFT_C2R, size[X]*size[Y]) );
   
   plan->transp = new_gpu_array(plan->paddedStorageN);
   
@@ -100,7 +96,7 @@ void gpuFFT3dPlan_forward_unsafe(gpuFFT3dPlan* plan, float* input, float* output
 
   if ( pSSize[X]!=size[X] || pSSize[Y]!=size[Y]){
       // out of place FFTs in Z-direction from the 0-element towards second half of the zeropadded matrix (out of place: no +2 on input!)
-    gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)data,  (cufftComplex*) (data + half_pSSize) ) );     // it's in data
+    gpu_safefft( cufftExecR2C(plan->fwPlanZ, (cufftReal*)data,  (cufftComplex*) (data + half_pSSize) ) );     // it's in data
     cudaThreadSynchronize();
       // zero out the input data points at the start of the matrix
     gpu_zero(data, size[X]*size[Y]*pSSize[Z]);
@@ -109,20 +105,20 @@ void gpuFFT3dPlan_forward_unsafe(gpuFFT3dPlan* plan, float* input, float* output
     yz_transpose_in_place_fw(data, size, pSSize);                                                          // it's in data
     
       // in place FFTs in Y-direction
-    gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data,  (cufftComplex*)data, CUFFT_FORWARD) );       // it's in data 
+    gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)data,  (cufftComplex*)data, CUFFT_FORWARD) );       // it's in data 
     cudaThreadSynchronize();
   }
   
   else {          //no zero padding in X- and Y direction (e.g. for Greens kernel computations)
       // in place FFTs in Z-direction (there is no zero space to perform them out of place)
-    gpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)data,  (cufftComplex*) data ) );                     // it's in data
+    gpu_safefft( cufftExecR2C(plan->fwPlanZ, (cufftReal*)data,  (cufftComplex*) data ) );                     // it's in data
     cudaThreadSynchronize();
     
       // YZ-transpose needs to be out of place.
     gpu_transposeYZ_complex(data, data2, N0, N1, N2*N3);                                                   // it's in data2
     
       // perform the FFTs in the Y-direction
-    gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data2,  (cufftComplex*)data, CUFFT_FORWARD) );      // it's in data
+    gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)data2,  (cufftComplex*)data, CUFFT_FORWARD) );      // it's in data
     cudaThreadSynchronize();
   }
 
@@ -131,7 +127,7 @@ void gpuFFT3dPlan_forward_unsafe(gpuFFT3dPlan* plan, float* input, float* output
     gpu_transposeXZ_complex(data, data2, N0, N2, N1*N3);                                                   // it's in data2
     
       // in place FFTs in X-direction
-    gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data2,  (cufftComplex*)output, CUFFT_FORWARD) );    // it's in data
+    gpu_safefft( cufftExecC2C(plan->planX, (cufftComplex*)data2,  (cufftComplex*)output, CUFFT_FORWARD) );    // it's in data
     cudaThreadSynchronize();
   }
 
@@ -177,7 +173,7 @@ void gpuFFT3dPlan_inverse_unsafe(gpuFFT3dPlan* plan, float* input, float* output
 
   if (N0 > 1){
       // out of place FFTs in the X-direction (i.e. no +2 stride on input!)
-    gpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) );      // it's in data2
+    gpu_safefft( cufftExecC2C(plan->planX, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) );      // it's in data2
     cudaThreadSynchronize();
 
       // XZ transpose still needs to be out of place
@@ -186,27 +182,27 @@ void gpuFFT3dPlan_inverse_unsafe(gpuFFT3dPlan* plan, float* input, float* output
   
   if ( pSSize[X]!=size[X] || pSSize[Y]!=size[Y]){
       // in place FFTs in Y-direction
-    gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data,  (cufftComplex*)data, CUFFT_INVERSE) );        // it's in data
+    gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)data,  (cufftComplex*)data, CUFFT_INVERSE) );        // it's in data
     cudaThreadSynchronize();
 
       // YZ-transpose within the same matrix from the 0-element towards the second half of the matrix
     yz_transpose_in_place_inv(data, size, pSSize);                                                          // it's in data
 
       // out of place FFTs in Z-direction from the second half of the matrix towards the 0-element
-    gpu_safe( cufftExecC2R(plan->invPlanZ, (cufftComplex*)(data + N0*N1*N2), (cufftReal*)data ));           // it's in data
+    gpu_safefft( cufftExecC2R(plan->invPlanZ, (cufftComplex*)(data + N0*N1*N2), (cufftReal*)data ));           // it's in data
     cudaThreadSynchronize();
 
   }
   else {          //no zero padding in X- and Y direction (e.g. for Greens kernel computations)
       // out of place FFTs in Y-direction
-    gpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) );       // it's in data
+    gpu_safefft( cufftExecC2C(plan->planY, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) );       // it's in data
     cudaThreadSynchronize();
     
       // YZ-transpose needs to be out of place.
     gpu_transposeYZ_complex(data2, data, N0, N2, N1*N3);                                                    // it's in data2   
 
       // in place FFTs in Z-direction
-    gpu_safe( cufftExecC2R(plan->invPlanZ, (cufftComplex*) data, (cufftReal*) data ));                      // it's in data
+    gpu_safefft( cufftExecC2R(plan->invPlanZ, (cufftComplex*) data, (cufftReal*) data ));                      // it's in data
     cudaThreadSynchronize();
   }
   

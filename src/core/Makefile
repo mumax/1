@@ -12,28 +12,6 @@ CPPFILES=\
 #	pipes.cpp\
 #	debug.cpp\
 
-# CUFILES=\
-# 	gputil.cu\
-# 	gpueuler.cu\
-# 	gpu_heun.cu\
-# 	gpu_anal.cu\
-# 	gpunormalize.cu\
-# 	gpu_micromag3d_kernel.cu\
-# 	gpu_micromag2d_kernel.cu\
-# 	gpu_conv.cu\
-# 	gputorque.cu\
-# 	gpu_exch.cu\
-# 	gpu_transpose2.cu\
-# 	gpu_fft.cu\
-# # 	gpufft2.cu\
-# # 	gpu_conf.cu\
-# # 	gpurk4.cu\
-# #	gpukernel1.cu\
-# #	gpupad.cu\
-# #	gpuconv1.cu\
-# #	gpuconv2.cu\
-# #	gpufft.cu\
-# # NOTE: commented files must be LAST in the list, otherwise all the rest is also commented out
 
 OFILES=\
 	tensor.o\
@@ -130,7 +108,7 @@ main-ben.o:	main-ben.h main-ben.cpp
 
 main-ben: $(OFILES) main-ben.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) main-ben.cpp
-	$(NVCC) $(CUDALIBS) $(OFILES) main-ben.o -o main-ben
+	$(NVCC) $(CUDALIBS) $(OFILES) ../gpukern/libgpukern.so main-ben.o -o main-ben
 
 
 

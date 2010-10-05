@@ -38,10 +38,10 @@ void gpu_torque(float* m, float* h, float alpha, float dt_gilb, int N){
   float* hz = &(h[2*N]);
 
   
-  timer_start("torque");
+//   timer_start("torque");
   _gpu_torque<<<gridSize, blockSize>>>(mx, my, mz, hx, hy, hz, alpha, dt_gilb);
   cudaThreadSynchronize();
-  timer_stop("torque");
+//   timer_stop("torque");
 }
 
 #ifdef __cplusplus

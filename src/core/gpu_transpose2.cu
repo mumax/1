@@ -204,7 +204,7 @@ __global__ void _gpu_transposeXZ_complex(float* source, float* dest, int N0, int
 }
 
 void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2){
-  timer_start("transposeXZ"); /// @todo section is double-timed with FFT exec
+//  timer_start("transposeXZ"); /// @todo section is double-timed with FFT exec
 
   if(source != dest){ // must be out-of-place
 
@@ -223,7 +223,7 @@ void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2)
 /*  else{
     gpu_transposeXZ_complex_inplace(source, N0, N1, N2*2); ///@todo see above
   }*/
-  timer_stop("transposeXZ");
+//  timer_stop("transposeXZ");
 }
 
 
@@ -244,7 +244,7 @@ __global__ void _gpu_transposeYZ_complex(float* source, float* dest, int N0, int
 }
 
 void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
-  timer_start("transposeYZ");
+//  timer_start("transposeYZ");
 
   if(source != dest){ // must be out-of-place
 
@@ -262,7 +262,7 @@ void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2)
 /*  else{
     gpu_transposeYZ_complex_inplace(source, N0, N1, N2*2); ///@todo see above
   }*/
-  timer_stop("transposeYZ");
+//  timer_stop("transposeYZ");
 }
 
 

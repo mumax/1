@@ -63,11 +63,11 @@ float* new_ram_array(int size){
 //_____________________________________________________________________________________________ util
 
 void gpu_zero(float* data, int nElements){
-  timer_start("gpu_zero");
+//   timer_start("gpu_zero");
 
   gpu_safe( cudaMemset(data, 0, nElements*sizeof(float)) );
   
-  timer_stop("gpu_zero");
+//   timer_stop("gpu_zero");
 }
 
 
@@ -123,7 +123,7 @@ void memcpy_from_gpu(float* source, float* dest, int nElements){
 }
 
 void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
-  timer_start("memcpy_gpu_to_gpu");
+//   timer_start("memcpy_gpu_to_gpu");
   
   assert(nElements > 0);
   int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyDeviceToDevice);
@@ -133,7 +133,7 @@ void memcpy_gpu_to_gpu(float* source, float* dest, int nElements){
   }
   cudaThreadSynchronize();
   
-  timer_stop("memcpy_gpu_to_gpu");
+//   timer_stop("memcpy_gpu_to_gpu");
 }
 
 float gpu_array_get(float* dataptr, int index){
@@ -388,13 +388,13 @@ void print_device_properties_stdout(){
   print_device_properties(stdout);
 }
 
-			     
+/*			     
 void gpu_safe(int status){
   if(status != cudaSuccess){
     fprintf(stderr, "received CUDA error: %s\n", cudaGetErrorString((cudaError_t)status));
     abort();
   }
-}
+}*/
 
 #ifdef __cplusplus
 }

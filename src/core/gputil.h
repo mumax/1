@@ -12,6 +12,7 @@
 #ifndef GPUTIL_H
 #define GPUTIL_H
 
+#include "gpu_safe.h"
 #include "tensor.h"
 #include <cufft.h>
 #include <stdlib.h>
@@ -164,8 +165,8 @@ void gpu_zero_tensor(tensor* t);
  * gpu_safe( cudaMalloc(...) );
  * @endcode
  */
-void gpu_safe(int status	///< CUDA return status
-	      );
+// void gpu_safe(int status	///< CUDA return status
+// 	      );
 
 /**
  * @internal
