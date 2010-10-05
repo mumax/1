@@ -34,7 +34,7 @@ void gpu_normalize_uniform(float* m, int N){
 
 //   timer_start("normalize");
   _gpu_normalize<<<gridSize, blockSize>>>(mx, my, mz);
-  cudaThreadSynchronize();
+  gpu_sync();
 //   timer_stop("normalize");
 }
 
@@ -49,7 +49,7 @@ void gpu_normalize_map(float* m, float* map, int N){
 
 //   timer_start("normalize");
   _gpu_normalize_map<<<gridSize, blockSize>>>(mx, my, mz, map);
-  cudaThreadSynchronize();
+  gpu_sync();
 //   timer_stop("normalize");
   
 }
@@ -73,7 +73,7 @@ void gpu_normalize(param* p, tensor* m){
   else{
     _gpu_normalize_map<<<gridSize, blockSize>>>(mx, my, mz, p->msatMap->list);
   }
-  cudaThreadSynchronize();
+  gpu_sync();
 //   timer_stop("normalize");
 }
 

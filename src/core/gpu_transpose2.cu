@@ -217,7 +217,7 @@ void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2)
   dim3 blocksize(N2, 1, 1);
   gpu_checkconf(gridsize, blocksize);
   _gpu_transposeXZ_complex<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
-  cudaThreadSynchronize();
+  gpu_sync();
 
   }
 /*  else{
@@ -257,7 +257,7 @@ void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2)
   dim3 blocksize(N2, 1, 1);
   gpu_checkconf(gridsize, blocksize);
   _gpu_transposeYZ_complex<<<gridsize, blocksize>>>(source, dest, N0, N1, N2);
-  cudaThreadSynchronize();
+  gpu_sync();
   }
 /*  else{
     gpu_transposeYZ_complex_inplace(source, N0, N1, N2*2); ///@todo see above

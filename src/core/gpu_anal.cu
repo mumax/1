@@ -13,11 +13,10 @@ void gpu_anal_fw_step(param *p, tensor *m_in, tensor *m_out, tensor *h){
   
   int gridSize = -1, blockSize = -1;
   make1dconf(length, &gridSize, &blockSize); ///@todo cache in gpu_anal struct
-  printf("gridSize: %d, blockSize: %d\n", gridSize, blockSize);
   
 //   timer_start("gpu_anal_fw_step");
   _gpu_anal_fw_step <<<gridSize, blockSize>>> (&m_in->list[X*length], &m_in->list[Y*length], &m_in->list[Z*length], &m_out->list[X*length], &m_out->list[Y*length], &m_out->list[Z*length], &h->list[X*length], &h->list[Y*length], &h->list[Z*length], p->maxDt, p->alpha);
-  cudaThreadSynchronize();
+  gpu_sync();
 //   timer_stop("gpu_anal_fw_step");
   
 
@@ -88,10 +87,11 @@ __global__ void _gpu_anal_fw_step (float *minx, float *miny, float *minz, float 
 	mouty[i] = mx_rotnw*rot3 + my_rotnw*rot4 + mz_rotnw*rot5;
 	moutz[i] = mx_rotnw*rot6 + mz_rotnw*rot8;
 
-  moutx[i] = 1.0;
-  mouty[i] = 1.0;
-  moutz[i] = 1.0;
-
+//   if (i==0){
+/*  moutx[i] = rot3;
+  mouty[i] = rot6;
+  moutz[i] = rot8;*/
+// }
 //   float norm = rsqrtf(mx[i]*mx[i] + my[i]*my[i] + mz[i]*mz[i]);     // inverse square root
 //   mx[i] *= norm;
 //   my[i] *= norm;
@@ -108,7 +108,7 @@ void gpu_anal_pc_mean_h(tensor *h1, tensor *h2){
 
 //   timer_start("gpu_anal_pc_mean_h");
   _gpu_anal_pc_meah_h <<<gridSize, blockSize>>> (h1->list, h2->list);
-  cudaThreadSynchronize();
+  gpu_sync();
 //   timer_stop("gpu_anal_pc_mean_h");
 
   return;

@@ -44,7 +44,7 @@ int main(int argc, char** argv){
 
 //    return(0);
 //   FILE *av =fopen("./Data/m_av_fw_2e-1", "w");
-  for(int i=0; i<2; i++){
+  for(int i=0; i<100; i++){
 
     
 //     tensor_copy_from_gpu(m, Host);
@@ -69,7 +69,7 @@ int main(int argc, char** argv){
 //     fprintf(av, "%e\t%f\t%f\t%f\t%f\n", totalTime*unittime(p), mx/(float)(m->len/3), my/(float)(m->len/3), mz/(float)(m->len/3), (mx*mx+my*my+mz*mz)/(float)(m->len/3*m->len/3));
 //     printf("\n%f\t%f\t%f\t%f\n", mx/(float)(m->len/3), my/(float)(m->len/3), mz/(float)(m->len/3), (mx*mx+my*my+mz*mz)/(float)(m->len/3*m->len/3));
     
-    for(int j=0; j<1; j++)
+    for(int j=0; j<100; j++)
       timestep(ts, m, &totalTime);
 
   }
@@ -156,8 +156,8 @@ param* read_param(){
   p->kernelType = KERNEL_MICROMAG3D;
 //   p->kernelType = KERNEL_MICROMAG2D;
   
- p->solverType = SOLVER_ANAL_FW;
-//    p->solverType = SOLVER_ANAL_PC;
+//  p->solverType = SOLVER_ANAL_FW;
+   p->solverType = SOLVER_ANAL_PC;
 //   p->solverType = SOLVER_HEUN;
 
 ///Depending on the kerneltype and/or a coarse grid evaluation of the demag field, some/all components of the exchange fields need to be added classically

@@ -12,11 +12,11 @@ OFILES=\
 	gpu_fft3.o\
 	gpu_kernmul.o\
 	gpu_zeropad.o\
-	gpu_anal.o\
 	gpu_init.o\
 	timer.o\
 	gpu_stream.o\
 	gpu_reduction.o\
+# 	gpu_anal.o\
 
 all: libgpukern.so libgpukern.a
 
@@ -67,8 +67,8 @@ gpu_kernmul.o:  gpu_kernmul.h gpu_kernmul.cu
 gpu_zeropad.o:  gpu_zeropad.h gpu_zeropad.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_zeropad.cu
 
-gpu_anal.o:  gpu_anal.h gpu_anal.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_anal.cu
+# gpu_anal.o:  gpu_anal.h gpu_anal.cu
+# 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_anal.cu
 
 gpu_init.o:  gpu_init.h gpu_init.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_init.cu

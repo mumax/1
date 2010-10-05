@@ -64,16 +64,16 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(tensor *dev_kernel, int 
       for (int co2=co1; co2<3; co2++){
           // Put all elements in 'dev_temp' to zero.
         gpu_zero(dev_temp1, kernelN);    
-        cudaThreadSynchronize();
+        gpu_sync();
         // Fill in the elements.
         _gpu_init_Greens_kernel_elements_micromag2d<<<gridsize1, blocksize1>>>(dev_temp1, kernelSize[Y], kernelSize[Z], exchInConv[Y], exchInConv[Z], co1, co2, FD_cell_size[Y], FD_cell_size[Z], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
-        cudaThreadSynchronize();
+        gpu_sync();
         // Fourier transform the kernel component.
         gpuFFT3dPlan_forward_unsafe(kernel_plan, dev_temp1, dev_temp2); 
-        cudaThreadSynchronize();
+        gpu_sync();
         // Copy the real parts to the corresponding place in the dev_kernel tensor.
         _gpu_extract_real_parts_micromag2d<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*kernelStorageN/2], dev_temp2);
-        cudaThreadSynchronize();
+        gpu_sync();
         rank0++;                                        // get ready for next component
       }
     } 
@@ -309,13 +309,13 @@ void get_Quad_Points_micromag2d(float *gaussQP, float *stdGaussQP, int qOrder, d
 //   fprintf(stderr, "test co: %d, %d, testrang: %d\n\n", testco1, testco2, testrang);
 // 
 //   gpu_zero(dev_temp, kernelStorageN);
-//   cudaThreadSynchronize();
+//   gpu_sync();
 // //  _gpu_init_Greens_kernel_elements<<<gridsize1, blocksize1>>>(dev_temp, Nkernel[X], Nkernel[Y], Nkernel[Z], testco1, testco2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], cst, repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
 //   _gpu_init_Greens_kernel_elements<<<gridsize1, blocksize1>>>(dev_temp, kernelSize[X], kernelSize[Y], kernelSize[Z], kernelStorageSize[Z], testco1, testco2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
-//   cudaThreadSynchronize();
+//   gpu_sync();
 // 
 //   memcpy_from_gpu(dev_temp, host_temp, kernelStorageN);
-//   cudaThreadSynchronize();
+//   gpu_sync();
 //   fprintf(stderr, "\nkernel elements (untransformed), co: %d, %d:\n", testco1, testco2);
 //   for (int i=0; i<kernelStorageSize[X]; i++){
 //     for (int j=0; j<kernelStorageSize[Y]; j++){
@@ -329,10 +329,10 @@ void get_Quad_Points_micromag2d(float *gaussQP, float *stdGaussQP, int qOrder, d
 //   
 // 
 //   gpuFFT3dPlan_forward(kernel_plan, FFT_input, FFT_output); 
-//   cudaThreadSynchronize();
+//   gpu_sync();
 //   
 //   memcpy_from_gpu(dev_temp, host_temp, kernelStorageN);
-//   cudaThreadSynchronize();
+//   gpu_sync();
 //   fprintf(stderr, "\nkernel elements (transformed), co: %d, %d:\n", testco1, testco2);
 //   for (int i=0; i<kernelStorageSize[X]; i++){
 //     for (int j=0; j<kernelStorageSize[Y]; j++){
@@ -345,10 +345,10 @@ void get_Quad_Points_micromag2d(float *gaussQP, float *stdGaussQP, int qOrder, d
 //   }
 // 
 //   _gpu_extract_real_parts<<<gridsize2, blocksize2>>>(&dev_kernel->list[testrang*kernelStorageN/2], dev_temp, 0, kernelStorageN/2);
-//   cudaThreadSynchronize();
+//   gpu_sync();
 //   fprintf(stderr, "\nkernel elements (transformed, real parts), co: %d, %d:\n", testco1, testco2);
 //   memcpy_from_gpu(&dev_kernel->list[testrang*kernelStorageN/2], host_temp2, kernelStorageN/2);
-//   cudaThreadSynchronize();
+//   gpu_sync();
 // 
 //   for (int i=0; i<kernelStorageSize[X]; i++){
 //     for (int j=0; j<kernelStorageSize[Y]; j++){
