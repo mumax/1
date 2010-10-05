@@ -8,7 +8,6 @@ import (
 	"crypto/hmac"
 	"crypto/rc4"
 	"crypto/rsa"
-	"crypto/sha1"
 	"crypto/subtle"
 	"crypto/x509"
 	"io"
@@ -85,8 +84,30 @@ func (c *Conn) clientHandshake() os.Error {
 		certs[i] = cert
 	}
 
-	// TODO(agl): do better validation of certs: max path length, name restrictions etc.
 	for i := 1; i < len(certs); i++ {
+		if !certs[i].BasicConstraintsValid || !certs[i].IsCA {
+			return c.sendAlert(alertBadCertificate)
+		}
+		// KeyUsage status flags are ignored. From Engineering
+		// Security, Peter Gutmann:
+		// A European government CA marked its signing certificates as
+		// being valid for encryption only, but no-one noticed. Another
+		// European CA marked its signature keys as not being valid for
+		// signatures. A different CA marked its own trusted root
+		// certificate as being invalid for certificate signing.
+		// Another national CA distributed a certificate to be used to
+		// encrypt data for the country’s tax authority that was marked
+		// as only being usable for digital signatures but not for
+		// encryption. Yet another CA reversed the order of the bit
+		// flags in the keyUsage due to confusion over encoding
+		// endianness, essentially setting a random keyUsage in
+		// certificates that it issued. Another CA created a
+		// self-invalidating certificate by adding a certificate policy
+		// statement stipulating that the certificate had to be used
+		// strictly as specified in the keyUsage, and a keyUsage
+		// containing a flag indicating that the RSA encryption key
+		// could only be used for Diffie-Hellman key agreement.
+
 		if err := certs[i-1].CheckSignatureFrom(certs[i]); err != nil {
 			return c.sendAlert(alertBadCertificate)
 		}
@@ -226,7 +247,7 @@ func (c *Conn) clientHandshake() os.Error {
 
 	cipher, _ := rc4.NewCipher(clientKey)
 
-	c.out.prepareCipherSpec(cipher, hmac.New(sha1.New(), clientMAC))
+	c.out.prepareCipherSpec(cipher, hmac.NewSHA1(clientMAC))
 	c.writeRecord(recordTypeChangeCipherSpec, []byte{1})
 
 	finished := new(finishedMsg)
@@ -235,7 +256,7 @@ func (c *Conn) clientHandshake() os.Error {
 	c.writeRecord(recordTypeHandshake, finished.marshal())
 
 	cipher2, _ := rc4.NewCipher(serverKey)
-	c.in.prepareCipherSpec(cipher2, hmac.New(sha1.New(), serverMAC))
+	c.in.prepareCipherSpec(cipher2, hmac.NewSHA1(serverMAC))
 	c.readRecord(recordTypeChangeCipherSpec)
 	if c.err != nil {
 		return c.err

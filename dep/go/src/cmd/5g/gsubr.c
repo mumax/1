@@ -197,9 +197,50 @@ afunclit(Addr *a)
 	}
 }
 
+static	int	resvd[] =
+{
+	9,	// reserved for m
+	10,	// reserved for g
+};
+
+void
+ginit(void)
+{
+	int i;
+
+	for(i=0; i<nelem(reg); i++)
+		reg[i] = 0;
+	for(i=0; i<nelem(resvd); i++)
+		reg[resvd[i]]++;
+}
+
+void
+gclean(void)
+{
+	int i;
+
+	for(i=0; i<nelem(resvd); i++)
+		reg[resvd[i]]--;
+
+	for(i=0; i<nelem(reg); i++)
+		if(reg[i])
+			yyerror("reg %R left allocated\n", i);
+}
+
 int32
 anyregalloc(void)
 {
+	int i, j;
+
+	for(i=0; i<nelem(reg); i++) {
+		if(reg[i] == 0)
+			goto ok;
+		for(j=0; j<nelem(resvd); j++)
+			if(resvd[j] == i)
+				goto ok;
+		return 1;
+	ok:;
+	}
 	return 0;
 }
 
@@ -1354,13 +1395,19 @@ optoas(int op, Type *t)
 
 	case CASE(OAS, TBOOL):
 	case CASE(OAS, TINT8):
-	case CASE(OAS, TUINT8):
 		a = AMOVB;
 		break;
 
+	case CASE(OAS, TUINT8):
+		a = AMOVBU;
+		break;
+
 	case CASE(OAS, TINT16):
-	case CASE(OAS, TUINT16):
 		a = AMOVH;
+		break;
+
+	case CASE(OAS, TUINT16):
+		a = AMOVHU;
 		break;
 
 	case CASE(OAS, TINT32):

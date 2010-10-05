@@ -10,6 +10,12 @@ if [ ! -f env.bash ]; then
 fi
 . ./env.bash
 
+# Create target directories
+if [ "$GOBIN" = "$GOROOT/bin" ]; then
+	mkdir -p "$GOROOT/bin"
+fi
+mkdir -p "$GOROOT/pkg"
+
 GOROOT_FINAL=${GOROOT_FINAL:-$GOROOT}
 
 MAKEFLAGS=${MAKEFLAGS:-"-j4"}
@@ -52,7 +58,8 @@ fi
 )
 bash "$GOROOT"/src/clean.bash
 
-for i in lib9 libbio libmach cmd pkg libcgo cmd/cgo cmd/ebnflint cmd/godoc cmd/gofmt cmd/goinstall cmd/goyacc cmd/hgpatch
+# pkg builds libcgo and the Go programs in cmd.
+for i in lib9 libbio libmach cmd pkg
 do
 	case "$i-$GOOS-$GOARCH" in
 	libcgo-nacl-* | cmd/*-nacl-* | libcgo-linux-arm)
@@ -70,10 +77,10 @@ do
 				bash make.bash
 				;;
 			pkg)
-				"$GOBIN"/gomake install
+				gomake install
 				;;
 			*)
-				"$GOBIN"/gomake install
+				gomake install
 			esac
 		)  || exit 1
 	esac
@@ -83,7 +90,7 @@ done
 # Implemented as a function so that all.bash can repeat the output
 # after run.bash finishes running all the tests.
 installed() {
-	eval $("$GOBIN"/gomake -f Make.inc go-env)
+	eval $(gomake -f Make.inc go-env)
 	echo
 	echo ---
 	echo Installed Go for $GOOS/$GOARCH in "$GOROOT".

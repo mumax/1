@@ -1,3 +1,9 @@
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any 
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
 // refsh is a "reflective shell", an interpreter that parses
 // commands, executing them via run-time reflection.
 // Usage: first set up a new interpreter:
@@ -168,19 +174,19 @@ type Printer interface {
 
 func (refsh *Refsh) Print(msg ...interface{}) {
 	if refsh.Output != nil {
-		refsh.Output.Print(msg)
+		refsh.Output.Print(msg...)
 	}
 }
 
 func (refsh *Refsh) Println(msg ...interface{}) {
 	if refsh.Output != nil {
-		refsh.Output.Println(msg)
+		refsh.Output.Println(msg...)
 	}
 }
 
 func (refsh *Refsh) Errorln(msg ...interface{}) {
 	if refsh.Output != nil {
-		refsh.Output.Errorln(msg)
+		refsh.Output.Errorln(msg...)
 	}
 }
 

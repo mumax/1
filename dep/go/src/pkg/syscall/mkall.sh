@@ -102,12 +102,12 @@ _* | *_ | _)
 freebsd_386)
 	mkerrors="$mkerrors -f -m32"
 	mksyscall="./mksyscall.sh -l32"
-	mksysnum="./mksysnum_freebsd.sh /usr/src/sys/kern/syscalls.master"
+	mksysnum="curl -s 'http://svn.freebsd.org/viewvc/base/head/sys/kern/syscalls.master?view=markup' | ./mksysnum_freebsd.sh"
 	mktypes="godefs -gsyscall -f-m32"
 	;;
 freebsd_amd64)
 	mkerrors="$mkerrors -f -m64"
-	mksysnum="./mksysnum_freebsd.sh /usr/src/sys/kern/syscalls.master"
+	mksysnum="curl -s 'http://svn.freebsd.org/viewvc/base/head/sys/kern/syscalls.master?view=markup' | ./mksysnum_freebsd.sh"
 	mktypes="godefs -gsyscall -f-m64"
 	;;
 darwin_386)
@@ -137,7 +137,7 @@ nacl_386)
 	NACL="/home/rsc/pub/nacl/native_client"
 	NACLRUN="$NACL/src/trusted/service_runtime"
 	NACLSDK="$NACL/src/third_party/nacl_sdk/linux/sdk/nacl-sdk/nacl"
-	mksyscall="./mksyscall.sh -l32"
+	mksyscall="./mksyscall.sh -l32 -nacl"
 	mksysnum="./mksysnum_nacl.sh $NACLRUN/include/bits/nacl_syscalls.h"
 	mktypes="godefs -gsyscall -f-m32 -f-I$NACLSDK/include -f-I$NACL"
 	mkerrors="./mkerrors_nacl.sh $NACLRUN/include/sys/errno.h"

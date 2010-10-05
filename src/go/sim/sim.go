@@ -1,3 +1,9 @@
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any 
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
 // Magnetic simulation package
 package sim
 
@@ -137,7 +143,7 @@ func (s *Sim) init() {
 	s.Println("Initializing simulation state")
 
 	dev := s.backend
-	dev.InitBackend()
+	// 	dev.InitBackend()
 	assert(s.backend != nil)
 	assert(s != nil)
 
@@ -212,11 +218,12 @@ func (s *Sim) init() {
 }
 
 
+// OBSOLETE: CLI flag
 // Set how much debug info is printed. Level=0,1,2 or 3 for none, normal, verbose and very verbose.
-func (s *Sim) Verbosity(level int) {
-	Verbosity = level
-	// does not invalidate
-}
+// func (s *Sim) Verbosity(level int) {
+// 	Verbosity = level
+// 	// does not invalidate
+// }
 
 
 func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {

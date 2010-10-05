@@ -9,18 +9,13 @@
 #
 # to rebuild the dependency information in Make.deps.
 
-nullstring :=
-space := $(nullstring) # a space at the end
-ifndef GOBIN
-QUOTED_HOME=$(subst $(space),\ ,$(HOME))
-GOBIN=$(QUOTED_HOME)/bin
-endif
-QUOTED_GOBIN=$(subst $(space),\ ,$(GOBIN))
+include ../Make.inc
 
 all: install
 
 DIRS=\
 	archive/tar\
+	archive/zip\
 	asn1\
 	big\
 	bufio\
@@ -78,6 +73,7 @@ DIRS=\
 	go/printer\
 	go/scanner\
 	go/token\
+	go/typechecker\
 	gob\
 	hash\
 	hash/adler32\
@@ -89,6 +85,7 @@ DIRS=\
 	image\
 	image/jpeg\
 	image/png\
+	index/suffixarray\
 	io\
 	io/ioutil\
 	json\
@@ -131,6 +128,14 @@ DIRS=\
 	utf8\
 	websocket\
 	xml\
+	../libcgo\
+	../cmd/cgo\
+	../cmd/ebnflint\
+	../cmd/godoc\
+	../cmd/gofmt\
+	../cmd/goinstall\
+	../cmd/goyacc\
+	../cmd/hgpatch\
 
 NOTEST=\
 	debug/proc\
@@ -148,6 +153,14 @@ NOTEST=\
 	runtime/pprof\
 	syscall\
 	testing/iotest\
+	../libcgo\
+	../cmd/cgo\
+	../cmd/ebnflint\
+	../cmd/godoc\
+	../cmd/gofmt\
+	../cmd/goinstall\
+	../cmd/goyacc\
+	../cmd/hgpatch\
 
 NOBENCH=\
 	container/vector\
@@ -177,6 +190,71 @@ NOTEST+=time         # no syscall.Kill, syscall.SIGCHLD for sleep tests
 NOTEST+=websocket    # no network
 endif
 
+# Disable tests that windows cannot run yet.
+ifeq ($(GOOS),windows)
+NOTEST+=exec         # no pipe
+NOTEST+=os           # many things unimplemented
+NOTEST+=os/signal    # no signals
+NOTEST+=path         # tree walking does not work
+NOTEST+=syslog       # no network
+NOTEST+=time         # no syscall.Kill, syscall.SIGCHLD for sleep tests
+NOTEST+=websocket    # no network
+endif
+
+ifeq ($(GOARCH),arm)
+# Tests that fail, probably 5g bugs.
+# Disable so that dashboard all.bash can catch regressions.
+NOTEST+=archive/tar
+NOTEST+=archive/zip
+NOTEST+=asn1
+NOTEST+=big
+NOTEST+=bytes
+NOTEST+=cmath
+NOTEST+=compress/gzip
+NOTEST+=compress/zlib
+NOTEST+=crypto/block
+NOTEST+=crypto/ocsp
+NOTEST+=crypto/rsa
+NOTEST+=crypto/subtle
+NOTEST+=crypto/tls
+NOTEST+=crypto/x509
+NOTEST+=debug/dwarf
+NOTEST+=debug/elf
+NOTEST+=debug/macho
+NOTEST+=encoding/binary
+NOTEST+=exp/datafmt
+NOTEST+=exp/eval
+NOTEST+=expvar
+NOTEST+=flag
+NOTEST+=fmt
+NOTEST+=go/printer
+NOTEST+=gob
+NOTEST+=http
+NOTEST+=image/png
+NOTEST+=io
+NOTEST+=json
+NOTEST+=log
+NOTEST+=math
+NOTEST+=mime
+NOTEST+=mime/multipart
+NOTEST+=net
+NOTEST+=netchan
+NOTEST+=os
+NOTEST+=os/signal
+NOTEST+=reflect
+NOTEST+=rpc
+NOTEST+=rpc/jsonrpc
+NOTEST+=scanner
+NOTEST+=strconv
+NOTEST+=strings
+NOTEST+=syslog
+NOTEST+=template
+NOTEST+=testing/quick
+NOTEST+=time
+NOTEST+=websocket
+NOTEST+=xml
+endif
+
 TEST=\
 	$(filter-out $(NOTEST),$(DIRS))
 
@@ -190,19 +268,19 @@ test.dirs: $(addsuffix .test, $(TEST))
 bench.dirs: $(addsuffix .bench, $(BENCH))
 
 %.clean:
-	+cd $* && $(QUOTED_GOBIN)/gomake clean
+	+cd $* && gomake clean
 
 %.install:
-	+cd $* && $(QUOTED_GOBIN)/gomake install
+	+cd $* && gomake install
 
 %.nuke:
-	+cd $* && $(QUOTED_GOBIN)/gomake nuke
+	+cd $* && gomake nuke
 
 %.test:
-	+cd $* && $(QUOTED_GOBIN)/gomake test
+	+cd $* && gomake test
 
 %.bench:
-	+cd $* && $(QUOTED_GOBIN)/gomake bench
+	+cd $* && gomake bench
 
 clean: clean.dirs
 
@@ -219,3 +297,5 @@ deps:
 	./deps.bash
 
 -include Make.deps
+
+../cmd/cgo.install: ../libcgo.install

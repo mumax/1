@@ -17,6 +17,7 @@ static	void	heapmoves(void);
 static	NodeList*	paramstoheap(Type **argin, int out);
 static	NodeList*	reorder1(NodeList*);
 static	NodeList*	reorder3(NodeList*);
+static	Node*	addstr(Node*, NodeList**);
 
 static	NodeList*	walkdefstack;
 
@@ -259,6 +260,10 @@ walkdef(Node *n)
 		typecheck(&e, Erv | Eiota);
 		if(e->type != T && e->op != OLITERAL) {
 			yyerror("const initializer must be constant");
+			goto ret;
+		}
+		if(isconst(e, CTNIL)) {
+			yyerror("const initializer cannot be nil");
 			goto ret;
 		}
 		t = n->type;
@@ -1095,13 +1100,17 @@ walkexpr(Node **np, NodeList **init)
 		// sliceslice(old []any, lb uint64, hb uint64, width uint64) (ary []any)
 		// sliceslice1(old []any, lb uint64, width uint64) (ary []any)
 		t = n->type;
+		if(n->right->left == N)
+			l = nodintconst(0);
+		else
+			l = conv(n->right->left, types[TUINT64]);
 		if(n->right->right != N) {
 			fn = syslook("sliceslice", 1);
 			argtype(fn, t->type);			// any-1
 			argtype(fn, t->type);			// any-2
 			n = mkcall1(fn, t, init,
 				n->left,
-				conv(n->right->left, types[TUINT64]),
+				l,
 				conv(n->right->right, types[TUINT64]),
 				nodintconst(t->type->width));
 		} else {
@@ -1110,7 +1119,7 @@ walkexpr(Node **np, NodeList **init)
 			argtype(fn, t->type);			// any-2
 			n = mkcall1(fn, t, init,
 				n->left,
-				conv(n->right->left, types[TUINT64]),
+				l,
 				nodintconst(t->type->width));
 		}
 		goto ret;
@@ -1120,29 +1129,21 @@ walkexpr(Node **np, NodeList **init)
 		// slicearray(old *any, uint64 nel, lb uint64, hb uint64, width uint64) (ary []any)
 		t = n->type;
 		fn = syslook("slicearray", 1);
-		argtype(fn, n->left->type);	// any-1
+		argtype(fn, n->left->type->type);	// any-1
 		argtype(fn, t->type);			// any-2
+		if(n->right->left == N)
+			l = nodintconst(0);
+		else
+			l = conv(n->right->left, types[TUINT64]);
 		if(n->right->right == N)
-			r = nodintconst(n->left->type->bound);
+			r = nodintconst(n->left->type->type->bound);
 		else
 			r = conv(n->right->right, types[TUINT64]);
 		n = mkcall1(fn, t, init,
-			nod(OADDR, n->left, N), nodintconst(n->left->type->bound),
-			conv(n->right->left, types[TUINT64]),
+			n->left, nodintconst(n->left->type->type->bound),
+			l,
 			r,
 			nodintconst(t->type->width));
-		goto ret;
-
-	case OCONVSLICE:
-		// slicearray(old *any, uint64 nel, lb uint64, hb uint64, width uint64) (ary []any)
-		fn = syslook("slicearray", 1);
-		argtype(fn, n->left->type->type);		// any-1
-		argtype(fn, n->type->type);			// any-2
-		n = mkcall1(fn, n->type, init, n->left,
-			nodintconst(n->left->type->type->bound),
-			nodintconst(0),
-			nodintconst(n->left->type->type->bound),
-			nodintconst(n->type->type->width));
 		goto ret;
 
 	case OADDR:;
@@ -1205,23 +1206,24 @@ walkexpr(Node **np, NodeList **init)
 		goto ret;
 
 	case OADDSTR:
-		// sys_catstring(s1, s2)
-		n = mkcall("catstring", n->type, init,
-			conv(n->left, types[TSTRING]),
-			conv(n->right, types[TSTRING]));
+		n = addstr(n, init);
 		goto ret;
 
 	case OSLICESTR:
 		// sys_slicestring(s, lb, hb)
+		if(n->right->left == N)
+			l = nodintconst(0);
+		else
+			l = conv(n->right->left, types[TINT]);
 		if(n->right->right) {
 			n = mkcall("slicestring", n->type, init,
 				conv(n->left, types[TSTRING]),
-				conv(n->right->left, types[TINT]),
+				l,
 				conv(n->right->right, types[TINT]));
 		} else {
 			n = mkcall("slicestring1", n->type, init,
 				conv(n->left, types[TSTRING]),
-				conv(n->right->left, types[TINT]));
+				l);
 		}
 		goto ret;
 
@@ -2128,12 +2130,17 @@ static void
 heapmoves(void)
 {
 	NodeList *nn;
-
+	int32 lno;
+	
+	lno = lineno;
+	lineno = curfn->lineno;
 	nn = paramstoheap(getthis(curfn->type), 0);
 	nn = concat(nn, paramstoheap(getinarg(curfn->type), 0));
 	nn = concat(nn, paramstoheap(getoutarg(curfn->type), 1));
 	curfn->enter = concat(curfn->enter, nn);
+	lineno = curfn->endlineno;
 	curfn->exit = returnsfromheap(getoutarg(curfn->type));
+	lineno = lno;
 }
 
 static Node*
@@ -2224,4 +2231,43 @@ mapfn(char *name, Type *t)
 	argtype(fn, t->down);
 	argtype(fn, t->type);
 	return fn;
+}
+
+static Node*
+addstr(Node *n, NodeList **init)
+{
+	Node *r, *cat, *typstr;
+	NodeList *in, *args;
+	int i, count;
+	
+	count = 0;
+	for(r=n; r->op == OADDSTR; r=r->left)
+		count++;	// r->right
+	count++;	// r
+
+	// prepare call of runtime.catstring of type int, string, string, string
+	// with as many strings as we have.
+	cat = syslook("concatstring", 1);
+	cat->type = T;
+	cat->ntype = nod(OTFUNC, N, N);
+	in = list1(nod(ODCLFIELD, N, typenod(types[TINT])));	// count
+	typstr = typenod(types[TSTRING]);
+	for(i=0; i<count; i++)
+		in = list(in, nod(ODCLFIELD, N, typstr));
+	cat->ntype->list = in;
+	cat->ntype->rlist = list1(nod(ODCLFIELD, N, typstr));
+
+	args = nil;
+	for(r=n; r->op == OADDSTR; r=r->left)
+		args = concat(list1(conv(r->right, types[TSTRING])), args);
+	args = concat(list1(conv(r, types[TSTRING])), args);
+	args = concat(list1(nodintconst(count)), args);
+
+	r = nod(OCALL, cat, N);
+	r->list = args;
+	typecheck(&r, Erv);
+	walkexpr(&r, init);
+	r->type = n->type;
+	
+	return r;
 }

@@ -543,7 +543,7 @@ func walkBinary(e *ast.BinaryExpr) (has5, has6 bool, maxProblem int) {
 
 	case *ast.UnaryExpr:
 		switch e.Op.String() + r.Op.String() {
-		case "/*":
+		case "/*", "&&", "&^":
 			maxProblem = 6
 		case "++", "--":
 			if maxProblem < 5 {
@@ -612,10 +612,13 @@ func reduceDepth(depth int) int {
 //	1) If there is a binary operator with a right side unary operand
 //	   that would clash without a space, the cutoff must be (in order):
 //
-//		&^	7
 //		/*	7
+//		&&	7
+//		&^	7
 //		++	6
 //		--	6
+//
+//         (Comparison operators always have spaces around them.)
 //
 //	2) If there is a mix of level 6 and level 5 operators, then the cutoff
 //	   is 6 (use spaces to distinguish precedence) in Normal mode
@@ -686,7 +689,7 @@ func splitSelector(expr ast.Expr) (body, suffix ast.Expr) {
 	case *ast.CallExpr:
 		body, suffix = splitSelector(x.Fun)
 		if body != nil {
-			suffix = &ast.CallExpr{suffix, x.Lparen, x.Args, x.Rparen}
+			suffix = &ast.CallExpr{suffix, x.Lparen, x.Args, x.Ellipsis, x.Rparen}
 			return
 		}
 	case *ast.IndexExpr:
@@ -826,9 +829,11 @@ func (p *printer) expr1(expr ast.Expr, prec1, depth int, ctxt exprContext, multi
 		// TODO(gri): should treat[] like parentheses and undo one level of depth
 		p.expr1(x.X, token.HighestPrec, 1, 0, multiLine)
 		p.print(token.LBRACK)
-		p.expr0(x.Index, depth+1, multiLine)
+		if x.Index != nil {
+			p.expr0(x.Index, depth+1, multiLine)
+		}
 		// blanks around ":" if both sides exist and either side is a binary expression
-		if depth <= 1 && x.End != nil && (isBinary(x.Index) || isBinary(x.End)) {
+		if depth <= 1 && x.Index != nil && x.End != nil && (isBinary(x.Index) || isBinary(x.End)) {
 			p.print(blank, token.COLON, blank)
 		} else {
 			p.print(token.COLON)
@@ -845,6 +850,9 @@ func (p *printer) expr1(expr ast.Expr, prec1, depth int, ctxt exprContext, multi
 		p.expr1(x.Fun, token.HighestPrec, depth, 0, multiLine)
 		p.print(x.Lparen, token.LPAREN)
 		p.exprList(x.Lparen, x.Args, depth, commaSep|commaTerm, multiLine, x.Rparen)
+		if x.Ellipsis.IsValid() {
+			p.print(x.Ellipsis, token.ELLIPSIS)
+		}
 		p.print(x.Rparen, token.RPAREN)
 
 	case *ast.CompositeLit:
@@ -1192,25 +1200,25 @@ func (p *printer) stmt(stmt ast.Stmt, nextIsRBrace bool, multiLine *bool) {
 // ----------------------------------------------------------------------------
 // Declarations
 
-// The parameter n is the number of specs in the group. If indent is set,
+// The parameter n is the number of specs in the group. If doIndent is set,
 // multi-line identifier lists in the spec are indented when the first
 // linebreak is encountered.
 // Sets multiLine to true if the spec spans multiple lines.
 //
-func (p *printer) spec(spec ast.Spec, n int, indent bool, multiLine *bool) {
+func (p *printer) spec(spec ast.Spec, n int, doIndent bool, multiLine *bool) {
 	switch s := spec.(type) {
 	case *ast.ImportSpec:
 		p.setComment(s.Doc)
 		if s.Name != nil {
 			p.expr(s.Name, multiLine)
-			p.print(blank)
+			p.print(vtab)
 		}
 		p.expr(s.Path, multiLine)
 		p.setComment(s.Comment)
 
 	case *ast.ValueSpec:
 		p.setComment(s.Doc)
-		p.identList(s.Names, indent, multiLine) // always present
+		p.identList(s.Names, doIndent, multiLine) // always present
 		if n == 1 {
 			if s.Type != nil {
 				p.print(blank)

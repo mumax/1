@@ -1,3 +1,9 @@
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any 
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
 package sim
 
 import (
@@ -19,24 +25,24 @@ import (
 
 type Backend struct {
 	Device
-	Initiated bool
+	// 	Initiated bool
 	Timer
 }
 
 func NewBackend(d Device) *Backend {
-	return &Backend{d, false, NewTimer()}
+	return &Backend{d, NewTimer()}
 }
 
 //_________________________________________________________________________ safe wrappers for Device methods
 
 // more or less safe initialization, calls the underlying init() only once
 // (given you allocate only one unique CPU, GPU, ...)
-func (dev *Backend) InitBackend() {
-	if !dev.Initiated {
-		dev.init()
-		dev.Initiated = true
-	}
-}
+// func (dev *Backend) InitBackend() {
+// 	if !dev.Initiated {
+// 		dev.init()
+// 		dev.Initiated = true
+// 	}
+// }
 
 // Copies a number of floats from host to GPU
 func (dev *Backend) memcpyTo(source *float, dest uintptr, nFloats int) {

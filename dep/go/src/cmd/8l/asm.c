@@ -31,6 +31,7 @@
 #include	"l.h"
 #include	"../ld/lib.h"
 #include	"../ld/elf.h"
+#include	"../ld/dwarf.h"
 #include	"../ld/macho.h"
 #include	"../ld/pe.h"
 
@@ -126,16 +127,18 @@ addstring(Sym *s, char *str)
 	if(s->type == 0)
 		s->type = SDATA;
 	s->reachable = 1;
-	r = s->value;
+	r = s->size;
 	n = strlen(str)+1;
+	if(strcmp(s->name, ".shstrtab") == 0)
+		elfsetstring(str, r);
 	while(n > 0) {
 		m = n;
 		if(m > sizeof(p->to.scon))
 			m = sizeof(p->to.scon);
-		p = newdata(s, s->value, m, D_EXTERN);
+		p = newdata(s, s->size, m, D_EXTERN);
 		p->to.type = D_SCONST;
 		memmove(p->to.scon, str, m);
-		s->value += m;
+		s->size += m;
 		str += m;
 		n -= m;
 	}
@@ -151,9 +154,9 @@ adduintxx(Sym *s, uint64 v, int wid)
 	if(s->type == 0)
 		s->type = SDATA;
 	s->reachable = 1;
-	r = s->value;
-	p = newdata(s, s->value, wid, D_EXTERN);
-	s->value += wid;
+	r = s->size;
+	p = newdata(s, s->size, wid, D_EXTERN);
+	s->size += wid;
 	p->to.type = D_CONST;
 	p->to.offset = v;
 	return r;
@@ -193,9 +196,9 @@ addaddr(Sym *s, Sym *t)
 	if(s->type == 0)
 		s->type = SDATA;
 	s->reachable = 1;
-	r = s->value;
-	p = newdata(s, s->value, Ptrsize, D_EXTERN);
-	s->value += Ptrsize;
+	r = s->size;
+	p = newdata(s, s->size, Ptrsize, D_EXTERN);
+	s->size += Ptrsize;
 	p->to.type = D_ADDR;
 	p->to.index = D_EXTERN;
 	p->to.offset = 0;
@@ -213,9 +216,9 @@ addsize(Sym *s, Sym *t)
 	if(s->type == 0)
 		s->type = SDATA;
 	s->reachable = 1;
-	r = s->value;
-	p = newdata(s, s->value, Ptrsize, D_EXTERN);
-	s->value += Ptrsize;
+	r = s->size;
+	p = newdata(s, s->size, Ptrsize, D_EXTERN);
+	s->size += Ptrsize;
 	p->to.type = D_SIZE;
 	p->to.index = D_EXTERN;
 	p->to.offset = 0;
@@ -226,11 +229,8 @@ addsize(Sym *s, Sym *t)
 vlong
 datoff(vlong addr)
 {
-	if(addr >= INITDAT) {
-		if(HEADTYPE == 8)
-			return addr - INITDAT + rnd(HEADR+textsize, 4096);
-		return addr - INITDAT + rnd(HEADR+textsize, INITRND);
-	}
+	if(addr >= segdata.vaddr)
+		return addr - segdata.vaddr + segdata.fileoff;
 	diag("datoff %#llx", addr);
 	return 0;
 }
@@ -289,10 +289,15 @@ doelf(void)
 	elfstr[ElfStrText] = addstring(shstrtab, ".text");
 	elfstr[ElfStrData] = addstring(shstrtab, ".data");
 	elfstr[ElfStrBss] = addstring(shstrtab, ".bss");
+	addstring(shstrtab, ".elfdata");
+	if(HEADTYPE == 8)
+		addstring(shstrtab, ".closure");
+	addstring(shstrtab, ".rodata");
 	if(!debug['s']) {
 		elfstr[ElfStrGosymcounts] = addstring(shstrtab, ".gosymcounts");
 		elfstr[ElfStrGosymtab] = addstring(shstrtab, ".gosymtab");
 		elfstr[ElfStrGopclntab] = addstring(shstrtab, ".gopclntab");
+		dwarfaddshstrings(shstrtab);
 	}
 	elfstr[ElfStrShstrtab] = addstring(shstrtab, ".shstrtab");
 
@@ -315,7 +320,7 @@ doelf(void)
 		s = lookup(".dynsym", 0);
 		s->type = SELFDATA;
 		s->reachable = 1;
-		s->value += ELF32SYMSIZE;
+		s->size += ELF32SYMSIZE;
 
 		/* dynamic string table */
 		s = lookup(".dynstr", 0);
@@ -453,12 +458,13 @@ asmb(void)
 	Prog *p;
 	int32 v, magic;
 	int a, dynsym;
-	uint32 va, fo, w, symo, startva, machlink;
+	uint32 va, fo, w, symo, startva, machlink, erodata;
 	uchar *op1;
 	ulong expectpc;
 	ElfEhdr *eh;
 	ElfPhdr *ph, *pph;
 	ElfShdr *sh;
+	Section *sect;
 
 	if(debug['v'])
 		Bprint(&bso, "%5.2f asmb\n", cputime());
@@ -521,12 +527,32 @@ asmb(void)
 		cbc -= a;
 	}
 	if(HEADTYPE == 8) {
-		while(pc < INITDAT) {
+		int32 etext;
+		
+		etext = rnd(segtext.vaddr + segtext.filelen, 4096);
+		while(pc < etext) {
 			cput(0xf4);	// hlt
 			pc++;
 		}
+		pc = segrodata.vaddr;
 	}
 	cflush();
+
+	/* output read-only data in text segment */
+	if(HEADTYPE == 8) {
+		// Native Client
+		sect = segrodata.sect;
+		segrodata.fileoff = seek(cout, 0, 1);
+	} else
+		sect = segtext.sect->next;
+
+	erodata = sect->vaddr + sect->len;
+	for(v = pc; v < erodata; v += sizeof(buf)-Dbufslop) {
+		if(erodata-v > sizeof(buf)-Dbufslop)
+			datblk(v, sizeof(buf)-Dbufslop, 1);
+		else
+			datblk(v, erodata-v, 1);
+	}
 
 	switch(HEADTYPE) {
 	default:
@@ -562,12 +588,12 @@ asmb(void)
 		// text segment file address to 4096 bytes,
 		// but text segment memory address rounds
 		// to INITRND (65536).
-		v = rnd(HEADR+textsize, 4096);
+		v = rnd(segrodata.fileoff+segrodata.filelen, 4096);
 		seek(cout, v, 0);
 		break;
 	Elfseek:
 	case 10:
-		v = rnd(HEADR+textsize, INITRND);
+		v = rnd(segtext.fileoff+segtext.filelen, INITRND);
 		seek(cout, v, 0);
 		break;
 	}
@@ -579,15 +605,16 @@ asmb(void)
 	if(dlm){
 		char buf[8];
 
-		write(cout, buf, INITDAT-textsize);
+		ewrite(cout, buf, INITDAT-textsize);
 		textsize = INITDAT;
 	}
 
+	segdata.fileoff = seek(cout, 0, 1);
 	for(v = 0; v < datsize; v += sizeof(buf)-Dbufslop) {
 		if(datsize-v > sizeof(buf)-Dbufslop)
-			datblk(v, sizeof(buf)-Dbufslop);
+			datblk(v, sizeof(buf)-Dbufslop, 0);
 		else
-			datblk(v, datsize-v);
+			datblk(v, datsize-v, 0);
 	}
 
 	machlink = 0;
@@ -649,8 +676,13 @@ asmb(void)
 		lputl(symsize);
 		lputl(lcsize);
 		cflush();
-	}
-	else if(dlm){
+		if(HEADTYPE != 10 && !debug['s']) {
+			seek(cout, symo+8+symsize+lcsize, 0);
+			if(debug['v'])
+				Bprint(&bso, "%5.2f dwarf\n", cputime());
+			dwarfemitdebugsections();
+		}
+	} else if(dlm){
 		seek(cout, HEADR+textsize+datsize, 0);
 		asmdyn();
 		cflush();
@@ -843,50 +875,18 @@ asmb(void)
 			phsh(ph, sh);
 		}
 
-		ph = newElfPhdr();
-		ph->type = PT_LOAD;
-		ph->flags = PF_X+PF_R;
-		if(HEADTYPE != 8) {	// Include header, but not on Native Client.
-			va -= fo;
-			w += fo;
-			fo = 0;
-		}
-		ph->vaddr = va;
-		ph->paddr = va;
-		ph->off = fo;
-		ph->filesz = w;
-		ph->memsz = INITDAT - va;
-		ph->align = INITRND;
-
-		// NaCl text segment file address rounds to 4096;
-		// only memory address rounds to INITRND.
-		if(HEADTYPE == 8)
-			fo = rnd(fo+w, 4096);
-		else
-			fo = rnd(fo+w, INITRND);
-		va = INITDAT;
-		w = datsize;
-
-		ph = newElfPhdr();
-		ph->type = PT_LOAD;
-		ph->flags = PF_W+PF_R;
-		ph->off = fo;
-		ph->vaddr = va;
-		ph->paddr = va;
-		ph->filesz = w;
-		ph->memsz = w+bsssize;
-		ph->align = INITRND;
+		elfphload(&segtext);
+		if(segrodata.len > 0)
+			elfphload(&segrodata);
+		elfphload(&segdata);
 
 		if(!debug['s'] && HEADTYPE != 8 && HEADTYPE != 11) {
-			ph = newElfPhdr();
-			ph->type = PT_LOAD;
-			ph->flags = PF_R;
-			ph->off = symo;
-			ph->vaddr = symdatva;
-			ph->paddr = symdatva;
-			ph->filesz = rnd(8+symsize+lcsize, INITRND);
-			ph->memsz = rnd(8+symsize+lcsize, INITRND);
-			ph->align = INITRND;
+			segsym.rwx = 04;
+			segsym.vaddr = symdatva;
+			segsym.len = rnd(8+symsize+lcsize, INITRND);
+			segsym.fileoff = symo;
+			segsym.filelen = segsym.len;
+			elfphload(&segsym);
 		}
 
 		/* Dynamic linking sections */
@@ -968,46 +968,12 @@ asmb(void)
 		ph->flags = PF_W+PF_R;
 		ph->align = 4;
 
-		fo = HEADR;
-		va = startva + fo;
-		w = textsize;
-
-		sh = newElfShdr(elfstr[ElfStrText]);
-		sh->type = SHT_PROGBITS;
-		sh->flags = SHF_ALLOC+SHF_EXECINSTR;
-		sh->addr = va;
-		sh->off = fo;
-		sh->size = w;
-		sh->addralign = 4;
-
-		// NaCl text segment file address rounds to 4096;
-		// only memory address rounds to INITRND.
-		if(HEADTYPE == 8)
-			fo = rnd(fo+w, 4096);
-		else
-			fo = rnd(fo+w, INITRND);
-		va = rnd(va+w, INITRND);
-		w = datsize;
-
-		sh = newElfShdr(elfstr[ElfStrData]);
-		sh->type = SHT_PROGBITS;
-		sh->flags = SHF_WRITE+SHF_ALLOC;
-		sh->addr = va + elfdatsize;
-		sh->off = fo + elfdatsize;
-		sh->size = w - elfdatsize;
-		sh->addralign = 4;
-
-		fo += w;
-		va += w;
-		w = bsssize;
-
-		sh = newElfShdr(elfstr[ElfStrBss]);
-		sh->type = SHT_NOBITS;
-		sh->flags = SHF_WRITE+SHF_ALLOC;
-		sh->addr = va;
-		sh->off = fo;
-		sh->size = w;
-		sh->addralign = 4;
+		for(sect=segtext.sect; sect!=nil; sect=sect->next)
+			elfshbits(sect);
+		for(sect=segrodata.sect; sect!=nil; sect=sect->next)
+			elfshbits(sect);
+		for(sect=segdata.sect; sect!=nil; sect=sect->next)
+			elfshbits(sect);
 
 		if (!debug['s']) {
 			fo = symo;
@@ -1042,6 +1008,8 @@ asmb(void)
 			sh->size = w;
 			sh->addralign = 1;
 			sh->addr = symdatva + 8 + symsize;
+
+			dwarfaddelfheaders();
 		}
 
 		sh = newElfShstrtab(elfstr[ElfStrShstrtab]);
@@ -1113,23 +1081,37 @@ cflush(void)
 
 	n = sizeof(buf.cbuf) - cbc;
 	if(n)
-		write(cout, buf.cbuf, n);
+		ewrite(cout, buf.cbuf, n);
 	cbp = buf.cbuf;
 	cbc = sizeof(buf.cbuf);
 }
 
+/* Current position in file */
+vlong
+cpos(void)
+{
+	return seek(cout, 0, 1) + sizeof(buf.cbuf) - cbc;
+}
+
 void
-datblk(int32 s, int32 n)
+datblk(int32 s, int32 n, int32 rodata)
 {
 	Prog *p;
 	char *cast;
 	int32 l, fl, j;
 	int i, c;
 	Adr *a;
+	int32 base;
+	
+	base = INITDAT;
+	if(rodata)
+		base = 0;
 
 	memset(buf.dbuf, 0, n+Dbufslop);
 	for(p = datap; p != P; p = p->link) {
 		a = &p->from;
+		if(rodata != (a->sym->type == SRODATA))
+			continue;
 
 		l = a->sym->value + a->offset - s;
 		if(l >= n)
@@ -1198,7 +1180,7 @@ datblk(int32 s, int32 n)
 					if(p->to.sym->type == SUNDEF)
 						ckoff(p->to.sym, fl);
 					fl += p->to.sym->value;
-					if(p->to.sym->type != STEXT && p->to.sym->type != SUNDEF)
+					if(p->to.sym->type != STEXT && p->to.sym->type != SUNDEF && p->to.sym->type != SRODATA)
 						fl += INITDAT;
 					if(dlm)
 						dynreloc(p->to.sym, l+s+INITDAT, 1);
@@ -1232,7 +1214,7 @@ datblk(int32 s, int32 n)
 		}
 	}
 
-	write(cout, buf.dbuf, n);
+	ewrite(cout, buf.dbuf, n);
 	if(!debug['a'])
 		return;
 
@@ -1241,6 +1223,8 @@ datblk(int32 s, int32 n)
 	 */
 	for(p = datap; p != P; p = p->link) {
 		a = &p->from;
+		if(rodata != (a->sym->type == SRODATA))
+			continue;
 
 		l = a->sym->value + a->offset - s;
 		if(l < 0 || l >= n)
@@ -1256,26 +1240,26 @@ datblk(int32 s, int32 n)
 			case 4:
 				fl = ieeedtof(&p->to.ieee);
 				cast = (char*)&fl;
-				Bprint(&bso, pcstr, l+s+INITDAT);
+				Bprint(&bso, pcstr, l+s+base);
 				for(j=0; j<c; j++)
 					Bprint(&bso, "%.2ux", cast[fnuxi4[j]] & 0xff);
-				Bprint(&bso, "\t%P\n", curp);
+				Bprint(&bso, "\t%P\n", p);
 				break;
 			case 8:
 				cast = (char*)&p->to.ieee;
-				Bprint(&bso, pcstr, l+s+INITDAT);
+				Bprint(&bso, pcstr, l+s+base);
 				for(j=0; j<c; j++)
 					Bprint(&bso, "%.2ux", cast[fnuxi8[j]] & 0xff);
-				Bprint(&bso, "\t%P\n", curp);
+				Bprint(&bso, "\t%P\n", p);
 				break;
 			}
 			break;
 
 		case D_SCONST:
-			Bprint(&bso, pcstr, l+s+INITDAT);
+			Bprint(&bso, pcstr, l+s+base);
 			for(j=0; j<c; j++)
 				Bprint(&bso, "%.2ux", p->to.scon[j] & 0xff);
-			Bprint(&bso, "\t%P\n", curp);
+			Bprint(&bso, "\t%P\n", p);
 			break;
 
 		default:
@@ -1289,34 +1273,34 @@ datblk(int32 s, int32 n)
 					if(p->to.sym->type == SUNDEF)
 						ckoff(p->to.sym, fl);
 					fl += p->to.sym->value;
-					if(p->to.sym->type != STEXT && p->to.sym->type != SUNDEF)
+					if(p->to.sym->type != STEXT && p->to.sym->type != SUNDEF && p->to.sym->type != SRODATA)
 						fl += INITDAT;
 					if(dlm)
-						dynreloc(p->to.sym, l+s+INITDAT, 1);
+						dynreloc(p->to.sym, l+s+base, 1);
 				}
 			}
 			cast = (char*)&fl;
 			switch(c) {
 			default:
-				diag("bad nuxi %d %d\n%P", c, i, curp);
+				diag("bad nuxi %d %d\n%P", c, i, p);
 				break;
 			case 1:
-				Bprint(&bso, pcstr, l+s+INITDAT);
+				Bprint(&bso, pcstr, l+s+base);
 				for(j=0; j<c; j++)
 					Bprint(&bso, "%.2ux", cast[inuxi1[j]] & 0xff);
-				Bprint(&bso, "\t%P\n", curp);
+				Bprint(&bso, "\t%P\n", p);
 				break;
 			case 2:
-				Bprint(&bso, pcstr, l+s+INITDAT);
+				Bprint(&bso, pcstr, l+s+base);
 				for(j=0; j<c; j++)
 					Bprint(&bso, "%.2ux", cast[inuxi2[j]] & 0xff);
-				Bprint(&bso, "\t%P\n", curp);
+				Bprint(&bso, "\t%P\n", p);
 				break;
 			case 4:
-				Bprint(&bso, pcstr, l+s+INITDAT);
+				Bprint(&bso, pcstr, l+s+base);
 				for(j=0; j<c; j++)
 					Bprint(&bso, "%.2ux", cast[inuxi4[j]] & 0xff);
-				Bprint(&bso, "\t%P\n", curp);
+				Bprint(&bso, "\t%P\n", p);
 				break;
 			}
 			break;

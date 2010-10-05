@@ -90,7 +90,7 @@ func (p *parser) printTrace(a ...interface{}) {
 		fmt.Print(dots)
 	}
 	fmt.Print(dots[0:i])
-	fmt.Println(a)
+	fmt.Println(a...)
 }
 
 
@@ -913,7 +913,10 @@ func (p *parser) parseIndexOrSlice(x ast.Expr) ast.Expr {
 
 	p.expect(token.LBRACK)
 	p.exprLev++
-	index := p.parseExpr()
+	var index ast.Expr
+	if p.tok != token.COLON {
+		index = p.parseExpr()
+	}
 	if p.tok == token.COLON {
 		p.next()
 		var end ast.Expr
@@ -939,8 +942,13 @@ func (p *parser) parseCallOrConversion(fun ast.Expr) *ast.CallExpr {
 	lparen := p.expect(token.LPAREN)
 	p.exprLev++
 	var list vector.Vector
-	for p.tok != token.RPAREN && p.tok != token.EOF {
+	var ellipsis token.Position
+	for p.tok != token.RPAREN && p.tok != token.EOF && !ellipsis.IsValid() {
 		list.Push(p.parseExpr())
+		if p.tok == token.ELLIPSIS {
+			ellipsis = p.pos
+			p.next()
+		}
 		if p.tok != token.COMMA {
 			break
 		}
@@ -949,7 +957,7 @@ func (p *parser) parseCallOrConversion(fun ast.Expr) *ast.CallExpr {
 	p.exprLev--
 	rparen := p.expect(token.RPAREN)
 
-	return &ast.CallExpr{fun, lparen, makeExprList(&list), rparen}
+	return &ast.CallExpr{fun, lparen, makeExprList(&list), ellipsis, rparen}
 }
 
 

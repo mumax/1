@@ -1,3 +1,9 @@
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any 
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
 package sim
 
 // TODO: ALL OF THIS CODE SHOULD BE MOVED INTO THE sim PACKAGE
@@ -20,14 +26,17 @@ import (
 )
 
 var (
-	daemon    *bool   = flag.Bool("daemon", false, "Run in the background and watch a directory for input files to process.")
-	server    *bool   = flag.Bool("server", false, "Run as a slave node in a cluster")
-	verbosity *int    = flag.Int("verbosity", 2, "Control the debug verbosity (0 - 3)")
-	port      *int    = flag.Int("port", 2527, "Which network port to use")
-	transport *string = flag.String("transport", "tcp", "Which transport to use (tcp / udp)")
-	device    *string = flag.String("device", "gpu", "The default computing device to use with -server") //TODO: also for master
-	updatedb  *int    = flag.Int("updatedisp", 100, "Update the terminal output every x milliseconds")
-	dryrun    *bool   = flag.Bool("dryrun", false, "Go quickly through the simulation sequence without calculating anything. Useful for debugging") // todo implement
+	silent    *bool = flag.Bool("silent", false, "Do not show simulation output on the screen, only save to output.log")
+	daemon    *bool = flag.Bool("daemon", false, "Watch directories for new input files and run them automatically.")
+	watch     *int  = flag.Int("watch", 2, "When running with -daemon, re-check for new input files every N seconds. -watch=0 disables watching, program exits when no new input files are left.")
+	verbosity *int  = flag.Int("verbosity", 2, "Control the debug verbosity (0 - 3)")
+	gpuid     *int  = flag.Int("gpu", 0, "Select a GPU when more than one is present. Default GPU = 0") //TODO: also for master
+	cpu       *bool = flag.Bool("cpu", false, "Run on the CPU instead of GPU.")
+	updatedb  *int  = flag.Int("updatedisp", 100, "Update the terminal output every x milliseconds")
+	// 	dryrun    *bool   = flag.Bool("dryrun", false, "Go quickly through the simulation sequence without calculating anything. Useful for debugging") // todo implement
+	//  server    *bool   = flag.Bool("server", false, "Run as a slave node in a cluster")
+	//  port      *int    = flag.Int("port", 2527, "Which network port to use")
+	//  transport *string = flag.String("transport", "tcp", "Which transport to use (tcp / udp)")
 )
 
 // to be called by main.main()
@@ -38,6 +47,7 @@ func Main() {
 	flag.Parse()
 	Verbosity = *verbosity
 	if *daemon {
+		DAEMON_WATCHTIME = *watch
 		DaemonMain()
 		return
 	}
@@ -75,6 +85,16 @@ func main_master() {
 		//TODO it would be safer to abort when the output dir is not empty
 		sim := NewSim(removeExtension(infile) + ".out")
 		defer sim.out.Close()
+		sim.silent = *silent
+		// Set the device
+		if *cpu {
+			sim.backend = CPU
+			sim.backend.init()
+		} else {
+			sim.backend = GPU
+			sim.backend.setDevice(*gpuid)
+			sim.backend.init()
+		}
 		refsh := refsh.New()
 		refsh.CrashOnError = true
 		refsh.AddAllMethods(sim)
@@ -89,7 +109,7 @@ func main_master() {
 			sim.Errorln("Input file does not contain any commands to make the simulation run. Use, e.g., \"run\".")
 		}
 		// The next two lines cause a nil pointer panic when the simulation is not fully initialized
-		if sim.BeenValid {
+		if sim.BeenValid && Verbosity > 2 {
 			sim.TimerPrintDetail()
 			sim.PrintTimer(os.Stdout)
 		}
@@ -121,6 +141,19 @@ func removeExtension(str string) string {
 func crashreport() {
 	error := recover()
 	if error != nil {
+		fmt.Fprintln(os.Stderr,
+			`
+			
+---------------------------------------------------------------------
+Aw snap, the program has crahsed.
+If you would like to see this issue fixed, please mail a bugreport to
+Arne.Vansteenkiste@UGent.be and/or Ben.VandeWiele@UGent.be.
+Be sure to include the output of your terminal, both the parts above
+and below this message (in most terminals you can copy the output
+with Ctrl+Shift+C).
+---------------------------------------------------------------------
+
+`)
 		panic(error)
 	}
 }

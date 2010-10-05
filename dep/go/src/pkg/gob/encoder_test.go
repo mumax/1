@@ -55,7 +55,7 @@ func TestEncoderDecoder(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(et1, newEt1) {
-		t.Fatalf("invalid data for et1: expected %+v; got %+v\n", *et1, *newEt1)
+		t.Fatalf("invalid data for et1: expected %+v; got %+v", *et1, *newEt1)
 	}
 	if b.Len() != 0 {
 		t.Error("not at eof;", b.Len(), "bytes left")
@@ -68,7 +68,7 @@ func TestEncoderDecoder(t *testing.T) {
 		t.Fatal("round 2: error decoding ET1:", dec.state.err)
 	}
 	if !reflect.DeepEqual(et1, newEt1) {
-		t.Fatalf("round 2: invalid data for et1: expected %+v; got %+v\n", *et1, *newEt1)
+		t.Fatalf("round 2: invalid data for et1: expected %+v; got %+v", *et1, *newEt1)
 	}
 	if b.Len() != 0 {
 		t.Error("round 2: not at eof;", b.Len(), "bytes left")
@@ -325,5 +325,33 @@ func TestSingletons(t *testing.T) {
 		if !reflect.DeepEqual(test.in, val) {
 			t.Errorf("decoding singleton: expected %v got %v", test.in, val)
 		}
+	}
+}
+
+func TestStructNonStruct(t *testing.T) {
+	type Struct struct {
+		a string
+	}
+	type NonStruct string
+	s := Struct{"hello"}
+	var sp Struct
+	if err := encAndDec(s, &sp); err != nil {
+		t.Error(err)
+	}
+	var ns NonStruct
+	if err := encAndDec(s, &ns); err == nil {
+		t.Error("should get error for struct/non-struct")
+	} else if strings.Index(err.String(), "type") < 0 {
+		t.Error("for struct/non-struct expected type error; got", err)
+	}
+	// Now try the other way
+	var nsp NonStruct
+	if err := encAndDec(ns, &nsp); err != nil {
+		t.Error(err)
+	}
+	if err := encAndDec(ns, &s); err == nil {
+		t.Error("should get error for non-struct/struct")
+	} else if strings.Index(err.String(), "type") < 0 {
+		t.Error("for non-struct/struct expected type error; got", err)
 	}
 }

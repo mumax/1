@@ -593,7 +593,10 @@ func PtraceDetach(pid int) (errno int) { return ptrace(PTRACE_DETACH, pid, 0, 0)
 //sys	Getrlimit(resource int, rlim *Rlimit) (errno int)
 //sys	Getrusage(who int, rusage *Rusage) (errno int)
 //sys	Gettid() (tid int)
-//sys	Gettimeofday(tv *Timeval) (errno int)
+//sys   InotifyAddWatch(fd int, pathname string, mask uint32) (watchdesc int, errno int)
+//sys   InotifyInit() (fd int, errno int)
+//sys   InotifyInit1(flags int) (fd int, errno int)
+//sys   InotifyRmWatch(fd int, watchdesc uint32) (success int, errno int)
 //sys	Kill(pid int, sig int) (errno int)
 //sys	Klogctl(typ int, buf []byte) (n int, errno int) = SYS_SYSLOG
 //sys	Link(oldpath string, newpath string) (errno int)
@@ -624,7 +627,6 @@ func PtraceDetach(pid int) (errno int) { return ptrace(PTRACE_DETACH, pid, 0, 0)
 //sys	Sysinfo(info *Sysinfo_t) (errno int)
 //sys	Tee(rfd int, wfd int, len int, flags int) (n int64, errno int)
 //sys	Tgkill(tgid int, tid int, sig int) (errno int)
-//sys	Time(t *Time_t) (tt Time_t, errno int)
 //sys	Times(tms *Tms) (ticks uintptr, errno int)
 //sys	Truncate(path string, length int64) (errno int)
 //sys	Umask(mask int) (oldmask int)
@@ -677,9 +679,6 @@ func PtraceDetach(pid int) (errno int) { return ptrace(PTRACE_DETACH, pid, 0, 0)
 // Getpmsg
 // Getpriority
 // Getxattr
-// InotifyAddWatch
-// InotifyInit
-// InotifyRmWatch
 // IoCancel
 // IoDestroy
 // IoGetevents

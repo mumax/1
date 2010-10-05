@@ -7,11 +7,13 @@ include ../../Make.inc
 TARG=godoc
 GOFILES=\
 	codewalk.go\
+	dirtrees.go\
 	godoc.go\
 	index.go\
 	main.go\
 	mapping.go\
 	snippet.go\
 	spec.go\
+	utils.go\
 
 include ../../Make.cmd

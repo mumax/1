@@ -45,23 +45,28 @@ dodata(void)
 	Sym *s;
 	Prog *p;
 	int32 t, u;
+	Section *sect;
 
 	if(debug['v'])
 		Bprint(&bso, "%5.2f dodata\n", cputime());
 	Bflush(&bso);
+
+	segdata.rwx = 06;
+	segdata.vaddr = 0;	/* span will += INITDAT */
+
 	for(p = datap; p != P; p = p->link) {
 		s = p->from.sym;
 		if(p->as == ADYNT || p->as == AINIT)
 			s->value = dtype;
 		if(s->type == SBSS)
 			s->type = SDATA;
-		if(s->type != SDATA && s->type != SELFDATA)
+		if(s->type != SDATA && s->type != SELFDATA && s->type != SRODATA)
 			diag("initialize non-data (%d): %s\n%P",
 				s->type, s->name, p);
 		t = p->from.offset + p->width;
-		if(t > s->value)
+		if(t > s->size)
 			diag("initialize bounds (%ld): %s\n%P",
-				s->value, s->name, p);
+				s->size, s->name, p);
 	}
 
 	/* allocate elf guys - must be segregated from real data */
@@ -72,12 +77,15 @@ dodata(void)
 			continue;
 		if(s->type != SELFDATA)
 			continue;
-		t = rnd(s->value, 4);
+		t = rnd(s->size, 4);
 		s->size = t;
 		s->value = datsize;
 		datsize += t;
 	}
 	elfdatsize = datsize;
+
+	sect = addsection(&segdata, ".data", 06);
+	sect->vaddr = datsize;
 
 	/* allocate small guys */
 	for(i=0; i<NHASH; i++)
@@ -87,14 +95,13 @@ dodata(void)
 		if(s->type != SDATA)
 		if(s->type != SBSS)
 			continue;
-		t = s->value;
+		t = s->size;
 		if(t == 0 && s->name[0] != '.') {
 			diag("%s: no size", s->name);
 			t = 1;
 		}
 		t = rnd(t, 4);
 		s->size = t;
-		s->value = t;
 		if(t > MINSIZ)
 			continue;
 		s->value = datsize;
@@ -110,8 +117,7 @@ dodata(void)
 				s->type = SDATA;
 			continue;
 		}
-		t = s->value;
-		s->size = t;
+		t = s->size;
 		s->value = datsize;
 		datsize += t;
 	}
@@ -145,8 +151,11 @@ dodata(void)
 		/* dynamic pointer section between data and bss */
 		datsize = rnd(datsize, 4);
 	}
+	sect->len = datsize - sect->vaddr;
 
 	/* now the bss */
+	sect = addsection(&segdata, ".bss", 06);
+	sect->vaddr = datsize;
 	bsssize = 0;
 	for(i=0; i<NHASH; i++)
 	for(s = hash[i]; s != S; s = s->link) {
@@ -154,11 +163,14 @@ dodata(void)
 			continue;
 		if(s->type != SBSS)
 			continue;
-		t = s->value;
-		s->size = t;
+		t = s->size;
 		s->value = bsssize + dynptrsize + datsize;
 		bsssize += t;
 	}
+	sect->len = bsssize;
+
+	segdata.len = datsize+bsssize;
+	segdata.filelen = datsize;
 
 	xdefine("data", SBSS, 0);
 	xdefine("edata", SBSS, datsize);
@@ -380,10 +392,10 @@ patch(void)
 	for(p = firstp; p != P; p = p->link) {
 		if(HEADTYPE == 10) {	// Windows
 			// Convert
-			//   op   n(GS), reg
+			//   op	  n(GS), reg
 			// to
 			//   MOVL 0x2C(FS), reg
-			//   op   n(reg), reg
+			//   op	  n(reg), reg
 			// The purpose of this patch is to fix some accesses
 			// to extern register variables (TLS) on Windows, as
 			// a different method is used to access them.
@@ -689,6 +701,10 @@ dostkoff(void)
 					p->as = AINT;
 					p->from.type = D_CONST;
 					p->from.offset = 3;
+					
+					p = appendp(p);
+					p->as = ANOP;
+					q1->pcond = p;
 				}
 
 				if(autoffset < StackBig) {  // do we need to call morestack
@@ -698,10 +714,6 @@ dostkoff(void)
 						p->as = ACMPL;
 						p->from.type = D_SP;
 						p->to.type = D_INDIR+D_CX;
-						if(q1) {
-							q1->pcond = p;
-							q1 = P;
-						}
 					} else {
 						// large stack
 						p = appendp(p);
@@ -709,10 +721,6 @@ dostkoff(void)
 						p->from.type = D_INDIR+D_SP;
 						p->from.offset = -(autoffset-StackSmall);
 						p->to.type = D_AX;
-						if(q1) {
-							q1->pcond = p;
-							q1 = P;
-						}
 
 						p = appendp(p);
 						p->as = ACMPL;
@@ -758,6 +766,7 @@ dostkoff(void)
 				p->as = AADJSP;
 				p->from.type = D_CONST;
 				p->from.offset = autoffset;
+				p->spadj = autoffset;
 				if(q != P)
 					q->pcond = p;
 			}
@@ -780,18 +789,22 @@ dostkoff(void)
 		case APUSHL:
 		case APUSHFL:
 			deltasp += 4;
+			p->spadj = 4;
 			continue;
 		case APUSHW:
 		case APUSHFW:
 			deltasp += 2;
+			p->spadj = 2;
 			continue;
 		case APOPL:
 		case APOPFL:
 			deltasp -= 4;
+			p->spadj = -4;
 			continue;
 		case APOPW:
 		case APOPFW:
 			deltasp -= 2;
+			p->spadj = -2;
 			continue;
 		case ARET:
 			break;
@@ -810,6 +823,7 @@ dostkoff(void)
 			q->as = AADJSP;
 			q->from.type = D_CONST;
 			q->from.offset = -autoffset;
+			p->spadj = -autoffset;
 		}
 		continue;
 
@@ -824,6 +838,7 @@ dostkoff(void)
 		q->from = zprg.from;
 		q->from.type = D_CONST;
 		q->from.offset = -autoffset;
+		p->spadj = -autoffset;
 		q->to = zprg.to;
 		continue;
 	}
@@ -1042,10 +1057,10 @@ export(void)
 		newdata(et, off, sizeof(int32), D_EXTERN);
 		off += sizeof(int32);
 	}
-	et->value = off;
+	et->size = off;
 	if(sv == 0)
 		sv = 1;
-	str->value = sv;
+	str->size = sv;
 	exports = ne;
 	free(esyms);
 }

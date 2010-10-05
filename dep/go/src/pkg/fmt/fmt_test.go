@@ -193,8 +193,8 @@ var fmttests = []fmtTest{
 	fmtTest{"%+.3g", complex128(1 + 2i), "(+1+2i)"},
 
 	// erroneous formats
-	fmtTest{"", 2, "?(extra int=2)"},
-	fmtTest{"%d", "hello", "%d(string=hello)"},
+	fmtTest{"", 2, "%!(EXTRA int=2)"},
+	fmtTest{"%d", "hello", "%!d(string=hello)"},
 
 	// old test/fmt_test.go
 	fmtTest{"%d", 1234, "1234"},
@@ -301,7 +301,7 @@ var fmttests = []fmtTest{
 	fmtTest{"%s", I(23), `<23>`},
 	fmtTest{"%q", I(23), `"<23>"`},
 	fmtTest{"%x", I(23), `3c32333e`},
-	fmtTest{"%d", I(23), `%d(string=<23>)`},
+	fmtTest{"%d", I(23), `%!d(string=<23>)`},
 
 	// go syntax
 	fmtTest{"%#v", A{1, 2, "a", []int{1, 2}}, `fmt_test.A{i:1, j:0x2, s:"a", x:[]int{1, 2}}`},
@@ -321,7 +321,7 @@ var fmttests = []fmtTest{
 
 	// renamings
 	fmtTest{"%v", renamedBool(true), "true"},
-	fmtTest{"%d", renamedBool(true), "%d(fmt_test.renamedBool=true)"},
+	fmtTest{"%d", renamedBool(true), "%!d(fmt_test.renamedBool=true)"},
 	fmtTest{"%o", renamedInt(8), "10"},
 	fmtTest{"%d", renamedInt8(-9), "-9"},
 	fmtTest{"%v", renamedInt16(10), "10"},
@@ -366,14 +366,14 @@ var fmttests = []fmtTest{
 	fmtTest{"%p", make(chan int), "PTR"},
 	fmtTest{"%p", make(map[int]int), "PTR"},
 	fmtTest{"%p", make([]int, 1), "PTR"},
-	fmtTest{"%p", 27, "%p(int=27)"}, // not a pointer at all
+	fmtTest{"%p", 27, "%!p(int=27)"}, // not a pointer at all
 
 	// erroneous things
-	fmtTest{"%d", "hello", "%d(string=hello)"},
-	fmtTest{"no args", "hello", "no args?(extra string=hello)"},
-	fmtTest{"%s", nil, "%s(<nil>)"},
+	fmtTest{"%d", "hello", "%!d(string=hello)"},
+	fmtTest{"no args", "hello", "no args%!(EXTRA string=hello)"},
+	fmtTest{"%s", nil, "%!s(<nil>)"},
 	fmtTest{"%T", nil, "<nil>"},
-	fmtTest{"%-1", 100, "%1(int=100)"},
+	fmtTest{"%-1", 100, "%!1(int=100)"},
 }
 
 func TestSprintf(t *testing.T) {
@@ -594,14 +594,56 @@ func TestFormatterPrintln(t *testing.T) {
 	expect := "<v=F(1)>\n"
 	s := Sprint(f, "\n")
 	if s != expect {
-		t.Errorf("Sprint wrong with Formatter: expected %q got %q\n", expect, s)
+		t.Errorf("Sprint wrong with Formatter: expected %q got %q", expect, s)
 	}
 	s = Sprintln(f)
 	if s != expect {
-		t.Errorf("Sprintln wrong with Formatter: expected %q got %q\n", expect, s)
+		t.Errorf("Sprintln wrong with Formatter: expected %q got %q", expect, s)
 	}
 	s = Sprintf("%v\n", f)
 	if s != expect {
-		t.Errorf("Sprintf wrong with Formatter: expected %q got %q\n", expect, s)
+		t.Errorf("Sprintf wrong with Formatter: expected %q got %q", expect, s)
+	}
+}
+
+func args(a ...interface{}) []interface{} { return a }
+
+type starTest struct {
+	fmt string
+	in  []interface{}
+	out string
+}
+
+var startests = []starTest{
+	starTest{"%*d", args(4, 42), "  42"},
+	starTest{"%.*d", args(4, 42), "0042"},
+	starTest{"%*.*d", args(8, 4, 42), "    0042"},
+	starTest{"%0*d", args(4, 42), "0042"},
+	starTest{"%-*d", args(4, 42), "42  "},
+
+	// erroneous
+	starTest{"%*d", args(nil, 42), "%!(BADWIDTH)42"},
+	starTest{"%.*d", args(nil, 42), "%!(BADPREC)42"},
+	starTest{"%*d", args(5, "foo"), "%!d(string=  foo)"},
+	starTest{"%*% %d", args(20, 5), "% 5"},
+	starTest{"%*", args(4), "%!(BADWIDTH)%!*(int=4)"},
+	starTest{"%*d", args(int32(4), 42), "%!(BADWIDTH)42"},
+}
+
+// TODO: there's no conversion from []T to ...T, but we can fake it.  These
+// functions do the faking.  We index the table by the length of the param list.
+var sprintf = []func(string, []interface{}) string{
+	0: func(f string, i []interface{}) string { return Sprintf(f) },
+	1: func(f string, i []interface{}) string { return Sprintf(f, i[0]) },
+	2: func(f string, i []interface{}) string { return Sprintf(f, i[0], i[1]) },
+	3: func(f string, i []interface{}) string { return Sprintf(f, i[0], i[1], i[2]) },
+}
+
+func TestWidthAndPrecision(t *testing.T) {
+	for _, tt := range startests {
+		s := sprintf[len(tt.in)](tt.fmt, tt.in)
+		if s != tt.out {
+			t.Errorf("got %q expected %q", s, tt.out)
+		}
 	}
 }

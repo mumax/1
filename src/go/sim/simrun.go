@@ -1,8 +1,12 @@
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any 
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
 package sim
 
-import (
-	"os"
-)
+import ()
 
 // This file implements the methods for time stepping
 
@@ -22,7 +26,7 @@ func (s *Sim) Run(time float64) {
 				s.assureMUpToDate()
 				// save
 				out.Save(s)
-				// here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
+				// TODO here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
 			}
 		}
 
@@ -37,7 +41,7 @@ func (s *Sim) Run(time float64) {
 		s.Stop("Step")
 
 	}
-	s.PrintTimer(os.Stdout)
+	// 	s.PrintTimer(os.Stdout)
 	//does not invalidate
 }
 

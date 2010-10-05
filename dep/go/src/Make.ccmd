@@ -4,6 +4,10 @@
 
 # Makefile for commands written in C.
 
+ifeq (windows,$(findstring windows, $(shell uname | tr A-Z a-z | sed 's/mingw/windows/')))
+TARG:=$(TARG).exe
+endif
+
 $(TARG): $(OFILES) $(LIB)
 	$(HOST_LD) -o $(TARG) -L"$(GOROOT)"/lib $(OFILES) $(LIB) -lbio -l9 -lm
 
@@ -12,7 +16,9 @@ $(OFILES): $(HFILES)
 clean:
 	rm -f *.$(HOST_O) $(TARG) $(CLEANFILES)
 
+ifneq ($(NOINSTALL),1)
 install: $(QUOTED_GOBIN)/$(TARG)
+endif
 
 $(QUOTED_GOBIN)/$(TARG): $(TARG)
 	cp $(TARG) "$(GOBIN)"/$(TARG)

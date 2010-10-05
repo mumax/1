@@ -1,3 +1,23 @@
+Choose a googlable name. Suggestions:
+
+openGpuMag
+openMagSim -> spain
+openGSpin
+openMuMag -> nist
+openMicromag
+openNanoMag
+
+TeraGpuMag (Refers to TeraFlop)
+SpinCrunch (Refers to number crunching)
+TeslaSpin (Tesla is a GPU brand)
+FermiMag (Fermi is a GPU architecture)
+
+MPMMS (Massively Parallel Micro Magnetic Simulator)
+SPeeMagS
+xspinsim, xspins (pronouced k'spins, eXtreme Spin Simulator)
+
+
+
 TODO (Arne)
 
 * it seems CUFFT allocates memory for its FFT plans, check if this is a lot!
@@ -11,8 +31,6 @@ TODO (Arne)
    Bx, By, Bz
    mx, my, mz
 * check if input parameters make sense and are set before sim.init() (size, material, ...)
-* replace all panic() calls by clear error messages
-* save log file
 * should warn when alpha=0
 * tensor package is not idiomatic Go. Should use [][][]float as much as possible and cast it to a tensor only when needed.
 

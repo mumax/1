@@ -16,6 +16,11 @@ extern "C" {
  */
 void gpu_init();
 
+/**
+ * Selects a GPU when more than one is present
+ */
+void gpu_set_device(int devid);
+
 #ifdef __cplusplus
 }
 #endif

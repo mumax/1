@@ -495,6 +495,7 @@ lookup(char *symb, int v)
 	s->version = v;
 	s->value = 0;
 	s->sig = 0;
+	s->size = 0;
 	hash[h] = s;
 	nsymbol++;
 	return s;
@@ -906,4 +907,29 @@ mangle(char *file)
 {
 	fprint(2, "%s: mangled input file\n", file);
 	errorexit();
+}
+
+Section*
+addsection(Segment *seg, char *name, int rwx)
+{
+	Section **l;
+	Section *sect;
+	
+	for(l=&seg->sect; *l; l=&(*l)->next)
+		;
+	sect = mal(sizeof *sect);
+	sect->rwx = rwx;
+	sect->name = name;
+	sect->seg = seg;
+	*l = sect;
+	return sect;
+}
+
+void
+ewrite(int fd, void *buf, int n)
+{
+	if(write(fd, buf, n) < 0) {
+		diag("write error: %r");
+		errorexit();
+	}
 }
