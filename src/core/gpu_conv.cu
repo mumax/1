@@ -201,7 +201,6 @@ __global__ void _gpu_kernel_mul_micromag3d_Xthickness_1(float* fftMx,  float* ff
 
   return;
 }
-
 // ****************************************************************************************************
 
 
@@ -234,8 +233,8 @@ void evaluate_micromag2d_conv(tensor *m, tensor *h, conv_data *conv){
 }
 
 void gpu_kernel_mul_micromag2d(tensor *fft1, tensor *kernel){
-  
-  int fft_length = fft1->len/3;
+    
+  int fft_length = fft1->len/2;
   int gridSize = -1;
   int blockSize = -1;
   make1dconf(fft_length/2, &gridSize, &blockSize);

@@ -46,7 +46,6 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int 
   float *dev_temp2 = new_gpu_array(kernelStorageN);                // temp array on device for storage of zero padded kernel component (output of fft routine)
   
   // Define gpugrids and blocks ___________________________________________________________________
-    /// @todo use 'make3dconf' here when this function is working properly!
     dim3 gridsize1((kernelSize[X]+1)/2,kernelSize[Y]/2, 1);
     dim3 blocksize1(kernelSize[Z]/2, 1,1);
     check3dconf(gridsize1, blocksize1);

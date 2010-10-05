@@ -211,7 +211,6 @@ void gpuFFT3dPlan_inverse_unsafe(gpuFFT3dPlan* plan, float* input, float* output
   }
   
   gpu_copy_to_unpad(data, output, pSSize, size);
-
  
 //   timer_stop("gpu_plan3d_real_input_inverse_exec");
   

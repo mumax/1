@@ -70,7 +70,6 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(tensor *dev_kernel,     
 __global__ void _gpu_init_Greens_kernel_elements_micromag2d(float *dev_temp,       ///< pointer to the temporary memory space on the device to store all elements of a given Greens tensor component
                                                             int Nkernel_Y,         ///< Non-strided size of the kernel data (y-direction) 
                                                             int Nkernel_Z,         ///< Non-strided size of the kernel data (z-direction) 
-                                                            int Nkernel_storage_Z, ///< Strided size of the kernel data in z-direction
                                                             int exchInConv_Y,      ///< 1 if exchange is to be included in the y-direction
                                                             int exchInConv_Z,      ///< 1 if exchange is to be included in the z-direction
                                                             int co1,               ///< co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy
