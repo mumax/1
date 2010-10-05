@@ -68,6 +68,28 @@ func (field *rotatingField) GetAppliedField(time float64) [3]float {
 
 
 
+// Apply a rotating burst
+func (s *Sim) RotatingBurst(h float, freq, risetime float64) {
+  s.AppliedField = &rotatingBurst{h, freq, risetime}
+}
+
+type rotatingBurst struct {
+  b float
+  freq float64
+  risetime float64
+}
+
+func (field *rotatingBurst) GetAppliedField(time float64) [3]float {
+  sin := float(Sin(field.freq * Pi * time))
+  cos := float(Cos(field.freq * Pi * time))
+  norm := float(0.5 * (Erf(time/(field.risetime/2.) - 2) + 1))
+  b := field.b
+  return [3]float{0, b*norm*sin, b*norm*cos}
+}
+
+
+
+
 
 // Control the accuracy of the demag kernel.
 // 2^accuracy points are used to integrate the field.
