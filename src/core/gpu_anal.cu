@@ -9,13 +9,13 @@ extern "C" {
 
 void gpu_anal_fw_step(param *p, tensor *m_in, tensor *m_out, tensor *h){
 
-  int length = m_in->len/3;
+  int N = m_in->len/3;
   
-  int gridSize = -1, blockSize = -1;
-  make1dconf(length, &gridSize, &blockSize); ///@todo cache in gpu_anal struct
+  dim3 gridSize, blockSize;
+  make1dconf(N, &gridSize, &blockSize);
   
 //   timer_start("gpu_anal_fw_step");
-  _gpu_anal_fw_step <<<gridSize, blockSize>>> (&m_in->list[X*length], &m_in->list[Y*length], &m_in->list[Z*length], &m_out->list[X*length], &m_out->list[Y*length], &m_out->list[Z*length], &h->list[X*length], &h->list[Y*length], &h->list[Z*length], p->maxDt, p->alpha);
+  _gpu_anal_fw_step <<<gridSize, blockSize>>> (&m_in->list[X*N], &m_in->list[Y*N], &m_in->list[Z*N], &m_out->list[X*N], &m_out->list[Y*N], &m_out->list[Z*N], &h->list[X*N], &h->list[Y*N], &h->list[Z*N], p->maxDt, p->alpha, N);
   gpu_sync();
 //   timer_stop("gpu_anal_fw_step");
   
@@ -23,14 +23,13 @@ void gpu_anal_fw_step(param *p, tensor *m_in, tensor *m_out, tensor *h){
   return;
 }
 
-__global__ void _gpu_anal_fw_step (float *minx, float *miny, float *minz, float *moutx, float *mouty, float *moutz, float *hx, float *hy, float *hz, float dt, float alpha){
+__global__ void _gpu_anal_fw_step (float *minx, float *miny, float *minz, float *moutx, float *mouty, float *moutz, float *hx, float *hy, float *hz, float dt, float alpha, int N){
 	
-	int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
-	float hxy_r, hxyz_r;
-	float rot0, rot1, rot2, rot3, rot4, rot5, rot6, rot8;
+  int i = threadindex;
+  if(i < N && (minx[i]!=0.0f || miny[i]!=0.0f || minz[i]!=0.0f) ){
 
-// 	if (mx[i]==0.0f && my[i]==0.0f && *mz[i]==0.0f)
-// 		continue;
+  float hxy_r, hxyz_r;
+	float rot0, rot1, rot2, rot3, rot4, rot5, rot6, rot8;
 
 	if (hx[i]==0.0f && hy[i] ==0.0f){
 		rot0 = 0.0f;
@@ -40,7 +39,7 @@ __global__ void _gpu_anal_fw_step (float *minx, float *miny, float *minz, float 
 		rot4 = 1.0f;
 		rot5 = 0.0f;
 		rot6 = 1.0f;
-//			rot[7] = 0.0f;
+//	rot7 = 0.0f;
 		rot8 = 0.0f;
 
 		hxyz_r = 1.0f/hz[i];
@@ -52,16 +51,12 @@ __global__ void _gpu_anal_fw_step (float *minx, float *miny, float *minz, float 
 
 		rot0 = hx[i]*hxyz_r;
 		rot1 = - hy[i]*hxy_r;
-//    rot1 = - hy[i]*hxyz_r;
 		rot2 = - rot0*hz[i]*hxy_r;
-//    rot2 = - hx[i]*hz[i]*hxy_r*hxyz_r;
 		rot3 = hy[i]*hxyz_r;
 		rot4 = hx[i]*hxy_r;
 		rot5 = rot1*hz[i]*hxyz_r;
-//    rot5 = rot1*hz[i]*hxy_r;
-//    rot5 = -hx[i]*hz[i]*hxy_r*hxyz_r;
     rot6 = hz[i]*hxyz_r;
-//			rot[7] = 0.0f;
+//  rot[7] = 0.0f;
     rot8 = hxyz_r/hxy_r;
  	}
 
@@ -69,10 +64,8 @@ __global__ void _gpu_anal_fw_step (float *minx, float *miny, float *minz, float 
 	float my_rot = minx[i]*rot1 + miny[i]*rot4;
 	float mz_rot = minx[i]*rot2 + miny[i]*rot5 + minz[i]*rot8;
 
-/// @todo check used parameters due to normalization of constants!!
 	float qt = dt / (1+alpha*alpha);
   float aqt = alpha*qt;
-// ----------------------------------------
 
 	float ex, sn, cs, denom;
 	ex = exp(aqt/hxyz_r);
@@ -87,38 +80,32 @@ __global__ void _gpu_anal_fw_step (float *minx, float *miny, float *minz, float 
 	mouty[i] = mx_rotnw*rot3 + my_rotnw*rot4 + mz_rotnw*rot5;
 	moutz[i] = mx_rotnw*rot6 + mz_rotnw*rot8;
 
-//   if (i==0){
-/*  moutx[i] = rot3;
-  mouty[i] = rot6;
-  moutz[i] = rot8;*/
-// }
-//   float norm = rsqrtf(mx[i]*mx[i] + my[i]*my[i] + mz[i]*mz[i]);     // inverse square root
-//   mx[i] *= norm;
-//   my[i] *= norm;
-//   mz[i] *= norm;
-
+  }
+  
 	return;
 }
 
 
 void gpu_anal_pc_mean_h(tensor *h1, tensor *h2){
 
-  int gridSize = -1, blockSize = -1;
-  make1dconf(h1->len, &gridSize, &blockSize); ///@todo cache in gpu_anal struct
+  int N = h1->len;
+  dim3 gridSize, blockSize;
+  make1dconf(N, &gridSize, &blockSize);
 
 //   timer_start("gpu_anal_pc_mean_h");
-  _gpu_anal_pc_meah_h <<<gridSize, blockSize>>> (h1->list, h2->list);
+  _gpu_anal_pc_meah_h <<<gridSize, blockSize>>> (h1->list, h2->list, N);
   gpu_sync();
 //   timer_stop("gpu_anal_pc_mean_h");
 
   return;
 }
 
-__global__ void _gpu_anal_pc_meah_h (float *h1, float *h2){
+__global__ void _gpu_anal_pc_meah_h (float *h1, float *h2, int N){
   
-  int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
+  int i = threadindex;
 
-  h1[i] = 0.5f*(h1[i] + h2[i]);
+  if (i<N)
+    h1[i] = 0.5f*(h1[i] + h2[i]);
   
   return;
 }

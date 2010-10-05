@@ -26,7 +26,7 @@ __global__ void _gpu_normalize_map(float* mx , float* my , float* mz, float* nor
 void gpu_normalize_uniform(float* m, int N){
 
   int gridSize = -1, blockSize = -1;
-  make1dconf(N, &gridSize, &blockSize);
+  make1dconf2(N, &gridSize, &blockSize);
 
   float* mx = &(m[0*N]);
   float* my = &(m[1*N]);
@@ -41,7 +41,7 @@ void gpu_normalize_uniform(float* m, int N){
 void gpu_normalize_map(float* m, float* map, int N){
 
   int gridSize = -1, blockSize = -1;
-  make1dconf(N, &gridSize, &blockSize);
+  make1dconf2(N, &gridSize, &blockSize);
 
   float* mx = &(m[0*N]);
   float* my = &(m[1*N]);
@@ -60,7 +60,7 @@ void gpu_normalize(param* p, tensor* m){
   int complen = m->len / 3;
 
   int gridSize = -1, blockSize = -1;
-  make1dconf(complen, &gridSize, &blockSize);
+  make1dconf2(complen, &gridSize, &blockSize);
 
   float* mx = &(m->list[0*complen]);
   float* my = &(m->list[1*complen]);

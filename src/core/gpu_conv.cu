@@ -61,22 +61,25 @@ void evaluate_micromag3d_conv(tensor *m, tensor *h, conv_data *conv){
 
 void gpu_kernel_mul_micromag3d(tensor *fft1, tensor *kernel){
   
-  int fft_length = fft1->len/3;
-  int gridSize = -1;
-  int blockSize = -1;
-  make1dconf(fft_length/2, &gridSize, &blockSize);
+  int N = fft1->len/3;
+//   int gridSize = -1;
+//   int blockSize = -1;
+//   make1dconf2(fft_length/2, &gridSize, &blockSize);
 
-  float *fftMx = &fft1->list[0*fft_length];
-  float *fftMy = &fft1->list[1*fft_length];
-  float *fftMz = &fft1->list[2*fft_length];
-  float *fftKxx = &kernel->list[0*fft_length/2];
-  float *fftKxy = &kernel->list[1*fft_length/2];
-  float *fftKxz = &kernel->list[2*fft_length/2];
-  float *fftKyy = &kernel->list[3*fft_length/2];
-  float *fftKyz = &kernel->list[4*fft_length/2];
-  float *fftKzz = &kernel->list[5*fft_length/2];
+  dim3 gridSize, blockSize;
+  make1dconf(N/2, &gridSize, &blockSize);
 
-  _gpu_kernel_mul_micromag3d <<<gridSize, blockSize>>> (fftMx, fftMy, fftMz, fftKxx, fftKxy, fftKxz, fftKyy, fftKyz, fftKzz);
+  float *fftMx = &fft1->list[0*N];
+  float *fftMy = &fft1->list[1*N];
+  float *fftMz = &fft1->list[2*N];
+  float *fftKxx = &kernel->list[0*N/2];
+  float *fftKxy = &kernel->list[1*N/2];
+  float *fftKxz = &kernel->list[2*N/2];
+  float *fftKyy = &kernel->list[3*N/2];
+  float *fftKyz = &kernel->list[4*N/2];
+  float *fftKzz = &kernel->list[5*N/2];
+
+  _gpu_kernel_mul_micromag3d <<<gridSize, blockSize>>> (fftMx, fftMy, fftMz, fftKxx, fftKxy, fftKxz, fftKyy, fftKyz, fftKzz, N);
   gpu_sync();
   
   return;
@@ -84,9 +87,10 @@ void gpu_kernel_mul_micromag3d(tensor *fft1, tensor *kernel){
 
 __global__ void _gpu_kernel_mul_micromag3d(float* fftMx,  float* fftMy,  float* fftMz, 
                                            float* fftKxx, float* fftKxy, float* fftKxz,
-                                           float* fftKyy, float* fftKyz, float* fftKzz){
+                                           float* fftKyy, float* fftKyz, float* fftKzz, int N){
   
-  int e = 2 * (blockIdx.x * blockDim.x + threadIdx.x);
+  int e = 2 * (threadindex);
+  if (e<N){
   
   // we use shared memory here, which saves an "8N" buffer in the global memory
   ///@todo coalescale read/writes
@@ -99,12 +103,13 @@ __global__ void _gpu_kernel_mul_micromag3d(float* fftMx,  float* fftMy,  float* 
   float reMz = fftMz[e  ];
   float imMz = fftMz[e+1];
 
-  float Kxx = fftKxx[e/2];
-  float Kxy = fftKxy[e/2];
-  float Kxz = fftKxz[e/2];
-  float Kyy = fftKyy[e/2];
-  float Kyz = fftKyz[e/2];
-  float Kzz = fftKzz[e/2];
+  int e2 = e/2;
+  float Kxx = fftKxx[e2];
+  float Kxy = fftKxy[e2];
+  float Kxz = fftKxz[e2];
+  float Kyy = fftKyy[e2];
+  float Kyz = fftKyz[e2];
+  float Kzz = fftKzz[e2];
   
   fftMx[e  ] = Kxx*reMx + Kxy*reMy + Kxz*reMz;
   fftMx[e+1] = Kxx*imMx + Kxy*imMy + Kxz*imMz;
@@ -112,7 +117,7 @@ __global__ void _gpu_kernel_mul_micromag3d(float* fftMx,  float* fftMy,  float* 
   fftMy[e+1] = Kxy*imMx + Kyy*imMy + Kyz*imMz;
   fftMz[e  ] = Kxz*reMx + Kyz*reMy + Kzz*reMz;
   fftMz[e+1] = Kxz*imMx + Kyz*imMy + Kzz*imMz;
-
+  }
   return;
 }
 // ****************************************************************************************************
@@ -150,31 +155,34 @@ void evaluate_micromag3d_conv_Xthickness_1(tensor *m, tensor *h, conv_data *conv
 
 void gpu_kernel_mul_micromag3d_Xthickness_1(tensor *fft1, tensor *kernel){
   
-  int fft_length = fft1->len/3;
+  int N = fft1->len/3;
 
-  int gridSize = -1;
+/*  int gridSize = -1;
   int blockSize = -1;
-  make1dconf(fft_length/2, &gridSize, &blockSize);
+  make1dconf2(fft_length/2, &gridSize, &blockSize);*/
+  dim3 gridSize, blockSize;
+  make1dconf(N/2, &gridSize, &blockSize);
   
-  float *fftMx = &fft1->list[0*fft_length];
-  float *fftMy = &fft1->list[1*fft_length];
-  float *fftMz = &fft1->list[2*fft_length];
-  float *fftKxx = &kernel->list[0*fft_length/2];
-  float *fftKyy = &kernel->list[1*fft_length/2];
-  float *fftKyz = &kernel->list[2*fft_length/2];
-  float *fftKzz = &kernel->list[3*fft_length/2];
+  float *fftMx = &fft1->list[0*N];
+  float *fftMy = &fft1->list[1*N];
+  float *fftMz = &fft1->list[2*N];
+  float *fftKxx = &kernel->list[0*N/2];
+  float *fftKyy = &kernel->list[1*N/2];
+  float *fftKyz = &kernel->list[2*N/2];
+  float *fftKzz = &kernel->list[3*N/2];
   
-  _gpu_kernel_mul_micromag3d_Xthickness_1 <<<gridSize, blockSize>>> (fftMx, fftMy, fftMz, fftKxx, fftKyy, fftKyz, fftKzz);
+  _gpu_kernel_mul_micromag3d_Xthickness_1 <<<gridSize, blockSize>>> (fftMx, fftMy, fftMz, fftKxx, fftKyy, fftKyz, fftKzz, N);
   gpu_sync();
 
   return;
 }
 
 __global__ void _gpu_kernel_mul_micromag3d_Xthickness_1(float* fftMx,  float* fftMy,  float* fftMz, 
-                                                        float* fftKxx, float* fftKyy, float* fftKyz, float* fftKzz){
+                                                        float* fftKxx, float* fftKyy, float* fftKyz, float* fftKzz, int N){
   
   
-  int e = 2 * ((blockIdx.x * blockDim.x) + threadIdx.x);
+  int e = 2*threadindex;
+  if (e<N){
   
   // we use shared memory here, which saves an "8N" buffer in the global memory
   ///@todo coalescale read/writes
@@ -187,10 +195,11 @@ __global__ void _gpu_kernel_mul_micromag3d_Xthickness_1(float* fftMx,  float* ff
   float reMz = fftMz[e  ];
   float imMz = fftMz[e+1];
 
-  float Kxx = fftKxx[e/2];
-  float Kyy = fftKyy[e/2];
-  float Kyz = fftKyz[e/2];
-  float Kzz = fftKzz[e/2];
+  int e2 = e/2;
+  float Kxx = fftKxx[e2];
+  float Kyy = fftKyy[e2];
+  float Kyz = fftKyz[e2];
+  float Kzz = fftKzz[e2];
   
   fftMx[e  ] = Kxx*reMx;
   fftMx[e+1] = Kxx*imMx;
@@ -198,7 +207,7 @@ __global__ void _gpu_kernel_mul_micromag3d_Xthickness_1(float* fftMx,  float* ff
   fftMy[e+1] = Kyy*imMy + Kyz*imMz;
   fftMz[e  ] = Kyz*reMy + Kzz*reMz;
   fftMz[e+1] = Kyz*imMy + Kzz*imMz;
-
+  }
   return;
 }
 // ****************************************************************************************************
@@ -234,26 +243,29 @@ void evaluate_micromag2d_conv(tensor *m, tensor *h, conv_data *conv){
 
 void gpu_kernel_mul_micromag2d(tensor *fft1, tensor *kernel){
     
-  int fft_length = fft1->len/2;
-  int gridSize = -1;
+  int N = fft1->len/2;
+/*  int gridSize = -1;
   int blockSize = -1;
-  make1dconf(fft_length/2, &gridSize, &blockSize);
+  make1dconf2(fft_length/2, &gridSize, &blockSize);*/
+  dim3 gridSize, blockSize;
+  make1dconf(N/2, &gridSize, &blockSize);
 
-  float *fftMy = &fft1->list[0*fft_length];
-  float *fftMz = &fft1->list[1*fft_length];
-  float *fftKyy = &kernel->list[0*fft_length/2];
-  float *fftKyz = &kernel->list[1*fft_length/2];
-  float *fftKzz = &kernel->list[2*fft_length/2];
+  float *fftMy = &fft1->list[0*N];
+  float *fftMz = &fft1->list[1*N];
+  float *fftKyy = &kernel->list[0*N/2];
+  float *fftKyz = &kernel->list[1*N/2];
+  float *fftKzz = &kernel->list[2*N/2];
 
-  _gpu_kernel_mul_micromag2d <<<gridSize, blockSize>>> (fftMy, fftMz, fftKyy, fftKyz, fftKzz);
+  _gpu_kernel_mul_micromag2d <<<gridSize, blockSize>>> (fftMy, fftMz, fftKyy, fftKyz, fftKzz, N);
   gpu_sync();
   
   return;
 }
 
-__global__ void _gpu_kernel_mul_micromag2d(float* fftMy, float* fftMz, float* fftKyy, float* fftKyz, float* fftKzz){
+__global__ void _gpu_kernel_mul_micromag2d(float* fftMy, float* fftMz, float* fftKyy, float* fftKyz, float* fftKzz, int N){
   
-  int e = 2 * ((blockIdx.x * blockDim.x) + threadIdx.x);
+  int e = 2*threadindex;
+  if (e<N){
   
   // we use shared memory here, which saves an "8N" buffer in the global memory
   ///@todo coalescale read/writes
@@ -263,15 +275,17 @@ __global__ void _gpu_kernel_mul_micromag2d(float* fftMy, float* fftMz, float* ff
   float reMz = fftMz[e  ];
   float imMz = fftMz[e+1];
 
-  float Kyy = fftKyy[e/2];
-  float Kyz = fftKyz[e/2];
-  float Kzz = fftKzz[e/2];
+  int e2 = e/2;
+  float Kyy = fftKyy[e2];
+  float Kyz = fftKyz[e2];
+  float Kzz = fftKzz[e2];
   
   fftMy[e  ] = Kyy*reMy + Kyz*reMz;
   fftMy[e+1] = Kyy*imMy + Kyz*imMz;
   fftMz[e  ] = Kyz*reMy + Kzz*reMz;
   fftMz[e+1] = Kyz*imMy + Kzz*imMz;
-
+  }
+  
   return;
 }
 // ****************************************************************************************************

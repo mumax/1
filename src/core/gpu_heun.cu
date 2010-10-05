@@ -88,7 +88,7 @@ __global__ void _gpu_heunstage1(float* mx , float* my , float* mz ,
 void gpuheun_stage0(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
 
   int gridSize = -1, blockSize = -1;
-  make1dconf(solver->mComp[X]->len, &gridSize, &blockSize); ///@todo cache in heun struct
+  make1dconf2(solver->mComp[X]->len, &gridSize, &blockSize); ///@todo cache in heun struct
 
 //   timer_start("gpuheun_step");{
 
@@ -107,7 +107,7 @@ void gpuheun_stage0(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
 void gpuheun_stage1(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
 
   int gridSize = -1, blockSize = -1;
-  make1dconf(solver->mComp[X]->len, &gridSize, &blockSize); ///@todo cache in heun struct
+  make1dconf2(solver->mComp[X]->len, &gridSize, &blockSize); ///@todo cache in heun struct
   
 //   timer_start("gpuheun_step");{
   

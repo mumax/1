@@ -8,6 +8,7 @@
 #define GPU_CONV_H
 
 #include "gputil.h"
+#include "gpu_conf.h"
 #include "tensor.h"
 #include "param.h"
 #include "kernel.h"
@@ -76,7 +77,8 @@ __global__ void _gpu_kernel_mul_micromag3d(float *fftMx,    ///< Fourier transfo
                                            float *fftKxz,   ///< xz kernel component
                                            float *fftKyy,   ///< yy kernel component
                                            float *fftKyz,   ///< yz kernel component
-                                           float *fftKzz    ///< zz kernel component
+                                           float *fftKzz,   ///< zz kernel component
+                                           int N
                                            );
 // ****************************************************************************************************
 
@@ -109,7 +111,8 @@ __global__ void _gpu_kernel_mul_micromag3d_Xthickness_1(float *fftMx,    ///< Fo
                                                         float *fftKxx,   ///< xx kernel component
                                                         float *fftKyy,   ///< yy kernel component
                                                         float *fftKyz,   ///< yz kernel component
-                                                        float *fftKzz    ///< zz kernel component
+                                                        float *fftKzz,   ///< zz kernel component
+                                                        int N
                                                         );
 // ****************************************************************************************************
 
@@ -132,7 +135,8 @@ __global__ void _gpu_kernel_mul_micromag2d(float *fftMy,    ///< Fourier transfo
                                            float *fftMz,    ///< Fourier transformed Mz data
                                            float *fftKyy,   ///< yy kernel component
                                            float *fftKyz,   ///< yz kernel component
-                                           float *fftKzz    ///< zz kernel component
+                                           float *fftKzz,   ///< zz kernel component
+                                           int N
                                            );
 // ****************************************************************************************************
 

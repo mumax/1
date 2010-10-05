@@ -241,7 +241,7 @@ void check1dconf(int gridsize, ///< 1D size of the thread grid
  *  - be valid
  *
  * @todo works only up to N2 = 512 
- * @see make1dconf()
+ * @see make1dconf2()
  *
  * Example:
  * @code
@@ -269,11 +269,11 @@ void make3dconf(int N0, 	///< size of 3D array to span
  * Example:
  * @code
  * int gridSize, blockSize;
- * make1dconf(arraySize, &gridSize, &blockSize);
+ * make1dconf2(arraySize, &gridSize, &blockSize);
  * mykernel<<<gridSize, blockSize>>>(arrrrgh);
  * @endcode
  */
-void make1dconf(int N,          ///< size of array to span (number of floats)
+void make1dconf2(int N,          ///< size of array to span (number of floats)
                 int* gridSize,  ///< grid size is returned here
                 int* blockSize  ///< block size is returned here
                 );

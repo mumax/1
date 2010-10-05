@@ -27,7 +27,7 @@ __global__ void _gpu_torque(float* mx, float* my, float* mz, float* hx, float* h
 void gpu_torque(float* m, float* h, float alpha, float dt_gilb, int N){
 
   int gridSize = -1, blockSize = -1;
-  make1dconf(N, &gridSize, &blockSize);
+  make1dconf2(N, &gridSize, &blockSize);
 
   float* mx = &(m[0*N]);
   float* my = &(m[1*N]);

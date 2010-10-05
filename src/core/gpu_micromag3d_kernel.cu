@@ -50,7 +50,7 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int 
     dim3 blocksize1(kernelSize[Z]/2, 1,1);
     check3dconf(gridsize1, blocksize1);
     int gridsize2, blocksize2;
-    make1dconf(kernelStorageN/2, &gridsize2, &blocksize2);
+    make1dconf2(kernelStorageN/2, &gridsize2, &blocksize2);
   // ______________________________________________________________________________________________
   
   // Define input tensors and input sizes for FFT forward routine _________________________________

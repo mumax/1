@@ -11,6 +11,8 @@
 
 #include "param.h"
 #include "gputil.h"
+#include "gpu_safe.h"
+#include "gpu_conf.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,12 +40,12 @@ typedef struct{
 
 void gpu_anal_fw_step(param *p, tensor *m_in, tensor *m_out, tensor *h);
 
-__global__ void _gpu_anal_fw_step (float *minx, float *miny, float *minz, float *moutx, float *mouty, float *moutz, float *hx, float *hy, float *hz, float dt, float alpha);
+__global__ void _gpu_anal_fw_step (float *minx, float *miny, float *minz, float *moutx, float *mouty, float *moutz, float *hx, float *hy, float *hz, float dt, float alpha, int N);
 
 
 void gpu_anal_pc_mean_h(tensor *h1, tensor *h2);
 
-__global__ void _gpu_anal_pc_meah_h (float *h1, float *h2);
+__global__ void _gpu_anal_pc_meah_h (float *h1, float *h2, int N);
 
 gpuanalfw* new_gpuanalfw(param* p);
 
