@@ -14,6 +14,10 @@ import (
 	"os"
 )
 
+
+//                                                                  WARNING: USE sim.backend, not sim.Backend
+//                                                                  TODO: need to get rid of this duplication
+
 // Sim has an "input" member of type "Input".
 //
 // In this struct, all parameters are STILL IN SI UNITS.
@@ -58,6 +62,7 @@ type Sim struct {
 	BeenValid    bool            // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
 	backend      *Backend        // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
 	mLocal       *tensor.Tensor4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
+	normMap      *DevTensor 
 	Material                     // Stores material parameters and manages the internal units
 	Mesh                         // Stores the size of the simulation grid
 	Conv                         // Convolution plan for the magnetostatic field
@@ -246,3 +251,59 @@ func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {
 	}
 	return out
 }
+
+
+
+
+
+
+func (sim *Sim) Normalize(m *DevTensor) {
+ assert(len(m.size) == 4)
+ N := m.size[1] * m.size[2] * m.size[3]
+ if sim.normMap == nil{
+  sim.normalize(m.data, N)
+ }else{
+   assert(sim.normMap.size[0] == m.size[1] && sim.normMap.size[1] == m.size[2] && sim.normMap.size[2] == m.size[3])
+    sim.normalizeMap(m.data, sim.normMap.data, N) 
+ }
+}
+
+
+
+func (sim *Sim) Cylinder(){
+  sim.initMLocal()
+
+  sim.normMap = NewTensor(sim.backend, Size3D(sim.mLocal.Size()))
+  norm := tensor.NewTensor3(sim.normMap.Size())
+  
+  sizex := sim.mLocal.Size()[1]
+  sizey := sim.mLocal.Size()[2]
+  sizez := sim.mLocal.Size()[3]
+  fmt.Println("size ", sizex, sizey, sizez)
+  rx := float64(sizey/2)
+//   ry := float64(sizez/2)
+  r2 := (rx*rx)
+  fmt.Println("R2 ", r2)
+  
+  for i:=0; i<sizex; i++{
+    for j:=0; j<sizey; j++{
+      x := float64(j-sizey/2)
+      for k:=0; k<sizez; k++{
+         y := float64(k-sizez/2)
+        if x*x + y*y <= r2{
+          norm.Array()[i][j][k] = 1.
+        }else{
+          norm.Array()[i][j][k] = 0.
+        }
+
+      }
+    }
+  }
+
+  TensorCopyTo(norm, sim.normMap)
+}
+
+
+
+
+

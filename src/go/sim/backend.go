@@ -107,11 +107,11 @@ func (dev *Backend) AddConstant(a *DevTensor, cnst float) {
 	dev.addConstant(a.data, cnst, tensor.N(a))
 }
 
-func (dev *Backend) Normalize(m *DevTensor) {
-	assert(len(m.size) == 4)
-	N := m.size[1] * m.size[2] * m.size[3]
-	dev.normalize(m.data, N)
-}
+// func (dev *Backend) Normalize(m *DevTensor) {
+// 	assert(len(m.size) == 4)
+// 	N := m.size[1] * m.size[2] * m.size[3]
+// 	dev.normalize(m.data, N)
+// }
 
 
 // calculates torque * dt, overwrites h with the result
