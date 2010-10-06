@@ -70,7 +70,7 @@ func (field *rotatingField) GetAppliedField(time float64) [3]float {
 // Apply a rotating burst
 func (s *Sim) RotatingBurst(h float, freq, phase, risetime, duration float64) {
 	s.AppliedField = &rotatingBurst{h, freq, phase, risetime, duration}
-	s.Println("Applied field: Rotating burst, ", h, " T, frequency: ", freq, " Hz ", "phase between X-Y: ", phase, "risetime: ", risetime, " s", ", duration: ", duration, " s")
+	s.Println("Applied field: Rotating burst, ", h, " T, frequency: ", freq, " Hz ", "phase between X-Y: ", phase, " risetime: ", risetime, " s", ", duration: ", duration, " s")
 }
 
 type rotatingBurst struct {
