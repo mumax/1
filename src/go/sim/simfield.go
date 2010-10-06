@@ -15,7 +15,6 @@ import (
 // the applied magnetic field.
 
 
-
 // Apply a static field defined in Tesla
 func (s *Sim) StaticField(hx, hy, hz float) {
 	s.AppliedField = &staticField{[3]float{hx, hy, hz}} // pass it on in tesla so that it stays independent of other problem parameters
@@ -30,65 +29,59 @@ func (field *staticField) GetAppliedField(time float64) [3]float {
 }
 
 
-
 // Apply an alternating field
 func (s *Sim) RfField(hx, hy, hz float, freq float64) {
-  s.AppliedField = &rfField{[3]float{hx, hy, hz}, freq}
+	s.AppliedField = &rfField{[3]float{hx, hy, hz}, freq}
 }
 
 type rfField struct {
-  b    [3]float
-  freq float64
+	b    [3]float
+	freq float64
 }
 
 func (field *rfField) GetAppliedField(time float64) [3]float {
-  sin := float(Sin(field.freq * Pi * time))
-  return [3]float{field.b[X] * sin, field.b[Y] * sin, field.b[Z] * sin}
+	sin := float(Sin(field.freq * Pi * time))
+	return [3]float{field.b[X] * sin, field.b[Y] * sin, field.b[Z] * sin}
 }
-
 
 
 // Apply a rotating field
 func (s *Sim) RotatingField(hx, hy, hz float, freq float64, phaseX, phaseY, phaseZ float64) {
-  s.AppliedField = &rotatingField{[3]float{hx, hy, hz}, freq, [3]float64{phaseX, phaseY, phaseZ}}
+	s.AppliedField = &rotatingField{[3]float{hx, hy, hz}, freq, [3]float64{phaseX, phaseY, phaseZ}}
 }
 
 type rotatingField struct {
-  b    [3]float
-  freq float64
-  phase [3]float64
+	b     [3]float
+	freq  float64
+	phase [3]float64
 }
 
 func (field *rotatingField) GetAppliedField(time float64) [3]float {
-  sinX := float(Sin(field.freq * Pi * time + field.phase[X]))
-  sinY := float(Sin(field.freq * Pi * time + field.phase[Y]))
-  sinZ := float(Sin(field.freq * Pi * time + field.phase[Z]))
-  return [3]float{field.b[X] * sinX, field.b[Y] * sinY, field.b[Z] * sinZ}
+	sinX := float(Sin(field.freq*Pi*time + field.phase[X]))
+	sinY := float(Sin(field.freq*Pi*time + field.phase[Y]))
+	sinZ := float(Sin(field.freq*Pi*time + field.phase[Z]))
+	return [3]float{field.b[X] * sinX, field.b[Y] * sinY, field.b[Z] * sinZ}
 }
-
 
 
 // Apply a rotating burst
 func (s *Sim) RotatingBurst(h float, freq, risetime float64) {
-  s.AppliedField = &rotatingBurst{h, freq, risetime}
+	s.AppliedField = &rotatingBurst{h, freq, risetime}
 }
 
 type rotatingBurst struct {
-  b float
-  freq float64
-  risetime float64
+	b        float
+	freq     float64
+	risetime float64
 }
 
 func (field *rotatingBurst) GetAppliedField(time float64) [3]float {
-  sin := float(Sin(field.freq * Pi * time))
-  cos := float(Cos(field.freq * Pi * time))
-  norm := float(0.5 * (Erf(time/(field.risetime/2.) - 2) + 1))
-  b := field.b
-  return [3]float{0, b*norm*sin, b*norm*cos}
+	sin := float(Sin(field.freq * Pi * time))
+	cos := float(Cos(field.freq * Pi * time))
+	norm := float(0.5 * (Erf(time/(field.risetime/2.)-2) + 1))
+	b := field.b
+	return [3]float{0, b * norm * sin, b * norm * cos}
 }
-
-
-
 
 
 // Control the accuracy of the demag kernel.

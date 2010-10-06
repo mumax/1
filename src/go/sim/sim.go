@@ -62,28 +62,28 @@ type Sim struct {
 	BeenValid    bool            // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
 	backend      *Backend        // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
 	mLocal       *tensor.Tensor4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
-	normMap      *DevTensor 
-	Material                     // Stores material parameters and manages the internal units
-	Mesh                         // Stores the size of the simulation grid
-	Conv                         // Convolution plan for the magnetostatic field
-	AppliedField                 // returns the externally applied in function of time
-	hext         [3]float        // stores the externally applied field returned by AppliedField
-	mDev, h      *DevTensor      // magnetization/effective field on the device (GPU), 4D tensor
-	mComp, hComp [3]*DevTensor   // magnetization/field components, 3 x 3D tensors
-	Solver                       // Does the time stepping, can be euler, heun, ...
-	time         float64         // The total time (internal units)
-	dt           float           // The time step (internal units). May be updated by adaptive-step solvers
-	maxDm        float           // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
-	maxError     float           // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
-	stepError    float           // The actual error estimate of the last step. Not all solvers update this value.
-	steps        int             // The total number of steps taken so far
-	starttime    int64           // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
-	outschedule  []Output        // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
-	autosaveIdx  int             // Unique identifier of output state. Updated each time output is saved.
-	outputdir    string          // Where to save output files.
-	mUpToDate    bool            // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
-	silent       bool
-	out          *os.File
+	normMap      *DevTensor    // Per-cell magnetization norm. nil means the norm is 1.0 everywhere.
+	Material                   // Stores material parameters and manages the internal units
+	Mesh                       // Stores the size of the simulation grid
+	Conv                       // Convolution plan for the magnetostatic field
+	AppliedField               // returns the externally applied in function of time
+	hext         [3]float      // stores the externally applied field returned by AppliedField
+	mDev, h      *DevTensor    // magnetization/effective field on the device (GPU), 4D tensor
+	mComp, hComp [3]*DevTensor // magnetization/field components, 3 x 3D tensors
+	Solver                     // Does the time stepping, can be euler, heun, ...
+	time         float64       // The total time (internal units)
+	dt           float         // The time step (internal units). May be updated by adaptive-step solvers
+	maxDm        float         // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
+	maxError     float         // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
+	stepError    float         // The actual error estimate of the last step. Not all solvers update this value.
+	steps        int           // The total number of steps taken so far
+	starttime    int64         // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
+	outschedule  []Output      // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
+	autosaveIdx  int           // Unique identifier of output state. Updated each time output is saved.
+	outputdir    string        // Where to save output files.
+	mUpToDate    bool          // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
+	silent       bool          // Do not print anything to os.Stdout when silent == true, only to log file
+	out          *os.File      // Output log file
 }
 
 func New(outputdir string) *Sim {
@@ -121,7 +121,10 @@ func (s *Sim) initSize() {
 	s.size4D[0] = 3 // 3-component vectors
 	for i := range s.size {
 		s.size[i] = s.input.size[i]
-		assert(s.size[i] > 0)
+		if ! (s.size[i] > 0){
+      s.Errorln("The size should be set first. E.g.: size 4 32 32")
+      os.Exit(-6)
+    }
 		s.size4D[i+1] = s.size[i]
 	}
 	s.Println("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
@@ -164,7 +167,10 @@ func (s *Sim) init() {
 	L := s.UnitLength()
 	for i := range s.size {
 		s.cellSize[i] = s.input.cellSize[i] / L
-		assert(s.cellSize[i] > 0.)
+		if !(s.cellSize[i] > 0.){
+      s.Errorln("The cell size should be set first. E.g. cellsize 1E-9 1E-9 1E-9")
+      os.Exit(-6)
+    }
 	}
 
 	// (3) Allocate memory, but only if needed
@@ -253,57 +259,47 @@ func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {
 }
 
 
-
-
-
-
 func (sim *Sim) Normalize(m *DevTensor) {
- assert(len(m.size) == 4)
- N := m.size[1] * m.size[2] * m.size[3]
- if sim.normMap == nil{
-  sim.normalize(m.data, N)
- }else{
-   assert(sim.normMap.size[0] == m.size[1] && sim.normMap.size[1] == m.size[2] && sim.normMap.size[2] == m.size[3])
-    sim.normalizeMap(m.data, sim.normMap.data, N) 
- }
+	assert(len(m.size) == 4)
+	N := m.size[1] * m.size[2] * m.size[3]
+	if sim.normMap == nil {
+		sim.normalize(m.data, N)
+	} else {
+		assert(sim.normMap.size[0] == m.size[1] && sim.normMap.size[1] == m.size[2] && sim.normMap.size[2] == m.size[3])
+		sim.normalizeMap(m.data, sim.normMap.data, N)
+	}
 }
 
 
+func (sim *Sim) Cylinder() {
+	sim.initMLocal()
 
-func (sim *Sim) Cylinder(){
-  sim.initMLocal()
+	sim.normMap = NewTensor(sim.backend, Size3D(sim.mLocal.Size()))
+	norm := tensor.NewTensor3(sim.normMap.Size())
 
-  sim.normMap = NewTensor(sim.backend, Size3D(sim.mLocal.Size()))
-  norm := tensor.NewTensor3(sim.normMap.Size())
-  
-  sizex := sim.mLocal.Size()[1]
-  sizey := sim.mLocal.Size()[2]
-  sizez := sim.mLocal.Size()[3]
-  fmt.Println("size ", sizex, sizey, sizez)
-  rx := float64(sizey/2)
-//   ry := float64(sizez/2)
-  r2 := (rx*rx)
-  fmt.Println("R2 ", r2)
-  
-  for i:=0; i<sizex; i++{
-    for j:=0; j<sizey; j++{
-      x := float64(j-sizey/2)
-      for k:=0; k<sizez; k++{
-         y := float64(k-sizez/2)
-        if x*x + y*y <= r2{
-          norm.Array()[i][j][k] = 1.
-        }else{
-          norm.Array()[i][j][k] = 0.
-        }
+	sizex := sim.mLocal.Size()[1]
+	sizey := sim.mLocal.Size()[2]
+	sizez := sim.mLocal.Size()[3]
+	fmt.Println("size ", sizex, sizey, sizez)
+	rx := float64(sizey / 2)
+	//   ry := float64(sizez/2)
+	r2 := (rx * rx)
+	fmt.Println("R2 ", r2)
 
-      }
-    }
-  }
+	for i := 0; i < sizex; i++ {
+		for j := 0; j < sizey; j++ {
+			x := float64(j - sizey/2)
+			for k := 0; k < sizez; k++ {
+				y := float64(k - sizez/2)
+				if x*x+y*y <= r2 {
+					norm.Array()[i][j][k] = 1.
+				} else {
+					norm.Array()[i][j][k] = 0.
+				}
 
-  TensorCopyTo(norm, sim.normMap)
+			}
+		}
+	}
+
+	TensorCopyTo(norm, sim.normMap)
 }
-
-
-
-
-
