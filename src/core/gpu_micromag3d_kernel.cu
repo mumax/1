@@ -49,9 +49,10 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int 
     dim3 gridsize1((kernelSize[X]+1)/2,kernelSize[Y]/2, 1);
     dim3 blocksize1(kernelSize[Z]/2, 1,1);
     check3dconf(gridsize1, blocksize1);
-    int N = kernelStorageN/2;
+    
+    int N2 = kernelStorageN/2;
     dim3 gridsize2, blocksize2;
-    make1dconf(N, &gridsize2, &blocksize2);
+    make1dconf(N2, &gridsize2, &blocksize2);
   // ______________________________________________________________________________________________
   
   // Define input tensors and input sizes for FFT forward routine _________________________________
@@ -76,7 +77,7 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel, int 
         gpuFFT3dPlan_forward_unsafe(kernel_plan, dev_temp1, dev_temp2); 
         gpu_sync();
           // Copy the real parts to the corresponding place in the dev_kernel tensor.
-        _gpu_extract_real_parts_micromag3d<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*kernelStorageN/2], dev_temp2, N);
+        _gpu_extract_real_parts_micromag3d<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*kernelStorageN/2], dev_temp2, N2);
         gpu_sync();
         rank0++;                                        // get ready for next component
       }

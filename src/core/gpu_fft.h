@@ -22,6 +22,7 @@
 #include <cufft.h>
 #include "gpu_transpose2.h"
 #include "gpu_safe.h"
+#include "gpu_conf.h"
 
 #ifdef __cplusplus
 extern "C" {

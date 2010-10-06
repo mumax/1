@@ -18,7 +18,6 @@ OFILES=\
 	param.o\
 	timer.o\
 	gputil.o\
-	gpu_heun.o\
 	gpu_anal.o\
 	gpunormalize.o\
 	field.o\
@@ -31,7 +30,8 @@ OFILES=\
 	cpu_exch.o\
 	gpu_exchange.o\
 	gpu_transpose2.o\
-	gpu_fft.o
+	gpu_fft.o\
+	gpu_heun.o\
 #	gputorque.o\
 # 	gpufft2.o\
 # 	gpu_conf.o\

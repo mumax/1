@@ -13,6 +13,7 @@
 #include "timer.h"
 #include "timestep.h"
 #include <stdio.h>
+#include "gpu_mem.h"
 
 
 #endif
