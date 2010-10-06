@@ -18,6 +18,7 @@ import (
 // Apply a static field defined in Tesla
 func (s *Sim) StaticField(hx, hy, hz float) {
 	s.AppliedField = &staticField{[3]float{hx, hy, hz}} // pass it on in tesla so that it stays independent of other problem parameters
+	s.Println("Applied field: static, (", hx, ", ", hy, ", ", hz, ") T")
 }
 
 type staticField struct {
@@ -32,6 +33,7 @@ func (field *staticField) GetAppliedField(time float64) [3]float {
 // Apply an alternating field
 func (s *Sim) RfField(hx, hy, hz float, freq float64) {
 	s.AppliedField = &rfField{[3]float{hx, hy, hz}, freq}
+	s.Println("Applied field: RF, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz")
 }
 
 type rfField struct {
@@ -48,6 +50,7 @@ func (field *rfField) GetAppliedField(time float64) [3]float {
 // Apply a rotating field
 func (s *Sim) RotatingField(hx, hy, hz float, freq float64, phaseX, phaseY, phaseZ float64) {
 	s.AppliedField = &rotatingField{[3]float{hx, hy, hz}, freq, [3]float64{phaseX, phaseY, phaseZ}}
+	s.Println("Applied field: Rotating, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz", "Phases: ", phaseX, ", ", phaseY, ", ", phaseZ, " rad")
 }
 
 type rotatingField struct {
@@ -67,6 +70,7 @@ func (field *rotatingField) GetAppliedField(time float64) [3]float {
 // Apply a rotating burst
 func (s *Sim) RotatingBurst(h float, freq, risetime float64) {
 	s.AppliedField = &rotatingBurst{h, freq, risetime}
+	s.Println("Applied field: Rotating burst, ", h, " T, frequency: ", freq, " Hz", "risetime: ", risetime, " s")
 }
 
 type rotatingBurst struct {

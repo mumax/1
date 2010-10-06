@@ -6,6 +6,11 @@
 
 package sim
 
+import(
+  "tensor"
+  "os"
+)
+
 // This file implements the methods for
 // controlling the simulation geometry.
 
@@ -13,6 +18,13 @@ package sim
 // Note: for performance reasons the last size should be big.
 // TODO: if the above is not the case, transparently transpose.
 func (s *Sim) Size(x, y, z int) {
+  if x <= 0 || y <= 0 || z <= 0 {
+    s.Errorln("Size should be > 0")
+    os.Exit(-6)
+  }
+  if x > y || x > z{
+    s.Warn("For optimal efficiency, the number of cells in the first dimension (X) should be the smallest.\n E.g.: size 1 32 32 is much faster than size 32 32 1")
+  }
 	s.input.size[X] = x
 	s.input.size[Y] = y
 	s.input.size[Z] = z
@@ -21,11 +33,48 @@ func (s *Sim) Size(x, y, z int) {
 
 // Defines the cell size in meters
 func (s *Sim) CellSize(x, y, z float) {
+   if x <= 0. || y <= 0. || z <= 0. {
+    s.Errorln("Cell size should be > 0")
+    os.Exit(-6)
+  }
 	s.input.cellSize[X] = x
 	s.input.cellSize[Y] = y
 	s.input.cellSize[Z] = z
 	s.invalidate()
 }
+
+// Sets up the normMap for a cylinder geometry along Z
+// TODO: does not take into account the aspect ratio of the cells.
+func (sim *Sim) Cylinder() {
+  sim.initMLocal()
+  sim.Println("Geometry: cylinder")
+  
+  sim.normMap = NewTensor(sim.backend, Size3D(sim.mLocal.Size()))
+  norm := tensor.NewTensor3(sim.normMap.Size())
+
+  sizex := sim.mLocal.Size()[1]
+  sizey := sim.mLocal.Size()[2]
+  sizez := sim.mLocal.Size()[3]
+  r := float64(sizey / 2)
+  r2 := (r * r)
+
+  for i := 0; i < sizex; i++ {
+    for j := 0; j < sizey; j++ {
+      x := float64(j - sizey/2)
+      for k := 0; k < sizez; k++ {
+        y := float64(k - sizez/2)
+        if x*x+y*y <= r2 {
+          norm.Array()[i][j][k] = 1.
+        } else {
+          norm.Array()[i][j][k] = 0.
+        }
+
+      }
+    }
+  }
+  TensorCopyTo(norm, sim.normMap)
+}
+
 
 // TODO: Defining the overall size and the (perhaps maximum) cell size,
 // and letting the program choose the number of cells would be handy.
