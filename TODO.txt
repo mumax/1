@@ -15,11 +15,13 @@ FermiMag (Fermi is a GPU architecture)
 MPMMS (Massively Parallel Micro Magnetic Simulator)
 SPeeMagS
 xspinsim, xspins (pronouced k'spins, eXtreme Spin Simulator)
-
+GeeMags
 
 
 TODO (Arne)
 
+* do not use os.Exit() but sim.Exit() which removes running file
+* when sim daemon is killed it should clean up its unfinished output dir
 * it seems CUFFT allocates memory for its FFT plans, check if this is a lot!
 * bigfft
 * higher-order solvers
@@ -30,7 +32,5 @@ TODO (Arne)
    steptime performance
    Bx, By, Bz
    mx, my, mz
-* check if input parameters make sense and are set before sim.init() (size, material, ...)
-* should warn when alpha=0
 * tensor package is not idiomatic Go. Should use [][][]float as much as possible and cast it to a tensor only when needed.
 
