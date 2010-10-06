@@ -13,6 +13,7 @@
 #include "param.h"
 #include "gputil.h"
 #include "timer.h"
+#include "gpu_conf.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,10 +34,10 @@ void gpu_normalize_map(float* m, float* map, int N);
 
 
 /// @internal uniform normalization
-__global__ void _gpu_normalize(float* mx , float* my , float* mz);
+__global__ void _gpu_normalize(float* mx , float* my , float* mz, int N);
 
 /// @internal space-dependent normalization
-__global__ void _gpu_normalize_map(float* mx , float* my , float* mz, float* normMap);
+__global__ void _gpu_normalize_map(float* mx , float* my , float* mz, float* normMap, int N);
 
 #ifdef __cplusplus
 }

@@ -62,9 +62,6 @@ void evaluate_micromag3d_conv(tensor *m, tensor *h, conv_data *conv){
 void gpu_kernel_mul_micromag3d(tensor *fft1, tensor *kernel){
   
   int N = fft1->len/3;
-//   int gridSize = -1;
-//   int blockSize = -1;
-//   make1dconf2(fft_length/2, &gridSize, &blockSize);
 
   dim3 gridSize, blockSize;
   make1dconf(N/2, &gridSize, &blockSize);
@@ -89,7 +86,7 @@ __global__ void _gpu_kernel_mul_micromag3d(float* fftMx,  float* fftMy,  float* 
                                            float* fftKxx, float* fftKxy, float* fftKxz,
                                            float* fftKyy, float* fftKyz, float* fftKzz, int N){
   
-  int e = 2 * (threadindex);
+  int e = 2 * threadindex;
   if (e<N){
   
   // we use shared memory here, which saves an "8N" buffer in the global memory
@@ -157,9 +154,6 @@ void gpu_kernel_mul_micromag3d_Xthickness_1(tensor *fft1, tensor *kernel){
   
   int N = fft1->len/3;
 
-/*  int gridSize = -1;
-  int blockSize = -1;
-  make1dconf2(fft_length/2, &gridSize, &blockSize);*/
   dim3 gridSize, blockSize;
   make1dconf(N/2, &gridSize, &blockSize);
   
@@ -244,9 +238,6 @@ void evaluate_micromag2d_conv(tensor *m, tensor *h, conv_data *conv){
 void gpu_kernel_mul_micromag2d(tensor *fft1, tensor *kernel){
     
   int N = fft1->len/2;
-/*  int gridSize = -1;
-  int blockSize = -1;
-  make1dconf2(fft_length/2, &gridSize, &blockSize);*/
   dim3 gridSize, blockSize;
   make1dconf(N/2, &gridSize, &blockSize);
 

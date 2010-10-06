@@ -58,6 +58,8 @@ void check_param(param *p){
   assert(p->size[Y]>1);
   assert(p->size[Z]>1);
   
+  assert(p->exchType != NONE);
+  
   // checks related with convolution ________________________________________________
   if (p->kernelType==KERNEL_MICROMAG3D)
     for (int i=0; i<3; i++){

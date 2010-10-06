@@ -96,9 +96,18 @@ typedef struct{
 
 
   // exchange settings;
-  int exchType;          ///< Type of exchange model. Can be EXCH_NONE when the exchange is allready included in the demag kernel.
-  int exchInConv[3];     ///< flag that reports if exchange is included in the convolution for a corresponding component (index corresponds to a component, not to a direction!). 
-// more to come here
+
+  int exchType;
+    /// Exchange types that can be added in the convolution should have a positive int assigned.
+    /// Exchange types that can only be added classically should have a negative int assigned.
+    /// exchType = 0 is not defined.
+  int exchInConv[3];
+    ///Depending on the kerneltype and/or a coarse grid evaluation of the demag field, some/all components of the exchange fields need to be added classically
+    ///   exchInConv[comp] = -1 : for component 'comp' of the field, exchange is not computed (not classically, nor in convolution)
+    ///   exchInConv[comp] =  0 : for component 'comp' of the field, exchange is computed classically 
+    ///   exchInConv[comp] =  1 : for component 'comp' of the field, exchange is included in the convolution
+
+  // more to come here
 
   
   // time stepping
@@ -166,8 +175,7 @@ void check_param(param *p);
 
 // Exchange types
 
-
-/// Possible value for exchType. 6-neighbour exchange.
+/// Possible value for exchType. 6-neighbour exchange (3D geometry).
 #define EXCH_6NGBR 6
 
 

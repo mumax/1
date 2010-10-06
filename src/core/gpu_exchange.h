@@ -38,41 +38,41 @@ void add_exchange (tensor *m,    ///> input magnetization tensor
                   );
 
 
-void gpu_add_exchange_3D_geometry (float *m,     ///> input magnetization tensor
-                                   float *h,     ///> output field tensor
-                                   param *p      ///> simulation parameters
-                                  );
+void gpu_add_6NGBR_exchange_3D_geometry (float *m,     ///> input magnetization tensor
+                                         float *h,     ///> output field tensor
+                                         param *p      ///> simulation parameters
+                                         );
 
-__global__ void _gpu_add_exchange_3D_geometry(float *m,         ///> float array containing one component of the magnetization data
-                                              float *h,         ///> float array containing one component of the field data
-                                              int Nx,           ///> dimensions in x-direction
-                                              int Ny,           ///> dimensions in y-direction
-                                              int Nz,           ///> dimensions in z-direction
-                                              float cst_x,      ///> prefactor to acount for the contribution of neighboring cells in x-direction
-                                              float cst_y,      ///> prefactor to acount for the contribution of neighboring cells in y-direction
-                                              float cst_z,      ///> prefactor to acount for the contribution of neighboring cells in z-direction
-                                              float cst_xyz,    ///> prefactor to acount for the self distribution
-                                              int periodic_X,   ///> zero if not periodic in x-direction
-                                              int periodic_Y,   ///> zero if not periodic in y-direction 
-                                              int periodic_Z    ///> zero if not periodic in z-direction
-                                              );
+__global__ void _gpu_add_6NGBR_exchange_3D_geometry(float *m,         ///> float array containing one component of the magnetization data
+                                                    float *h,         ///> float array containing one component of the field data
+                                                    int Nx,           ///> dimensions in x-direction
+                                                    int Ny,           ///> dimensions in y-direction
+                                                    int Nz,           ///> dimensions in z-direction
+                                                    float cst_x,      ///> prefactor to acount for the contribution of neighboring cells in x-direction
+                                                    float cst_y,      ///> prefactor to acount for the contribution of neighboring cells in y-direction
+                                                    float cst_z,      ///> prefactor to acount for the contribution of neighboring cells in z-direction
+                                                    float cst_xyz,    ///> prefactor to acount for the self distribution
+                                                    int periodic_X,   ///> zero if not periodic in x-direction
+                                                    int periodic_Y,   ///> zero if not periodic in y-direction 
+                                                    int periodic_Z    ///> zero if not periodic in z-direction
+                                                    );
                                   
 
-void gpu_add_exchange_2D_geometry (float *m,     ///> float array containing one component of the magnetization data
-                                   float *h,     ///> float array containing one component of the field data
-                                   param *p      ///> simulation parameters
-                                  );
+void gpu_add_6NGBR_exchange_2D_geometry (float *m,     ///> float array containing one component of the magnetization data
+                                         float *h,     ///> float array containing one component of the field data
+                                         param *p      ///> simulation parameters
+                                         );
 
-__global__ void _gpu_add_exchange_2D_geometry(float *m, 
-                                              float *h,         ///> float array containing one component of the field data
-                                              int Ny,           ///> dimensions in y-direction
-                                              int Nz,           ///> dimensions in z-direction
-                                              float cst_y,      ///> prefactor to acount for the contribution of neighboring cells in y-direction
-                                              float cst_z,      ///> prefactor to acount for the contribution of neighboring cells in z-direction
-                                              float cst_yz,     ///> prefactor to acount for the self distribution
-                                              int periodic_Y,   ///> zero if not periodic in y-direction 
-                                              int periodic_Z    ///> zero if not periodic in z-direction
-                                              );
+__global__ void _gpu_add_6NGBR_exchange_2D_geometry(float *m, 
+                                                    float *h,         ///> float array containing one component of the field data
+                                                    int Ny,           ///> dimensions in y-direction
+                                                    int Nz,           ///> dimensions in z-direction
+                                                    float cst_y,      ///> prefactor to acount for the contribution of neighboring cells in y-direction
+                                                    float cst_z,      ///> prefactor to acount for the contribution of neighboring cells in z-direction
+                                                    float cst_yz,     ///> prefactor to acount for the self distribution
+                                                    int periodic_Y,   ///> zero if not periodic in y-direction 
+                                                    int periodic_Z    ///> zero if not periodic in z-direction
+                                                    );
                                               
              
 #ifdef __cplusplus

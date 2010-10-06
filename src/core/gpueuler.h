@@ -12,6 +12,7 @@
 #include "tensor.h"
 #include "param.h"
 #include "gputil.h"
+#include "gpu_conf.h"
 
 #ifdef __cplusplus
 extern "C" {

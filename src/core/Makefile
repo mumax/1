@@ -28,11 +28,11 @@ OFILES=\
 	gpu_micromag3d_kernel.o\
 	gpu_micromag2d_kernel.o\
 	gpu_conv.o\
-	gputorque.o\
 	cpu_exch.o\
 	gpu_exchange.o\
 	gpu_transpose2.o\
 	gpu_fft.o
+#	gputorque.o\
 # 	gpufft2.o\
 # 	gpu_conf.o\
 # 	gpurk4.o\
@@ -63,8 +63,8 @@ gpu_heun.o:	gpu_heun.h gpu_heun.cu
 gpunormalize.o:	gpunormalize.h gpunormalize.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpunormalize.cu
 
-gputorque.o:	gputorque.h gputorque.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gputorque.cu
+# gputorque.o:	gputorque.h gputorque.cu
+# 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gputorque.cu
 
 gpu_micromag3d_kernel.o:	gpu_micromag3d_kernel.h gpu_micromag3d_kernel.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_micromag3d_kernel.cu

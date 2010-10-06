@@ -20,7 +20,7 @@ void evaluate_field(fieldplan *plan, tensor *m, tensor *h){
 
   evaluate_convolution(m, h, plan->conv, plan->params);
 //  cpu_addExch (m, h, plan->params);       //it is checked internally if exchange is already included in the convolution
-//   add_exchange (m, h, plan->params);       //it is checked internally if exchange is already included in the convolution
+  add_exchange (m, h, plan->params);        //it is checked internally if exchange is already included in the convolution
 
   float* hExt = plan->params->hExt;
   if(hExt[X] != 0. && hExt[Y] != 0. && hExt[Z] != 0.){

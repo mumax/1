@@ -12,6 +12,7 @@
 // #include "debug.h"
 #include "tensor.h"
 #include "param.h"
+#include "gpu_conf.h"
 // #include "gpuconv2.h"
 
 #ifdef __cplusplus

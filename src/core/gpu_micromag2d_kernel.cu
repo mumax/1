@@ -24,7 +24,7 @@ tensor *gpu_micromag2d_kernel(param* p){
   
   // Plan initialization of FFTs and initialization of the kernel _________________________________
     gpuFFT3dPlan* kernel_plan = new_gpuFFT3dPlan_padded(p->kernelSize, p->kernelSize);   //works also for 2d transforms!
-    gpu_init_and_FFT_Greens_kernel_elements_micromag2d(dev_kernel, p->kernelSize, p->exchInConv, p->cellSize, p->demagPeriodic, dev_qd_P_10, dev_qd_W_10, kernel_plan);
+    gpu_init_and_FFT_Greens_kernel_elements_micromag2d(dev_kernel, p->kernelSize, p->exchType, p->exchInConv, p->cellSize, p->demagPeriodic, dev_qd_P_10, dev_qd_W_10, kernel_plan);
   // ______________________________________________________________________________________________ 
   
   return (dev_kernel);
@@ -32,22 +32,21 @@ tensor *gpu_micromag2d_kernel(param* p){
 
 /// @todo argument defining which Greens function should be added
 /// remark: number of FD cells in a dimension can not be odd if no zero padding!!
-void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(tensor *dev_kernel, int *kernelSize, int *exchInConv, float *FD_cell_size, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10, gpuFFT3dPlan* kernel_plan){
+void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(tensor *dev_kernel, int *kernelSize, int exchType, int *exchInConv, float *FD_cell_size, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10, gpuFFT3dPlan* kernel_plan){
 
   
-  int kernelN = kernelSize[Y]*kernelSize[Z];                       // size of a kernel component without zeros
-  float *dev_temp1 = new_gpu_array(kernelN);                       // temp array on device for storage of kernel component without zeros (input of fft routine)
-  int kernelStorageN = 2*dev_kernel->size[1];                      // size of a zero padded kernel component
-  float *dev_temp2 = new_gpu_array(kernelStorageN);                // temp array on device for storage of zero padded kernel component (output of fft routine)
+  int kernelN = kernelSize[Y]*kernelSize[Z];          // size of a kernel component without zeros
+  float *dev_temp1 = new_gpu_array(kernelN);          // temp array on device for storage of kernel component without zeros (input of fft routine)
+  int kernelStorageN = 2*dev_kernel->size[1];         // size of a zero padded kernel component
+  float *dev_temp2 = new_gpu_array(kernelStorageN);   // temp array on device for storage of zero padded kernel component (output of fft routine)
  
   // Define gpugrids and blocks ___________________________________________________________________
-/*    int gridsize1 = 1;
-    dim3 blocksize1(kernelSize[Y]/2, kernelSize[Z]/2);*/
     dim3 gridsize1(1,kernelSize[Y]/2, 1);
     dim3 blocksize1(kernelSize[Z]/2, 1,1);
     check3dconf(gridsize1, blocksize1);
-    int gridsize2, blocksize2;
-    make1dconf2(kernelStorageN/2, &gridsize2, &blocksize2);
+    int N = kernelStorageN/2;
+    dim3 gridsize2, blocksize2;
+    make1dconf(N, &gridsize2, &blocksize2);
   // ______________________________________________________________________________________________
   
   // Define input tensors and input sizes for FFT forward routine _________________________________
@@ -62,17 +61,17 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(tensor *dev_kernel, int 
     int rank0 = 0;                                      // defines the first rank of the Greens kernel: [yy, yz, zz]
     for (int co1=1; co1<3; co1++){                      // for a Greens kernel component [co1,co2]:
       for (int co2=co1; co2<3; co2++){
-          // Put all elements in 'dev_temp' to zero.
+          // Put all elements in 'dev_temp1' to zero.
         gpu_zero(dev_temp1, kernelN);    
         gpu_sync();
         // Fill in the elements.
-        _gpu_init_Greens_kernel_elements_micromag2d<<<gridsize1, blocksize1>>>(dev_temp1, kernelSize[Y], kernelSize[Z], exchInConv[Y], exchInConv[Z], co1, co2, FD_cell_size[Y], FD_cell_size[Z], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
+        _gpu_init_Greens_kernel_elements_micromag2d<<<gridsize1, blocksize1>>>(dev_temp1, kernelSize[Y], kernelSize[Z], exchType, exchInConv[Y], exchInConv[Z], co1, co2, FD_cell_size[Y], FD_cell_size[Z], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
         gpu_sync();
         // Fourier transform the kernel component.
         gpuFFT3dPlan_forward_unsafe(kernel_plan, dev_temp1, dev_temp2); 
         gpu_sync();
         // Copy the real parts to the corresponding place in the dev_kernel tensor.
-        _gpu_extract_real_parts_micromag2d<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*kernelStorageN/2], dev_temp2);
+        _gpu_extract_real_parts_micromag2d<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*kernelStorageN/2], dev_temp2, N);
         gpu_sync();
         rank0++;                                        // get ready for next component
       }
@@ -88,30 +87,27 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(tensor *dev_kernel, int 
 
 
 
-__global__ void _gpu_init_Greens_kernel_elements_micromag2d(float *dev_temp, int Nkernel_Y, int Nkernel_Z, int exchInConv_Y, int exchInConv_Z, int co1, int co2, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
+__global__ void _gpu_init_Greens_kernel_elements_micromag2d(float *dev_temp, int Nkernel_Y, int Nkernel_Z, int exchType, int exchInConv_Y, int exchInConv_Z, int co1, int co2, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
   
-/*  int j = threadIdx.x;
-  int k = threadIdx.y;*/
-
   int j = blockIdx.y;
   int k = threadIdx.x; 
 
   int N2 = Nkernel_Z;
 
-    dev_temp[            j*N2 +           k] = _gpu_get_Greens_element_micromag2d(Nkernel_Y, Nkernel_Z, exchInConv_Y, exchInConv_Z, co1, co2,  j,  k, FD_cell_size_Y, FD_cell_size_Z, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+    dev_temp[            j*N2 +           k] = _gpu_get_Greens_element_micromag2d(Nkernel_Y, Nkernel_Z, exchType, exchInConv_Y, exchInConv_Z, co1, co2,  j,  k, FD_cell_size_Y, FD_cell_size_Z, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
   if (j>0)
-    dev_temp[(Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element_micromag2d(Nkernel_Y, Nkernel_Z, exchInConv_Y, exchInConv_Z, co1, co2, -j,  k, FD_cell_size_Y, FD_cell_size_Z, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+    dev_temp[(Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element_micromag2d(Nkernel_Y, Nkernel_Z, exchType, exchInConv_Y, exchInConv_Z, co1, co2, -j,  k, FD_cell_size_Y, FD_cell_size_Z, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
   if (k>0) 
-    dev_temp[            j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_micromag2d(Nkernel_Y, Nkernel_Z, exchInConv_Y, exchInConv_Z, co1, co2,  j, -k, FD_cell_size_Y, FD_cell_size_Z, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+    dev_temp[            j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_micromag2d(Nkernel_Y, Nkernel_Z, exchType, exchInConv_Y, exchInConv_Z, co1, co2,  j, -k, FD_cell_size_Y, FD_cell_size_Z, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
   if (j>0 && k>0) 
-    dev_temp[(Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_micromag2d(Nkernel_Y, Nkernel_Z, exchInConv_Y, exchInConv_Z, co1, co2, -j, -k, FD_cell_size_Y, FD_cell_size_Z, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+    dev_temp[(Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_micromag2d(Nkernel_Y, Nkernel_Z, exchType, exchInConv_Y, exchInConv_Z, co1, co2, -j, -k, FD_cell_size_Y, FD_cell_size_Z, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
 
   return;
 }
 
 
 
-__device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z, int exchInConv_Y, int exchInConv_Z, int co1, int co2, int b, int c, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
+__device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z, int exchType, int exchInConv_Y, int exchInConv_Z, int co1, int co2, int b, int c, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
 
   float result = 0.0f;
   float *dev_qd_P_10_Y = &dev_qd_P_10[ 0];
@@ -146,10 +142,13 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z
       }
       result *= -1.0f/2.0f/3.14159265f;
 
-      if (b== 1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-      if (b==-1 && c== 0 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-      if (b== 0 && c== 1 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
-      if (b== 0 && c==-1 && exchInConv_Y==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+      if (exchType == EXCH_6NGBR && exchInConv_Y==1){
+        if (b== 0 && c== 0)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y + 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+        if (b== 1 && c== 0)  result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+        if (b==-1 && c== 0)  result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+        if (b== 0 && c== 1)  result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+        if (b== 0 && c==-1)  result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+      }
     }
   // ______________________________________________________________________________________________
 
@@ -212,10 +211,13 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z
       }
       result *= -1.0f/2.0f/3.14159265f;
 
-      if (b== 1 && c== 0 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-      if (b==-1 && c== 0 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y;
-      if (b== 0 && c== 1 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
-      if (b== 0 && c==-1 && exchInConv_Z==1)  result -= 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+      if (exchType == EXCH_6NGBR && exchInConv_Z==1){
+        if (b== 0 && c== 0)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y + 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+        if (b== 1 && c== 0)  result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+        if (b==-1 && c== 0)  result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
+        if (b== 0 && c== 1)  result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+        if (b== 0 && c==-1)  result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+      }
     }
   // ______________________________________________________________________________________________
   
@@ -224,11 +226,12 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z
 
 
 
-__global__ void _gpu_extract_real_parts_micromag2d(float *dev_kernel_array, float *dev_temp){
+__global__ void _gpu_extract_real_parts_micromag2d(float *dev_kernel_array, float *dev_temp, int N){
 
-  int e = ((blockIdx.x * blockDim.x) + threadIdx.x);
+  int e = threadindex;
 
-  dev_kernel_array[e] = dev_temp[2*e];
+  if (e<N)
+    dev_kernel_array[e] = dev_temp[2*e];
 
   return;
 }

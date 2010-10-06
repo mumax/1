@@ -11,21 +11,24 @@ extern "C" {
 
 
 __global__ void _gpu_euler_stage(float* mx, float* my, float* mz,
-                                 float*tx, float* ty, float* tz){
+                                 float*tx, float* ty, float* tz, int N){
 
-  int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
+  int i = threadindex;
+  if (i<N){
 
   mx[i] += tx[i];
   my[i] += ty[i];
   mz[i] += tz[i];
- 
+  }
+  
+  
   return;
 }
 
 void gpu_euler_stage(float* m, float* torque, int N){
 
-  int gridSize = -1, blockSize = -1;
-  make1dconf2(N, &gridSize, &blockSize);
+  dim3 gridSize, blockSize;
+  make1dconf(N, &gridSize, &blockSize);
 
   float* mx = &(m[0*N]);
   float* my = &(m[1*N]);
@@ -37,7 +40,7 @@ void gpu_euler_stage(float* m, float* torque, int N){
 
 
 //   timer_start("euler_stage");
-  _gpu_euler_stage<<<gridSize, blockSize>>>(mx, my, mz, tqx, tqy, tqz);
+  _gpu_euler_stage<<<gridSize, blockSize>>>(mx, my, mz, tqx, tqy, tqz, N);
   gpu_sync();
 //   timer_stop("euler_stage");
   

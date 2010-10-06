@@ -20,6 +20,7 @@
 #include "assert.h"
 #include "timer.h"
 #include <stdio.h>
+#include "gpu_conf.h"
 
 
 #ifdef __cplusplus
@@ -55,7 +56,8 @@ tensor *gpu_micromag3d_kernel(param *p              ///< parameter list
  */
 void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel,  			///< rank 2 tensor; rank 0: xx, xy, xz, yy, yz, zz parts of symmetrical Greens tensor, rank 1: all data of a Greens kernel component contiguously
                                                         int *kernelSize, 			    ///< Non-strided size of the kernel data
-                                                        int *exchInConv,           ///< 3 ints, 1 means exchange is included in the kernel in the considered direction
+                                                        int exchType,             ///< int representing the used exchange type
+                                                        int *exchInConv,          ///< 3 ints, 1 means exchange is included in the kernel in the considered direction
                                                         float *FD_cell_size, 			///< 3 float, size of finite difference cell in X,Y,Z respectively
                                                         int *repetition, 					///< 3 ints, for periodicity: e.g. 2*repetition[0]+1 is the number of periods considered the x-direction ([0,0,0] means no periodic repetition)
                                                         float *dev_qd_P_10,  			///< float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device)
@@ -69,44 +71,45 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(tensor *dev_kernel,  			
 __global__ void _gpu_init_Greens_kernel_elements_micromag3d(float *dev_temp, 			///< pointer to the temporary memory space on the device to store all elements of a given Greens tensor component
                                                             int Nkernel_X, 				///< Non-strided size of the kernel data (x-direction)
                                                             int Nkernel_Y, 				///< Non-strided size of the kernel data (y-direction) 
-                                                            int Nkernel_Z,  				///< Non-strided size of the kernel data (z-direction) 
-                                                            int exchInConv_X,      ///< 1 if exchange is to be included in the x-direction
-                                                            int exchInConv_Y,      ///< 1 if exchange is to be included in the y-direction
-                                                            int exchInConv_Z,      ///< 1 if exchange is to be included in the z-direction
+                                                            int Nkernel_Z,  			///< Non-strided size of the kernel data (z-direction) 
+                                                            int exchType,         ///< int representing the used exchange type
+                                                            int exchInConv_X,     ///< 1 if exchange is to be included in the x-direction
+                                                            int exchInConv_Y,     ///< 1 if exchange is to be included in the y-direction
+                                                            int exchInConv_Z,     ///< 1 if exchange is to be included in the z-direction
                                                             int co1, 							///< co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy
                                                             int co2, 							///< co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy
-                                                            float FD_cell_size_X, 	///< Size of the used FD cells in the x direction
-                                                            float FD_cell_size_Y, 	///< Size of the used FD cells in the y direction 
-                                                            float FD_cell_size_Z,  ///< Size of the used FD cells in the z direction
-                                                            int repetition_X, 			///< 2*repetition_X+1 is the number of periods considered the x-direction (repetition_X=0 means no repetion in x direction)
-                                                            int repetition_Y, 			///< 2*repetition_Y+1 is the number of periods considered the y-direction (repetition_Y=0 means no repetion in y direction)
-                                                            int repetition_Z, 			///< 2*repetition_Z+1 is the number of periods considered the z-direction (repetition_Z=0 means no repetion in z direction)
-                                                            float *qd_P_10, 				///< float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device)
-                                                            float *qd_W_10					///< float array (10 floats) containing the 10 Gauss quadrature weights (on device)
+                                                            float FD_cell_size_X, ///< Size of the used FD cells in the x direction
+                                                            float FD_cell_size_Y, ///< Size of the used FD cells in the y direction 
+                                                            float FD_cell_size_Z, ///< Size of the used FD cells in the z direction
+                                                            int repetition_X, 		///< 2*repetition_X+1 is the number of periods considered the x-direction (repetition_X=0 means no repetion in x direction)
+                                                            int repetition_Y, 		///< 2*repetition_Y+1 is the number of periods considered the y-direction (repetition_Y=0 means no repetion in y direction)
+                                                            int repetition_Z, 		///< 2*repetition_Z+1 is the number of periods considered the z-direction (repetition_Z=0 means no repetion in z direction)
+                                                            float *qd_P_10, 			///< float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device)
+                                                            float *qd_W_10				///< float array (10 floats) containing the 10 Gauss quadrature weights (on device)
                                                             );
-
 /**
  * Returns an element with coordinates [a,b,c] of the Greens kernel component defined by 'co1, co2'.
  */
 __device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, 					///< Non-strided size of the kernel data (x-direction)
                                                     int Nkernel_Y, 					///< Non-strided size of the kernel data (y-direction)
                                                     int Nkernel_Z, 					///< Non-strided size of the kernel data (z-direction)
-                                                    int exchInConv_X,        ///< 1 if exchange is to be included in the x-direction
-                                                    int exchInConv_Y,        ///< 1 if exchange is to be included in the y-direction
-                                                    int exchInConv_Z,        ///< 1 if exchange is to be included in the z-direction
+                                                    int exchType,           ///< int representing the used exchange type
+                                                    int exchInConv_X,       ///< 1 if exchange is to be included in the x-direction
+                                                    int exchInConv_Y,       ///< 1 if exchange is to be included in the y-direction
+                                                    int exchInConv_Z,       ///< 1 if exchange is to be included in the z-direction
                                                     int co1, 								///< co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy
                                                     int co2, 								///< co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy
                                                     int a, 									///< [a,b,c] defines the cartesian vector pointing to the source FD cell to the receiver FD cell (in units FD cell size) 
-                                                    int b,  									///< [a,b,c] defines the cartesian vector pointing to the source FD cell to the receiver FD cell (in units FD cell size) 
-                                                    int c,  									///< [a,b,c] defines the cartesian vector pointing to the source FD cell to the receiver FD cell (in units FD cell size) 
+                                                    int b,  								///< [a,b,c] defines the cartesian vector pointing to the source FD cell to the receiver FD cell (in units FD cell size) 
+                                                    int c,  								///< [a,b,c] defines the cartesian vector pointing to the source FD cell to the receiver FD cell (in units FD cell size) 
                                                     float FD_cell_size_X,  	///< Size of the used FD cells in the x direction
                                                     float FD_cell_size_Y,  	///< Size of the used FD cells in the y direction
                                                     float FD_cell_size_Z,  	///< Size of the used FD cells in the z direction
-                                                    int repetition_X, 				///< 2*repetition_X+1 is the number of periods considered the x-direction (repetition_X=0 means no repetion in x direction)
-                                                    int repetition_Y, 				///< 2*repetition_Y+1 is the number of periods considered the y-direction (repetition_Y=0 means no repetion in y direction)
-                                                    int repetition_Z, 				///< 2*repetition_Z+1 is the number of periods considered the z-direction (repetition_Z=0 means no repetion in z direction)
+                                                    int repetition_X, 			///< 2*repetition_X+1 is the number of periods considered the x-direction (repetition_X=0 means no repetion in x direction)
+                                                    int repetition_Y, 			///< 2*repetition_Y+1 is the number of periods considered the y-direction (repetition_Y=0 means no repetion in y direction)
+                                                    int repetition_Z, 			///< 2*repetition_Z+1 is the number of periods considered the z-direction (repetition_Z=0 means no repetion in z direction)
                                                     float *dev_qd_P_10,			///< float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device)
-                                                    float *dev_qd_W_10				///< float array (10 floats) containing the 10 Gauss quadrature weights (on device)
+                                                    float *dev_qd_W_10			///< float array (10 floats) containing the 10 Gauss quadrature weights (on device)
                                                     );
 
 
@@ -115,7 +118,8 @@ __device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, 					///< Non
  * stores them in the 'dev_kernel_array' starting from 'dev_kernel_array[rank0*size1]'.
  */
 __global__ void _gpu_extract_real_parts_micromag3d(float *dev_kernel_array, 	///< pointer to the first kernel element of the considered tensor element
-                                                   float *dev_temp  					///< pointer to the temporary memory space on the device to store all elements of a given Greens tensor component
+                                                   float *dev_temp,  					///< pointer to the temporary memory space on the device to store all elements of a given Greens tensor component
+                                                   int N
                                                    );
 																				 
 																				 

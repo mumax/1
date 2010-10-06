@@ -22,9 +22,10 @@ __global__ void _gpu_heunstage0(float* mx , float* my , float* mz ,
                                 float* hx , float* hy , float* hz ,
                                 float* t0x, float* t0y, float* t0z,
                                 float hExtx, float hExty, float hExtz,
-                                float gilbert_dt, float alpha){
+                                float gilbert_dt, float alpha, int N){
   
-  int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
+  int i = threadindex;
+  if (i<N){
  
   // H total
   float Hx = hx[i] + hExtx;
@@ -48,6 +49,9 @@ __global__ void _gpu_heunstage0(float* mx , float* my , float* mz ,
   mx[i] += gilbert_dt * t0x[i];
   my[i] += gilbert_dt * t0y[i];
   mz[i] += gilbert_dt * t0z[i];
+  }
+  
+  return;
 }
 
 
@@ -56,9 +60,10 @@ __global__ void _gpu_heunstage1(float* mx , float* my , float* mz ,
                                 float* t0x, float* t0y, float* t0z,
                                 float* m0x, float* m0y, float* m0z,
                                 float hExtx, float hExty, float hExtz,
-                                float half_gilbert_dt, float alpha){
+                                float half_gilbert_dt, float alpha, int N){
   
-  int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
+  int i = threadindex;
+  if (i<N){
  
   // H total
   float Hx = hx[i] + hExtx;
@@ -82,45 +87,49 @@ __global__ void _gpu_heunstage1(float* mx , float* my , float* mz ,
   mx[i] = m0x[i] + half_gilbert_dt * (t0x[i] + torquex);
   my[i] = m0y[i] + half_gilbert_dt * (t0y[i] + torquey);
   mz[i] = m0z[i] + half_gilbert_dt * (t0z[i] + torquez);
+  }
+  
+  return;
 }
 
 
 void gpuheun_stage0(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
 
-  int gridSize = -1, blockSize = -1;
-  make1dconf2(solver->mComp[X]->len, &gridSize, &blockSize); ///@todo cache in heun struct
+  int N = solver->mComp[X]->len;
+  dim3 gridSize, blockSize;
+  make1dconf(N, &gridSize, &blockSize);
 
-//   timer_start("gpuheun_step");{
+//   timer_start("gpuheun_step");
 
     tensor_copy_gpu_to_gpu(solver->m, solver->m0);
     _gpu_heunstage0<<<gridSize, blockSize>>>(solver->       mComp[X]->list, solver->       mComp[Y]->list,  solver->       mComp[Z]->list,
                                              solver->       hComp[X]->list, solver->       hComp[Y]->list,  solver->       hComp[Z]->list,
                                              solver-> torque0Comp[X]->list, solver-> torque0Comp[Y]->list,  solver-> torque0Comp[Z]->list,
                                              solver->params->hExt[X],       solver->params->hExt[Y],        solver->params->hExt[Z],
-                                             1.0f * solver->params->maxDt, solver->params->alpha);
+                                             1.0f * solver->params->maxDt, solver->params->alpha, N);
     gpu_sync();
 
-//   }
-  timer_stop("gpuheun_step");
+
+//   timer_stop("gpuheun_step");
 }
 
 void gpuheun_stage1(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
 
-  int gridSize = -1, blockSize = -1;
-  make1dconf2(solver->mComp[X]->len, &gridSize, &blockSize); ///@todo cache in heun struct
+  int N = solver->mComp[X]->len;
+  dim3 gridSize, blockSize;
+  make1dconf(N, &gridSize, &blockSize);
   
-//   timer_start("gpuheun_step");{
+//   timer_start("gpuheun_step");
   
     _gpu_heunstage1<<<gridSize, blockSize>>>(solver->       mComp[X]->list,  solver->      mComp[Y]->list,  solver->      mComp[Z]->list,
                                              solver->       hComp[X]->list,  solver->      hComp[Y]->list,  solver->      hComp[Z]->list,
                                              solver-> torque0Comp[X]->list,  solver->torque0Comp[Y]->list,  solver->torque0Comp[Z]->list,
                                              solver->      m0Comp[X]->list,  solver->     m0Comp[Y]->list,  solver->     m0Comp[Z]->list,
                                              solver->params->hExt[X],       solver->params->hExt[Y],        solver->params->hExt[Z],
-                                             0.5f * solver->params->maxDt, solver->params->alpha);
+                                             0.5f * solver->params->maxDt, solver->params->alpha, N);
     gpu_sync();
   
-//   }
-  timer_stop("gpuheun_step");
+//   timer_stop("gpuheun_step");
 }
 
 

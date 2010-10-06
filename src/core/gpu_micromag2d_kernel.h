@@ -22,7 +22,7 @@
 #include "assert.h"
 #include "timer.h"
 #include <stdio.h>
-
+#include "gpu_conf.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,6 +56,7 @@ tensor *gpu_micromag2d_kernel(param *p              ///< parameter list
  */
 void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(tensor *dev_kernel,        ///< rank 2 tensor; rank 0: yy, yz, zz parts of symmetrical Greens tensor, rank 1: all data of a Greens kernel component contiguously
                                                         int *kernelSize,           ///< Non-strided size of the kernel data
+                                                        int exchType,              ///< int representing the used exchange type
                                                         int *exchInConv,           ///< 3 ints, 1 means exchange is included in the kernel in the considered direction (1st int ignored)
                                                         float *FD_cell_size,       ///< 3 float, size of finite difference cell in X,Y,Z respectively (1st float ignored)
                                                         int *repetition,           ///< 3 ints, for periodicity: e.g. 2*repetition[0]+1 is the number of periods considered the x-direction ([0,0,0] means no periodic repetition)  (1st int ignored)
@@ -70,6 +71,7 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(tensor *dev_kernel,     
 __global__ void _gpu_init_Greens_kernel_elements_micromag2d(float *dev_temp,       ///< pointer to the temporary memory space on the device to store all elements of a given Greens tensor component
                                                             int Nkernel_Y,         ///< Non-strided size of the kernel data (y-direction) 
                                                             int Nkernel_Z,         ///< Non-strided size of the kernel data (z-direction) 
+                                                            int exchType,          ///< int representing the used exchange type
                                                             int exchInConv_Y,      ///< 1 if exchange is to be included in the y-direction
                                                             int exchInConv_Z,      ///< 1 if exchange is to be included in the z-direction
                                                             int co1,               ///< co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy
@@ -87,6 +89,7 @@ __global__ void _gpu_init_Greens_kernel_elements_micromag2d(float *dev_temp,    
  */
 __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y,           ///< Non-strided size of the kernel data (y-direction)
                                                     int Nkernel_Z,           ///< Non-strided size of the kernel data (z-direction)
+                                                    int exchType,            ///< int representing the used exchange type
                                                     int exchInConv_Y,        ///< 1 if exchange is to be included in the y-direction
                                                     int exchInConv_Z,        ///< 1 if exchange is to be included in the z-direction
                                                     int co1,                 ///< co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy
@@ -107,7 +110,8 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y,           ///
  * stores them in the 'dev_kernel_array' starting from '&dev_kernel_array[rank0*size1]'.
  */
 __global__ void _gpu_extract_real_parts_micromag2d(float *dev_kernel_array,  ///< pointer to the first kernel element of the considered tensor element
-                                                   float *dev_temp          ///< pointer to the temporary memory space on the device to store all elements of a given Greens tensor component
+                                                   float *dev_temp,          ///< pointer to the temporary memory space on the device to store all elements of a given Greens tensor component
+                                                   int N
                                                    );
                                          
                                          

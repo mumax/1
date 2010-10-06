@@ -122,7 +122,7 @@ param* read_param(){
   p->aexch = 1.3E-11;
   p->alpha = 1.0;
 
-  p->size[X] = 1;
+  p->size[X] = 2;
   p->size[Y] = 32;
   p->size[Z] = 128;
 
@@ -157,36 +157,38 @@ param* read_param(){
 //   p->kernelType = KERNEL_MICROMAG2D;
   
 //  p->solverType = SOLVER_ANAL_FW;
-   p->solverType = SOLVER_ANAL_PC;
-//   p->solverType = SOLVER_HEUN;
+//    p->solverType = SOLVER_ANAL_PC;
+  p->solverType = SOLVER_HEUN;
 
-///Depending on the kerneltype and/or a coarse grid evaluation of the demag field, some/all components of the exchange fields need to be added classically
-///   exchInConv[comp] = -1 : for component 'comp' of the field, exchange is not computed (not classically, nor in convolution)
-///   exchInConv[comp] =  0 : for component 'comp' of the field, exchange is computed classically 
-///   exchInConv[comp] =  1 : for component 'comp' of the field, exchange is included in the convolution
+  p->exchType = EXCH_6NGBR;
 
-  if (p->demagCoarse[X]==1 && p->demagCoarse[Y]==1 && p->demagCoarse[Z]==1){
-    switch (p->kernelType){
-      case KERNEL_MICROMAG3D:
-        p->exchInConv[X] = 1;
-        p->exchInConv[Y] = 1;
-        p->exchInConv[Z] = 1;
-        break;
-      case KERNEL_MICROMAG2D:
-        p->exchInConv[X] = 0;
-        p->exchInConv[Y] = 1;
-        p->exchInConv[Z] = 1;
-        break;
-      default:
-        fprintf(stderr, "abort: no valid kernelType\n");
-        abort();
-    }
-  }
-  else{
+//Depending on the kerneltype and/or a coarse grid evaluation of the demag field, some/all components of the exchange fields need to be added classically
+//   exchInConv[comp] = -1 : for component 'comp' of the field, exchange is not computed (not classically, nor in convolution)
+//   exchInConv[comp] =  0 : for component 'comp' of the field, exchange is computed classically 
+//   exchInConv[comp] =  1 : for component 'comp' of the field, exchange is included in the convolution
+
+//   if (p->exchType>0 && p->demagCoarse[X]==1 && p->demagCoarse[Y]==1 && p->demagCoarse[Z]==1){
+//     switch (p->kernelType){
+//       case KERNEL_MICROMAG3D:
+//         p->exchInConv[X] = 1;
+//         p->exchInConv[Y] = 1;
+//         p->exchInConv[Z] = 1;
+//         break;
+//       case KERNEL_MICROMAG2D:
+//         p->exchInConv[X] = 0;
+//         p->exchInConv[Y] = 1;
+//         p->exchInConv[Z] = 1;
+//         break;
+//       default:
+//         fprintf(stderr, "abort: no valid kernelType\n");
+//         abort();
+//     }
+//   }
+//   else{
     p->exchInConv[X] = 0;
     p->exchInConv[Y] = 0;
     p->exchInConv[Z] = 0;
-  }
+//   }
 //**********************************************************************************************************************
 
   double T = unittime(p);

@@ -15,25 +15,32 @@ void add_exchange (tensor *m, tensor *h, param *p){
   
   if(p->exchInConv[X]!=0 && p->exchInConv[Y]!=0 && p->exchInConv[Z]!=0)
     return;
-  else{
-    for (int i=0; i<3; i++)
-      if (p->exchInConv[i]==0){
-        m_comp = &m->list[i*m->len/3];
-        h_comp = &h->list[i*m->len/3];
-        if (p->size[X] == 1)
-          gpu_add_exchange_2D_geometry (m_comp, h_comp, p);
-        else 
-          gpu_add_exchange_3D_geometry (m_comp, h_comp, p);
+  
+  for (int i=0; i<3; i++)
+    if (p->exchInConv[i]==0){
+      m_comp = &m->list[i*m->len/3];
+      h_comp = &h->list[i*m->len/3];
+      
+      switch (p->exchType){
+        case EXCH_6NGBR:
+          if (p->size[X] == 1)
+            gpu_add_6NGBR_exchange_2D_geometry (m_comp, h_comp, p);
+          else 
+            gpu_add_6NGBR_exchange_3D_geometry (m_comp, h_comp, p);
+          break;
+        default:
+          fprintf(stderr, "abort: no valid exchType %d\n", p->exchType);
+          abort();
       }
     return;
-  }
+    }
 
 }
 
 
 
 
-void gpu_add_exchange_3D_geometry (float *m, float *h, param *p){
+void gpu_add_6NGBR_exchange_3D_geometry (float *m, float *h, param *p){
 
   float cst_x = 1.0f/p->cellSize[X]/p->cellSize[X];
   float cst_y = 1.0f/p->cellSize[Y]/p->cellSize[Y];
@@ -47,13 +54,13 @@ void gpu_add_exchange_3D_geometry (float *m, float *h, param *p){
   dim3 gridsize (bx, by);
   dim3 blocksize (EXCH_BLOCK_X, EXCH_BLOCK_Y);
 
-  _gpu_add_exchange_3D_geometry <<<gridsize, blocksize>>> (m, h, p->size[X], p->size[Y], p->size[Z], cst_x, cst_y, cst_z, cst_xyz, p->demagPeriodic[X], p->demagPeriodic[Y], p->demagPeriodic[Z]);
+  _gpu_add_6NGBR_exchange_3D_geometry <<<gridsize, blocksize>>> (m, h, p->size[X], p->size[Y], p->size[Z], cst_x, cst_y, cst_z, cst_xyz, p->demagPeriodic[X], p->demagPeriodic[Y], p->demagPeriodic[Z]);
   gpu_sync();
   
   return;
 }
   
-__global__ void _gpu_add_exchange_3D_geometry(float *m, float *h, int Nx, int Ny, int Nz, float cst_x, float cst_y, float cst_z, float cst_xyz, int periodic_X, int periodic_Y, int periodic_Z){
+__global__ void _gpu_add_6NGBR_exchange_3D_geometry(float *m, float *h, int Nx, int Ny, int Nz, float cst_x, float cst_y, float cst_z, float cst_xyz, int periodic_X, int periodic_Y, int periodic_Z){
 
   float *hptr, result;
   int i, j, k, ind, ind_h, indg, indg_h, active;
@@ -166,7 +173,7 @@ __global__ void _gpu_add_exchange_3D_geometry(float *m, float *h, int Nx, int Ny
 
 
 
-void gpu_add_exchange_2D_geometry (float *m, float *h, param *p){
+void gpu_add_6NGBR_exchange_2D_geometry (float *m, float *h, param *p){
 
   float cst_y = 1.0f/p->cellSize[Y]/p->cellSize[Y];
   float cst_z = 1.0f/p->cellSize[Z]/p->cellSize[Z];
@@ -178,13 +185,13 @@ void gpu_add_exchange_2D_geometry (float *m, float *h, param *p){
   dim3 gridsize (bx, by);
   dim3 blocksize (EXCH_BLOCK_X, EXCH_BLOCK_Y);
 
-  _gpu_add_exchange_2D_geometry <<<gridsize, blocksize>>> (m, h, p->size[Y], p->size[Z], cst_y, cst_z, cst_yz, p->demagPeriodic[Y], p->demagPeriodic[Z]);
+  _gpu_add_6NGBR_exchange_2D_geometry <<<gridsize, blocksize>>> (m, h, p->size[Y], p->size[Z], cst_y, cst_z, cst_yz, p->demagPeriodic[Y], p->demagPeriodic[Z]);
   gpu_sync();
   
   return;
 }
 
-__global__ void _gpu_add_exchange_2D_geometry(float *m, float *h, int Ny, int Nz, float cst_y, float cst_z, float cst_yz, int periodic_Y, int periodic_Z){
+__global__ void _gpu_add_6NGBR_exchange_2D_geometry(float *m, float *h, int Ny, int Nz, float cst_y, float cst_z, float cst_yz, int periodic_Y, int periodic_Z){
 
   float result;
   int j, k, ind, ind_h, indg, indg_h, active;
