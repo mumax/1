@@ -20,7 +20,7 @@ GeeMags
 
 TODO (Arne)
 
-* "running" file in output dir should indicate sim is running
+* do not use os.Exit() but sim.Exit() which removes running file
 * when sim daemon is killed it should clean up its unfinished output dir
 * it seems CUFFT allocates memory for its FFT plans, check if this is a lot!
 * bigfft

@@ -23,6 +23,7 @@ import (
 	"os"
 	"refsh"
 	"runtime"
+	"time"
 )
 
 var (
@@ -39,7 +40,7 @@ var (
 	//  transport *string = flag.String("transport", "tcp", "Which transport to use (tcp / udp)")
 )
 
-// to be called by main.main()
+// called by main.main()
 func Main() {
 	defer crashreport()                 // if we crash, catch it here and print a nice crash report
 	defer fmt.Print(RESET + SHOWCURSOR) // make sure the cursor does not stay hidden if we crash
@@ -83,8 +84,20 @@ func main_master() {
 		defer in.Close()
 
 		//TODO it would be safer to abort when the output dir is not empty
-		sim := NewSim(removeExtension(infile) + ".out")
+    outfile := removeExtension(infile) + ".out"
+		sim := NewSim(outfile)
 		defer sim.out.Close()
+
+		// file "running" indicates the simulation is running
+		running := outfile + "/running"
+    runningfile, err := os.Open(running, os.O_WRONLY|os.O_CREATE, 0666)
+    if err != nil{
+      fmt.Fprintln(os.Stderr, err)
+    }
+    fmt.Fprintln(runningfile, "This simulation was started on:\n", time.LocalTime(), "\nThis file will be deleted when the simulation is ready.")
+    runningfile.Close()
+
+        
 		sim.silent = *silent
 		// Set the device
 		if *cpu {
@@ -100,6 +113,9 @@ func main_master() {
 		refsh.AddAllMethods(sim)
 		refsh.Output = sim
 		refsh.Exec(in)
+
+    // We're done
+    os.Remove(running)
 
 		// Idiot-proof error reports
 		if refsh.CallCount == 0 {
