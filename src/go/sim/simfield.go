@@ -50,7 +50,7 @@ func (field *rfField) GetAppliedField(time float64) [3]float {
 // Apply a rotating field
 func (s *Sim) RotatingField(hx, hy, hz float, freq float64, phaseX, phaseY, phaseZ float64) {
 	s.AppliedField = &rotatingField{[3]float{hx, hy, hz}, freq, [3]float64{phaseX, phaseY, phaseZ}}
-	s.Println("Applied field: Rotating, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz", "Phases: ", phaseX, ", ", phaseY, ", ", phaseZ, " rad")
+	s.Println("Applied field: Rotating, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz", " phases: ", phaseX, ", ", phaseY, ", ", phaseZ, " rad")
 }
 
 type rotatingField struct {
@@ -68,23 +68,23 @@ func (field *rotatingField) GetAppliedField(time float64) [3]float {
 
 
 // Apply a rotating burst
-func (s *Sim) RotatingBurst(h float, freq, risetime float64) {
-	s.AppliedField = &rotatingBurst{h, freq, risetime}
-	s.Println("Applied field: Rotating burst, ", h, " T, frequency: ", freq, " Hz", "risetime: ", risetime, " s")
+func (s *Sim) RotatingBurst(h float, freq, phase, risetime, duration float64) {
+	s.AppliedField = &rotatingBurst{h, freq, phase, risetime, duration}
+	s.Println("Applied field: Rotating burst, ", h, " T, frequency: ", freq, " Hz ", "phase between X-Y: ", phase, "risetime: ", risetime, " s", ", duration: ", duration, " s")
 }
 
 type rotatingBurst struct {
-	b        float
-	freq     float64
-	risetime float64
+	b                  float
+	freq, phase        float64
+	risetime, duration float64
 }
 
 func (field *rotatingBurst) GetAppliedField(time float64) [3]float {
-	sin := float(Sin(field.freq * Pi * time))
-	cos := float(Cos(field.freq * Pi * time))
-	norm := float(0.5 * (Erf(time/(field.risetime/2.)-2) + 1))
+	sinx := float(Sin(field.freq * Pi * time))
+	siny := float(Sin(field.freq * Pi * time + field.phase))
+	norm := float(0.25 * (Erf(time/(field.risetime/2.)-2) + 1) * (2-Erf((time-field.duration)/(field.risetime/2.)) - 1))
 	b := field.b
-	return [3]float{0, b * norm * sin, b * norm * cos}
+	return [3]float{0, b * norm * sinx, b * norm * siny}
 }
 
 
