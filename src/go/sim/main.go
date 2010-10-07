@@ -84,20 +84,19 @@ func main_master() {
 		defer in.Close()
 
 		//TODO it would be safer to abort when the output dir is not empty
-    outfile := removeExtension(infile) + ".out"
+		outfile := removeExtension(infile) + ".out"
 		sim := NewSim(outfile)
 		defer sim.out.Close()
 
 		// file "running" indicates the simulation is running
 		running := outfile + "/running"
-    runningfile, err := os.Open(running, os.O_WRONLY|os.O_CREATE, 0666)
-    if err != nil{
-      fmt.Fprintln(os.Stderr, err)
-    }
-    fmt.Fprintln(runningfile, "This simulation was started on:\n", time.LocalTime(), "\nThis file will be deleted when the simulation is ready.")
-    runningfile.Close()
+		runningfile, err := os.Open(running, os.O_WRONLY|os.O_CREATE, 0666)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+		fmt.Fprintln(runningfile, "This simulation was started on:\n", time.LocalTime(), "\nThis file will be deleted when the simulation is ready.")
+		runningfile.Close()
 
-        
 		sim.silent = *silent
 		// Set the device
 		if *cpu {
@@ -114,9 +113,12 @@ func main_master() {
 		refsh.Output = sim
 		refsh.Exec(in)
 
-    // We're done
-    os.Remove(running)
-
+		// We're done
+		err2 := os.Rename(running, outfile + "/finished")
+    if err2 != nil{
+      fmt.Fprintln(os.Stderr, err2)
+    }
+    
 		// Idiot-proof error reports
 		if refsh.CallCount == 0 {
 			sim.Errorln("Input file contains no commands.")
