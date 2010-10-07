@@ -114,8 +114,11 @@ func main_master() {
 		refsh.Exec(in)
 
 		// We're done
-		os.Remove(running)
-
+		err2 := os.Rename(running, outfile + "/finished")
+    if err2 != nil{
+      fmt.Fprintln(os.Stderr, err2)
+    }
+    
 		// Idiot-proof error reports
 		if refsh.CallCount == 0 {
 			sim.Errorln("Input file contains no commands.")
