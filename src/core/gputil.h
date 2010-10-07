@@ -37,10 +37,10 @@ extern "C" {
  * Copies floats from GPU to GPU.
  * @see memcpy_to_gpu(), memcpy_from_gpu()
  */
-void memcpy_gpu_to_gpu(float* source,	///< source data pointer on the GPU
-                       float* dest, 	///< destination data pointer on the GPU
-                       int nElements	///< number of floats (not bytes) to be copied
-                       );
+// void memcpy_gpu_to_gpu(float* source,	///< source data pointer on the GPU
+//                        float* dest, 	///< destination data pointer on the GPU
+//                        int nElements	///< number of floats (not bytes) to be copied
+//                        );
 
 /**
  * Copies the source tensor (in RAM) to the the destination tensor (on the GPU).

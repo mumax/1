@@ -38,7 +38,7 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
   
   plan->paddedStorageSize[X] = plan->paddedSize[X];
   plan->paddedStorageSize[Y] = plan->paddedSize[Y];
-  plan->paddedStorageSize[Z] = gpu_pad_to_stride( plan->paddedSize[Z] + 2 );
+  plan->paddedStorageSize[Z] = plan->paddedSize[Z] + 2;
   plan->paddedStorageN = paddedStorageSize[X] * paddedStorageSize[Y] * paddedStorageSize[Z];
   
   gpu_safefft( cufftPlan1d(&(plan->fwPlanZ), plan->paddedSize[Z], CUFFT_R2C, size[X]*size[Y]) );

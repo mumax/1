@@ -9,7 +9,7 @@ tensor *gpu_micromag2d_kernel(param* p){
   
   // check input + allocate tensor on device ______________________________________________________
     check_param(p);
-    int kernelStorageN = p->kernelSize[Y] * gpu_pad_to_stride(p->kernelSize[Z]+2);
+    int kernelStorageN = p->kernelSize[Y] * (p->kernelSize[Z]+2);
     tensor *dev_kernel;
     dev_kernel = as_tensor(new_gpu_array(3*kernelStorageN/2), 2, 3, kernelStorageN/2);  // only real parts!!
   // ______________________________________________________________________________________________
@@ -40,7 +40,7 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(float *dev_kernel, int *
   
   int kernelN = kernelSize[Y]*kernelSize[Z];                              // size of a kernel component without zeros
   float *dev_temp1 = new_gpu_array(kernelN);                              // temp array on device for storage of kernel component without zeros (input of fft routine)
-  int kernelStorageN = kernelSize[Y]*gpu_pad_to_stride(kernelSize[Z]+2);  // size of a zero padded kernel component
+  int kernelStorageN = kernelSize[Y]*(kernelSize[Z]+2);                   // size of a zero padded kernel component
   float *dev_temp2 = new_gpu_array(kernelStorageN);                       // temp array on device for storage of zero padded kernel component (output of fft routine)
  
   // Define gpugrids and blocks ___________________________________________________________________

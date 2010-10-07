@@ -146,7 +146,7 @@ conv_data *new_conv_data(param *p, tensor *kernel){
 
   ///@todo add a test that checks if the kernel has been initialized.   
   conv_data *conv = (conv_data *) calloc(1, sizeof(conv));
-  int size4d[4] = {0, p->kernelSize[X], p->kernelSize[Y], gpu_pad_to_stride(p->kernelSize[Z]+2)};
+  int size4d[4] = {0, p->kernelSize[X], p->kernelSize[Y], p->kernelSize[Z]+2};
   
   switch (p->kernelType){
     case KERNEL_MICROMAG3D:
