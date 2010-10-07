@@ -17,9 +17,12 @@ import (
 	"fmt"
 	"tensor"
 	"os"
-	// 	"io"
+	"bufio"
 	"tabwriter"
 )
+
+// bufio buffer size (bytes)
+const IOBUF = 4096
 
 // Sets the output directory where all output files are stored
 func (s *Sim) outputDir(outputdir string) {
@@ -113,6 +116,19 @@ func resolve(what, format string) Output {
 
 //__________________________________________ ascii
 
+// Opens a file for writing 
+func bufOpen(filename string) *bufio.Writer {
+	out, err := os.Open(filename, os.O_WRONLY|os.O_CREAT, 0666)
+	if err != nil {
+		panic(err)
+	}
+	writer, err2 := bufio.NewWriterSize(out, IOBUF)
+	if err2 != nil {
+		panic(err2)
+	}
+	return writer
+}
+
 
 // TODO: it would be nice to have a separate date sturcture for the format and one for the data.
 // with a better input file parser we could allow any tensor to be stored:
@@ -127,11 +143,8 @@ const FILENAME_FORMAT = "%08d"
 // INTERNAL
 func (m *MAscii) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".txt"
-	out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
-	defer out.Close()
-	if err != nil {
-		panic(err)
-	}
+	out := bufOpen(fname);
+  defer out.Flush()
 	tensor.Format(out, s.mLocal)
 	m.sinceoutput = float(s.time) * s.UnitTime()
 }
@@ -215,11 +228,8 @@ type MPng struct {
 // INTERNAL
 func (m *MPng) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".png"
-	out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
-	defer out.Close()
-	if err != nil {
-		panic(err)
-	}
+  out := bufOpen(fname);
+  defer out.Flush()
 	PNG(out, s.mLocal)
 	m.sinceoutput = float(s.time) * s.UnitTime()
 }
