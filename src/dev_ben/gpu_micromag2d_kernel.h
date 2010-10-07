@@ -15,7 +15,7 @@
 #define GPU_MICROMAG2D_KERNEL_H
 
 #include "tensor.h"
-#include "gpukern.h"
+#include "gputil.h"
 #include "param.h"
 //#include "gpufft2.h"
 #include "gpu_fft.h"

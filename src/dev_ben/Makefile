@@ -30,12 +30,9 @@ OFILES=\
 	gpu_exchange.o\
 	gpu_transpose2.o\
 	gpu_fft.o\
-<<<<<<< HEAD:src/dev_ben/Makefile
 	gpu_heun.o\
 # 	gpunormalize.o\
 #	gputorque.o\
-=======
->>>>>>> arne:src/core/Makefile
 # 	gpufft2.o\
 # 	gpu_conf.o\
 # 	gpurk4.o\
@@ -46,7 +43,7 @@ OFILES=\
 #	gpuconv1.o\
 #	gpuconv2.o\
 
-all: main-ben
+# all: core.so core.a doc
 
 tensor.o:	tensor.h tensor.cpp
 	$(NVCC) -c $(NVCCFLAGS) tensor.cpp
@@ -111,11 +108,7 @@ main-ben.o:	main-ben.h main-ben.cpp
 
 main-ben: $(OFILES) main-ben.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) main-ben.cpp
-<<<<<<< HEAD:src/dev_ben/Makefile
 	$(NVCC) $(CUDALIBS) $(OFILES) ../gpukern/libgpukern.so main-ben.o -o main-ben
-=======
-	$(NVCC) $(CUDALIBS) $(OFILES) $(SIMROOT)/src/gpukern/libgpukern.so main-ben.o -o main-ben
->>>>>>> arne:src/core/Makefile
 
 
 

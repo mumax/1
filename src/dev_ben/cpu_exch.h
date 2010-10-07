@@ -12,7 +12,7 @@
 #define CPU_EXCH_H
 
 #include "param.h"
-#include "gpukern.h"
+#include "gputil.h"
 
 #ifdef __cplusplus
 extern "C" {
