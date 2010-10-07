@@ -54,7 +54,7 @@ tensor *gpu_micromag2d_kernel(param *p              ///< parameter list
  * the real parts from the data. (imaginary parts are zero in due to the symmetry)
  * The kernel is only stored at the device.
  */
-void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(tensor *dev_kernel,        ///< rank 2 tensor; rank 0: yy, yz, zz parts of symmetrical Greens tensor, rank 1: all data of a Greens kernel component contiguously
+void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(float *dev_kernel,         ///< float array: list of rank 2 tensor; rank 0: yy, yz, zz parts of symmetrical Greens tensor, rank 1: all data of a Greens kernel component contiguously
                                                         int *kernelSize,           ///< Non-strided size of the kernel data
                                                         int exchType,              ///< int representing the used exchange type
                                                         int *exchInConv,           ///< 3 ints, 1 means exchange is included in the kernel in the considered direction (1st int ignored)

@@ -32,253 +32,111 @@ void evaluate_convolution(tensor *m, tensor *h, conv_data *conv, param *p){
 
 
 
-// evaluation of the micromag3d convolution ***********************************************************
 void evaluate_micromag3d_conv(tensor *m, tensor *h, conv_data *conv){
 
   int m_length = m->len/3;
-  int fft_length = conv->fft1->len/3;
+  int N = conv->fft1->len/3;
 
   float *m_comp[3], *h_comp[3], *fft1_comp[3];
   for (int i=0; i<3; i++){
-    fft1_comp[i] = &conv->fft1->list[i*fft_length];
+    fft1_comp[i] = &conv->fft1->list[i*N];
     m_comp[i]    = &m->list[i*m_length];
     h_comp[i]    = &h->list[i*m_length];
   }
+
+  float *fftMx = &conv->fft1->list[0*N];
+  float *fftMy = &conv->fft1->list[1*N];
+  float *fftMz = &conv->fft1->list[2*N];
+  float *fftKxx = &conv->kernel->list[0*N/2];
+  float *fftKxy = &conv->kernel->list[1*N/2];
+  float *fftKxz = &conv->kernel->list[2*N/2];
+  float *fftKyy = &conv->kernel->list[3*N/2];
+  float *fftKyz = &conv->kernel->list[4*N/2];
+  float *fftKzz = &conv->kernel->list[5*N/2];
 
     //Fourier transforming of fft_mi
   for(int i=0; i<3; i++)
-    gpuFFT3dPlan_forward_unsafe(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
+    gpuFFT3dPlan_forward(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
   
     // kernel multiplication
-  gpu_kernel_mul_micromag3d(conv->fft1, conv->kernel);
+    gpu_kernelmul6(fftMx, fftMy, fftMz, fftKxx, fftKyy, fftKzz, fftKyz, fftKxz, fftKxy, N);
 
     //inverse Fourier transforming fft_hi
   for(int i=0; i<3; i++)
-    gpuFFT3dPlan_inverse_unsafe(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
+    gpuFFT3dPlan_inverse(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
 
   return;
 }
 
-void gpu_kernel_mul_micromag3d(tensor *fft1, tensor *kernel){
-  
-  int N = fft1->len/3;
-
-  dim3 gridSize, blockSize;
-  make1dconf(N/2, &gridSize, &blockSize);
-
-  float *fftMx = &fft1->list[0*N];
-  float *fftMy = &fft1->list[1*N];
-  float *fftMz = &fft1->list[2*N];
-  float *fftKxx = &kernel->list[0*N/2];
-  float *fftKxy = &kernel->list[1*N/2];
-  float *fftKxz = &kernel->list[2*N/2];
-  float *fftKyy = &kernel->list[3*N/2];
-  float *fftKyz = &kernel->list[4*N/2];
-  float *fftKzz = &kernel->list[5*N/2];
-
-  _gpu_kernel_mul_micromag3d <<<gridSize, blockSize>>> (fftMx, fftMy, fftMz, fftKxx, fftKxy, fftKxz, fftKyy, fftKyz, fftKzz, N);
-  gpu_sync();
-  
-  return;
-}
-
-__global__ void _gpu_kernel_mul_micromag3d(float* fftMx,  float* fftMy,  float* fftMz, 
-                                           float* fftKxx, float* fftKxy, float* fftKxz,
-                                           float* fftKyy, float* fftKyz, float* fftKzz, int N){
-  
-  int e = 2 * threadindex;
-  if (e<N){
-  
-  // we use shared memory here, which saves an "8N" buffer in the global memory
-  ///@todo coalescale read/writes
-  float reMx = fftMx[e  ];
-  float imMx = fftMx[e+1];
-
-  float reMy = fftMy[e  ];
-  float imMy = fftMy[e+1];
-
-  float reMz = fftMz[e  ];
-  float imMz = fftMz[e+1];
-
-  int e2 = e/2;
-  float Kxx = fftKxx[e2];
-  float Kxy = fftKxy[e2];
-  float Kxz = fftKxz[e2];
-  float Kyy = fftKyy[e2];
-  float Kyz = fftKyz[e2];
-  float Kzz = fftKzz[e2];
-  
-  fftMx[e  ] = Kxx*reMx + Kxy*reMy + Kxz*reMz;
-  fftMx[e+1] = Kxx*imMx + Kxy*imMy + Kxz*imMz;
-  fftMy[e  ] = Kxy*reMx + Kyy*reMy + Kyz*reMz;
-  fftMy[e+1] = Kxy*imMx + Kyy*imMy + Kyz*imMz;
-  fftMz[e  ] = Kxz*reMx + Kyz*reMy + Kzz*reMz;
-  fftMz[e+1] = Kxz*imMx + Kyz*imMy + Kzz*imMz;
-  }
-  return;
-}
-// ****************************************************************************************************
-
-
-
-
-// evaluation of the micromag3d convolution with thickness 1 FD cell **********************************
 void evaluate_micromag3d_conv_Xthickness_1(tensor *m, tensor *h, conv_data *conv){
 
   int m_length = m->len/3;
-  int fft_length = conv->fft1->len/3;
+  int N = conv->fft1->len/3;
 
   float *m_comp[3], *h_comp[3], *fft1_comp[3];
   for (int i=0; i<3; i++){
-    fft1_comp[i] = &conv->fft1->list[i*fft_length];
+    fft1_comp[i] = &conv->fft1->list[i*N];
     m_comp[i]    = &m->list[i*m_length];
     h_comp[i]    = &h->list[i*m_length];
   }
+  
+  float *fftMx = &conv->fft1->list[0*N];
+  float *fftMy = &conv->fft1->list[1*N];
+  float *fftMz = &conv->fft1->list[2*N];
+  float *fftKxx = &conv->kernel->list[0*N/2];
+  float *fftKyy = &conv->kernel->list[1*N/2];
+  float *fftKyz = &conv->kernel->list[2*N/2];
+  float *fftKzz = &conv->kernel->list[3*N/2];
+
 
   //Fourier transforming of fft_mi
   for(int i=0; i<3; i++)
-    gpuFFT3dPlan_forward_unsafe(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
+    gpuFFT3dPlan_forward(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
 
     // kernel multiplication
-  gpu_kernel_mul_micromag3d_Xthickness_1(conv->fft1, conv->kernel);
+  gpu_kernelmul4(fftMx, fftMy,  fftMz, fftKxx, fftKyy, fftKyz, fftKzz, N);
 
     //inverse Fourier transforming fft_hi
   for(int i=0; i<3; i++)
-    gpuFFT3dPlan_inverse_unsafe(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
+    gpuFFT3dPlan_inverse(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
 
 
   return;
 }
 
-void gpu_kernel_mul_micromag3d_Xthickness_1(tensor *fft1, tensor *kernel){
-  
-  int N = fft1->len/3;
-
-  dim3 gridSize, blockSize;
-  make1dconf(N/2, &gridSize, &blockSize);
-  
-  float *fftMx = &fft1->list[0*N];
-  float *fftMy = &fft1->list[1*N];
-  float *fftMz = &fft1->list[2*N];
-  float *fftKxx = &kernel->list[0*N/2];
-  float *fftKyy = &kernel->list[1*N/2];
-  float *fftKyz = &kernel->list[2*N/2];
-  float *fftKzz = &kernel->list[3*N/2];
-  
-  _gpu_kernel_mul_micromag3d_Xthickness_1 <<<gridSize, blockSize>>> (fftMx, fftMy, fftMz, fftKxx, fftKyy, fftKyz, fftKzz, N);
-  gpu_sync();
-
-  return;
-}
-
-__global__ void _gpu_kernel_mul_micromag3d_Xthickness_1(float* fftMx,  float* fftMy,  float* fftMz, 
-                                                        float* fftKxx, float* fftKyy, float* fftKyz, float* fftKzz, int N){
-  
-  
-  int e = 2*threadindex;
-  if (e<N){
-  
-  // we use shared memory here, which saves an "8N" buffer in the global memory
-  ///@todo coalescale read/writes
-  float reMx = fftMx[e  ];
-  float imMx = fftMx[e+1];
-
-  float reMy = fftMy[e  ];
-  float imMy = fftMy[e+1];
-
-  float reMz = fftMz[e  ];
-  float imMz = fftMz[e+1];
-
-  int e2 = e/2;
-  float Kxx = fftKxx[e2];
-  float Kyy = fftKyy[e2];
-  float Kyz = fftKyz[e2];
-  float Kzz = fftKzz[e2];
-  
-  fftMx[e  ] = Kxx*reMx;
-  fftMx[e+1] = Kxx*imMx;
-  fftMy[e  ] = Kyy*reMy + Kyz*reMz;
-  fftMy[e+1] = Kyy*imMy + Kyz*imMz;
-  fftMz[e  ] = Kyz*reMy + Kzz*reMz;
-  fftMz[e+1] = Kyz*imMy + Kzz*imMz;
-  }
-  return;
-}
-// ****************************************************************************************************
-
-
-
-// evaluation of the micromag2d convolution ***********************************************************
 void evaluate_micromag2d_conv(tensor *m, tensor *h, conv_data *conv){
 
   int m_length = m->len/3;
-  int fft_length = conv->fft1->len/2;    // only 2 components need to be convolved!
+  int N = conv->fft1->len/2;    // only 2 components need to be convolved!
 
   float *m_comp[2], *h_comp[2], *fft1_comp[2];
   for (int i=1; i<3; i++){
-    fft1_comp[i-1] = &conv->fft1->list[(i-1)*fft_length];
+    fft1_comp[i-1] = &conv->fft1->list[(i-1)*N];
     m_comp[i-1]    = &m->list[i*m_length];
     h_comp[i-1]    = &h->list[i*m_length];
   }
 
+  float *fftMy = &conv->fft1->list[0*N];
+  float *fftMz = &conv->fft1->list[1*N];
+  float *fftKyy = &conv->kernel->list[0*N/2];
+  float *fftKyz = &conv->kernel->list[1*N/2];
+  float *fftKzz = &conv->kernel->list[2*N/2];
+
     //Fourier transforming of fft_mi
   for(int i=0; i<2; i++)
-    gpuFFT3dPlan_forward_unsafe(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
+    gpuFFT3dPlan_forward(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
 
     // kernel multiplication
-  gpu_kernel_mul_micromag2d(conv->fft1, conv->kernel);
+  gpu_kernelmul3(fftMy,  fftMz, fftKyy, fftKyz, fftKzz, N);
 
     //inverse Fourier transforming fft_hi
   for(int i=0; i<2; i++)
-    gpuFFT3dPlan_inverse_unsafe(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
+    gpuFFT3dPlan_inverse(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
 
   return;
 }
 
-void gpu_kernel_mul_micromag2d(tensor *fft1, tensor *kernel){
-    
-  int N = fft1->len/2;
-  dim3 gridSize, blockSize;
-  make1dconf(N/2, &gridSize, &blockSize);
 
-  float *fftMy = &fft1->list[0*N];
-  float *fftMz = &fft1->list[1*N];
-  float *fftKyy = &kernel->list[0*N/2];
-  float *fftKyz = &kernel->list[1*N/2];
-  float *fftKzz = &kernel->list[2*N/2];
-
-  _gpu_kernel_mul_micromag2d <<<gridSize, blockSize>>> (fftMy, fftMz, fftKyy, fftKyz, fftKzz, N);
-  gpu_sync();
-  
-  return;
-}
-
-__global__ void _gpu_kernel_mul_micromag2d(float* fftMy, float* fftMz, float* fftKyy, float* fftKyz, float* fftKzz, int N){
-  
-  int e = 2*threadindex;
-  if (e<N){
-  
-  // we use shared memory here, which saves an "8N" buffer in the global memory
-  ///@todo coalescale read/writes
-  float reMy = fftMy[e  ];
-  float imMy = fftMy[e+1];
-
-  float reMz = fftMz[e  ];
-  float imMz = fftMz[e+1];
-
-  int e2 = e/2;
-  float Kyy = fftKyy[e2];
-  float Kyz = fftKyz[e2];
-  float Kzz = fftKzz[e2];
-  
-  fftMy[e  ] = Kyy*reMy + Kyz*reMz;
-  fftMy[e+1] = Kyy*imMy + Kyz*imMz;
-  fftMz[e  ] = Kyz*reMy + Kzz*reMz;
-  fftMz[e+1] = Kyz*imMy + Kzz*imMz;
-  }
-  
-  return;
-}
 // ****************************************************************************************************
 
 
@@ -312,66 +170,105 @@ conv_data *new_conv_data(param *p, tensor *kernel){
 // ****************************************************************************************************
 
 
+// to be placed in gpu_kernmul.cu
+
+__global__ void _gpu_kernelmul4(float* fftMx,  float* fftMy,  float* fftMz,
+                                float* fftKxx, float* fftKyy, float* fftKyz, float* fftKzz, int N){
+  int i = threadindex;
+  int e = 2 * i;
+
+  // we some shared memory here, which saves an "8N" buffer in the global memory
+  ///@todo coalescale read/writes, cleanup indices
+  if(i < N){
+  float reMx = fftMx[e  ];
+  float imMx = fftMx[e+1];
+
+  float reMy = fftMy[e  ];
+  float imMy = fftMy[e+1];
+
+  float reMz = fftMz[e  ];
+  float imMz = fftMz[e+1];
+
+  float Kxx = fftKxx[i];
+  float Kyy = fftKyy[i];
+  float Kyz = fftKyz[i];
+  float Kzz = fftKzz[i];
+  
+  fftMx[e  ] = reMx * Kxx;
+  fftMx[e+1] = imMx * Kxx;
+  fftMy[e  ] = reMy * Kyy + reMz * Kyz;
+  fftMy[e+1] = imMy * Kyy + imMz * Kyz;
+  fftMz[e  ] = reMy * Kyz + reMz * Kzz;
+  fftMz[e+1] = imMy * Kyz + imMz * Kzz;
+  }
+  
+  return;
+}
+
+void gpu_kernelmul4(float *fftMx, float *fftMy, float *fftMz, float *fftKxx, float *fftKyy, float *fftKyz, float *fftKzz, int nRealNumbers){
+
+  timer_start("kernel_mul");
+  assert(nRealNumbers > 0);
+  assert(nRealNumbers % 2 == 0);
+
+  dim3 gridSize, blockSize;
+  make1dconf(nRealNumbers/2, &gridSize, &blockSize);
+
+  _gpu_kernelmul4<<<gridSize, blockSize>>>(fftMx, fftMy, fftMz, fftKxx, fftKyy, fftKyz, fftKzz, nRealNumbers/2);
+  gpu_sync();
+  timer_stop("kernel_mul");
+ 
+  return;
+}
 
 
-// // functions for copying to and from padded matrix ****************************************************
-// /// @internal Does padding and unpadding, not necessarily by a factor 2
-// __global__ void _gpu_copy_pad(float* source, float* dest, 
-//                                    int S1, int S2,                  ///< source sizes Y and Z
-//                                    int D1, int D2                   ///< destination size Y and Z
-//                                    ){
-//   int i = blockIdx.x;
-//   int j = blockIdx.y;
-//   int k = threadIdx.x;
-// 
-//   dest[(i*D1 + j)*D2 + k] = source[(i*S1 + j)*S2 + k];
-//   
-//   return;
-// }
-// 
-// 
-// 
-// 
-// void gpu_copy_to_pad(float* source, float* dest, int *unpad_size4d, int *pad_size4d){          //for padding of the tensor, 2d and 3d applicable
-//   
-//   int S0 = unpad_size4d[1];
-//   int S1 = unpad_size4d[2];
-//   int S2 = unpad_size4d[3];
-// 
-//   dim3 gridSize(S0, S1, 1); ///@todo generalize!
-//   dim3 blockSize(S2, 1, 1);
-//   gpu_checkconf(gridSize, blockSize);
-//   
-//   if ( pad_size4d[1]!=unpad_size4d[1] || pad_size4d[2]!=unpad_size4d[2])
-//     _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size4d[3]-2);      // for out of place forward FFTs in z-direction, contiguous data arrays
-//   else
-//     _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, S1, S2, S1, pad_size4d[3]);        // for in place forward FFTs in z-direction, contiguous data arrays
-// 
-//   gpu_sync();
-//   
-//   return;
-// }
-// 
-// void gpu_copy_to_unpad(float* source, float* dest, int *pad_size4d, int *unpad_size4d){        //for unpadding of the tensor, 2d and 3d applicable
-//   
-//   int D0 = unpad_size4d[1];
-//   int D1 = unpad_size4d[2];
-//   int D2 = unpad_size4d[3];
-// 
-//   dim3 gridSize(D0, D1, 1); ///@todo generalize!
-//   dim3 blockSize(D2, 1, 1);
-//   gpu_checkconf(gridSize, blockSize);
-// 
-//   if ( pad_size4d[1]!=unpad_size4d[1] || pad_size4d[2]!=unpad_size4d[2])
-//     _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, D1,  pad_size4d[3]-2, D1, D2);       // for out of place inverse FFTs in z-direction, contiguous data arrays
-//   else
-//     _gpu_copy_pad<<<gridSize, blockSize>>>(source, dest, D1,  pad_size4d[3], D1, D2);         // for in place inverse FFTs in z-direction, contiguous data arrays
-// 
-//     gpu_sync();
-//   
-//   return;
-// }
-// // ****************************************************************************************************
+__global__ void _gpu_kernelmul3(float* fftMy,  float* fftMz,
+                                float* fftKyy, float* fftKyz, float* fftKzz, int N){
+  int i = threadindex;
+  int e = 2 * i;
+
+  // we some shared memory here, which saves an "8N" buffer in the global memory
+  ///@todo coalescale read/writes, cleanup indices
+  if(i < N){
+
+  float reMy = fftMy[e  ];
+  float imMy = fftMy[e+1];
+
+  float reMz = fftMz[e  ];
+  float imMz = fftMz[e+1];
+
+  float Kyy = fftKyy[i];
+  float Kyz = fftKyz[i];
+  float Kzz = fftKzz[i];
+  
+  fftMy[e  ] = reMy * Kyy + reMz * Kyz;
+  fftMy[e+1] = imMy * Kyy + imMz * Kyz;
+  fftMz[e  ] = reMy * Kyz + reMz * Kzz;
+  fftMz[e+1] = imMy * Kyz + imMz * Kzz;
+  }
+  
+  return;
+}
+
+void gpu_kernelmul3(float *fftMy, float *fftMz, float *fftKyy, float *fftKyz, float *fftKzz, int nRealNumbers){
+
+  timer_start("kernel_mul");
+  assert(nRealNumbers > 0);
+  assert(nRealNumbers % 2 == 0);
+
+  dim3 gridSize, blockSize;
+  make1dconf(nRealNumbers/2, &gridSize, &blockSize);
+
+  _gpu_kernelmul3<<<gridSize, blockSize>>>(fftMy, fftMz, fftKyy, fftKyz, fftKzz, nRealNumbers/2);
+  gpu_sync();
+  timer_stop("kernel_mul");
+ 
+  return;
+}
+
+
+
+
 
 
 #ifdef __cplusplus

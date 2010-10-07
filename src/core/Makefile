@@ -19,7 +19,6 @@ OFILES=\
 	timer.o\
 	gputil.o\
 	gpu_anal.o\
-	gpunormalize.o\
 	field.o\
 	timestep.o\
 	kernel.o\
@@ -32,6 +31,7 @@ OFILES=\
 	gpu_transpose2.o\
 	gpu_fft.o\
 	gpu_heun.o\
+# 	gpunormalize.o\
 #	gputorque.o\
 # 	gpufft2.o\
 # 	gpu_conf.o\
@@ -60,8 +60,8 @@ gpueuler.o:	gpueuler.h gpueuler.cu
 gpu_heun.o:	gpu_heun.h gpu_heun.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_heun.cu
 
-gpunormalize.o:	gpunormalize.h gpunormalize.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpunormalize.cu
+# gpunormalize.o:	gpunormalize.h gpunormalize.cu
+# 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpunormalize.cu
 
 # gputorque.o:	gputorque.h gputorque.cu
 # 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gputorque.cu

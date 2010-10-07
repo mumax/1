@@ -51,28 +51,12 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
   return plan;
 }
 
-
-
-
-
-
-void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output){
-  assertDevice(input->list);
-  assertDevice(output->list);
-  assert(input->list == output->list); ///@todo works only in-place for now
-  assert(input->rank == 3);
-  assert(output->rank == 3);
-  for(int i=0; i<3; i++){
-    assert( input->size[i] == plan->paddedStorageSize[i]);
-    assert(output->size[i] == plan->paddedStorageSize[i]);
-  }
-  
-  gpuFFT3dPlan_forward_unsafe(plan, input->list, output->list);
-
-  return;
+gpuFFT3dPlan* new_gpuFFT3dPlan(int* size){
+  return new_gpuFFT3dPlan_padded(size, size); // when size == paddedsize, there is no padding
 }
 
-void gpuFFT3dPlan_forward_unsafe(gpuFFT3dPlan* plan, float* input, float* output){
+
+void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
 //   timer_start("gpu_plan3d_real_input_forward_exec");
   
   int* size = plan->size;
@@ -136,28 +120,7 @@ void gpuFFT3dPlan_forward_unsafe(gpuFFT3dPlan* plan, float* input, float* output
   return;
 }
 
-
-
-
-
-
-
-void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, tensor* input, tensor* output){
-  assertDevice(input->list);
-  assertDevice(output->list);
-  assert(input->list == output->list); ///@todo works only in-place for now
-  assert(input->rank == 3);
-  assert(output->rank == 3);
-  for(int i=0; i<3; i++){
-    assert( input->size[i] == plan->paddedStorageSize[i]);
-    assert(output->size[i] == plan->paddedStorageSize[i]);
-  }
-  gpuFFT3dPlan_inverse_unsafe(plan, input->list, output->list);
-  
-  return;
-}
-
-void gpuFFT3dPlan_inverse_unsafe(gpuFFT3dPlan* plan, float* input, float* output){
+void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
   
 //   timer_start("gpu_plan3d_real_input_inverse_exec");
   
@@ -214,10 +177,9 @@ void gpuFFT3dPlan_inverse_unsafe(gpuFFT3dPlan* plan, float* input, float* output
 }
 
 
-
-
-
-
+int gpuFFT3dPlan_normalization(gpuFFT3dPlan* plan){
+  return plan->paddedSize[X] * plan->paddedSize[Y] * plan->paddedSize[Z];
+}
 
 
 void yz_transpose_in_place_fw(float *data, int *size, int *pSSize){
@@ -246,7 +208,6 @@ void yz_transpose_in_place_fw(float *data, int *size, int *pSSize){
 
   return;
 }
-
 
 void yz_transpose_in_place_inv(float *data, int *size, int *pSSize){
 
@@ -291,8 +252,6 @@ __global__ void _gpu_copy_pad(float* source, float* dest,
   
   return;
 }
-
-
 
 
 void gpu_copy_to_pad(float* source, float* dest, int *unpad_size, int *pad_size){          //for padding of the tensor, 2d and 3d applicable

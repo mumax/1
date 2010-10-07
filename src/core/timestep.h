@@ -17,7 +17,7 @@
 #define TIMESTEP_H
 
 #include "field.h"
-#include "gpunormalize.h"
+#include "gpu_normalize.h"
 // #include "gpueuler.h"
 #include "gpu_heun.h"
 #include "gpu_anal.h"

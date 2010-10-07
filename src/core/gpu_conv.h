@@ -7,6 +7,7 @@
 #ifndef GPU_CONV_H
 #define GPU_CONV_H
 
+#include "gpu_kernmul.h"
 #include "gputil.h"
 #include "gpu_conf.h"
 #include "tensor.h"
@@ -45,9 +46,6 @@ void evaluate_convolution(tensor *m,         ///< input: rank 4 tensor containin
                           param *p           ///< parameter list
                           );
 
-
-
-// evaluation of the micromag3d convolution ***********************************************************
 /**
  * Evaluates a convolution of type MICROMAG3D with a sample thickness of more then one (possibly coarse level)
  * FD cell.  
@@ -56,35 +54,6 @@ void evaluate_micromag3d_conv(tensor *m,         ///< input: rank 4 tensor conta
                               tensor *h,         ///< output: rank 4 tensor containing the field data.
                               conv_data *conv    ///< convolution data: work space, kernel, FFT plan.
                               );
-
-/**
- * Evaluates the kernel multiplication for the MICROMAG3D kernel with a sample thickness of more then one 
- * (possibly coarse level) FD cell.  
- **/
-void gpu_kernel_mul_micromag3d(tensor *fft1,     ///< Fourier transformed data (as input: m-data, when exiting: h-data)
-                               tensor *kernel    ///< MICROMAG3d kernel
-                               );
-
-/**
- * Actual multiplication on gpu of the MICROMAG3D kernel with a sample thickness of more then one 
- * (possibly coarse level) FD cell.
- **/
-__global__ void _gpu_kernel_mul_micromag3d(float *fftMx,    ///< Fourier transformed Mx data
-                                           float *fftMy,    ///< Fourier transformed My data  
-                                           float *fftMz,    ///< Fourier transformed Mz data
-                                           float *fftKxx,   ///< xx kernel component
-                                           float *fftKxy,   ///< xy kernel component
-                                           float *fftKxz,   ///< xz kernel component
-                                           float *fftKyy,   ///< yy kernel component
-                                           float *fftKyz,   ///< yz kernel component
-                                           float *fftKzz,   ///< zz kernel component
-                                           int N
-                                           );
-// ****************************************************************************************************
-
-
-
-// evaluation of the micromag3d convolution with thickness 1 FD cell **********************************
 /**
  * Evaluates a convolution of type MICROMAG3D with a sample thickness of one (possibly coarse level) FD cell.  
  */
@@ -94,32 +63,6 @@ void evaluate_micromag3d_conv_Xthickness_1(tensor *m,         ///< input: rank 4
                                            );
 
 /**
- * Evaluates the kernel multiplication for the MICROMAG3D kernel with a sample thickness of one (possibly 
- * coarse level) FD cell.  
- **/
-void gpu_kernel_mul_micromag3d_Xthickness_1(tensor *fft1,     ///< Fourier transformed data (as input: m-data, when exiting: h-data)
-                                            tensor *kernel    ///< MICROMAG3d kernel
-                                            );
-
-/**
- * Actual multiplication on gpu of the MICROMAG3D kernel with a sample thickness of one (possibly coarse level) 
- * FD cell.
- **/
-__global__ void _gpu_kernel_mul_micromag3d_Xthickness_1(float *fftMx,    ///< Fourier transformed Mx data
-                                                        float *fftMy,    ///< Fourier transformed My data
-                                                        float *fftMz,    ///< Fourier transformed Mz data
-                                                        float *fftKxx,   ///< xx kernel component
-                                                        float *fftKyy,   ///< yy kernel component
-                                                        float *fftKyz,   ///< yz kernel component
-                                                        float *fftKzz,   ///< zz kernel component
-                                                        int N
-                                                        );
-// ****************************************************************************************************
-
-
-
-// evaluation of the micromag2d convolution ***********************************************************
-/**
  * Evaluates a convolution of type MICROMAG2D.  
  */
 void evaluate_micromag2d_conv(tensor *m,         ///< input: rank 4 tensor containing the magnetization data.
@@ -127,21 +70,7 @@ void evaluate_micromag2d_conv(tensor *m,         ///< input: rank 4 tensor conta
                               conv_data *conv    ///< convolution data: work space, kernel, FFT plan.
                               );
 
-void gpu_kernel_mul_micromag2d(tensor *fft1,     ///< Fourier transformed data (as input: m-data, when exiting: h-data)
-                               tensor *kernel    ///< MICROMAG3d kernel
-                               );
-
-__global__ void _gpu_kernel_mul_micromag2d(float *fftMy,    ///< Fourier transformed My data
-                                           float *fftMz,    ///< Fourier transformed Mz data
-                                           float *fftKyy,   ///< yy kernel component
-                                           float *fftKyz,   ///< yz kernel component
-                                           float *fftKzz,   ///< zz kernel component
-                                           int N
-                                           );
-// ****************************************************************************************************
-
-
-
+                              
 // to initialize the convolution **********************************************************************
 /**
  * Initializes the convolution data based on the parameter list p and links to the initialized kernel.
@@ -154,40 +83,27 @@ conv_data *new_conv_data(param *p,            ///< parameter list
 
 
 
+// to be placed in gpu_kernmul.h
+void gpu_kernelmul4(float *fftMx, 
+                    float *fftMy, 
+                    float *fftMz, 
+                    float *fftKxx, 
+                    float *fftKyy, 
+                    float *fftKyz, 
+                    float *fftKzz, 
+                    int nRealNumbers
+                    );
 
-// // functions for copying to and from padded matrix ****************************************************
-// /**
-//  * @internal Does padding and unpadding, not necessarily by a factor 2
-//  **/
-// __global__ void _gpu_copy_pad(float* source,        ///< source data
-//                               float* dest,          ///< destination data
-//                               int S1,               ///< source size Y
-//                               int S2,               ///< source size Z
-//                               int D1,               ///< destination size Y
-//                               int D2                ///< destination size Z
-//                               );
-//                               
-// /**
-//  * @internal
-//  * pads the input tensor 'source' and saves it in tensor 'dest', 2d and 3d applicable.
-//  */
-// void gpu_copy_to_pad(float* source,         ///< input: unpadded source as contiguous float array
-//                      float* dest,           ///< output: padded destination as contiguous float array
-//                      int *unpad_size4d,     ///< size of the corresponding unpadded tensor 
-//                      int *pad_size4d        ///< size of the corresponding padded tensor
-//                      );
-// 
-// /**
-//  * @internal
-//  * copies the non-zero elements from the padded the input tensor 'source' towards tensor 'dest', 2d and 3d applicable.
-//  */
-// void gpu_copy_to_unpad(float* source,        ///< input: padded source as contiguous float array
-//                        float* dest,          ///< output: unpadded destination as contiguous float array
-//                        int *pad_size4d,      ///< size of the corresponding padded tensor
-//                        int *unpad_size4d     ///< size of the corresponding unpadded tensor 
-//                        ); 
-// 
-
+void gpu_kernelmul3(float *fftMy, 
+                    float *fftMz, 
+                    float *fftKyy, 
+                    float *fftKyz, 
+                    float *fftKzz, 
+                    int nRealNumbers
+                    );
+                    
+                    
+                    
 
 
 #ifdef __cplusplus
