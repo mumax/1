@@ -14,16 +14,17 @@
  * @author Ben Van de Wiele
  * @author Arne Vansteenkiste
  */
-#ifndef GPU_FFT_H
-#define GPU_FFT_H
+#ifndef GPU_FFT4_H
+#define GPU_FFT4_H
 
-#include "tensor.h"
-#include "gputil.h"
+#include "../macros.h"
+#include "gpu_mem.h"
 #include <cufft.h>
 #include "gpu_transpose.h"
 #include "gpu_transpose2.h"
 #include "gpu_safe.h"
 #include "gpu_conf.h"
+#include "gpu_zeropad.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -131,8 +132,8 @@ __global__ void _gpu_copy_pad(float* source,        ///< source data
  */
 void gpu_copy_to_pad(float* source,         ///< input: unpadded source as contiguous float array
                      float* dest,           ///< output: padded destination as contiguous float array
-                     int *unpad_size4d,     ///< size of the corresponding unpadded tensor 
-                     int *pad_size4d        ///< size of the corresponding padded tensor
+                     int *unpad_size,       ///< size of the corresponding unpadded tensor 
+                     int *pad_size          ///< size of the corresponding padded tensor
                      );
 
 /**
@@ -141,8 +142,8 @@ void gpu_copy_to_pad(float* source,         ///< input: unpadded source as conti
  */
 void gpu_copy_to_unpad(float* source,        ///< input: padded source as contiguous float array
                        float* dest,          ///< output: unpadded destination as contiguous float array
-                       int *pad_size4d,      ///< size of the corresponding padded tensor
-                       int *unpad_size4d     ///< size of the corresponding unpadded tensor 
+                       int *pad_size,        ///< size of the corresponding padded tensor
+                       int *unpad_size       ///< size of the corresponding unpadded tensor 
                        ); 
 
                                

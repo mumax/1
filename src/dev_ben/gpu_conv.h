@@ -84,7 +84,7 @@ conv_data *new_conv_data(param *p,            ///< parameter list
 
 
 // to be placed in gpu_kernmul.h
-void gpu_kernelmul4(float *fftMx, 
+/*void gpu_kernelmul4(float *fftMx, 
                     float *fftMy, 
                     float *fftMz, 
                     float *fftKxx, 
@@ -100,7 +100,7 @@ void gpu_kernelmul3(float *fftMy,
                     float *fftKyz, 
                     float *fftKzz, 
                     int nRealNumbers
-                    );
+                    );*/
                     
                     
                     

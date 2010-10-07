@@ -1,8 +1,9 @@
+
+#include "../macros.h"
 #include "gpu_transpose2.h"
 #include "gpu_conf.h"
 #include <assert.h>
 #include "timer.h"
-#include "gputil.h"
 #include "gpu_mem.h"
 
 #ifdef __cplusplus

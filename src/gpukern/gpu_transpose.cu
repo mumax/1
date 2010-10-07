@@ -134,8 +134,8 @@ __global__ void _gpu_transpose_slow(float *input, float *output, int N1, int N2)
   int J = BJ * BLOCKSIZE + j;
 
   // Major indices with transposed blocks but not transposed minor indices
-  int It = BJ * BLOCKSIZE + i;
-  int Jt = BI * BLOCKSIZE + j;
+//   int It = BJ * BLOCKSIZE + i;
+//   int Jt = BI * BLOCKSIZE + j;
 
   if((I < N1) && (J < N2)){
     output[I * N2 + J] = input[J * N1 + I];
