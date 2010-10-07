@@ -1,19 +1,57 @@
-\section{Input file specification}
+\section{Running}
+
+\subsection{Launching the program}
+
+To run \prog, type the following code in a terminal:
+
+\shell{\prog \textit{arguments} \textit{input.in}}
+
+Where \textit{\file{input.in}} is the name of the input file to run. It does not necessarily have to end with ``\file{.in}'' but we use this convention throughout this manual. The \textit{\cmd{arguments}} are optinal and described further on. 
+
+\paragraph{Arguments} In the above code, \cmd{\textit{arguments}} should be replaced by an (optional) list of \idx{command line arguments}. Arguments start with a dash (``-'') and should always come \emph{before} the input file. They are only meant for fine-tuning the program's behavior and may usually be omitted. These are the possibilities:
+
+\begin{enumerate}
+ \item [\idxcmd{-cpu}] Run on the CPU instead of the GPU.
+ \item [\idxcmd{-gpu=N}] Run on GPU number ``N'' when multiple GPUs are present. Default value is ``0'', the first GPU.
+ \item [\idxcmd{-silent}] Do not print output to the screen (only to output.log)
+ \item [\idxcmd{-updatedisp=N}] Update the ``live'' progress output every N milliseconds
+ \item [\idxcmd{-daemon}] Run in deamon mode, see \ref{daemon}
+ \item [\idxcmd{-watch=N}] When running in deamon mode, check for new input files every ``N'' seconds. See \ref{daemon}.
+\end{enumerate}
+
+
+\subsection{Input file}
 
 A \prog input file specifies an entire simulation, including which output should be saved. Each file contains a series of \idx{commands} which are executed in the order they are provided. Let us start with a simple example:
 
 
 \begin{verbatim}
 # material
-msat:       	800E3 
-aexch:      	1.3E-11
-alpha:      	0.02
+msat       	800E3 
+aexch      	1.3E-11
+alpha      	0.02
 # geometry 
-size:       	1     32          128    
-cellsize:   	3E-9  3.90625E-9  3.90625E-9  # m
+size       	1     32          128    
+cellsize   	3E-9  3.90625E-9  3.90625E-9  # m
 # initial magnetization
 uniform		1 1 1
 # run
-autosave:	table	ascii	10E-12
-run:          	1E-9
+autosave	table	ascii	10E-12
+run          	1E-9
 \end{verbatim}
+
+\paragraph{Comments} All text after a hashmark (\#) is considered a \idx{comment} and is ignored by the simulation. In the above example, the statements \cmd{\# material}, \cmd{\# geometry}, \ldots are thus comments. They are only included for clarity and could be omitted.
+
+\paragraph{Commands} All the other text in the input file is treated as a series of \idx{commands} that are executed in the order they are specified. In general, the order of the commands matters but should be easy to deduce.  E.g., you can not call \cmd{run} to start the time evolution when you have not first specified the material parameters, simulation size, etc\ldots. Either way, the program will tell you if can not run a certain command yet because some parameters should be set first.
+
+
+
+\subsection{Output}
+
+
+Upon running an input file, an \idx{output directory} with a corresponding name but ending with ``\file{.out}'' will be created to store the simulation output. It also contains a file \idxfile{output.log} that keeps a log of all the output that appeared on the screen.  
+
+
+\subsection{Program arguments}\label{arguments}
+
+To obtain a list of program arguments, run \prog \cmd{-help}.

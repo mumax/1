@@ -38,6 +38,7 @@ enum
 	ASTRING,
 	AINTER,
 	ANILINTER,
+	AMEMWORD,
 
 	BADWIDTH	= -1000000000,
 	MAXWIDTH        = 1<<30
@@ -210,6 +211,7 @@ struct	Node
 	uchar	used;
 	uchar	isddd;
 	uchar	pun;		// dont registerize variable ONAME
+	uchar	readonly;
 
 	// most nodes
 	Node*	left;
@@ -261,6 +263,7 @@ struct	Node
 	Sym*	sym;		// various
 	int32	vargen;		// unique name for OTYPE/ONAME
 	int32	lineno;
+	int32	endlineno;
 	vlong	xoffset;
 	int32	ostk;
 	int32	iota;
@@ -356,7 +359,7 @@ enum
 	OCLOSURE,
 	OCMPIFACE, OCMPSTR,
 	OCOMPLIT, OMAPLIT, OSTRUCTLIT, OARRAYLIT,
-	OCONV, OCONVIFACE, OCONVNOP, OCONVSLICE,
+	OCONV, OCONVIFACE, OCONVNOP,
 	OCOPY,
 	ODCL, ODCLFUNC, ODCLFIELD, ODCLCONST, ODCLTYPE,
 	ODOT, ODOTPTR, ODOTMETH, ODOTINTER, OXDOT,
@@ -915,6 +918,7 @@ char*	lexname(int lex);
 void	mkpackage(char* pkgname);
 void	unimportfile(void);
 int32	yylex(void);
+extern	int	windows;
 extern	int	yylast;
 extern	int	yyprev;
 
@@ -1006,7 +1010,7 @@ void	walkrange(Node *n);
  *	reflect.c
  */
 void	dumptypestructs(void);
-Type*	methodfunc(Type *f, int use_receiver);
+Type*	methodfunc(Type *f, Type*);
 Node*	typename(Type *t);
 Sym*	typesym(Type *t);
 
@@ -1019,7 +1023,7 @@ void	walkselect(Node *sel);
 /*
  *	sinit.c
  */
-void	anylit(int ctxt, Node *n, Node *var, NodeList **init);
+void	anylit(int, Node *n, Node *var, NodeList **init);
 int	gen_as_init(Node *n);
 NodeList*	initfix(NodeList *l);
 int	oaslit(Node *n, NodeList **init);
@@ -1112,7 +1116,6 @@ Type*	shallow(Type *t);
 int	simsimtype(Type *t);
 void	smagic(Magic *m);
 Type*	sortinter(Type *t);
-Node*	staticname(Type *t);
 uint32	stringhash(char *p);
 Strlit*	strlit(char *s);
 int	structcount(Type *t);

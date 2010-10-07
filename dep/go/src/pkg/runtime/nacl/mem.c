@@ -3,6 +3,10 @@
 #include "os.h"
 #include "malloc.h"
 
+enum {
+	NaclPage = 0x10000
+};
+
 void*
 SysAlloc(uintptr n)
 {
@@ -21,8 +25,13 @@ SysUnused(void *v, uintptr n)
 void
 SysFree(void *v, uintptr n)
 {
-	USED(v);
-	USED(n);
-	// TODO(rsc): call munmap
+	// round to page size or else nacl prints annoying log messages
+	mstats.sys -= n;
+	n = (n+NaclPage-1) & ~(NaclPage-1);
+	runtime_munmap(v, n);
 }
 
+void
+SysMemInit(void)
+{
+}

@@ -1,4 +1,36 @@
+Choose a googlable name. Suggestions:
+
+openGpuMag
+openMagSim -> spain
+openGSpin
+openMuMag -> nist
+openMicromag
+openNanoMag
+
+TeraGpuMag (Refers to TeraFlop)
+SpinCrunch (Refers to number crunching)
+TeslaSpin (Tesla is a GPU brand)
+FermiMag (Fermi is a GPU architecture)
+
+MPMMS (Massively Parallel Micro Magnetic Simulator)
+SPeeMagS
+xspinsim, xspins (pronouced k'spins, eXtreme Spin Simulator)
+GeeMags
+
+
 TODO (Arne)
 
+* do not use os.Exit() but sim.Exit() which removes running file
+* when sim daemon is killed it should clean up its unfinished output dir
+* it seems CUFFT allocates memory for its FFT plans, check if this is a lot!
+* bigfft
+* higher-order solvers
+* dashboard:
+   time     ETA
+   step     out
+   time     dt
+   steptime performance
+   Bx, By, Bz
+   mx, my, mz
 * tensor package is not idiomatic Go. Should use [][][]float as much as possible and cast it to a tensor only when needed.
 

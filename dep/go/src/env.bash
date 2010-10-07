@@ -15,14 +15,14 @@ fi
 # Various aspects of the build cd into $GOROOT-rooted paths,
 # making it easy to jump to a different tree and get confused.
 DIR1=$(cd ..; pwd)
-DIR2=$(cd $GOROOT; pwd)
+DIR2=$(cd "$GOROOT"; pwd)
 if [ "$DIR1" != "$DIR2" ]; then
 	echo 'Suspicious $GOROOT '$GOROOT': does not match current directory.' 1>&2
 	exit 1
 fi
 
 export GOBIN=${GOBIN:-"$GOROOT/bin"}
-if [ ! -d "$GOBIN" ]; then
+if [ ! -d "$GOBIN" -a "$GOBIN" != "$GOROOT/bin" ]; then
 	echo '$GOBIN is not a directory or does not exist' 1>&2
 	echo 'create it or set $GOBIN differently' 1>&2
 	exit 1

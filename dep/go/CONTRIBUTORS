@@ -48,6 +48,7 @@ Anthony Starks <ajstarks@gmail.com>
 Aron Nopanen <aron.nopanen@gmail.com>
 Arvindh Rajesh Tamilmani <art@a-30.net>
 Austin Clements <aclements@csail.mit.edu>
+Balazs Lecz <leczb@google.com>
 Ben Eitzen <eitzenb@golang.org>
 Ben Olive <sionide21@gmail.com>
 Bill Neubauer <wcn@golang.org> <wcn@google.com>
@@ -59,6 +60,8 @@ Chris Lennert <calennert@gmail.com>
 Christian Himpel <chressie@googlemail.com>
 Christopher Wedgwood <cw@f00f.org>
 Conrad Meyer <cemeyer@cs.washington.edu>
+Corey Thomasson <cthom.lists@gmail.com>
+Dan Sinclair <dan.sinclair@gmail.com>
 Daniel Fleischman <danielfleischman@gmail.com>
 Daniel Nadasi <dnadasi@google.com>
 Daniel Theophanes <kardianos@gmail.com>
@@ -82,6 +85,7 @@ Isaac Wagner <ibw@isaacwagner.me>
 Ivan Krasin <krasin@golang.org>
 Jacob Baskin <jbaskin@google.com>
 James Aguilar <jaguilar@google.com>
+James Fysh <james.fysh@gmail.com>
 James Meneghello <rawrz0r@gmail.com>
 James Toy <nil@opensesame.st>
 James Whitehead <jnwhiteh@gmail.com>
@@ -90,6 +94,7 @@ Jan Mercl <befelemepeseveze@gmail.com>
 Joe Poirier <jdpoirier@gmail.com>
 Jonathan Wills <runningwild@gmail.com>
 Josh Goebel <dreamer3@gmail.com>
+Jukka-Pekka Kekkonen <karatepekka@gmail.com>
 Kai Backman <kaib@golang.org>
 Kei Son <hey.calmdown@gmail.com>
 Ken Friedenbach <kenliz@cruzio.com>
@@ -101,6 +106,7 @@ Larry Hosken <lahosken@golang.org>
 Luuk van Dijk <lvd@golang.org> <lvd@google.com>
 Mark Zavislak <zavislak@google.com>
 Markus Duft <markus.duft@salomon.at>
+Martin Neubauer <m.ne@gmx.net>
 Mathieu Lonjaret <mathieu.lonjaret@gmail.com>
 Maxim Ushakov <ushakov@google.com>
 Micah Stetson <micah.stetson@gmail.com>
@@ -130,6 +136,7 @@ Russ Cox <rsc@golang.org>
 Sam Thorogood <thorogood@google.com>
 Scott Schwartz <scotts@golang.org>
 Scott Lawrence <bytbox@gmail.com>
+Sebastien Binet	<seb.binet@gmail.com>
 Sergei Skorobogatov <skorobo@rambler.ru>
 Sergey 'SnakE' Gromov <snake.scaly@gmail.com>
 Sergio Luis O. B. Correia <sergio@larces.uece.br>
@@ -142,6 +149,7 @@ Tom Szymanski <tgs@google.com>
 Timo Savola <timo.savola@gmail.com>
 Tor Andersson <tor.andersson@gmail.com>
 Trevor Strohman <trevor.strohman@gmail.com>
+Vincent Ambo <tazjin@googlemail.com>
 Vinu Rajashekhar <vinutheraj@gmail.com>
 Vish Subramanian <vish@google.com>
 Wei Guangjing <vcc.163@gmail.com>

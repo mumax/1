@@ -1,3 +1,9 @@
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any 
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
 package sim
 
 /*
@@ -34,6 +40,11 @@ type Gpu struct {
 func (d Gpu) init() {
 	C.gpu_init()
 }
+
+func (d Gpu) setDevice(devid int) {
+	C.gpu_set_device(C.int(devid))
+}
+
 
 func (d Gpu) add(a, b uintptr, N int) {
 	C.gpu_add((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.int(N))
@@ -110,7 +121,7 @@ func (d Gpu) copyPadded(source, dest uintptr, sourceSize, destSize []int, direct
 func (d Gpu) newFFTPlan(dataSize, logicSize []int) uintptr {
 	Csize := (*C.int)(unsafe.Pointer(&dataSize[0]))
 	CpaddedSize := (*C.int)(unsafe.Pointer(&logicSize[0]))
-	return uintptr(unsafe.Pointer(C.new_gpuFFT3dPlan_padded(Csize, CpaddedSize)))
+	return uintptr(unsafe.Pointer(C.new_gpuFFT3dPlanArne_padded(Csize, CpaddedSize)))
 }
 
 
@@ -119,9 +130,9 @@ func (d Gpu) fft(plan uintptr, in, out uintptr, direction int) {
 	default:
 		panic(fmt.Sprintf("Unknown FFT direction:", direction))
 	case FFT_FORWARD:
-		C.gpuFFT3dPlan_forward((*C.gpuFFT3dPlan)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
+		C.gpuFFT3dPlanArne_forward((*C.gpuFFT3dPlanArne)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
 	case FFT_INVERSE:
-		C.gpuFFT3dPlan_inverse((*C.gpuFFT3dPlan)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
+		C.gpuFFT3dPlanArne_inverse((*C.gpuFFT3dPlanArne)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
 	}
 }
 
@@ -130,6 +141,9 @@ func (d Gpu) newArray(nFloats int) uintptr {
 	return uintptr(unsafe.Pointer(C.new_gpu_array(C.int(nFloats))))
 }
 
+func (d Gpu) freeArray(ptr uintptr) {
+	C.free_gpu_array((*C.float)(unsafe.Pointer(ptr)))
+}
 
 func (d Gpu) memcpy(source, dest uintptr, nFloats, direction int) {
 	C.memcpy_gpu_dir((*C.float)(unsafe.Pointer(source)), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats), C.int(direction))

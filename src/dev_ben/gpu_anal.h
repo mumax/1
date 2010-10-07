@@ -10,9 +10,13 @@
 #define GPUANAL_H
 
 #include "param.h"
+<<<<<<< HEAD:src/dev_ben/gpu_anal.h
 #include "gputil.h"
 #include "gpu_safe.h"
 #include "gpu_conf.h"
+=======
+#include "gpukern.h"
+>>>>>>> arne:src/core/gpu_anal.h
 
 #ifdef __cplusplus
 extern "C" {

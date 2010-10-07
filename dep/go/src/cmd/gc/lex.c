@@ -353,8 +353,11 @@ static int
 findpkg(Strlit *name)
 {
 	Idir *p;
+	char *q;
 
 	if(islocalname(name)) {
+		if(safemode)
+			return 0;
 		// try .a before .6.  important for building libraries:
 		// if there is an array.6 in the array.a library,
 		// want to find all of array.a, not just array.6.
@@ -364,6 +367,18 @@ findpkg(Strlit *name)
 		snprint(namebuf, sizeof(namebuf), "%Z.%c", name, thechar);
 		if(access(namebuf, 0) >= 0)
 			return 1;
+		return 0;
+	}
+
+	// local imports should be canonicalized already.
+	// don't want to see "container/../container/vector"
+	// as different from "container/vector".
+	q = mal(name->len+1);
+	memmove(q, name->s, name->len);
+	q[name->len] = '\0';
+	cleanname(q);
+	if(strlen(q) != name->len || memcmp(q, name->s, name->len) != 0) {
+		yyerror("non-canonical import path %Z (should be %s)", name, q);
 		return 0;
 	}
 
@@ -523,7 +538,7 @@ isfrog(int c)
 			return 0;
 		return 1;
 	}
-	if(0x80 <= c && c <= 0xa0)	// unicode block including unbreakable space.
+	if(0x7f <= c && c <= 0xa0)	// DEL, unicode block including unbreakable space.
 		return 1;
 	return 0;
 }
@@ -932,6 +947,10 @@ lx:
 		yyerror("illegal character 0x%ux", c);
 		goto l0;
 	}
+	if(importpkg == nil && (c == '#' || c == '$' || c == '?' || c == '@' || c == '\\')) {
+		yyerror("%s: unexpected %c", "syntax error", c);
+		goto l0;
+	}
 	return c;
 
 asop:
@@ -1228,13 +1247,8 @@ yylex(void)
 	lx = _yylex();
 	
 	if(curio.nlsemi && lx == EOF) {
-		// if the nlsemi bit is set, we'd be willing to
-		// insert a ; if we saw a \n, but we didn't.
-		// that means the final \n is missing.
-		// complain here, because we can give a
-		// good message.  the syntax error we'd get
-		// otherwise is inscrutable.
-		yyerror("missing newline at end of file");
+		// Treat EOF as "end of line" for the purposes
+		// of inserting a semicolon.
 		lx = ';';
 	}
 

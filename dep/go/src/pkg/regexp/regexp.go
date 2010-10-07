@@ -22,7 +22,8 @@
 //		character [ '-' character ]
 //
 // All characters are UTF-8-encoded code points.  Backslashes escape special
-// characters, including inside character classes.
+// characters, including inside character classes.  The standard Go character
+// escapes are also recognized: \a \b \f \n \r \t \v.
 //
 // There are 16 methods of Regexp that match a regular expression and identify
 // the matched text.  Their names are matched by this regular expression:
@@ -353,6 +354,18 @@ func ispunct(c int) bool {
 	return false
 }
 
+var escapes = []byte("abfnrtv")
+var escaped = []byte("\a\b\f\n\r\t\v")
+
+func escape(c int) int {
+	for i, b := range escapes {
+		if int(b) == c {
+			return i
+		}
+	}
+	return -1
+}
+
 func (p *parser) charClass() instr {
 	cc := newCharClass()
 	if p.c() == '^' {
@@ -388,10 +401,10 @@ func (p *parser) charClass() instr {
 			switch {
 			case c == endOfFile:
 				p.error(ErrExtraneousBackslash)
-			case c == 'n':
-				c = '\n'
 			case ispunct(c):
 				// c is as delivered
+			case escape(c) >= 0:
+				c = int(escaped[escape(c)])
 			default:
 				p.error(ErrBadBackslash)
 			}
@@ -483,10 +496,10 @@ func (p *parser) term() (start, end instr) {
 		switch {
 		case c == endOfFile:
 			p.error(ErrExtraneousBackslash)
-		case c == 'n':
-			c = '\n'
 		case ispunct(c):
 			// c is as delivered
+		case escape(c) >= 0:
+			c = int(escaped[escape(c)])
 		default:
 			p.error(ErrBadBackslash)
 		}
@@ -1134,42 +1147,6 @@ func (re *Regexp) allMatches(s string, b []byte, n int, deliver func([]int)) {
 			i++
 		}
 	}
-}
-
-// TODO: AllMatchesIter and AllMatchesStringIter should change to return submatches as well.
-
-// AllMatchesIter slices the byte slice b into substrings that are successive
-// matches of the Regexp within b. If n > 0, the function returns at most n
-// matches. Text that does not match the expression will be skipped. Empty
-// matches abutting a preceding match are ignored. The function returns a
-// channel that iterates over the matching substrings.
-func (re *Regexp) AllMatchesIter(b []byte, n int) <-chan []byte {
-	if n <= 0 {
-		n = len(b) + 1
-	}
-	c := make(chan []byte, 10)
-	go func() {
-		re.allMatches("", b, n, func(match []int) { c <- b[match[0]:match[1]] })
-		close(c)
-	}()
-	return c
-}
-
-// AllMatchesStringIter slices the string s into substrings that are successive
-// matches of the Regexp within s. If n > 0, the function returns at most n
-// matches. Text that does not match the expression will be skipped. Empty
-// matches abutting a preceding match are ignored. The function returns a
-// channel that iterates over the matching substrings.
-func (re *Regexp) AllMatchesStringIter(s string, n int) <-chan string {
-	if n <= 0 {
-		n = len(s) + 1
-	}
-	c := make(chan string, 10)
-	go func() {
-		re.allMatches(s, nil, n, func(match []int) { c <- s[match[0]:match[1]] })
-		close(c)
-	}()
-	return c
 }
 
 // Find returns a slice holding the text of the leftmost match in b of the regular expression.

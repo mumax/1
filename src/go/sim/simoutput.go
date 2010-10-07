@@ -1,3 +1,9 @@
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any 
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
 package sim
 
 // This file implements the methods for scheduling output
@@ -11,9 +17,12 @@ import (
 	"fmt"
 	"tensor"
 	"os"
-	// 	"io"
+	"bufio"
 	"tabwriter"
 )
+
+// bufio buffer size (bytes)
+const IOBUF = 4096
 
 // Sets the output directory where all output files are stored
 func (s *Sim) outputDir(outputdir string) {
@@ -107,6 +116,19 @@ func resolve(what, format string) Output {
 
 //__________________________________________ ascii
 
+// Opens a file for writing 
+func bufOpen(filename string) *bufio.Writer {
+	out, err := os.Open(filename, os.O_WRONLY|os.O_CREAT, 0666)
+	if err != nil {
+		panic(err)
+	}
+	writer, err2 := bufio.NewWriterSize(out, IOBUF)
+	if err2 != nil {
+		panic(err2)
+	}
+	return writer
+}
+
 
 // TODO: it would be nice to have a separate date sturcture for the format and one for the data.
 // with a better input file parser we could allow any tensor to be stored:
@@ -121,11 +143,8 @@ const FILENAME_FORMAT = "%08d"
 // INTERNAL
 func (m *MAscii) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".txt"
-	out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
-	defer out.Close()
-	if err != nil {
-		panic(err)
-	}
+	out := bufOpen(fname);
+  defer out.Flush()
 	tensor.Format(out, s.mLocal)
 	m.sinceoutput = float(s.time) * s.UnitTime()
 }
@@ -137,7 +156,7 @@ type Table struct {
 
 // table output settings
 const (
-	TABLE_HEADER = "# time (s)\t mx\t my\t mz\t Bx\t By\t Bz\tdt(s)\terror\tid"
+	TABLE_HEADER = "# time (s)\t mx\t my\t mz\t Bx(T)\t By(T)\t Bz(T)\tdt(s)\terror\tid"
 	COL_WIDTH    = 15
 )
 
@@ -150,13 +169,13 @@ func (t *Table) Save(s *Sim) {
 			panic(err)
 		}
 		t.out = tabwriter.NewWriter(out, COL_WIDTH, 4, 0, ' ', 0)
-		Debugv("Opened data table file")
+		s.Println("Opened data table file")
 		fmt.Fprintln(t.out, TABLE_HEADER)
 	}
 	mx, my, mz := m_average(s.mLocal)
 	B := s.UnitField()
 	fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float(s.time)*s.UnitTime(), mx, my, mz)
-	fmt.Fprintf(t.out, "% g\t% g\t% g\t", s.hext[X]*B, s.hext[Y]*B, s.hext[Z]*B)
+	fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", s.hext[X]*B, s.hext[Y]*B, s.hext[Z]*B)
 	fmt.Fprintf(t.out, "%.5g\t", s.dt*s.UnitTime())
 	fmt.Fprintf(t.out, "%.4g\t", s.stepError)
 	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
@@ -209,11 +228,8 @@ type MPng struct {
 // INTERNAL
 func (m *MPng) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".png"
-	out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT, 0666)
-	defer out.Close()
-	if err != nil {
-		panic(err)
-	}
+  out := bufOpen(fname);
+  defer out.Flush()
 	PNG(out, s.mLocal)
 	m.sinceoutput = float(s.time) * s.UnitTime()
 }

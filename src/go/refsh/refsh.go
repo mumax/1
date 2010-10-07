@@ -1,3 +1,9 @@
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any 
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
 // refsh is a "reflective shell", an interpreter that parses
 // commands, executing them via run-time reflection.
 // Usage: first set up a new interpreter:
@@ -11,7 +17,6 @@ package refsh
 
 import (
 	. "reflect"
-	"fmt"
 	"os"
 	"io"
 	"strings"
@@ -101,13 +106,13 @@ const prompt = ">> "
 // TODO: exit should stop this refsh, not exit the entire program
 func (refsh *Refsh) Interactive() {
 	in := os.Stdin
-	fmt.Print(prompt)
+	refsh.Print(prompt)
 	line, eof := ReadNonemptyLine(in)
 	for !eof {
 		cmd := line[0]
 		args := line[1:]
 		refsh.Call(cmd, args)
-		fmt.Print(prompt)
+		refsh.Print(prompt)
 		line, eof = ReadNonemptyLine(in)
 	}
 }
@@ -122,7 +127,7 @@ func exit() {
 func (refsh *Refsh) ExecFlags() {
 	commands, args := ParseFlags()
 	for i := range commands {
-		//fmt.Fprintln(os.Stderr, commands[i], args[i]);
+		//refsh.Errorln( commands[i], args[i]);
 		refsh.Call(commands[i], args[i])
 	}
 }
@@ -131,17 +136,17 @@ func (refsh *Refsh) ExecFlags() {
 // The function name should first have been added by refsh.Add();
 func (refsh *Refsh) Call(fname string, argv []string) []Value {
 	// Debug
-	fmt.Print(">>> ", fname, "\t ")
+	refsh.Print(">>> ", fname, "\t ")
 	refsh.CallCount++
 
 	for _, a := range argv {
-		fmt.Print(a, "\t ")
+		refsh.Print(a, "\t ")
 	}
-	fmt.Println()
+	refsh.Println()
 
 	function := refsh.resolve(fname)
 	if function == nil {
-		fmt.Fprintln(os.Stderr, "Unknown command: \""+fname+"\". Options are:", refsh.funcnames)
+		refsh.Errorln("Unknown command: \""+fname+"\". Options are:", refsh.funcnames)
 		if refsh.CrashOnError {
 			os.Exit(-5)
 		}
@@ -157,7 +162,32 @@ type Refsh struct {
 	funcnames    []string
 	funcs        []Caller
 	CrashOnError bool
-	CallCount    int //counts number of commands executed
+	CallCount    int     //counts number of commands executed
+	Output       Printer //Used to print output, may be nil
+}
+
+type Printer interface {
+	Print(msg ...interface{})
+	Println(msg ...interface{})
+	Errorln(msg ...interface{})
+}
+
+func (refsh *Refsh) Print(msg ...interface{}) {
+	if refsh.Output != nil {
+		refsh.Output.Print(msg...)
+	}
+}
+
+func (refsh *Refsh) Println(msg ...interface{}) {
+	if refsh.Output != nil {
+		refsh.Output.Println(msg...)
+	}
+}
+
+func (refsh *Refsh) Errorln(msg ...interface{}) {
+	if refsh.Output != nil {
+		refsh.Output.Errorln(msg...)
+	}
 }
 
 func NewRefsh() *Refsh {

@@ -228,14 +228,15 @@ linehist(char *file, int32 off, int relative)
 	if(debug['i']) {
 		if(file != nil) {
 			if(off < 0)
-				print("pragma %s at line %L\n", file, lexlineno);
+				print("pragma %s", file);
 			else
 			if(off > 0)
-				print("line %s at line %L\n", file, lexlineno);
+				print("line %s", file);
 			else
-				print("import %s at line %L\n", file, lexlineno);
+				print("import %s", file);
 		} else
-			print("end of import at line %L\n", lexlineno);
+			print("end of import");
+		print(" at line %L\n", lexlineno);
 	}
 
 	if(off < 0 && file[0] != '/' && !relative) {
@@ -270,7 +271,6 @@ setlineno(Node *n)
 	case OTYPE:
 	case OPACK:
 	case OLITERAL:
-	case ONONAME:
 		break;
 	default:
 		lineno = n->lineno;
@@ -476,9 +476,12 @@ algtype(Type *t)
 	int a;
 
 	if(issimple[t->etype] || isptr[t->etype] || iscomplex[t->etype] ||
-	   t->etype == TCHAN || t->etype == TFUNC || t->etype == TMAP)
-		a = AMEM;	// just bytes (int, ptr, etc)
-	else if(t->etype == TSTRING)
+		t->etype == TCHAN || t->etype == TFUNC || t->etype == TMAP) {
+		if(t->width == widthptr)
+			a = AMEMWORD;
+		else
+			a = AMEM;	// just bytes (int, ptr, etc)
+	} else if(t->etype == TSTRING)
 		a = ASTRING;	// string
 	else if(isnilinter(t))
 		a = ANILINTER;	// nil interface
@@ -933,8 +936,8 @@ Lconv(Fmt *fp)
 		}
 		if(a[i].line)
 			fmtprint(fp, "%s:%ld[%s:%ld]",
-				a[i].line->name, lno-a[i].ldel,
-				a[i].incl->name, lno-a[i].idel);
+				a[i].line->name, lno-a[i].ldel+1,
+				a[i].incl->name, lno-a[i].idel+1);
 		else
 			fmtprint(fp, "%s:%ld",
 				a[i].incl->name, lno-a[i].idel+1);
@@ -1158,7 +1161,7 @@ Tpretty(Fmt *fp, Type *t)
 		case Csend:
 			return fmtprint(fp, "chan<- %T", t->type);
 		}
-		if(t->type != T && t->type->etype == TCHAN && t->type->chan == Crecv)
+		if(t->type != T && t->type->etype == TCHAN && t->type->sym == S && t->type->chan == Crecv)
 			return fmtprint(fp, "chan (%T)", t->type);
 		return fmtprint(fp, "chan %T", t->type);
 
@@ -1921,13 +1924,6 @@ assignop(Type *src, Type *dst, char **why)
 	// 7. Any typed value can be assigned to the blank identifier.
 	if(dst->etype == TBLANK)
 		return OCONVNOP;
-	
-	// 8. Array to slice.
-	// TODO(rsc): Not for long.
-	if(!src->sym || !dst->sym)
-	if(isptr[src->etype] && isfixedarray(src->type) && isslice(dst))
-	if(eqtype(src->type->type, dst->type))
-		return OCONVSLICE;
 
 	return 0;
 }
@@ -2596,18 +2592,6 @@ brrev(int a)
 	return a;
 }
 
-Node*
-staticname(Type *t)
-{
-	Node *n;
-
-	snprint(namebuf, sizeof(namebuf), "statictmp_%.4d", statuniqgen);
-	statuniqgen++;
-	n = newname(lookup(namebuf));
-	addvar(n, t, PEXTERN);
-	return n;
-}
-
 /*
  * return side effect-free appending side effects to init.
  * result is assignable if n is.
@@ -2951,6 +2935,11 @@ expandmeth(Sym *s, Type *t)
 	if(t == T || t->xmethod != nil)
 		return;
 
+	// mark top-level method symbols
+	// so that expand1 doesn't consider them.
+	for(f=t->method; f != nil; f=f->down)
+		f->sym->flags |= SymUniq;
+
 	// generate all reachable methods
 	slist = nil;
 	expand1(t, nelem(dotlist)-1, 0);
@@ -2970,6 +2959,9 @@ expandmeth(Sym *s, Type *t)
 		}
 	}
 
+	for(f=t->method; f != nil; f=f->down)
+		f->sym->flags &= ~SymUniq;
+
 	t->xmethod = t->method;
 	for(sl=slist; sl!=nil; sl=sl->link) {
 		if(sl->good) {
@@ -2981,7 +2973,6 @@ expandmeth(Sym *s, Type *t)
 				f->embedded = 2;
 			f->down = t->xmethod;
 			t->xmethod = f;
-
 		}
 	}
 }
@@ -3048,10 +3039,13 @@ genwrapper(Type *rcvr, Type *method, Sym *newnam, int iface)
 	Node *this, *fn, *call, *n, *t, *pad;
 	NodeList *l, *args, *in, *out;
 	Type *tpad;
+	int isddd;
 
 	if(debug['r'])
 		print("genwrapper rcvrtype=%T method=%T newnam=%S\n",
 			rcvr, method, newnam);
+
+	lineno = 1;	// less confusing than end of input
 
 	dclcontext = PEXTERN;
 	markdcl();
@@ -3084,12 +3078,16 @@ genwrapper(Type *rcvr, Type *method, Sym *newnam, int iface)
 
 	// arg list
 	args = nil;
-	for(l=in; l; l=l->next)
+	isddd = 0;
+	for(l=in; l; l=l->next) {
 		args = list(args, l->n->left);
+		isddd = l->n->left->isddd;
+	}
 
 	// generate call
 	call = nod(OCALL, adddot(nod(OXDOT, this->left, newname(method->sym))), N);
 	call->list = args;
+	call->isddd = isddd;
 	fn->nbody = list1(call);
 	if(method->type->outtuple > 0) {
 		n = nod(ORETURN, N, N);

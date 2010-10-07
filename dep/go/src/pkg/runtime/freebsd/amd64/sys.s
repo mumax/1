@@ -112,6 +112,13 @@ TEXT	·mmap(SB),7,$0
 	MOVL	36(SP), R9		// arg 6 offset
 	MOVL	$477, AX
 	SYSCALL
+	RET
+
+TEXT	·munmap(SB),7,$0
+	MOVQ	8(SP), DI		// arg 1 addr
+	MOVQ	16(SP), SI		// arg 2 len
+	MOVL	$73, AX
+	SYSCALL
 	JCC	2(PC)
 	CALL	notok(SB)
 	RET

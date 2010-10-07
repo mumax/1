@@ -8,6 +8,16 @@ testpackage: _test/$(TARG).a
 
 include $(QUOTED_GOROOT)/src/Make.common
 
+# The quietgcc wrapper is for our own source code
+# while building the libraries, not arbitrary source code
+# as encountered by cgo.
+ifeq ($(HOST_CC),quietgcc)
+HOST_CC:=gcc
+endif
+ifeq ($(HOST_LD),quietgcc)
+HOST_LD:=gcc
+endif
+
 # GNU Make 3.80 has a bug in lastword
 # elem=$(lastword $(subst /, ,$(TARG)))
 TARG_words=$(subst /, ,$(TARG))
@@ -40,7 +50,7 @@ coverage:
 	gotest
 	6cov -g $(shell pwd) $O.out | grep -v '_test\.go:'
 
-CLEANFILES+=*.cgo1.go *.cgo2.c _cgo_defun.c _cgo_gotypes.go _cgo_export.* *.so _obj _test _testmain.go
+CLEANFILES+=*.cgo1.go *.cgo2.c _cgo_defun.c _cgo_gotypes.go _cgo_export.* *.so _obj _test _testmain.go *.exe
 
 test:
 	gotest
@@ -102,14 +112,14 @@ dir:
 #	x.cgo2.c	- C implementations compiled with gcc to create a dynamic library
 #
 
-_cgo_defun.c _cgo_gotypes.go _cgo_export.c _cgo_export.h: $(CGOFILES)
+_cgo_defun.c: $(CGOFILES)
 	CGOPKGPATH=$(dir) cgo -- $(CGO_CFLAGS) $(CGOFILES)
 
 # Ugly but necessary
-%.cgo1.go: _cgo_defun.c _cgo_gotypes.go
+_cgo_gotypes.go _cgo_export.c _cgo_export.h: _cgo_defun.c
 	@true
 
-%.cgo2.c: _cgo_defun.c _cgo_gotypes.go
+%.cgo1.go %.cgo2.c: _cgo_defun.c
 	@true
 
 %.cgo2.o: %.cgo2.c
@@ -138,12 +148,16 @@ _CGO_LDFLAGS_darwin=-dynamiclib -Wl,-undefined,dynamic_lookup
 _cgo_defun.$O: _cgo_defun.c
 	$(CC) $(CFLAGS) $(RUNTIME_CFLAGS) _cgo_defun.c
 
-_cgo_.so: $(GCC_OFILES) $(CGO_DEPS)
+$(CGOTARG).so: $(GCC_OFILES) $(CGO_DEPS)
 	$(HOST_CC) $(_CGO_CFLAGS_$(GOARCH)) -o $@ $(GCC_OFILES) $(CGO_LDFLAGS)  $(_CGO_LDFLAGS_$(GOOS))
 
-$(pkgdir)/$(CGOTARG).so: _cgo_.so
-	@test -d $(QUOTED_GOROOT)/pkg && mkdir -p $(pkgdir)/$(dir)
-	cp _cgo_.so "$@"
+$(pkgdir)/$(CGOTARG).so: $(CGOTARG).so
+	@test -d $(QUOTED_GOROOT)/pkg && mkdir -p $(pkgdir)
+	cp $(CGOTARG).so "$@"
+
+ifneq ($(CGOFILES),)
+testpackage: $(CGOTARG).so
+endif
 
 # Generic build rules.
 # These come last so that the rules above can override them

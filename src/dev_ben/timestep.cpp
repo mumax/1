@@ -1,4 +1,5 @@
 #include "timestep.h"
+#include "gputil.h"
 
 #ifdef __cplusplus
 extern "C" {

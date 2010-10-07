@@ -25,6 +25,10 @@ float* new_gpu_array(int size){
   return array;
 }
 
+void free_gpu_array(float* ptr){
+  gpu_safe(cudaFree(ptr));
+}
+
 
 float* new_ram_array(int size){
   assert(size > 0);
@@ -172,16 +176,16 @@ void gpu_override_stride(int nFloats){
 }
 
 
-int gpu_pad_to_stride(int nFloats){
-  assert(nFloats > 0);
-  int stride = gpu_stride_float();
-  int gpulen = ((nFloats-1)/stride + 1) * stride;
-  
-  assert(gpulen % stride == 0);
-  assert(gpulen > 0);
-  assert(gpulen >= nFloats);
-  return gpulen;
-}
+// int gpu_pad_to_stride(int nFloats){
+//   assert(nFloats > 0);
+//   int stride = gpu_stride_float();
+//   int gpulen = ((nFloats-1)/stride + 1) * stride;
+//   
+//   assert(gpulen % stride == 0);
+//   assert(gpulen > 0);
+//   assert(gpulen >= nFloats);
+//   return gpulen;
+// }
 
 
 #ifdef __cplusplus

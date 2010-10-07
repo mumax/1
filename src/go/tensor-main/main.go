@@ -1,3 +1,9 @@
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any 
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
 package main
 
 import (
@@ -23,7 +29,7 @@ func main() {
 	}
 }
 
-/** stores the tensor that is being maipulated. should be accessed through setbuffer(), getbuffer(). */
+// stores the tensor that is being maipulated. should be accessed through setbuffer(), getbuffer().
 var tensor_ Tensor
 
 
@@ -31,7 +37,7 @@ func setbuffer(t Tensor) {
 	tensor_ = t
 }
 
-/** gets the buffered tensor, or reads from stdin if no tensor was created yet. */
+//gets the buffered tensor, or reads from stdin if no tensor was created yet. 
 func getbuffer() Tensor {
 	if tensor_ == nil {
 		setbuffer(Read(os.Stdin))
@@ -39,7 +45,7 @@ func getbuffer() Tensor {
 	return tensor_
 }
 
-/** Has SOME output been written already? If not, we will write the tensor buffer to stdout before the program exits. */
+//Has SOME output been written already? If not, we will write the tensor buffer to stdout before the program exits.
 var written bool = false
 
 func exec(command string, args []string) {

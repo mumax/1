@@ -38,7 +38,7 @@ typedef struct{
   float* buffer3;          ///< Buffer for zero-padding in Y and in-place transform
   float* buffer3t;         ///< buffer3 transposed
 
-}gpuFFT3dPlan;
+}gpuFFT3dPlanArne;
 
 
 
@@ -47,7 +47,7 @@ typedef struct{
  * If paddedsize is larger than size, then the additional space is filled with zeros,
  * but they are efficiently handled during the transform.
  */
-gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size,       ///< size of real input data (3D)
+gpuFFT3dPlanArne* new_gpuFFT3dPlanArne_padded(int* size,       ///< size of real input data (3D)
                                       int* paddedsize  ///< size of the padded data (3D). Should be at least the size of the input data. If the kernel is larger, the input data is assumed to be padded with zero's which are efficiently handled by the FFT
                                       );
 
@@ -55,9 +55,9 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size,       ///< size of real input d
  * @internal
  * Forward (real-to-complex) transform.
  * Sizes are not checked.
- * @see gpuFFT3dPlan_inverse()
+ * @see gpuFFT3dPlanArne_inverse()
  */
-void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan,      ///< the plan to be executed
+void gpuFFT3dPlanArne_forward(gpuFFT3dPlanArne* plan,      ///< the plan to be executed
                           float* input,            ///< input data. Size = dataSize. Real
                           float* output            ///< output data. Size = paddedComplexSize. Half-complex format
                           );
@@ -66,9 +66,9 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan,      ///< the plan to be executed
  * @internal
  * Backward (complex-to-real) transform.
  * Sizes are not checked.
- * @see gpuFFT3dPlan_forward()
+ * @see gpuFFT3dPlanArne_forward()
  */
-void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan,       ///< the plan to be executed
+void gpuFFT3dPlanArne_inverse(gpuFFT3dPlanArne* plan,       ///< the plan to be executed
                                  float* input,      ///< input data, Size = paddedComplexSize. Half-complex format
                                  float* output      ///< output data, Size = dataSize. Real
                                  );

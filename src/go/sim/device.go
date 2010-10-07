@@ -1,3 +1,9 @@
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any 
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
 package sim
 
 import ()
@@ -34,6 +40,10 @@ import ()
  */
 type Device interface {
 	init()
+
+	// selects a device when more than one is present
+	// (typically used for multiple GPU's, not useful for CPU)
+	setDevice(devid int)
 
 	//____________________________________________________________________ general purpose (use Backend safe wrappers)
 
@@ -79,6 +89,9 @@ type Device interface {
 	// while host arrays are *float's.
 	// Does not need to be initialized with zeros
 	newArray(nFloats int) uintptr
+
+	// Frees device memory allocated by newArray
+	freeArray(ptr uintptr)
 
 	// Copies nFloats to, on or from the device, depending on the direction flag (1, 2 or 3)
 	memcpy(source, dest uintptr, nFloats, direction int)

@@ -39,10 +39,17 @@ void gpu_euler_stage(float* m, float* torque, int N){
   float* tqz = &(torque[2*N]);
 
 
+<<<<<<< HEAD:src/dev_ben/gpueuler.cu
 //   timer_start("euler_stage");
   _gpu_euler_stage<<<gridSize, blockSize>>>(mx, my, mz, tqx, tqy, tqz, N);
   gpu_sync();
 //   timer_stop("euler_stage");
+=======
+  timer_start("euler_stage");
+  _gpu_euler_stage<<<gridSize, blockSize>>>(mx, my, mz, tqx, tqy, tqz);
+  gpu_sync();
+  timer_stop("euler_stage");
+>>>>>>> arne:src/core/gpueuler.cu
   
   return;
 }

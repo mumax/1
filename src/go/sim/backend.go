@@ -1,3 +1,9 @@
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any 
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
 package sim
 
 import (
@@ -19,24 +25,24 @@ import (
 
 type Backend struct {
 	Device
-	Initiated bool
+	// 	Initiated bool
 	Timer
 }
 
 func NewBackend(d Device) *Backend {
-	return &Backend{d, false, NewTimer()}
+	return &Backend{d, NewTimer()}
 }
 
 //_________________________________________________________________________ safe wrappers for Device methods
 
 // more or less safe initialization, calls the underlying init() only once
 // (given you allocate only one unique CPU, GPU, ...)
-func (dev *Backend) InitBackend() {
-	if !dev.Initiated {
-		dev.init()
-		dev.Initiated = true
-	}
-}
+// func (dev *Backend) InitBackend() {
+// 	if !dev.Initiated {
+// 		dev.init()
+// 		dev.Initiated = true
+// 	}
+// }
 
 // Copies a number of floats from host to GPU
 func (dev *Backend) memcpyTo(source *float, dest uintptr, nFloats int) {
@@ -98,24 +104,14 @@ func (dev *Backend) LinearCombination(a, b *DevTensor, weightA, weightB float) {
 
 // a[i] += cnst
 func (dev *Backend) AddConstant(a *DevTensor, cnst float) {
-	Debugvv("Backend.AddConstant(", a, cnst, ")")
 	dev.addConstant(a.data, cnst, tensor.N(a))
 }
 
-// // adds the constant vector cnst to each element a. len(cnst) == Size(a)[0]
-// func(dev *Backend) AddVector(a *Tensor, cnst []float){
-//   assert(len(cnst) == a.size[0])
-//   for i:=range a.size{
-//     dev.addConstant(
-//   }
+// func (dev *Backend) Normalize(m *DevTensor) {
+// 	assert(len(m.size) == 4)
+// 	N := m.size[1] * m.size[2] * m.size[3]
+// 	dev.normalize(m.data, N)
 // }
-
-func (dev *Backend) Normalize(m *DevTensor) {
-	//Debugvv( "Backend.Normalize()" )
-	assert(len(m.size) == 4)
-	N := m.size[1] * m.size[2] * m.size[3]
-	dev.normalize(m.data, N)
-}
 
 
 // calculates torque * dt, overwrites h with the result
@@ -138,7 +134,7 @@ func (dev *Backend) Torque(m, h *DevTensor, alpha float) {
 
 func (b Backend) OverrideStride(stride int) {
 	panic("OverrideStride is currently not compatible with the used FFT, it should always be 1")
-	Debugv("Backend.OverrideStride(", stride, ")")
+	Debugvv("Backend.OverrideStride(", stride, ")")
 	assert(stride > 0 || stride == -1)
 	b.overrideStride(stride)
 }

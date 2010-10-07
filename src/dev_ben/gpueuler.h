@@ -11,8 +11,12 @@
 
 #include "tensor.h"
 #include "param.h"
+<<<<<<< HEAD:src/dev_ben/gpueuler.h
 #include "gputil.h"
 #include "gpu_conf.h"
+=======
+#include "gpukern.h"
+>>>>>>> arne:src/core/gpueuler.h
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,3 +1,9 @@
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any 
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
 // Magnetic simulation package
 package sim
 
@@ -5,7 +11,12 @@ import (
 	"tensor"
 	"time"
 	"fmt"
+	"os"
 )
+
+
+//                                                                  WARNING: USE sim.backend, not sim.Backend
+//                                                                  TODO: need to get rid of this duplication
 
 // Sim has an "input" member of type "Input".
 //
@@ -51,6 +62,7 @@ type Sim struct {
 	BeenValid    bool            // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
 	backend      *Backend        // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
 	mLocal       *tensor.Tensor4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
+	normMap      *DevTensor      // Per-cell magnetization norm. nil means the norm is 1.0 everywhere.
 	Material                     // Stores material parameters and manages the internal units
 	Mesh                         // Stores the size of the simulation grid
 	Conv                         // Convolution plan for the magnetostatic field
@@ -70,29 +82,32 @@ type Sim struct {
 	autosaveIdx  int             // Unique identifier of output state. Updated each time output is saved.
 	outputdir    string          // Where to save output files.
 	mUpToDate    bool            // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
+	silent       bool            // Do not print anything to os.Stdout when silent == true, only to log file
+	out          *os.File        // Output log file
 }
 
-func New() *Sim {
-	return NewSim()
+func New(outputdir string) *Sim {
+	return NewSim(outputdir)
 }
 
-func NewSim() *Sim {
+func NewSim(outputdir string) *Sim {
 	sim := new(Sim)
 	sim.starttime = time.Seconds()
 	sim.backend = GPU //TODO: check if GPU is present, use CPU otherwise
-	sim.outputdir = "."
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
 	sim.input.demag_accuracy = 8
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
-	sim.invalidate()     //just to make sure we will init()
+	sim.outputDir(outputdir)
+	sim.initWriters()
+	sim.invalidate() //just to make sure we will init()
 	return sim
 }
 
 // When a parmeter is changed, the simulation state is invalidated until it gets (re-)initialized by init().
 func (s *Sim) invalidate() {
 	if s.IsValid() {
-		Debugv("Simulation state invalidated")
+		s.Println("Simulation state invalidated")
 	}
 	s.valid = false
 }
@@ -106,20 +121,24 @@ func (s *Sim) initSize() {
 	s.size4D[0] = 3 // 3-component vectors
 	for i := range s.size {
 		s.size[i] = s.input.size[i]
-		assert(s.size[i] > 0)
+		if !(s.size[i] > 0) {
+			s.Errorln("The size should be set first. E.g.: size 4 32 32")
+			os.Exit(-6)
+		}
 		s.size4D[i+1] = s.size[i]
 	}
-	Debugv("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
+	s.Println("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
 }
 
 func (s *Sim) initMLocal() {
 	s.initSize()
 	if s.mLocal == nil {
-		Debugv("Allocating local memory " + fmt.Sprint(s.size4D))
+		s.Println("Allocating local memory " + fmt.Sprint(s.size4D))
 		s.mLocal = tensor.NewTensor4(s.size4D[0:])
 	}
 
 	if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
+		s.Println("Resampling magnetization from ", s.mLocal.Size(), " to ", Size4D(s.input.size[0:]))
 		s.mLocal = resample(s.mLocal, Size4D(s.input.size[0:]))
 	}
 }
@@ -129,18 +148,31 @@ func (s *Sim) init() {
 	if s.IsValid() {
 		return //no work to do
 	}
-	Debugv("Initializing simulation state")
+	s.Println("Initializing simulation state")
 
 	dev := s.backend
-	dev.InitBackend()
+	// 	dev.InitBackend()
 	assert(s.backend != nil)
 	assert(s != nil)
 
 	// (1) Material parameters control the units,
 	// so they need to be set up first
-	s.InitMaterial()
+	s.InitMaterial() // sets gamma, mu0
+	if s.input.msat == 0. {
+		s.Errorln("Saturation magnetization should first be set. E.g. msat 800E3")
+		os.Exit(-6)
+	}
 	s.mSat = s.input.msat
+
+	if s.input.aexch == 0. {
+		s.Errorln("Exchange constant should first be set. E.g. aexch 12E-13")
+		os.Exit(-6)
+	}
 	s.aExch = s.input.aexch
+
+	if s.input.alpha <= 0. {
+		s.Warn("Damping parameter alpha =  ", s.input.alpha)
+	}
 	s.alpha = s.input.alpha
 
 	// (2) Size must be set before memory allocation
@@ -148,7 +180,10 @@ func (s *Sim) init() {
 	L := s.UnitLength()
 	for i := range s.size {
 		s.cellSize[i] = s.input.cellSize[i] / L
-		assert(s.cellSize[i] > 0.)
+		if !(s.cellSize[i] > 0.) {
+			s.Errorln("The cell size should be set first. E.g. cellsize 1E-9 1E-9 1E-9")
+			os.Exit(-6)
+		}
 	}
 
 	// (3) Allocate memory, but only if needed
@@ -161,7 +196,7 @@ func (s *Sim) init() {
 	// 	}
 
 	// 	if s.mDev == nil {
-	Debugv("Allocating device memory " + fmt.Sprint(s.size4D))
+	s.Println("Allocating device memory " + fmt.Sprint(s.size4D))
 	s.mDev = NewTensor(dev, s.size4D[0:])
 	s.h = NewTensor(dev, s.size4D[0:])
 	s.printMem()
@@ -182,7 +217,7 @@ func (s *Sim) init() {
 
 	s.paddedsize = padSize(s.size[0:])
 
-	Debugv("Calculating kernel (may take a moment)")
+	s.Println("Calculating kernel (may take a moment)") // --- In fact, it takes 3 moments, one in each direction.
 	demag := FaceKernel6(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy)
 	exch := Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
 	// Add Exchange kernel to demag kernel
@@ -197,7 +232,7 @@ func (s *Sim) init() {
 	s.printMem()
 
 	// (5) Time stepping
-	Debugv("Initializing solver: ", s.input.solvertype)
+	s.Println("Initializing solver: ", s.input.solvertype)
 	s.dt = s.input.dt / s.UnitTime()
 	s.Solver = NewSolver(s.input.solvertype, s)
 	s.printMem()
@@ -207,15 +242,15 @@ func (s *Sim) init() {
 }
 
 
+// OBSOLETE: CLI flag
 // Set how much debug info is printed. Level=0,1,2 or 3 for none, normal, verbose and very verbose.
-func (s *Sim) Verbosity(level int) {
-	Verbosity = level
-	// does not invalidate
-}
+// func (s *Sim) Verbosity(level int) {
+// 	Verbosity = level
+// 	// does not invalidate
+// }
 
 
 func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {
-	Debugv("Resampling magnetization from ", in.Size(), " to ", size2)
 	assert(len(size2) == 4)
 	out := tensor.NewTensor4(size2)
 	out_a := out.Array()
@@ -234,4 +269,16 @@ func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {
 		}
 	}
 	return out
+}
+
+
+func (sim *Sim) Normalize(m *DevTensor) {
+	assert(len(m.size) == 4)
+	N := m.size[1] * m.size[2] * m.size[3]
+	if sim.normMap == nil {
+		sim.normalize(m.data, N)
+	} else {
+		assert(sim.normMap.size[0] == m.size[1] && sim.normMap.size[1] == m.size[2] && sim.normMap.size[2] == m.size[3])
+		sim.normalizeMap(m.data, sim.normMap.data, N)
+	}
 }

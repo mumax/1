@@ -1,4 +1,5 @@
 #include "gpu_heun.h"
+#include "gpukern.h"
 #include "gputil.h"
 #include "timer.h"
 #include <stdio.h>
@@ -95,29 +96,44 @@ __global__ void _gpu_heunstage1(float* mx , float* my , float* mz ,
 
 void gpuheun_stage0(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
 
+<<<<<<< HEAD:src/dev_ben/gpu_heun.cu
   int N = solver->mComp[X]->len;
   dim3 gridSize, blockSize;
   make1dconf(N, &gridSize, &blockSize);
+=======
+  dim3 gridSize, blockSize;
+  make1dconf(solver->mComp[X]->len, &gridSize, &blockSize); ///@todo cache in heun struct
+>>>>>>> arne:src/core/gpu_heun.cu
 
 //   timer_start("gpuheun_step");
 
-    tensor_copy_gpu_to_gpu(solver->m, solver->m0);
+    tensor_copy_on_gpu(solver->m, solver->m0);
     _gpu_heunstage0<<<gridSize, blockSize>>>(solver->       mComp[X]->list, solver->       mComp[Y]->list,  solver->       mComp[Z]->list,
                                              solver->       hComp[X]->list, solver->       hComp[Y]->list,  solver->       hComp[Z]->list,
                                              solver-> torque0Comp[X]->list, solver-> torque0Comp[Y]->list,  solver-> torque0Comp[Z]->list,
                                              solver->params->hExt[X],       solver->params->hExt[Y],        solver->params->hExt[Z],
+<<<<<<< HEAD:src/dev_ben/gpu_heun.cu
                                              1.0f * solver->params->maxDt, solver->params->alpha, N);
     gpu_sync();
 
+=======
+                                             1.0f * solver->params->maxDt, solver->params->alpha);
+    gpu_sync();
+>>>>>>> arne:src/core/gpu_heun.cu
 
 //   timer_stop("gpuheun_step");
 }
 
 void gpuheun_stage1(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
 
+<<<<<<< HEAD:src/dev_ben/gpu_heun.cu
   int N = solver->mComp[X]->len;
   dim3 gridSize, blockSize;
   make1dconf(N, &gridSize, &blockSize);
+=======
+  dim3 gridSize, blockSize;
+  make1dconf(solver->mComp[X]->len, &gridSize, &blockSize); ///@todo cache in heun struct
+>>>>>>> arne:src/core/gpu_heun.cu
   
 //   timer_start("gpuheun_step");
   
@@ -126,7 +142,11 @@ void gpuheun_stage1(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
                                              solver-> torque0Comp[X]->list,  solver->torque0Comp[Y]->list,  solver->torque0Comp[Z]->list,
                                              solver->      m0Comp[X]->list,  solver->     m0Comp[Y]->list,  solver->     m0Comp[Z]->list,
                                              solver->params->hExt[X],       solver->params->hExt[Y],        solver->params->hExt[Z],
+<<<<<<< HEAD:src/dev_ben/gpu_heun.cu
                                              0.5f * solver->params->maxDt, solver->params->alpha, N);
+=======
+                                             0.5f * solver->params->maxDt, solver->params->alpha);
+>>>>>>> arne:src/core/gpu_heun.cu
     gpu_sync();
   
 //   timer_stop("gpuheun_step");
@@ -144,7 +164,7 @@ void gpu_heun_step(gpuheun* solver, tensor* m, tensor* h, double* totalTime){
   
   
   if(solver->stage == 0){
-    tensor_copy_gpu_to_gpu(solver->m, solver->m0);
+    tensor_copy_on_gpu(solver->m, solver->m0);
     gpuheun_stage0(solver, m, h, totalTime);
     *totalTime += 0.5 * solver->params->maxDt;
     solver->stage++;

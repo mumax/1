@@ -1,4 +1,6 @@
 #include "gpu_anal.h"
+#include "gputil.h"
+#include "gpukern.h"
 #include "timer.h"
 #include <stdio.h>
 #include <assert.h>
@@ -12,12 +14,21 @@ void gpu_anal_fw_step(param *p, tensor *m_in, tensor *m_out, tensor *h){
   int N = m_in->len/3;
   
   dim3 gridSize, blockSize;
+<<<<<<< HEAD:src/dev_ben/gpu_anal.cu
   make1dconf(N, &gridSize, &blockSize);
   
 //   timer_start("gpu_anal_fw_step");
   _gpu_anal_fw_step <<<gridSize, blockSize>>> (&m_in->list[X*N], &m_in->list[Y*N], &m_in->list[Z*N], &m_out->list[X*N], &m_out->list[Y*N], &m_out->list[Z*N], &h->list[X*N], &h->list[Y*N], &h->list[Z*N], p->maxDt, p->alpha, N);
   gpu_sync();
 //   timer_stop("gpu_anal_fw_step");
+=======
+  make1dconf(length, &gridSize, &blockSize); ///@todo cache in gpu_anal struct
+  
+  timer_start("gpu_anal_fw_step");
+  _gpu_anal_fw_step <<<gridSize, blockSize>>> (&m_in->list[X*length], &m_in->list[Y*length], &m_in->list[Z*length], &m_out->list[X*length], &m_out->list[Y*length], &m_out->list[Z*length], &h->list[X*length], &h->list[Y*length], &h->list[Z*length], p->maxDt, p->alpha);
+  gpu_sync();
+  timer_stop("gpu_anal_fw_step");
+>>>>>>> arne:src/core/gpu_anal.cu
   
 
   return;
@@ -88,6 +99,7 @@ __global__ void _gpu_anal_fw_step (float *minx, float *miny, float *minz, float 
 
 void gpu_anal_pc_mean_h(tensor *h1, tensor *h2){
 
+<<<<<<< HEAD:src/dev_ben/gpu_anal.cu
   int N = h1->len;
   dim3 gridSize, blockSize;
   make1dconf(N, &gridSize, &blockSize);
@@ -96,6 +108,15 @@ void gpu_anal_pc_mean_h(tensor *h1, tensor *h2){
   _gpu_anal_pc_meah_h <<<gridSize, blockSize>>> (h1->list, h2->list, N);
   gpu_sync();
 //   timer_stop("gpu_anal_pc_mean_h");
+=======
+  dim3 gridSize, blockSize;
+  make1dconf(h1->len, &gridSize, &blockSize); ///@todo cache in gpu_anal struct
+
+  timer_start("gpu_anal_pc_mean_h");
+  _gpu_anal_pc_meah_h <<<gridSize, blockSize>>> (h1->list, h2->list);
+  gpu_sync();
+  timer_stop("gpu_anal_pc_mean_h");
+>>>>>>> arne:src/core/gpu_anal.cu
 
   return;
 }

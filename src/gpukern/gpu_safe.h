@@ -30,6 +30,7 @@ extern "C" {
  */
 #define gpu_sync() gpu_safe(cudaThreadSynchronize())
 
+
 ///@internal
 char* cufftGetErrorString(cufftResult s);
 
@@ -42,6 +43,8 @@ char* cufftGetErrorString(cufftResult s);
  * @endcode
  */
 #define gpu_safefft(s) { if(s != CUFFT_SUCCESS) { fprintf(stderr, "received CUFFT error: %s\n", cufftGetErrorString((cufftResult)s)); assert(s == 0);}}
+
+#define gpu_syncfft() gpu_safefft(cudaThreadSynchronize())
 
 #ifdef __cplusplus
 }

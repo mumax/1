@@ -38,6 +38,9 @@ __global__ void _gpu_normalize_map(float* mx , float* my , float* mz, float* nor
   int i = threadindex;
   if(i < N){
     float norm = rsqrtf(mx[i]*mx[i] + my[i]*my[i] + mz[i]*mz[i]) * normMap[i];
+    if (normMap[i] == 0.){  //HACK
+      norm = 0.;
+    }
     mx[i] *= norm;
     my[i] *= norm;
     mz[i] *= norm;
@@ -45,7 +48,6 @@ __global__ void _gpu_normalize_map(float* mx , float* my , float* mz, float* nor
 }
 
 void gpu_normalize_map(float* m, float* map, int N){
-
   dim3 gridSize, blockSize;
   make1dconf(N, &gridSize, &blockSize);
 

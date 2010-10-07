@@ -25,7 +25,7 @@ func main() {
 	if len(s) != 2 || s[0] != 0xc2 || s[1] != 0xff ||
 		len(t) != 2 || t[0] != 0xd0 || t[1] != 0xfe ||
 		len(u) != 3 || u[0] != 0xab || u[1] != 0x00 || u[2] != 0xfc {
-		println("BUG: non-UTF-8 string mangled");
+		println("BUG: non-UTF-8 string mangled")
 		os.Exit(2)
 	}
 
@@ -48,7 +48,7 @@ var yy = ` + "`in raw string \xff foo`" + `  // ERROR "UTF-8"
 
 // in comment ` + "\xe2\x80\x01" + `  // ERROR "UTF-8"
 
-/* in other comment ` + "\xe0\x00\x00" + ` */ // ERROR "UTF-8"
+/* in other comment ` + "\xe0\x00\x00" + ` */ // ERROR "UTF-8|NUL"
 
 /* in variable name */
 var z` + "\xc1\x81" + ` int // ERROR "UTF-8"

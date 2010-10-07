@@ -18,11 +18,15 @@
 #define GPU_FFT_H
 
 #include "tensor.h"
-#include "gputil.h"
+#include "gpukern.h"
 #include <cufft.h>
+<<<<<<< HEAD:src/dev_ben/gpu_fft.h
 #include "gpu_transpose2.h"
 #include "gpu_safe.h"
 #include "gpu_conf.h"
+=======
+// #include <gpu_transpose2.h>
+>>>>>>> arne:src/core/gpu_fft.h
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,12 +65,17 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size,
                                       int* paddedSize
                                       );
 
+<<<<<<< HEAD:src/dev_ben/gpu_fft.h
 /**
  * Creates a new FFT plan for transforming real 2D or 3D data.  No zeropadding!
  */
 gpuFFT3dPlan* new_gpuFFT3dPlan(int* size);
 
 
+=======
+// void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, tensor* input, tensor* output);
+                                      
+>>>>>>> arne:src/core/gpu_fft.h
 /**
  * Forward FFT of real possibly zero-padded data with 2D or 3D dimensions. FFTs on rows containing only zeros are not performed.
  * Routine is called 'unsafe' since the input is not checked for compatibility: input data are float arrays.
@@ -77,6 +86,19 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan,
                                  );                          
 
                                  
+<<<<<<< HEAD:src/dev_ben/gpu_fft.h
+=======
+                                 
+/**
+ * Forward FFT of real possibly zero-padded data with 2D or 3D dimensions. FFTs on rows containing only zeros are not performed.
+ * The input is checked for compatibility: input data are tensors.
+ */
+/*void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, 
+                          tensor* input, 
+                          tensor* output);    */                        
+                                 
+                                 
+>>>>>>> arne:src/core/gpu_fft.h
 /**
  * Inverse FFT of real possibly zero-padded data with 2D or 3D dimensions. FFTs on rows containing only zeros are not performed.
  * Routine is called 'unsafe' since the input is not checked for compatibility: input data are float arrays.

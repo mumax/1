@@ -65,7 +65,7 @@ func (a *exprInfo) newExpr(t Type, desc string) *expr {
 }
 
 func (a *exprInfo) diag(format string, args ...interface{}) {
-	a.diagAt(&a.pos, format, args)
+	a.diagAt(&a.pos, format, args...)
 }
 
 func (a *exprInfo) diagOpType(op token.Token, vt Type) {
@@ -1236,6 +1236,38 @@ func (a *exprInfo) compileBuiltinCallExpr(b *block, ft *FuncType, as []*expr) *e
 		default:
 			a.diag("illegal argument type for cap function\n\t%v", arg.t)
 			return nil
+		}
+		return expr
+
+	case copyType:
+		if !checkCount(2, 2) {
+			return nil
+		}
+		src := as[1]
+		dst := as[0]
+		if src.t != dst.t {
+			a.diag("arguments to built-in function 'copy' must have same type\nsrc: %s\ndst: %s\n", src.t, dst.t)
+			return nil
+		}
+		if _, ok := src.t.lit().(*SliceType); !ok {
+			a.diag("src argument to 'copy' must be a slice (got: %s)", src.t)
+			return nil
+		}
+		if _, ok := dst.t.lit().(*SliceType); !ok {
+			a.diag("dst argument to 'copy' must be a slice (got: %s)", dst.t)
+			return nil
+		}
+		expr := a.newExpr(IntType, "function call")
+		srcf := src.asSlice()
+		dstf := dst.asSlice()
+		expr.eval = func(t *Thread) int64 {
+			src, dst := srcf(t), dstf(t)
+			nelems := src.Len
+			if nelems > dst.Len {
+				nelems = dst.Len
+			}
+			dst.Base.Sub(0, nelems).Assign(t, src.Base.Sub(0, nelems))
+			return nelems
 		}
 		return expr
 

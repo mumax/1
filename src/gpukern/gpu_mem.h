@@ -17,8 +17,11 @@ extern "C" {
  * Allocates an array of floats on the GPU
  * @see new_ram_array()
  */
-float* new_gpu_array(int size	///< size of the array
+float* new_gpu_array(int size	///< number of floats
                     );
+
+/// Frees an array allocated by new_gpu_array                    
+void free_gpu_array(float* ptr);
 
 /// Returns how much bytes are allocated on the GPU                    
 unsigned long long int gpu_usedmem();
@@ -62,7 +65,7 @@ void gpu_override_stride(int nFloats    ///< The stride (in number of floats) to
  * ...
  @endcode
  */
-int gpu_pad_to_stride(int nFloats);
+// int gpu_pad_to_stride(int nFloats);
 
 
 #define DIR_TO 1

@@ -7,7 +7,7 @@
 #ifndef MAIN_BEN_H
 #define MAIN_BEN_H
 
-#include "gputil.h"
+#include "gpukern.h"
 #include "kernel.h"
 #include "assert.h"
 #include "timer.h"

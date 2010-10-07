@@ -8,7 +8,6 @@ package doc
 
 import (
 	"go/ast"
-	"http" // for URLEscape
 	"io"
 	"regexp"
 	"strings"
@@ -195,7 +194,7 @@ var (
 // into a link). Go identifiers that appear in the words map are italicized; if
 // the corresponding map value is not the empty string, it is considered a URL
 // and the word is converted into a link. If nice is set, the remaining text's
-// appearance is improved where is makes sense (e.g., `` is turned into &ldquo;
+// appearance is improved where it makes sense (e.g., `` is turned into &ldquo;
 // and '' into &rdquo;).
 func emphasize(w io.Writer, line []byte, words map[string]string, nice bool) {
 	for {
@@ -227,7 +226,7 @@ func emphasize(w io.Writer, line []byte, words map[string]string, nice bool) {
 		// write match
 		if len(url) > 0 {
 			w.Write(html_a)
-			w.Write([]byte(http.URLEscape(url)))
+			template.HTMLEscape(w, []byte(url))
 			w.Write(html_aq)
 		}
 		if italics {

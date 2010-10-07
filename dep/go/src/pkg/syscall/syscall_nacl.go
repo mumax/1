@@ -8,6 +8,8 @@ package syscall
 
 const OS = "nacl"
 
+var _zero [1]byte // pointer used for zero-length writes
+
 // Auto-generated
 
 //sys	Chmod(path string, mode uint32) (errno int)
@@ -250,6 +252,8 @@ const (
 	SO_RCVBUF
 	SO_REUSEADDR
 	SO_SNDBUF
+	IPPROTO_IPV6
+	IPV6_V6ONLY
 	TCP_NODELAY
 	WNOHANG
 	WSTOPPED

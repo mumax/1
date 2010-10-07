@@ -1,3 +1,9 @@
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any 
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
 package sim
 
 import (
@@ -26,20 +32,7 @@ func (mat *Material) InitMaterial() {
 }
 
 
-// func (mat *Material) String() string {
-// 	s := "Material:\n"
-// 	s += fmt.Sprintln("aExch      : \t", mat.aExch, " J/m")
-// 	s += fmt.Sprintln("mSat       : \t", mat.mSat, " A/m")
-// 	s += fmt.Sprintln("gamma0     : \t", mat.gamma0, " m/As")
-// 	s += fmt.Sprintln("mu0        : \t", mat.mu0, " N/A^2")
-// 	s += fmt.Sprintln("exch length: \t", mat.UnitLength(), " m")
-// 	s += fmt.Sprintln("unit time  : \t", mat.UnitTime(), " s")
-// 	s += fmt.Sprintln("unit energy: \t", mat.UnitEnergy(), " J")
-// 	s += fmt.Sprintln("unit field : \t", mat.UnitField(), " T")
-// 	return s
-// }
-
-
+//  Units:
 //  FIELD = Ms
 //  LENGTH = sqrt(2.0*A/(mu0*Ms*Ms))
 //  TIME = 1.0 / (gamma * Ms)

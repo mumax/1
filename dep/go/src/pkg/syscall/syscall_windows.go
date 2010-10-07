@@ -70,12 +70,6 @@ func UTF16ToString(s []uint16) string {
 // the UTF-8 string s, with a terminating NUL added.
 func StringToUTF16Ptr(s string) *uint16 { return &StringToUTF16(s)[0] }
 
-func NsecToTimeval(nsec int64) (tv Timeval) {
-	tv.Sec = int32(nsec / 1e9)
-	tv.Usec = int32(nsec % 1e9 / 1e3)
-	return
-}
-
 // dll helpers
 
 // implemented in ../pkg/runtime/windows/syscall.cgo
@@ -147,6 +141,7 @@ func getSysProcAddr(m uint32, pname string) uintptr {
 //sys	FreeEnvironmentStrings(envs *uint16) (ok bool, errno int) = kernel32.FreeEnvironmentStringsW
 //sys	GetEnvironmentVariable(name *uint16, buffer *uint16, size uint32) (n uint32, errno int) = kernel32.GetEnvironmentVariableW
 //sys	SetEnvironmentVariable(name *uint16, value *uint16) (ok bool, errno int) = kernel32.SetEnvironmentVariableW
+//sys	SetFileTime(handle int32, ctime *Filetime, atime *Filetime, wtime *Filetime) (ok bool, errno int)
 
 // syscall interface implementation for other packages
 
@@ -184,6 +179,10 @@ func Open(path string, mode int, perm uint32) (fd int, errno int) {
 	if mode&O_CREAT != 0 {
 		access |= GENERIC_WRITE
 	}
+	if mode&O_APPEND != 0 {
+		access &^= GENERIC_WRITE
+		access |= FILE_APPEND_DATA
+	}
 	sharemode := uint32(FILE_SHARE_READ | FILE_SHARE_WRITE)
 	var createmode uint32
 	switch {
@@ -206,7 +205,7 @@ func Read(fd int, p []byte) (n int, errno int) {
 	var done uint32
 	if ok, e := ReadFile(int32(fd), p, &done, nil); !ok {
 		if e == ERROR_BROKEN_PIPE {
-			// BUG(brainman): work around ERROR_BROKEN_PIPE is returned on reading EOF from stdin
+			// NOTE(brainman): work around ERROR_BROKEN_PIPE is returned on reading EOF from stdin
 			return 0, 0
 		}
 		return 0, e
@@ -390,10 +389,7 @@ func Ftruncate(fd int, length int64) (errno int) {
 func Gettimeofday(tv *Timeval) (errno int) {
 	var ft Filetime
 	GetSystemTimeAsFileTime(&ft)
-	ms := ft.Microseconds()
-	// split into sec / usec
-	tv.Sec = int32(ms / 1e6)
-	tv.Usec = int32(ms) - tv.Sec
+	*tv = NsecToTimeval(ft.Nanoseconds())
 	return 0
 }
 
@@ -415,9 +411,23 @@ func Pipe(p []int) (errno int) {
 	return 0
 }
 
-// TODO(brainman): implement Utimes, or rewrite os.file.Chtimes() instead
 func Utimes(path string, tv []Timeval) (errno int) {
-	return EWINDOWS
+	if len(tv) != 2 {
+		return EINVAL
+	}
+	h, e := CreateFile(StringToUTF16Ptr(path),
+		FILE_WRITE_ATTRIBUTES, FILE_SHARE_WRITE, nil,
+		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0)
+	if e != 0 {
+		return e
+	}
+	defer Close(int(h))
+	a := NsecToFiletime(tv[0].Nanoseconds())
+	w := NsecToFiletime(tv[1].Nanoseconds())
+	if ok, e := SetFileTime(h, nil, &a, &w); !ok {
+		return e
+	}
+	return 0
 }
 
 // net api calls
@@ -442,6 +452,9 @@ func Utimes(path string, tv []Timeval) (errno int) {
 //sys	DnsQuery(name string, qtype uint16, options uint32, extra *byte, qrs **DNSRecord, pr *byte) (status uint32) = dnsapi.DnsQuery_W
 //sys	DnsRecordListFree(rl *DNSRecord, freetype uint32) = dnsapi.DnsRecordListFree
 
+// For testing: clients can set this flag to force
+// creation of IPv6 sockets to return EAFNOSUPPORT.
+var SocketDisableIPv6 bool
 
 type RawSockaddrInet4 struct {
 	Family uint16
@@ -525,6 +538,9 @@ func (rsa *RawSockaddrAny) Sockaddr() (Sockaddr, int) {
 }
 
 func Socket(domain, typ, proto int) (fd, errno int) {
+	if domain == AF_INET6 && SocketDisableIPv6 {
+		return -1, EAFNOSUPPORT
+	}
 	h, e := socket(int32(domain), int32(typ), int32(proto))
 	return int(h), int(e)
 }

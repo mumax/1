@@ -490,34 +490,12 @@ func indexFunc(s []byte, f func(r int) bool, truth bool) int {
 // truth==false, the sense of the predicate function is
 // inverted.
 func lastIndexFunc(s []byte, f func(r int) bool, truth bool) int {
-	end := len(s)
-	for end > 0 {
-		start := end - 1
-		rune := int(s[start])
-		if rune >= utf8.RuneSelf {
-			// Back up & look for beginning of rune. Mustn't pass start.
-			for start--; start >= 0; start-- {
-				if utf8.RuneStart(s[start]) {
-					break
-				}
-			}
-			if start < 0 {
-				return -1
-			}
-			var wid int
-			rune, wid = utf8.DecodeRune(s[start:end])
-
-			// If we've decoded fewer bytes than we expected,
-			// we've got some invalid UTF-8, so make sure we return
-			// the last possible index in s.
-			if start+wid < end && f(utf8.RuneError) == truth {
-				return end - 1
-			}
-		}
+	for i := len(s); i > 0; {
+		rune, size := utf8.DecodeLastRune(s[0:i])
+		i -= size
 		if f(rune) == truth {
-			return start
+			return i
 		}
-		end = start
 	}
 	return -1
 }
@@ -583,7 +561,7 @@ func Add(s, t []byte) []byte {
 	return s
 }
 
-// AddByte appends byte b to the end of s and returns the result.
+// AddByte appends byte t to the end of s and returns the result.
 // If s has enough capacity, it is extended in place; otherwise a
 // new array is allocated and returned.
 func AddByte(s []byte, t byte) []byte {

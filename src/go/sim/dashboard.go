@@ -1,3 +1,9 @@
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any 
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
 package sim
 
 import (
@@ -13,12 +19,11 @@ var (
 )
 
 func updateDashboard(sim *Sim) {
-	/*/*
-	  if dashboardNeedsUp{
-	    //fmt.Printf(ESC + "2F") // move up N lines
-	    up()
-	  }
-	*/
+
+	if sim.silent {
+		return
+	}
+
 	fmt.Print(HIDECURSOR)
 
 	T := sim.UnitTime()
@@ -102,6 +107,8 @@ const (
 	HIDECURSOR = "\033[?25l"
 	// Show cursor
 	SHOWCURSOR = "\033[?25h"
+
+	RED = "\033[31m"
 )
 
 const (

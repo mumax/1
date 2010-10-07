@@ -1,3 +1,9 @@
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any 
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
 package sim
 
 /*
@@ -22,6 +28,7 @@ import "unsafe"
 
 import (
 	"fmt"
+	"os"
 )
 
 var CPU *Backend = NewBackend(&Cpu{})
@@ -32,6 +39,10 @@ type Cpu struct {
 
 func (d Cpu) init() {
 	C.cpu_init()
+}
+
+func (d Cpu) setDevice(devid int) {
+	fmt.Fprintln(os.Stderr, "setDevice(", devid, ") has no effect on CPU")
 }
 
 func (d Cpu) add(a, b uintptr, N int) {
@@ -161,6 +172,10 @@ func (d Cpu) fft(plan uintptr, in, out uintptr, direction int) {
 // while host arrays are *float's.
 func (d Cpu) newArray(nFloats int) uintptr {
 	return uintptr(unsafe.Pointer(C.new_cpu_array(C.int(nFloats))))
+}
+
+func (d Cpu) freeArray(ptr uintptr) {
+	C.free_cpu_array((*C.float)(unsafe.Pointer(ptr)))
 }
 
 func (d Cpu) memcpy(source, dest uintptr, nFloats, direction int) {

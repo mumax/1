@@ -17,7 +17,7 @@ float* new_cpu_array(int size){
 }
 
 ///@todo use fftwf_free
-void delete_cpu_array(float* array){
+void free_cpu_array(float* array){
   free(array);
 }
 

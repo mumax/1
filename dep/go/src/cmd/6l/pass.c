@@ -45,10 +45,15 @@ dodata(void)
 	Sym *s;
 	Prog *p;
 	int32 t, u;
+	Section *sect;
 
 	if(debug['v'])
 		Bprint(&bso, "%5.2f dodata\n", cputime());
 	Bflush(&bso);
+	
+	segdata.rwx = 06;
+	segdata.vaddr = 0;	/* span will += INITDAT */
+
 	for(p = datap; p != P; p = p->link) {
 		curtext = p;	// for diag messages
 		s = p->from.sym;
@@ -56,13 +61,13 @@ dodata(void)
 			s->value = dtype;
 		if(s->type == SBSS)
 			s->type = SDATA;
-		if(s->type != SDATA && s->type != SELFDATA)
+		if(s->type != SDATA && s->type != SELFDATA && s->type != SRODATA)
 			diag("initialize non-data (%d): %s\n%P",
 				s->type, s->name, p);
 		t = p->from.offset + p->width;
-		if(t > s->value)
+		if(t > s->size)
 			diag("initialize bounds (%lld): %s\n%P",
-				s->value, s->name, p);
+				s->size, s->name, p);
 	}
 
 	/* allocate elf guys - must be segregated from real data */
@@ -73,12 +78,15 @@ dodata(void)
 			continue;
 		if(s->type != SELFDATA)
 			continue;
-		t = rnd(s->value, 8);
+		t = rnd(s->size, 8);
 		s->size = t;
 		s->value = datsize;
 		datsize += t;
 	}
 	elfdatsize = datsize;
+	
+	sect = addsection(&segdata, ".data", 06);
+	sect->vaddr = datsize;
 
 	/* allocate small guys */
 	for(i=0; i<NHASH; i++)
@@ -88,13 +96,12 @@ dodata(void)
 		if(s->type != SDATA)
 		if(s->type != SBSS)
 			continue;
-		t = s->value;
+		t = s->size;
 		if(t == 0 && s->name[0] != '.') {
 			diag("%s: no size", s->name);
 			t = 1;
 		}
 		t = rnd(t, 4);
-		s->value = t;
 		if(t > MINSIZ)
 			continue;
 		if(t >= 8)
@@ -115,10 +122,9 @@ dodata(void)
 				s->type = SDATA;
 			continue;
 		}
-		t = s->value;
+		t = s->size;
 		if(t >= 8)
 			datsize = rnd(datsize, 8);
-		s->size = t;
 		s->value = datsize;
 		datsize += t;
 	}
@@ -149,6 +155,7 @@ dodata(void)
 		}
 		datsize += u;
 	}
+	sect->len = datsize - sect->vaddr;
 }
 
 void
@@ -157,11 +164,15 @@ dobss(void)
 	int i;
 	Sym *s;
 	int32 t;
+	Section *sect;
 
 	if(dynptrsize > 0) {
 		/* dynamic pointer section between data and bss */
 		datsize = rnd(datsize, 8);
 	}
+
+	sect = addsection(&segdata, ".bss", 06);
+	sect->vaddr = datsize;
 
 	/* now the bss */
 	bsssize = 0;
@@ -171,13 +182,16 @@ dobss(void)
 			continue;
 		if(s->type != SBSS)
 			continue;
-		t = s->value;
-		s->size = t;
+		t = s->size;
 		if(t >= 8)
 			bsssize = rnd(bsssize, 8);
 		s->value = bsssize + dynptrsize + datsize;
 		bsssize += t;
 	}
+	sect->len = bsssize;
+	
+	segdata.len = datsize+bsssize;
+	segdata.filelen = datsize;
 
 	xdefine("data", SBSS, 0);
 	xdefine("edata", SBSS, datsize);
@@ -678,7 +692,7 @@ dostkoff(void)
 					p->from.type = D_INDIR+D_GS;
 				p->from.offset = tlsoffset+0;
 				p->to.type = D_CX;
-				
+
 				if(debug['K']) {
 					// 6l -K means check not only for stack
 					// overflow but stack underflow.
@@ -702,6 +716,11 @@ dostkoff(void)
 					p->as = AINT;
 					p->from.type = D_CONST;
 					p->from.offset = 3;
+
+					p = appendp(p);
+					p->as = ANOP;
+					q1->pcond = p;
+					q1 = P;
 				}
 
 				if(autoffset < StackBig) {  // do we need to call morestack?
@@ -711,10 +730,6 @@ dostkoff(void)
 						p->as = ACMPQ;
 						p->from.type = D_SP;
 						p->to.type = D_INDIR+D_CX;
-						if(q1) {
-							q1->pcond = p;
-							q1 = P;
-						}
 					} else {
 						// large stack
 						p = appendp(p);
@@ -722,10 +737,6 @@ dostkoff(void)
 						p->from.type = D_INDIR+D_SP;
 						p->from.offset = -(autoffset-StackSmall);
 						p->to.type = D_AX;
-						if(q1) {
-							q1->pcond = p;
-							q1 = P;
-						}
 
 						p = appendp(p);
 						p->as = ACMPQ;
@@ -755,20 +766,12 @@ dostkoff(void)
 					p->to.type = D_BRANCH;
 					p->pcond = pmorestack[0];
 					p->to.sym = symmorestack[0];
-					if(q1) {
-						q1->pcond = p;
-						q1 = P;
-					}
 				} else
 				if(moreconst1 != 0 && moreconst2 == 0) {
 					p->as = AMOVL;
 					p->from.type = D_CONST;
 					p->from.offset = moreconst1;
 					p->to.type = D_AX;
-					if(q1) {
-						q1->pcond = p;
-						q1 = P;
-					}
 
 					p = appendp(p);
 					p->as = ACALL;
@@ -782,20 +785,12 @@ dostkoff(void)
 					p->to.type = D_BRANCH;
 					p->pcond = pmorestack[i];
 					p->to.sym = symmorestack[i];
-					if(q1) {
-						q1->pcond = p;
-						q1 = P;
-					}
 				} else
 				if(moreconst1 == 0 && moreconst2 != 0) {
 					p->as = AMOVL;
 					p->from.type = D_CONST;
 					p->from.offset = moreconst2;
 					p->to.type = D_AX;
-					if(q1) {
-						q1->pcond = p;
-						q1 = P;
-					}
 
 					p = appendp(p);
 					p->as = ACALL;
@@ -808,10 +803,6 @@ dostkoff(void)
 					p->from.offset = (uint64)moreconst2 << 32;
 					p->from.offset |= moreconst1;
 					p->to.type = D_AX;
-					if(q1) {
-						q1->pcond = p;
-						q1 = P;
-					}
 
 					p = appendp(p);
 					p->as = ACALL;
@@ -829,6 +820,7 @@ dostkoff(void)
 				p->as = AADJSP;
 				p->from.type = D_CONST;
 				p->from.offset = autoffset;
+				p->spadj = autoffset;
 				if(q != P)
 					q->pcond = p;
 			}
@@ -889,26 +881,32 @@ dostkoff(void)
 		case APUSHL:
 		case APUSHFL:
 			deltasp += 4;
+			p->spadj = 4;
 			continue;
 		case APUSHQ:
 		case APUSHFQ:
 			deltasp += 8;
+			p->spadj = 8;
 			continue;
 		case APUSHW:
 		case APUSHFW:
 			deltasp += 2;
+			p->spadj = 2;
 			continue;
 		case APOPL:
 		case APOPFL:
 			deltasp -= 4;
+			p->spadj = -4;
 			continue;
 		case APOPQ:
 		case APOPFQ:
 			deltasp -= 8;
+			p->spadj = -8;
 			continue;
 		case APOPW:
 		case APOPFW:
 			deltasp -= 2;
+			p->spadj = -2;
 			continue;
 		case ARET:
 			break;
@@ -923,7 +921,7 @@ dostkoff(void)
 			p->as = AADJSP;
 			p->from.type = D_CONST;
 			p->from.offset = -autoffset;
-
+			p->spadj = -autoffset;
 			p = appendp(p);
 			p->as = ARET;
 		}
@@ -940,6 +938,7 @@ dostkoff(void)
 		q->from = zprg.from;
 		q->from.type = D_CONST;
 		q->from.offset = -autoffset;
+		q->spadj = -autoffset;
 		q->to = zprg.to;
 		continue;
 	}
@@ -1164,10 +1163,10 @@ export(void)
 		newdata(et, off, sizeof(int32), D_EXTERN);
 		off += sizeof(int32);
 	}
-	et->value = off;
+	et->size = off;
 	if(sv == 0)
 		sv = 1;
-	str->value = sv;
+	str->size = sv;
 	exports = ne;
 	free(esyms);
 }

@@ -20,6 +20,8 @@
 %{
 #include <stdio.h>	/* if we don't, bison will, and go.h re-#defines getc */
 #include "go.h"
+
+static void fixlbrace(int);
 %}
 %union	{
 	Node*		node;
@@ -66,7 +68,7 @@
 
 %type	<list>	xdcl fnbody fnres switch_body loop_body dcl_name_list
 %type	<list>	new_name_list expr_list keyval_list braced_keyval_list expr_or_type_list xdcl_list
-%type	<list>	oexpr_list oexpr_or_type_list_ocomma caseblock_list stmt_list oarg_type_list_ocomma arg_type_list
+%type	<list>	oexpr_list caseblock_list stmt_list oarg_type_list_ocomma arg_type_list
 %type	<list>	interfacedcl_list vardcl vardcl_list structdcl structdcl_list
 %type	<list>	common_dcl constdcl constdcl1 constdcl_list typedcl_list
 
@@ -459,7 +461,7 @@ case:
 		}
 		break;
 	}
-|	LCASE name '=' expr ':'
+|	LCASE expr '=' expr ':'
 	{
 		// will be converted to OCASE
 		// right will point to next case
@@ -806,10 +808,20 @@ uexpr:
  * can be preceded by 'defer' and 'go'
  */
 pseudocall:
-	pexpr '(' oexpr_or_type_list_ocomma ')'
+	pexpr '(' ')'
+	{
+		$$ = nod(OCALL, $1, N);
+	}
+|	pexpr '(' expr_or_type_list ocomma ')'
 	{
 		$$ = nod(OCALL, $1, N);
 		$$->list = $3;
+	}
+|	pexpr '(' expr_or_type_list LDDD ocomma ')'
+	{
+		$$ = nod(OCALL, $1, N);
+		$$->list = $3;
+		$$->isddd = 1;
 	}
 
 pexpr_no_paren:
@@ -843,10 +855,6 @@ pexpr_no_paren:
 	}
 |	pexpr '[' oexpr ':' oexpr ']'
 	{
-		if($3 == N) {
-			yyerror("missing lower bound in slice expression");
-			$3 = nodintconst(0);
-		}
 		$$ = nod(OSLICE, $1, nod(OKEY, $3, $5));
 	}
 |	pseudocall
@@ -861,12 +869,8 @@ pexpr_no_paren:
 		// composite expression
 		$$ = nod(OCOMPLIT, N, $1);
 		$$->list = $3;
-
-		// If the opening brace was an LBODY,
-		// set up for another one now that we're done.
-		// See comment in lex.c about loophack.
-		if($2 == LBODY)
-			loophack = 1;
+		
+		fixlbrace($2);
 	}
 |	pexpr_no_paren '{' braced_keyval_list '}'
 	{
@@ -1063,25 +1067,29 @@ recvchantype:
 	}
 
 structtype:
-	LSTRUCT '{' structdcl_list osemi '}'
+	LSTRUCT lbrace structdcl_list osemi '}'
 	{
 		$$ = nod(OTSTRUCT, N, N);
 		$$->list = $3;
+		fixlbrace($2);
 	}
-|	LSTRUCT '{' '}'
+|	LSTRUCT lbrace '}'
 	{
 		$$ = nod(OTSTRUCT, N, N);
+		fixlbrace($2);
 	}
 
 interfacetype:
-	LINTERFACE '{' interfacedcl_list osemi '}'
+	LINTERFACE lbrace interfacedcl_list osemi '}'
 	{
 		$$ = nod(OTINTER, N, N);
 		$$->list = $3;
+		fixlbrace($2);
 	}
-|	LINTERFACE '{' '}'
+|	LINTERFACE lbrace '}'
 	{
 		$$ = nod(OTINTER, N, N);
+		fixlbrace($2);
 	}
 
 keyval:
@@ -1102,6 +1110,7 @@ xfndcl:
 		if($$ == N)
 			break;
 		$$->nbody = $3;
+		$$->endlineno = lineno;
 		funcbody($$);
 	}
 
@@ -1584,12 +1593,6 @@ oexpr_list:
 	}
 |	expr_list
 
-oexpr_or_type_list_ocomma:
-	{
-		$$ = nil;
-	}
-|	expr_or_type_list ocomma
-
 osimple_stmt:
 	{
 		$$ = N;
@@ -1927,3 +1930,16 @@ hidden_interfacedcl_list:
 	{
 		$$ = list($1, $3);
 	}
+
+%%
+
+static void
+fixlbrace(int lbr)
+{
+	// If the opening brace was an LBODY,
+	// set up for another one now that we're done.
+	// See comment in lex.c about loophack.
+	if(lbr == LBODY)
+		loophack = 1;
+}
+

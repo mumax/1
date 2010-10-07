@@ -4,8 +4,16 @@
  * @author Arne Vansteenkiste
  * @author Ben Van de Wiele
  */
+<<<<<<< HEAD:src/dev_arne/gpu_torque.h
 #ifndef gpu_torque_h
 #define gpu_torque_h
+=======
+#ifndef GPUTORQUE_H
+#define GPUTORQUE_H
+
+#include "gpukern.h"
+#include "timer.h"
+>>>>>>> arne:src/core/gputorque.h
 
 #ifdef __cplusplus
 extern "C" {

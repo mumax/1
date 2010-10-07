@@ -60,16 +60,16 @@ sub bug() {
 $line = 0;
 foreach $src (@src) {
 	$line++;
-	next unless $src =~ m|// ERROR (.*)|;
-	$regexp = $1;
+	next unless $src =~ m|// (GC_)?ERROR (.*)|;
+	$regexp = $2;
 	if($regexp !~ /^"([^"]*)"/) {
 		print STDERR "$file:$line: malformed regexp\n";
 		next;
 	}
 	$regexp = $1;
 
-	@errmsg = grep { /$file:$line:/ } @out;
-	@out = grep { !/$file:$line:/ } @out;
+	@errmsg = grep { /$file:$line[:[]/ } @out;
+	@out = grep { !/$file:$line[:[]/ } @out;
 	if(@errmsg == 0) {
 		bug();
 		print STDERR "errchk: $file:$line: missing expected error: '$regexp'\n";

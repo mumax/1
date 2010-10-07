@@ -39,11 +39,16 @@ void
 span(void)
 {
 	Prog *p, *q;
-	int32 v;
-	vlong c, idat;
+	int32 i, v;
+	vlong c, idat, etext, rodata, erodata;
 	int m, n, again;
+	Sym *s;
+	Section *sect;
 
 	xdefine("etext", STEXT, 0L);
+	xdefine("rodata", SRODATA, 0L);
+	xdefine("erodata", SRODATA, 0L);
+
 	idat = INITDAT;
 	for(p = firstp; p != P; p = p->link) {
 		if(p->as == ATEXT)
@@ -121,6 +126,26 @@ loop:
 		textsize = c;
 		goto loop;
 	}
+	etext = c;
+	
+	/*
+	 * allocate read-only data to the text segment.
+	 */
+	c = rnd(c, 8);
+	rodata = c;
+	xdefine("rodata", SRODATA, c);
+	for(i=0; i<NHASH; i++)
+	for(s = hash[i]; s != S; s = s->link) {
+		if(s->type != SRODATA)
+			continue;
+		v = s->size;
+		while(v & 7)
+			v++;
+		s->value = c;
+		c += v;
+	}
+	erodata = c;
+
 	if(INITRND) {
 		INITDAT = rnd(c, INITRND);
 		if(INITDAT != idat) {
@@ -128,13 +153,34 @@ loop:
 			goto start;
 		}
 	}
-	xdefine("etext", STEXT, c);
+	
+	xdefine("etext", STEXT, etext);
+	xdefine("rodata", SRODATA, rodata);
+	xdefine("erodata", SRODATA, erodata);
+
 	if(debug['v'])
 		Bprint(&bso, "etext = %llux\n", c);
 	Bflush(&bso);
 	for(p = textp; p != P; p = p->pcond)
 		p->from.sym->value = p->pc;
 	textsize = c - INITTEXT;
+	
+	segtext.rwx = 05;
+	segtext.vaddr = INITTEXT - HEADR;
+	segtext.len = INITDAT - INITTEXT + HEADR;
+	segtext.filelen = textsize + HEADR;
+	
+	sect = addsection(&segtext, ".text", 05);
+	sect->vaddr = INITTEXT;
+	sect->len = etext - sect->vaddr;
+	
+	sect = addsection(&segtext, ".rodata", 04);
+	sect->vaddr = rodata;
+	sect->len = erodata - rodata;
+	
+	segdata.vaddr += INITDAT;
+	for(sect=segdata.sect; sect!=nil; sect=sect->next)
+		sect->vaddr += INITDAT;
 }
 
 void
@@ -143,12 +189,8 @@ xdefine(char *p, int t, vlong v)
 	Sym *s;
 
 	s = lookup(p, 0);
-	if(s->type == 0 || s->type == SXREF) {
-		s->type = t;
-		s->value = v;
-	}
-	if(s->type == STEXT && s->value == 0)
-		s->value = v;
+	s->type = t;
+	s->value = v;
 }
 
 void
@@ -228,6 +270,7 @@ genasmsym(void (*put)(char*, int, vlong, vlong, int, Sym*))
 		for(s=hash[h]; s!=S; s=s->link) {
 			switch(s->type) {
 			case SCONST:
+			case SRODATA:
 				if(!s->reachable)
 					continue;
 				put(s->name, 'D', s->value, s->size, s->version, s->gotype);
@@ -809,6 +852,7 @@ vaddr(Adr *a)
 				ckoff(s, v);
 			case STEXT:
 			case SCONST:
+			case SRODATA:
 				if(!s->reachable)
 					diag("unreachable symbol in vaddr - %s", s->name);
 				if((uvlong)s->value < (uvlong)INITTEXT)

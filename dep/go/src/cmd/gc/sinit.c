@@ -184,6 +184,20 @@ static	void	arraylit(int ctxt, int pass, Node *n, Node *var, NodeList **init);
 static	void	slicelit(int ctxt, Node *n, Node *var, NodeList **init);
 static	void	maplit(int ctxt, Node *n, Node *var, NodeList **init);
 
+static Node*
+staticname(Type *t, int ctxt)
+{
+	Node *n;
+
+	snprint(namebuf, sizeof(namebuf), "statictmp_%.4d", statuniqgen);
+	statuniqgen++;
+	n = newname(lookup(namebuf));
+	if(!ctxt)
+		n->readonly = 1;
+	addvar(n, t, PEXTERN);
+	return n;
+}
+
 static int
 isliteral(Node *n)
 {
@@ -396,12 +410,12 @@ slicelit(int ctxt, Node *n, Node *var, NodeList **init)
 	if(ctxt != 0) {
 
 		// put everything into static array
-		vstat = staticname(t);
+		vstat = staticname(t, ctxt);
 		arraylit(ctxt, 1, n, vstat, init);
 		arraylit(ctxt, 2, n, vstat, init);
 
 		// copy static to slice
-		a = nod(OADDR, vstat, N);
+		a = nod(OSLICE, vstat, nod(OKEY, N, N));
 		a = nod(OAS, var, a);
 		typecheck(&a, Etop);
 		a->dodata = 2;
@@ -433,7 +447,7 @@ slicelit(int ctxt, Node *n, Node *var, NodeList **init)
 	vstat = N;
 	mode = getdyn(n, 1);
 	if(mode & MODECONST) {
-		vstat = staticname(t);
+		vstat = staticname(t, ctxt);
 		arraylit(ctxt, 1, n, vstat, init);
 	}
 
@@ -459,7 +473,7 @@ slicelit(int ctxt, Node *n, Node *var, NodeList **init)
 	}
 
 	// make slice out of heap (5)
-	a = nod(OAS, var, vauto);
+	a = nod(OAS, var, nod(OSLICE, vauto, nod(OKEY, N, N)));
 	typecheck(&a, Etop);
 	walkexpr(&a, init);
 	*init = list(*init, a);
@@ -507,6 +521,8 @@ maplit(int ctxt, Node *n, Node *var, NodeList **init)
 	Type *t, *tk, *tv, *t1;
 	Node *vstat, *index, *value;
 	Sym *syma, *symb;
+
+ctxt = 0;
 
 	// make the map var
 	nerr = nerrors;
@@ -560,7 +576,7 @@ maplit(int ctxt, Node *n, Node *var, NodeList **init)
 		dowidth(t);
 
 		// make and initialize static array
-		vstat = staticname(t);
+		vstat = staticname(t, ctxt);
 		b = 0;
 		for(l=n->list; l; l=l->next) {
 			r = l->n;
@@ -669,7 +685,7 @@ anylit(int ctxt, Node *n, Node *var, NodeList **init)
 
 			if(ctxt == 0) {
 				// lay out static data
-				vstat = staticname(t);
+				vstat = staticname(t, ctxt);
 				structlit(1, 1, n, vstat, init);
 
 				// copy static to var
@@ -709,7 +725,7 @@ anylit(int ctxt, Node *n, Node *var, NodeList **init)
 
 			if(ctxt == 0) {
 				// lay out static data
-				vstat = staticname(t);
+				vstat = staticname(t, ctxt);
 				arraylit(1, 1, n, vstat, init);
 
 				// copy static to automatic
@@ -763,8 +779,8 @@ oaslit(Node *n, NodeList **init)
 	// implies generated data executed
 	// exactly once and not subject to races.
 	ctxt = 0;
-	if(n->dodata == 1)
-		ctxt = 1;
+//	if(n->dodata == 1)
+//		ctxt = 1;
 
 	switch(n->right->op) {
 	default:
@@ -864,8 +880,18 @@ gen_as_init(Node *n)
 	default:
 		goto no;
 
-	case OCONVSLICE:
-		goto slice;
+	case OCONVNOP:
+		nr = nr->left;
+		if(nr == N || nr->op != OSLICEARR)
+			goto no;
+		// fall through
+	
+	case OSLICEARR:
+		if(nr->right->op == OKEY && nr->right->left == N && nr->right->right == N) {
+			nr = nr->left;
+			goto slice;
+		}
+		goto no;
 
 	case OLITERAL:
 		break;
@@ -914,7 +940,7 @@ yes:
 
 slice:
 	gused(N); // in case the data is the dest of a goto
-	nr = n->right->left;
+	nl = nr;
 	if(nr == N || nr->op != OADDR)
 		goto no;
 	nr = nr->left;
@@ -926,7 +952,7 @@ slice:
 		goto no;
 
 	nam.xoffset += Array_array;
-	gdata(&nam, n->right->left, types[tptr]->width);
+	gdata(&nam, nl, types[tptr]->width);
 
 	nam.xoffset += Array_nel-Array_array;
 	nodconst(&nod1, types[TINT32], nr->type->bound);

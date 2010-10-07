@@ -44,6 +44,7 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(float *dev_kernel, int *
   float *dev_temp2 = new_gpu_array(kernelStorageN);                       // temp array on device for storage of zero padded kernel component (output of fft routine)
  
   // Define gpugrids and blocks ___________________________________________________________________
+<<<<<<< HEAD:src/dev_ben/gpu_micromag2d_kernel.cu
     dim3 gridsize1(1,kernelSize[Y]/2, 1);
     dim3 blocksize1(kernelSize[Z]/2, 1,1);
     check3dconf(gridsize1, blocksize1);
@@ -51,12 +52,22 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(float *dev_kernel, int *
     int N = kernelStorageN/2;
     dim3 gridsize2, blocksize2;
     make1dconf(N, &gridsize2, &blocksize2);
+=======
+    int gridsize1 = 1;
+    dim3 blocksize1(kernelSize[Y]/2, kernelSize[Z]/2);
+    /// @todo: this is not compatible with large simulations yet
+    //check1dconf(gridsize1, blocksize1);
+    
+    dim3 gridsize2, blocksize2;
+    make1dconf(kernelStorageN/2, &gridsize2, &blocksize2);
+>>>>>>> arne:src/core/gpu_micromag2d_kernel.cu
   // ______________________________________________________________________________________________
   
   // Main function operations _____________________________________________________________________
     int rank0 = 0;                                      // defines the first rank of the Greens kernel: [yy, yz, zz]
     for (int co1=1; co1<3; co1++){                      // for a Greens kernel component [co1,co2]:
       for (int co2=co1; co2<3; co2++){
+<<<<<<< HEAD:src/dev_ben/gpu_micromag2d_kernel.cu
           // Put all elements in 'dev_temp1' to zero.
         gpu_zero(dev_temp1, kernelN);    
         gpu_sync();
@@ -68,6 +79,19 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(float *dev_kernel, int *
         gpu_sync();
         // Copy the real parts to the corresponding place in the dev_kernel tensor.
         _gpu_extract_real_parts_micromag2d<<<gridsize2, blocksize2>>>(&dev_kernel[rank0*kernelStorageN/2], dev_temp2, N);
+=======
+          // Put all elements in 'dev_temp' to zero.
+        gpu_zero(dev_temp, kernelStorageN);    
+        gpu_sync();
+        // Fill in the elements.
+        _gpu_init_Greens_kernel_elements_micromag2d<<<gridsize1, blocksize1>>>(dev_temp, kernelSize[Y], kernelSize[Z], kernelStorageSize[Z], exchInConv[Y], exchInConv[Z], co1, co2, FD_cell_size[Y], FD_cell_size[Z], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
+        gpu_sync();
+        // Fourier transform the kernel component.
+        gpuFFT3dPlan_forward(kernel_plan, FFT_input->list, FFT_output->list); 
+        gpu_sync();
+        // Copy the real parts to the corresponding place in the dev_kernel tensor.
+        _gpu_extract_real_parts_micromag2d<<<gridsize2, blocksize2>>>(&dev_kernel->list[rank0*kernelStorageN/2], dev_temp);
+>>>>>>> arne:src/core/gpu_micromag2d_kernel.cu
         gpu_sync();
         rank0++;                                        // get ready for next component
       }

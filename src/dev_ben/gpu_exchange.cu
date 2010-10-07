@@ -54,7 +54,11 @@ void gpu_add_6NGBR_exchange_3D_geometry (float *m, float *h, param *p){
   dim3 gridsize (bx, by);
   dim3 blocksize (EXCH_BLOCK_X, EXCH_BLOCK_Y);
 
+<<<<<<< HEAD:src/dev_ben/gpu_exchange.cu
   _gpu_add_6NGBR_exchange_3D_geometry <<<gridsize, blocksize>>> (m, h, p->size[X], p->size[Y], p->size[Z], cst_x, cst_y, cst_z, cst_xyz, p->demagPeriodic[X], p->demagPeriodic[Y], p->demagPeriodic[Z]);
+=======
+  _gpu_add_exchange_3D_geometry <<<gridsize, blocksize>>> (m, h, p->size[X], p->size[Y], p->size[Z], cst_x, cst_y, cst_z, cst_xyz, p->demagPeriodic[X], p->demagPeriodic[Y], p->demagPeriodic[Z]);
+>>>>>>> arne:src/core/gpu_exchange.cu
   gpu_sync();
   
   return;
@@ -185,7 +189,11 @@ void gpu_add_6NGBR_exchange_2D_geometry (float *m, float *h, param *p){
   dim3 gridsize (bx, by);
   dim3 blocksize (EXCH_BLOCK_X, EXCH_BLOCK_Y);
 
+<<<<<<< HEAD:src/dev_ben/gpu_exchange.cu
   _gpu_add_6NGBR_exchange_2D_geometry <<<gridsize, blocksize>>> (m, h, p->size[Y], p->size[Z], cst_y, cst_z, cst_yz, p->demagPeriodic[Y], p->demagPeriodic[Z]);
+=======
+  _gpu_add_exchange_2D_geometry <<<gridsize, blocksize>>> (m, h, p->size[Y], p->size[Z], cst_y, cst_z, cst_yz, p->demagPeriodic[Y], p->demagPeriodic[Z]);
+>>>>>>> arne:src/core/gpu_exchange.cu
   gpu_sync();
   
   return;

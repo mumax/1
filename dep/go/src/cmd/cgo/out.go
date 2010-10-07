@@ -107,7 +107,11 @@ func (p *Package) structType(n *Name) (string, int64) {
 			fmt.Fprintf(&buf, "\t\tchar __pad%d[%d];\n", off, pad)
 			off += pad
 		}
-		fmt.Fprintf(&buf, "\t\t%s r;\n", t.C)
+		qual := ""
+		if t.C[len(t.C)-1] == '*' {
+			qual = "const "
+		}
+		fmt.Fprintf(&buf, "\t\t%s%s r;\n", qual, t.C)
 		off += t.Size
 	}
 	if off%p.PtrSize != 0 {
@@ -627,6 +631,7 @@ typedef unsigned char uchar;
 typedef unsigned short ushort;
 typedef long long int64;
 typedef unsigned long long uint64;
+typedef __SIZE_TYPE__ uintptr;
 
 typedef struct { char *p; int n; } GoString;
 typedef void *GoMap;

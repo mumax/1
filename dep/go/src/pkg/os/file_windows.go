@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// The os package provides a platform-independent interface to operating
-// system functionality.  The design is Unix-like.
 package os
 
 import (
@@ -110,11 +108,17 @@ func (file *File) Stat() (fi *FileInfo, err Error) {
 
 // Readdir reads the contents of the directory associated with file and
 // returns an array of up to count FileInfo structures, as would be returned
-// by Stat, in directory order.  Subsequent calls on the same file will yield
+// by Lstat, in directory order.  Subsequent calls on the same file will yield
 // further FileInfos.
 // A negative count means to read until EOF.
 // Readdir returns the array and an Error, if any.
 func (file *File) Readdir(count int) (fi []FileInfo, err Error) {
+	if file == nil || file.fd < 0 {
+		return nil, EINVAL
+	}
+	if !file.isdir() {
+		return nil, &PathError{"Readdir", file.name, ENOTDIR}
+	}
 	di := file.dirinfo
 	size := count
 	if size < 0 {

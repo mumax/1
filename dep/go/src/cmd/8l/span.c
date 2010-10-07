@@ -35,10 +35,15 @@ void
 span(void)
 {
 	Prog *p, *q;
-	int32 v, c, idat;
+	int32 i, v, c, idat, etext, rodata, erodata;
 	int m, n, again;
+	Sym *s;
+	Section *sect;
 
 	xdefine("etext", STEXT, 0L);
+	xdefine("rodata", SRODATA, 0L);
+	xdefine("erodata", SRODATA, 0L);
+
 	idat = INITDAT;
 	for(p = firstp; p != P; p = p->link) {
 		if(p->as == ATEXT)
@@ -106,21 +111,79 @@ start:
 		textsize = c;
 		n++;
 	}while(again);
+	etext = c;
+	c += textpad;
+	
+	/*
+	 * allocate read-only data to the text segment.
+	 */
+	if(HEADTYPE == 8)
+		c = rnd(c, INITRND);
+	c = rnd(c, 8);
+	rodata = c;
+	for(i=0; i<NHASH; i++)
+	for(s = hash[i]; s != S; s = s->link) {
+		if(s->type != SRODATA)
+			continue;
+		v = s->size;
+		while(v & 3)
+			v++;
+		s->value = c;
+		c += v;
+	}
+	erodata = c;
 
 	if(INITRND) {
-		INITDAT = rnd(c+textpad, INITRND);
+		INITDAT = rnd(c, INITRND);
 		if(INITDAT != idat) {
 			idat = INITDAT;
 			goto start;
 		}
 	}
-	xdefine("etext", STEXT, c);
+
+	xdefine("etext", STEXT, etext);
+	xdefine("rodata", SRODATA, rodata);
+	xdefine("erodata", SRODATA, erodata);
+
 	if(debug['v'])
 		Bprint(&bso, "etext = %lux\n", c);
 	Bflush(&bso);
 	for(p = textp; p != P; p = p->pcond)
 		p->from.sym->value = p->pc;
 	textsize = c - INITTEXT;
+
+	segtext.rwx = 05;
+	if(HEADTYPE == 8) {
+		segtext.vaddr = INITTEXT;
+		segtext.len = rodata - INITTEXT;
+		segtext.fileoff = HEADR;
+		segtext.filelen = etext - INITTEXT;
+
+		segrodata.rwx = 04;
+		segrodata.vaddr = rodata;
+		segrodata.len = erodata - rodata;
+		segrodata.filelen = segrodata.len;
+	} else {
+		segtext.vaddr = INITTEXT - HEADR;
+		segtext.len = INITDAT - INITTEXT + HEADR;
+		segtext.fileoff = 0;
+		segtext.filelen = segtext.len;
+	}
+
+	sect = addsection(&segtext, ".text", 05);
+	sect->vaddr = INITTEXT;
+	sect->len = etext - sect->vaddr;
+	
+	if(HEADTYPE == 8)
+		sect = addsection(&segrodata, ".rodata", 04);
+	else
+		sect = addsection(&segtext, ".rodata", 04);
+	sect->vaddr = rodata;
+	sect->len = erodata - rodata;
+
+	segdata.vaddr += INITDAT;
+	for(sect=segdata.sect; sect!=nil; sect=sect->next)
+		sect->vaddr += INITDAT;
 }
 
 void
@@ -129,12 +192,8 @@ xdefine(char *p, int t, int32 v)
 	Sym *s;
 
 	s = lookup(p, 0);
-	if(s->type == 0 || s->type == SXREF) {
-		s->type = t;
-		s->value = v;
-	}
-	if(s->type == STEXT && s->value == 0)
-		s->value = v;
+	s->type = t;
+	s->value = v;
 }
 
 void
@@ -208,6 +267,7 @@ asmsym(void)
 		for(s=hash[h]; s!=S; s=s->link)
 			switch(s->type) {
 			case SCONST:
+			case SRODATA:
 				if(!s->reachable)
 					continue;
 				putsymb(s->name, 'D', s->value, s->version, s->gotype);
@@ -618,6 +678,7 @@ vaddr(Adr *a)
 				ckoff(s, v);
 			case STEXT:
 			case SCONST:
+			case SRODATA:
 				if(!s->reachable)
 					sysfatal("unreachable symbol in vaddr - %s", s->name);
 				v += s->value;
