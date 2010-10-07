@@ -94,7 +94,7 @@ func main_master() {
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
-		fmt.Fprintln(runningfile, "This simulation was started on:\n", time.LocalTime(), "\nThis file will be deleted when the simulation is ready.")
+		fmt.Fprintln(runningfile, "This simulation was started on:\n", time.LocalTime(), "\nThis file is renamed to \"finished\" when the simulation is ready.")
 		runningfile.Close()
 
 		sim.silent = *silent
