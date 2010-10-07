@@ -176,16 +176,16 @@ void gpu_override_stride(int nFloats){
 }
 
 
-int gpu_pad_to_stride(int nFloats){
-  assert(nFloats > 0);
-  int stride = gpu_stride_float();
-  int gpulen = ((nFloats-1)/stride + 1) * stride;
-  
-  assert(gpulen % stride == 0);
-  assert(gpulen > 0);
-  assert(gpulen >= nFloats);
-  return gpulen;
-}
+// int gpu_pad_to_stride(int nFloats){
+//   assert(nFloats > 0);
+//   int stride = gpu_stride_float();
+//   int gpulen = ((nFloats-1)/stride + 1) * stride;
+//   
+//   assert(gpulen % stride == 0);
+//   assert(gpulen > 0);
+//   assert(gpulen >= nFloats);
+//   return gpulen;
+// }
 
 
 #ifdef __cplusplus

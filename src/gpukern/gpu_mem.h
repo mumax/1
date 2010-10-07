@@ -65,7 +65,7 @@ void gpu_override_stride(int nFloats    ///< The stride (in number of floats) to
  * ...
  @endcode
  */
-int gpu_pad_to_stride(int nFloats);
+// int gpu_pad_to_stride(int nFloats);
 
 
 #define DIR_TO 1
