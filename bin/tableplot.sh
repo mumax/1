@@ -21,7 +21,7 @@ for i; do
 
   echo $(echo $epsrc; echo set output '"'$epsfile'";'; echo $cmd_m; echo set output';') | gnuplot;
   echo $(echo $svgrc; echo set output '"'$svgfile'";'; echo $cmd_m; echo set output';') | gnuplot;
-
+  ps2pdf -dEPSCrop $epsfile $pdffile
 
   cmd_b='set xlabel "time(ns)"; set ylabel "external field (T)"; plot '$file' using ($1*1E9):5 with lines title "Bx", '$file' using ($1*1E9):6 with lines title "By", '$file' using ($1*1E9):7 with lines title "Bz";'
 
@@ -31,18 +31,7 @@ for i; do
 
   echo $(echo $epsrc; echo set output '"'$epsfile'";'; echo $cmd_b; echo set output';') | gnuplot;
   echo $(echo $svgrc; echo set output '"'$svgfile'";'; echo $cmd_b; echo set output';') | gnuplot;
+  ps2pdf -dEPSCrop $epsfile $pdffile
 
 
-  cmd_t='set xlabel "step"; set ylabel "delta t (T)"; plot '$file' using ($1*1E9):5 with lines title "Bx", '$file' using ($1*1E9):6 with lines title "By", '$file' using ($1*1E9):7 with lines title "Bz";'
-
-  epsfile=$i.b.eps
-  pdffile=$i.b.pdf
-  svgfile=$i.b.svg
-
-  echo $(echo $epsrc; echo set output '"'$epsfile'";'; echo $cmd_b; echo set output';') | gnuplot;
-  echo $(echo $svgrc; echo set output '"'$svgfile'";'; echo $cmd_b; echo set output';') | gnuplot;
-
-  
-
-	ps2pdf -dEPSCrop $epsfile
 done;
