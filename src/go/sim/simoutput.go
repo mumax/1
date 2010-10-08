@@ -143,8 +143,8 @@ const FILENAME_FORMAT = "%08d"
 // INTERNAL
 func (m *MAscii) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".txt"
-	out := bufOpen(fname);
-  defer out.Flush()
+	out := bufOpen(fname)
+	defer out.Flush()
 	tensor.Format(out, s.mLocal)
 	m.sinceoutput = float(s.time) * s.UnitTime()
 }
@@ -228,8 +228,8 @@ type MPng struct {
 // INTERNAL
 func (m *MPng) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".png"
-  out := bufOpen(fname);
-  defer out.Flush()
+	out := bufOpen(fname)
+	defer out.Flush()
 	PNG(out, s.mLocal)
 	m.sinceoutput = float(s.time) * s.UnitTime()
 }

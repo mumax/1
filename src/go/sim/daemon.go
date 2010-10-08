@@ -16,18 +16,24 @@ import (
 	"container/vector"
 )
 
-var DAEMON_WATCHTIME int = 2 // search for new input files every X s
+// search for new input files every X s
+var DAEMON_WATCHTIME int = 2
+
+// printed before/after each daemon stdout message
 const (
 	DAEMON_PREFIX = BOLD + "[daemon] "
 	DAEMON_SUFFIX = RESET
 )
 
+// shell command to start child simulation processes
 const SIMCOMMAND = "bin/simulate"
+
 
 func DaemonMain() {
 	sleeping := false
-
 	fmt.Println(DAEMON_PREFIX, "Input files should end with .in and the corresponding .out directory should not yet exist.", DAEMON_SUFFIX)
+
+	// ------------- setup watchdirs -----------------------
 
 	// TODO check that the watchdirs do not end with a slash
 	watchdirs := make([]string, flag.NArg())
@@ -39,6 +45,8 @@ func DaemonMain() {
 	if len(watchdirs) == 0 {
 		watchdirs = []string{"."}
 	}
+
+	// ----------------- poll for input files --------------
 	for {
 		infile := findInputFileAll(watchdirs)
 		// If no new input files found
@@ -64,7 +72,8 @@ func DaemonMain() {
 	}
 }
 
-// Let the daemon start the simulation file
+
+// Start the simulation file
 func daemon_startsim(file string) {
 	fmt.Println(DAEMON_PREFIX, "Starting simulation: ", file, DAEMON_SUFFIX)
 
@@ -106,6 +115,7 @@ func daemon_startsim(file string) {
 	}
 }
 
+
 // Adds the relevant command line flags to the args list,
 // to be passed through to the child simulation process.
 // Note: need to pass the address of the slice, otherwise
@@ -118,12 +128,12 @@ func passthrough_cli_args(args *vector.StringVector) {
 	(*args).Push(fmt.Sprint("-updatedisp=", *updatedb))
 }
 
+
 // Searches for a pending input file in all the given directories.
 // Looks for a file ending in ".in" for which no corresponding
 // ".out" file exists yet.
 // Returns an empty string when no suitable input file is present
 // in any of the directories.
-// TODO: Should we look recursively?
 //
 func findInputFileAll(dirs []string) string {
 	for _, dir := range dirs {
@@ -134,6 +144,7 @@ func findInputFileAll(dirs []string) string {
 	}
 	return "" // nothing found
 }
+
 
 // Searches for a pending input file in the given directory.
 // Looks for a file ending in ".in" for which no corresponding
@@ -165,6 +176,7 @@ func findInputFile(dir string) string {
 	return ""
 }
 
+
 // checks if the file exists
 func fileExists(file string) bool {
 	f, err := os.Open(file, os.O_RDONLY, 0666)
@@ -173,6 +185,22 @@ func fileExists(file string) bool {
 	}
 	f.Close()
 	return true
+}
+
+
+func isDirectory(file string) bool {
+	f, err := os.Open(file, os.O_RDONLY, 0666)
+	defer f.Close()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return false
+	}
+	stat, err2 := f.Stat()
+	if err2 != nil {
+		fmt.Fprintln(os.Stderr, err2)
+		return false
+	}
+	return stat.IsDirectory()
 }
 
 // --- Daemons are characters in Greek mythology,
