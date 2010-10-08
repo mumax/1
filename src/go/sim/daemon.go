@@ -152,6 +152,8 @@ func findInputFileAll(dirs []string) string {
 // Returns an empty string when no suitable input file is present.
 //
 func findInputFile(dir string) string {
+//   fmt.Println("findInputFile ", dir)
+  
 	d, err := os.Open(dir, os.O_RDONLY, 0666)
 	// if we can not read a directory, we should not necessarily crash,
 	// instead report it and go on so other directories can still be searched.
@@ -166,9 +168,19 @@ func findInputFile(dir string) string {
 		if len(filenames) == 0 { //means we reached the end of the files
 			return ""
 		}
-		file := filenames[0]
-		if strings.HasSuffix(file, ".in") && !fileExists(dir+"/"+removeExtension(file)+".out") {
-			return dir + "/" + file
+		file := dir + "/" + filenames[0]
+		if strings.HasSuffix(file, ".in") && !fileExists(removeExtension(file)+".out") {
+//       fmt.Println("Found: ", file)
+			return file
+		}
+		//recursion
+		if isDirectory(file) {
+//       fmt.Println("Directory: ", file)
+			file2 := findInputFile(file)
+			if file2 != "" {
+//         fmt.Println("Found: ", file2)
+				return file2
+			}
 		}
 	}
 
