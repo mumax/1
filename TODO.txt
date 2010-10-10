@@ -20,7 +20,9 @@ GeeMags
 
 TODO (Arne)
 
-* do not use os.Exit() but sim.Exit() which removes running file
+* alphabetic sorting of files looked at by daemon
+* cluster queue scripts: rmall running, rmall crahsed, status, ...
+* do not use os.Exit() but sim.Exit() which removes running file -> replace by "crashed" or something
 * when sim daemon is killed it should clean up its unfinished output dir
 * it seems CUFFT allocates memory for its FFT plans, check if this is a lot!
 * bigfft
