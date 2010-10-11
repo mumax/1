@@ -76,6 +76,10 @@ func Read(in io.Reader) StoredTensor {
 	return t
 }
 
+func ReadAscii(in io.Reader) StoredTensor{
+  
+}
+
 func ReadFile(file string) StoredTensor {
 	return Read(FOpenz(file))
 }

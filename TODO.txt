@@ -36,4 +36,4 @@ TODO (Arne)
    Bx, By, Bz
    mx, my, mz
 * tensor package is not idiomatic Go. Should use [][][]float as much as possible and cast it to a tensor only when needed.
-
+* compatibility with OOMMF ovf format so people can use existing tools.
