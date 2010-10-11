@@ -14,7 +14,7 @@ known bugs
 [0003] SOLVED arne:
  simulate crashes on empty input file (also when not really empty but no commands, only comments/whitespace) or on directory as input.
 
-[0004] OPEN arne:
+[0004] SOLVED arne:
  include command does not work when included files with relative path not in working dir (e.g. problematic with -daemon).
  also: load m state does not work with relative path.
  try: setWD

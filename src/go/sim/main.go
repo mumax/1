@@ -85,9 +85,13 @@ func main_master() {
 
 		//TODO it would be safer to abort when the output dir is not empty
 		outfile := removeExtension(infile) + ".out"
-    
-		os.Chdir(outfile)
-    
+
+    // We run the simulation with working directory = directory of input file
+    // This is neccesary, e.g., when a sim deamon is run from a directory other
+    // than the directory of the input file and files with relative paths are
+    // read (e.g. "include file", "load file")
+		os.Chdir(parentDir(infile))
+
 		sim := NewSim(outfile)
 		defer sim.out.Close()
 
@@ -152,12 +156,19 @@ func removeExtension(str string) string {
 
 // Returns the parent directory of a file.
 // I.e., the part after the /, if present, is removed.
+// If there is no explicit path, "." is returned.
 func parentDir(str string) string {
-  slashpos := len(str) - 1
-  for slashpos >= 0 && str[slashpos] != '/' {
-    slashpos--
-  }
-  return str[0:slashpos]
+	slashpos := len(str) - 1
+	for slashpos >= 0 && str[slashpos] != '/' {
+		slashpos--
+		fmt.Println("slashpos: ", slashpos)
+	}
+	if slashpos <= 0 {
+		return "."
+	}
+	//else
+	return str[0:slashpos]
+
 }
 
 // when running in "slave" mode, i.e. accepting commands over the network as part of a cluster

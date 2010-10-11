@@ -20,7 +20,8 @@ size         1	128 128
 cellsize     1E-9  1E-9   1E-9
 
 # initial magnetization
-vortex      1 1 
+load s-state.t
+include test.inc
 
 
 # relax: 10000 steps
