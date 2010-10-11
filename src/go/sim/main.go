@@ -85,6 +85,9 @@ func main_master() {
 
 		//TODO it would be safer to abort when the output dir is not empty
 		outfile := removeExtension(infile) + ".out"
+    
+		os.Chdir(outfile)
+    
 		sim := NewSim(outfile)
 		defer sim.out.Close()
 
@@ -145,6 +148,16 @@ func removeExtension(str string) string {
 		dotpos--
 	}
 	return str[0:dotpos]
+}
+
+// Returns the parent directory of a file.
+// I.e., the part after the /, if present, is removed.
+func parentDir(str string) string {
+  slashpos := len(str) - 1
+  for slashpos >= 0 && str[slashpos] != '/' {
+    slashpos--
+  }
+  return str[0:slashpos]
 }
 
 // when running in "slave" mode, i.e. accepting commands over the network as part of a cluster
