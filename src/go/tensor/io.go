@@ -76,8 +76,32 @@ func Read(in io.Reader) StoredTensor {
 	return t
 }
 
-func ReadAscii(in io.Reader) StoredTensor{
-  
+func ReadAscii(in io.Reader) StoredTensor {
+	rank := -1
+	_, err := fmt.Fscan(in, &rank)
+	if err != nil {
+		panic(err)
+	}
+
+	size := make([]int, rank)
+	for i := range size {
+		_, err = fmt.Fscan(in, &size[i])
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	t := NewTensorN(size)
+	list := t.List()
+
+	for i := range list {
+		_, err = fmt.Fscan(in, &list[i])
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return t
 }
 
 func ReadFile(file string) StoredTensor {
