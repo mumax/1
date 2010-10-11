@@ -98,7 +98,16 @@ func NewSim(outputdir string) *Sim {
 	sim.mUpToDate = false
 	sim.input.demag_accuracy = 8
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
-	sim.outputDir(outputdir)
+
+	// We run the simulation with working directory = directory of input file
+	// This is neccesary, e.g., when a sim deamon is run from a directory other
+	// than the directory of the input file and files with relative paths are
+	// read (e.g. "include file", "load file")
+	workdir := parentDir(outputdir)
+	fmt.Println("chdir ", workdir)
+	os.Chdir(workdir)
+	sim.outputDir(filename(outputdir))
+
 	sim.initWriters()
 	sim.invalidate() //just to make sure we will init()
 	return sim
