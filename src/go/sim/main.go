@@ -85,16 +85,17 @@ func main_master() {
 
 		//TODO it would be safer to abort when the output dir is not empty
 		outfile := removeExtension(infile) + ".out"
+
 		sim := NewSim(outfile)
 		defer sim.out.Close()
 
 		// file "running" indicates the simulation is running
-		running := outfile + "/running"
+		running := sim.outputdir + "/running"
 		runningfile, err := os.Open(running, os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
-		fmt.Fprintln(runningfile, "This simulation was started on:\n", time.LocalTime(), "\nThis file will be deleted when the simulation is ready.")
+		fmt.Fprintln(runningfile, "This simulation was started on:\n", time.LocalTime(), "\nThis file is renamed to \"finished\" when the simulation is ready.")
 		runningfile.Close()
 
 		sim.silent = *silent
@@ -114,11 +115,11 @@ func main_master() {
 		refsh.Exec(in)
 
 		// We're done
-		err2 := os.Rename(running, outfile + "/finished")
-    if err2 != nil{
-      fmt.Fprintln(os.Stderr, err2)
-    }
-    
+		err2 := os.Rename(running, sim.outputdir+"/finished")
+		if err2 != nil {
+			fmt.Fprintln(os.Stderr, err2)
+		}
+
 		// Idiot-proof error reports
 		if refsh.CallCount == 0 {
 			sim.Errorln("Input file contains no commands.")
@@ -146,6 +147,37 @@ func removeExtension(str string) string {
 	}
 	return str[0:dotpos]
 }
+
+// Returns the parent directory of a file.
+// I.e., the part after the /, if present, is removed.
+// If there is no explicit path, "." is returned.
+func parentDir(str string) string {
+	slashpos := len(str) - 1
+	for slashpos >= 0 && str[slashpos] != '/' {
+		slashpos--
+	}
+	if slashpos <= 0 {
+		return "."
+	}
+	//else
+	return str[0:slashpos]
+}
+
+// Complementary function of parentDir
+// Removes the path in front of the file name.
+// I.e., the part before the last /, if present, is removed.
+func filename(str string) string {
+	slashpos := len(str) - 1
+	for slashpos >= 0 && str[slashpos] != '/' {
+		slashpos--
+	}
+	if slashpos <= 0 {
+		return str
+	}
+	//else
+	return str[slashpos+1:]
+}
+
 
 // when running in "slave" mode, i.e. accepting commands over the network as part of a cluster
 // func main_slave() {

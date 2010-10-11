@@ -9,7 +9,6 @@ OFILES=\
 	gpu_normalize.o\
 	gpu_torque.o\
 	gpu_transpose.o\
-	gpu_bigfft.o\
 	gpu_fft3.o\
 	gpu_kernmul.o\
 	gpu_zeropad.o\
@@ -76,10 +75,6 @@ gpu_init.o:  gpu_init.h gpu_init.cu
 
 gpu_reduction.o:  gpu_reduction.h gpu_reduction.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_reduction.cu
-
-gpu_bigfft.o:  gpu_bigfft.h gpu_bigfft.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_bigfft.cu
-
 
 test:	all transpose_test zeropad_test reduction_test fft_test
 
