@@ -4,10 +4,11 @@ include ../../common.mk
 
 all:
 	make install -C tensor
+	make install -C tensor2
 	make install -C refsh
 	make install -C sim
 
-	
+	make -C outtools
 	make -C tensor-main
 # 	make -C kernel-main
 # 	make -C config-main
@@ -17,9 +18,11 @@ all:
 .PHONY: clean
 clean:
 	make clean -C tensor
+	make clean -C tensor2
 	make clean -C sim
 	make clean -C refsh
 
+	make clean -C outtools
 	make clean -C tensor-main
 # 	make clean -C kernel-main
 	make clean -C config-main

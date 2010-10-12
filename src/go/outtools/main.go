@@ -7,27 +7,51 @@
 package main
 
 import (
-  "refsh"
+	"refsh"
+	. "tensor2"
+	"fmt"
+	. "math"
 )
 
 
 func main() {
-  refsh := refsh.New()
-  main_ := NewMain()
-  refsh.AddAllMethods(main_)
-  refsh.ExecFlags()
+	sh := refsh.New()
+	main_ := NewMain()
+	sh.AddAllMethods(main_)
+
+	commands, args := refsh.ParseFlags()
+	for i := range commands {
+		ret := sh.Call(commands[i], args[i])
+		for _,r := range ret{
+      fmt.Print(r, " ")
+    }
+    fmt.Println()
+	}
 }
 
-func (m *Main) ReadBinary(fname string){
-  
+
+func (m *Main) CorePol(fname string) float64 {
+	data := ToT4(FReadAscii(fname))
+	array := data.Array
+	mz := array[0]
+	answer := float64(mz[0][0][0])
+	for i := range mz {
+		for j := range mz[i] {
+			for k := range mz[i][j] {
+				if Fabs(answer) < Fabs(float64(mz[i][j][k])) {
+					answer = Fabs(float64(mz[i][j][k]))
+				}
+			}
+		}
+	}
+	return answer
 }
 
 
-
-type Main struct{
-  value interface{}
+type Main struct {
+	
 }
 
-func NewMain() *Main{
-  return new(Main)
+func NewMain() *Main {
+	return new(Main)
 }

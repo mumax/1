@@ -154,10 +154,10 @@ func (refsh *Refsh) Call(fname string, argv []string) []interface{} {
 		args := refsh.parseArgs(fname, argv)
 		retval := function.Call(args)
 		ret := make([]interface{}, len(retval))
-		for i := range retval{
-      ret[i] = retval[i].Interface()
-    }
-    return ret
+		for i := range retval {
+			ret[i] = retval[i].Interface()
+		}
+		return ret
 	}
 	panic("bug")
 	return nil
