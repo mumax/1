@@ -61,7 +61,7 @@ func (m *Main) CorePol(fname string) (maxMz float64, updown string) {
 		for j := range mz[i] {
 			for k := range mz[i][j] {
 				if Fabs(answer) < Fabs(float64(mz[i][j][k])) {
-					answer = Fabs(float64(mz[i][j][k]))
+					answer = (float64(mz[i][j][k]))
 				}
 			}
 		}
