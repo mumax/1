@@ -173,9 +173,9 @@ func (t *Table) Save(s *Sim) {
 		fmt.Fprintln(t.out, TABLE_HEADER)
 	}
 	mx, my, mz := m_average(s.mLocal)
-	B := s.UnitField()
+// 	B := s.UnitField()
 	fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float(s.time)*s.UnitTime(), mx, my, mz)
-	fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", s.hext[X]*B, s.hext[Y]*B, s.hext[Z]*B)
+	fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", s.hextSI[X], s.hextSI[Y], s.hextSI[Z])
 	fmt.Fprintf(t.out, "%.5g\t", s.dt*s.UnitTime())
 	fmt.Fprintf(t.out, "%.4g\t", s.stepError)
 	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
