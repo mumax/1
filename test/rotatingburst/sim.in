@@ -1,0 +1,17 @@
+
+solvertype euler
+dt 1E-12
+
+msat 100E3
+aexch 1E-13
+
+size 1 64 64
+cellsize 3E-9 3E-9 3E-9
+vortex 1 1
+
+
+rotatingburst 1 1E9 1.5708  50e-12 10E-9
+autosave table ascii 10E-12
+
+run 500E-9
+
