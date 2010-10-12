@@ -52,6 +52,8 @@ func exec(command string, args []string) {
 	switch command {
 	case "--read":
 		setbuffer(Read(parseFileOrStdin(args)))
+	case "--readascii":
+		setbuffer(ReadAscii(parseFileOrStdin(args)))
 	case "--new":
 		rank := len(args)
 		size := make([]int, rank)
@@ -76,7 +78,9 @@ func exec(command string, args []string) {
 	case "--average":
 		argCount(command, args, 1, 1)
 		setbuffer(Average(getbuffer(), Atoi(args[0])))
-
+		//  case "--maximum":
+		//     argCount(command, args, 1, 1)
+		//     setbuffer(Maximum(getbuffer(), Atoi(args[0])))
 	case "--get":
 		argCount(command, args, Rank(getbuffer()), Rank(getbuffer()))
 		t := Buffer(getbuffer())

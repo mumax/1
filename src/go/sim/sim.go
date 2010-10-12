@@ -67,7 +67,7 @@ type Sim struct {
 	Mesh                         // Stores the size of the simulation grid
 	Conv                         // Convolution plan for the magnetostatic field
 	AppliedField                 // returns the externally applied in function of time
-	hext         [3]float        // stores the externally applied field returned by AppliedField
+	hextSI       [3]float        // stores the externally applied field returned by AppliedField, in SI UNITS
 	mDev, h      *DevTensor      // magnetization/effective field on the device (GPU), 4D tensor
 	mComp, hComp [3]*DevTensor   // magnetization/field components, 3 x 3D tensors
 	Solver                       // Does the time stepping, can be euler, heun, ...
