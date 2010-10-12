@@ -79,10 +79,12 @@ type rotatingBurst struct {
 	risetime, duration float64
 }
 
+const SQRT2 = 1.414213562373095
+
 func (field *rotatingBurst) GetAppliedField(time float64) [3]float {
 	sinx := float(Sin(field.freq * 2 * Pi * time))
 	siny := float(Sin(field.freq*2*Pi*time + field.phase))
-	norm := float(0.25 * (Erf(time/(field.risetime/2.)-2) + 1) * (2 - Erf((time-field.duration)/(field.risetime/2.)) - 1))
+	norm := float(0.25/SQRT2 * (Erf(time/(field.risetime/2.)-2) + 1) * (2 - Erf((time-field.duration)/(field.risetime/2.)) - 1))
 	b := field.b
 	return [3]float{0, b * norm * sinx, b * norm * siny}
 }
