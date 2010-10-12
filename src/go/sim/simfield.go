@@ -42,7 +42,7 @@ type rfField struct {
 }
 
 func (field *rfField) GetAppliedField(time float64) [3]float {
-	sin := float(Sin(field.freq * Pi * time))
+	sin := float(Sin(field.freq * 2 * Pi * time))
 	return [3]float{field.b[X] * sin, field.b[Y] * sin, field.b[Z] * sin}
 }
 
@@ -60,9 +60,9 @@ type rotatingField struct {
 }
 
 func (field *rotatingField) GetAppliedField(time float64) [3]float {
-	sinX := float(Sin(field.freq*Pi*time + field.phase[X]))
-	sinY := float(Sin(field.freq*Pi*time + field.phase[Y]))
-	sinZ := float(Sin(field.freq*Pi*time + field.phase[Z]))
+	sinX := float(Sin(field.freq*2*Pi*time + field.phase[X]))
+	sinY := float(Sin(field.freq*2*Pi*time + field.phase[Y]))
+	sinZ := float(Sin(field.freq*2*Pi*time + field.phase[Z]))
 	return [3]float{field.b[X] * sinX, field.b[Y] * sinY, field.b[Z] * sinZ}
 }
 
@@ -80,8 +80,8 @@ type rotatingBurst struct {
 }
 
 func (field *rotatingBurst) GetAppliedField(time float64) [3]float {
-	sinx := float(Sin(field.freq * Pi * time))
-	siny := float(Sin(field.freq*Pi*time + field.phase))
+	sinx := float(Sin(field.freq * 2 * Pi * time))
+	siny := float(Sin(field.freq*2*Pi*time + field.phase))
 	norm := float(0.25 * (Erf(time/(field.risetime/2.)-2) + 1) * (2 - Erf((time-field.duration)/(field.risetime/2.)) - 1))
 	b := field.b
 	return [3]float{0, b * norm * sinx, b * norm * siny}
