@@ -78,9 +78,9 @@ func exec(command string, args []string) {
  case "--average":
     argCount(command, args, 1, 1)
     setbuffer(Average(getbuffer(), Atoi(args[0])))
- case "--maximum":
-    argCount(command, args, 1, 1)
-    setbuffer(Maximum(getbuffer(), Atoi(args[0])))
+//  case "--maximum":
+//     argCount(command, args, 1, 1)
+//     setbuffer(Maximum(getbuffer(), Atoi(args[0])))
 	case "--get":
 		argCount(command, args, Rank(getbuffer()), Rank(getbuffer()))
 		t := Buffer(getbuffer())

@@ -134,7 +134,7 @@ func (refsh *Refsh) ExecFlags() {
 
 // Calls a function. Function name and arguments are passed as strings.
 // The function name should first have been added by refsh.Add();
-func (refsh *Refsh) Call(fname string, argv []string) []Value {
+func (refsh *Refsh) Call(fname string, argv []string) []interface{} {
 	// Debug
 	refsh.Print(">>> ", fname, "\t ")
 	refsh.CallCount++
@@ -152,7 +152,12 @@ func (refsh *Refsh) Call(fname string, argv []string) []Value {
 		}
 	} else {
 		args := refsh.parseArgs(fname, argv)
-		return function.Call(args)
+		retval := function.Call(args)
+		ret := make([]interface{}, len(retval))
+		for i := range retval{
+      ret[i] = retval[i].Interface()
+    }
+    return ret
 	}
 	panic("bug")
 	return nil
