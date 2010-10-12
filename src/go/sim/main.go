@@ -86,17 +86,11 @@ func main_master() {
 		//TODO it would be safer to abort when the output dir is not empty
 		outfile := removeExtension(infile) + ".out"
 
-    // We run the simulation with working directory = directory of input file
-    // This is neccesary, e.g., when a sim deamon is run from a directory other
-    // than the directory of the input file and files with relative paths are
-    // read (e.g. "include file", "load file")
-		os.Chdir(parentDir(infile))
-
 		sim := NewSim(outfile)
 		defer sim.out.Close()
 
 		// file "running" indicates the simulation is running
-		running := outfile + "/running"
+		running := sim.outputdir + "/running"
 		runningfile, err := os.Open(running, os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -121,7 +115,7 @@ func main_master() {
 		refsh.Exec(in)
 
 		// We're done
-		err2 := os.Rename(running, outfile+"/finished")
+		err2 := os.Rename(running, sim.outputdir+"/finished")
 		if err2 != nil {
 			fmt.Fprintln(os.Stderr, err2)
 		}
@@ -161,15 +155,29 @@ func parentDir(str string) string {
 	slashpos := len(str) - 1
 	for slashpos >= 0 && str[slashpos] != '/' {
 		slashpos--
-		fmt.Println("slashpos: ", slashpos)
 	}
 	if slashpos <= 0 {
 		return "."
 	}
 	//else
 	return str[0:slashpos]
-
 }
+
+// Complementary function of parentDir
+// Removes the path in front of the file name.
+// I.e., the part before the last /, if present, is removed.
+func filename(str string) string {
+	slashpos := len(str) - 1
+	for slashpos >= 0 && str[slashpos] != '/' {
+		slashpos--
+	}
+	if slashpos <= 0 {
+		return str
+	}
+	//else
+	return str[slashpos+1:]
+}
+
 
 // when running in "slave" mode, i.e. accepting commands over the network as part of a cluster
 // func main_slave() {
