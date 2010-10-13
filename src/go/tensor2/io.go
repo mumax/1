@@ -51,7 +51,11 @@ func WriteAscii(out io.Writer, t Interface){
 // Mark internal but keep visible.
 // add extra metadata
 // MetaT struct? Tensor + metadata
-//
+// Write(tensor, metadata)
+// Read() (tensor, metadata)
+// method T.ReadFrom() implements io.ReaderFrom
+// method T.WriteTo()
+// 
 
 // Writes tensor header
 // (format version number, rank, size)
