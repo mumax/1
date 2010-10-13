@@ -23,8 +23,10 @@ const (
 	H_SIZE      = "size"
 )
 
+// Central definition of our machine's endianess
 var ENDIANESS = binary.LittleEndian
 
+// Writes tensor header (format version number, rank, size) 
 func WriteHeader(out_ io.Writer, t Interface) {
 	out := bufio.NewWriter(out_)
 	defer out.Flush()
@@ -34,6 +36,9 @@ func WriteHeader(out_ io.Writer, t Interface) {
 	fmt.Fprintln(out, H_COMMENT, H_SIZE, H_SEPARATOR, 1)
 }
 
+
+// Writes the tensor data as ascii.
+// Includes some newlines to make it human-readable
 func WriteDataAscii(out_ io.Writer, t Interface) os.Error {
 	out := bufio.NewWriter(out_)
 	defer out.Flush()
@@ -60,6 +65,8 @@ func WriteDataAscii(out_ io.Writer, t Interface) os.Error {
 	return nil //success
 }
 
+
+// Writes the tensor data in binary (32-bit floats)
 func WriteDataBinary(out_ io.Writer, t Interface) (err os.Error) {
 	list := t.List()
 	out := bufio.NewWriter(out_)
@@ -68,6 +75,17 @@ func WriteDataBinary(out_ io.Writer, t Interface) (err os.Error) {
 	return
 }
 
+
+
+func ReadDataBinary(in_ io.Reader, t Interface) (err os.Error){
+  list := t.List()
+  in := bufio.NewReader(in_)
+  err = binary.Read(in, ENDIANESS, list)
+  return
+}
+
+
+// TEMP HACK
 func FReadAscii4(fname string) *T {
 	in, err := os.Open(fname, os.O_RDONLY, 0666)
 	defer in.Close()
