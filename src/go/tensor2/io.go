@@ -16,6 +16,7 @@ import (
 	"strings"
 )
 
+
 // Header tokens
 const (
 	H_COMMENT   = "#"
@@ -29,15 +30,28 @@ const (
 // Central definition of our machine's endianess
 var ENDIANESS = binary.LittleEndian
 
+
+
 func WriteBinary(out io.Writer, t Interface){
   WriteHeader(out, t)
   WriteDataBinary(out, t)
 }
 
+
 func WriteAscii(out io.Writer, t Interface){
   WriteHeader(out, t)
   WriteDataAscii(out, t)
 }
+
+
+// TODO:
+// need writeHeadLine(key, value)
+// WriteHeader() does not finalize (begin_data)
+// CloseHeader()
+// Mark internal but keep visible.
+// add extra metadata
+// MetaT struct? Tensor + metadata
+//
 
 // Writes tensor header
 // (format version number, rank, size)
@@ -50,7 +64,7 @@ func WriteHeader(out_ io.Writer, t Interface) {
 	for i, s := range t.Size() {
 		fmt.Fprintln(out, H_COMMENT, H_SIZE+fmt.Sprint(i), H_SEPARATOR, s)
 	}
-	fmt.Fprintln(out, H_COMMENT, H_END)
+	//fmt.Fprintln(out, H_COMMENT, H_END)
 }
 
 // Reads a tensor header.
