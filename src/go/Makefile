@@ -36,6 +36,7 @@ clean:
 
 
 test:	all
+	make test -C tensor2
 	make test -C tensor
 	make test -C sim
 

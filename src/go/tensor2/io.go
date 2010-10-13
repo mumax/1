@@ -12,6 +12,8 @@ import (
 	"fmt"
 	"bufio"
 	"encoding/binary"
+	"iotool"
+	"strings"
 )
 
 // Header tokens
@@ -21,6 +23,7 @@ const (
 	H_FORMAT    = "tensorformat"
 	H_RANK      = "rank"
 	H_SIZE      = "size"
+	H_END       = "data"
 )
 
 // Central definition of our machine's endianess
@@ -32,10 +35,30 @@ func WriteHeader(out_ io.Writer, t Interface) {
 	defer out.Flush()
 
 	fmt.Fprintln(out, H_COMMENT, H_FORMAT, H_SEPARATOR, 1)
-	fmt.Fprintln(out, H_COMMENT, H_RANK, H_SEPARATOR, 1)
-	fmt.Fprintln(out, H_COMMENT, H_SIZE, H_SEPARATOR, 1)
+	fmt.Fprintln(out, H_COMMENT, H_RANK, H_SEPARATOR, Rank(t))
+	for i, s := range t.Size() {
+		fmt.Fprintln(out, H_COMMENT, H_SIZE+fmt.Sprint(i), H_SEPARATOR, s)
+	}
 }
 
+func ReadHeader(in_ io.Reader) map[string]string {
+  header := make(map[string]string)
+	in := bufio.NewReader(in_)
+	line, eof := iotool.ReadLine(in)
+	for !eof {
+		key, value := parseHeaderLine(line)
+ 		header[key] = value
+		line, eof = iotool.ReadLine(in)
+	}
+	return header
+}
+
+func parseHeaderLine(str string) (key, value string) {
+	strs := strings.Split(str, H_SEPARATOR, 2)
+	key = strings.Trim(strs[0], "# ")
+	value = strings.Trim(strs[1], "# ")
+	return
+}
 
 // Writes the tensor data as ascii.
 // Includes some newlines to make it human-readable
@@ -76,12 +99,11 @@ func WriteDataBinary(out_ io.Writer, t Interface) (err os.Error) {
 }
 
 
-
-func ReadDataBinary(in_ io.Reader, t Interface) (err os.Error){
-  list := t.List()
-  in := bufio.NewReader(in_)
-  err = binary.Read(in, ENDIANESS, list)
-  return
+func ReadDataBinary(in_ io.Reader, t Interface) (err os.Error) {
+	list := t.List()
+	in := bufio.NewReader(in_)
+	err = binary.Read(in, ENDIANESS, list)
+	return
 }
 
 
