@@ -78,6 +78,14 @@ func Prod(size []int) int {
 	return prod
 }
 
+func Len(t Interface) int{
+  return Prod(t.Size())
+}
+
+func Rank(t Interface) int{
+  return len(t.Size())
+}
+
 
 // import (
 // 	"reflect"

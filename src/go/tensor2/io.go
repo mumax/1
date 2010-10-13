@@ -13,11 +13,38 @@ import (
 	"bufio"
 )
 
+const(
+  H_COMMENT = "#"
+  H_SEPARATOR = ":"
+  H_FORMAT = "tensorformat"
+)
 
-// TEMP HACK: RANK IS NOT STORED IN ASCII FORMAT
-// ASSUME 4
-func WriteAscii(out_ io.Writer, t *T) {
+func WriteHeader(out_ io.Writer, t Interface){
+  out := bufio.NewWriter(out_)
+  defer out.Flush()
 
+  fmt.Fprintln(out, H_COMMENT, H_FORMAT, H_SEPARATOR, 1)
+}
+
+func WriteDataAscii(out_ io.Writer, t Interface) {
+  out := bufio.NewWriter(out_)
+  defer out.Flush()
+  
+  for i := NewIterator(t); i.HasNext(); i.Next() {
+    fmt.Fprint(out, i.Get(), "\t")
+
+    for j := 0; j < Rank(t); j++ {
+      newline := true
+      for k := j; k < Rank(t); k++ {
+        if i.Index()[k] != t.Size()[k]-1 {
+          newline = false
+        }
+      }
+      if newline {
+        fmt.Fprint(out, "\n")
+      }
+    }
+  }
 }
 
 func FReadAscii4(fname string) *T {
