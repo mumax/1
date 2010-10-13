@@ -19,3 +19,12 @@ known bugs
  also: load m state does not work with relative path.
  try: setWD
 
+[0005] OPEN arne:
+ no default solver type is set
+
+[0006] OPEN arne:
+ we should not crash on illegal input
+
+[0007] OPEN arne:
+ the simulation does not start when no initial m is set. should be illegal arg error. why does it not start anyways?
+
