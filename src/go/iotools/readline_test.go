@@ -12,14 +12,14 @@ import (
 	"fmt"
 )
 
-func TestTokenizer(test *testing.T) {
+func TestReadline(test *testing.T) {
 	in, err := os.Open("test.in", os.O_RDONLY, 0666)
 	if err != nil {
 		test.Fail()
 		return
 	}
 
-	for line, eof := ReadNonemptyLine(in); !eof; line, eof = ReadNonemptyLine(in) {
+	for line, eof := ReadLine(in); !eof; line, eof = ReadLine(in) {
 		fmt.Println(line)
 	}
 }

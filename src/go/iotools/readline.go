@@ -8,7 +8,6 @@ package refsh
 
 import (
 	"io"
-	"container/vector"
 )
 
 // Reads one character from the Reader.
@@ -28,12 +27,15 @@ func ReadChar(in io.Reader) int {
 }
 
 //
-func ReadLine(in io.Reader) string {
-  line := ""
-  for char := ReadChar(in); !isEndline(char); char = ReadChar(in){
-    line += byte(char)
+func ReadLine(in io.Reader) (line string, eof bool) {
+  char := ReadChar(in)
+  eof = isEOF(char)
+  
+  for !isEndline(char){
+    line += string(byte(char))
+    char = ReadChar(in)
   }
-  return line
+  return line, eof
 }
 
 
