@@ -8,11 +8,16 @@ package tensor2
 
 import ()
 
+type Interface interface {
+	Size() []int
+	List() []float
+}
 
 type T struct {
-	Size []int
-	List []float
+	TSize []int
+	TList []float
 }
+
 
 func NewT(size []int) *T {
 	t := new(T)
@@ -21,22 +26,33 @@ func NewT(size []int) *T {
 }
 
 func (t *T) Init(size []int) {
-	t.Size = size
-	t.List = make([]float, Prod(size))
+	t.TSize = size
+	t.TList = make([]float, Prod(size))
 }
+
+
+func (t *T) Size() []int {
+  return t.TSize
+}
+
+
+func (t *T) List() []float {
+  return t.TList
+}
+
 
 
 type T4 struct {
 	T
-	Array [][][][]float
+	TArray [][][][]float
 }
 
 func (t *T4) Init(size []int) {
 	if len(size) != 4 {
 		panic("Illegal argument")
 	}
-	t.Size = size
-	t.List, t.Array = Array4D(size[0], size[1], size[2], size[3])
+	t.TSize = size
+	t.TList, t.TArray = Array4D(size[0], size[1], size[2], size[3])
 }
 
 func NewT4(size []int) *T4 {
@@ -45,11 +61,13 @@ func NewT4(size []int) *T4 {
 	return t
 }
 
-
-func ToT4(t *T) *T4 {
-	return &T4{*t, Slice4D(t.List, t.Size)}
+func (t *T4) Array() [][][][]float {
+  return t.TArray
 }
 
+func ToT4(t *T) *T4 {
+	return &T4{*t, Slice4D(t.List(), t.Size())}
+}
 
 
 func Prod(size []int) int {

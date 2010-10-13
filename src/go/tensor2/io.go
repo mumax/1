@@ -13,6 +13,23 @@ import (
 	"bufio"
 )
 
+
+// TEMP HACK: RANK IS NOT STORED IN ASCII FORMAT
+// ASSUME 4
+func WriteAscii(out_ io.Writer, t *T) {
+
+}
+
+func FReadAscii4(fname string) *T {
+	in, err := os.Open(fname, os.O_RDONLY, 0666)
+	defer in.Close()
+	if err != nil {
+		panic(err)
+	}
+	return ReadAscii4(in)
+}
+
+
 // TEMP HACK: RANK IS NOT STORED IN ASCII FORMAT
 // ASSUME 4
 func ReadAscii4(in_ io.Reader) *T {
@@ -33,7 +50,7 @@ func ReadAscii4(in_ io.Reader) *T {
 	}
 
 	t := NewT(size)
-	list := t.List
+	list := t.List()
 
 	for i := range list {
 		_, err := fmt.Fscan(in, &list[i])
@@ -43,13 +60,4 @@ func ReadAscii4(in_ io.Reader) *T {
 	}
 
 	return t
-}
-
-func FReadAscii4(fname string) *T {
-	in, err := os.Open(fname, os.O_RDONLY, 0666)
-	defer in.Close()
-	if err != nil {
-		panic(err)
-	}
-	return ReadAscii4(in)
 }
