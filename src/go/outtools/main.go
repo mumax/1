@@ -52,8 +52,8 @@ func (m *Main) Recover(value string) {
 
 // returns the vortex core polarization
 // (value of max out-of-plane magnetization and a string "#up" or "down")
-func (m *Main) CorePol(fname string) (maxMz float64, updown string) {
-	data := ToT4(FReadAscii(fname))
+func (m *Main) CorePol4(fname string) (maxMz float64, updown string) {
+	data := ToT4(FReadAscii4(fname))
 	array := data.Array
 	mz := array[0]
 	answer := float64(mz[0][0][0])
