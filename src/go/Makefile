@@ -3,6 +3,7 @@
 include ../../common.mk
 
 all:
+	make install -C iotool
 	make install -C tensor
 	make install -C tensor2
 	make install -C refsh
@@ -17,6 +18,7 @@ all:
 
 .PHONY: clean
 clean:
+	make clean -C iotool
 	make clean -C tensor
 	make clean -C tensor2
 	make clean -C sim
