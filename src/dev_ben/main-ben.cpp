@@ -121,7 +121,7 @@ param* read_param(){
   p->aexch = 1.3E-11;
   p->alpha = 1.0;
 
-  p->size[X] = 2;
+  p->size[X] = 1;
   p->size[Y] = 32;
   p->size[Z] = 128;
 

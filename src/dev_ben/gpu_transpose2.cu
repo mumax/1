@@ -19,6 +19,7 @@ typedef struct{
 #define BLOCKSIZE 16
 
 
+
 __global__ void _gpu_transpose_complex_offset(complex* input, complex* output, int N1, int N2, int offset_in, int offset_out){
   
   __shared__ complex block[BLOCKSIZE][BLOCKSIZE+1];

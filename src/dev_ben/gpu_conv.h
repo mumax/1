@@ -15,6 +15,7 @@
 #include "kernel.h"
 //#include "gpufft2.h"
 #include "gpu_fft.h"
+#include "gpu_fftbig.h"
 #include "assert.h"
 #include "timer.h"
 #include <stdio.h>
@@ -26,10 +27,11 @@ extern "C" {
 
 typedef struct{
   
+  gpuFFT3dPlan_big *fftplan_big;   ///< FFT plan adapted to the size of the simulation.
   gpuFFT3dPlan *fftplan;   ///< FFT plan adapted to the size of the simulation.
-  tensor *fft1;            ///< buffer to store and transform the zero-padded magnetization and field.
-  tensor *fft2;            ///< second fft buffer. By default, this one points to fft1, so everything is in-place.
-  tensor *kernel;          ///< kernel used in the convolution.
+  tensor *fft1;                ///< buffer to store and transform the zero-padded magnetization and field.
+  tensor *fft2;                ///< second fft buffer. By default, this one points to fft1, so everything is in-place.
+  tensor *kernel;              ///< kernel used in the convolution.
   
 }conv_data;
 
