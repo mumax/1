@@ -13,7 +13,7 @@ func TestMisc(test *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	WriteHeader(out, t)
+	WriteAscii(out, t)
 	out.Close()
 
 	in, err2 := os.Open("test.tensor", os.O_RDONLY, 0666)
