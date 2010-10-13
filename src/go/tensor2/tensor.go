@@ -32,14 +32,13 @@ func (t *T) Init(size []int) {
 
 
 func (t *T) Size() []int {
-  return t.TSize
+	return t.TSize
 }
 
 
 func (t *T) List() []float {
-  return t.TList
+	return t.TList
 }
-
 
 
 type T4 struct {
@@ -62,7 +61,7 @@ func NewT4(size []int) *T4 {
 }
 
 func (t *T4) Array() [][][][]float {
-  return t.TArray
+	return t.TArray
 }
 
 func ToT4(t *T) *T4 {
@@ -78,12 +77,12 @@ func Prod(size []int) int {
 	return prod
 }
 
-func Len(t Interface) int{
-  return Prod(t.Size())
+func Len(t Interface) int {
+	return Prod(t.Size())
 }
 
-func Rank(t Interface) int{
-  return len(t.Size())
+func Rank(t Interface) int {
+	return len(t.Size())
 }
 
 

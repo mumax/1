@@ -11,40 +11,61 @@ import (
 	"os"
 	"fmt"
 	"bufio"
+	"encoding/binary"
 )
 
-const(
-  H_COMMENT = "#"
-  H_SEPARATOR = ":"
-  H_FORMAT = "tensorformat"
+// Header tokens
+const (
+	H_COMMENT   = "#"
+	H_SEPARATOR = ":"
+	H_FORMAT    = "tensorformat"
+	H_RANK      = "rank"
+	H_SIZE      = "size"
 )
 
-func WriteHeader(out_ io.Writer, t Interface){
-  out := bufio.NewWriter(out_)
-  defer out.Flush()
+var ENDIANESS = binary.LittleEndian
 
-  fmt.Fprintln(out, H_COMMENT, H_FORMAT, H_SEPARATOR, 1)
+func WriteHeader(out_ io.Writer, t Interface) {
+	out := bufio.NewWriter(out_)
+	defer out.Flush()
+
+	fmt.Fprintln(out, H_COMMENT, H_FORMAT, H_SEPARATOR, 1)
+	fmt.Fprintln(out, H_COMMENT, H_RANK, H_SEPARATOR, 1)
+	fmt.Fprintln(out, H_COMMENT, H_SIZE, H_SEPARATOR, 1)
 }
 
-func WriteDataAscii(out_ io.Writer, t Interface) {
-  out := bufio.NewWriter(out_)
-  defer out.Flush()
-  
-  for i := NewIterator(t); i.HasNext(); i.Next() {
-    fmt.Fprint(out, i.Get(), "\t")
+func WriteDataAscii(out_ io.Writer, t Interface) os.Error {
+	out := bufio.NewWriter(out_)
+	defer out.Flush()
 
-    for j := 0; j < Rank(t); j++ {
-      newline := true
-      for k := j; k < Rank(t); k++ {
-        if i.Index()[k] != t.Size()[k]-1 {
-          newline = false
-        }
-      }
-      if newline {
-        fmt.Fprint(out, "\n")
-      }
-    }
-  }
+	for i := NewIterator(t); i.HasNext(); i.Next() {
+		if _, err := fmt.Fprint(out, i.Get(), "\t"); err != nil {
+			return err
+		}
+
+		for j := 0; j < Rank(t); j++ {
+			newline := true
+			for k := j; k < Rank(t); k++ {
+				if i.Index()[k] != t.Size()[k]-1 {
+					newline = false
+				}
+			}
+			if newline {
+				if _, err := fmt.Fprint(out, "\n"); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil //success
+}
+
+func WriteDataBinary(out_ io.Writer, t Interface) (err os.Error) {
+	list := t.List()
+	out := bufio.NewWriter(out_)
+	defer out.Flush()
+	err = binary.Write(out, ENDIANESS, list)
+	return
 }
 
 func FReadAscii4(fname string) *T {
