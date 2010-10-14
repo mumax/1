@@ -11,7 +11,7 @@ OFILES=\
 	gpu_transpose.o\
 	gpu_transpose2.o\
 	gpu_bigfft.o\
-	gpu_fft4.o\
+	gpu_fft3.o\
 	gpu_kernmul.o\
 	gpu_zeropad.o\
 	gpu_init.o\
@@ -65,6 +65,9 @@ gpu_transpose2.o:  gpu_transpose2.h gpu_transpose2.cu
 
 gpu_fft4.o:  gpu_fft4.h gpu_fft4.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft4.cu
+
+gpu_fft3.o:  gpu_fft3.h gpu_fft3.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft3.cu
 
 gpu_kernmul.o:  gpu_kernmul.h gpu_kernmul.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_kernmul.cu

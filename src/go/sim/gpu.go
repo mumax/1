@@ -18,14 +18,13 @@ float* gpu_array_offset(float* array, int index){
 import "C"
 import "unsafe"
 
-/**
- * This single file intefaces all the relevant CUDA func(d Gpu) tions with go
- * It only wraps the func(d Gpu) tions, higher level constructs and assetions
- * are in separate files like fft.go, ...
- *
- * @note cgo does not seem to like many cgofiles, so I put everything together here.
- * @author Arne Vansteenkiste
- */
+
+// This single file intefaces all the relevant CUDA func(d Gpu) tions with go
+// It only wraps the func(d Gpu) tions, higher level constructs and assetions
+// are in separate files like fft.go, ...
+//
+// NOTE cgo does not seem to like many cgofiles, so I put everything together here.
+//
 
 import (
 	"fmt"
@@ -121,7 +120,7 @@ func (d Gpu) copyPadded(source, dest uintptr, sourceSize, destSize []int, direct
 func (d Gpu) newFFTPlan(dataSize, logicSize []int) uintptr {
 	Csize := (*C.int)(unsafe.Pointer(&dataSize[0]))
 	CpaddedSize := (*C.int)(unsafe.Pointer(&logicSize[0]))
-	return uintptr(unsafe.Pointer(C.new_gpuFFT3dPlanArne_padded(Csize, CpaddedSize)))
+	return uintptr(unsafe.Pointer(C.new_gpuFFT3dPlan_padded(Csize, CpaddedSize)))
 }
 
 
@@ -130,9 +129,9 @@ func (d Gpu) fft(plan uintptr, in, out uintptr, direction int) {
 	default:
 		panic(fmt.Sprintf("Unknown FFT direction:", direction))
 	case FFT_FORWARD:
-		C.gpuFFT3dPlanArne_forward((*C.gpuFFT3dPlanArne)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
+		C.gpuFFT3dPlan_forward((*C.gpuFFT3dPlan)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
 	case FFT_INVERSE:
-		C.gpuFFT3dPlanArne_inverse((*C.gpuFFT3dPlanArne)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
+		C.gpuFFT3dPlan_inverse((*C.gpuFFT3dPlan)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
 	}
 }
 
