@@ -7,7 +7,9 @@ GOFILES=\
 	tensor.go\
 	arrayslice.go\
 	iterator.go\
-	io.go\
+	input.go\
+	output.go\
+	legacyio.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 
