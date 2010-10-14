@@ -15,7 +15,7 @@ package sim
 
 import (
 	"fmt"
-	"tensor2"
+	"tensor"
 	"os"
 	"tabwriter"
 )
@@ -138,7 +138,7 @@ func (m *MAscii) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
 	file := fopen(fname)
 	defer file.Close()
-	tensor2.WriteAscii(file, s.mLocal)
+	tensor.WriteAscii(file, s.mLocal)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
@@ -177,7 +177,7 @@ func (t *Table) Save(s *Sim) {
 	t.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
-func m_average(m *tensor2.T4) (mx, my, mz float32) {
+func m_average(m *tensor.T4) (mx, my, mz float32) {
 	count := 0
 	a := m.Array()
 	for i := range a[0] {
@@ -210,7 +210,7 @@ func (m *MBinary) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
   out := fopen(fname)
   defer out.Close()
-	tensor2.WriteBinary(out, s.mLocal)
+	tensor.WriteBinary(out, s.mLocal)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 

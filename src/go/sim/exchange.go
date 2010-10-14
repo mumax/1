@@ -7,7 +7,7 @@
 package sim
 
 import (
-	"tensor2"
+	"tensor"
 )
 
 
@@ -28,10 +28,10 @@ import (
  * term compared to the usual - M . H. Outputting H_eff becomes less useful however,
  * it's better to look at torques. Away from the boundaries, H_eff is as usual.
  */
-func Exch6NgbrKernel(size []int, cellsize []float32) []*tensor2.T3 {
-	k := make([]*tensor2.T3, 6)
+func Exch6NgbrKernel(size []int, cellsize []float32) []*tensor.T3 {
+	k := make([]*tensor.T3, 6)
 	for i := range k {
-		k[i] = tensor2.NewT3(size)
+		k[i] = tensor.NewT3(size)
 	}
 
 	for s := 0; s < 3; s++ { // source index Ksdxyz

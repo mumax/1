@@ -1,4 +1,4 @@
-package tensor2
+package tensor
 
 
 func Equals(a, b Interface) bool {

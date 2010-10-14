@@ -8,7 +8,7 @@
 package sim
 
 import (
-	"tensor2"
+	"tensor"
 	"time"
 	"fmt"
 	"os"
@@ -61,7 +61,7 @@ type Sim struct {
 	valid        bool          // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
 	BeenValid    bool          // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
 	backend      *Backend      // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
-	mLocal       *tensor2.T4   // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
+	mLocal       *tensor.T4   // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
 	normMap      *DevTensor    // Per-cell magnetization norm. nil means the norm is 1.0 everywhere.
 	Material                   // Stores material parameters and manages the internal units
 	Mesh                       // Stores the size of the simulation grid
@@ -143,10 +143,10 @@ func (s *Sim) initMLocal() {
 	s.initSize()
 	if s.mLocal == nil {
 		s.Println("Allocating local memory " + fmt.Sprint(s.size4D))
-		s.mLocal = tensor2.NewT4(s.size4D[0:])
+		s.mLocal = tensor.NewT4(s.size4D[0:])
 	}
 
-	if !tensor2.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
+	if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
 		s.Println("Resampling magnetization from ", s.mLocal.Size(), " to ", Size4D(s.input.size[0:]))
 		s.mLocal = resample(s.mLocal, Size4D(s.input.size[0:]))
 	}
@@ -259,9 +259,9 @@ func (s *Sim) init() {
 // }
 
 
-func resample(in *tensor2.T4, size2 []int) *tensor2.T4 {
+func resample(in *tensor.T4, size2 []int) *tensor.T4 {
 	assert(len(size2) == 4)
-	out := tensor2.NewT4(size2)
+	out := tensor.NewT4(size2)
 	out_a := out.Array()
 	in_a := in.Array()
 	size1 := in.Size()

@@ -7,7 +7,7 @@
 package sim
 
 import (
-	"tensor2"
+	"tensor"
 	. "image"
 	"image/png"
 	"math"
@@ -16,7 +16,7 @@ import (
 
 // Writes as png
 // TODO: rename
-func PNG(out io.Writer, t tensor2.Interface) {
+func PNG(out io.Writer, t tensor.Interface) {
 	err := png.Encode(out, DrawTensor(t))
 	if err != nil {
 		panic(err)
@@ -24,9 +24,9 @@ func PNG(out io.Writer, t tensor2.Interface) {
 }
 
 //TODO: average, slice, ... ?
-func DrawTensor(t_ tensor2.Interface) *NRGBA {
+func DrawTensor(t_ tensor.Interface) *NRGBA {
 	// todo: we need to handle any rank?
-	t := tensor2.ToT3(t_)
+	t := tensor.ToT3(t_)
 	assert(t.TSize[0] == 3)
 	// result is rank3 2D vector field
 

@@ -31,12 +31,12 @@ package sim
  */
 
 import (
-// 	"tensor2"
+// 	"tensor"
 	. "math"
 )
 
 /** Unit kernel, for debugging. */
-// func UnitKernel(paddedsize []int) *tensor2.T5 {
+// func UnitKernel(paddedsize []int) *tensor.T5 {
 // 	size := paddedsize
 // 	k := tensor.NewTensor5([]int{3, 3, size[0], size[1], size[2]})
 // 	for c := 0; c < 3; c++ {

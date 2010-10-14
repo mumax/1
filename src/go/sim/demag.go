@@ -7,7 +7,7 @@
 package sim
 
 import (
-	"tensor2"
+	"tensor"
 	. "math"
 )
 
@@ -18,13 +18,13 @@ import (
 // 	return toSymmetric(k9)
 // }
 
-func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor2.T3 {
-	k := make([]*tensor2.T3, 6)
+func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
+	k := make([]*tensor.T3, 6)
 	for i := range k {
-		k[i] = tensor2.NewT3(size)
+		k[i] = tensor.NewT3(size)
 	}
-	B := tensor2.NewVector()
-	R := tensor2.NewVector()
+	B := tensor.NewVector()
+	R := tensor.NewVector()
 
 	x1 := -(size[X] - 1) / 2
 	x2 := size[X]/2 - 1
@@ -92,11 +92,11 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor2.T3 {
 /**
  * Magnetostatic field at position r (integer, number of cellsizes away form source) for a given source magnetization direction m (X, Y, or Z)
  */
-func faceIntegral(B, R *tensor2.Vector, cellsize []float32, s int, accuracy int) {
+func faceIntegral(B, R *tensor.Vector, cellsize []float32, s int, accuracy int) {
 	n := accuracy                  // number of integration points = n^2
 	u, v, w := s, (s+1)%3, (s+2)%3 // u = direction of source (s), v & w are the orthogonal directions
-	R2 := tensor2.NewVector()
-	pole := tensor2.NewVector() // position of point charge on the surface
+	R2 := tensor.NewVector()
+	pole := tensor.NewVector() // position of point charge on the surface
 
 
 	surface := cellsize[v] * cellsize[w] // the two directions perpendicular to direction s

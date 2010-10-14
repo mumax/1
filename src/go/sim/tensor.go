@@ -7,7 +7,7 @@
 package sim
 
 import (
-	"tensor2"
+	"tensor"
 	"fmt"
 )
 
@@ -89,29 +89,29 @@ func assertEqualSize(sizeA, sizeB []int) {
 
 /// copies between two Tensors on the sim
 func TensorCopyOn(source, dest *DevTensor) {
-	assert(tensor2.EqualSize(source.size, dest.size))
-	source.memcpyOn(source.data, dest.data, tensor2.Prod(source.Size()))
+	assert(tensor.EqualSize(source.size, dest.size))
+	source.memcpyOn(source.data, dest.data, tensor.Prod(source.Size()))
 }
 
 /// copies a tensor to the GPU
-func TensorCopyTo(source tensor2.Interface, dest *DevTensor) {
+func TensorCopyTo(source tensor.Interface, dest *DevTensor) {
 	///@todo sim.Set(), allow tensor.Tensor source, type switch for efficient copying
 	///@todo TensorCpy() with type switch for auto On/To/From
-	assert(tensor2.EqualSize(source.Size(), dest.size))
-	dest.memcpyTo(&(source.List()[0]), dest.data, tensor2.Prod(source.Size()))
+	assert(tensor.EqualSize(source.Size(), dest.size))
+	dest.memcpyTo(&(source.List()[0]), dest.data, tensor.Prod(source.Size()))
 }
 
 /// copies a tensor to the GPU
-func TensorCopyFrom(source *DevTensor, dest tensor2.Interface) {
+func TensorCopyFrom(source *DevTensor, dest tensor.Interface) {
 	///@todo sim.Set(), allow tensor.Tensor source, type switch for efficient copying
 	///@todo TensorCpy() with type switch for auto On/To/From
-	assert(tensor2.EqualSize(source.Size(), dest.Size()))
-	source.memcpyFrom(source.data, &(dest.List()[0]), tensor2.Prod(source.Size()))
+	assert(tensor.EqualSize(source.Size(), dest.Size()))
+	source.memcpyFrom(source.data, &(dest.List()[0]), tensor.Prod(source.Size()))
 }
 
 
 func ZeroTensor(t *DevTensor) {
-	t.zero(t.data, tensor2.Prod(t.Size()))
+	t.zero(t.data, tensor.Prod(t.Size()))
 }
 
 

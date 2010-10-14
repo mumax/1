@@ -7,7 +7,7 @@
 package sim
 
 import (
-	"tensor2"
+	"tensor"
 	"unsafe"
 )
 
@@ -86,25 +86,25 @@ func (dev *Backend) arraySet(array uintptr, index int, value float32) {
 
 // a[i] += b[i]
 func (dev *Backend) Add(a, b *DevTensor) {
-	assert(tensor2.EqualSize(a.size, b.size))
-	dev.add(a.data, b.data, tensor2.Prod(a.Size()))
+	assert(tensor.EqualSize(a.size, b.size))
+	dev.add(a.data, b.data, tensor.Prod(a.Size()))
 }
 
 // a[i] += b[i]
 func (dev *Backend) MAdd(a *DevTensor, cnst float32, b *DevTensor) {
-	assert(tensor2.EqualSize(a.size, b.size))
-	dev.madd(a.data, cnst, b.data, tensor2.Prod(a.Size()))
+	assert(tensor.EqualSize(a.size, b.size))
+	dev.madd(a.data, cnst, b.data, tensor.Prod(a.Size()))
 }
 
 // a[i]  = weightA * a[i] + weightB * b[i]
 func (dev *Backend) LinearCombination(a, b *DevTensor, weightA, weightB float32) {
-	assert(tensor2.EqualSize(a.size, b.size))
-	dev.linearCombination(a.data, b.data, weightA, weightB, tensor2.Prod(a.Size()))
+	assert(tensor.EqualSize(a.size, b.size))
+	dev.linearCombination(a.data, b.data, weightA, weightB, tensor.Prod(a.Size()))
 }
 
 // a[i] += cnst
 func (dev *Backend) AddConstant(a *DevTensor, cnst float32) {
-	dev.addConstant(a.data, cnst, tensor2.Prod(a.Size()))
+	dev.addConstant(a.data, cnst, tensor.Prod(a.Size()))
 }
 
 // func (dev *Backend) Normalize(m *DevTensor) {
@@ -117,7 +117,7 @@ func (dev *Backend) AddConstant(a *DevTensor, cnst float32) {
 // calculates torque * dt, overwrites h with the result
 func (dev *Backend) DeltaM(m, h *DevTensor, alpha, dtGilbert float32) {
 	assert(len(m.size) == 4)
-	assert(tensor2.EqualSize(m.size, h.size))
+	assert(tensor.EqualSize(m.size, h.size))
 	N := m.size[1] * m.size[2] * m.size[3]
 	dev.deltaM(m.data, h.data, alpha, dtGilbert, N)
 }
@@ -126,7 +126,7 @@ func (dev *Backend) DeltaM(m, h *DevTensor, alpha, dtGilbert float32) {
 // calculates torque, overwrites h with the result
 func (dev *Backend) Torque(m, h *DevTensor, alpha float32) {
 	assert(len(m.size) == 4)
-	assert(tensor2.EqualSize(m.size, h.size))
+	assert(tensor.EqualSize(m.size, h.size))
 	N := m.size[1] * m.size[2] * m.size[3]
 	dev.deltaM(m.data, h.data, alpha, 1.0, N) // we (ab)use DeltaM with dt=1.
 }
