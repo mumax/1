@@ -40,7 +40,7 @@ func (it *Iterator) HasNext() bool {
 }
 
 // Gets the current element
-func (it *Iterator) Get() float {
+func (it *Iterator) Get() float32 {
 	return it.tensor.List()[it.count]
 }
 

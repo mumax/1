@@ -10,12 +10,12 @@ import ()
 
 type Interface interface {
 	Size() []int
-	List() []float
+	List() []float32
 }
 
 type T struct {
 	TSize []int
-	TList []float
+	TList []float32
 }
 
 
@@ -27,7 +27,7 @@ func NewT(size []int) *T {
 
 func (t *T) Init(size []int) {
 	t.TSize = size
-	t.TList = make([]float, Prod(size))
+	t.TList = make([]float32, Prod(size))
 }
 
 
@@ -36,14 +36,14 @@ func (t *T) Size() []int {
 }
 
 
-func (t *T) List() []float {
+func (t *T) List() []float32 {
 	return t.TList
 }
 
 
 type T4 struct {
 	T
-	TArray [][][][]float
+	TArray [][][][]float32
 }
 
 func (t *T4) Init(size []int) {
@@ -60,7 +60,7 @@ func NewT4(size []int) *T4 {
 	return t
 }
 
-func (t *T4) Array() [][][][]float {
+func (t *T4) Array() [][][][]float32 {
 	return t.TArray
 }
 
@@ -100,7 +100,7 @@ func Rank(t Interface) int {
 // 
 // type Tensor interface {
 // 	Size() []int
-// 	Get(index []int) float
+// 	Get(index []int) float32
 // }
 // 
 // 
@@ -129,7 +129,7 @@ func Rank(t Interface) int {
 // 
 // /** Variadic get, utility method. */
 // 
-// // func Get(t Tensor, index_vararg ... int) float {
+// // func Get(t Tensor, index_vararg ... int) float32 {
 // // 	indexarr := ToIntArray(index_vararg)
 // // 	return t.Get(indexarr)
 // // }

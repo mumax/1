@@ -167,7 +167,7 @@ func WriteDataAscii(out_ io.Writer, t Interface) os.Error {
 }
 
 
-// Writes the tensor data in binary (32-bit floats)
+// Writes the tensor data in binary (32-bit float32s)
 func WriteDataBinary(out_ io.Writer, t Interface) {
 	list := t.List()
 	out := bufio.NewWriter(out_)
