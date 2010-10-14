@@ -32,7 +32,7 @@ func (s *Sim) Size(x, y, z int) {
 }
 
 // Defines the cell size in meters
-func (s *Sim) CellSize(x, y, z float) {
+func (s *Sim) CellSize(x, y, z float32) {
 	if x <= 0. || y <= 0. || z <= 0. {
 		s.Errorln("Cell size should be > 0")
 		os.Exit(-6)

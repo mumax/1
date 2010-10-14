@@ -22,7 +22,7 @@ const (
 type DevTensor struct {
 	*Backend ///< wraps the Device where the Tensor resides on (GPU/CPU/...)
 	size     []int
-	data     uintptr // points to float array on the GPU/CPU
+	data     uintptr // points to float32 array on the GPU/CPU
 }
 
 // Allocates a new tensor on the device represented by Backend
@@ -46,13 +46,13 @@ func AsTensor(b *Backend, data uintptr, size []int) *DevTensor {
 	return &DevTensor{b, size, data}
 }
 
-func (t *DevTensor) Get(index []int) float {
+func (t *DevTensor) Get(index []int) float32 {
 	i := tensor.Index(t.size, index)
 	return t.arrayGet(t.data, i)
 }
 
 
-func (t *DevTensor) Set(index []int, value float) {
+func (t *DevTensor) Set(index []int, value float32) {
 	i := tensor.Index(t.size, index)
 	t.arraySet(t.data, i, value)
 }

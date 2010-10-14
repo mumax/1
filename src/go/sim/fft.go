@@ -90,7 +90,7 @@ func (fft *FFT) InverseInplace(data *DevTensor) {
 
 /**
  * The physical size (needed for storage) corresponding to this
- * FFT's logical size. It is at least 2 floats larger in the Z dimension,
+ * FFT's logical size. It is at least 2 float32s larger in the Z dimension,
  * and usually even more due to GPU striding.
  */
 func (fft *FFT) PhysicSize() []int {

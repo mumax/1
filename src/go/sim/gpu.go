@@ -49,20 +49,20 @@ func (d Gpu) add(a, b uintptr, N int) {
 	C.gpu_add((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.int(N))
 }
 
-func (d Gpu) madd(a uintptr, cnst float, b uintptr, N int) {
+func (d Gpu) madd(a uintptr, cnst float32, b uintptr, N int) {
 	C.gpu_madd((*C.float)(unsafe.Pointer(a)), C.float(cnst), (*C.float)(unsafe.Pointer(b)), C.int(N))
 }
 
-func (d Gpu) linearCombination(a, b uintptr, weightA, weightB float, N int) {
+func (d Gpu) linearCombination(a, b uintptr, weightA, weightB float32, N int) {
 	C.gpu_linear_combination((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(weightA), C.float(weightB), C.int(N))
 }
 
-func (d Gpu) addConstant(a uintptr, cnst float, N int) {
+func (d Gpu) addConstant(a uintptr, cnst float32, N int) {
 	C.gpu_add_constant((*C.float)(unsafe.Pointer(a)), C.float(cnst), C.int(N))
 }
 
-func (d Gpu) reduce(operation int, input, output uintptr, buffer *float, blocks, threads, N int) float {
-	return float(C.gpu_reduce(C.int(operation), (*C.float)(unsafe.Pointer(input)), (*C.float)(unsafe.Pointer(output)), (*C.float)(unsafe.Pointer(buffer)), C.int(blocks), C.int(threads), C.int(N)))
+func (d Gpu) reduce(operation int, input, output uintptr, buffer *float32, blocks, threads, N int) float32 {
+	return float32(C.gpu_reduce(C.int(operation), (*C.float)(unsafe.Pointer(input)), (*C.float)(unsafe.Pointer(output)), (*C.float)(unsafe.Pointer(buffer)), C.int(blocks), C.int(threads), C.int(N)))
 }
 
 func (d Gpu) normalize(m uintptr, N int) {
@@ -73,11 +73,11 @@ func (d Gpu) normalizeMap(m, normMap uintptr, N int) {
 	C.gpu_normalize_map((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(normMap)), C.int(N))
 }
 
-func (d Gpu) deltaM(m, h uintptr, alpha, dtGilbert float, N int) {
+func (d Gpu) deltaM(m, h uintptr, alpha, dtGilbert float32, N int) {
 	C.gpu_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha), C.float(dtGilbert), C.int(N))
 }
 
-func (d Gpu) semianalStep(m, h uintptr, dt, alpha float, order, N int) {
+func (d Gpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {
 	switch order {
 	default:
 		panic(fmt.Sprintf("Unknown semianal order:", order))

@@ -60,8 +60,8 @@ func wrap(number, max int) int {
 }
 
 
-func FSqrt(x float64) float {
-	return float(Sqrt(x))
+func FSqrt(x float64) float32 {
+	return float32(Sqrt(x))
 }
 
 // Add padding x 2 in all directions, except when a dimension == 1 (no padding neccesary)

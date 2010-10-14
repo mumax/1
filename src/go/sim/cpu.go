@@ -49,20 +49,20 @@ func (d Cpu) add(a, b uintptr, N int) {
 	C.cpu_add((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.int(N))
 }
 
-func (d Cpu) madd(a uintptr, cnst float, b uintptr, N int) {
+func (d Cpu) madd(a uintptr, cnst float32, b uintptr, N int) {
 	C.cpu_madd((*C.float)(unsafe.Pointer(a)), C.float(cnst), (*C.float)(unsafe.Pointer(b)), C.int(N))
 }
 
-func (d Cpu) linearCombination(a, b uintptr, weightA, weightB float, N int) {
+func (d Cpu) linearCombination(a, b uintptr, weightA, weightB float32, N int) {
 	C.cpu_linear_combination((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(weightA), C.float(weightB), C.int(N))
 }
 
-func (d Cpu) reduce(operation int, input, output uintptr, buffer *float, blocks, threads, N int) float {
+func (d Cpu) reduce(operation int, input, output uintptr, buffer *float32, blocks, threads, N int) float32 {
 	//C.cpu_reduce(C.int(operation), (*C.float)(input), (*C.float)(output), C.int(blocks), C.int(threads), C.int(N))
 	panic("unimplemented")
 }
 
-func (d Cpu) addConstant(a uintptr, cnst float, N int) {
+func (d Cpu) addConstant(a uintptr, cnst float32, N int) {
 	C.cpu_add_constant((*C.float)(unsafe.Pointer(a)), C.float(cnst), C.int(N))
 }
 
@@ -74,11 +74,11 @@ func (d Cpu) normalizeMap(m, normMap uintptr, N int) {
 	C.cpu_normalize_map((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(normMap)), C.int(N))
 }
 
-func (d Cpu) deltaM(m, h uintptr, alpha, dtGilbert float, N int) {
+func (d Cpu) deltaM(m, h uintptr, alpha, dtGilbert float32, N int) {
 	C.cpu_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha), C.float(dtGilbert), C.int(N))
 }
 
-func (d Cpu) semianalStep(m, h uintptr, dt, alpha float, order, N int) {
+func (d Cpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {
 	switch order {
 	default:
 		panic(fmt.Sprintf("Unknown semianal order:", order))
@@ -167,9 +167,9 @@ func (d Cpu) fft(plan uintptr, in, out uintptr, direction int) {
 
 //_______________________________________________________________________________ GPU memory allocation
 
-// Allocates an array of floats on the CPU.
+// Allocates an array of float32s on the CPU.
 // By convention, GPU arrays are represented by an uintptr,
-// while host arrays are *float's.
+// while host arrays are *float32's.
 func (d Cpu) newArray(nFloats int) uintptr {
 	return uintptr(unsafe.Pointer(C.new_cpu_array(C.int(nFloats))))
 }
@@ -183,12 +183,12 @@ func (d Cpu) memcpy(source, dest uintptr, nFloats, direction int) {
 }
 
 // ///
-// func (d Cpu) memcpyTo(source *float, dest uintptr, nFloats int) {
+// func (d Cpu) memcpyTo(source *float32, dest uintptr, nFloats int) {
 // 	C.cpu_memcpy((*C.float)(unsafe.Pointer(source)), (*C.float)(dest), C.int(nFloats))
 // }
 //
 // ///
-// func (d Cpu) memcpyFrom(source uintptr, dest *float, nFloats int) {
+// func (d Cpu) memcpyFrom(source uintptr, dest *float32, nFloats int) {
 // 	C.cpu_memcpy((*C.float)(source), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats))
 // }
 //
@@ -197,12 +197,12 @@ func (d Cpu) memcpy(source, dest uintptr, nFloats, direction int) {
 // 	C.cpu_memcpy((*C.float)(source), (*C.float)(dest), C.int(nFloats))
 //}
 
-/// Gets one float from a GPU array
-// func (d Cpu) arrayGet(array uintptr, index int) float {
-// 	return float(C.cpu_array_get((*C.float)(array), C.int(index)))
+/// Gets one float32 from a GPU array
+// func (d Cpu) arrayGet(array uintptr, index int) float32 {
+// 	return float32(C.cpu_array_get((*C.float)(array), C.int(index)))
 // }
 //
-// func (d Cpu) arraySet(array uintptr, index int, value float) {
+// func (d Cpu) arraySet(array uintptr, index int, value float32) {
 // 	C.cpu_array_set((*C.float)(array), C.int(index), C.float(value))
 // }
 
@@ -212,7 +212,7 @@ func (d Cpu) arrayOffset(array uintptr, index int) uintptr {
 
 //___________________________________________________________________________________________________ GPU Stride
 
-// The GPU stride in number of floats (!)
+// The GPU stride in number of float32s (!)
 func (d Cpu) Stride() int {
 	return int(C.cpu_stride_float())
 }
@@ -229,7 +229,7 @@ func (d Cpu) overrideStride(nFloats int) {
 
 //___________________________________________________________________________________________________ tensor utilities
 
-/// Overwrite n floats with zeros
+/// Overwrite n float32s with zeros
 func (d Cpu) zero(data uintptr, nFloats int) {
 	C.cpu_zero((*C.float)(unsafe.Pointer(data)), C.int(nFloats))
 }

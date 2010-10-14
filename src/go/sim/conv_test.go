@@ -19,7 +19,7 @@ func TestConv(t *testing.T) {
 	size := size4D[1:]
 	kernelSize := padSize(size)
 
-	kernel := FaceKernel6(kernelSize, []float{1., 1., 1.}, 8)
+	kernel := FaceKernel6(kernelSize, []float32{1., 1., 1.}, 8)
 	conv := NewConv(backend, size, kernel)
 
 	for i := range conv.kernel {

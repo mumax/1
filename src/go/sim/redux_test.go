@@ -16,7 +16,7 @@ func TestSum(t *testing.T) {
 
 	for _, N := range Ns {
 
-		host := make([]float, N)
+		host := make([]float32, N)
 		for i := range host {
 			host[i] = 1.
 		}
@@ -27,7 +27,7 @@ func TestSum(t *testing.T) {
 		sum := NewSum(backend, N)
 		result := sum.reduce_(dev)
 
-		if result != float(N) {
+		if result != float32(N) {
 			t.Error("expected ", N, " got ", result)
 		}
 	}
@@ -37,7 +37,7 @@ func TestMax(t *testing.T) {
 
 	for _, N := range Ns {
 
-		host := make([]float, N)
+		host := make([]float32, N)
 		for i := range host {
 			host[i] = 1.
 		}
@@ -60,7 +60,7 @@ func TestMaxAbs(t *testing.T) {
 
 	for _, N := range Ns {
 
-		host := make([]float, N)
+		host := make([]float32, N)
 		for i := range host {
 			host[i] = 1.
 		}

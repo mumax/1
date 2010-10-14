@@ -18,7 +18,7 @@ func TestCopy(t *testing.T) {
 	host1, host2 := tensor.NewTensorN(size), tensor.NewTensorN(size)
 
 	for i := range host1.List() {
-		host1.List()[i] = float(i)
+		host1.List()[i] = float32(i)
 	}
 
 	TensorCopyTo(host1, dev1)

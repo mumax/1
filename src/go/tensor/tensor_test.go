@@ -19,7 +19,7 @@ import (
 func TestIO(t *T) {
 	A := NewTensor3([]int{5, 7, 9})
 	for i := range A.List() {
-		A.List()[i] = float(i) / 10.0
+		A.List()[i] = float32(i) / 10.0
 	}
 	Write(FOpenz("iotest"), A)
 	A2 := Read(FOpenz("iotest"))
@@ -114,7 +114,7 @@ func TestTensorOps(t *T) {
 //   assert(!a.Equals(b));
 //
 //   for i:= range(a.AsArray()){
-//     a.AsArray()[i] = float(i);
+//     a.AsArray()[i] = float32(i);
 //   }
 //
 //   Copy(a, b);
@@ -234,11 +234,11 @@ func TestTensor1(t *T) {
 
 	arr := a.Array()
 	for i := 0; i < 3; i++ {
-		arr[i] = float(i)
+		arr[i] = float32(i)
 	}
 
 	for i := 0; i < 3; i++ {
-		if a.Get([]int{i}) != float(i) {
+		if a.Get([]int{i}) != float32(i) {
 			t.Fail()
 		}
 	}
@@ -270,13 +270,13 @@ func TestTensor2(t *T) {
 	arr := a.Array()
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 4; j++ {
-			arr[i][j] = float(i + 2*j)
+			arr[i][j] = float32(i + 2*j)
 		}
 	}
 
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 4; j++ {
-			if a.Get([]int{i, j}) != float(i+2*j) {
+			if a.Get([]int{i, j}) != float32(i+2*j) {
 				t.Fail()
 			}
 		}
@@ -305,7 +305,7 @@ func TestTensor3(t *T) {
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 4; j++ {
 			for k := 0; k < 5; k++ {
-				arr[i][j][k] = float(i + 2*j + 3*k)
+				arr[i][j][k] = float32(i + 2*j + 3*k)
 			}
 		}
 	}
@@ -313,7 +313,7 @@ func TestTensor3(t *T) {
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 4; j++ {
 			for k := 0; k < 5; k++ {
-				if a.Get([]int{i, j, k}) != float(i+2*j+3*k) {
+				if a.Get([]int{i, j, k}) != float32(i+2*j+3*k) {
 					t.Fail()
 				}
 			}
@@ -346,7 +346,7 @@ func TestTensor4(t *T) {
 		for j := 0; j < 4; j++ {
 			for k := 0; k < 5; k++ {
 				for l := 0; l < 6; l++ {
-					arr[i][j][k][l] = float(i + 2*j + 3*k + 4*l)
+					arr[i][j][k][l] = float32(i + 2*j + 3*k + 4*l)
 				}
 			}
 		}
@@ -356,7 +356,7 @@ func TestTensor4(t *T) {
 		for j := 0; j < 4; j++ {
 			for k := 0; k < 5; k++ {
 				for l := 0; l < 6; l++ {
-					if a.Get([]int{i, j, k, l}) != float(i+2*j+3*k+4*l) {
+					if a.Get([]int{i, j, k, l}) != float32(i+2*j+3*k+4*l) {
 						t.Fail()
 					}
 				}
@@ -394,7 +394,7 @@ func TestTensor5(t *T) {
 			for k := 0; k < 5; k++ {
 				for l := 0; l < 6; l++ {
 					for m := 0; m < 7; m++ {
-						arr[i][j][k][l][m] = float(i + 2*j + 3*k + 4*l + 5*m)
+						arr[i][j][k][l][m] = float32(i + 2*j + 3*k + 4*l + 5*m)
 					}
 				}
 			}
@@ -406,7 +406,7 @@ func TestTensor5(t *T) {
 			for k := 0; k < 5; k++ {
 				for l := 0; l < 6; l++ {
 					for m := 0; m < 7; m++ {
-						if a.Get([]int{i, j, k, l, m}) != float(i+2*j+3*k+4*l+5*m) {
+						if a.Get([]int{i, j, k, l, m}) != float32(i+2*j+3*k+4*l+5*m) {
 							t.Fail()
 						}
 					}
@@ -443,7 +443,7 @@ func TestTensorN(t *T) {
 			for k := 0; k < 5; k++ {
 				for l := 0; l < 6; l++ {
 					for m := 0; m < 7; m++ {
-						Set(a, []int{i, j, k, l, m}, float(i+2*j+3*k+4*l+5*m))
+						Set(a, []int{i, j, k, l, m}, float32(i+2*j+3*k+4*l+5*m))
 					}
 				}
 			}
@@ -455,7 +455,7 @@ func TestTensorN(t *T) {
 			for k := 0; k < 5; k++ {
 				for l := 0; l < 6; l++ {
 					for m := 0; m < 7; m++ {
-						if a.Get([]int{i, j, k, l, m}) != float(i+2*j+3*k+4*l+5*m) {
+						if a.Get([]int{i, j, k, l, m}) != float32(i+2*j+3*k+4*l+5*m) {
 							t.Fail()
 						}
 					}

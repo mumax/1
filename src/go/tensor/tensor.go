@@ -20,7 +20,7 @@ import (
 
 type Tensor interface {
 	Size() []int
-	Get(index []int) float
+	Get(index []int) float32
 }
 
 
@@ -49,7 +49,7 @@ func N(t Tensor) int {
 
 /** Variadic get, utility method. */
 
-// func Get(t Tensor, index_vararg ... int) float {
+// func Get(t Tensor, index_vararg ... int) float32 {
 // 	indexarr := ToIntArray(index_vararg)
 // 	return t.Get(indexarr)
 // }

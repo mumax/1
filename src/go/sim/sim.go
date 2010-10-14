@@ -33,13 +33,13 @@ import (
 // same as sim.dt (which is in internal units)
 //
 type Input struct {
-	aexch          float
-	msat           float
-	alpha          float
+	aexch          float32
+	msat           float32
+	alpha          float32
 	size           [3]int
-	cellSize       [3]float
+	cellSize       [3]float32
 	demag_accuracy int
-	dt             float
+	dt             float32
 	solvertype     string
 }
 
@@ -67,15 +67,15 @@ type Sim struct {
 	Mesh                         // Stores the size of the simulation grid
 	Conv                         // Convolution plan for the magnetostatic field
 	AppliedField                 // returns the externally applied in function of time
-	hextSI       [3]float        // stores the externally applied field returned by AppliedField, in SI UNITS
+	hextSI       [3]float32        // stores the externally applied field returned by AppliedField, in SI UNITS
 	mDev, h      *DevTensor      // magnetization/effective field on the device (GPU), 4D tensor
 	mComp, hComp [3]*DevTensor   // magnetization/field components, 3 x 3D tensors
 	Solver                       // Does the time stepping, can be euler, heun, ...
 	time         float64         // The total time (internal units)
-	dt           float           // The time step (internal units). May be updated by adaptive-step solvers
-	maxDm        float           // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
-	maxError     float           // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
-	stepError    float           // The actual error estimate of the last step. Not all solvers update this value.
+	dt           float32           // The time step (internal units). May be updated by adaptive-step solvers
+	maxDm        float32           // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
+	maxError     float32           // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
+	stepError    float32           // The actual error estimate of the last step. Not all solvers update this value.
 	steps        int             // The total number of steps taken so far
 	starttime    int64           // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
 	outschedule  []Output        // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up

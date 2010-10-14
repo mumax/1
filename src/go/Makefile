@@ -10,10 +10,10 @@ all:
 	make install -C sim
 
 	make -C outtools
-	make -C tensor-main
+# 	make -C tensor-main
 # 	make -C kernel-main
 # 	make -C config-main
-	make -C draw
+# 	make -C draw
 	make -C main
 
 .PHONY: clean

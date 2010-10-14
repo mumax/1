@@ -10,19 +10,19 @@ package sim
 // material parameters.
 
 // Sets the exchange constant, defined in J/m
-func (s *Sim) AExch(a float) {
+func (s *Sim) AExch(a float32) {
 	s.input.aexch = a
 	s.invalidate()
 }
 
 // Sets the saturation magnetization, defined in A/m
-func (s *Sim) MSat(ms float) {
+func (s *Sim) MSat(ms float32) {
 	s.input.msat = ms
 	s.invalidate()
 }
 
 // Sets the damping coefficient
-func (s *Sim) Alpha(a float) {
+func (s *Sim) Alpha(a float32) {
 	s.input.alpha = a
 	s.invalidate()
 }

@@ -15,7 +15,7 @@ func (t *Resampled) Size() []int {
 	return t.size
 }
 
-func (t *Resampled) Get(index []int) float {
+func (t *Resampled) Get(index []int) float32 {
 	index2 := make([]int, len(index))
 	for i := range index {
 		index2[i] = (index[i] * t.size[i]) / t.original.Size()[i]

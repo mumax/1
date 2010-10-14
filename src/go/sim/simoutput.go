@@ -41,7 +41,7 @@ func (s *Sim) outputDir(outputdir string) {
 // Schedules a quantity for autosave
 // We use SI units! So that the autosave information is independent of the material parameters!
 // E.g.: "autosave m binary 1E-9" will save the magnetization in binary format every ns
-func (s *Sim) Autosave(what, format string, interval float) {
+func (s *Sim) Autosave(what, format string, interval float32) {
 	// interval in SI units
 	s.outschedule = s.outschedule[0 : len(s.outschedule)+1]
 	output := resolve(what, format)
@@ -63,26 +63,26 @@ func (s *Sim) Save(what, format string) {
 // INTERNAL: Entries in the list of scheduled output have this interface
 type Output interface {
 	// Set the autosave interval in seconds - SI units!
-	SetInterval(interval float)
+	SetInterval(interval float32)
 	// Returns true if the output needs to saved at this time - SI units!
-	NeedSave(time float) bool
+	NeedSave(time float32) bool
 	// After NeedSave() returned true, the simulation will make sure the local copy of m is up to date and the autosaveIdx gets updated. Then Save() is called to save the output
 	Save(sim *Sim)
 }
 
 // INTERNAL: Common superclass for all periodic outputs
 type Periodic struct {
-	period      float
-	sinceoutput float
+	period      float32
+	sinceoutput float32
 }
 
 // INTERNAL
-func (p *Periodic) NeedSave(time float) bool {
+func (p *Periodic) NeedSave(time float32) bool {
 	return time == 0. || time-p.sinceoutput >= p.period
 }
 
 // INTERNAL
-func (p *Periodic) SetInterval(interval float) {
+func (p *Periodic) SetInterval(interval float32) {
 	p.period = interval
 }
 
@@ -146,7 +146,7 @@ func (m *MAscii) Save(s *Sim) {
 	out := bufOpen(fname)
 	defer out.Flush()
 	tensor.Format(out, s.mLocal)
-	m.sinceoutput = float(s.time) * s.UnitTime()
+	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
 type Table struct {
@@ -174,17 +174,17 @@ func (t *Table) Save(s *Sim) {
 	}
 	mx, my, mz := m_average(s.mLocal)
 // 	B := s.UnitField()
-	fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float(s.time)*s.UnitTime(), mx, my, mz)
+	fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float32(s.time)*s.UnitTime(), mx, my, mz)
 	fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", s.hextSI[X], s.hextSI[Y], s.hextSI[Z])
 	fmt.Fprintf(t.out, "%.5g\t", s.dt*s.UnitTime())
 	fmt.Fprintf(t.out, "%.4g\t", s.stepError)
 	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
 	fmt.Fprintln(t.out)
 	t.out.Flush()
-	t.sinceoutput = float(s.time) * s.UnitTime()
+	t.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
-func m_average(m *tensor.Tensor4) (mx, my, mz float) {
+func m_average(m *tensor.Tensor4) (mx, my, mz float32) {
 	count := 0
 	a := m.Array()
 	for i := range a[0] {
@@ -197,9 +197,9 @@ func m_average(m *tensor.Tensor4) (mx, my, mz float) {
 			}
 		}
 	}
-	mx /= float(count)
-	my /= float(count)
-	mz /= float(count)
+	mx /= float32(count)
+	my /= float32(count)
+	mz /= float32(count)
 	return
 }
 
@@ -214,7 +214,7 @@ type MBinary struct {
 func (m *MBinary) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".t"
 	tensor.WriteFile(fname, s.mLocal)
-	m.sinceoutput = float(s.time) * s.UnitTime()
+	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
 
@@ -231,5 +231,5 @@ func (m *MPng) Save(s *Sim) {
 	out := bufOpen(fname)
 	defer out.Flush()
 	PNG(out, s.mLocal)
-	m.sinceoutput = float(s.time) * s.UnitTime()
+	m.sinceoutput = float32(s.time) * s.UnitTime()
 }

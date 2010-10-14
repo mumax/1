@@ -26,7 +26,7 @@ import (
 
 // Make the magnetization uniform.
 // (mx, my, mz) needs not to be normalized.
-func (s *Sim) Uniform(mx, my, mz float) {
+func (s *Sim) Uniform(mx, my, mz float32) {
 	s.initMLocal()
 	a := s.mLocal.Array()
 	for i := range a[0] {
@@ -55,13 +55,13 @@ func (s *Sim) Vortex(circulation, polarization int) {
 				y := j - cy
 				x := k - cx
 				a[X][i][j][k] = 0
-				a[Y][i][j][k] = float(x * circulation)
-				a[Z][i][j][k] = float(-y * circulation)
+				a[Y][i][j][k] = float32(x * circulation)
+				a[Z][i][j][k] = float32(-y * circulation)
 			}
 		}
 		a[Z][i][cy][cx] = 0.
 		a[Y][i][cy][cx] = 0.
-		a[X][i][cy][cx] = float(polarization)
+		a[X][i][cy][cx] = float32(polarization)
 	}
 	normalize(a)
 	s.invalidate()
@@ -87,19 +87,19 @@ func (s *Sim) Load(file string) {
 // Adds noise with the specified amplitude
 // to the magnetization state.
 // Handy to break the symmetry.
-func (s *Sim) AddNoise(amplitude float) {
+func (s *Sim) AddNoise(amplitude float32) {
 	s.initMLocal()
 	amplitude *= 2
 	list := s.mLocal.List()
 	for i := range list {
-		list[i] += amplitude * (rand.Float() - 0.5)
+		list[i] += amplitude * float32(rand.Float() - 0.5)
 	}
 	normalize(s.mLocal.Array())
 	s.invalidate()
 }
 
 //INTERNAL
-func normalize(a [][][][]float) {
+func normalize(a [][][][]float32) {
 	for i := range a[0] {
 		for j := range a[0][i] {
 			for k := range a[0][i][j] {

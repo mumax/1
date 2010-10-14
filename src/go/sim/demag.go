@@ -13,12 +13,12 @@ import (
 
 
 /// converts from the full "rank-5" kernel format to the symmetric "array-of-rank3-tensors" format
-// func FaceKernel6(unpaddedsize []int, cellsize []float, accuracy int) []*tensor.Tensor3 {
+// func FaceKernel6(unpaddedsize []int, cellsize []float32, accuracy int) []*tensor.Tensor3 {
 // 	k9 := FaceKernel(unpaddedsize, cellsize, accuracy)
 // 	return toSymmetric(k9)
 // }
 
-func FaceKernel6(size []int, cellsize []float, accuracy int) []*tensor.Tensor3 {
+func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor.Tensor3 {
 	k := make([]*tensor.Tensor3, 6)
 	for i := range k {
 		k[i] = tensor.NewTensor3(size)
@@ -40,7 +40,7 @@ func FaceKernel6(size []int, cellsize []float, accuracy int) []*tensor.Tensor3 {
 				yw := wrap(y, size[Y])
 				for z := -(size[Z] - 1) / 2; z <= size[Z]/2-1; z++ {
 					zw := wrap(z, size[Z])
-					R.Set(float(x)*cellsize[X], float(y)*cellsize[Y], float(z)*cellsize[Z])
+					R.Set(float32(x)*cellsize[X], float32(y)*cellsize[Y], float32(z)*cellsize[Z])
 
 					faceIntegral(B, R, cellsize, s, accuracy)
 
@@ -56,7 +56,7 @@ func FaceKernel6(size []int, cellsize []float, accuracy int) []*tensor.Tensor3 {
 }
 
 /// Integrates the demag field based on multiple points per face.
-// func FaceKernel(size []int, cellsize []float, accuracy int) *tensor.Tensor5 {
+// func FaceKernel(size []int, cellsize []float32, accuracy int) *tensor.Tensor5 {
 // 	//size := PadSize(unpaddedsize)
 // 	k := tensor.NewTensor5([]int{3, 3, size[0], size[1], size[2]})
 // 	B := tensor.NewVector()
@@ -69,7 +69,7 @@ func FaceKernel6(size []int, cellsize []float, accuracy int) []*tensor.Tensor3 {
 // 				yw := wrap(y, size[Y])
 // 				for z := -(size[Z] - 1) / 2; z <= size[Z]/2-1; z++ {
 // 					zw := wrap(z, size[Z])
-// 					R.Set(float(x)*cellsize[X], float(y)*cellsize[Y], float(z)*cellsize[Z])
+// 					R.Set(float32(x)*cellsize[X], float32(y)*cellsize[Y], float32(z)*cellsize[Z])
 // 
 // 					faceIntegral(B, R, cellsize, s, accuracy)
 // 
@@ -92,7 +92,7 @@ func FaceKernel6(size []int, cellsize []float, accuracy int) []*tensor.Tensor3 {
 /**
  * Magnetostatic field at position r (integer, number of cellsizes away form source) for a given source magnetization direction m (X, Y, or Z)
  */
-func faceIntegral(B, R *tensor.Vector, cellsize []float, s int, accuracy int) {
+func faceIntegral(B, R *tensor.Vector, cellsize []float32, s int, accuracy int) {
 	n := accuracy                  // number of integration points = n^2
 	u, v, w := s, (s+1)%3, (s+2)%3 // u = direction of source (s), v & w are the orthogonal directions
 	R2 := tensor.NewVector()
@@ -107,9 +107,9 @@ func faceIntegral(B, R *tensor.Vector, cellsize []float, s int, accuracy int) {
 
 	B.Set(0., 0., 0.) // accumulates magnetic field
 	for i := 0; i < n; i++ {
-		pv := -(cellsize[v] / 2.) + cellsize[v]/float(2*n) + float(i)*(cellsize[v]/float(n))
+		pv := -(cellsize[v] / 2.) + cellsize[v]/float32(2*n) + float32(i)*(cellsize[v]/float32(n))
 		for j := 0; j < n; j++ {
-			pw := -(cellsize[w] / 2.) + cellsize[w]/float(2*n) + float(j)*(cellsize[w]/float(n))
+			pw := -(cellsize[w] / 2.) + cellsize[w]/float32(2*n) + float32(j)*(cellsize[w]/float32(n))
 
 			pole.Component[u] = pu1
 			pole.Component[v] = pv
@@ -132,5 +132,5 @@ func faceIntegral(B, R *tensor.Vector, cellsize []float, s int, accuracy int) {
 			B.Add(R2)
 		}
 	}
-	B.Scale(1. / (float(n * n))) // n^2 integration points
+	B.Scale(1. / (float32(n * n))) // n^2 integration points
 }

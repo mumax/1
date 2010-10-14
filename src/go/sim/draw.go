@@ -68,7 +68,7 @@ func DrawTensor(t tensor.Tensor) *NRGBA {
 
 }
 
-func GreyMap(min, max, value float) NRGBAColor {
+func GreyMap(min, max, value float32) NRGBAColor {
 	color := (value - min) / (max - min)
 	if color > 1. {
 		color = 1.
@@ -80,19 +80,19 @@ func GreyMap(min, max, value float) NRGBAColor {
 	return NRGBAColor{color8, color8, color8, 255}
 }
 
-func HSLMap(x, y, z float) NRGBAColor {
+func HSLMap(x, y, z float32) NRGBAColor {
 	s := fsqrt(x*x + y*y + z*z)
 	l := 0.5*z + 0.5
-	h := float(math.Atan2(float64(x), float64(y)))
+	h := float32(math.Atan2(float64(x), float64(y)))
 	return HSL(h, s, l)
 }
 
-func fsqrt(number float) float {
-	return float(math.Sqrt(float64(number)))
+func fsqrt(number float32) float32 {
+	return float32(math.Sqrt(float64(number)))
 }
 
 // h = 0..2pi, s=0..1, l=0..1
-func HSL(h, s, l float) NRGBAColor {
+func HSL(h, s, l float32) NRGBAColor {
 	if s > 1 {
 		s = 1
 	}
@@ -108,7 +108,7 @@ func HSL(h, s, l float) NRGBAColor {
 	h = h * (180.0 / math.Pi / 60.0)
 
 	// chroma
-	var c float
+	var c float32
 	if l <= 0.5 {
 		c = 2 * l * s
 	} else {
@@ -118,7 +118,7 @@ func HSL(h, s, l float) NRGBAColor {
 	x := c * (1 - abs(fmod(h, 2)-1))
 
 	var (
-		r, g, b float
+		r, g, b float32
 	)
 
 	switch {
@@ -145,7 +145,7 @@ func HSL(h, s, l float) NRGBAColor {
 }
 
 // modulo
-func fmod(number, mod float) float {
+func fmod(number, mod float32) float32 {
 	for number < mod {
 		number += mod
 	}
@@ -155,7 +155,7 @@ func fmod(number, mod float) float {
 	return number
 }
 
-func abs(number float) float {
+func abs(number float32) float32 {
 	if number < 0 {
 		return -number
 	} // else

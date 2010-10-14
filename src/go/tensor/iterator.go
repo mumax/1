@@ -41,7 +41,7 @@ func (it *Iterator) HasNext() bool {
 	return it.count < it.max
 }
 
-func (it *Iterator) Get() float {
+func (it *Iterator) Get() float32 {
 	return it.tensor.Get(it.index)
 }
 

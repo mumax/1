@@ -109,7 +109,7 @@ func (conv *Conv) loadKernel6(kernel []*tensor.Tensor3) {
 	}
 
 	fft := NewFFT(conv.Backend, conv.LogicSize())
-	norm := 1.0 / float(fft.Normalization())
+	norm := 1.0 / float32(fft.Normalization())
 	devIn := NewTensor(conv.Backend, conv.LogicSize())
 	devOut := NewTensor(conv.Backend, fft.PhysicSize())
 	hostOut := tensor.NewTensor3(fft.PhysicSize())

@@ -51,13 +51,13 @@ type Device interface {
 	add(a, b uintptr, N int)
 
 	// vector multiply-add a[i] += cnst * b[i]
-	madd(a uintptr, cnst float, b uintptr, N int)
+	madd(a uintptr, cnst float32, b uintptr, N int)
 
 	// adds the constant cnst to a. N = length of a
-	addConstant(a uintptr, cnst float, N int)
+	addConstant(a uintptr, cnst float32, N int)
 
 	// a = a * weightA + b * weightB
-	linearCombination(a, b uintptr, weightA, weightB float, N int)
+	linearCombination(a, b uintptr, weightA, weightB float32, N int)
 
 	// partial data reduction (operation = add, max, maxabs, ...)
 	// input data size = N
@@ -65,7 +65,7 @@ type Device interface {
 	// patially reduce in "blocks" blocks, partial results in output. blocks = divUp(N, threadsPerBlock*2)
 	// use "threads" threads per block: @warning must be < N
 	// size "N" of input data, must be > threadsPerBlock
-	reduce(operation int, input, output uintptr, buffer *float, blocks, threads, N int) float
+	reduce(operation int, input, output uintptr, buffer *float32, blocks, threads, N int) float32
 
 	// normalizes a vector field. N = length of one component
 	normalize(m uintptr, N int)
@@ -74,7 +74,7 @@ type Device interface {
 	normalizeMap(m, normMap uintptr, N int)
 
 	// overwrites h with torque(m, h) * dtGilbert. N = length of one component
-	deltaM(m, h uintptr, alpha, dtGilbert float, N int)
+	deltaM(m, h uintptr, alpha, dtGilbert float32, N int)
 
 	// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
 	// TODO: get rid of? decide the stride by yourself instead of globally storing it?
@@ -84,9 +84,9 @@ type Device interface {
 
 	copyPadded(source, dest uintptr, sourceSize, destSize []int, direction int)
 
-	// Allocates an array of floats on the Device.
+	// Allocates an array of float32s on the Device.
 	// By convention, Device arrays are represented by an uintptr,
-	// while host arrays are *float's.
+	// while host arrays are *float32's.
 	// Does not need to be initialized with zeros
 	newArray(nFloats int) uintptr
 
@@ -96,17 +96,17 @@ type Device interface {
 	// Copies nFloats to, on or from the device, depending on the direction flag (1, 2 or 3)
 	memcpy(source, dest uintptr, nFloats, direction int)
 
-	// Offset the array pointer by "index" floats, useful for taking sub-arrays
+	// Offset the array pointer by "index" float32s, useful for taking sub-arrays
 	// TODO: on a multi-device this will not work
 	arrayOffset(array uintptr, index int) uintptr
 
-	// Overwrite n floats with zeros
+	// Overwrite n float32s with zeros
 	zero(data uintptr, nFloats int)
 
 	//____________________________________________________________________ specialized (used in only one place)
 
 
-	semianalStep(m, h uintptr, dt, alpha float, order, N int)
+	semianalStep(m, h uintptr, dt, alpha float32, order, N int)
 
 	// Extract only the real parts form in interleaved complex array
 	// 	extractReal(complex, real uintptr, NReal int)
@@ -144,7 +144,7 @@ type Device interface {
 
 	//______________________________________________________________________________ already safe
 
-	// The GPU stride in number of floats (!)
+	// The GPU stride in number of float32s (!)
 	Stride() int
 
 	// Bytes allocated on the device
