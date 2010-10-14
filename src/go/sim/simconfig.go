@@ -11,7 +11,6 @@ package sim
 // vortices, Landau patterns, etc.
 
 import (
-	"tensor"
 	"rand"
 	"os"
 )
@@ -76,10 +75,7 @@ func (s *Sim) Load(file string) {
 	if err != nil {
 		panic(err)
 	}
-	//TODO this allocates too much buffers!
-	m1 := tensor.Read(in)
-	s.mLocal = tensor.NewTensor4(m1.Size())
-	tensor.CopyTo(m1, s.mLocal)
+	s.mLocal.ReadFrom(in)
 	//TODO this should not invalidate the entire sim
 	s.invalidate()
 }
