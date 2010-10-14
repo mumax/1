@@ -7,6 +7,7 @@ GOFILES=\
 	tensor.go\
 	arrayslice.go\
 	iterator.go\
+	util.go\
 	input.go\
 	output.go\
 	legacyio.go\
