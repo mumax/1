@@ -1,0 +1,6 @@
+Release 0.1
+
+Used for simulations of spin-wave exciation, non-linear vortex dynamics.
+
+Tensor format is the legacy format with .t, .txt extensions.
+
