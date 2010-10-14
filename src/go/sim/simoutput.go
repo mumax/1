@@ -15,14 +15,12 @@ package sim
 
 import (
 	"fmt"
-	"tensor"
+	"tensor2"
 	"os"
 	"bufio"
 	"tabwriter"
 )
 
-// bufio buffer size (bytes)
-const IOBUF = 4096
 
 // Sets the output directory where all output files are stored
 func (s *Sim) outputDir(outputdir string) {
@@ -122,10 +120,7 @@ func bufOpen(filename string) *bufio.Writer {
 	if err != nil {
 		panic(err)
 	}
-	writer, err2 := bufio.NewWriterSize(out, IOBUF)
-	if err2 != nil {
-		panic(err2)
-	}
+	writer  := bufio.NewWriter(out)
 	return writer
 }
 
@@ -142,10 +137,10 @@ const FILENAME_FORMAT = "%08d"
 
 // INTERNAL
 func (m *MAscii) Save(s *Sim) {
-	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".txt"
+	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
 	out := bufOpen(fname)
 	defer out.Flush()
-	tensor.Format(out, s.mLocal)
+	tensor2.WriteAscii(out, s.mLocal)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
@@ -184,7 +179,7 @@ func (t *Table) Save(s *Sim) {
 	t.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
-func m_average(m *tensor.Tensor4) (mx, my, mz float32) {
+func m_average(m *tensor2.T4) (mx, my, mz float32) {
 	count := 0
 	a := m.Array()
 	for i := range a[0] {
@@ -211,9 +206,13 @@ type MBinary struct {
 }
 
 // INTERNAL
+// TODO: files are not closed?
+// TODO/ also for writeAscii
 func (m *MBinary) Save(s *Sim) {
-	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".t"
-	tensor.WriteFile(fname, s.mLocal)
+	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
+  out := bufOpen(fname)
+  defer out.Flush()
+	tensor2.WriteBinary(out, s.mLocal)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
