@@ -23,21 +23,22 @@ func PNG(out io.Writer, t tensor.Interface) {
 	}
 }
 
+//TODO: currently slices x = 0
 //TODO: average, slice, ... ?
 func DrawTensor(t_ tensor.Interface) *NRGBA {
 	// todo: we need to handle any rank?
-	t := tensor.ToT3(t_)
-	assert(t.TSize[0] == 3)
+  	t := tensor.ToT4(t_)
+// 	assert(t.TSize[0] == 3)
 	// result is rank3 2D vector field
 
-	w, h := t.Size()[1], t.Size()[2]
+	w, h := t.Size()[2], t.Size()[3]
 	img := NewNRGBA(w, h)
 	arr := t.Array()
 	for i := 0; i < w; i++ {
 		for j := 0; j < h; j++ {
-			x := arr[X][i][j]
-			y := arr[Y][i][j]
-			z := arr[Z][i][j]
+			x := arr[X][0][i][j]
+			y := arr[Y][0][i][j]
+			z := arr[Z][0][i][j]
 			img.Set(i, j, HSLMap(z, y, x)) // TODO: x is thickness for now...
 		}
 	}
