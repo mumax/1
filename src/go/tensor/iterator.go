@@ -4,47 +4,47 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-package tensor
+package tensor2
 
-/**
- * An iterator for tensors.
- *
- * Handy to access a tensor when the rank is not known and the tensor is
- * not necessarily a StoredTensor (so there is no .List() ).
- * Iterator.Next() iterates to the next element, in row-major oder.
- *
- * Typical usage:
- *
- * for i := NewIterator(tensor); i.HasNext(); i.Next(){
- *    element := i.Get();
- *    current_position = i.Index();
- * }
- *
- */
 
+// An iterator for tensors.
+//
+// Handy to access a tensor when the rank is not known and the tensor is
+// not necessarily a StoredTensor (so there is no .List() ).
+// Iterator.Next() iterates to the next element, in row-major oder.
+//
+// Typical usage:
+//
+// for i := NewIterator(tensor); i.HasNext(); i.Next(){
+//    element := i.Get();
+//    current_position = i.Index();
+// }
+//
 type Iterator struct {
-	tensor     Tensor
+	tensor     Interface
 	index      []int
 	size       []int
 	count, max int
 }
 
-/**
- * New iterator for the tensor,
- * starts at 0th element and can not be re-used.
- */
-func NewIterator(t Tensor) *Iterator {
-	return &Iterator{t, make([]int, Rank(t)), t.Size(), 0, N(t)}
+
+// New iterator for the tensor,
+// starts at 0th element and can not be re-used.
+func NewIterator(t Interface) *Iterator {
+	return &Iterator{t, make([]int, Rank(t)), t.Size(), 0, Len(t)}
 }
 
+// Is a next element still available?
 func (it *Iterator) HasNext() bool {
 	return it.count < it.max
 }
 
+// Gets the current element
 func (it *Iterator) Get() float32 {
-	return it.tensor.Get(it.index)
+	return it.tensor.List()[it.count]
 }
 
+// Advances to the next element
 func (it *Iterator) Next() {
 	it.count++
 	if it.HasNext() {
@@ -58,8 +58,7 @@ func (it *Iterator) Next() {
 	}
 }
 
-/** Returns the current N-dimensional index. */
-
+// Returns the current N-dimensional index.
 func (it *Iterator) Index() []int {
 	return it.index
 }

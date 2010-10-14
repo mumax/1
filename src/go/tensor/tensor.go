@@ -4,95 +4,125 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-package tensor
+package tensor2
 
-import (
-	"reflect"
-)
+import ()
 
-// const (
-// 	X = 0
-// 	Y = 1
-// 	Z = 2
-// )
 
-/** The tensor interface: get size and data */
-
-type Tensor interface {
+type Interface interface {
 	Size() []int
-	Get(index []int) float32
+	List() []float32
 }
 
 
-/** Tensor rank = length of size array */
 
-func Rank(t Tensor) int { return len(t.Size()) }
-
-/// @deprecated use Len
-func N(t Tensor) int {
-	n := 1
-	size := t.Size()
-	for i := range size {
-		n *= size[i]
-	}
-	return n
-}
-
-// func Len(t Tensor) int{
-//     n := 1
-//     size := t.Size()
-//     for i := range (size) {
-//         n *= size[i]
-//     }
-//     return n
-// }
-
-/** Variadic get, utility method. */
-
-// func Get(t Tensor, index_vararg ... int) float32 {
-// 	indexarr := ToIntArray(index_vararg)
-// 	return t.Get(indexarr)
-// }
-
-
-/** Converts vararg to int array. */
-
-func ToIntArray(varargs interface{}) []int {
-	sizestruct := reflect.NewValue(varargs).(*reflect.StructValue)
-	rank := sizestruct.NumField()
-	size := make([]int, rank)
-	for i := 0; i < rank; i++ {
-		size[i] = sizestruct.Field(i).Interface().(int)
-	}
-	return size
-}
-
-/** Tests Tensor Equality */
-
-func Equals(dest, source Tensor) bool {
-	if !EqualSize(dest.Size(), source.Size()) {
-		return false
-	}
-	for i := NewIterator(dest); i.HasNext(); i.Next() {
-		if dest.Get(i.Index()) != source.Get(i.Index()) {
-			return false
-		}
-	}
-	return true
+type T struct {
+	TSize []int
+	TList []float32
 }
 
 
-/** Tests if both int slices are equal, in which case they represent equal Tensor sizes. */
+func NewT(size []int) *T {
+	t := new(T)
+	t.Init(size)
+	return t
+}
 
-func EqualSize(a, b []int) bool {
-	if len(a) != len(b) {
-		return false
-	} else {
-		for i := range a {
-			if a[i] != b[i] {
-				return false
-			}
-		}
+func (t *T) Init(size []int) {
+	t.TSize = size
+	t.TList = make([]float32, Prod(size))
+}
+
+func ToT(t Interface) *T{
+  return &T{t.Size(), t.List()}
+}
+
+func (t *T) Size() []int {
+	return t.TSize
+}
+
+
+func (t *T) List() []float32 {
+	return t.TList
+}
+
+
+
+
+type T4 struct {
+	T
+	TArray [][][][]float32
+}
+
+func (t *T4) Init(size []int) {
+	if len(size) != 4 {
+		panic("Illegal argument")
 	}
-	return true
+	t.TSize = size
+	t.TList, t.TArray = Array4D(size[0], size[1], size[2], size[3])
+}
+
+func NewT4(size []int) *T4 {
+	t := new(T4)
+	t.Init(size)
+	return t
+}
+
+func (t *T4) Array() [][][][]float32 {
+	return t.TArray
+}
+
+func ToT4(t Interface) *T4 {
+	return &T4{*ToT(t), Slice4D(t.List(), t.Size())}
+}
+
+
+
+
+
+type T3 struct {
+  T
+  TArray [][][]float32
+}
+
+func (t *T3) Init(size []int) {
+  if len(size) != 3 {
+    panic("Illegal argument")
+  }
+  t.TSize = size
+  t.TList, t.TArray = Array3D(size[0], size[1], size[2])
+}
+
+func NewT3(size []int) *T3 {
+  t := new(T3)
+  t.Init(size)
+  return t
+}
+
+func (t *T3) Array() [][][]float32 {
+  return t.TArray
+}
+
+func ToT3(t Interface) *T3 {
+  return &T3{*ToT(t), Slice3D(t.List(), t.Size())}
+}
+
+
+
+
+
+func Prod(size []int) int {
+	prod := 1
+	for _, s := range size {
+		prod *= s
+	}
+	return prod
+}
+
+func Len(t Interface) int {
+	return Prod(t.Size())
+}
+
+func Rank(t Interface) int {
+	return len(t.Size())
 }

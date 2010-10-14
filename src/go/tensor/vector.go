@@ -4,7 +4,7 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-package tensor
+package tensor2
 
 import (
 	. "math"
@@ -22,6 +22,10 @@ func (v *Vector) Get(index []int) float32 {
 
 func (v *Vector) Size() []int {
 	return []int{3}
+}
+
+func (v *Vector) List() []float32{
+  return v.Component[:]
 }
 
 /** Vector-specific */
