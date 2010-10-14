@@ -7,7 +7,7 @@
 package sim
 
 import (
-	"tensor"
+	"tensor2"
 	. "math"
 )
 
@@ -18,13 +18,13 @@ import (
 // 	return toSymmetric(k9)
 // }
 
-func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor.Tensor3 {
+func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor2.T3 {
 	k := make([]*tensor.Tensor3, 6)
 	for i := range k {
-		k[i] = tensor.NewTensor3(size)
+		k[i] = tensor2.NewT3(size)
 	}
-	B := tensor.NewVector()
-	R := tensor.NewVector()
+	B := tensor2.NewVector()
+	R := tensor2.NewVector()
 
 	x1 := -(size[X] - 1) / 2
 	x2 := size[X]/2 - 1

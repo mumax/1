@@ -31,19 +31,19 @@ package sim
  */
 
 import (
-	"tensor"
+// 	"tensor2"
 	. "math"
 )
 
 /** Unit kernel, for debugging. */
-func UnitKernel(paddedsize []int) tensor.StoredTensor {
-	size := paddedsize
-	k := tensor.NewTensor5([]int{3, 3, size[0], size[1], size[2]})
-	for c := 0; c < 3; c++ {
-		k.Array()[c][c][0][0][0] = 1.
-	}
-	return k
-}
+// func UnitKernel(paddedsize []int) *tensor2.T5 {
+// 	size := paddedsize
+// 	k := tensor.NewTensor5([]int{3, 3, size[0], size[1], size[2]})
+// 	for c := 0; c < 3; c++ {
+// 		k.Array()[c][c][0][0][0] = 1.
+// 	}
+// 	return k
+// }
 
 // Modulo-like function:
 // Wraps an index to [0, max] by adding/subtracting a multiple of max.

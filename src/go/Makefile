@@ -4,7 +4,7 @@ include ../../common.mk
 
 all:
 	make install -C iotool
-	make install -C tensor
+# 	make install -C tensor
 	make install -C tensor2
 	make install -C refsh
 	make install -C sim

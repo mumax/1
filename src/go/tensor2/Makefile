@@ -8,6 +8,7 @@ GOFILES=\
 	arrayslice.go\
 	iterator.go\
 	util.go\
+	vector.go\
 	input.go\
 	output.go\
 	legacyio.go\
