@@ -7,7 +7,7 @@
 package sim
 
 import (
-	"tensor"
+	"tensor2"
 )
 
 
@@ -26,12 +26,12 @@ import (
  * of the exchange field anymore: an elegant and efficient solution.
  * The dynamics are still correct, only the total energy is offset with a constant
  * term compared to the usual - M . H. Outputting H_eff becomes less useful however,
- * it's better to look at torques. Away from the boundaries, H_eff is "correct".
+ * it's better to look at torques. Away from the boundaries, H_eff is as usual.
  */
-func Exch6NgbrKernel(size []int, cellsize []float32) []*tensor.Tensor3 {
-	k := make([]*tensor.Tensor3, 6)
+func Exch6NgbrKernel(size []int, cellsize []float32) []*tensor2.T3 {
+	k := make([]*tensor2.T3, 6)
 	for i := range k {
-		k[i] = tensor.NewTensor3(size)
+		k[i] = tensor.NewT3(size)
 	}
 
 	for s := 0; s < 3; s++ { // source index Ksdxyz

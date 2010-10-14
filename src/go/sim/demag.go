@@ -19,7 +19,7 @@ import (
 // }
 
 func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor2.T3 {
-	k := make([]*tensor.Tensor3, 6)
+	k := make([]*tensor2.T3, 6)
 	for i := range k {
 		k[i] = tensor2.NewT3(size)
 	}
