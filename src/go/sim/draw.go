@@ -26,8 +26,8 @@ func PNG(out io.Writer, t tensor2.Interface) {
 //TODO: average, slice, ... ?
 func DrawTensor(t_ tensor2.Interface) *NRGBA {
 	// todo: we need to handle any rank?
-  t := tensor2.ToT3(t_)
-  assert(t.TSize[0] == 3)
+	t := tensor2.ToT3(t_)
+	assert(t.TSize[0] == 3)
 	// result is rank3 2D vector field
 
 	w, h := t.Size()[1], t.Size()[2]

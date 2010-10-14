@@ -8,7 +8,7 @@
 package sim
 
 import (
-	"tensor"
+	"tensor2"
 	"time"
 	"fmt"
 	"os"
@@ -57,33 +57,33 @@ type Input struct {
 // TODO order of initialization is too important in input file, should be more versatile
 //
 type Sim struct {
-	input        Input           // stores the original input parameters in SI units
-	valid        bool            // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
-	BeenValid    bool            // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
-	backend      *Backend        // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
-	mLocal       *tensor.Tensor4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
-	normMap      *DevTensor      // Per-cell magnetization norm. nil means the norm is 1.0 everywhere.
-	Material                     // Stores material parameters and manages the internal units
-	Mesh                         // Stores the size of the simulation grid
-	Conv                         // Convolution plan for the magnetostatic field
-	AppliedField                 // returns the externally applied in function of time
-	hextSI       [3]float32        // stores the externally applied field returned by AppliedField, in SI UNITS
-	mDev, h      *DevTensor      // magnetization/effective field on the device (GPU), 4D tensor
-	mComp, hComp [3]*DevTensor   // magnetization/field components, 3 x 3D tensors
-	Solver                       // Does the time stepping, can be euler, heun, ...
-	time         float64         // The total time (internal units)
-	dt           float32           // The time step (internal units). May be updated by adaptive-step solvers
-	maxDm        float32           // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
-	maxError     float32           // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
-	stepError    float32           // The actual error estimate of the last step. Not all solvers update this value.
-	steps        int             // The total number of steps taken so far
-	starttime    int64           // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
-	outschedule  []Output        // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
-	autosaveIdx  int             // Unique identifier of output state. Updated each time output is saved.
-	outputdir    string          // Where to save output files.
-	mUpToDate    bool            // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
-	silent       bool            // Do not print anything to os.Stdout when silent == true, only to log file
-	out          *os.File        // Output log file
+	input        Input         // stores the original input parameters in SI units
+	valid        bool          // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
+	BeenValid    bool          // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
+	backend      *Backend      // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
+	mLocal       *tensor2.T4   // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
+	normMap      *DevTensor    // Per-cell magnetization norm. nil means the norm is 1.0 everywhere.
+	Material                   // Stores material parameters and manages the internal units
+	Mesh                       // Stores the size of the simulation grid
+	Conv                       // Convolution plan for the magnetostatic field
+	AppliedField               // returns the externally applied in function of time
+	hextSI       [3]float32    // stores the externally applied field returned by AppliedField, in SI UNITS
+	mDev, h      *DevTensor    // magnetization/effective field on the device (GPU), 4D tensor
+	mComp, hComp [3]*DevTensor // magnetization/field components, 3 x 3D tensors
+	Solver                     // Does the time stepping, can be euler, heun, ...
+	time         float64       // The total time (internal units)
+	dt           float32       // The time step (internal units). May be updated by adaptive-step solvers
+	maxDm        float32       // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
+	maxError     float32       // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
+	stepError    float32       // The actual error estimate of the last step. Not all solvers update this value.
+	steps        int           // The total number of steps taken so far
+	starttime    int64         // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
+	outschedule  []Output      // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
+	autosaveIdx  int           // Unique identifier of output state. Updated each time output is saved.
+	outputdir    string        // Where to save output files.
+	mUpToDate    bool          // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
+	silent       bool          // Do not print anything to os.Stdout when silent == true, only to log file
+	out          *os.File      // Output log file
 }
 
 func New(outputdir string) *Sim {
@@ -143,10 +143,10 @@ func (s *Sim) initMLocal() {
 	s.initSize()
 	if s.mLocal == nil {
 		s.Println("Allocating local memory " + fmt.Sprint(s.size4D))
-		s.mLocal = tensor.NewTensor4(s.size4D[0:])
+		s.mLocal = tensor2.NewT4(s.size4D[0:])
 	}
 
-	if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
+	if !tensor2.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
 		s.Println("Resampling magnetization from ", s.mLocal.Size(), " to ", Size4D(s.input.size[0:]))
 		s.mLocal = resample(s.mLocal, Size4D(s.input.size[0:]))
 	}
@@ -259,9 +259,9 @@ func (s *Sim) init() {
 // }
 
 
-func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {
+func resample(in *tensor2.T4, size2 []int) *tensor2.T4 {
 	assert(len(size2) == 4)
-	out := tensor.NewTensor4(size2)
+	out := tensor2.NewT4(size2)
 	out_a := out.Array()
 	in_a := in.Array()
 	size1 := in.Size()
