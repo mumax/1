@@ -21,7 +21,7 @@ import (
 )
 
 type StoredTensor interface {
-	Size() []int     // Tensor
+	Size() []int       // Tensor
 	Get([]int) float32 // Tensor
 	List() []float32   // StoredTensor
 }
@@ -329,7 +329,7 @@ func NewTensorN(size []int) *TensorN {
 }
 
 type TensorN struct {
-	size []int   // size in x, y and z dimensions
+	size []int     // size in x, y and z dimensions
 	list []float32 // data as a continous array
 }
 

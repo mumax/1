@@ -22,13 +22,16 @@ func main() {
 
 	commands, args := refsh.ParseFlags()
 	for i := range commands {
-    
+
 		func() {
 
-      defer func() {
+			defer func() {
 				if main_.recover_val != "" {
-          err := recover()
-					if err != nil { fmt.Fprintln(os.Stderr, err); fmt.Println(main_.recover_val)}
+					err := recover()
+					if err != nil {
+						fmt.Fprintln(os.Stderr, err)
+						fmt.Println(main_.recover_val)
+					}
 				}
 			}()
 
@@ -39,9 +42,11 @@ func main() {
 			for _, r := range ret {
 				fmt.Print(r, " ")
 			}
-			if len(ret) != 0 {fmt.Println()}
+			if len(ret) != 0 {
+				fmt.Println()
+			}
 		}()
-		
+
 	}
 }
 

@@ -28,14 +28,14 @@ func ReadChar(in io.Reader) int {
 
 //
 func ReadLine(in io.Reader) (line string, eof bool) {
-  char := ReadChar(in)
-  eof = isEOF(char)
-  
-  for !isEndline(char){
-    line += string(byte(char))
-    char = ReadChar(in)
-  }
-  return line, eof
+	char := ReadChar(in)
+	eof = isEOF(char)
+
+	for !isEndline(char) {
+		line += string(byte(char))
+		char = ReadChar(in)
+	}
+	return line, eof
 }
 
 

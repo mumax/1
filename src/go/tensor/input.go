@@ -16,65 +16,65 @@ import (
 	"strconv"
 )
 
-func Read(in_ io.Reader) *T{
-  in := bufio.NewReader(in_)
-  metadata := ReadHeader(in)
-  size := metaGetSize(metadata)
-  t := NewT(size)
-  binary := metaGetBool(metadata, H_BINARY)
-  if binary{
-    ReadDataBinary(in, t)
-  }else{
-    ReadDataAscii(in, t)
-  }
-  return t
+func Read(in_ io.Reader) *T {
+	in := bufio.NewReader(in_)
+	metadata := ReadHeader(in)
+	size := metaGetSize(metadata)
+	t := NewT(size)
+	binary := metaGetBool(metadata, H_BINARY)
+	if binary {
+		ReadDataBinary(in, t)
+	} else {
+		ReadDataAscii(in, t)
+	}
+	return t
 }
 
 // Reads data from the reader to the
 // (already allocated) tensor.
 // NOTE: implements io.ReaderFrom
-func(t *T) ReadFrom(in_ io.Reader){
-  in := bufio.NewReader(in_)
-  metadata := ReadHeader(in)
-  size := metaGetSize(metadata)
-  for i,s := range size{
-    if s != t.TSize[i]{
-      panic("illegal argument: size mismatch")
-    }
-  }
-  binary := metaGetBool(metadata, H_BINARY)
-  if binary{
-    ReadDataBinary(in, t)
-  }else{
-    ReadDataAscii(in, t)
-  }
+func (t *T) ReadFrom(in_ io.Reader) {
+	in := bufio.NewReader(in_)
+	metadata := ReadHeader(in)
+	size := metaGetSize(metadata)
+	for i, s := range size {
+		if s != t.TSize[i] {
+			panic("illegal argument: size mismatch")
+		}
+	}
+	binary := metaGetBool(metadata, H_BINARY)
+	if binary {
+		ReadDataBinary(in, t)
+	} else {
+		ReadDataAscii(in, t)
+	}
 }
 
 // INTERNAL
 // gets the rank/size from tensor metadata
-func metaGetSize(metadata map[string]string) []int{
-  rank := metaGetInt(metadata, H_RANK)
-  size := make([]int, rank)
-  for i := range size{
-    size[i] = metaGetInt(metadata, H_SIZE + fmt.Sprint(i))
-  }
-  return size
+func metaGetSize(metadata map[string]string) []int {
+	rank := metaGetInt(metadata, H_RANK)
+	size := make([]int, rank)
+	for i := range size {
+		size[i] = metaGetInt(metadata, H_SIZE+fmt.Sprint(i))
+	}
+	return size
 }
 
-func metaGetInt(metadata map[string]string, key string) int{
-  i, err := strconv.Atoi(metadata[key])
-  if err != nil{
-    panic(err)
-  }
-  return i
+func metaGetInt(metadata map[string]string, key string) int {
+	i, err := strconv.Atoi(metadata[key])
+	if err != nil {
+		panic(err)
+	}
+	return i
 }
 
-func metaGetBool(metadata map[string]string, key string) bool{
-  b, err := strconv.Atob(metadata[key])
-  if err != nil{
-    panic(err)
-  }
-  return b
+func metaGetBool(metadata map[string]string, key string) bool {
+	b, err := strconv.Atob(metadata[key])
+	if err != nil {
+		panic(err)
+	}
+	return b
 }
 
 // INTERNAL

@@ -15,7 +15,6 @@ type Interface interface {
 }
 
 
-
 type T struct {
 	TSize []int
 	TList []float32
@@ -33,8 +32,8 @@ func (t *T) Init(size []int) {
 	t.TList = make([]float32, Prod(size))
 }
 
-func ToT(t Interface) *T{
-  return &T{t.Size(), t.List()}
+func ToT(t Interface) *T {
+	return &T{t.Size(), t.List()}
 }
 
 func (t *T) Size() []int {
@@ -45,8 +44,6 @@ func (t *T) Size() []int {
 func (t *T) List() []float32 {
 	return t.TList
 }
-
-
 
 
 type T4 struct {
@@ -77,38 +74,32 @@ func ToT4(t Interface) *T4 {
 }
 
 
-
-
-
 type T3 struct {
-  T
-  TArray [][][]float32
+	T
+	TArray [][][]float32
 }
 
 func (t *T3) Init(size []int) {
-  if len(size) != 3 {
-    panic("Illegal argument")
-  }
-  t.TSize = size
-  t.TList, t.TArray = Array3D(size[0], size[1], size[2])
+	if len(size) != 3 {
+		panic("Illegal argument")
+	}
+	t.TSize = size
+	t.TList, t.TArray = Array3D(size[0], size[1], size[2])
 }
 
 func NewT3(size []int) *T3 {
-  t := new(T3)
-  t.Init(size)
-  return t
+	t := new(T3)
+	t.Init(size)
+	return t
 }
 
 func (t *T3) Array() [][][]float32 {
-  return t.TArray
+	return t.TArray
 }
 
 func ToT3(t Interface) *T3 {
-  return &T3{*ToT(t), Slice3D(t.List(), t.Size())}
+	return &T3{*ToT(t), Slice3D(t.List(), t.Size())}
 }
-
-
-
 
 
 func Prod(size []int) int {

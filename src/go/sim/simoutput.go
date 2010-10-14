@@ -119,7 +119,7 @@ func fopen(filename string) *os.File {
 	if err != nil {
 		panic(err)
 	}
-  return file
+	return file
 }
 
 
@@ -138,7 +138,7 @@ func (m *MAscii) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
 	file := fopen(fname)
 	defer file.Close()
-	tensor.WriteAscii(file, s.mLocal)
+	tensor.WriteMetaTensorAscii(file, s.mLocal, s.metadata)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
@@ -173,7 +173,7 @@ func (t *Table) Save(s *Sim) {
 	fmt.Fprintf(t.out, "%.4g\t", s.stepError)
 	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
 	fmt.Fprintln(t.out)
- 	t.out.Flush()
+	t.out.Flush()
 	t.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
@@ -208,9 +208,9 @@ type MBinary struct {
 // TODO/ also for writeAscii
 func (m *MBinary) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
-  out := fopen(fname)
-  defer out.Close()
-	tensor.WriteBinary(out, s.mLocal)
+	out := fopen(fname)
+	defer out.Close()
+	tensor.WriteMetaTensorBinary(out, s.mLocal, s.metadata)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
@@ -226,7 +226,7 @@ type MPng struct {
 func (m *MPng) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".png"
 	out := fopen(fname)
-// 	defer out.Flush()
+	// 	defer out.Flush()
 	PNG(out, s.mLocal)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }

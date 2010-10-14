@@ -40,14 +40,14 @@ var ENDIANESS = binary.LittleEndian
 // }
 
 // Writes in the default format (binary)
-func Write(out_ io.Writer, t Interface){
-  WriteBinary(out_, t)
+func Write(out_ io.Writer, t Interface) {
+	WriteBinary(out_, t)
 }
 
 // TODO: need better error returning,
 // also necessary to implement io.WriterTo, ReaderFrom
-func (t *T) WriteTo(out io.Writer){
-  Write(out, t)
+func (t *T) WriteTo(out io.Writer) {
+	Write(out, t)
 }
 
 // Writes the tensor in binary format.
@@ -183,8 +183,8 @@ func WriteDataBinary(out_ io.Writer, t Interface) {
 	out := bufio.NewWriter(out_)
 	defer out.Flush()
 	err := binary.Write(out, ENDIANESS, list)
-	if err != nil{
-    panic(err)
-  }
+	if err != nil {
+		panic(err)
+	}
 	return
 }
