@@ -40,6 +40,8 @@ func parseArg(arg string, argtype Type) Value {
 		return NewValue(parseInt(arg))
 	case "float":
 		return NewValue(parseFloat(arg))
+  case "float32":
+    return NewValue(parseFloat32(arg))
 	case "float64":
 		return NewValue(parseFloat64(arg))
 	case "string":
@@ -69,10 +71,19 @@ func parseFloat(str string) float {
 }
 
 func parseFloat64(str string) float64 {
-	i, err := strconv.Atof64(strings.ToLower(str))
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Could not parse to float:", str)
-		os.Exit(-3)
-	}
-	return i
+  i, err := strconv.Atof64(strings.ToLower(str))
+  if err != nil {
+    fmt.Fprintln(os.Stderr, "Could not parse to float64:", str)
+    os.Exit(-3)
+  }
+  return i
+}
+
+func parseFloat32(str string) float32 {
+  i, err := strconv.Atof32(strings.ToLower(str))
+  if err != nil {
+    fmt.Fprintln(os.Stderr, "Could not parse to float32:", str)
+    os.Exit(-3)
+  }
+  return i
 }
