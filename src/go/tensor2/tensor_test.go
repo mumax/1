@@ -8,13 +8,16 @@ import (
 
 func TestMisc(test *testing.T) {
 	t := NewT4([]int{1, 2, 3, 4})
+  for i:= range t.TList{
+    t.TList[i] = 3.;
+  }
 
 	out, err := os.Open("test.tensor", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0666)
 	if err != nil {
 		panic(err)
 	}
 	metadata := map[string]string{"author":"arne", "hello":"world!"}
-	WriteMetaTensorAscii(out, t, metadata)
+	WriteMetaTensorBinary(out, t, metadata)
 	out.Close()
 
 	in, err2 := os.Open("test.tensor", os.O_RDONLY, 0666)
