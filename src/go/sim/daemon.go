@@ -146,6 +146,12 @@ func findInputFileAll(dirs []string) string {
 }
 
 
+
+//TODO: use io/ioutil.ReadDir -> []*os.FileInfo
+
+
+
+
 // Searches for a pending input file in the given directory.
 // Looks for a file ending in ".in" for which no corresponding
 // ".out" file exists yet.

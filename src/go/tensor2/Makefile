@@ -5,6 +5,9 @@ TARG=tensor2
 
 GOFILES=\
 	tensor.go\
+	arrayslice.go\
+	iterator.go\
+	io.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 
