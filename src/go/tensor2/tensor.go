@@ -33,6 +33,9 @@ func (t *T) Init(size []int) {
 	t.TList = make([]float32, Prod(size))
 }
 
+func ToT(t Interface) *T{
+  return &T{t.Size(), t.List()}
+}
 
 func (t *T) Size() []int {
 	return t.TSize
@@ -69,8 +72,8 @@ func (t *T4) Array() [][][][]float32 {
 	return t.TArray
 }
 
-func ToT4(t *T) *T4 {
-	return &T4{*t, Slice4D(t.List(), t.Size())}
+func ToT4(t Interface) *T4 {
+	return &T4{*ToT(t), Slice4D(t.List(), t.Size())}
 }
 
 
@@ -100,8 +103,8 @@ func (t *T3) Array() [][][]float32 {
   return t.TArray
 }
 
-func ToT3(t *T) *T3 {
-  return &T3{*t, Slice3D(t.List(), t.Size())}
+func ToT3(t Interface) *T3 {
+  return &T3{*ToT(t), Slice3D(t.List(), t.Size())}
 }
 
 
