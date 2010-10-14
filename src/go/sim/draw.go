@@ -7,46 +7,27 @@
 package sim
 
 import (
-	"tensor"
+	"tensor2"
 	. "image"
 	"image/png"
 	"math"
 	"io"
 )
 
-
-// func main() {
-// 	t := Read(os.Stdin)
-// 	if Rank(t) != 2 {
-// 		panic("tensor.Tensor should have rank 2")
-// 	}
-// 	PNG(os.Stdout, t)
-// }
-
-func PNG(out io.Writer, t tensor.Tensor) {
+// Writes as png
+// TODO: rename
+func PNG(out io.Writer, t tensor2.Interface) {
 	err := png.Encode(out, DrawTensor(t))
 	if err != nil {
 		panic(err)
 	}
 }
 
-func DrawTensor(t tensor.Tensor) *NRGBA {
-	// todo: we need to handle any rank
-	for tensor.Rank(t) == 4 {
-		t = tensor.Average(t, 1) //average over the thickness
-	}
-
-	// 	w, h := t.Size()[0], t.Size()[1]
-	// 	img := NewNRGBA(w, h)
-	// 	pos := []int{w, h}
-	// 	for i := 0; i < w; i++ {
-	// 		pos[X] = i
-	// 		for j := 0; j < h; j++ {
-	// 			pos[Y] = j
-	// 			img.Set(i, j, GreyMap(-1., 1., t.Get(pos)))
-	// 		}
-	// 	}
-	// 	return img
+//TODO: average, slice, ... ?
+func DrawTensor(t tensor2.Interface) *NRGBA {
+	// todo: we need to handle any rank?
+  assert(len(t.Size()) == 3)
+	// result is rank3 2D vector field
 
 	w, h := t.Size()[1], t.Size()[2]
 	img := NewNRGBA(w, h)

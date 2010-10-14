@@ -48,6 +48,21 @@ func Array3D(size0, size1, size2 int) ([]float32, [][][]float32) {
 }
 
 
+// Allocates a 3D array, as well as the contiguous 1D array backing it.
+func Slice3D(list []float32, size []int) [][][]float32 {
+  sliced := make([][][]float32, size[0])
+  for i := range sliced {
+    sliced[i] = make([][]float32, size[1])
+  }
+  for i := range sliced {
+    for j := range sliced[i] {
+      sliced[i][j] = list[(i*size[1]+j)*size[2]+0 : (i*size[1]+j)*size[2]+size[2]]
+    }
+  }
+  return sliced
+}
+
+
 // Allocates a 4D array, as well as the contiguous 1D array backing it.
 func Array4D(size0, size1, size2, size3 int) ([]float32, [][][][]float32) {
 
