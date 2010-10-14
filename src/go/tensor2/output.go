@@ -29,15 +29,25 @@ const (
 // Central definition of our machine's endianess
 var ENDIANESS = binary.LittleEndian
 
-// TODO: need better error returning,
-// also necessary to implement io.WriterTo, ReaderFrom
-func (t *T) WriteTo(out io.Writer){
-  Write(out, t)
-}
+// Writes to a file in the default format
+// func WriteF(filename string, t Interface){
+//   out_, err := os.Open(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0666)
+//   defer out_.Close()
+//   if err != nil{panic(err)}
+//   out := bufio.NewWriter(out_)
+//   defer out.Flush()
+//   Write(out, t)
+// }
 
 // Writes in the default format (binary)
 func Write(out_ io.Writer, t Interface){
   WriteBinary(out_, t)
+}
+
+// TODO: need better error returning,
+// also necessary to implement io.WriterTo, ReaderFrom
+func (t *T) WriteTo(out io.Writer){
+  Write(out, t)
 }
 
 // Writes the tensor in binary format.
