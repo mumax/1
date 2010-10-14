@@ -17,7 +17,6 @@ import (
 	"fmt"
 	"tensor2"
 	"os"
-	"bufio"
 	"tabwriter"
 )
 
@@ -115,13 +114,12 @@ func resolve(what, format string) Output {
 //__________________________________________ ascii
 
 // Opens a file for writing 
-func bufOpen(filename string) *bufio.Writer {
-	out, err := os.Open(filename, os.O_WRONLY|os.O_CREAT, 0666)
+func fopen(filename string) *os.File {
+	file, err := os.Open(filename, os.O_WRONLY|os.O_CREAT, 0666)
 	if err != nil {
 		panic(err)
 	}
-	writer  := bufio.NewWriter(out)
-	return writer
+  return file
 }
 
 
@@ -138,9 +136,9 @@ const FILENAME_FORMAT = "%08d"
 // INTERNAL
 func (m *MAscii) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
-	out := bufOpen(fname)
-	defer out.Flush()
-	tensor2.WriteAscii(out, s.mLocal)
+	file := fopen(fname)
+	defer file.Close()
+	tensor2.WriteAscii(file, s.mLocal)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
@@ -175,7 +173,7 @@ func (t *Table) Save(s *Sim) {
 	fmt.Fprintf(t.out, "%.4g\t", s.stepError)
 	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
 	fmt.Fprintln(t.out)
-	t.out.Flush()
+ 	t.out.Flush()
 	t.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
@@ -210,8 +208,8 @@ type MBinary struct {
 // TODO/ also for writeAscii
 func (m *MBinary) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
-  out := bufOpen(fname)
-  defer out.Flush()
+  out := fopen(fname)
+  defer out.Close()
 	tensor2.WriteBinary(out, s.mLocal)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
@@ -227,8 +225,8 @@ type MPng struct {
 // INTERNAL
 func (m *MPng) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".png"
-	out := bufOpen(fname)
-	defer out.Flush()
+	out := fopen(fname)
+// 	defer out.Flush()
 	PNG(out, s.mLocal)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }

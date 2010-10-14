@@ -16,7 +16,7 @@ size       	1     32          128
 cellsize   	3E-9  3.90625E-9  3.90625E-9  # m
 
 # initial magnetization
-load    	s-state.t
+load    	s-state.tensor
 
 
 # run
