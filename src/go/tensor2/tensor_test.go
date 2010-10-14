@@ -13,7 +13,8 @@ func TestMisc(test *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	Write(out, t)
+	metadata := map[string]string{"author":"arne", "hello":"world!"}
+	WriteMetaTensorAscii(out, t, metadata)
 	out.Close()
 
 	in, err2 := os.Open("test.tensor", os.O_RDONLY, 0666)
