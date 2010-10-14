@@ -22,49 +22,61 @@ const (
 	H_FORMAT    = "tensor_version"
 	H_RANK      = "rank"
 	H_SIZE      = "size"
+	H_BINARY    = "binary"
 	H_END       = "begin_data"
 )
 
 // Central definition of our machine's endianess
 var ENDIANESS = binary.LittleEndian
 
+// TODO: need better error returning,
+// also necessary to implement io.WriterTo, ReaderFrom
+func (t *T) WriteTo(out io.Writer){
+  Write(out, t)
+}
+
+// Writes in the default format (binary)
+func Write(out_ io.Writer, t Interface){
+  WriteBinary(out_, t)
+}
+
 // Writes the tensor in binary format.
-func WriteBinary(out_ io.Writer, t Interface){
-  WriteMetaTensorBinary(out_, t, nil)
+func WriteBinary(out_ io.Writer, t Interface) {
+	WriteMetaTensorBinary(out_, t, nil)
 }
 
 // Writes the tensor in ascii format
-func WriteAscii(out_ io.Writer, t Interface){
-  WriteMetaTensorAscii(out_, t, nil)
+func WriteAscii(out_ io.Writer, t Interface) {
+	WriteMetaTensorAscii(out_, t, nil)
 }
 
 
 // Writes the tensor in binary format,
 // plus addional metadata in the form of "key:value" pairs.
 // The metadata map may safely be nil.
-func WriteMetaTensorBinary(out_ io.Writer, t Interface, metadata map[string]string){
-  out := bufio.NewWriter(out_)
-  defer out.Flush()
-  
-  WriteTensorHeader(out, t)
-  WriteHeaderLine(out, "binary", "true")
-  WriteMetaHeader(out, metadata)
-  CloseHeader(out)
-  WriteDataBinary(out, t)
+func WriteMetaTensorBinary(out_ io.Writer, t Interface, metadata map[string]string) {
+	out := bufio.NewWriter(out_)
+	defer out.Flush()
+
+	WriteTensorHeader(out, t)
+	WriteHeaderLine(out, H_BINARY, "true")
+	WriteMetaHeader(out, metadata)
+	CloseHeader(out)
+	WriteDataBinary(out, t)
 }
 
 // Writes the tensor in ascii format,
 // plus addional metadata in the form of "key:value" pairs.
 // The metadata map may safely be nil.
-func WriteMetaTensorAscii(out_ io.Writer, t Interface, metadata map[string]string){
-  out := bufio.NewWriter(out_)
-  defer out.Flush()
-  
-  WriteTensorHeader(out, t)
-    WriteHeaderLine(out, "binary", "false")
-  WriteMetaHeader(out, metadata)
-  CloseHeader(out)
-  WriteDataAscii(out, t)
+func WriteMetaTensorAscii(out_ io.Writer, t Interface, metadata map[string]string) {
+	out := bufio.NewWriter(out_)
+	defer out.Flush()
+
+	WriteTensorHeader(out, t)
+	WriteHeaderLine(out, "binary", "false")
+	WriteMetaHeader(out, metadata)
+	CloseHeader(out)
+	WriteDataAscii(out, t)
 }
 
 
@@ -74,7 +86,6 @@ func WriteMetaTensorAscii(out_ io.Writer, t Interface, metadata map[string]strin
 // method T.ReadFrom() implements io.ReaderFrom
 // method T.WriteTo()
 // 
-
 
 
 // INTERNAL
@@ -98,31 +109,32 @@ func WriteTensorHeader(out_ io.Writer, t Interface) {
 // Writes the content of the map as addional key:value pairs to the tensor header.
 // To be called between WriteTensorHeader() and CloseHeader()
 func WriteMetaHeader(out_ io.Writer, metadata map[string]string) {
-  if metadata == nil{return //nothing to do
-  }
-  for key, val := range metadata{
-      WriteHeaderLine(out_, key, val)
-  }
+	if metadata == nil {
+		return //nothing to do
+	}
+	for key, val := range metadata {
+		WriteHeaderLine(out_, key, val)
+	}
 }
 
 // INTERNAL
 // Closes the header by printing "# begin_data"
-func CloseHeader(out_ io.Writer){
-  out := bufio.NewWriter(out_)
-  defer out.Flush()
-  _, err := fmt.Fprintln(out, H_COMMENT, H_END)
-  if err != nil{
-    panic(err)
-  }
+func CloseHeader(out_ io.Writer) {
+	out := bufio.NewWriter(out_)
+	defer out.Flush()
+	_, err := fmt.Fprintln(out, H_COMMENT, H_END)
+	if err != nil {
+		panic(err)
+	}
 }
 
 
 // INTERNAL
 // Adds a key:value pair to the header.
-func WriteHeaderLine(out_ io.Writer, key, value string){
-  out := bufio.NewWriter(out_)
-  defer out.Flush()
-  fmt.Fprintln(out, H_COMMENT, key, H_SEPARATOR, value)
+func WriteHeaderLine(out_ io.Writer, key, value string) {
+	out := bufio.NewWriter(out_)
+	defer out.Flush()
+	fmt.Fprintln(out, H_COMMENT, key, H_SEPARATOR, value)
 }
 
 
@@ -163,4 +175,3 @@ func WriteDataBinary(out_ io.Writer, t Interface) (err os.Error) {
 	err = binary.Write(out, ENDIANESS, list)
 	return
 }
-

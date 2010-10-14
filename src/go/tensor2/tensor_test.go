@@ -3,7 +3,7 @@ package tensor2
 import (
 	"testing"
 	"os"
-	"fmt"
+// 	"fmt"
 )
 
 func TestMisc(test *testing.T) {
@@ -13,7 +13,7 @@ func TestMisc(test *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	WriteAscii(out, t)
+	Write(out, t)
 	out.Close()
 
 	in, err2 := os.Open("test.tensor", os.O_RDONLY, 0666)
@@ -21,8 +21,6 @@ func TestMisc(test *testing.T) {
 	if err2 != nil {
 		panic(err)
 	}
-	head := ReadHeader(in)
-
-	fmt.Println(head)
-
+  t2 := Read(in)
+  WriteAscii(os.Stdout, t2)
 }
