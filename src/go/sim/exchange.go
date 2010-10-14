@@ -31,7 +31,7 @@ import (
 func Exch6NgbrKernel(size []int, cellsize []float32) []*tensor2.T3 {
 	k := make([]*tensor2.T3, 6)
 	for i := range k {
-		k[i] = tensor.NewT3(size)
+		k[i] = tensor2.NewT3(size)
 	}
 
 	for s := 0; s < 3; s++ { // source index Ksdxyz

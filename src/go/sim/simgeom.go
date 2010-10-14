@@ -7,7 +7,7 @@
 package sim
 
 import (
-	"tensor"
+	"tensor2"
 	"os"
 )
 
@@ -50,7 +50,7 @@ func (sim *Sim) Cylinder() {
 	sim.Println("Geometry: cylinder")
 
 	sim.normMap = NewTensor(sim.backend, Size3D(sim.mLocal.Size()))
-	norm := tensor.NewTensor3(sim.normMap.Size())
+	norm := tensor2.NewT3(sim.normMap.Size())
 
 	sizex := sim.mLocal.Size()[1]
 	sizey := sim.mLocal.Size()[2]

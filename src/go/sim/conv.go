@@ -112,7 +112,7 @@ func (conv *Conv) loadKernel6(kernel []*tensor2.T3) {
 	norm := 1.0 / float32(fft.Normalization())
 	devIn := NewTensor(conv.Backend, conv.LogicSize())
 	devOut := NewTensor(conv.Backend, fft.PhysicSize())
-	hostOut := tensor.NewTensor3(fft.PhysicSize())
+	hostOut := tensor2.NewT3(fft.PhysicSize())
 
 	for i := range conv.kernel {
 		TensorCopyTo(kernel[i], devIn)
