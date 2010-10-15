@@ -26,5 +26,5 @@ known bugs
  we should not crash on illegal input
 
 [0007] OPEN arne:
- the simulation does not start when no initial m is set. should be illegal arg error. why does it not start anyways?
+ the simulation finishes immediately when no initial m is set (time step is infinite). should be illegal arg error.
 
