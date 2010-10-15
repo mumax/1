@@ -147,57 +147,40 @@ func findInputFileAll(dirs []string) string {
 }
 
 
-//TODO: use io/ioutil.ReadDir -> []*os.FileInfo
-
 
 // Searches for a pending input file in the given directory.
 // Looks for a file ending in ".in" for which no corresponding
 // ".out" file exists yet.
 // Returns an empty string when no suitable input file is present.
-//
-func findInputFile(dir string) string {
-	//   fmt.Println("findInputFile ", dir)
 
-// 	d, err := os.Open(dir, os.O_RDONLY, 0666)
-	// if we can not read a directory, we should not necessarily crash,
-	// instead report it and go on so other directories can still be searched.
-// 	if err != nil {
-// 		fmt.Fprintln(os.Stderr, err)
-// 		return ""
-// 	}
-// 	defer d.Close()
+func findInputFile(dir string) string {
 
 	// loop over all files in the directory
   fileinfo, err := ioutil.ReadDir(dir)
   if err != nil {
+   // If we can not read the directory then there
+   // are definitely no input files there. We
+   // should not crash but keep looking in other
+   // places.
    fmt.Fprintln(os.Stderr, err)
    return ""
  }
 
   for _,info := range fileinfo{
-// 	for filenames, err2 := d.Readdirnames(1); err2 == nil; filenames, err2 = d.Readdirnames(1) {
-// 		if len(filenames) == 0 { //means we reached the end of the files
-// 			return ""
-// 		}
 		
 		file := dir + "/" + info.Name
 		if strings.HasSuffix(file, ".in") && !fileExists(removeExtension(file)+".out") {
-			//       fmt.Println("Found: ", file)
 			return file
 		}
 		//recursion
-		if isDirectory(file) {
-			//       fmt.Println("Directory: ", file)
+		if info.IsDirectory() {
 			file2 := findInputFile(file)
 			if file2 != "" {
-				//         fmt.Println("Found: ", file2)
 				return file2
 			}
 		}
 	}
-
-	// nothing found
-	return ""
+	return "" // nothing found
 }
 
 
