@@ -20,6 +20,7 @@ GeeMags
 
 TODO (Arne)
 
+* daemon should not digg through directories depth-first but first run the higher-level input files (will make searching for input files faster) AND/OR do not scan *.out directories for input files.
 * save m "filename"
 * cluster queue scripts: rmall UNFINISHED (includes running, but also when only the dir was made), rmall crahsed, status, ...
 * do not use os.Exit() but sim.Exit() which removes running file -> replace by "crashed" or something
