@@ -7,6 +7,7 @@
  *    - No FFTs on rows which contain only zeros
  *    - The CUDA memory access is aligned
  *    - 2D FFTs on data padded in X- and/or Y-direction is performed in-place
+ *    - The FFTs are split in several batches to fit the maximum elements treated in CUFFT
  *    
  * @todo restrict the required extra memory for 3D to the minimum
  * @todo concurrent execution?

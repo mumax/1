@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-int MAXSIZE = 8*1024*1024;
+int MAXSIZE = 32*1024;
 
 gpuFFT3dPlan_big* new_gpuFFT3dPlan_padded_big(int* size, int* paddedSize){
 
@@ -137,6 +137,8 @@ void init_batch_fft_big(gpuFFT3dPlan_big *plan, int co, int Nffts, int size_fft)
 
   if (MAXSIZE < size_fft*K){
     printf("size %d does not fit the fft batch!", size_fft);
+    printf("K*FFT_array should be smaller than %d AND K*FFT_array modulo %d should be zero\n", MAXSIZE, gpu_stride_float());
+    printf("choose different dimensions (i.e. size of FFT_array) to meet this criterium.");
     abort();
   }
 
@@ -202,7 +204,7 @@ void gpuFFT3dPlan_forward_big(gpuFFT3dPlan_big* plan, float* input, float* outpu
     for (int i=0; i<plan->Nbatch[Z]; i++){
       int index_in  = plan->batch_cum[Z][i]*plan->paddedSize[Z];
       int index_out = half_pSSize + plan->batch_cum[Z][i]*pSSize[Z];
-      gpu_safefft( cufftExecR2C(plan->fwPlanZ[i], (cufftReal*)(data + index_in),  (cufftComplex*)(data + index_out) ) );     // it's in data
+      gpu_safefft( cufftExecR2C(plan->fwPlanZ[i], (cufftReal*)(data + index_in),  (cufftComplex*)(data + index_out) ) );                 // it's in data
     }
     gpu_sync();
 
@@ -210,7 +212,7 @@ void gpuFFT3dPlan_forward_big(gpuFFT3dPlan_big* plan, float* input, float* outpu
     gpu_zero(data, size[X]*size[Y]*pSSize[Z]);
     
       // YZ-transpose within the same matrix from the second half of the matrix towards the 0-element
-    yz_transpose_in_place_fw(data, size, pSSize);                                                          // it's in data
+    yz_transpose_in_place_fw(data, size, pSSize);                                                                                        // it's in data
 
     // in place FFTs in Y-direction
     for (int i=0; i<plan->Nbatch[Y]; i++){
@@ -223,29 +225,31 @@ void gpuFFT3dPlan_forward_big(gpuFFT3dPlan_big* plan, float* input, float* outpu
   else {          //no zero padding in X- and Y direction (e.g. for Greens kernel computations)
       // in place FFTs in Z-direction (there is no zero space to perform them out of place)
     for (int i=0; i<plan->Nbatch[Z]; i++){
-      int index_in  = plan->batch_cum[Z][i]*plan->paddedSize[Z];
-      int index_out = plan->batch_cum[Z][i]*plan->paddedSize[Z];
-      gpu_safefft( cufftExecR2C(plan->fwPlanZ[i], (cufftReal*)(data + index_in),  (cufftComplex*)(data + index_out) ) );     // it's in data
+      int index = plan->batch_cum[Z][i]*pSSize[Z];
+      gpu_safefft( cufftExecR2C(plan->fwPlanZ[i], (cufftReal*)(data + index),  (cufftComplex*)(data + index) ) );                  // it's in data
     }
     gpu_sync();
     
       // YZ-transpose needs to be out of place.
-    gpu_transposeYZ_complex(data, data2, N0, N1, N2*N3);                                                   // it's in data2
+    gpu_transposeYZ_complex(data, data2, N0, N1, N2*N3);                                                                                  // it's in data2
     
       // perform the FFTs in the Y-direction
-    gpu_safefft( cufftExecC2C(plan->PlanY_1, (cufftComplex*)data2,  (cufftComplex*)data, CUFFT_FORWARD) );      // it's in data
+    for (int i=0; i<plan->Nbatch[Y]; i++){
+      int index  = 2*plan->batch_cum[Y][i]*plan->paddedSize[Y];
+      gpu_safefft( cufftExecC2C(plan->planY[i], (cufftComplex*) (data2 + index),  (cufftComplex*) (data + index), CUFFT_FORWARD) );       // it's in data 
+    }
     gpu_sync();
   }
 
   if(N0 > 1){    // not done for 2D transforms
       // XZ transpose still needs to be out of place
-    gpu_transposeXZ_complex(data, data2, N0, N2, N1*N3);                                                   // it's in data2
+    gpu_transposeXZ_complex(data, data2, N0, N2, N1*N3);                                                                                  // it's in data2
  
     
       // out of place FFTs in X-direction
     for (int i=0; i<plan->Nbatch[X]; i++){
      int index  = 2*plan->batch_cum[X][i]*plan->paddedSize[X];
-     gpu_safefft( cufftExecC2C(plan->planX[i], (cufftComplex*) (data2 + index),  (cufftComplex*) (output + index), CUFFT_FORWARD) );       // it's in data 
+     gpu_safefft( cufftExecC2C(plan->planX[i], (cufftComplex*) (data2 + index),  (cufftComplex*) (output + index), CUFFT_FORWARD) );      // it's in data 
     }
     gpu_sync();
     
@@ -283,7 +287,7 @@ void gpuFFT3dPlan_inverse_big(gpuFFT3dPlan_big* plan, float* input, float* outpu
     gpu_sync();
 
       // XZ transpose still needs to be out of place
-    gpu_transposeXZ_complex(data2, data, N1, N2, N0*N3);                                                   // it's in data
+    gpu_transposeXZ_complex(data2, data, N1, N2, N0*N3);                                                                                 // it's in data
   }
   
   if ( pSSize[X]!=size[X] || pSSize[Y]!=size[Y]){
@@ -296,27 +300,33 @@ void gpuFFT3dPlan_inverse_big(gpuFFT3dPlan_big* plan, float* input, float* outpu
     
     
       // YZ-transpose within the same matrix from the 0-element towards the second half of the matrix
-    yz_transpose_in_place_inv(data, size, pSSize);                                                          // it's in data
+    yz_transpose_in_place_inv(data, size, pSSize);                                                                                       // it's in data
 
       // out of place FFTs in Z-direction from the second half of the matrix towards the 0-element
     for (int i=0; i<plan->Nbatch[Z]; i++){
       int index_in  = half_pSSize + plan->batch_cum[Z][i]*pSSize[Z];
       int index_out = plan->batch_cum[Z][i]*plan->paddedSize[Z];
-      gpu_safefft( cufftExecC2R(plan->invPlanZ[i], (cufftComplex*)(data + index_in),  (cufftReal*)(data + index_out) ) );     // it's in data
+      gpu_safefft( cufftExecC2R(plan->invPlanZ[i], (cufftComplex*)(data + index_in),  (cufftReal*)(data + index_out) ) );                // it's in data
     }
     gpu_sync();
 
   }
   else {          //no zero padding in X- and Y direction (e.g. for Greens kernel computations)
       // out of place FFTs in Y-direction
-    gpu_safefft( cufftExecC2C(plan->planY[0], (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) );       // it's in data
+    for (int i=0; i<plan->Nbatch[Y]; i++){
+      int index  = 2*plan->batch_cum[Y][i]*plan->paddedSize[Y];
+      gpu_safefft( cufftExecC2C(plan->planY[i], (cufftComplex*) (data + index),  (cufftComplex*) (data2 + index), CUFFT_INVERSE) );      // it's in data 
+    }
     gpu_sync();
     
       // YZ-transpose needs to be out of place.
-    gpu_transposeYZ_complex(data2, data, N0, N2, N1*N3);                                                    // it's in data2   
+    gpu_transposeYZ_complex(data2, data, N0, N2, N1*N3);                                                                                 // it's in data2   
 
       // in place FFTs in Z-direction
-    gpu_safefft( cufftExecC2R(plan->invPlanZ_1, (cufftComplex*) data, (cufftReal*) data ));                      // it's in data
+    for (int i=0; i<plan->Nbatch[Z]; i++){
+      int index = plan->batch_cum[Z][i]*pSSize[Z];
+      gpu_safefft( cufftExecC2R(plan->invPlanZ[i], (cufftComplex*)(data + index),  (cufftReal*)(data + index) ) );                // it's in data
+    }
     gpu_sync();
   }
   

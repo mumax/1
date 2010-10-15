@@ -101,8 +101,8 @@ void evaluate_micromag3d_conv_Xthickness_1(tensor *m, tensor *h, conv_data *conv
 
     //inverse Fourier transforming fft_hi
   for(int i=0; i<3; i++)
-    gpuFFT3dPlan_inverse(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
-//    gpuFFT3dPlan_inverse_big(conv->fftplan_big, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
+//    gpuFFT3dPlan_inverse(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
+    gpuFFT3dPlan_inverse_big(conv->fftplan_big, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
 
 
   return;
@@ -128,14 +128,16 @@ void evaluate_micromag2d_conv(tensor *m, tensor *h, conv_data *conv){
 
     //Fourier transforming of fft_mi
   for(int i=0; i<2; i++)
-    gpuFFT3dPlan_forward(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
+//    gpuFFT3dPlan_forward(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
+    gpuFFT3dPlan_forward_big(conv->fftplan_big, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
 
     // kernel multiplication
   gpu_kernelmul3(fftMy,  fftMz, fftKyy, fftKzz, fftKyz, N);
 
     //inverse Fourier transforming fft_hi
   for(int i=0; i<2; i++)
-    gpuFFT3dPlan_inverse(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
+//    gpuFFT3dPlan_inverse(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
+    gpuFFT3dPlan_inverse_big(conv->fftplan_big, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
 
   return;
 }
