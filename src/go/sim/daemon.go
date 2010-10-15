@@ -14,6 +14,7 @@ import (
 	"time"
 	"exec"
 	"container/vector"
+	"io/ioutil"
 )
 
 // search for new input files every X s
@@ -157,21 +158,29 @@ func findInputFileAll(dirs []string) string {
 func findInputFile(dir string) string {
 	//   fmt.Println("findInputFile ", dir)
 
-	d, err := os.Open(dir, os.O_RDONLY, 0666)
+// 	d, err := os.Open(dir, os.O_RDONLY, 0666)
 	// if we can not read a directory, we should not necessarily crash,
 	// instead report it and go on so other directories can still be searched.
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return ""
-	}
-	defer d.Close()
+// 	if err != nil {
+// 		fmt.Fprintln(os.Stderr, err)
+// 		return ""
+// 	}
+// 	defer d.Close()
 
-	// loop over Readdirnames(), all files in the directory
-	for filenames, err2 := d.Readdirnames(1); err2 == nil; filenames, err2 = d.Readdirnames(1) {
-		if len(filenames) == 0 { //means we reached the end of the files
-			return ""
-		}
-		file := dir + "/" + filenames[0]
+	// loop over all files in the directory
+  fileinfo, err := ioutil.ReadDir(dir)
+  if err != nil {
+   fmt.Fprintln(os.Stderr, err)
+   return ""
+ }
+
+  for _,info := range fileinfo{
+// 	for filenames, err2 := d.Readdirnames(1); err2 == nil; filenames, err2 = d.Readdirnames(1) {
+// 		if len(filenames) == 0 { //means we reached the end of the files
+// 			return ""
+// 		}
+		
+		file := dir + "/" + info.Name
 		if strings.HasSuffix(file, ".in") && !fileExists(removeExtension(file)+".out") {
 			//       fmt.Println("Found: ", file)
 			return file
