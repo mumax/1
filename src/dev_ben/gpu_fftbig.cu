@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-int MAXSIZE = 10000;
+int MAXSIZE = 8*1024*1024;
 
 gpuFFT3dPlan_big* new_gpuFFT3dPlan_padded_big(int* size, int* paddedSize){
 
@@ -56,15 +56,15 @@ gpuFFT3dPlan_big* new_gpuFFT3dPlan_padded_big(int* size, int* paddedSize){
 
   init_batch_fft_big(plan, Z, size[X]*size[Y], plan->paddedStorageSize[Z]);
   for (int i=0; i<Nbatch[Z]; i++)
-    printf("Z: Nbatch: %d, i: %d, batch: %d, %d, batch_cum: %d\n", Nbatch[Z], i, batch[Z][i]*paddedSize[Z], batch[Z][i]*paddedStorageSize[Z], plan->batch_cum[Z][i]);
+    printf("Z: Nbatch: %d, i: %d, batch: %d, el. in batch: %d, %d, batch_cum: %d\n", Nbatch[Z], i, batch[Z][i], batch[Z][i]*paddedSize[Z], batch[Z][i]*paddedStorageSize[Z], plan->batch_cum[Z][i]);
   printf("\n\n");
   init_batch_fft_big(plan, Y, paddedStorageSize[Z] * size[X] / 2, 2*plan->paddedSize[Y]);   //2* because we need the number of floats
   for (int i=0; i<Nbatch[Y]; i++)
-    printf("Y: Nbatch: %d, i: %d, batch: %d, batch_cum: %d\n", Nbatch[Y], i, batch[Y][i]*plan->paddedStorageSize[Y], plan->batch_cum[Y][i]);
+    printf("Y: Nbatch: %d, i: %d, batch: %d, el. in batch: %d, batch_cum: %d\n", Nbatch[Y], i, batch[Y][i], batch[Y][i]*plan->paddedStorageSize[Y], plan->batch_cum[Y][i]);
   printf("\n\n");
   init_batch_fft_big(plan, X, paddedStorageSize[Z] * paddedSize[Y] / 2, 2*plan->paddedSize[X]);
   for (int i=0; i<Nbatch[X]; i++)
-    printf("X: Nbatch: %d, i: %d, batch: %d, batch_cum: %d\n", Nbatch[X], i, batch[X][i]*plan->paddedStorageSize[X], plan->batch_cum[X][i]);
+    printf("X: Nbatch: %d, i: %d, batch: %d, el. in batch: %d, batch_cum: %d\n", Nbatch[X], i, batch[X][i], batch[X][i]*plan->paddedStorageSize[X], plan->batch_cum[X][i]);
   printf("\n\n");
  
   // plan assignment for batch PlanZ -------------------------------------
@@ -135,7 +135,6 @@ void init_batch_fft_big(gpuFFT3dPlan_big *plan, int co, int Nffts, int size_fft)
   int K = get_factor_to_stride(size_fft);
   int max = MAXSIZE/size_fft/K;
 
-  printf("K = %d, max: %d\n", K, max);
   if (MAXSIZE < size_fft*K){
     printf("size %d does not fit the fft batch!", size_fft);
     abort();
@@ -246,15 +245,10 @@ void gpuFFT3dPlan_forward_big(gpuFFT3dPlan_big* plan, float* input, float* outpu
       // out of place FFTs in X-direction
     for (int i=0; i<plan->Nbatch[X]; i++){
      int index  = 2*plan->batch_cum[X][i]*plan->paddedSize[X];
-//         printf("i: %d, index: %d\n", i, index);
      gpu_safefft( cufftExecC2C(plan->planX[i], (cufftComplex*) (data2 + index),  (cufftComplex*) (output + index), CUFFT_FORWARD) );       // it's in data 
     }
     gpu_sync();
     
-    
-      // out of place FFTs in X-direction
-//     gpu_safefft( cufftExecC2C(plan->PlanX_1, (cufftComplex*)data2,  (cufftComplex*)output, CUFFT_FORWARD) );    // it's in data
-//     gpu_sync();
   }
 
 //   timer_stop("gpu_plan3d_real_input_forward_exec");
@@ -282,7 +276,10 @@ void gpuFFT3dPlan_inverse_big(gpuFFT3dPlan_big* plan, float* input, float* outpu
 
   if (N0 > 1){
       // out of place FFTs in the X-direction (i.e. no +2 stride on input!)
-    gpu_safefft( cufftExecC2C(plan->PlanX_1, (cufftComplex*)data,  (cufftComplex*)data2, CUFFT_INVERSE) );      // it's in data2
+    for (int i=0; i<plan->Nbatch[X]; i++){
+     int index  = 2*plan->batch_cum[X][i]*plan->paddedSize[X];
+     gpu_safefft( cufftExecC2C(plan->planX[i], (cufftComplex*) (data + index),  (cufftComplex*) (data2 + index), CUFFT_INVERSE) );       // it's in data 
+    }
     gpu_sync();
 
       // XZ transpose still needs to be out of place
@@ -291,9 +288,13 @@ void gpuFFT3dPlan_inverse_big(gpuFFT3dPlan_big* plan, float* input, float* outpu
   
   if ( pSSize[X]!=size[X] || pSSize[Y]!=size[Y]){
       // in place FFTs in Y-direction
-    gpu_safefft( cufftExecC2C(plan->planY[0], (cufftComplex*)data,  (cufftComplex*)data, CUFFT_INVERSE) );        // it's in data
+    for (int i=0; i<plan->Nbatch[Y]; i++){
+      int index  = 2*plan->batch_cum[Y][i]*plan->paddedSize[Y];
+      gpu_safefft( cufftExecC2C(plan->planY[i], (cufftComplex*) (data + index),  (cufftComplex*) (data + index), CUFFT_INVERSE) );       // it's in data 
+    }
     gpu_sync();
-
+    
+    
       // YZ-transpose within the same matrix from the 0-element towards the second half of the matrix
     yz_transpose_in_place_inv(data, size, pSSize);                                                          // it's in data
 
@@ -303,7 +304,6 @@ void gpuFFT3dPlan_inverse_big(gpuFFT3dPlan_big* plan, float* input, float* outpu
       int index_out = plan->batch_cum[Z][i]*plan->paddedSize[Z];
       gpu_safefft( cufftExecC2R(plan->invPlanZ[i], (cufftComplex*)(data + index_in),  (cufftReal*)(data + index_out) ) );     // it's in data
     }
-//     gpu_safefft( cufftExecC2R(plan->invPlanZ_1, (cufftComplex*)(data + N0*N1*N2), (cufftReal*)data ));           // it's in data
     gpu_sync();
 
   }
