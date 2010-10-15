@@ -5,7 +5,7 @@
  * The following is taken into account:
  *    - real-to-complex FFTs
  *    - No FFTs on rows which contain only zeros
- *    - The CUCA memory access is aligned
+ *    - The CUDA memory access is aligned
  *    - 2D FFTs on data padded in X- and/or Y-direction is performed in-place
  *    
  * @todo restrict the required extra memory for 3D to the minimum
@@ -17,14 +17,6 @@
 #ifndef GPU_FFTBIG_H
 #define GPU_FFTBIG_H
 
-#include "tensor.h"
-#include "gputil.h"
-#include <cufft.h>
-#include "gpu_transpose.h"
-#include "gpu_transpose2.h"
-#include "gpu_safe.h"
-#include "gpu_conf.h"
-#include "gpu_fft.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -76,6 +68,9 @@ gpuFFT3dPlan_big* new_gpuFFT3dPlan_padded_big(int* size,
                                               int* paddedSize
                                               );
 
+int get_factor_to_stride(int size_fft);
+
+
 void init_batch_fft_big(gpuFFT3dPlan_big *plan,
                         int co,
                         int Nffts,
@@ -87,6 +82,11 @@ void gpuFFT3dPlan_forward_big(gpuFFT3dPlan_big* plan,
                               float* output
                               );
 
+void gpuFFT3dPlan_inverse_big(gpuFFT3dPlan_big* plan,
+                              float* input,
+                              float* output
+                              );
+                              
 #ifdef __cplusplus
 }
 #endif

@@ -148,7 +148,7 @@ void gpu_array_set(float* dataptr, int index, float value){
 //  * 1/3 of the FFT's will act on improperly aligned data, but for computation-limited kernels on 2.x GPU's, this should be barely notable
 //  * 1/2 of the transposes will be slowed down by about a factor of 2, but R2C FFT's always break the alignment, so there is no workaround anyway.
 
-int _gpu_stride_float_cache = 1;
+int _gpu_stride_float_cache = -1;
 
 /* We test for the optimal array stride by creating a 1x1 matrix and checking
  * the stride returned by CUDA.
