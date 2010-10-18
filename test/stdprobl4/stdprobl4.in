@@ -1,5 +1,6 @@
 # Micromagnetic standard problem 4
 
+metadata  description standard_problem_4
 
 solvertype  	heun
 dt           	0.01E-12    # s

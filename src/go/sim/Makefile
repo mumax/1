@@ -45,6 +45,7 @@ GOFILES=\
 	main.go\
         daemon.go\
 	stdout.go\
+	simmetadata.go\
 
 CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so
 

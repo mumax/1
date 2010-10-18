@@ -1,8 +1,6 @@
 # Micromagnetic standard problem 4
 
-
-solvertype  	heun
-dt           	0.01E-12    # s
+# solver accuracy
 maxerror	1E-5
 
 # material
@@ -15,7 +13,7 @@ size       	1     32          128
 cellsize   	3E-9  3.90625E-9  3.90625E-9  # m
 
 # initial magnetization
-uniform 1 1 1
+uniform     0 1 1
 
 
 # run

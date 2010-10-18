@@ -7,7 +7,7 @@
 package sim
 
 import (
-"fmt"
+	"fmt"
 )
 
 // This file implements the methods for time stepping

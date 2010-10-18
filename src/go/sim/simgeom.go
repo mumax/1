@@ -9,6 +9,7 @@ package sim
 import (
 	"tensor"
 	"os"
+	"fmt"
 )
 
 // This file implements the methods for
@@ -40,6 +41,9 @@ func (s *Sim) CellSize(x, y, z float32) {
 	s.input.cellSize[X] = x
 	s.input.cellSize[Y] = y
 	s.input.cellSize[Z] = z
+	s.metadata["cellsize0"] = fmt.Sprint(x)
+	s.metadata["cellsize1"] = fmt.Sprint(y)
+	s.metadata["cellsize2"] = fmt.Sprint(z)
 	s.invalidate()
 }
 

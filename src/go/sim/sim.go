@@ -98,8 +98,8 @@ func NewSim(outputdir string) *Sim {
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
 	sim.input.demag_accuracy = 8
-	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
-
+	sim.autosaveIdx = -1          // so we will start at 0 after the first increment
+	sim.input.solvertype = "heun" // the default for now. TODO change when a better one comes around
 	// We run the simulation with working directory = directory of input file
 	// This is neccesary, e.g., when a sim deamon is run from a directory other
 	// than the directory of the input file and files with relative paths are
@@ -108,7 +108,7 @@ func NewSim(outputdir string) *Sim {
 	fmt.Println("chdir ", workdir)
 	os.Chdir(workdir)
 	sim.outputDir(filename(outputdir))
-
+  sim.metadata = make(map[string]string)
 	sim.initWriters()
 	sim.invalidate() //just to make sure we will init()
 	return sim
@@ -160,8 +160,6 @@ func (s *Sim) init() {
 		return //no work to do
 	}
 	s.Println("Initializing simulation state")
-
-	s.metadata = make(map[string]string)
 
 	dev := s.backend
 	// 	dev.InitBackend()
