@@ -34,35 +34,41 @@ import (
 // When a panic occurs, do not crash
 // but output "value" instead.
 func (m *Main) Recover(value string) {
-  m.recover_val = value
+	m.recover_val = value
 }
 
 // Calculates the RMS response of the in-plane magnetization.
 // Used for, e.g., magnetic resonance.
-func (m *Main) InplaneRMS(fname string) float64{
-  in, err := os.Open(fname, os.O_RDONLY, 0666)
-  if err != nil{panic(err)}
-  iotool.ReadLine(in) //discard header
+func (m *Main) InplaneRMS(fname string) float64 {
+	in, err := os.Open(fname, os.O_RDONLY, 0666)
+	if err != nil {
+		panic(err)
+	}
+	iotool.ReadLine(in) //discard header
 
-  N := 0
-  rms := float64(0.)
+	N := 0
+	rms := float64(0.)
 
-  line, eof := iotool.ReadLine(in)
-  for !eof{
-    words := strings.Fields(line)
-    mx, e1 := strconv.Atof(words[2])
-    my, e2 := strconv.Atof(words[3])
-    if e1 != nil{panic(e1)}
-    if e2 != nil{panic(e2)}
-//     fmt.Println(mx, " ", my)
-    rms += float64(mx*mx + my*my)
-    N++
-    
-    line, eof = iotool.ReadLine(in)
-  }
+	line, eof := iotool.ReadLine(in)
+	for !eof {
+		words := strings.Fields(line)
+		mx, e1 := strconv.Atof(words[2])
+		my, e2 := strconv.Atof(words[3])
+		if e1 != nil {
+			panic(e1)
+		}
+		if e2 != nil {
+			panic(e2)
+		}
+		//     fmt.Println(mx, " ", my)
+		rms += float64(mx*mx + my*my)
+		N++
 
-  rms /= float64(N)
-  return Sqrt(rms)
+		line, eof = iotool.ReadLine(in)
+	}
+
+	rms /= float64(N)
+	return Sqrt(rms)
 }
 
 // LEGACY: works on old .txt format only
@@ -70,29 +76,27 @@ func (m *Main) InplaneRMS(fname string) float64{
 // Returns the vortex core polarization.
 // (value of max out-of-plane magnetization and a string "#up" or "down")
 func (m *Main) CorePol4(fname string) (maxMz float64, updown string) {
-  data := ToT4(FReadAscii4(fname))
-  array := data.Array()
-  mz := array[0]
-  answer := float64(mz[0][0][0])
-  for i := range mz {
-    for j := range mz[i] {
-      for k := range mz[i][j] {
-        if Fabs(answer) < Fabs(float64(mz[i][j][k])) {
-          answer = (float64(mz[i][j][k]))
-        }
-      }
-    }
-  }
-  maxMz = answer
-  if maxMz > 0. {
-    updown = "#up"
-  } else {
-    updown = "#down"
-  }
-  return
+	data := ToT4(FReadAscii4(fname))
+	array := data.Array()
+	mz := array[0]
+	answer := float64(mz[0][0][0])
+	for i := range mz {
+		for j := range mz[i] {
+			for k := range mz[i][j] {
+				if Fabs(answer) < Fabs(float64(mz[i][j][k])) {
+					answer = (float64(mz[i][j][k]))
+				}
+			}
+		}
+	}
+	maxMz = answer
+	if maxMz > 0. {
+		updown = "#up"
+	} else {
+		updown = "#down"
+	}
+	return
 }
-
-
 
 
 func main() {

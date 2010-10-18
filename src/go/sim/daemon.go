@@ -190,11 +190,13 @@ func findInputFile(dir string) string {
 }
 
 // Checks if the fileinfo array contains the named file
-func contains(fileinfo []*os.FileInfo, file string) bool{
-  for _, info := range fileinfo{
-    if info.Name == file{return true}
-  }
-  return false
+func contains(fileinfo []*os.FileInfo, file string) bool {
+	for _, info := range fileinfo {
+		if info.Name == file {
+			return true
+		}
+	}
+	return false
 }
 
 // checks if the file exists

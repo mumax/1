@@ -38,7 +38,7 @@ func (s *Sim) Uniform(mx, my, mz float32) {
 			}
 		}
 	}
-// 	normalize(a)
+	// 	normalize(a)
 	s.invalidate() // todo: we do not need to invalidate everything here!
 }
 
@@ -63,7 +63,7 @@ func (s *Sim) Vortex(circulation, polarization int) {
 		a[Y][i][cy][cx] = 0.
 		a[X][i][cy][cx] = float32(polarization)
 	}
-// 	normalize(a)
+	// 	normalize(a)
 	s.invalidate()
 }
 
@@ -91,7 +91,7 @@ func (s *Sim) AddNoise(amplitude float32) {
 	for i := range list {
 		list[i] += amplitude * float32(rand.Float()-0.5)
 	}
-// 	normalize(s.mLocal.Array())
+	// 	normalize(s.mLocal.Array())
 	s.invalidate()
 }
 
