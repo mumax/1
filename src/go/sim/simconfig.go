@@ -13,6 +13,7 @@ package sim
 import (
 	"rand"
 	"os"
+	"tensor"
 )
 
 // INTERNAL: to be called before setting a magnetization state,
@@ -75,7 +76,7 @@ func (s *Sim) Load(file string) {
 	if err != nil {
 		panic(err)
 	}
-	s.mLocal.ReadFrom(in)
+	s.mLocal = tensor.ToT4(tensor.Read(in))
 	//TODO this should not invalidate the entire sim
 	s.invalidate()
 }

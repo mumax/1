@@ -151,6 +151,7 @@ func (s *Sim) initMLocal() {
 		s.Println("Resampling magnetization from ", s.mLocal.Size(), " to ", Size4D(s.input.size[0:]))
 		s.mLocal = resample(s.mLocal, Size4D(s.input.size[0:]))
 	}
+	normalize(s.mLocal.Array())
 }
 
 // (Re-)initialize the simulation tree, necessary before running.
