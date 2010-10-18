@@ -16,7 +16,9 @@ func (s *Sim) Run(time float64) {
 	s.Println("Running for ", time, "s")
 	time /= float64(s.UnitTime())
 	stop := s.time + time
-
+  s.Normalize(s.mDev)
+  s.mUpToDate = false
+  
 	for s.time < stop {
 
 		// save output if so scheduled

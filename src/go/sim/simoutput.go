@@ -49,6 +49,7 @@ func (s *Sim) Autosave(what, format string, interval float32) {
 // Saves a quantity just once
 // E.g.: "save m binary" saves the current magnetization state
 func (s *Sim) Save(what, format string) {
+  s.init() // We must init() so m gets Normalized etc...
 	output := resolve(what, format)
 	s.assureMUpToDate()
 	output.Save(s)

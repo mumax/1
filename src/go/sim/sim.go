@@ -151,7 +151,7 @@ func (s *Sim) initMLocal() {
 		s.Println("Resampling magnetization from ", s.mLocal.Size(), " to ", Size4D(s.input.size[0:]))
 		s.mLocal = resample(s.mLocal, Size4D(s.input.size[0:]))
 	}
-	normalize(s.mLocal.Array())
+// 	normalize(s.mLocal.Array())
 }
 
 // (Re-)initialize the simulation tree, necessary before running.
@@ -224,11 +224,15 @@ func (s *Sim) init() {
 	}
 	// 	}
 
-
+  // allocate local storage for m
 	s.initMLocal()
 
+  // copy to GPU and normalize on the GPU, according to the normmap.
 	TensorCopyTo(s.mLocal, s.mDev)
-	// 	s.Normalize(s.mDev)
+// 	s.Normalize(s.mDev) // mysteriously crashes
+	// then copy back to local so we can see the normalized initial state.
+  // (so m0000000.tensor is normalized)
+// 	TensorCopyFrom(s.mDev, s.mLocal)
 
 	// (4) Calculate kernel & set up convolution
 
