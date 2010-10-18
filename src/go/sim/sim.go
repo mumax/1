@@ -108,7 +108,7 @@ func NewSim(outputdir string) *Sim {
 	fmt.Println("chdir ", workdir)
 	os.Chdir(workdir)
 	sim.outputDir(filename(outputdir))
-  sim.metadata = make(map[string]string)
+	sim.metadata = make(map[string]string)
 	sim.initWriters()
 	sim.invalidate() //just to make sure we will init()
 	return sim
