@@ -47,13 +47,33 @@ func (s *Sim) CellSize(x, y, z float32) {
 	s.invalidate()
 }
 
-// Sets up the normMap for a cylinder geometry along Z
-// TODO: does not take into account the aspect ratio of the cells.
+func (sim *Sim) initNormMap(){
+  if sim.normMap == nil{
+      sim.normMap = NewTensor(sim.backend, Size3D(sim.mLocal.Size()))
+  }
+}
+
+func(sim *Sim) LoadMSat(file string){
+  sim.initNormMap()
+  sim.Println("Loading space-dependent saturation magnetization (norm)", file)
+  in, err := os.Open(file, os.O_RDONLY, 0666)
+  defer in.Close()
+  if err != nil {
+    panic(err)
+  }
+  norm := tensor.Read(in)
+  TensorCopyTo(norm, sim.normMap)
+  //TODO this should not invalidate the entire sim
+  sim.invalidate()
+}
+
+// Sets up the normMap for a (possibly ellipsoidal) cylinder geometry along Z.
+// Does not take into account the aspect ratio of the cells.
 func (sim *Sim) Cylinder() {
 	sim.initMLocal()
 	sim.Println("Geometry: cylinder")
 
-	sim.normMap = NewTensor(sim.backend, Size3D(sim.mLocal.Size()))
+	sim.initNormMap()
 	norm := tensor.NewT3(sim.normMap.Size())
 
 	sizex := sim.mLocal.Size()[1]
