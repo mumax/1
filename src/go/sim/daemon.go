@@ -168,7 +168,7 @@ func findInputFile(dir string) string {
 	// First look for input files in the top-level directory...
 	for _, info := range fileinfo {
 		file := dir + "/" + info.Name
-		if strings.HasSuffix(file, ".in") && !fileExists(removeExtension(file)+".out") {
+		if strings.HasSuffix(file, ".in") && !contains(fileinfo, removeExtension(removePath(file))+".out") {
 			return file
 		}
 	}
@@ -189,6 +189,13 @@ func findInputFile(dir string) string {
 	return "" // nothing found
 }
 
+// Checks if the fileinfo array contains the named file
+func contains(fileinfo []*os.FileInfo, file string) bool{
+  for _, info := range fileinfo{
+    if info.Name == file{return true}
+  }
+  return false
+}
 
 // checks if the file exists
 func fileExists(file string) bool {
