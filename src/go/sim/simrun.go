@@ -6,7 +6,9 @@
 
 package sim
 
-import ()
+import (
+"fmt"
+)
 
 // This file implements the methods for time stepping
 
@@ -58,4 +60,5 @@ func (s *Sim) assureMUpToDate() {
 		s.autosaveIdx++
 		s.mUpToDate = true
 	}
+	s.metadata["time"] = fmt.Sprint(s.time * float64(s.UnitTime()))
 }
