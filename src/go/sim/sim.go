@@ -161,7 +161,7 @@ func (s *Sim) init() {
 	}
 	s.Println("Initializing simulation state")
 
-  s.metadata = make(map[string]string)
+	s.metadata = make(map[string]string)
 
 	dev := s.backend
 	// 	dev.InitBackend()
@@ -188,7 +188,7 @@ func (s *Sim) init() {
 	}
 	s.alpha = s.input.alpha
 
-  s.metadata["msat"] = fmt.Sprint(s.mSat)
+	s.metadata["msat"] = fmt.Sprint(s.mSat)
 
 	// (2) Size must be set before memory allocation
 	s.initSize()

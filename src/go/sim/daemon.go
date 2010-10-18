@@ -147,7 +147,6 @@ func findInputFileAll(dirs []string) string {
 }
 
 
-
 // Searches for a pending input file in the given directory.
 // Looks for a file ending in ".in" for which no corresponding
 // ".out" file exists yet.
@@ -156,30 +155,37 @@ func findInputFileAll(dirs []string) string {
 func findInputFile(dir string) string {
 
 	// loop over all files in the directory
-  fileinfo, err := ioutil.ReadDir(dir)
-  if err != nil {
-   // If we can not read the directory then there
-   // are definitely no input files there. We
-   // should not crash but keep looking in other
-   // places.
-   fmt.Fprintln(os.Stderr, err)
-   return ""
- }
+	fileinfo, err := ioutil.ReadDir(dir)
+	if err != nil {
+		// If we can not read the directory then there
+		// are definitely no input files there. We
+		// should not crash but keep looking in other
+		// places.
+		fmt.Fprintln(os.Stderr, err)
+		return ""
+	}
 
-  for _,info := range fileinfo{
-		
+	// First look for input files in the top-level directory...
+	for _, info := range fileinfo {
 		file := dir + "/" + info.Name
 		if strings.HasSuffix(file, ".in") && !fileExists(removeExtension(file)+".out") {
 			return file
 		}
-		//recursion
-		if info.IsDirectory() {
+	}
+
+	// ... and only later look at deeper levels
+	for _, info := range fileinfo {
+		file := dir + "/" + info.Name
+		// Look for input files recursively down the tree,
+		// but skip output directories!
+		if info.IsDirectory() && !strings.HasSuffix(info.Name, ".out") {
 			file2 := findInputFile(file)
 			if file2 != "" {
 				return file2
 			}
 		}
 	}
+
 	return "" // nothing found
 }
 
