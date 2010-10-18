@@ -189,6 +189,8 @@ func (s *Sim) init() {
 	s.alpha = s.input.alpha
 
 	s.metadata["msat"] = fmt.Sprint(s.mSat)
+	s.metadata["aexch"] = fmt.Sprint(s.aExch)
+	s.metadata["alpha"] = fmt.Sprint(s.alpha)
 
 	// (2) Size must be set before memory allocation
 	s.initSize()

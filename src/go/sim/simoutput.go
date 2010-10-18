@@ -90,7 +90,7 @@ func (p *Periodic) SetInterval(interval float32) {
 func resolve(what, format string) Output {
 	switch what {
 	default:
-		panic("unknown output quantity " + what + ". options are: m")
+		panic("unknown output quantity " + what + ". options are: m, table")
 	case "m":
 		switch format {
 		default:

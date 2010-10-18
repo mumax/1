@@ -55,15 +55,15 @@ func (sim *Sim) Cylinder() {
 	sizex := sim.mLocal.Size()[1]
 	sizey := sim.mLocal.Size()[2]
 	sizez := sim.mLocal.Size()[3]
-	r := float64(sizey / 2)
-	r2 := (r * r)
+	rx := float64(sizey / 2)
+	ry := float64(sizez / 2)
 
 	for i := 0; i < sizex; i++ {
 		for j := 0; j < sizey; j++ {
-			x := float64(j - sizey/2)
+			x := float64(j - sizey/2) + 0.5 // add 0.5 to be at the center of the cell, not a vertex (gives nicer round shape)
 			for k := 0; k < sizez; k++ {
-				y := float64(k - sizez/2)
-				if x*x+y*y <= r2 {
+				y := float64(k - sizez/2) + 0.5
+				if sqr(x/rx) + sqr(y/ry) <= 1 {
 					norm.Array()[i][j][k] = 1.
 				} else {
 					norm.Array()[i][j][k] = 0.
@@ -75,6 +75,9 @@ func (sim *Sim) Cylinder() {
 	TensorCopyTo(norm, sim.normMap)
 }
 
+func sqr(x float64) float64{
+  return x*x
+}
 
 // TODO: Defining the overall size and the (perhaps maximum) cell size,
 // and letting the program choose the number of cells would be handy.
