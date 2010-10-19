@@ -76,11 +76,11 @@ package sim
 // //
 // type LinearCombinationArgs struct {
 // 	A, B             uintptr
-// 	WeightA, WeightB float
+// 	WeightA, WeightB float32
 // 	N                int
 // }
 // 
-// func (d *RemoteDevice) linearCombination(a, b uintptr, weightA, weightB float, N int) {
+// func (d *RemoteDevice) linearCombination(a, b uintptr, weightA, weightB float32, N int) {
 // 	args := &LinearCombinationArgs{unsafe.Pointer(a), unsafe.Pointer(b), weightA, weightB, N}
 // 	reply := &Void{0}
 // 	err := d.Client.Call("DeviceWrapper.LinearCombination", args, reply)
@@ -91,11 +91,11 @@ package sim
 // 
 // type AddConstantArgs struct {
 // 	A    uintptr
-// 	Cnst float
+// 	Cnst float32
 // 	N    int
 // }
 // 
-// func (d *RemoteDevice) addConstant(a uintptr, cnst float, N int) {
+// func (d *RemoteDevice) addConstant(a uintptr, cnst float32, N int) {
 // 	args := &AddConstantArgs{unsafe.Pointer(a), cnst, N}
 // 	reply := &Void{0}
 // 	err := d.Client.Call("DeviceWrapper.AddConstant", args, reply)
@@ -134,11 +134,11 @@ package sim
 // 
 // type DeltaMArgs struct {
 // 	M, H             uintptr
-// 	Alpha, DtGilbert float
+// 	Alpha, DtGilbert float32
 // 	N                int
 // }
 // 
-// func (d *RemoteDevice) deltaM(m, h uintptr, alpha, dtGilbert float, N int) {
+// func (d *RemoteDevice) deltaM(m, h uintptr, alpha, dtGilbert float32, N int) {
 // 	args := &DeltaMArgs{unsafe.Pointer(m), unsafe.Pointer(h), alpha, dtGilbert, N}
 // 	reply := &Void{0}
 // 	err := d.Client.Call("DeviceWrapper.DeltaM", args, reply)
@@ -149,11 +149,11 @@ package sim
 // 
 // type SemianalStepArgs struct {
 // 	M, H      uintptr
-// 	Dt, Alpha float
+// 	Dt, Alpha float32
 // 	Order, N  int
 // }
 // 
-// func (d *RemoteDevice) semianalStep(m, h uintptr, dt, alpha float, order, N int) {
+// func (d *RemoteDevice) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {
 // 	var args = &SemianalStepArgs{unsafe.Pointer(m), unsafe.Pointer(h), dt, alpha, order, N}
 // 	reply := &Void{0}
 // 	err := d.Client.Call("DeviceWrapper.SemiAnalStep", &args, reply)

@@ -11,12 +11,12 @@ import (
 )
 
 type Vector struct {
-	Component [3]float
+	Component [3]float32
 }
 
 /** Implements Tensor interface. */
 
-func (v *Vector) Get(index []int) float {
+func (v *Vector) Get(index []int) float32 {
 	return v.Component[index[0]]
 }
 
@@ -24,10 +24,14 @@ func (v *Vector) Size() []int {
 	return []int{3}
 }
 
+func (v *Vector) List() []float32 {
+	return v.Component[:]
+}
+
 /** Vector-specific */
 
 func NewVector() *Vector {
-	return &Vector{[3]float{0., 0., 0.}}
+	return &Vector{[3]float32{0., 0., 0.}}
 }
 
 func UnitVector(direction int) *Vector {
@@ -36,7 +40,7 @@ func UnitVector(direction int) *Vector {
 	return v
 }
 
-func (v *Vector) Set(x, y, z float) {
+func (v *Vector) Set(x, y, z float32) {
 	v.Component[0] = x
 	v.Component[1] = y
 	v.Component[2] = z
@@ -48,12 +52,12 @@ func (v *Vector) SetTo(other *Vector) {
 	v.Component[2] = other.Component[2]
 }
 
-func (a *Vector) Dot(b *Vector) float {
+func (a *Vector) Dot(b *Vector) float32 {
 	return a.Component[0]*b.Component[0] + a.Component[1]*b.Component[1] + a.Component[2]*b.Component[2]
 }
 
-func (v *Vector) Norm() float {
-	return float(Sqrt(float64(v.Component[0]*v.Component[0] + v.Component[1]*v.Component[1] + v.Component[2]*v.Component[2])))
+func (v *Vector) Norm() float32 {
+	return float32(Sqrt(float64(v.Component[0]*v.Component[0] + v.Component[1]*v.Component[1] + v.Component[2]*v.Component[2])))
 }
 
 func (v *Vector) Normalize() {
@@ -63,13 +67,13 @@ func (v *Vector) Normalize() {
 	v.Component[2] *= invnorm
 }
 
-func (v *Vector) Scale(r float) {
+func (v *Vector) Scale(r float32) {
 	v.Component[0] *= r
 	v.Component[1] *= r
 	v.Component[2] *= r
 }
 
-func (v *Vector) Divide(r float) {
+func (v *Vector) Divide(r float32) {
 	v.Component[0] /= r
 	v.Component[1] /= r
 	v.Component[2] /= r

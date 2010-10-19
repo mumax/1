@@ -21,7 +21,7 @@ func TestPad(t *testing.T) {
 	host1, host2 := tensor.NewTensorN(small), tensor.NewTensorN(small)
 
 	for i := range host1.List() {
-		host1.List()[i] = float(i)
+		host1.List()[i] = float32(i)
 	}
 
 	TensorCopyTo(host1, dev1)
@@ -61,11 +61,11 @@ func TestStride(t *testing.T) {
 
 func TestZero(t *testing.T) {
 	N := 100
-	host := make([]float, N)
+	host := make([]float32, N)
 	dev := backend.newArray(N)
 
 	for i := range host {
-		host[i] = float(i)
+		host[i] = float32(i)
 	}
 
 	backend.memcpyTo(&host[0], dev, N)
@@ -78,7 +78,7 @@ func TestZero(t *testing.T) {
 		}
 	}
 	for i := N / 2; i < N; i++ {
-		if host[i] != float(i) {
+		if host[i] != float32(i) {
 			t.Fail()
 		}
 	}
@@ -87,11 +87,11 @@ func TestZero(t *testing.T) {
 
 func TestMemory(t *testing.T) {
 	N := 100
-	host1, host2 := make([]float, N), make([]float, N)
+	host1, host2 := make([]float32, N), make([]float32, N)
 	dev1, dev2 := backend.newArray(N), backend.newArray(N)
 
 	for i := range host1 {
-		host1[i] = float(i)
+		host1[i] = float32(i)
 	}
 
 	backend.memcpyTo(&host1[0], dev1, N)

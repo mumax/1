@@ -1,12 +1,11 @@
 # Micromagnetic standard problem 4
 # but 3D version
 
-# hardware selection
-gpu
+
 
 
 solvertype:  	heun
-dt:           	0.05E-12                  # s
+maxerror:       1E-5             
 
 # material
 msat:       	800E3       # A/m
@@ -18,7 +17,7 @@ size:       	2     32          128
 cellsize:   	1.5E-9  3.90625E-9  3.90625E-9  # m
 
 # initial magnetization
-load:    	s-state.t
+load:    	s-state.tensor
 
 
 # run

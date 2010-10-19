@@ -14,53 +14,31 @@ import (
 	"io"
 )
 
-
-// func main() {
-// 	t := Read(os.Stdin)
-// 	if Rank(t) != 2 {
-// 		panic("tensor.Tensor should have rank 2")
-// 	}
-// 	PNG(os.Stdout, t)
-// }
-
-func PNG(out io.Writer, t tensor.Tensor) {
+// Writes as png
+// TODO: rename
+func PNG(out io.Writer, t tensor.Interface) {
 	err := png.Encode(out, DrawTensor(t))
 	if err != nil {
 		panic(err)
 	}
 }
 
-func DrawTensor(t tensor.Tensor) *NRGBA {
-	// todo: we need to handle any rank
-	for tensor.Rank(t) == 4 {
-		t = tensor.Average(t, 1) //average over the thickness
-	}
+//TODO: currently slices x = 0
+//TODO: average, slice, ... ?
+func DrawTensor(t_ tensor.Interface) *NRGBA {
+	// todo: we need to handle any rank?
+	t := tensor.ToT4(t_)
+	// 	assert(t.TSize[0] == 3)
+	// result is rank3 2D vector field
 
-	// 	w, h := t.Size()[0], t.Size()[1]
-	// 	img := NewNRGBA(w, h)
-	// 	pos := []int{w, h}
-	// 	for i := 0; i < w; i++ {
-	// 		pos[X] = i
-	// 		for j := 0; j < h; j++ {
-	// 			pos[Y] = j
-	// 			img.Set(i, j, GreyMap(-1., 1., t.Get(pos)))
-	// 		}
-	// 	}
-	// 	return img
-
-	w, h := t.Size()[1], t.Size()[2]
+	w, h := t.Size()[2], t.Size()[3]
 	img := NewNRGBA(w, h)
-	pos := []int{0, w, h}
+	arr := t.Array()
 	for i := 0; i < w; i++ {
-		pos[1] = i
 		for j := 0; j < h; j++ {
-			pos[2] = j
-			pos[0] = X
-			x := t.Get(pos)
-			pos[0] = Y
-			y := t.Get(pos)
-			pos[0] = Z
-			z := t.Get(pos)
+			x := arr[X][0][i][j]
+			y := arr[Y][0][i][j]
+			z := arr[Z][0][i][j]
 			img.Set(i, j, HSLMap(z, y, x)) // TODO: x is thickness for now...
 		}
 	}
@@ -68,7 +46,7 @@ func DrawTensor(t tensor.Tensor) *NRGBA {
 
 }
 
-func GreyMap(min, max, value float) NRGBAColor {
+func GreyMap(min, max, value float32) NRGBAColor {
 	color := (value - min) / (max - min)
 	if color > 1. {
 		color = 1.
@@ -80,19 +58,19 @@ func GreyMap(min, max, value float) NRGBAColor {
 	return NRGBAColor{color8, color8, color8, 255}
 }
 
-func HSLMap(x, y, z float) NRGBAColor {
+func HSLMap(x, y, z float32) NRGBAColor {
 	s := fsqrt(x*x + y*y + z*z)
 	l := 0.5*z + 0.5
-	h := float(math.Atan2(float64(x), float64(y)))
+	h := float32(math.Atan2(float64(x), float64(y)))
 	return HSL(h, s, l)
 }
 
-func fsqrt(number float) float {
-	return float(math.Sqrt(float64(number)))
+func fsqrt(number float32) float32 {
+	return float32(math.Sqrt(float64(number)))
 }
 
 // h = 0..2pi, s=0..1, l=0..1
-func HSL(h, s, l float) NRGBAColor {
+func HSL(h, s, l float32) NRGBAColor {
 	if s > 1 {
 		s = 1
 	}
@@ -108,7 +86,7 @@ func HSL(h, s, l float) NRGBAColor {
 	h = h * (180.0 / math.Pi / 60.0)
 
 	// chroma
-	var c float
+	var c float32
 	if l <= 0.5 {
 		c = 2 * l * s
 	} else {
@@ -118,7 +96,7 @@ func HSL(h, s, l float) NRGBAColor {
 	x := c * (1 - abs(fmod(h, 2)-1))
 
 	var (
-		r, g, b float
+		r, g, b float32
 	)
 
 	switch {
@@ -145,7 +123,7 @@ func HSL(h, s, l float) NRGBAColor {
 }
 
 // modulo
-func fmod(number, mod float) float {
+func fmod(number, mod float32) float32 {
 	for number < mod {
 		number += mod
 	}
@@ -155,7 +133,7 @@ func fmod(number, mod float) float {
 	return number
 }
 
-func abs(number float) float {
+func abs(number float32) float32 {
 	if number < 0 {
 		return -number
 	} // else

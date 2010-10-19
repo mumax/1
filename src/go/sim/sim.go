@@ -33,13 +33,13 @@ import (
 // same as sim.dt (which is in internal units)
 //
 type Input struct {
-	aexch          float
-	msat           float
-	alpha          float
+	aexch          float32
+	msat           float32
+	alpha          float32
 	size           [3]int
-	cellSize       [3]float
+	cellSize       [3]float32
 	demag_accuracy int
-	dt             float
+	dt             float32
 	solvertype     string
 }
 
@@ -57,33 +57,34 @@ type Input struct {
 // TODO order of initialization is too important in input file, should be more versatile
 //
 type Sim struct {
-	input        Input           // stores the original input parameters in SI units
-	valid        bool            // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
-	BeenValid    bool            // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
-	backend      *Backend        // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
-	mLocal       *tensor.Tensor4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
-	normMap      *DevTensor      // Per-cell magnetization norm. nil means the norm is 1.0 everywhere.
-	Material                     // Stores material parameters and manages the internal units
-	Mesh                         // Stores the size of the simulation grid
-	Conv                         // Convolution plan for the magnetostatic field
-	AppliedField                 // returns the externally applied in function of time
-	hextSI       [3]float        // stores the externally applied field returned by AppliedField, in SI UNITS
-	mDev, h      *DevTensor      // magnetization/effective field on the device (GPU), 4D tensor
-	mComp, hComp [3]*DevTensor   // magnetization/field components, 3 x 3D tensors
-	Solver                       // Does the time stepping, can be euler, heun, ...
-	time         float64         // The total time (internal units)
-	dt           float           // The time step (internal units). May be updated by adaptive-step solvers
-	maxDm        float           // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
-	maxError     float           // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
-	stepError    float           // The actual error estimate of the last step. Not all solvers update this value.
-	steps        int             // The total number of steps taken so far
-	starttime    int64           // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
-	outschedule  []Output        // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
-	autosaveIdx  int             // Unique identifier of output state. Updated each time output is saved.
-	outputdir    string          // Where to save output files.
-	mUpToDate    bool            // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
-	silent       bool            // Do not print anything to os.Stdout when silent == true, only to log file
-	out          *os.File        // Output log file
+	input        Input             // stores the original input parameters in SI units
+	valid        bool              // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
+	BeenValid    bool              // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
+	backend      *Backend          // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
+	mLocal       *tensor.T4        // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
+	normMap      *DevTensor        // Per-cell magnetization norm. nil means the norm is 1.0 everywhere.
+	Material                       // Stores material parameters and manages the internal units
+	Mesh                           // Stores the size of the simulation grid
+	Conv                           // Convolution plan for the magnetostatic field
+	AppliedField                   // returns the externally applied in function of time
+	hextSI       [3]float32        // stores the externally applied field returned by AppliedField, in SI UNITS
+	mDev, h      *DevTensor        // magnetization/effective field on the device (GPU), 4D tensor
+	mComp, hComp [3]*DevTensor     // magnetization/field components, 3 x 3D tensors
+	Solver                         // Does the time stepping, can be euler, heun, ...
+	time         float64           // The total time (internal units)
+	dt           float32           // The time step (internal units). May be updated by adaptive-step solvers
+	maxDm        float32           // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
+	maxError     float32           // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
+	stepError    float32           // The actual error estimate of the last step. Not all solvers update this value.
+	steps        int               // The total number of steps taken so far
+	starttime    int64             // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
+	outschedule  []Output          // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
+	autosaveIdx  int               // Unique identifier of output state. Updated each time output is saved.
+	outputdir    string            // Where to save output files.
+	mUpToDate    bool              // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
+	silent       bool              // Do not print anything to os.Stdout when silent == true, only to log file
+	out          *os.File          // Output log file
+	metadata     map[string]string // Metadata to be added to headers of saved tensors
 }
 
 func New(outputdir string) *Sim {
@@ -97,8 +98,8 @@ func NewSim(outputdir string) *Sim {
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
 	sim.input.demag_accuracy = 8
-	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
-
+	sim.autosaveIdx = -1          // so we will start at 0 after the first increment
+	sim.input.solvertype = "heun" // the default for now. TODO change when a better one comes around
 	// We run the simulation with working directory = directory of input file
 	// This is neccesary, e.g., when a sim deamon is run from a directory other
 	// than the directory of the input file and files with relative paths are
@@ -107,7 +108,7 @@ func NewSim(outputdir string) *Sim {
 	fmt.Println("chdir ", workdir)
 	os.Chdir(workdir)
 	sim.outputDir(filename(outputdir))
-
+	sim.metadata = make(map[string]string)
 	sim.initWriters()
 	sim.invalidate() //just to make sure we will init()
 	return sim
@@ -143,13 +144,14 @@ func (s *Sim) initMLocal() {
 	s.initSize()
 	if s.mLocal == nil {
 		s.Println("Allocating local memory " + fmt.Sprint(s.size4D))
-		s.mLocal = tensor.NewTensor4(s.size4D[0:])
+		s.mLocal = tensor.NewT4(s.size4D[0:])
 	}
 
 	if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
 		s.Println("Resampling magnetization from ", s.mLocal.Size(), " to ", Size4D(s.input.size[0:]))
-		s.mLocal = resample(s.mLocal, Size4D(s.input.size[0:]))
+		s.mLocal = resample4(s.mLocal, Size4D(s.input.size[0:]))
 	}
+	// 	normalize(s.mLocal.Array())
 }
 
 // (Re-)initialize the simulation tree, necessary before running.
@@ -184,6 +186,10 @@ func (s *Sim) init() {
 	}
 	s.alpha = s.input.alpha
 
+	s.metadata["msat"] = fmt.Sprint(s.mSat)
+	s.metadata["aexch"] = fmt.Sprint(s.aExch)
+	s.metadata["alpha"] = fmt.Sprint(s.alpha)
+
 	// (2) Size must be set before memory allocation
 	s.initSize()
 	L := s.UnitLength()
@@ -216,11 +222,15 @@ func (s *Sim) init() {
 	}
 	// 	}
 
-
+	// allocate local storage for m
 	s.initMLocal()
 
+	// copy to GPU and normalize on the GPU, according to the normmap.
 	TensorCopyTo(s.mLocal, s.mDev)
-	// 	s.Normalize(s.mDev)
+	// 	s.Normalize(s.mDev) // mysteriously crashes
+	// then copy back to local so we can see the normalized initial state.
+	// (so m0000000.tensor is normalized)
+	// 	TensorCopyFrom(s.mDev, s.mLocal)
 
 	// (4) Calculate kernel & set up convolution
 
@@ -249,37 +259,6 @@ func (s *Sim) init() {
 	s.valid = true // we can start the real work now
 	s.BeenValid = true
 }
-
-
-// OBSOLETE: CLI flag
-// Set how much debug info is printed. Level=0,1,2 or 3 for none, normal, verbose and very verbose.
-// func (s *Sim) Verbosity(level int) {
-// 	Verbosity = level
-// 	// does not invalidate
-// }
-
-
-func resample(in *tensor.Tensor4, size2 []int) *tensor.Tensor4 {
-	assert(len(size2) == 4)
-	out := tensor.NewTensor4(size2)
-	out_a := out.Array()
-	in_a := in.Array()
-	size1 := in.Size()
-	for c := range out_a {
-		for i := range out_a[c] {
-			i1 := (i * size1[1]) / size2[1]
-			for j := range out_a[0][i] {
-				j1 := (j * size1[2]) / size2[2]
-				for k := range out_a[0][i][j] {
-					k1 := (k * size1[3]) / size2[3]
-					out_a[c][i][j][k] = in_a[c][i1][j1][k1]
-				}
-			}
-		}
-	}
-	return out
-}
-
 
 func (sim *Sim) Normalize(m *DevTensor) {
 	assert(len(m.size) == 4)

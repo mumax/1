@@ -21,9 +21,9 @@ import (
 )
 
 type StoredTensor interface {
-	Size() []int     // Tensor
-	Get([]int) float // Tensor
-	List() []float   // StoredTensor
+	Size() []int       // Tensor
+	Get([]int) float32 // Tensor
+	List() []float32   // StoredTensor
 }
 
 
@@ -89,24 +89,24 @@ func IndexUnchecked(size, indexarray []int) int {
  */
 
 func NewTensor0() *Tensor0 {
-	return &Tensor0{[]float{0.}}
+	return &Tensor0{[]float32{0.}}
 }
 
 type Tensor0 struct {
-	list []float
+	list []float32
 }
 
-func (t *Tensor0) Array() float {
+func (t *Tensor0) Array() float32 {
 	return t.list[0]
 }
 
-func (t *Tensor0) List() []float {
+func (t *Tensor0) List() []float32 {
 	return t.list
 }
 
 /** Implements Tensor interface. */
 
-func (t *Tensor0) Get(index []int) float {
+func (t *Tensor0) Get(index []int) float32 {
 	assert(len(index) == 0)
 	return t.list[0]
 }
@@ -121,14 +121,14 @@ func (t *Tensor0) Size() []int {
  */
 
 func NewTensor1(size []int) *Tensor1 {
-	return &Tensor1{make([]float, size[0])}
+	return &Tensor1{make([]float32, size[0])}
 }
 
 type Tensor1 struct {
-	list []float
+	list []float32
 }
 
-func (t *Tensor1) Array() []float {
+func (t *Tensor1) Array() []float32 {
 	return t.list
 }
 
@@ -136,13 +136,13 @@ func (t *Tensor1) Component(comp int) *Tensor0 {
 	return &Tensor0{t.list[comp:comp]}
 }
 
-func (t *Tensor1) List() []float {
+func (t *Tensor1) List() []float32 {
 	return t.list
 }
 
 /** Implements Tensor interface. */
 
-func (t *Tensor1) Get(index []int) float {
+func (t *Tensor1) Get(index []int) float32 {
 	assert(len(index) == 1)
 	return t.list[index[0]]
 }
@@ -162,11 +162,11 @@ func NewTensor2(size []int) *Tensor2 {
 }
 
 type Tensor2 struct {
-	array [][]float
-	list  []float
+	array [][]float32
+	list  []float32
 }
 
-func (t *Tensor2) Array() [][]float {
+func (t *Tensor2) Array() [][]float32 {
 	return t.array
 }
 
@@ -174,13 +174,13 @@ func (t *Tensor2) Component(comp int) *Tensor1 {
 	return &Tensor1{t.array[comp]}
 }
 
-func (t *Tensor2) List() []float {
+func (t *Tensor2) List() []float32 {
 	return t.list
 }
 
 /** Implements Tensor interface. */
 
-func (t *Tensor2) Get(index []int) float {
+func (t *Tensor2) Get(index []int) float32 {
 	assert(len(index) == 2)
 	return t.array[index[0]][index[1]]
 }
@@ -200,11 +200,11 @@ func NewTensor3(size []int) *Tensor3 {
 }
 
 type Tensor3 struct {
-	array [][][]float
-	list  []float
+	array [][][]float32
+	list  []float32
 }
 
-func (t *Tensor3) Array() [][][]float {
+func (t *Tensor3) Array() [][][]float32 {
 	return t.array
 }
 
@@ -215,13 +215,13 @@ func (t *Tensor3) Component(comp int) *Tensor2 {
 	// Upper bound is exclusive, so can be out of bounds. That's why we have to use IndexUnchecked().
 }
 
-func (t *Tensor3) List() []float {
+func (t *Tensor3) List() []float32 {
 	return t.list
 }
 
 /** Implements Tensor interface. */
 
-func (t *Tensor3) Get(index []int) float {
+func (t *Tensor3) Get(index []int) float32 {
 	assertMsg(len(index) == 3, "Tensor3.Get() needs index of dimension 3")
 	return t.array[index[0]][index[1]][index[2]]
 }
@@ -241,11 +241,11 @@ func NewTensor4(size []int) *Tensor4 {
 }
 
 type Tensor4 struct {
-	array [][][][]float
-	list  []float
+	array [][][][]float32
+	list  []float32
 }
 
-func (t *Tensor4) Array() [][][][]float {
+func (t *Tensor4) Array() [][][][]float32 {
 	return t.array
 }
 
@@ -255,13 +255,13 @@ func (t *Tensor4) Component(comp int) *Tensor3 {
 	return &Tensor3{t.array[comp], t.list[start:stop]}
 }
 
-func (t *Tensor4) List() []float {
+func (t *Tensor4) List() []float32 {
 	return t.list
 }
 
 /** Implements Tensor interface. */
 
-func (t *Tensor4) Get(index []int) float {
+func (t *Tensor4) Get(index []int) float32 {
 	assertMsg(len(index) == 4, "Tensor4.Get() needs index of dimension 4")
 	return t.array[index[0]][index[1]][index[2]][index[3]]
 }
@@ -281,11 +281,11 @@ func NewTensor5(size []int) *Tensor5 {
 }
 
 type Tensor5 struct {
-	array [][][][][]float
-	list  []float
+	array [][][][][]float32
+	list  []float32
 }
 
-func (t *Tensor5) Array() [][][][][]float {
+func (t *Tensor5) Array() [][][][][]float32 {
 	return t.array
 }
 
@@ -295,13 +295,13 @@ func (t *Tensor5) Component(comp int) *Tensor4 {
 	return &Tensor4{t.array[comp], t.list[start:stop]}
 }
 
-func (t *Tensor5) List() []float {
+func (t *Tensor5) List() []float32 {
 	return t.list
 }
 
 /** Implements Tensor interface. */
 
-func (t *Tensor5) Get(index []int) float {
+func (t *Tensor5) Get(index []int) float32 {
 	assertMsg(len(index) == 5, "Tensor5.Get() needs index of dimension 4")
 	return t.array[index[0]][index[1]][index[2]][index[3]][index[4]]
 }
@@ -324,13 +324,13 @@ func NewTensorN(size []int) *TensorN {
 		n *= size[i]
 	}
 
-	t := TensorN{size, make([]float, n)}
+	t := TensorN{size, make([]float32, n)}
 	return &t
 }
 
 type TensorN struct {
-	size []int   // size in x, y and z dimensions
-	list []float // data as a continous array
+	size []int     // size in x, y and z dimensions
+	list []float32 // data as a continous array
 }
 
 /** Implements Tensor */
@@ -339,14 +339,14 @@ func (t *TensorN) Size() []int {
 	return t.size
 }
 
-func (t *TensorN) Get(index []int) float {
+func (t *TensorN) Get(index []int) float32 {
 	i := Index(t.Size(), index)
 	return t.list[i]
 }
 
 /** Implements StoredTensor */
 
-func (t *TensorN) List() []float {
+func (t *TensorN) List() []float32 {
 	return t.list
 }
 
@@ -378,7 +378,7 @@ func DataAddress(t StoredTensor) unsafe.Pointer {
 
 /** Set element */
 
-func Set(t StoredTensor, index []int, value float) {
+func Set(t StoredTensor, index []int, value float32) {
 	i := Index(t.Size(), index)
 	t.List()[i] = value
 }
@@ -386,7 +386,7 @@ func Set(t StoredTensor, index []int, value float) {
 
 /** Set all elements to value */
 
-func SetAll(t StoredTensor, value float) {
+func SetAll(t StoredTensor, value float32) {
 	list := t.List()
 	for i := range list {
 		list[i] = value
@@ -446,15 +446,15 @@ func Buffer(t Tensor) StoredTensor {
 
 
 /** We mimic fftw's malloc here, so that the array is aligned for SIMD instructions. */
-func mallocAligned(size int) []float {
+func mallocAligned(size int) []float32 {
 	log.Stderr("mallocAligned(", size, ")")
-	array := make([]float, size)
+	array := make([]float32, size)
 	// better way: make array a bit too big and slice'em!, perhaps make it 32-bite aligned, to be sure.
 	CheckAlignment(array)
 	return array
 }
 
-func CheckAlignment(array []float) {
+func CheckAlignment(array []float32) {
 	i := ToInt(unsafe.Pointer(&array[0])) // replace by DataAddress;
 	if i%16 != 0 {
 		log.Crash("Misalignment, sorry...")

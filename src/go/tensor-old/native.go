@@ -46,16 +46,16 @@ func BytesToInt(bytes []byte) int {
 	return i
 }
 
-/** Converts a float to a slice of 4 bytes, using the machine's endianess. */
-func FloatToBytes(i float, bytes []byte) {
+/** Converts a float32 to a slice of 4 bytes, using the machine's endianess. */
+func FloatToBytes(i float32, bytes []byte) {
 	source := unsafe.Pointer(&i)
 	dest := unsafe.Pointer(&(bytes[0]))
 	C.array_copy(source, dest, 1)
 }
 
-/** Converts a slice of 4 bytes to a float, using the machine's endianess. */
-func BytesToFloat(bytes []byte) float {
-	var i float
+/** Converts a slice of 4 bytes to a float32, using the machine's endianess. */
+func BytesToFloat(bytes []byte) float32 {
+	var i float32
 	dest := unsafe.Pointer(&i)
 	source := unsafe.Pointer(&(bytes[0]))
 	C.array_copy(source, dest, 1)

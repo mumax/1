@@ -14,20 +14,20 @@ type Reductor struct {
 	*Backend
 	operation          int
 	devbuffer          uintptr
-	hostbuffer         []float
+	hostbuffer         []float32
 	blocks, threads, N int
 }
 
 // Reduces the data,
 // i.e., calucates the sum, maximum, ...
 // depending on the value of "operation".
-func (r *Reductor) Reduce(input *DevTensor) float {
+func (r *Reductor) Reduce(input *DevTensor) float32 {
 	assert(prod(input.size) == r.N)
 	return r.reduce(r.operation, input.data, r.devbuffer, &(r.hostbuffer[0]), r.blocks, r.threads, r.N)
 }
 
 // Unsafe version of Reduce().
-func (r *Reductor) reduce_(data uintptr) float {
+func (r *Reductor) reduce_(data uintptr) float32 {
 	return r.reduce(r.operation, data, r.devbuffer, &(r.hostbuffer[0]), r.blocks, r.threads, r.N)
 }
 
@@ -81,7 +81,7 @@ func (r *Reductor) init(b *Backend, N int) {
 	r.N = N
 
 	r.devbuffer = b.newArray(r.blocks)
-	r.hostbuffer = make([]float, r.blocks)
+	r.hostbuffer = make([]float32, r.blocks)
 }
 
 
@@ -96,9 +96,9 @@ func divUp(x, y int) int {
 // When there are only a few numbers left, it becomes more efficient
 // to reduce them on the CPU (we need a copy from the device anyway,
 // so why not copy a few numbers).
-func local_reduce(operation int, data []float) float {
+func local_reduce(operation int, data []float32) float32 {
 	fmt.Println(data)
-	result := 0.
+	result := float32(0.)
 	switch operation {
 	default:
 		panic("bug")

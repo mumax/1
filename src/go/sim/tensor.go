@@ -22,7 +22,7 @@ const (
 type DevTensor struct {
 	*Backend ///< wraps the Device where the Tensor resides on (GPU/CPU/...)
 	size     []int
-	data     uintptr // points to float array on the GPU/CPU
+	data     uintptr // points to float32 array on the GPU/CPU
 }
 
 // Allocates a new tensor on the device represented by Backend
@@ -46,16 +46,16 @@ func AsTensor(b *Backend, data uintptr, size []int) *DevTensor {
 	return &DevTensor{b, size, data}
 }
 
-func (t *DevTensor) Get(index []int) float {
-	i := tensor.Index(t.size, index)
-	return t.arrayGet(t.data, i)
-}
+// func (t *DevTensor) Get(index []int) float32 {
+// 	i := tensor.Index(t.size, index)
+// 	return t.arrayGet(t.data, i)
+// }
 
 
-func (t *DevTensor) Set(index []int, value float) {
-	i := tensor.Index(t.size, index)
-	t.arraySet(t.data, i, value)
-}
+// func (t *DevTensor) Set(index []int, value float32) {
+// 	i := tensor.Index(t.size, index)
+// 	t.arraySet(t.data, i, value)
+// }
 
 func (t *DevTensor) Size() []int {
 	return t.size
@@ -90,28 +90,28 @@ func assertEqualSize(sizeA, sizeB []int) {
 /// copies between two Tensors on the sim
 func TensorCopyOn(source, dest *DevTensor) {
 	assert(tensor.EqualSize(source.size, dest.size))
-	source.memcpyOn(source.data, dest.data, tensor.N(source))
+	source.memcpyOn(source.data, dest.data, tensor.Prod(source.Size()))
 }
 
 /// copies a tensor to the GPU
-func TensorCopyTo(source tensor.StoredTensor, dest *DevTensor) {
+func TensorCopyTo(source tensor.Interface, dest *DevTensor) {
 	///@todo sim.Set(), allow tensor.Tensor source, type switch for efficient copying
 	///@todo TensorCpy() with type switch for auto On/To/From
 	assert(tensor.EqualSize(source.Size(), dest.size))
-	dest.memcpyTo(&(source.List()[0]), dest.data, tensor.N(source))
+	dest.memcpyTo(&(source.List()[0]), dest.data, tensor.Prod(source.Size()))
 }
 
 /// copies a tensor to the GPU
-func TensorCopyFrom(source *DevTensor, dest tensor.StoredTensor) {
+func TensorCopyFrom(source *DevTensor, dest tensor.Interface) {
 	///@todo sim.Set(), allow tensor.Tensor source, type switch for efficient copying
 	///@todo TensorCpy() with type switch for auto On/To/From
 	assert(tensor.EqualSize(source.Size(), dest.Size()))
-	source.memcpyFrom(source.data, &(dest.List()[0]), tensor.N(source))
+	source.memcpyFrom(source.data, &(dest.List()[0]), tensor.Prod(source.Size()))
 }
 
 
 func ZeroTensor(t *DevTensor) {
-	t.zero(t.data, tensor.N(t))
+	t.zero(t.data, tensor.Prod(t.Size()))
 }
 
 
