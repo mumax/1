@@ -98,8 +98,8 @@ func NewSim(outputdir string) *Sim {
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
 	sim.input.demag_accuracy = 8
-	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
-
+	sim.autosaveIdx = -1          // so we will start at 0 after the first increment
+	sim.input.solvertype = "heun" // the default for now. TODO change when a better one comes around
 	// We run the simulation with working directory = directory of input file
 	// This is neccesary, e.g., when a sim deamon is run from a directory other
 	// than the directory of the input file and files with relative paths are
@@ -108,7 +108,7 @@ func NewSim(outputdir string) *Sim {
 	fmt.Println("chdir ", workdir)
 	os.Chdir(workdir)
 	sim.outputDir(filename(outputdir))
-
+	sim.metadata = make(map[string]string)
 	sim.initWriters()
 	sim.invalidate() //just to make sure we will init()
 	return sim
@@ -149,8 +149,9 @@ func (s *Sim) initMLocal() {
 
 	if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
 		s.Println("Resampling magnetization from ", s.mLocal.Size(), " to ", Size4D(s.input.size[0:]))
-		s.mLocal = resample(s.mLocal, Size4D(s.input.size[0:]))
+		s.mLocal = resample4(s.mLocal, Size4D(s.input.size[0:]))
 	}
+	// 	normalize(s.mLocal.Array())
 }
 
 // (Re-)initialize the simulation tree, necessary before running.
@@ -159,8 +160,6 @@ func (s *Sim) init() {
 		return //no work to do
 	}
 	s.Println("Initializing simulation state")
-
-  s.metadata = make(map[string]string)
 
 	dev := s.backend
 	// 	dev.InitBackend()
@@ -187,7 +186,9 @@ func (s *Sim) init() {
 	}
 	s.alpha = s.input.alpha
 
-  s.metadata["msat"] = fmt.Sprint(s.mSat)
+	s.metadata["msat"] = fmt.Sprint(s.mSat)
+	s.metadata["aexch"] = fmt.Sprint(s.aExch)
+	s.metadata["alpha"] = fmt.Sprint(s.alpha)
 
 	// (2) Size must be set before memory allocation
 	s.initSize()
@@ -221,11 +222,15 @@ func (s *Sim) init() {
 	}
 	// 	}
 
-
+	// allocate local storage for m
 	s.initMLocal()
 
+	// copy to GPU and normalize on the GPU, according to the normmap.
 	TensorCopyTo(s.mLocal, s.mDev)
-	// 	s.Normalize(s.mDev)
+	// 	s.Normalize(s.mDev) // mysteriously crashes
+	// then copy back to local so we can see the normalized initial state.
+	// (so m0000000.tensor is normalized)
+	// 	TensorCopyFrom(s.mDev, s.mLocal)
 
 	// (4) Calculate kernel & set up convolution
 
@@ -254,37 +259,6 @@ func (s *Sim) init() {
 	s.valid = true // we can start the real work now
 	s.BeenValid = true
 }
-
-
-// OBSOLETE: CLI flag
-// Set how much debug info is printed. Level=0,1,2 or 3 for none, normal, verbose and very verbose.
-// func (s *Sim) Verbosity(level int) {
-// 	Verbosity = level
-// 	// does not invalidate
-// }
-
-
-func resample(in *tensor.T4, size2 []int) *tensor.T4 {
-	assert(len(size2) == 4)
-	out := tensor.NewT4(size2)
-	out_a := out.Array()
-	in_a := in.Array()
-	size1 := in.Size()
-	for c := range out_a {
-		for i := range out_a[c] {
-			i1 := (i * size1[1]) / size2[1]
-			for j := range out_a[0][i] {
-				j1 := (j * size1[2]) / size2[2]
-				for k := range out_a[0][i][j] {
-					k1 := (k * size1[3]) / size2[3]
-					out_a[c][i][j][k] = in_a[c][i1][j1][k1]
-				}
-			}
-		}
-	}
-	return out
-}
-
 
 func (sim *Sim) Normalize(m *DevTensor) {
 	assert(len(m.size) == 4)

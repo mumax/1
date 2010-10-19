@@ -148,6 +148,16 @@ func removeExtension(str string) string {
 	return str[0:dotpos]
 }
 
+// Removes a filename path.
+// I.e., the part before the last /, if present.
+func removePath(str string) string {
+	slashpos := len(str) - 1
+	for slashpos >= 0 && str[slashpos] != '/' {
+		slashpos--
+	}
+	return str[slashpos+1:]
+}
+
 // Returns the parent directory of a file.
 // I.e., the part after the /, if present, is removed.
 // If there is no explicit path, "." is returned.

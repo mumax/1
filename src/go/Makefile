@@ -8,7 +8,7 @@ all:
 	make install -C refsh
 	make install -C sim
 
-# 	make -C outtools
+	make -C outtools
 # 	make -C tensor-main
 # 	make -C kernel-main
 # 	make -C config-main

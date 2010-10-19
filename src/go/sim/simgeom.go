@@ -9,6 +9,7 @@ package sim
 import (
 	"tensor"
 	"os"
+	"fmt"
 )
 
 // This file implements the methods for
@@ -40,30 +41,56 @@ func (s *Sim) CellSize(x, y, z float32) {
 	s.input.cellSize[X] = x
 	s.input.cellSize[Y] = y
 	s.input.cellSize[Z] = z
+	s.metadata["cellsize0"] = fmt.Sprint(x)
+	s.metadata["cellsize1"] = fmt.Sprint(y)
+	s.metadata["cellsize2"] = fmt.Sprint(z)
 	s.invalidate()
 }
 
-// Sets up the normMap for a cylinder geometry along Z
-// TODO: does not take into account the aspect ratio of the cells.
+func (sim *Sim) initNormMap() {
+	if sim.normMap == nil {
+		sim.normMap = NewTensor(sim.backend, Size3D(sim.mLocal.Size()))
+	}
+}
+
+func (sim *Sim) LoadMSat(file string) {
+	sim.initNormMap()
+	sim.Println("Loading space-dependent saturation magnetization (norm)", file)
+	in, err := os.Open(file, os.O_RDONLY, 0666)
+	defer in.Close()
+	if err != nil {
+		panic(err)
+	}
+	norm := tensor.ToT3(tensor.Read(in))
+	if !tensor.EqualSize(norm.Size(), sim.normMap.Size()){
+    norm = resample3(norm, sim.normMap.Size())
+  }
+	TensorCopyTo(norm, sim.normMap)
+	//TODO this should not invalidate the entire sim
+	sim.invalidate()
+}
+
+// Sets up the normMap for a (possibly ellipsoidal) cylinder geometry along Z.
+// Does not take into account the aspect ratio of the cells.
 func (sim *Sim) Cylinder() {
 	sim.initMLocal()
 	sim.Println("Geometry: cylinder")
 
-	sim.normMap = NewTensor(sim.backend, Size3D(sim.mLocal.Size()))
+	sim.initNormMap()
 	norm := tensor.NewT3(sim.normMap.Size())
 
 	sizex := sim.mLocal.Size()[1]
 	sizey := sim.mLocal.Size()[2]
 	sizez := sim.mLocal.Size()[3]
-	r := float64(sizey / 2)
-	r2 := (r * r)
+	rx := float64(sizey / 2)
+	ry := float64(sizez / 2)
 
 	for i := 0; i < sizex; i++ {
 		for j := 0; j < sizey; j++ {
-			x := float64(j - sizey/2)
+			x := float64(j-sizey/2) + 0.5 // add 0.5 to be at the center of the cell, not a vertex (gives nicer round shape)
 			for k := 0; k < sizez; k++ {
-				y := float64(k - sizez/2)
-				if x*x+y*y <= r2 {
+				y := float64(k-sizez/2) + 0.5
+				if sqr(x/rx)+sqr(y/ry) <= 1 {
 					norm.Array()[i][j][k] = 1.
 				} else {
 					norm.Array()[i][j][k] = 0.
@@ -75,6 +102,9 @@ func (sim *Sim) Cylinder() {
 	TensorCopyTo(norm, sim.normMap)
 }
 
+func sqr(x float64) float64 {
+	return x * x
+}
 
 // TODO: Defining the overall size and the (perhaps maximum) cell size,
 // and letting the program choose the number of cells would be handy.
