@@ -18,7 +18,7 @@ import (
 )
 
 // search for new input files every X s
-var DAEMON_WATCHTIME int = 2
+var DAEMON_WATCHTIME int = 10
 
 // printed before/after each daemon stdout message
 const (
