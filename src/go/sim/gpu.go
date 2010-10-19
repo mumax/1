@@ -18,14 +18,13 @@ float* gpu_array_offset(float* array, int index){
 import "C"
 import "unsafe"
 
-/**
- * This single file intefaces all the relevant CUDA func(d Gpu) tions with go
- * It only wraps the func(d Gpu) tions, higher level constructs and assetions
- * are in separate files like fft.go, ...
- *
- * @note cgo does not seem to like many cgofiles, so I put everything together here.
- * @author Arne Vansteenkiste
- */
+
+// This single file intefaces all the relevant CUDA func(d Gpu) tions with go
+// It only wraps the func(d Gpu) tions, higher level constructs and assetions
+// are in separate files like fft.go, ...
+//
+// NOTE cgo does not seem to like many cgofiles, so I put everything together here.
+//
 
 import (
 	"fmt"
@@ -50,20 +49,20 @@ func (d Gpu) add(a, b uintptr, N int) {
 	C.gpu_add((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.int(N))
 }
 
-func (d Gpu) madd(a uintptr, cnst float, b uintptr, N int) {
+func (d Gpu) madd(a uintptr, cnst float32, b uintptr, N int) {
 	C.gpu_madd((*C.float)(unsafe.Pointer(a)), C.float(cnst), (*C.float)(unsafe.Pointer(b)), C.int(N))
 }
 
-func (d Gpu) linearCombination(a, b uintptr, weightA, weightB float, N int) {
+func (d Gpu) linearCombination(a, b uintptr, weightA, weightB float32, N int) {
 	C.gpu_linear_combination((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(weightA), C.float(weightB), C.int(N))
 }
 
-func (d Gpu) addConstant(a uintptr, cnst float, N int) {
+func (d Gpu) addConstant(a uintptr, cnst float32, N int) {
 	C.gpu_add_constant((*C.float)(unsafe.Pointer(a)), C.float(cnst), C.int(N))
 }
 
-func (d Gpu) reduce(operation int, input, output uintptr, buffer *float, blocks, threads, N int) float {
-	return float(C.gpu_reduce(C.int(operation), (*C.float)(unsafe.Pointer(input)), (*C.float)(unsafe.Pointer(output)), (*C.float)(unsafe.Pointer(buffer)), C.int(blocks), C.int(threads), C.int(N)))
+func (d Gpu) reduce(operation int, input, output uintptr, buffer *float32, blocks, threads, N int) float32 {
+	return float32(C.gpu_reduce(C.int(operation), (*C.float)(unsafe.Pointer(input)), (*C.float)(unsafe.Pointer(output)), (*C.float)(unsafe.Pointer(buffer)), C.int(blocks), C.int(threads), C.int(N)))
 }
 
 func (d Gpu) normalize(m uintptr, N int) {
@@ -74,11 +73,11 @@ func (d Gpu) normalizeMap(m, normMap uintptr, N int) {
 	C.gpu_normalize_map((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(normMap)), C.int(N))
 }
 
-func (d Gpu) deltaM(m, h uintptr, alpha, dtGilbert float, N int) {
+func (d Gpu) deltaM(m, h uintptr, alpha, dtGilbert float32, N int) {
 	C.gpu_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha), C.float(dtGilbert), C.int(N))
 }
 
-func (d Gpu) semianalStep(m, h uintptr, dt, alpha float, order, N int) {
+func (d Gpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {
 	switch order {
 	default:
 		panic(fmt.Sprintf("Unknown semianal order:", order))
@@ -121,7 +120,7 @@ func (d Gpu) copyPadded(source, dest uintptr, sourceSize, destSize []int, direct
 func (d Gpu) newFFTPlan(dataSize, logicSize []int) uintptr {
 	Csize := (*C.int)(unsafe.Pointer(&dataSize[0]))
 	CpaddedSize := (*C.int)(unsafe.Pointer(&logicSize[0]))
-	return uintptr(unsafe.Pointer(C.new_gpuFFT3dPlanArne_padded(Csize, CpaddedSize)))
+	return uintptr(unsafe.Pointer(C.new_gpuFFT3dPlan_padded(Csize, CpaddedSize)))
 }
 
 
@@ -130,9 +129,9 @@ func (d Gpu) fft(plan uintptr, in, out uintptr, direction int) {
 	default:
 		panic(fmt.Sprintf("Unknown FFT direction:", direction))
 	case FFT_FORWARD:
-		C.gpuFFT3dPlanArne_forward((*C.gpuFFT3dPlanArne)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
+		C.gpuFFT3dPlan_forward((*C.gpuFFT3dPlan)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
 	case FFT_INVERSE:
-		C.gpuFFT3dPlanArne_inverse((*C.gpuFFT3dPlanArne)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
+		C.gpuFFT3dPlan_inverse((*C.gpuFFT3dPlan)(unsafe.Pointer(plan)), (*C.float)(unsafe.Pointer(in)), (*C.float)(unsafe.Pointer(out)))
 	}
 }
 

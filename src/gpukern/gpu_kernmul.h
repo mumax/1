@@ -29,6 +29,19 @@ void gpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
                     float* fftKyz, float* fftKxz, float* fftKxy,
                     int nRealNumbers);
 
+void gpu_kernelmul4(float *fftMx,  float *fftMy, float *fftMz, 
+                    float *fftKxx, float *fftKyy, float *fftKzz, 
+                    float *fftKyz, 
+                    int nRealNumbers
+                    );
+
+void gpu_kernelmul3(float *fftMy, float *fftMz, 
+                    float *fftKyy, float *fftKzz, 
+                    float *fftKyz, 
+                    int nRealNumbers
+                    );
+
+
 #ifdef __cplusplus
 }
 #endif

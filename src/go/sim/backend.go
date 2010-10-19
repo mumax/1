@@ -44,17 +44,17 @@ func NewBackend(d Device) *Backend {
 // 	}
 // }
 
-// Copies a number of floats from host to GPU
-func (dev *Backend) memcpyTo(source *float, dest uintptr, nFloats int) {
+// Copies a number of float32s from host to GPU
+func (dev *Backend) memcpyTo(source *float32, dest uintptr, nFloats int) {
 	dev.memcpy(uintptr(unsafe.Pointer(source)), dest, nFloats, CPY_TO)
 }
 
-// Copies a number of floats from GPU to host
-func (dev *Backend) memcpyFrom(source uintptr, dest *float, nFloats int) {
+// Copies a number of float32s from GPU to host
+func (dev *Backend) memcpyFrom(source uintptr, dest *float32, nFloats int) {
 	dev.memcpy(source, uintptr(unsafe.Pointer(dest)), nFloats, CPY_FROM)
 }
 
-// Copies a number of floats from GPU to GPU
+// Copies a number of float32s from GPU to GPU
 func (dev *Backend) memcpyOn(source, dest uintptr, nFloats int) {
 	dev.memcpy(source, dest, nFloats, CPY_ON)
 }
@@ -69,17 +69,17 @@ func (dev *Backend) copyUnpad(source, dest uintptr, sourceSize, destSize []int) 
 	dev.copyPadded(source, dest, sourceSize, destSize, CPY_UNPAD)
 }
 
-// Gets one float from a Device array.
+// Gets one float32 from a Device array.
 // Slow, for debug only
-func (dev *Backend) arrayGet(array uintptr, index int) float {
-	var f float
+func (dev *Backend) arrayGet(array uintptr, index int) float32 {
+	var f float32
 	dev.memcpyFrom(dev.arrayOffset(array, index), &f, 1)
 	return f
 }
 
-// Sets one float on a Device array.
+// Sets one float32 on a Device array.
 // Slow, for debug only
-func (dev *Backend) arraySet(array uintptr, index int, value float) {
+func (dev *Backend) arraySet(array uintptr, index int, value float32) {
 	dev.memcpyTo(&value, dev.arrayOffset(array, index), 1)
 }
 
@@ -87,24 +87,24 @@ func (dev *Backend) arraySet(array uintptr, index int, value float) {
 // a[i] += b[i]
 func (dev *Backend) Add(a, b *DevTensor) {
 	assert(tensor.EqualSize(a.size, b.size))
-	dev.add(a.data, b.data, tensor.N(a))
+	dev.add(a.data, b.data, tensor.Prod(a.Size()))
 }
 
 // a[i] += b[i]
-func (dev *Backend) MAdd(a *DevTensor, cnst float, b *DevTensor) {
+func (dev *Backend) MAdd(a *DevTensor, cnst float32, b *DevTensor) {
 	assert(tensor.EqualSize(a.size, b.size))
-	dev.madd(a.data, cnst, b.data, tensor.N(a))
+	dev.madd(a.data, cnst, b.data, tensor.Prod(a.Size()))
 }
 
 // a[i]  = weightA * a[i] + weightB * b[i]
-func (dev *Backend) LinearCombination(a, b *DevTensor, weightA, weightB float) {
+func (dev *Backend) LinearCombination(a, b *DevTensor, weightA, weightB float32) {
 	assert(tensor.EqualSize(a.size, b.size))
-	dev.linearCombination(a.data, b.data, weightA, weightB, tensor.N(a))
+	dev.linearCombination(a.data, b.data, weightA, weightB, tensor.Prod(a.Size()))
 }
 
 // a[i] += cnst
-func (dev *Backend) AddConstant(a *DevTensor, cnst float) {
-	dev.addConstant(a.data, cnst, tensor.N(a))
+func (dev *Backend) AddConstant(a *DevTensor, cnst float32) {
+	dev.addConstant(a.data, cnst, tensor.Prod(a.Size()))
 }
 
 // func (dev *Backend) Normalize(m *DevTensor) {
@@ -115,7 +115,7 @@ func (dev *Backend) AddConstant(a *DevTensor, cnst float) {
 
 
 // calculates torque * dt, overwrites h with the result
-func (dev *Backend) DeltaM(m, h *DevTensor, alpha, dtGilbert float) {
+func (dev *Backend) DeltaM(m, h *DevTensor, alpha, dtGilbert float32) {
 	assert(len(m.size) == 4)
 	assert(tensor.EqualSize(m.size, h.size))
 	N := m.size[1] * m.size[2] * m.size[3]
@@ -124,7 +124,7 @@ func (dev *Backend) DeltaM(m, h *DevTensor, alpha, dtGilbert float) {
 
 
 // calculates torque, overwrites h with the result
-func (dev *Backend) Torque(m, h *DevTensor, alpha float) {
+func (dev *Backend) Torque(m, h *DevTensor, alpha float32) {
 	assert(len(m.size) == 4)
 	assert(tensor.EqualSize(m.size, h.size))
 	N := m.size[1] * m.size[2] * m.size[3]

@@ -30,7 +30,7 @@ type Conv struct {
 // The size of the kernel componenents (Kxx, Kxy, ...) must be at least the size of the input data,
 // but may be larger. Typically, there will be zero-padding by a factor of 2. e.g. the kernel
 // size may be 8 x 64 x 64.
-func NewConv(backend *Backend, dataSize []int, kernel []*tensor.Tensor3) *Conv {
+func NewConv(backend *Backend, dataSize []int, kernel []*tensor.T3) *Conv {
 	// size checks
 	kernelSize := kernel[XX].Size()
 	assert(len(dataSize) == 3)
@@ -100,7 +100,7 @@ func (conv *Conv) Convolve(source, dest *DevTensor) {
 // After FFT'ing, the kernel is purely real,
 // so we discard the imaginary parts.
 // This saves a huge amount of memory
-func (conv *Conv) loadKernel6(kernel []*tensor.Tensor3) {
+func (conv *Conv) loadKernel6(kernel []*tensor.T3) {
 
 	for _, k := range kernel {
 		if k != nil {
@@ -109,10 +109,10 @@ func (conv *Conv) loadKernel6(kernel []*tensor.Tensor3) {
 	}
 
 	fft := NewFFT(conv.Backend, conv.LogicSize())
-	norm := 1.0 / float(fft.Normalization())
+	norm := 1.0 / float32(fft.Normalization())
 	devIn := NewTensor(conv.Backend, conv.LogicSize())
 	devOut := NewTensor(conv.Backend, fft.PhysicSize())
-	hostOut := tensor.NewTensor3(fft.PhysicSize())
+	hostOut := tensor.NewT3(fft.PhysicSize())
 
 	for i := range conv.kernel {
 		TensorCopyTo(kernel[i], devIn)

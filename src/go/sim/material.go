@@ -12,11 +12,11 @@ import (
 )
 
 type Material struct {
-	aExch  float // Exchange constant in J/m
-	mSat   float // Saturation magnetization in A/m
-	mu0    float // mu0 in N/A^2
-	gamma0 float // Gyromagnetic ratio in m/As
-	alpha  float // Damping parameter
+	aExch  float32 // Exchange constant in J/m
+	mSat   float32 // Saturation magnetization in A/m
+	mu0    float32 // mu0 in N/A^2
+	gamma0 float32 // Gyromagnetic ratio in m/As
+	alpha  float32 // Damping parameter
 }
 
 
@@ -39,28 +39,28 @@ func (mat *Material) InitMaterial() {
 //  ENERGY = A * LENGTH
 
 // The internal unit of length, expressed in meters.
-func (mat *Material) UnitLength() float {
+func (mat *Material) UnitLength() float32 {
 	assert(mat.Valid())
-	return float(Sqrt(2. * float64(mat.aExch/(mat.mu0*mat.mSat*mat.mSat))))
+	return float32(Sqrt(2. * float64(mat.aExch/(mat.mu0*mat.mSat*mat.mSat))))
 }
 
 
 // The internal unit of time, expressed in seconds.
-func (mat *Material) UnitTime() float {
+func (mat *Material) UnitTime() float32 {
 	assert(mat.Valid())
 	return 1.0 / (mat.gamma0 * mat.mSat)
 }
 
 
 // The internal unit of field, expressed in tesla.
-func (mat *Material) UnitField() float {
+func (mat *Material) UnitField() float32 {
 	assert(mat.Valid())
 	return mat.mu0 * mat.mSat
 }
 
 
 // The internal unit of energy, expressed in J.
-func (mat *Material) UnitEnergy() float {
+func (mat *Material) UnitEnergy() float32 {
 	assert(mat.Valid())
 	return mat.aExch * mat.UnitLength()
 }

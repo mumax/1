@@ -63,19 +63,19 @@ func TestFFTPadded(t *testing.T) {
 		TensorCopyFrom(devPTT, hostPTT)
 
 		var (
-			errorTT  float = 0
-			errorPTT float = 0
-			errorTPT float = 0
+			errorTT  float32 = 0
+			errorPTT float32 = 0
+			errorTPT float32 = 0
 		)
 		fmt.Println("normalization:", fft.Normalization(), fftP.Normalization())
 		for i := range hostTT.List() {
-			hostTT.List()[i] /= float(fft.Normalization())
+			hostTT.List()[i] /= float32(fft.Normalization())
 			if abs(host.List()[i]-hostTT.List()[i]) > errorTT {
 				errorTT = abs(host.List()[i] - hostTT.List()[i])
 			}
 		}
 		for i := range hostPTT.List() {
-			hostPTT.List()[i] /= float(fftP.Normalization())
+			hostPTT.List()[i] /= float32(fftP.Normalization())
 			if abs(hostP.List()[i]-hostPTT.List()[i]) > errorPTT {
 				errorPTT = abs(hostP.List()[i] - hostPTT.List()[i])
 			}
@@ -111,7 +111,7 @@ func TestFFT(t *testing.T) {
 	// 		host1, host2 := tensor.NewTensorN(size), tensor.NewTensorN(size)
 	// 
 	// 		for i := 0; i < tensor.N(host1); i++ {
-	// 			host1.List()[i] = rand.Float() //float(i%100) / 100
+	// 			host1.List()[i] = rand.Float() //float32(i%100) / 100
 	// 		}
 	// 
 	// 		// 		host1.List()[0] = 1.
@@ -125,8 +125,8 @@ func TestFFT(t *testing.T) {
 	// 		tensor.Format(os.Stdout, devIn)
 	// 		TensorCopyFrom(devIn, host2)
 	// 
-	// 		N := float(fft.Normalization())
-	// 		var maxError float = 0
+	// 		N := float32(fft.Normalization())
+	// 		var maxError float32 = 0
 	// 		for i := range host2.List() {
 	// 			host2.List()[i] /= N
 	// 			if abs(host2.List()[i]-host1.List()[i]) > maxError {
@@ -143,7 +143,7 @@ func TestFFT(t *testing.T) {
 }
 
 
-// func abs(r float) float {
+// func abs(r float32) float32 {
 // 	if r < 0 {
 // 		return -r
 // 	}

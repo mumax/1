@@ -6,11 +6,6 @@
 
 package sim
 
-import (
-	// 	"fmt"
-	"tensor"
-)
-
 
 // 3D real-to-complex / complex-to-real transform. Handles zero-padding efficiently (if applicable)
 type FFT struct {
@@ -55,8 +50,8 @@ func NewFFTPadded(b *Backend, dataSize, logicSize []int) *FFT {
 
 func (fft *FFT) Forward(in, out *DevTensor) {
 	// size checks
-	assert(tensor.Rank(in) == 3)
-	assert(tensor.Rank(out) == 3)
+	assert(len(in.Size()) == 3) // rank should be 3
+	assert(len(out.Size()) == 3)
 	for i, s := range fft.dataSize {
 		assert(in.size[i] == s)
 	}
@@ -70,8 +65,8 @@ func (fft *FFT) Forward(in, out *DevTensor) {
 
 func (fft *FFT) Inverse(in, out *DevTensor) {
 	// size checks
-	assert(tensor.Rank(in) == 3)
-	assert(tensor.Rank(out) == 3)
+	assert(len(in.Size()) == 3)
+	assert(len(out.Size()) == 3)
 	for i, s := range fft.physicSize {
 		assert(in.size[i] == s)
 	}
@@ -90,7 +85,7 @@ func (fft *FFT) InverseInplace(data *DevTensor) {
 
 /**
  * The physical size (needed for storage) corresponding to this
- * FFT's logical size. It is at least 2 floats larger in the Z dimension,
+ * FFT's logical size. It is at least 2 float32s larger in the Z dimension,
  * and usually even more due to GPU striding.
  */
 func (fft *FFT) PhysicSize() []int {

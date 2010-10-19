@@ -4,25 +4,22 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-package tensor
+package iotool
 
-type Resampled struct {
-	original Tensor
-	size     []int
-}
+import (
+	"testing"
+	"os"
+	"fmt"
+)
 
-func (t *Resampled) Size() []int {
-	return t.size
-}
-
-func (t *Resampled) Get(index []int) float {
-	index2 := make([]int, len(index))
-	for i := range index {
-		index2[i] = (index[i] * t.size[i]) / t.original.Size()[i]
+func TestReadline(test *testing.T) {
+	in, err := os.Open("test.in", os.O_RDONLY, 0666)
+	if err != nil {
+		test.Fail()
+		return
 	}
-	return t.original.Get(index2)
-}
 
-func Resample(t Tensor, size []int) Tensor {
-	return &Resampled{t, size}
+	for line, eof := ReadLine(in); !eof; line, eof = ReadLine(in) {
+		fmt.Println(line)
+	}
 }

@@ -44,7 +44,7 @@ func (t *TensorSlice) Size() []int {
 	return t.size
 }
 
-func (t *TensorSlice) Get(index []int) float {
+func (t *TensorSlice) Get(index []int) float32 {
 
 	bigindex := make([]int, Rank(t.Tensor))
 	for i := 0; i < t.dim; i++ {
@@ -71,7 +71,7 @@ type TransposedTensor struct {
 	size []int
 }
 
-func (t *TransposedTensor) Get(index []int) (v float) {
+func (t *TransposedTensor) Get(index []int) (v float32) {
 	// swap
 	index[t.x], index[t.y] = index[t.y], index[t.x]
 	v = t.Tensor.Get(index)
@@ -104,7 +104,7 @@ type NormalizedTensor struct {
 	dim int
 }
 
-func (t *NormalizedTensor) Get(index []int) float {
+func (t *NormalizedTensor) Get(index []int) float32 {
 	size := t.Tensor.Size()
 
 	// make an index for going through the direction over which we normalize
@@ -121,7 +121,7 @@ func (t *NormalizedTensor) Get(index []int) float {
 		norm2 += float64(value * value)
 	}
 
-	return t.Tensor.Get(index) / float(Sqrt(norm2))
+	return t.Tensor.Get(index) / float32(Sqrt(norm2))
 }
 
 //_____________________________________________________________________ average
@@ -151,7 +151,7 @@ func (t *TensorAverage) Size() []int {
 	return t.size
 }
 
-func (t *TensorAverage) Get(index []int) float {
+func (t *TensorAverage) Get(index []int) float32 {
 
 	bigindex := make([]int, Rank(t.Tensor))
 	for i := 0; i < t.dim; i++ {
@@ -166,7 +166,7 @@ func (t *TensorAverage) Get(index []int) float {
 		bigindex[t.dim] = i
 		sum += float64(t.Tensor.Get(bigindex))
 	}
-	return float(sum / float64(t.Tensor.Size()[t.dim]))
+	return float32(sum / float64(t.Tensor.Size()[t.dim]))
 }
 
 //_____________________________________________________________________ sum
@@ -177,7 +177,7 @@ type TensorSum struct {
 
 func (t *TensorSum) Size() []int { return t.t1.Size() }
 
-func (t *TensorSum) Get(index []int) float { return t.t1.Get(index) + t.t2.Get(index) }
+func (t *TensorSum) Get(index []int) float32 { return t.t1.Get(index) + t.t2.Get(index) }
 
 func Add(t1, t2 Tensor) *TensorSum {
 	assert(EqualSize(t1.Size(), t2.Size()))
@@ -197,7 +197,7 @@ func (t *TensorTotal) Size() []int {
 	return []int{} // a scalar
 }
 
-func (t *TensorTotal) Get(index []int) float {
+func (t *TensorTotal) Get(index []int) float32 {
 	assert(len(index) == 0)
 
 	sum := float64(0.0)
@@ -205,7 +205,7 @@ func (t *TensorTotal) Get(index []int) float {
 	for it := NewIterator(t); it.HasNext(); it.Next() {
 		sum += float64(t.Get(it.Index()))
 	}
-	return float(sum)
+	return float32(sum)
 }
 
 func Total(t Tensor) *TensorTotal { return &TensorTotal{t} }

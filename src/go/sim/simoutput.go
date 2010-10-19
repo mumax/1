@@ -17,12 +17,9 @@ import (
 	"fmt"
 	"tensor"
 	"os"
-	"bufio"
 	"tabwriter"
 )
 
-// bufio buffer size (bytes)
-const IOBUF = 4096
 
 // Sets the output directory where all output files are stored
 func (s *Sim) outputDir(outputdir string) {
@@ -41,7 +38,7 @@ func (s *Sim) outputDir(outputdir string) {
 // Schedules a quantity for autosave
 // We use SI units! So that the autosave information is independent of the material parameters!
 // E.g.: "autosave m binary 1E-9" will save the magnetization in binary format every ns
-func (s *Sim) Autosave(what, format string, interval float) {
+func (s *Sim) Autosave(what, format string, interval float32) {
 	// interval in SI units
 	s.outschedule = s.outschedule[0 : len(s.outschedule)+1]
 	output := resolve(what, format)
@@ -52,6 +49,7 @@ func (s *Sim) Autosave(what, format string, interval float) {
 // Saves a quantity just once
 // E.g.: "save m binary" saves the current magnetization state
 func (s *Sim) Save(what, format string) {
+	s.init() // We must init() so m gets Normalized etc...
 	output := resolve(what, format)
 	s.assureMUpToDate()
 	output.Save(s)
@@ -63,26 +61,26 @@ func (s *Sim) Save(what, format string) {
 // INTERNAL: Entries in the list of scheduled output have this interface
 type Output interface {
 	// Set the autosave interval in seconds - SI units!
-	SetInterval(interval float)
+	SetInterval(interval float32)
 	// Returns true if the output needs to saved at this time - SI units!
-	NeedSave(time float) bool
+	NeedSave(time float32) bool
 	// After NeedSave() returned true, the simulation will make sure the local copy of m is up to date and the autosaveIdx gets updated. Then Save() is called to save the output
 	Save(sim *Sim)
 }
 
 // INTERNAL: Common superclass for all periodic outputs
 type Periodic struct {
-	period      float
-	sinceoutput float
+	period      float32
+	sinceoutput float32
 }
 
 // INTERNAL
-func (p *Periodic) NeedSave(time float) bool {
+func (p *Periodic) NeedSave(time float32) bool {
 	return time == 0. || time-p.sinceoutput >= p.period
 }
 
 // INTERNAL
-func (p *Periodic) SetInterval(interval float) {
+func (p *Periodic) SetInterval(interval float32) {
 	p.period = interval
 }
 
@@ -93,7 +91,7 @@ func (p *Periodic) SetInterval(interval float) {
 func resolve(what, format string) Output {
 	switch what {
 	default:
-		panic("unknown output quantity " + what + ". options are: m")
+		panic("unknown output quantity " + what + ". options are: m, table")
 	case "m":
 		switch format {
 		default:
@@ -117,16 +115,12 @@ func resolve(what, format string) Output {
 //__________________________________________ ascii
 
 // Opens a file for writing 
-func bufOpen(filename string) *bufio.Writer {
-	out, err := os.Open(filename, os.O_WRONLY|os.O_CREAT, 0666)
+func fopen(filename string) *os.File {
+	file, err := os.Open(filename, os.O_WRONLY|os.O_CREAT, 0666)
 	if err != nil {
 		panic(err)
 	}
-	writer, err2 := bufio.NewWriterSize(out, IOBUF)
-	if err2 != nil {
-		panic(err2)
-	}
-	return writer
+	return file
 }
 
 
@@ -142,11 +136,11 @@ const FILENAME_FORMAT = "%08d"
 
 // INTERNAL
 func (m *MAscii) Save(s *Sim) {
-	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".txt"
-	out := bufOpen(fname)
-	defer out.Flush()
-	tensor.Format(out, s.mLocal)
-	m.sinceoutput = float(s.time) * s.UnitTime()
+	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
+	file := fopen(fname)
+	defer file.Close()
+	tensor.WriteMetaTensorAscii(file, s.mLocal, s.metadata)
+	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
 type Table struct {
@@ -173,18 +167,18 @@ func (t *Table) Save(s *Sim) {
 		fmt.Fprintln(t.out, TABLE_HEADER)
 	}
 	mx, my, mz := m_average(s.mLocal)
-// 	B := s.UnitField()
-	fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float(s.time)*s.UnitTime(), mx, my, mz)
+	// 	B := s.UnitField()
+	fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float32(s.time)*s.UnitTime(), mx, my, mz)
 	fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", s.hextSI[X], s.hextSI[Y], s.hextSI[Z])
 	fmt.Fprintf(t.out, "%.5g\t", s.dt*s.UnitTime())
 	fmt.Fprintf(t.out, "%.4g\t", s.stepError)
 	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
 	fmt.Fprintln(t.out)
 	t.out.Flush()
-	t.sinceoutput = float(s.time) * s.UnitTime()
+	t.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
-func m_average(m *tensor.Tensor4) (mx, my, mz float) {
+func m_average(m *tensor.T4) (mx, my, mz float32) {
 	count := 0
 	a := m.Array()
 	for i := range a[0] {
@@ -197,9 +191,9 @@ func m_average(m *tensor.Tensor4) (mx, my, mz float) {
 			}
 		}
 	}
-	mx /= float(count)
-	my /= float(count)
-	mz /= float(count)
+	mx /= float32(count)
+	my /= float32(count)
+	mz /= float32(count)
 	return
 }
 
@@ -211,10 +205,14 @@ type MBinary struct {
 }
 
 // INTERNAL
+// TODO: files are not closed?
+// TODO/ also for writeAscii
 func (m *MBinary) Save(s *Sim) {
-	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".t"
-	tensor.WriteFile(fname, s.mLocal)
-	m.sinceoutput = float(s.time) * s.UnitTime()
+	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
+	out := fopen(fname)
+	defer out.Close()
+	tensor.WriteMetaTensorBinary(out, s.mLocal, s.metadata)
+	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
 
@@ -228,8 +226,8 @@ type MPng struct {
 // INTERNAL
 func (m *MPng) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".png"
-	out := bufOpen(fname)
-	defer out.Flush()
+	out := fopen(fname)
+	// 	defer out.Flush()
 	PNG(out, s.mLocal)
-	m.sinceoutput = float(s.time) * s.UnitTime()
+	m.sinceoutput = float32(s.time) * s.UnitTime()
 }

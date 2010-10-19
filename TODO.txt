@@ -21,10 +21,10 @@ GeeMags
 TODO (Arne)
 
 * save m "filename"
-* alphabetic sorting of files looked at by daemon
 * cluster queue scripts: rmall UNFINISHED (includes running, but also when only the dir was made), rmall crahsed, status, ...
 * do not use os.Exit() but sim.Exit() which removes running file -> replace by "crashed" or something
 * when sim daemon is killed it should clean up its unfinished output dir
+* when sim daemon child process crashes, it should either clean up (but not run it again) or rename the status file to crashed
 * it seems CUFFT allocates memory for its FFT plans, check if this is a lot!
 * bigfft
 * higher-order solvers
@@ -35,5 +35,4 @@ TODO (Arne)
    steptime performance
    Bx, By, Bz
    mx, my, mz
-* tensor package is not idiomatic Go. Should use [][][]float as much as possible and cast it to a tensor only when needed.
 * compatibility with OOMMF ovf format so people can use existing tools.

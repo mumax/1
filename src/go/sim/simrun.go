@@ -6,7 +6,9 @@
 
 package sim
 
-import ()
+import (
+	"fmt"
+)
 
 // This file implements the methods for time stepping
 
@@ -16,12 +18,14 @@ func (s *Sim) Run(time float64) {
 	s.Println("Running for ", time, "s")
 	time /= float64(s.UnitTime())
 	stop := s.time + time
+	s.Normalize(s.mDev)
+	s.mUpToDate = false
 
 	for s.time < stop {
 
 		// save output if so scheduled
 		for _, out := range s.outschedule {
-			if out.NeedSave(float(s.time) * s.UnitTime()) { // output entries want SI units
+			if out.NeedSave(float32(s.time) * s.UnitTime()) { // output entries want SI units
 				// assure the local copy of m is up to date and increment the autosave counter if neccesary
 				s.assureMUpToDate()
 				// save
@@ -56,4 +60,5 @@ func (s *Sim) assureMUpToDate() {
 		s.autosaveIdx++
 		s.mUpToDate = true
 	}
+	s.metadata["time"] = fmt.Sprint(s.time * float64(s.UnitTime()))
 }

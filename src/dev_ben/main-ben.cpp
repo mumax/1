@@ -132,7 +132,8 @@ param* read_param(){
   double L = unitlength(p);
   printf("unitlength: %e\n", L);
   
-  p->cellSize[X] = 3.0E-9 / L;
+  p->cellSize[X] = 1.5E-9 / L;
+//   p->cellSize[X] = 3.0E-9 / L;
   p->cellSize[Y] = 3.90625E-9 / L;
   p->cellSize[Z] = 3.90625E-9 / L;
 

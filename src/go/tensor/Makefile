@@ -3,21 +3,17 @@ PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 
 TARG=tensor
 
-CGOFILES=native.go
-
 GOFILES=\
-	assert.go\
+	tensor.go\
 	arrayslice.go\
 	iterator.go\
-	io.go\
-	tensor.go\
-	tensorops.go\
-	resample.go\
+	util.go\
 	vector.go\
-	storedtensor.go\
-	out.go\
+	input.go\
+	output.go\
+	legacyio.go\
 
-CLEANFILES+=$(PKGDIR)/$(TARG).a $(PKGDIR)/cgo_$(TARG).so iotest
+CLEANFILES+=$(PKGDIR)/$(TARG).a
 
 include $(GOROOT)/src/Make.pkg
 

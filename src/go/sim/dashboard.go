@@ -48,7 +48,7 @@ func updateDashboard(sim *Sim) {
 		BOLD+"step: "+RESET+"%-11d "+
 			BOLD+"time: "+RESET+"%.4es      "+
 			BOLD+"Δt:   "+RESET+" %.3es",
-		sim.steps, float(sim.time)*T, sim.dt*T)
+		sim.steps, float32(sim.time)*T, sim.dt*T)
 	erase()
 	fmt.Println()
 

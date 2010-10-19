@@ -9,7 +9,7 @@ CFLAGS+=\
   -Wall\
   -Werror\
   -fPIC\
-#  -g\
+  -g\
 
 
 NVCCFLAGS+=\

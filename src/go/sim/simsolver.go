@@ -17,7 +17,7 @@ func (s *Sim) SolverType(stype string) {
 
 // Set the solver time step, defined in seconds
 // TODO this should imply or require a fixed-step solver
-func (s *Sim) Dt(t float) {
+func (s *Sim) Dt(t float32) {
 	s.input.dt = t
 	s.invalidate()
 }
@@ -25,13 +25,13 @@ func (s *Sim) Dt(t float) {
 // Set the maximum "delta m" the solver can take.
 // 0 means not used.
 // Some solvers ignore this value
-func (s *Sim) MaxDm(deltaM float) {
+func (s *Sim) MaxDm(deltaM float32) {
 	s.maxDm = deltaM
 }
 
 // Set the maximum "delta m" the solver can take.
 // 0 means not used.
 // Some solvers ignore this value
-func (s *Sim) MaxError(errorPerStep float) {
+func (s *Sim) MaxError(errorPerStep float32) {
 	s.maxError = errorPerStep
 }

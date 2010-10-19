@@ -1,10 +1,10 @@
 include $(GOROOT)/src/Make.inc
 PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 
-TARG=tensor2
+TARG=iotool
 
 GOFILES=\
-	tensor.go\
+	readline.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 
