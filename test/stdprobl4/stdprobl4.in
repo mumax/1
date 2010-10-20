@@ -12,9 +12,10 @@ msat       	800E3       # A/m
 aexch      	1.3E-11     # J/m
 alpha      	0.02
 
-# geometry 
+# geometry
+partsize    3E-9  125E-9 500E-9
 size       	1     32          128    
-cellsize   	3E-9  3.90625E-9  3.90625E-9  # m
+#cellsize   	3E-9  3.90625E-9  3.90625E-9  # m
 
 # initial magnetization
 load    	s-state.tensor

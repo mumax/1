@@ -38,6 +38,10 @@ type Input struct {
 	alpha          float32
 	size           [3]int
 	cellSize       [3]float32
+	partSize       [3]float32
+	sizeSet        bool // Input file may set only 2 of size, cellSize, partSize. The last one being calculated automatically. It is an error to set all 3 of them so we keep track of which is set by the user.
+	cellSizeSet    bool
+	partSizeSet    bool
 	demag_accuracy int
 	dt             float32
 	solvertype     string

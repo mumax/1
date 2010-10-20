@@ -15,6 +15,7 @@ import (
 // This file implements the methods for
 // controlling the simulation geometry.
 
+// DEPRECATED: uses GridSize which is clearer.
 // Set the mesh size (number of cells in each direction)
 // Note: for performance reasons the last size should be big.
 // TODO: if the above is not the case, transparently transpose.
@@ -29,8 +30,18 @@ func (s *Sim) Size(x, y, z int) {
 	s.input.size[X] = x
 	s.input.size[Y] = y
 	s.input.size[Z] = z
+	s.input.sizeSet = true
+	s.updateSizes()
 	s.invalidate()
 }
+
+// clearer name for Size()
+// 
+func (s *Sim) GridSize(x, y, z int){
+  s.Size(x, y, z)
+}
+
+// TODO: We need one function that sets all metadata centrally
 
 // Defines the cell size in meters
 func (s *Sim) CellSize(x, y, z float32) {
@@ -44,6 +55,55 @@ func (s *Sim) CellSize(x, y, z float32) {
 	s.metadata["cellsize0"] = fmt.Sprint(x)
 	s.metadata["cellsize1"] = fmt.Sprint(y)
 	s.metadata["cellsize2"] = fmt.Sprint(z)
+	s.input.cellSizeSet = true
+	s.updateSizes()
+	s.invalidate()
+}
+
+func (s *Sim) PartSize(x, y, z float32) {
+	if x <= 0. || y <= 0. || z <= 0. {
+		s.Errorln("Part size should be > 0")
+		os.Exit(-6)
+	}
+	s.input.partSize[X] = x
+	s.input.partSize[Y] = y
+	s.input.partSize[Z] = z
+	s.metadata["partsize0"] = fmt.Sprint(x)
+	s.metadata["partsize1"] = fmt.Sprint(y)
+	s.metadata["partsize2"] = fmt.Sprint(z)
+	s.input.partSizeSet = true
+	s.updateSizes()
+	s.invalidate()
+}
+
+// Input file may set only 2 values in the set {size, cellSize, partSize}. The last one is calculated here. It is an error to set all 3 of them.
+func (s *Sim) updateSizes() {
+	in := &s.input
+
+	if in.sizeSet && in.cellSizeSet && in.partSizeSet {
+		panic(InputError("size, cellsize and partsize may not all be specified together. Specify any two of them and the third one will be calculated automatically."))
+	}
+
+	if in.sizeSet && in.cellSizeSet {
+		for i := range in.partSize {
+			in.partSize[i] = float32(in.size[i]) * in.cellSize[i]
+		}
+		s.Println("Calculated part size:", in.partSize, " m")
+	}
+
+	if in.sizeSet && in.partSizeSet {
+		for i := range in.partSize {
+			in.cellSize[i] = in.partSize[i] / float32(in.size[i])
+		}
+		s.Println("Calculated cell size:", in.cellSize, " m")
+	}
+
+	if in.cellSizeSet && in.partSizeSet {
+		for i := range in.partSize {
+			in.size[i] = int((in.partSize[i] / in.cellSize[i]) + 0.5) // We round as good as possible, it is up to the user for partsize to be divisible by cellsize
+		}
+		s.Println("Calculated number of cells:", in.size)
+	}
 	s.invalidate()
 }
 
