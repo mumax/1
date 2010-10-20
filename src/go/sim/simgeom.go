@@ -62,9 +62,9 @@ func (sim *Sim) LoadMSat(file string) {
 		panic(err)
 	}
 	norm := tensor.ToT3(tensor.Read(in))
-	if !tensor.EqualSize(norm.Size(), sim.normMap.Size()){
-    norm = resample3(norm, sim.normMap.Size())
-  }
+	if !tensor.EqualSize(norm.Size(), sim.normMap.Size()) {
+		norm = resample3(norm, sim.normMap.Size())
+	}
 	TensorCopyTo(norm, sim.normMap)
 	//TODO this should not invalidate the entire sim
 	sim.invalidate()
