@@ -28,3 +28,5 @@ known bugs
 [0007] OPEN arne:
  the simulation finishes immediately when no initial m is set (time step is infinite). should be illegal arg error.
 
+[0008] OPEN arne:
+ the simulation state gets re-initialized too often. 
