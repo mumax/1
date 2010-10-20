@@ -16,7 +16,7 @@
 #include "gputil.h"
 #include "param.h"
 //#include "gpufft2.h"
-#include "gpu_fft.h"
+#include "gpu_fft4.h"
 #include "assert.h"
 #include "timer.h"
 #include <stdio.h>
