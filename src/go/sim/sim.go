@@ -83,6 +83,7 @@ type Sim struct {
 	steps        int               // The total number of steps taken so far
 	starttime    int64             // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
 	outschedule  []Output          // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
+// 	preciseStep  bool              // Should we cut the time step to save the output at the precise moment specified?
 	autosaveIdx  int               // Unique identifier of output state. Updated each time output is saved.
 	outputdir    string            // Where to save output files.
 	mUpToDate    bool              // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
