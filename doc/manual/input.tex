@@ -27,22 +27,57 @@ A \prog input file specifies an entire simulation, including which output should
 
 \begin{verbatim}
 # material
-msat       	800E3 
-aexch      	1.3E-11
+msat       	800e3 
+aexch      	1.3e-11
 alpha      	0.02
+
 # geometry 
-size       	1     32          128    
-cellsize   	3E-9  3.90625E-9  3.90625E-9  # m
+gridsize 	1     32          128    
+cellsize   	3E-9  3.90625E-9  3.90625E-9
+
 # initial magnetization
 uniform		1 1 1
+
 # run
 autosave	table	ascii	10E-12
 run          	1E-9
 \end{verbatim}
 
+\newcommand{\defcommand}[2][\space]{\textbf{#2}\index{#2}\label{#2} \textit{#1}}
+\newcommand{\command}[1]{\hyperref[#1]{\textbf{#1}}\index{#1}\label{#1}}
+
 \paragraph{Comments} All text after a hashmark (\#) is considered a \idx{comment} and is ignored by the simulation. In the above example, the statements \cmd{\# material}, \cmd{\# geometry}, \ldots are thus comments. They are only included for clarity and could be omitted.
 
-\paragraph{Commands} All the other text in the input file is treated as a series of \idx{commands} that are executed in the order they are specified. In general, the order of the commands matters but should be easy to deduce.  E.g., you can not call \cmd{run} to start the time evolution when you have not first specified the material parameters, simulation size, etc\ldots. Either way, the program will tell you if can not run a certain command yet because some parameters should be set first.
+\paragraph{Commands} All the other text in the input file is treated as a series of \idx{commands} that are executed in the order they are specified. In general, the order of the commands matters but should be easy to deduce.  E.g., you can not call \command{run} to start the time evolution when you have not first specified the material parameters, simulation size, etc\ldots. On the other hand, after having {run} the simulation for some time, you \emph{can} change the material parameters and call commands like \command{run} again. Either way, the program will tell you if can not run a certain command yet because some parameters should be set first. A list of commands is found below.
+
+\subsubsection*{Material parameters}
+\begin{tabular}{ll}
+\defcommand[value]{msat}  & Sets the saturation magnetization to the value specified in A/m. \\
+\defcommand[value]{aexch} & Sets the exchange constant to the value specified in J/m. \\
+\defcommand[value]{alpha} & Sets the damping coefficient.
+\end{tabular}
+
+\subsubsection*{Part size}
+To define the magnet size, you must specify \emph{exactly two} of the three values below.\\
+
+\begin{tabular}{ll}
+\defcommand[x y z]{partsize}  & Sets the size of the magnet, specified in m. \\
+\defcommand[x y z]{cellsize}  & Sets the size of the finite difference cells, in m. \\
+\defcommand[$N_x$ $N_y$ $N_z$]{gridsize} & Sets the number of finite difference cells.
+\end{tabular}\\
+\bigskip
+
+After having set two of these values, the remaining one is calculated automatically. E.g. the part size and cell size automatically fix the number of cells.
+
+\subsubsection*{Initial state}
+\begin{tabular}{ll}
+\defcommand[$m_x$ $m_y$ $m_z$]{uniform}  & Initializes the magnetization to a uniform state.
+\end{tabular}
+
+\subsubsection*{Scheduled output}
+\begin{tabular}{ll}
+\end{tabular}
+
 
 
 
