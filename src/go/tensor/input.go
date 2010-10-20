@@ -134,6 +134,7 @@ func ReadDataAscii(in_ io.Reader, t Interface) {
 	for i := range list {
 		_, err := fmt.Fscan(in, &list[i])
 		if err != nil {
+      fmt.Fprintln(os.Stderr, "Error reading element ", i)
 			panic(err)
 		}
 	}

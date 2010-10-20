@@ -37,6 +37,11 @@ func (m *Main) Recover(value string) {
 	m.recover_val = value
 }
 
+func (m *Main) Print (fname string){
+  t := ReadF(fname)
+  WriteAscii(os.Stdout, t)
+}
+
 // Calculates the RMS response of the in-plane magnetization.
 // Used for, e.g., magnetic resonance.
 func (m *Main) InplaneRMS(fname string) (rms float64, ok string) {
@@ -105,28 +110,28 @@ func (m *Main) CorePol(fname string) (maxMz float64, updown string) {
 // (where the rank entry is missing and assumed 4)
 // Returns the vortex core polarization.
 // (value of max out-of-plane magnetization and a string "#up" or "down")
-func (m *Main) CorePol4(fname string) (maxMz float64, updown string) {
-	data := ToT4(FReadAscii4(fname))
-	array := data.Array()
-	mz := array[0]
-	answer := float64(mz[0][0][0])
-	for i := range mz {
-		for j := range mz[i] {
-			for k := range mz[i][j] {
-				if Fabs(answer) < Fabs(float64(mz[i][j][k])) {
-					answer = (float64(mz[i][j][k]))
-				}
-			}
-		}
-	}
-	maxMz = answer
-	if maxMz > 0. {
-		updown = "#up"
-	} else {
-		updown = "#down"
-	}
-	return
-}
+// func (m *Main) CorePol4(fname string) (maxMz float64, updown string) {
+// 	data := ToT4(FReadAscii4(fname))
+// 	array := data.Array()
+// 	mz := array[0]
+// 	answer := float64(mz[0][0][0])
+// 	for i := range mz {
+// 		for j := range mz[i] {
+// 			for k := range mz[i][j] {
+// 				if Fabs(answer) < Fabs(float64(mz[i][j][k])) {
+// 					answer = (float64(mz[i][j][k]))
+// 				}
+// 			}
+// 		}
+// 	}
+// 	maxMz = answer
+// 	if maxMz > 0. {
+// 		updown = "#up"
+// 	} else {
+// 		updown = "#down"
+// 	}
+// 	return
+// }
 
 
 func main() {
