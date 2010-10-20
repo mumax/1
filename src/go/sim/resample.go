@@ -40,21 +40,25 @@ func resample4(in *tensor.T4, size2 []int) *tensor.T4 {
 
 
 func resample3(in *tensor.T3, size2 []int) *tensor.T3 {
+  size1 := in.Size()
 	assert(len(size2) == 3)
-	assert(size2[0] == 3)
+  assert(len(size1) == 3)
+  
 	out := tensor.NewT3(size2)
+	
 	out_a := out.Array()
 	in_a := in.Array()
-	size1 := in.Size()
-	for c := range out_a {
-		for i := range out_a[c] {
-			i1 := (i * size1[1]) / size2[1]
-			for j := range out_a[0][i] {
-				j1 := (j * size1[2]) / size2[2]
-				out_a[c][i][j] = in_a[c][i1][j1]
-			}
-		}
-	}
+	
+  for i := range out_a {
+      i1 := (i * size1[0]) / size2[0]
+      for j := range out_a[i] {
+        j1 := (j * size1[1]) / size2[1]
+        for k := range out_a[i][j] {
+          k1 := (k * size1[2]) / size2[2]
+          out_a[i][j][k] = in_a[i1][j1][k1]
+        }
+      }
+    }
 
 	return out
 }
