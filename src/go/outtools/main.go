@@ -37,9 +37,9 @@ func (m *Main) Recover(value string) {
 	m.recover_val = value
 }
 
-func (m *Main) Print (fname string){
-  t := ReadF(fname)
-  WriteAscii(os.Stdout, t)
+func (m *Main) Print(fname string) {
+	t := ReadF(fname)
+	WriteAscii(os.Stdout, t)
 }
 
 // Calculates the RMS response of the in-plane magnetization.

@@ -67,8 +67,8 @@ func (s *Sim) Vortex(circulation, polarization int) {
 	s.invalidate()
 }
 
-func (s *Sim) LoadM(file string){
-  s.Load(file)
+func (s *Sim) LoadM(file string) {
+	s.Load(file)
 }
 
 // DEPRECATED: use LoadM

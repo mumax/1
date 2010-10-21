@@ -37,8 +37,8 @@ func (s *Sim) Size(x, y, z int) {
 
 // clearer name for Size()
 // 
-func (s *Sim) GridSize(x, y, z int){
-  s.Size(x, y, z)
+func (s *Sim) GridSize(x, y, z int) {
+	s.Size(x, y, z)
 }
 
 // TODO: We need one function that sets all metadata centrally
@@ -108,7 +108,7 @@ func (s *Sim) updateSizes() {
 }
 
 func (sim *Sim) initNormMap() {
-  sim.initMLocal()
+	sim.initMLocal()
 	if sim.normMap == nil {
 		sim.normMap = NewTensor(sim.backend, Size3D(sim.mLocal.Size()))
 	}
