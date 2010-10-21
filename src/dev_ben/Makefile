@@ -30,6 +30,8 @@ OFILES=\
 	gpu_exchange.o\
 	gpu_heun.o\
  	gpu_fftbig.o\
+	gpu_fft4.o\
+	gpu_fft5.o
 # 	gpu_transpose2.o\
 # 	gpunormalize.o\
 #	gputorque.o\
@@ -101,6 +103,12 @@ gpu_exchange.o:	gpu_exchange.h gpu_exchange.cu
 
 gpu_fftbig.o: gpu_fftbig.h gpu_fftbig.cu
 	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_fftbig.cu
+
+gpu_fft4.o: gpu_fft4.h gpu_fft4.cu
+	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft4.cu
+
+gpu_fft5.o: gpu_fft5.h gpu_fft5.cu
+	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft5.cu
 
 main-ben.o:	main-ben.h main-ben.cpp
 	$(NVCC) -c $(NVCCFLAGS) main-ben.cpp

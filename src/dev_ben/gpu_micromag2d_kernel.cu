@@ -3,7 +3,7 @@
 #include "param.h"
 //#include "gpufft2.h"
 #include "gpu_fftbig.h"
-#include "gpu_fft.h"
+#include "gpu_fft5.h"
 #include "assert.h"
 #include "timer.h"
 #include <stdio.h>

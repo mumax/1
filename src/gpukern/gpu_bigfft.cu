@@ -62,7 +62,6 @@ void bigfft_execC2R(bigfft* plan, cufftComplex* input, cufftReal* output){
   }
 }
 
-
 void bigfft_execC2C(bigfft* plan, cufftComplex* input, cufftComplex* output, int direction){
 
   int in_offset = 0, out_offset = 0;
