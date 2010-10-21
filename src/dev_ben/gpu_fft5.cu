@@ -50,7 +50,7 @@ gpuFFT3dPlan_big* new_gpuFFT3dPlan_padded_big(int* size, int* paddedSize){
   plan->invPlanZ = (bigfft *) malloc(sizeof(bigfft));
   plan->planY = (bigfft *) malloc(sizeof(bigfft));
   plan->planX = (bigfft *) malloc(sizeof(bigfft));
-  if ( paddedSize[X]!=size[X] || paddedSize[Y]!=size[Y]){
+/*  if ( paddedSize[X]!=size[X] || paddedSize[Y]!=size[Y]){
     init_bigfft(plan->fwPlanZ , paddedSize[Z], plan->paddedStorageSize[Z], CUFFT_R2C, size[X]*size[Y]);
     init_bigfft(plan->invPlanZ, plan->paddedStorageSize[Z], paddedSize[Z], CUFFT_C2R, size[X]*size[Y]);
   }
@@ -58,11 +58,19 @@ gpuFFT3dPlan_big* new_gpuFFT3dPlan_padded_big(int* size, int* paddedSize){
     init_bigfft(plan->fwPlanZ , plan->paddedStorageSize[Z], plan->paddedStorageSize[Z], CUFFT_R2C, size[X]*size[Y]);
     init_bigfft(plan->invPlanZ, plan->paddedStorageSize[Z], plan->paddedStorageSize[Z], CUFFT_C2R, size[X]*size[Y]);
   }
-/*  init_bigfft(plan->planY, 2*plan->paddedSize[Y], 2*plan->paddedSize[Y], CUFFT_C2C, paddedStorageSize[Z] * size[X] / 2);
-  init_bigfft(plan->planX, 2*plan->paddedSize[X], 2*plan->paddedSize[X], CUFFT_C2C, paddedStorageSize[Z] * paddedSize[Y] / 2);*/
   init_bigfft(plan->planY, plan->paddedSize[Y], plan->paddedSize[Y], CUFFT_C2C, paddedStorageSize[Z] * size[X] / 2);
-  init_bigfft(plan->planX, plan->paddedSize[X], plan->paddedSize[X], CUFFT_C2C, paddedStorageSize[Z] * paddedSize[Y] / 2);
+  init_bigfft(plan->planX, plan->paddedSize[X], plan->paddedSize[X], CUFFT_C2C, paddedStorageSize[Z] * paddedSize[Y] / 2);*/
   
+  if ( paddedSize[X]!=size[X] || paddedSize[Y]!=size[Y]){
+    init_bigfft(plan->fwPlanZ , paddedSize[Z], paddedSize[Z], plan->paddedStorageSize[Z], CUFFT_R2C, size[X]*size[Y]);
+    init_bigfft(plan->invPlanZ, paddedSize[Z], plan->paddedStorageSize[Z], paddedSize[Z], CUFFT_C2R, size[X]*size[Y]);
+  }
+  else{
+    init_bigfft(plan->fwPlanZ , paddedSize[Z], plan->paddedStorageSize[Z], plan->paddedStorageSize[Z], CUFFT_R2C, size[X]*size[Y]);
+    init_bigfft(plan->invPlanZ, paddedSize[Z], plan->paddedStorageSize[Z], plan->paddedStorageSize[Z], CUFFT_C2R, size[X]*size[Y]);
+  }
+  init_bigfft(plan->planY, paddedSize[Y], paddedSize[Y], paddedSize[Y], CUFFT_C2C, paddedStorageSize[Z] * size[X] / 2);
+  init_bigfft(plan->planX, paddedSize[X], paddedSize[X], paddedSize[X], CUFFT_C2C, paddedStorageSize[Z] * paddedSize[Y] / 2);
   
   for (int i=0; i<plan->fwPlanZ->Nbatch; i++)
     printf("fwZ: Nbatch: %d, i: %d, batch: %d, batch_index_in: %d, batch_index_out: %d\n", plan->fwPlanZ->Nbatch, i, plan->fwPlanZ->batch[i], plan->fwPlanZ->batch_index_in[i], plan->fwPlanZ->batch_index_out[i]);

@@ -12,14 +12,35 @@ extern "C" {
 
 int MAXSIZE = 16*1024;
 
-void init_bigfft(bigfft* plan, int size_fft_in, int size_fft_out, cufftType type, int Nffts){
+// void init_bigfft(bigfft* plan, int size_fft_in, int size_fft_out, cufftType type, int Nffts){
+// 
+// /*  plan = (bigfft *) malloc(sizeof(bigfft));*/
+//   init_batch_bigfft (plan, size_fft_in, size_fft_out, Nffts);
+//   
+//   gpu_safefft( cufftPlan1d( &plan->Plan_1, size_fft_in, type, plan->batch[0]) );
+//   if ( plan->batch[plan->Nbatch-1] != plan->batch[0] )
+//     gpu_safefft( cufftPlan1d( &plan->Plan_2, size_fft_in, type, plan->batch[plan->Nbatch-1]) );
+//   
+//   plan->batch_Plans  = (cufftHandle *) calloc(plan->Nbatch, sizeof(cufftHandle));
+// 
+//   for (int i=0; i<plan->Nbatch; i++)
+//     if ( plan->batch[i] == plan->batch[0] )
+//       plan->batch_Plans[i] = plan->Plan_1;
+//     else
+//       plan->batch_Plans[i] = plan->Plan_2;
+// 
+//   return;
+// }
+
+void init_bigfft(bigfft* plan, int size_fft, int stride_in, int stride_out, cufftType type, int Nffts){
 
 /*  plan = (bigfft *) malloc(sizeof(bigfft));*/
-  init_batch_bigfft (plan, size_fft_in, size_fft_out, Nffts);
+//  init_batch_bigfft (plan, size_fft_in, size_fft_out, Nffts);
+  init_batch_bigfft (plan, stride_in, stride_out, Nffts);
   
-  gpu_safefft( cufftPlan1d( &plan->Plan_1, size_fft_in, type, plan->batch[0]) );
+  gpu_safefft( cufftPlan1d( &plan->Plan_1, size_fft, type, plan->batch[0]) );
   if ( plan->batch[plan->Nbatch-1] != plan->batch[0] )
-    gpu_safefft( cufftPlan1d( &plan->Plan_2, size_fft_in, type, plan->batch[plan->Nbatch-1]) );
+    gpu_safefft( cufftPlan1d( &plan->Plan_2, size_fft, type, plan->batch[plan->Nbatch-1]) );
   
   plan->batch_Plans  = (cufftHandle *) calloc(plan->Nbatch, sizeof(cufftHandle));
 
@@ -32,14 +53,13 @@ void init_bigfft(bigfft* plan, int size_fft_in, int size_fft_out, cufftType type
   return;
 }
 
+void init_batch_bigfft(bigfft *plan, int stride_in, int stride_out, int Nffts){
 
-void init_batch_bigfft(bigfft *plan, int size_fft_in, int size_fft_out, int Nffts){
+  int K = get_factor_to_stride(stride_in);
+  int max = MAXSIZE/stride_in/K;
 
-  int K = get_factor_to_stride(size_fft_in);
-  int max = MAXSIZE/size_fft_in/K;
-
-  if (MAXSIZE < size_fft_in*K){
-    printf("size %d does not fit the fft batch!", size_fft_in);
+  if (MAXSIZE < stride_in*K){
+    printf("size %d does not fit the fft batch!\n", stride_in);
     printf("K*FFT_array should be smaller than %d AND K*FFT_array modulo %d should be zero\n", MAXSIZE, gpu_stride_float());
     printf("choose different dimensions (i.e. size of FFT_array) to meet this criterium.");
     abort();
@@ -64,8 +84,8 @@ void init_batch_bigfft(bigfft *plan, int size_fft_in, int size_fft_out, int Nfft
   plan->batch_index_in [0] = 0;
   plan->batch_index_out[0] = 0;
   for (int i=1; i< Nbatch; i++){
-    plan->batch_index_in [i] = plan->batch_index_in [i-1] + plan->batch[i-1]*size_fft_in;
-    plan->batch_index_out[i] = plan->batch_index_out[i-1] + plan->batch[i-1]*size_fft_out;
+    plan->batch_index_in [i] = plan->batch_index_in [i-1] + plan->batch[i-1]*stride_in;
+    plan->batch_index_out[i] = plan->batch_index_out[i-1] + plan->batch[i-1]*stride_out;
   }
   
   return;
@@ -86,6 +106,8 @@ int get_factor_to_stride(int size_fft){
 void bigfft_execR2C(bigfft* plan, cufftReal* input, cufftComplex* output){
 
   for (int i=0; i<plan->Nbatch; i++){
+/*    int index_in  = plan->batch_index_in [i];
+    int index_out = plan->batch_index_out[i]/2;*/
     int index_in  = plan->batch_index_in [i];
     int index_out = plan->batch_index_out[i]/2;
 //     printf("R2C: %d, %d\n", index_in, index_out);

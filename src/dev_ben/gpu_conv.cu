@@ -64,8 +64,8 @@ void evaluate_micromag3d_conv(tensor *m, tensor *h, conv_data *conv){
 
     //inverse Fourier transforming fft_hi
   for(int i=0; i<3; i++)
-    gpuFFT3dPlan_inverse(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
-//    gpuFFT3dPlan_inverse_big(conv->fftplan_big, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
+//    gpuFFT3dPlan_inverse(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
+    gpuFFT3dPlan_inverse_big(conv->fftplan_big, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
 
   return;
 }

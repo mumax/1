@@ -30,15 +30,16 @@ typedef struct{
 
 
 void init_bigfft(bigfft* plan,
-                 int size_fft_in,
-                 int size_fft_out,
+                 int size_fft,
+                 int stride_in,
+                 int stride_out,
                  cufftType type,
                  int Nffts
                  );
                  
 void init_batch_bigfft(bigfft *plan, 
-                       int size_fft_in, 
-                       int size_fft_out, 
+                       int stride_in, 
+                       int stride_out, 
                        int Nffts
                        );
 
