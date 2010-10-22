@@ -13,11 +13,11 @@ import (
 
 // This file implements the methods for defining
 // the applied magnetic field.
-
+// TODO: we need a time 0 !
 
 // Apply a static field defined in Tesla
 func (s *Sim) StaticField(hx, hy, hz float32) {
-	s.AppliedField = &staticField{[3]float32{hx, hy, hz}} // pass it on in tesla so that it stays independent of other problem parameters
+	s.AppliedField = &staticField{[3]float32{hx, hy, hz}}   // pass it on in tesla so that it stays independent of other problem parameters
 	s.Println("Applied field: static, (", hx, ", ", hy, ", ", hz, ") T")
 }
 
@@ -27,6 +27,32 @@ type staticField struct {
 
 func (field *staticField) GetAppliedField(time float64) [3]float32 {
 	return field.b
+}
+
+
+func (s *Sim) PulsedField(hx, hy, hz float32,  duration, risetime float64){
+  s.AppliedField = &pulsedField{[3]float32{hx, hy, hz}, duration, risetime}
+  s.Println("Applied field: pulse, (", hx, ", ", hy, ", ", hz, ") T, ", duration, "s FWHM, ", risetime, "s rise- and falltime (0-100%)")
+}
+
+type pulsedField struct{
+  b [3]float32
+  duration, risetime float64
+}
+
+
+func (f *pulsedField) GetAppliedField(time float64) [3]float32{
+  var scale float64
+  
+  if time > 0 && time < f.risetime{
+    scale = 0.5 - 0.5*Cos(time * Pi / f.risetime)
+  } else if time >= f.risetime && time < f.duration + f.risetime{
+    scale = 1.
+  } else if time >= f.duration + f.risetime && time < f.duration + 2. * f.risetime{
+    scale = 0.5 + 0.5*Cos((time-f.duration-f.risetime) * Pi / f.risetime)
+  }
+  scale32 := float32(scale)
+  return [3]float32{scale32*f.b[0], scale32*f.b[1], scale32*f.b[2]}
 }
 
 
