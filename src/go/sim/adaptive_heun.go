@@ -25,7 +25,7 @@ func NewAdaptiveHeun(sim *Sim) *AdaptiveHeun {
 	this.Reductor.InitMaxAbs(this.backend, prod(sim.size4D[0:]))
 	// There has to be an initial dt set so we can start
 	if this.dt == 0. {
-		this.dt = 0.001 // initial dt guess (internal units)
+		this.dt = 0.00001 // initial dt guess (internal units)
 	}
 	return this
 }

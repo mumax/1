@@ -18,7 +18,7 @@ import (
 )
 
 // search for new input files every X s
-var DAEMON_WATCHTIME int = 2
+var DAEMON_WATCHTIME int = 60
 
 // printed before/after each daemon stdout message
 const (
@@ -29,10 +29,15 @@ const (
 // shell command to start child simulation processes
 const SIMCOMMAND = "bin/simulate"
 
+// start time
+var DAEMON_STARTTIME int64 = time.Nanoseconds()
 
 func DaemonMain() {
 	sleeping := false
 	fmt.Println(DAEMON_PREFIX, "Input files should end with .in and the corresponding .out directory should not yet exist.", DAEMON_SUFFIX)
+	if *walltime > 0 {
+		fmt.Println(DAEMON_PREFIX, "Daemon will exit after ", *walltime, " hours (but running simulations will not be aborted).", DAEMON_SUFFIX)
+	}
 
 	// ------------- setup watchdirs -----------------------
 
@@ -49,6 +54,11 @@ func DaemonMain() {
 
 	// ----------------- poll for input files --------------
 	for {
+		// check walltime
+		if *walltime > 0 && time.Nanoseconds()-DAEMON_STARTTIME > int64(*walltime)*1e9*3600 {
+			fmt.Println(DAEMON_PREFIX, "Reached maximum walltime: exiting", DAEMON_SUFFIX)
+			os.Exit(0)
+		}
 		infile := findInputFileAll(watchdirs)
 		// If no new input files found
 		if infile == "" {

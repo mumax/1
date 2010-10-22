@@ -1,5 +1,6 @@
 #include "gpu_bigfft.h"
 #include "gpu_safe.h"
+#include "cufft.h"
 
 #ifdef __cplusplus
 extern "C" {
