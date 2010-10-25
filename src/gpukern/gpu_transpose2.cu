@@ -89,22 +89,9 @@ __global__ void _gpu_transpose_complex_in_plane_fw(complex* input, complex* outp
     if ( (ind % (2*N2))>=N2 )
       ind += offset2;
     block[j][i] = input[ind];
+    input[ind].real = 0.0f;
+    input[ind].imag = 0.0f;
   }
-
-
-//   if((I < N1) && (J < N2)){
-//     int ind = J * N1 + I;
-//     if ( (ind % (2*N2))>=N2 ){
-//       ind += offset2;
-//       block[j][i] = input[ind];
-//       input[ind].real = 0.0f;
-//       input[ind].imag = 0.0f;
-//     }
-//     else
-//       block[j][i] = input[ind];
-//   }
-
-
 
 
 __syncthreads();
@@ -120,8 +107,8 @@ __syncthreads();
   return;
 }
 
-void gpu_transpose_complex_in_plane_fw(float *data, int N1, int N2){
 
+void gpu_transpose_complex_in_plane_fw(float *data, int N1, int N2){
 
   N2 /= 2;
   int N1x2 = 2*N1;
@@ -130,22 +117,19 @@ void gpu_transpose_complex_in_plane_fw(float *data, int N1, int N2){
   for(int k=N2+1; k<2*N2; k=k+2){
     int ind1 = k*N1x2;
     int ind2 = (k - N2)*N1x2;
+//     printf("%d %d \n", ind1, ind2 );
     memcpy_on_gpu_async(data + ind1, data + ind2, N1x2);
   }
   gpu_sync();
   timer_stop("fw_yz_transpose_copy");
+
+//  _gpu_yz_transpose_copy<<<gridsize, blocksize>>> (data, N2, N1x2);
 
   timer_start("fw_yz_transpose_transp");
   dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
   dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
  _gpu_transpose_complex_in_plane_fw<<<gridsize, blocksize>>>((complex*) (data + N1x2*N2), (complex*)data, N2, N1, N1, -N1*N2);
   timer_stop("fw_yz_transpose_transp");
-
-  timer_start("fw_yz_transpose_zero");
-  for(int k=1; k<2*N2; k=k+2)
-    gpu_zero_async(data + k*N1x2, N1x2);
-  gpu_sync();
-  timer_stop("fw_yz_transpose_zero");
 
   return;
 }
@@ -154,7 +138,7 @@ void gpu_transpose_complex_in_plane_fw(float *data, int N1, int N2){
 
 __global__ void _gpu_transpose_complex_in_plane_inv(complex* input, complex* output, int N1, int N2, int offset_in, int offset2){
   
-  __shared__ complex block[BLOCKSIZE][BLOCKSIZE+1];
+__shared__ complex block[BLOCKSIZE][BLOCKSIZE+1];
 
   // index of the block inside the blockmatrix
   int BI = blockIdx.x;
