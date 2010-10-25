@@ -1,4 +1,5 @@
 #include "main-ben.h"
+#include "timer.h"
 
 param* read_param();
 void initialize_m(tensor *, param *);
@@ -73,6 +74,7 @@ int main(int argc, char** argv){
 
   }
 
+  timer_printdetail();
 //   fclose(av);
 
   return 0;

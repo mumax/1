@@ -58,6 +58,15 @@ void gpu_zero(float* data, int nElements){
   
 }
 
+void gpu_zero_async(float* data, int nElements){
+  debugvv(fprintf(stderr, "gpu_zero(%p, %d)\n", data, nElements));
+  gpu_safe( cudaMemset(data, 0, nElements*sizeof(float)) );
+//   int gridSize = -1, blockSize = -1;
+//   make1dconf(nElements, &gridSize, &blockSize);
+//   _gpu_zero<<<gridSize, blockSize>>>(data);
+//   gpu_sync();
+  
+}
 
 float* _host_array = NULL;
 float* _device_array = NULL;
@@ -122,6 +131,15 @@ void memcpy_on_gpu(float* source, float* dest, int nElements){
     gpu_safe(status);
   }
   gpu_sync();
+}
+
+void memcpy_on_gpu_async(float* source, float* dest, int nElements){
+  assert(nElements > 0);
+  int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyDeviceToDevice);
+  if(status != cudaSuccess){
+    fprintf(stderr, "CUDA could not copy %d floats from device addres %p to device addres %p\n", nElements, source, dest);
+    gpu_safe(status);
+  }
 }
 
 float gpu_array_get(float* dataptr, int index){

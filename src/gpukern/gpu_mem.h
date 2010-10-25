@@ -105,6 +105,11 @@ void memcpy_on_gpu(float* source,	///< source data pointer on the GPU
                        int nElements	///< number of floats (not bytes) to be copied
                        );
 
+void memcpy_on_gpu_async(float* source, ///< source data pointer on the GPU
+                       float* dest,   ///< destination data pointer on the GPU
+                       int nElements  ///< number of floats (not bytes) to be copied
+                       );
+
 /// @internal Reads one float from a GPU array, not extremely efficient.
 float gpu_array_get(float* dataptr, int index);
 
@@ -120,6 +125,12 @@ void gpu_zero(float* data,	///< data pointer on the GPU
               int nElements	///< number of floats (not bytes) to be zeroed
               );
 
+/**
+ * Set a range of floats on the GPU to zero, asynchroneously.
+ */
+void gpu_zero_async(float* data,  ///< data pointer on the GPU
+                    int nElements ///< number of floats (not bytes) to be zeroed
+                   );
 
 /**
  * @internal
