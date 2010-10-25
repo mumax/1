@@ -20,6 +20,9 @@ GeeMags
 
 TODO (Arne)
 
+* use the permissions of the parent directory!
+* precise time steps on demand.
+* more table output: max m, dm/dt etc, possibly on-demand, calculated on gpu?
 * save m "filename"
 * cluster queue scripts: rmall UNFINISHED (includes running, but also when only the dir was made), rmall crahsed, status, ...
 * do not use os.Exit() but sim.Exit() which removes running file -> replace by "crashed" or something

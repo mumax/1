@@ -16,29 +16,32 @@ import (
 
 // Writes as png
 // TODO: rename
-func PNG(out io.Writer, t tensor.Interface) {
+func PNG(out io.Writer, t *tensor.T4) {
 	err := png.Encode(out, DrawTensor(t))
 	if err != nil {
 		panic(err)
 	}
 }
 
-//TODO: currently slices x = 0
-//TODO: average, slice, ... ?
-func DrawTensor(t_ tensor.Interface) *NRGBA {
-	// todo: we need to handle any rank?
-	t := tensor.ToT4(t_)
-	// 	assert(t.TSize[0] == 3)
-	// result is rank3 2D vector field
+// Draws rank 4 tensor (3D vector field) as image
+// averages data over X (usually thickness of thin film)
+func DrawTensor(t *tensor.T4) *NRGBA {
+	assert(tensor.Rank(t) == 4)
 
 	w, h := t.Size()[2], t.Size()[3]
 	img := NewNRGBA(w, h)
 	arr := t.Array()
 	for i := 0; i < w; i++ {
 		for j := 0; j < h; j++ {
-			x := arr[X][0][i][j]
-			y := arr[Y][0][i][j]
-			z := arr[Z][0][i][j]
+			var x, y, z float32 = 0., 0., 0.
+			for k := 0; k < t.Size()[1]; k++ {
+				x += arr[X][k][i][j]
+				y += arr[Y][k][i][j]
+				z += arr[Z][k][i][j]
+			}
+			x /= float32(t.Size()[1])
+			y /= float32(t.Size()[1])
+			z /= float32(t.Size()[1])
 			img.Set(i, j, HSLMap(z, y, x)) // TODO: x is thickness for now...
 		}
 	}

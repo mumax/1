@@ -3,6 +3,7 @@ extern "C" {
 #endif
 
 #include "param.h"
+#include "../macros.h"
 
 
 param* new_param(){

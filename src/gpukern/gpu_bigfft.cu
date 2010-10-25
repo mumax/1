@@ -1,5 +1,6 @@
 #include "gpu_bigfft.h"
 #include "gpu_safe.h"
+#include "cufft.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,7 +62,6 @@ void bigfft_execC2R(bigfft* plan, cufftComplex* input, cufftReal* output){
     gpu_safefft( cufftExecC2R(plan->plan2, &(input[in_offset]), &(output[out_offset])) );
   }
 }
-
 
 void bigfft_execC2C(bigfft* plan, cufftComplex* input, cufftComplex* output, int direction){
 
