@@ -12,8 +12,10 @@ import ()
 
 type MultiGpu struct {
 	gpuid    []int                 // IDs of the GPUs in the multi-GPU pool
+	
 	curraddr uintptr               // counter for making unique fake adresses in the multi-GPU memory space
 	mmap     map[uintptr][]uintptr // maps each fake address of the multi-GPU memory space to adresses on each of the sub-devices
+	msize    map[uintptr]int       // stores the length (in number of floats) of the alloctad storage of fake multi-GPU addresses
 }
 
 func NewMultiGpu(gpuids []int) *MultiGpu {
@@ -132,8 +134,12 @@ func (d *MultiGpu) setDevice(devid int) {
 
 func (d *MultiGpu) newArray(nFloats int) uintptr {
 	d.curraddr++
-	d.mmap[d.curraddr] = make([]uintptr, d.NDev())
-	subaddr := d.mmap[d.curraddr]
+	fakeaddr := d.curraddr
+	
+	d.mmap[fakeaddr] = make([]uintptr, d.NDev())
+  d.msize[fakeaddr] = nFloats
+	
+	subaddr := d.mmap[fakeaddr]
 	assert(nFloats%d.NDev() == 0)
 	subsize := nFloats / d.NDev()
 	for i := range subaddr {
@@ -143,7 +149,8 @@ func (d *MultiGpu) newArray(nFloats int) uintptr {
 			return GPU.newArray(subsize)
 		}()
 	}
-	return d.curraddr
+	
+	return fakeaddr
 }
 
 // func (d *MultiGpu) freeArray(ptr uintptr) {
@@ -156,8 +163,13 @@ func (d *MultiGpu) newArray(nFloats int) uintptr {
 // 
 // 
 // func (d *MultiGpu) arrayOffset(array uintptr, index int) uintptr {
-//   return uintptr(0)
-//   //return uintptr(unsafe.Pointer(C.gpu_array_offset((*C.float)(unsafe.Pointer(array)), C.int(index))))
+//   size := d.msize[array]
+//   assert(index < size)
+//   
+//   dev := (index * d.NDev()) / size
+//   devidx := (index * d.NDev()) % size
+//   
+//   return uintptr(d.mmap[array][dev] + uintptr(SIZEOF_CFLOAT * index))
 // }
 // 
 // func (d *MultiGpu) Stride() int {

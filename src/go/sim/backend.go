@@ -69,19 +69,19 @@ func (dev *Backend) copyUnpad(source, dest uintptr, sourceSize, destSize []int) 
 	dev.copyPadded(source, dest, sourceSize, destSize, CPY_UNPAD)
 }
 
-// Gets one float32 from a Device array.
-// Slow, for debug only
-func (dev *Backend) arrayGet(array uintptr, index int) float32 {
-	var f float32
-	dev.memcpyFrom(dev.arrayOffset(array, index), &f, 1)
-	return f
-}
-
-// Sets one float32 on a Device array.
-// Slow, for debug only
-func (dev *Backend) arraySet(array uintptr, index int, value float32) {
-	dev.memcpyTo(&value, dev.arrayOffset(array, index), 1)
-}
+// // Gets one float32 from a Device array.
+// // Slow, for debug only
+// func (dev *Backend) arrayGet(array uintptr, index int) float32 {
+// 	var f float32
+// 	dev.memcpyFrom(dev.arrayOffset(array, index), &f, 1)
+// 	return f
+// }
+// 
+// // Sets one float32 on a Device array.
+// // Slow, for debug only
+// func (dev *Backend) arraySet(array uintptr, index int, value float32) {
+// 	dev.memcpyTo(&value, dev.arrayOffset(array, index), 1)
+// }
 
 
 // a[i] += b[i]
