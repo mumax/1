@@ -7,21 +7,27 @@
 package sim
 
 
-
-import (
-	
-)
+import ()
 
 
 type MultiGpu struct {
-	gpuid []int
+	gpuid    []int                 // IDs of the GPUs in the multi-GPU pool
+	curraddr uintptr               // counter for making unique fake adresses in the multi-GPU memory space
+	mmap     map[uintptr][]uintptr // maps each fake address of the multi-GPU memory space to adresses on each of the sub-devices
 }
 
-func NewMultiGpu(gpuids []int) *MultiGpu{
-  d := new (MultiGpu)
-  d.gpuid = gpuids
-  return d
+func NewMultiGpu(gpuids []int) *MultiGpu {
+	d := new(MultiGpu)
+	d.gpuid = gpuids
+	d.mmap = make(map[uintptr][]uintptr)
+	return d
 }
+
+// Returns the number of sub-devices in this multi-device.
+func (d *MultiGpu) NDev() int {
+	return len(d.gpuid)
+}
+
 
 // func (d *MultiGpu) init() {
 // 	C.gpu_init()
@@ -122,10 +128,23 @@ func (d *MultiGpu) setDevice(devid int) {
 // 	}
 // }
 // 
-// 
-// func (d *MultiGpu) newArray(nFloats int) uintptr {
-// 	return uintptr(unsafe.Pointer(C.new_gpu_array(C.int(nFloats))))
-// }
+//
+
+func (d *MultiGpu) newArray(nFloats int) uintptr {
+	d.curraddr++
+	d.mmap[d.curraddr] = make([]uintptr, d.NDev())
+	subaddr := d.mmap[d.curraddr]
+	assert(nFloats%d.NDev() == 0)
+	subsize := nFloats / d.NDev()
+	for i := range subaddr {
+		subaddr[i] = func() uintptr {
+			//runtime.LockOSThread()
+			GPU.setDevice(d.gpuid[i])
+			return GPU.newArray(subsize)
+		}()
+	}
+	return d.curraddr
+}
 
 // func (d *MultiGpu) freeArray(ptr uintptr) {
 // 	C.free_gpu_array((*C.float)(unsafe.Pointer(ptr)))
