@@ -9,6 +9,8 @@
 #define PI 3.14159265f
 #endif
 
+/// integer division, but rounded UP
+#define divUp(x, y) ( (((x)-1)/(y)) +1 )
 
 #ifndef debug
 
