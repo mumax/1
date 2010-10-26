@@ -20,7 +20,7 @@ void format(float* array, int N0, int N1, int N2){
 
 int main(){
 
-  int N0 = 1, N1 = 16, N2 = 32;
+  int N0 = 1, N1 = 17, N2 = 31;
   int N = N0*N1*N2;
 
   float* host = (float*)calloc(N, sizeof(float));
@@ -39,7 +39,7 @@ int main(){
   format(host, N0, N1, N2);
   memcpy_to_gpu(host, dev, N);
 
-  gpu_directionial_diff(1, 0, 0, dev, dev2, N0, N1, N2);
+  gpu_directionial_diff(0, 1, 0, dev, dev2, N0, N1, N2);
   
   memcpy_from_gpu(dev2, host2, N);
   //   format(host, N1, N2);
