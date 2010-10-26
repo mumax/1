@@ -1,4 +1,5 @@
 #include "main-ben.h"
+#include "timer.h"
 
 param* read_param();
 void initialize_m(tensor *, param *);
@@ -43,7 +44,7 @@ int main(int argc, char** argv){
 
 //    return(0);
 //   FILE *av =fopen("./Data/m_av_fw_2e-1", "w");
-  for(int i=0; i<100; i++){
+  for(int i=0; i<10; i++){
 
     
 //     tensor_copy_from_gpu(m, Host);
@@ -73,6 +74,7 @@ int main(int argc, char** argv){
 
   }
 
+  timer_printdetail();
 //   fclose(av);
 
   return 0;
@@ -121,8 +123,8 @@ param* read_param(){
   p->aexch = 1.3E-11;
   p->alpha = 1.0;
 
-  p->size[X] = 1;
-  p->size[Y] = 32;
+  p->size[X] = 64;
+  p->size[Y] = 128;
   p->size[Z] = 128;
 
 //   p->size[X] = 2;
@@ -132,7 +134,7 @@ param* read_param(){
   double L = unitlength(p);
   printf("unitlength: %e\n", L);
   
-  p->cellSize[X] = 1.5E-9 / L;
+  p->cellSize[X] = 3.0E-9 / L;
 //   p->cellSize[X] = 3.0E-9 / L;
   p->cellSize[Y] = 3.90625E-9 / L;
   p->cellSize[Z] = 3.90625E-9 / L;

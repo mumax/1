@@ -1,4 +1,4 @@
-#include "gpu_fft.h"
+#include "gpu_fft4.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -192,6 +192,7 @@ void yz_transpose_in_place_fw(float *data, int *size, int *pSSize){
       int ind2 = i*pSSize_YZ;
       gpu_transpose_complex_offset(data + ind1, data + ind2, size[Y], pSSize[Z], 0, pSSize[Y]-size[Y]);
     }
+    gpu_sync();
     gpu_zero(data + offset, offset);     // possible to delete values in gpu_transpose_complex
   }
   else{     //padding in the y-direction
@@ -240,16 +241,16 @@ void yz_transpose_in_place_inv(float *data, int *size, int *pSSize){
 // functions for copying to and from padded matrix ****************************************************
 /// @internal Does padding and unpadding, not necessarily by a factor 2
 __global__ void _gpu_copy_pad(float* source, float* dest, 
-                                   int S1, int S2,                  ///< source sizes Y and Z
-                                   int D1, int D2                   ///< destination size Y and Z
-                                   ){
-  int i = blockIdx.x;
-  int j = blockIdx.y;
-  int k = threadIdx.x;
+                                  int S1, int S2,                  ///< source sizes Y and Z
+                                  int D1, int D2                   ///< destination size Y and Z
+                                  ){
+ int i = blockIdx.x;
+ int j = blockIdx.y;
+ int k = threadIdx.x;
 
-  dest[(i*D1 + j)*D2 + k] = source[(i*S1 + j)*S2 + k];
-  
-  return;
+ dest[(i*D1 + j)*D2 + k] = source[(i*S1 + j)*S2 + k];
+ 
+ return;
 }
 
 

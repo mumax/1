@@ -14,6 +14,7 @@
 #include "timestep.h"
 #include <stdio.h>
 #include "gpu_mem.h"
+#include "param.h"
 
 
 #endif
