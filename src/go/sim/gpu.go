@@ -9,11 +9,6 @@ package sim
 /*
 #include "gpukern.h"
 #include "timer.h"
-
-// to allow some (evil but neccesary) pointer arithmetic in go
-float* gpu_array_offset(float* array, int index){
-    return &array[index];
-}
 */
 import "C"
 import "unsafe"
@@ -150,7 +145,7 @@ func (d Gpu) memcpy(source, dest uintptr, nFloats, direction int) {
 
 
 func (d Gpu) arrayOffset(array uintptr, index int) uintptr {
-	return uintptr(array + uintptr(4 * index))// uintptr(unsafe.Pointer(C.gpu_array_offset((*C.float)(unsafe.Pointer(array)), C.int(index))))
+	return uintptr(array + uintptr(4 * index)) // uintptr(unsafe.Pointer(C.gpu_array_offset((*C.float)(unsafe.Pointer(array)), C.int(index))))
 }
 
 func (d Gpu) Stride() int {
