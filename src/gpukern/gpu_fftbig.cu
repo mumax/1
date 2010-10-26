@@ -1,10 +1,9 @@
 #include <cufft.h>
-// #include "gputil.h"
 #include <cufft.h>
 #include "gpu_safe.h"
-//#include "gpu_fft5.h"
 #include "gpu_fftbig.h"
 #include "gpu_conf.h"
+#include "gpu_mem.h"
 
 #ifdef __cplusplus
 extern "C" {

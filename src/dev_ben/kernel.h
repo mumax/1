@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-#include "gpu_fft5.h"
+#include "gpu_fft6.h"
 #include "tensor.h"
 #include "param.h"
 #include "gpu_micromag3d_kernel.h"

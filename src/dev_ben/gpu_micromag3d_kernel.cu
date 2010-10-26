@@ -2,7 +2,7 @@
 #include "gputil.h"
 #include "param.h"
 //#include "gpufft2.h"
-#include "gpu_fft5.h"
+#include "gpu_fft6.h"
 #include "gpu_fftbig.h"
 #include "assert.h"
 #include "timer.h"
@@ -37,7 +37,7 @@ tensor *gpu_micromag3d_kernel(param* p){
   
   
   // Plan initialization of FFTs and initialization of the kernel _________________________________
-    gpuFFT3dPlan_big* kernel_plan = new_gpuFFT3dPlan_padded_big(p->kernelSize, p->kernelSize);
+    gpuFFT3dPlan* kernel_plan = new_gpuFFT3dPlan_padded(p->kernelSize, p->kernelSize);
     gpu_init_and_FFT_Greens_kernel_elements_micromag3d(dev_kernel->list, p->kernelSize, p->exchType, p->exchInConv, p->cellSize, p->demagPeriodic, dev_qd_P_10, dev_qd_W_10, kernel_plan);
   // ______________________________________________________________________________________________ 
   
@@ -50,7 +50,7 @@ tensor *gpu_micromag3d_kernel(param* p){
 
 
 /// remark: number of FD cells in a dimension can not be odd if no zero padding!!
-void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(float *dev_kernel, int *kernelSize, int exchType, int *exchInConv, float *FD_cell_size, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10, gpuFFT3dPlan_big* kernel_plan){
+void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(float *dev_kernel, int *kernelSize, int exchType, int *exchInConv, float *FD_cell_size, int *repetition, float *dev_qd_P_10, float *dev_qd_W_10, gpuFFT3dPlan* kernel_plan){
 
   
   int kernelN = kernelSize[X]*kernelSize[Y]*kernelSize[Z];                              // size of a kernel component without zeros
@@ -81,7 +81,7 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(float *dev_kernel, int *
         gpu_sync();
           // Fourier transform the kernel component.
 //         gpuFFT3dPlan_forward(kernel_plan, dev_temp1, dev_temp2); 
-        gpuFFT3dPlan_forward_big(kernel_plan, dev_temp1, dev_temp2);
+        gpuFFT3dPlan_forward(kernel_plan, dev_temp1, dev_temp2);
         gpu_sync();
           // Copy the real parts to the corresponding place in the dev_kernel tensor.
         _gpu_extract_real_parts_micromag3d<<<gridsize2, blocksize2>>>(&dev_kernel[rank0*kernelStorageN/2], dev_temp2, N2);
