@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-int MAXSIZE = 32*1024;
+int MAXSIZE = 8*1024*1024;
 
 // void init_bigfft(bigfft* plan, int size_fft_in, int size_fft_out, cufftType type, int Nffts){
 // 
@@ -39,9 +39,11 @@ void init_bigfft(bigfft* plan, int size_fft, int stride_in, int stride_out, cuff
   init_batch_bigfft (plan, stride_in, stride_out, Nffts);
   
   gpu_safefft( cufftPlan1d( &plan->Plan_1, size_fft, type, plan->batch[0]) );
-  if ( plan->batch[plan->Nbatch-1] != plan->batch[0] )
+//   gpu_safefft( cufftSetCompatibilityMode(plan->Plan_1, CUFFT_COMPATIBILITY_NATIVE) );
+  if ( plan->batch[plan->Nbatch-1] != plan->batch[0] ){
     gpu_safefft( cufftPlan1d( &plan->Plan_2, size_fft, type, plan->batch[plan->Nbatch-1]) );
-  
+//     gpu_safefft( cufftSetCompatibilityMode(plan->Plan_2, CUFFT_COMPATIBILITY_NATIVE) );
+  }
   plan->batch_Plans  = (cufftHandle *) calloc(plan->Nbatch, sizeof(cufftHandle));
 
   for (int i=0; i<plan->Nbatch; i++)
