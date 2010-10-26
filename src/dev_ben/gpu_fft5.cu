@@ -201,9 +201,9 @@ void gpuFFT3dPlan_inverse_big(gpuFFT3dPlan_big* plan, float* input, float* outpu
     timer_stop("inv_fft_on_y");
     
       // YZ-transpose within the same matrix from the 0-element towards the second half of the matrix
-//     timer_start("inv_yz_transpose");
+    timer_start("inv_yz_transpose");
     yz_transpose_in_place_inv(data, size, pSSize);                                                         // it's in data
-//     timer_stop("inv_yz_transpose");
+    timer_stop("inv_yz_transpose");
 
       // out of place FFTs in Z-direction from the second half of the matrix towards the 0-element
     timer_start("inv_fft_on_z");

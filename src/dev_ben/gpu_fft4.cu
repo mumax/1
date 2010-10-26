@@ -192,6 +192,7 @@ void yz_transpose_in_place_fw(float *data, int *size, int *pSSize){
       int ind2 = i*pSSize_YZ;
       gpu_transpose_complex_offset(data + ind1, data + ind2, size[Y], pSSize[Z], 0, pSSize[Y]-size[Y]);
     }
+    gpu_sync();
     gpu_zero(data + offset, offset);     // possible to delete values in gpu_transpose_complex
   }
   else{     //padding in the y-direction

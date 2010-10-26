@@ -44,7 +44,7 @@ int main(int argc, char** argv){
 
 //    return(0);
 //   FILE *av =fopen("./Data/m_av_fw_2e-1", "w");
-  for(int i=0; i<100; i++){
+  for(int i=0; i<10; i++){
 
     
 //     tensor_copy_from_gpu(m, Host);
@@ -123,9 +123,9 @@ param* read_param(){
   p->aexch = 1.3E-11;
   p->alpha = 1.0;
 
-  p->size[X] = 1;
-  p->size[Y] = 512;
-  p->size[Z] = 512;
+  p->size[X] = 64;
+  p->size[Y] = 128;
+  p->size[Z] = 128;
 
 //   p->size[X] = 2;
 //   p->size[Y] = 4;
