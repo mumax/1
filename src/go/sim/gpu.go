@@ -150,7 +150,7 @@ func (d Gpu) memcpy(source, dest uintptr, nFloats, direction int) {
 
 
 func (d Gpu) arrayOffset(array uintptr, index int) uintptr {
-	return uintptr(unsafe.Pointer(C.gpu_array_offset((*C.float)(unsafe.Pointer(array)), C.int(index))))
+	return uintptr(array + uintptr(4 * index))// uintptr(unsafe.Pointer(C.gpu_array_offset((*C.float)(unsafe.Pointer(array)), C.int(index))))
 }
 
 func (d Gpu) Stride() int {
