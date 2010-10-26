@@ -10,7 +10,7 @@ extern "C" {
 
 
 
-
+/// 2D, plane per plane, i=plane index
 __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
                             float* hx, float* hy, float* hz,
                             float alpha, float beta,
@@ -122,8 +122,19 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
 }
 
 
+#define BLOCKSIZE 16
 
+void gpu_spintorque_deltaM(float* m, float* h, float alpha, float beta, float* u, float dt_gilb, int N0,  int N1, int N2){
 
+  dim3 gridsize(divUp(N1, BLOCKSIZE), divUp(N2, BLOCKSIZE));
+  dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
+  int N = N0 * N1 * N2;
+  
+  for(int i=0; i<N0; i++){
+    _gpu_spintorque_deltaM<<<gridsize, blocksize>>>(&m[0*N], &m[1*N], &m[2*N], &h[0*N], &h[1*N], &h[2*N], alpha, beta, u[0], u[1], u[2], dt_gilb, N0, N1, N2, i);
+  }
+  gpu_sync();
+}
 
 
 
