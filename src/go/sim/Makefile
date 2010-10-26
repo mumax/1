@@ -11,6 +11,7 @@ CGOFILES=\
 GOFILES=\
 	device.go\
 	backend.go\
+	multigpu.go\
 	tensor.go\
 	fft.go\
 	conv.go\
