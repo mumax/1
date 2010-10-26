@@ -24,6 +24,10 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
   
   if (j < N1 && k < N2){
 
+    // (1) calculate the directional derivative of (mx, my mz) along (ux,uy,uz).
+    // Result is (diffmx, diffmy, diffmz)
+    // (ux, uy, uz) is 0.5 * U_spintorque / cellsize(x, y, z)
+    
     //float m0x = mx[i*N1*N2 + j*N2 + k];
     float mx1 = 0.f, mx2 = 0.f, my1 = 0.f, my2 = 0.f, mz1 = 0.f, mz2 = 0.f;
 
@@ -44,9 +48,9 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
     } else {
       //
     } 
-    float gradx = ux * (mx2 - mx1);
-    float grady = uy * (my2 - my1);
-    float gradz = uz * (mz2 - mz1);
+    float diffmx = ux * (mx2 - mx1);
+    float diffmy = uy * (my2 - my1);
+    float diffmz = uz * (mz2 - mz1);
 
 
     // derivative in Y direction
@@ -66,9 +70,9 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
     } else {
       //
     } 
-    gradx += ux * (mx2 - mx1);
-    grady += uy * (my2 - my1);
-    gradz += uz * (mz2 - mz1);
+    diffmx += ux * (mx2 - mx1);
+    diffmy += uy * (my2 - my1);
+    diffmz += uz * (mz2 - mz1);
 
 
     // derivative in Z direction
@@ -88,12 +92,31 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
     } else {
       //
     } 
-    gradx += ux * (mx2 - mx1);
-    grady += uy * (my2 - my1);
-    gradz += uz * (mz2 - mz1);
+    diffmx += ux * (mx2 - mx1);
+    diffmy += uy * (my2 - my1);
+    diffmz += uz * (mz2 - mz1);
 
+
+    //(2) torque terms
+    // - m cross H
+    float Hx = hx[I];
+    float Hy = hy[I];
+    float Hz = hz[I];
     
+    float Mx = mx[I], My = my[I], Mz = mz[I];
     
+    float _mxHx = -My * Hz + Hy * Mz;
+    float _mxHy =  Mx * Hz - Hx * Mz;
+    float _mxHz = -Mx * Hy + Hx * My;
+
+    // - m cross (m cross H)
+    float _mxmxHx =  My * _mxHz - _mxHy * Mz;
+    float _mxmxHy = -Mx * _mxHz + _mxHx * Mz;
+    float _mxmxHz =  Mx * _mxHy - _mxHx * My;
+    
+    hx[I] = dt_gilb * (_mxHx + _mxmxHx * alpha + diffmx);
+    hy[I] = dt_gilb * (_mxHy + _mxmxHy * alpha + diffmy);
+    hz[I] = dt_gilb * (_mxHz + _mxmxHz * alpha + diffmz);
   }
   
 }
