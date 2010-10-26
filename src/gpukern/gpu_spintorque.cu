@@ -14,7 +14,7 @@ __global__ void _gpu_directional_diff2D(float ux, float uy, float uz, float* in,
   int j = blockIdx.x * blockDim.x + threadIdx.x;
   int k = blockIdx.y * blockDim.y + threadIdx.y;
 
-
+  out[i*N1*N2 + j*N2 + k] = in[i*N1*N2 + j*N2 + k];
 
 }
 
