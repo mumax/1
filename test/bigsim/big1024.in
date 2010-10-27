@@ -1,7 +1,7 @@
 # BIG simulation
 
 
-demagaccuracy 0
+demagaccuracy 1
 
 # schedule output
 #autosave      m     png   100E-12
