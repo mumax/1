@@ -105,33 +105,33 @@ void yz_transpose_in_place_inv(float *data,
 /**
  * @internal Does padding and unpadding, not necessarily by a factor 2
  **/
-__global__ void _gpu_copy_pad(float* source,        ///< source data
+/*__global__ void _gpu_copy_pad(float* source,        ///< source data
                               float* dest,          ///< destination data
                               int S1,               ///< source size Y
                               int S2,               ///< source size Z
                               int D1,               ///< destination size Y
                               int D2                ///< destination size Z
-                              );
+                              );*/
                               
 /**
  * @internal
  * pads the input tensor 'source' and saves it in tensor 'dest', 2d and 3d applicable.
  */
-void gpu_copy_to_pad(float* source,         ///< input: unpadded source as contiguous float array
-                     float* dest,           ///< output: padded destination as contiguous float array
-                     int *unpad_size,       ///< size of the corresponding unpadded tensor 
-                     int *pad_size          ///< size of the corresponding padded tensor
-                     );
+// void gpu_copy_to_pad(float* source,         ///< input: unpadded source as contiguous float array
+//                      float* dest,           ///< output: padded destination as contiguous float array
+//                      int *unpad_size,       ///< size of the corresponding unpadded tensor 
+//                      int *pad_size          ///< size of the corresponding padded tensor
+//                      );
 
 /**
  * @internal
  * copies the non-zero elements from the padded the input tensor 'source' towards tensor 'dest', 2d and 3d applicable.
  */
-void gpu_copy_to_unpad(float* source,        ///< input: padded source as contiguous float array
-                       float* dest,          ///< output: unpadded destination as contiguous float array
-                       int *pad_size,        ///< size of the corresponding padded tensor
-                       int *unpad_size       ///< size of the corresponding unpadded tensor 
-                       ); 
+// void gpu_copy_to_unpad(float* source,        ///< input: padded source as contiguous float array
+//                        float* dest,          ///< output: unpadded destination as contiguous float array
+//                        int *pad_size,        ///< size of the corresponding padded tensor
+//                        int *unpad_size       ///< size of the corresponding unpadded tensor 
+//                        ); 
 
                        
                        

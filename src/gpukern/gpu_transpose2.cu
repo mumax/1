@@ -133,9 +133,9 @@ void gpu_transpose_complex_in_plane_fw(float *data, int N1, int N2){
 //   dim3 gridSize1(1, N2-1, 1); 
 //   dim3 blockSize1(N1x2, 1, 1);
 
-    dim3 gridSize(divUp(N2-1, BLOCKSIZE), divUp(N1x2, BLOCKSIZE), 1);
-    dim3 blockSize(BLOCKSIZE, BLOCKSIZE, 1);
-    check3dconf(gridSize, blockSize);
+    dim3 gridSize1(divUp(N2-1, BLOCKSIZE), divUp(N1x2, BLOCKSIZE), 1);
+    dim3 blockSize1(BLOCKSIZE, BLOCKSIZE, 1);
+    check3dconf(gridSize1, blockSize1);
 
   
   check3dconf(gridSize1, blockSize1);
@@ -197,10 +197,12 @@ __global__ void _gpu_transpose_complex_in_plane_inv(complex* input, complex* out
 
 __global__ void _gpu_yz_transpose_inv_copy(float *data1, float *data2, int N1, int N2x2){
 
-  int j = blockIdx.y;
-  int k = threadIdx.x;
+ ///@todo check timing with x<->y
+  int j = blockIdx.x * blockDim.x + threadIdx.x;
+  int k = blockIdx.y * blockDim.y + threadIdx.y;
+  
  
-  if (j%2==0)
+  if (j%2==0 && j < N1-1 && k < N2x2)
     data2[j*N2x2 + k] = data1[j*N2x2 + k];
 
   return;
@@ -214,11 +216,13 @@ void gpu_transpose_complex_in_plane_inv(float *data, int N1, int N2){
 
  
 //   timer_start("inv_yz_transpose_copy");
-  dim3 gridSize1(1, N1-1, 1); 
-  dim3 blockSize1(N2x2, 1, 1);
-  check3dconf(gridSize1, blockSize1);
-  _gpu_yz_transpose_inv_copy<<<gridSize1, blockSize1>>> (data + (N1+1)*N2x2, data + N2x2, N1, N2x2);
-  gpu_sync();
+//   dim3 gridSize1(1, N1-1, 1); 
+//   dim3 blockSize1(N2x2, 1, 1);
+    dim3 gridSize1(divUp(N1-1, BLOCKSIZE), divUp(N2x2, BLOCKSIZE), 1);
+    dim3 blockSize1(BLOCKSIZE, BLOCKSIZE, 1);
+    check3dconf(gridSize1, blockSize1);
+    _gpu_yz_transpose_inv_copy<<<gridSize1, blockSize1>>> (data + (N1+1)*N2x2, data + N2x2, N1, N2x2);
+    gpu_sync();
 //   timer_stop("inv_yz_transpose_copy");
 
 
