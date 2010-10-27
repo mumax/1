@@ -109,15 +109,16 @@ __syncthreads();
 
 __global__ void _gpu_yz_transpose_fw_copy(float *data1, float *data2, int N2, int N1x2){
 
-  int j = blockIdx.y;
-  int k = threadIdx.x;
- 
-  if (j%2==0)
-    data2[j*N1x2 + k] = data1[j*N1x2 + k];
+//   int j = blockIdx.y;
+//   int k = threadIdx.x;
+
+  ///@todo check timing with x<->y
+  int j = blockIdx.x * blockDim.x + threadIdx.x;
+  int k = blockIdx.y * blockDim.y + threadIdx.y;
   
-// //  int ind = (2*j+1)*N1x2 + i; 
-//   int ind = (2*k+1)*N1x2 + j; 
-//   data2[ind] = data1[ind];
+ 
+  if (j%2==0 && j<N2-1 && k < N1x2)
+    data2[j*N1x2 + k] = data1[j*N1x2 + k];
 
   return;
 }
@@ -128,9 +129,15 @@ void gpu_transpose_complex_in_plane_fw(float *data, int N1, int N2){
   N2 /= 2;
   int N1x2 = 2*N1;
 
-//   timer_start("fw_yz_transpose_copy");
-  dim3 gridSize1(1, N2-1, 1); 
-  dim3 blockSize1(N1x2, 1, 1);
+// //   timer_start("fw_yz_transpose_copy");
+//   dim3 gridSize1(1, N2-1, 1); 
+//   dim3 blockSize1(N1x2, 1, 1);
+
+    dim3 gridSize(divUp(N2-1, BLOCKSIZE), divUp(N1x2, BLOCKSIZE), 1);
+    dim3 blockSize(BLOCKSIZE, BLOCKSIZE, 1);
+    check3dconf(gridSize, blockSize);
+
+  
   check3dconf(gridSize1, blockSize1);
   _gpu_yz_transpose_fw_copy<<<gridSize1, blockSize1>>> (data + (N2+1)*N1x2, data + N1x2, N2, N1x2);
   gpu_sync();

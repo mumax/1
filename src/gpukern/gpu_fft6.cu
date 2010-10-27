@@ -362,7 +362,7 @@ void gpu_copy_to_pad2(float* source, float* dest, int *unpad_size, int *pad_size
   int S2 = unpad_size[2];
 
   
-  dim3 gridSize(divUp(S1, BLOCKSIZE), divUp(S2, BLOCKSIZE), 1); ///@todo generalize!
+  dim3 gridSize(divUp(S1, BLOCKSIZE), divUp(S2, BLOCKSIZE), 1);
   dim3 blockSize(BLOCKSIZE, BLOCKSIZE, 1);
   check3dconf(gridSize, blockSize);
 
@@ -384,7 +384,7 @@ void gpu_copy_to_unpad2(float* source, float* dest, int *pad_size, int *unpad_si
   int D1 = unpad_size[Y];
   int D2 = unpad_size[Z];
 
-  dim3 gridSize(divUp(D1, BLOCKSIZE), divUp(D2, BLOCKSIZE), 1); ///@todo generalize!
+  dim3 gridSize(divUp(D1, BLOCKSIZE), divUp(D2, BLOCKSIZE), 1);
   dim3 blockSize(BLOCKSIZE, BLOCKSIZE, 1);
   check3dconf(gridSize, blockSize);
 
