@@ -35,7 +35,6 @@ import (
 type Input struct {
 	aexch          float32
 	msat           float32
-	alpha          float32
 	size           [3]int
 	cellSize       [3]float32
 	partSize       [3]float32
@@ -186,10 +185,9 @@ func (s *Sim) init() {
 	}
 	s.aExch = s.input.aexch
 
-	if s.input.alpha <= 0. {
-		s.Warn("Damping parameter alpha =  ", s.input.alpha)
+	if s.alpha <= 0. {
+		s.Warn("Damping parameter alpha =  ", s.alpha)
 	}
-	s.alpha = s.input.alpha
 
 	s.metadata["msat"] = fmt.Sprint(s.mSat)
 	s.metadata["aexch"] = fmt.Sprint(s.aExch)

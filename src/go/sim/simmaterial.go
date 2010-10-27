@@ -23,6 +23,6 @@ func (s *Sim) MSat(ms float32) {
 
 // Sets the damping coefficient
 func (s *Sim) Alpha(a float32) {
-	s.input.alpha = a
-	s.invalidate()
+	s.alpha = a
+	s.invalidate()  // should not invalidate
 }
