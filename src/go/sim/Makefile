@@ -15,6 +15,7 @@ GOFILES=\
 	tensor.go\
 	fft.go\
 	conv.go\
+	torque.go\
 	solver.go\
 	euler.go\
 	heun.go\

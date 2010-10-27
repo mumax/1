@@ -114,23 +114,6 @@ func (dev *Backend) AddConstant(a *DevTensor, cnst float32) {
 // }
 
 
-// calculates torque * dt, overwrites h with the result
-func (dev *Backend) DeltaM(m, h *DevTensor, alpha, dtGilbert float32) {
-	assert(len(m.size) == 4)
-	assert(tensor.EqualSize(m.size, h.size))
-	N := m.size[1] * m.size[2] * m.size[3]
-	dev.deltaM(m.data, h.data, alpha, dtGilbert, N)
-}
-
-
-// calculates torque, overwrites h with the result
-func (dev *Backend) Torque(m, h *DevTensor, alpha float32) {
-	assert(len(m.size) == 4)
-	assert(tensor.EqualSize(m.size, h.size))
-	N := m.size[1] * m.size[2] * m.size[3]
-	dev.deltaM(m.data, h.data, alpha, 1.0, N) // we (ab)use DeltaM with dt=1.
-}
-
 
 func (b Backend) OverrideStride(stride int) {
 	panic("OverrideStride is currently not compatible with the used FFT, it should always be 1")

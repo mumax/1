@@ -11,8 +11,8 @@ import ()
 
 
 type MultiGpu struct {
-	gpuid    []int                 // IDs of the GPUs in the multi-GPU pool
-	
+	gpuid []int // IDs of the GPUs in the multi-GPU pool
+
 	curraddr uintptr               // counter for making unique fake adresses in the multi-GPU memory space
 	mmap     map[uintptr][]uintptr // maps each fake address of the multi-GPU memory space to adresses on each of the sub-devices
 	msize    map[uintptr]int       // stores the length (in number of floats) of the alloctad storage of fake multi-GPU addresses
@@ -135,10 +135,10 @@ func (d *MultiGpu) setDevice(devid int) {
 func (d *MultiGpu) newArray(nFloats int) uintptr {
 	d.curraddr++
 	fakeaddr := d.curraddr
-	
+
 	d.mmap[fakeaddr] = make([]uintptr, d.NDev())
-  d.msize[fakeaddr] = nFloats
-	
+	d.msize[fakeaddr] = nFloats
+
 	subaddr := d.mmap[fakeaddr]
 	assert(nFloats%d.NDev() == 0)
 	subsize := nFloats / d.NDev()
@@ -149,7 +149,7 @@ func (d *MultiGpu) newArray(nFloats int) uintptr {
 			return GPU.newArray(subsize)
 		}()
 	}
-	
+
 	return fakeaddr
 }
 

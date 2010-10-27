@@ -73,9 +73,9 @@ func (d Cpu) deltaM(m, h uintptr, alpha, dtGilbert float32, N int) {
 	C.cpu_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha), C.float(dtGilbert), C.int(N))
 }
 
-func (d Cpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, dtGilb float32, size []int){
-  //C.cpu_spintorque_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha),  C.float(beta),  C.float(epsillon), (*C.float)(unsafe.Pointer(&u[0])), C.float(dtGilb), C.int(size[0]), C.int(size[1]), C.int(size[2]))
-  panic(Bug("spin torque not implemented on CPU"))
+func (d Cpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, dtGilb float32, size []int) {
+	//C.cpu_spintorque_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha),  C.float(beta),  C.float(epsillon), (*C.float)(unsafe.Pointer(&u[0])), C.float(dtGilb), C.int(size[0]), C.int(size[1]), C.int(size[2]))
+	panic(Bug("spin torque not implemented on CPU"))
 }
 
 func (d Cpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {
@@ -207,7 +207,7 @@ func (d Cpu) memcpy(source, dest uintptr, nFloats, direction int) {
 // }
 
 func (d Cpu) arrayOffset(array uintptr, index int) uintptr {
-	return uintptr(array + uintptr(SIZEOF_CFLOAT * index)) //return uintptr(unsafe.Pointer(C.cpu_array_offset((*C.float)(unsafe.Pointer(array)), C.int(index))))
+	return uintptr(array + uintptr(SIZEOF_CFLOAT*index)) //return uintptr(unsafe.Pointer(C.cpu_array_offset((*C.float)(unsafe.Pointer(array)), C.int(index))))
 }
 
 //___________________________________________________________________________________________________ GPU Stride
