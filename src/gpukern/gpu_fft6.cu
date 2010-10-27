@@ -342,14 +342,20 @@ __global__ void _gpu_copy_pad2(int i, float* source, float* dest,
                                int S1, int S2,                  ///< source sizes Y and Z
                                int D1, int D2                   ///< destination size Y and Z
                                ){
-// int i = blockIdx.x;
- int j = blockIdx.y;
- int k = threadIdx.x;
+// // int i = blockIdx.x;
+//  int j = blockIdx.y;
+//  int k = threadIdx.x;
 
- dest[(i*D1 + j)*D2 + k] = source[(i*S1 + j)*S2 + k];
+  int j = blockIdx.x * blockDim.x + threadIdx.x;
+  int k = blockIdx.y * blockDim.y + threadIdx.y;
+
+  
+  dest[(i*D1 + j)*D2 + k] = source[(i*S1 + j)*S2 + k];
  
  return;
 }
+
+#define BLOCKSIZE 16
 
 void gpu_copy_to_pad2(float* source, float* dest, int *unpad_size, int *pad_size){          //for padding of the tensor, 2d and 3d applicable
   
@@ -357,8 +363,9 @@ void gpu_copy_to_pad2(float* source, float* dest, int *unpad_size, int *pad_size
   int S1 = unpad_size[1];
   int S2 = unpad_size[2];
 
-  dim3 gridSize(1, S1, 1); ///@todo generalize!
-  dim3 blockSize(S2, 1, 1);
+  
+  dim3 gridSize(divUp(S1, BLOCKSIZE), divUp(S2, BLOCKSIZE), 1); ///@todo generalize!
+  dim3 blockSize(BLOCKSIZE, BLOCKSIZE, 1);
   check3dconf(gridSize, blockSize);
 
   for (int i=0; i<S0; i++){
@@ -379,8 +386,8 @@ void gpu_copy_to_unpad2(float* source, float* dest, int *pad_size, int *unpad_si
   int D1 = unpad_size[Y];
   int D2 = unpad_size[Z];
 
-  dim3 gridSize(1, D1, 1); ///@todo generalize!
-  dim3 blockSize(D2, 1, 1);
+  dim3 gridSize(divUp(D1, BLOCKSIZE), divUp(D2, BLOCKSIZE), 1); ///@todo generalize!
+  dim3 blockSize(BLOCKSIZE, BLOCKSIZE, 1);
   check3dconf(gridSize, blockSize);
 
   for (int i=0; i<D0; i++){
