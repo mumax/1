@@ -13,7 +13,7 @@ alpha 2
 run 10e-9
 
 alpha 0.01
-rotatingburst 1 640e6 1.5708  50e-12 1000E-9
+rotatingburst 1e-3 640e6 1.5708  50e-12 1000E-9
 autosave table ascii 100E-12
 
 run 100E-9
