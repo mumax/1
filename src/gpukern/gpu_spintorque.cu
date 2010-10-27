@@ -12,11 +12,11 @@ extern "C" {
 
 /// 2D, plane per plane, i=plane index
 __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
-                            float* hx, float* hy, float* hz,
-                            float alpha, float beta,
-                            float ux, float uy, float uz,
-                            float dt_gilb,
-                            int N0, int N1, int N2, int i){
+                                       float* hx, float* hy, float* hz,
+                                       float alpha, float beta, float epsillon,
+                                       float ux, float uy, float uz,
+                                       float dt_gilb,
+                                       int N0, int N1, int N2, int i){
 
   int j = blockIdx.x * blockDim.x + threadIdx.x;
   int k = blockIdx.y * blockDim.y + threadIdx.y;
@@ -25,7 +25,7 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
   if (j < N1 && k < N2){
 
     // (1) calculate the directional derivative of (mx, my mz) along (ux,uy,uz).
-    // Result is (diffmx, diffmy, diffmz)
+    // Result is (diffmx, diffmy, diffmz) (= Hspin)
     // (ux, uy, uz) is 0.5 * U_spintorque / cellsize(x, y, z)
     
     //float m0x = mx[i*N1*N2 + j*N2 + k];
@@ -98,25 +98,44 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
 
 
     //(2) torque terms
-    // - m cross H
+
+    // H
     float Hx = hx[I];
     float Hy = hy[I];
     float Hz = hz[I];
-    
-    float Mx = mx[I], My = my[I], Mz = mz[I];
-    
-    float _mxHx = -My * Hz + Hy * Mz;
-    float _mxHy =  Mx * Hz - Hx * Mz;
-    float _mxHz = -Mx * Hy + Hx * My;
 
-    // - m cross (m cross H)
-    float _mxmxHx =  My * _mxHz - _mxHy * Mz;
-    float _mxmxHy = -Mx * _mxHz + _mxHx * Mz;
-    float _mxmxHz =  Mx * _mxHy - _mxHx * My;
+    // m
+    float Mx = mx[I], My = my[I], Mz = mz[I];
+
+    // Hp (Hprecess) = H + epsillon Hspin
+    float Hpx = Hx + epsillon * diffmx;
+    float Hpy = Hy + epsillon * diffmy;
+    float Hpz = Hz + epsillon * diffmz;
     
-    hx[I] = dt_gilb * (_mxHx + _mxmxHx * alpha + diffmx);
-    hy[I] = dt_gilb * (_mxHy + _mxmxHy * alpha + diffmy);
-    hz[I] = dt_gilb * (_mxHz + _mxmxHz * alpha + diffmz);
+    // - m cross Hprecess
+    float _mxHpx = -My * Hpz + Hpy * Mz;
+    float _mxHpy =  Mx * Hpz - Hpx * Mz;
+    float _mxHpz = -Mx * Hpy + Hpx * My;
+
+    // Hd Hdamp = alpha*H + beta*Hspin
+    float Hdx = alpha*Hx + beta*diffmx;
+    float Hdy = alpha*Hy + beta*diffmy;
+    float Hdz = alpha*Hz + beta*diffmz;
+
+    // - m cross Hdamp
+    float _mxHdx = -My * Hdz + Hdy * Mz;
+    float _mxHdy =  Mx * Hdz - Hdx * Mz;
+    float _mxHdz = -Mx * Hdy + Hdx * My;
+
+    
+    // - m cross (m cross Hd)
+    float _mxmxHdx =  My * _mxHdz - _mxHdy * Mz;
+    float _mxmxHdy = -Mx * _mxHdz + _mxHdx * Mz;
+    float _mxmxHdz =  Mx * _mxHdy - _mxHdx * My;
+    
+    hx[I] = dt_gilb * (_mxHpx + _mxmxHdx);
+    hy[I] = dt_gilb * (_mxHpy + _mxmxHdy);
+    hz[I] = dt_gilb * (_mxHpz + _mxmxHdz);
   }
   
 }
@@ -124,14 +143,14 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
 
 #define BLOCKSIZE 16
 
-void gpu_spintorque_deltaM(float* m, float* h, float alpha, float beta, float* u, float dt_gilb, int N0,  int N1, int N2){
+void gpu_spintorque_deltaM(float* m, float* h, float alpha, float beta, float epsillon, float* u, float dt_gilb, int N0,  int N1, int N2){
 
   dim3 gridsize(divUp(N1, BLOCKSIZE), divUp(N2, BLOCKSIZE));
   dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
   int N = N0 * N1 * N2;
   
   for(int i=0; i<N0; i++){
-    _gpu_spintorque_deltaM<<<gridsize, blocksize>>>(&m[0*N], &m[1*N], &m[2*N], &h[0*N], &h[1*N], &h[2*N], alpha, beta, u[0], u[1], u[2], dt_gilb, N0, N1, N2, i);
+    _gpu_spintorque_deltaM<<<gridsize, blocksize>>>(&m[0*N], &m[1*N], &m[2*N], &h[0*N], &h[1*N], &h[2*N], alpha, beta, epsillon, u[0], u[1], u[2], dt_gilb, N0, N1, N2, i);
   }
   gpu_sync();
 }

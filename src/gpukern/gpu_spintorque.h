@@ -17,7 +17,8 @@ extern "C" {
 void gpu_spintorque_deltaM(float* m,       ///< magnetization (all 3 components, contiguously)
                            float* h,       ///< effective field, to be overwritten by torque
                            float alpha,    ///< damping constant
-                           float beta,
+                           float beta,     ///< b(1+alpha*xi)
+                           float epsillon, ///< b(xi-alpha)
                            float* u,       /// 0.5 * U_spintorque / cellsize[i]
                            float dt_gilb,  ///< dt * gilbert factor
                            int N0,         ///< length of each of the components of m, h (1/3 of m's total length)
