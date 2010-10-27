@@ -90,7 +90,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
     gpu_zero(output, plan->paddedStorageN);
   //     padding of the input matrix towards the output matrix
     timer_start("fw_copy_to_pad");
-    gpu_copy_to_pad(input, output, size, pSSize);
+    gpu_copy_to_pad2(input, output, size, pSSize);
     timer_stop("fw_copy_to_pad");
 
   
@@ -209,7 +209,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
   }
   
   timer_start("inv_copy_to_unpad");
-  gpu_copy_to_unpad(data, output, pSSize, size);                                                           // it's in output
+  gpu_copy_to_unpad2(data, output, pSSize, size);                                                           // it's in output
   timer_stop("inv_copy_to_unpad");
  
  
@@ -342,16 +342,14 @@ __global__ void _gpu_copy_pad2(int i, float* source, float* dest,
                                int S1, int S2,                  ///< source sizes Y and Z
                                int D1, int D2                   ///< destination size Y and Z
                                ){
-// // int i = blockIdx.x;
-//  int j = blockIdx.y;
-//  int k = threadIdx.x;
 
+  ///@todo check timing with x<->y
   int j = blockIdx.x * blockDim.x + threadIdx.x;
   int k = blockIdx.y * blockDim.y + threadIdx.y;
 
-  
-  dest[(i*D1 + j)*D2 + k] = source[(i*S1 + j)*S2 + k];
- 
+  if(j<S1 && k<S2){
+    dest[(i*D1 + j)*D2 + k] = source[(i*S1 + j)*S2 + k];
+  }
  return;
 }
 
