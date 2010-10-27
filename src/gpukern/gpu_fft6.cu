@@ -337,6 +337,64 @@ void gpu_copy_to_unpad(float* source, float* dest, int *pad_size, int *unpad_siz
 
 
 
+/// @internal Does padding and unpadding, not necessarily by a factor 2
+__global__ void _gpu_copy_pad2(int i, float* source, float* dest, 
+                               int S1, int S2,                  ///< source sizes Y and Z
+                               int D1, int D2                   ///< destination size Y and Z
+                               ){
+// int i = blockIdx.x;
+ int j = blockIdx.y;
+ int k = threadIdx.x;
+
+ dest[(i*D1 + j)*D2 + k] = source[(i*S1 + j)*S2 + k];
+ 
+ return;
+}
+
+void gpu_copy_to_pad2(float* source, float* dest, int *unpad_size, int *pad_size){          //for padding of the tensor, 2d and 3d applicable
+  
+  int S0 = unpad_size[0];
+  int S1 = unpad_size[1];
+  int S2 = unpad_size[2];
+
+  dim3 gridSize(1, S1, 1); ///@todo generalize!
+  dim3 blockSize(S2, 1, 1);
+  check3dconf(gridSize, blockSize);
+
+  for (int i=0; i<S0; i++){
+    if ( pad_size[0]!=unpad_size[0] || pad_size[1]!=unpad_size[1])
+      _gpu_copy_pad2<<<gridSize, blockSize>>>(i, source, dest, S1, S2, S1, pad_size[2]-2);      // for out of place forward FFTs in z-direction, contiguous data arrays
+    else
+      _gpu_copy_pad2<<<gridSize, blockSize>>>(i, source, dest, S1, S2, S1, pad_size[2]);        // for in place forward FFTs in z-direction, contiguous data arrays
+  }
+  gpu_sync();
+  
+  return;
+}
+
+
+void gpu_copy_to_unpad2(float* source, float* dest, int *pad_size, int *unpad_size){        //for unpadding of the tensor, 2d and 3d applicable
+  
+  int D0 = unpad_size[X];
+  int D1 = unpad_size[Y];
+  int D2 = unpad_size[Z];
+
+  dim3 gridSize(1, D1, 1); ///@todo generalize!
+  dim3 blockSize(D2, 1, 1);
+  check3dconf(gridSize, blockSize);
+
+  for (int i=0; i<D0; i++){
+    if ( pad_size[X]!=unpad_size[X] || pad_size[Y]!=unpad_size[Y])
+      _gpu_copy_pad2<<<gridSize, blockSize>>>(i, source, dest, D1,  pad_size[Z]-2, D1, D2);       // for out of place inverse FFTs in z-direction, contiguous data arrays
+    else
+      _gpu_copy_pad2<<<gridSize, blockSize>>>(i, source, dest, D1,  pad_size[Z], D1, D2);         // for in place inverse FFTs in z-direction, contiguous data arrays
+  }
+    
+  gpu_sync();
+  
+  return;
+}
+
 #ifdef __cplusplus
 }
 #endif
