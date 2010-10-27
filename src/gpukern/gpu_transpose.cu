@@ -1,3 +1,6 @@
+/**
+ * @author Arne
+ */
 #include "gpu_transpose.h"
 #include "gpu_safe.h"
 #include "gpu_conf.h"
@@ -18,7 +21,7 @@ typedef struct{
 /// The size of matrix blocks to be loaded into shared memory.
 #define BLOCKSIZE 16
 
-
+///2D
 __global__ void _gpu_transpose_complex(complex* input, complex* output, int N1, int N2)
 {
   __shared__ complex block[BLOCKSIZE][BLOCKSIZE+1];
@@ -77,86 +80,86 @@ void gpu_transpose_complex_async(float *input, float *output, int N1, int N2){
  * 1) Transpose the elements inside each block "internally"
  * 2) Transpose the blocks inside the matrix.
  */
-__global__ void _gpu_transpose(float *input, float *output, int N1, int N2)
-{
-  // With this peculiar size there are no shared memory bank conflicts.
-  // See NVIDIA's CUDA examples: "efficient matrix transpose".
-  // However, this barely seems to affect performance:
-  // removing the "+1" makes it only 5% slower, so no need to worry if
-  // something HAS to be implemented with memory bank conflicts.
-  __shared__ float block[BLOCKSIZE][BLOCKSIZE+1];
-
-  // index of the block inside the blockmatrix
-  int BI = blockIdx.x;
-  int BJ = blockIdx.y;
-  
-  // "minor" indices inside the tile
-  int i = threadIdx.x;
-  int j = threadIdx.y;
-  
-  {
-    // "major" indices inside the entire matrix
-    int I = BI * BLOCKSIZE + i;
-    int J = BJ * BLOCKSIZE + j;
-    
-    if((I < N1) && (J < N2)){
-      block[j][i] = input[J * N1 + I];
-    }
-  }
-  __syncthreads();
-  
-  {
-    // Major indices with transposed blocks but not transposed minor indices
-    int It = BJ * BLOCKSIZE + i;
-    int Jt = BI * BLOCKSIZE + j;
-    
-    if((It < N2) && (Jt < N1)){
-      output[Jt * N2 + It] = block[i][j];
-    }
-  }
-}
+// __global__ void _gpu_transpose(float *input, float *output, int N1, int N2)
+// {
+//   // With this peculiar size there are no shared memory bank conflicts.
+//   // See NVIDIA's CUDA examples: "efficient matrix transpose".
+//   // However, this barely seems to affect performance:
+//   // removing the "+1" makes it only 5% slower, so no need to worry if
+//   // something HAS to be implemented with memory bank conflicts.
+//   __shared__ float block[BLOCKSIZE][BLOCKSIZE+1];
+// 
+//   // index of the block inside the blockmatrix
+//   int BI = blockIdx.x;
+//   int BJ = blockIdx.y;
+//   
+//   // "minor" indices inside the tile
+//   int i = threadIdx.x;
+//   int j = threadIdx.y;
+//   
+//   {
+//     // "major" indices inside the entire matrix
+//     int I = BI * BLOCKSIZE + i;
+//     int J = BJ * BLOCKSIZE + j;
+//     
+//     if((I < N1) && (J < N2)){
+//       block[j][i] = input[J * N1 + I];
+//     }
+//   }
+//   __syncthreads();
+//   
+//   {
+//     // Major indices with transposed blocks but not transposed minor indices
+//     int It = BJ * BLOCKSIZE + i;
+//     int Jt = BI * BLOCKSIZE + j;
+//     
+//     if((It < N2) && (Jt < N1)){
+//       output[Jt * N2 + It] = block[i][j];
+//     }
+//   }
+// }
 
 
 ///@internal For debugging only
-__global__ void _gpu_transpose_slow(float *input, float *output, int N1, int N2)
-{
+// __global__ void _gpu_transpose_slow(float *input, float *output, int N1, int N2)
+// {
+// 
+//   // index of the block inside the blockmatrix
+//   int BI = blockIdx.x;
+//   int BJ = blockIdx.y;
+// 
+//   // "minor" indices inside the tile
+//   int i = threadIdx.x;
+//   int j = threadIdx.y;
+// 
+//   // "major" indices inside the entire matrix
+//   int I = BI * BLOCKSIZE + i;
+//   int J = BJ * BLOCKSIZE + j;
+// 
+//   // Major indices with transposed blocks but not transposed minor indices
+// //   int It = BJ * BLOCKSIZE + i;
+// //   int Jt = BI * BLOCKSIZE + j;
+// 
+//   if((I < N1) && (J < N2)){
+//     output[I * N2 + J] = input[J * N1 + I];
+//   }
+// 
+// }
 
-  // index of the block inside the blockmatrix
-  int BI = blockIdx.x;
-  int BJ = blockIdx.y;
-
-  // "minor" indices inside the tile
-  int i = threadIdx.x;
-  int j = threadIdx.y;
-
-  // "major" indices inside the entire matrix
-  int I = BI * BLOCKSIZE + i;
-  int J = BJ * BLOCKSIZE + j;
-
-  // Major indices with transposed blocks but not transposed minor indices
-//   int It = BJ * BLOCKSIZE + i;
-//   int Jt = BI * BLOCKSIZE + j;
-
-  if((I < N1) && (J < N2)){
-    output[I * N2 + J] = input[J * N1 + I];
-  }
-
-}
-
-/// 2D transpose
-void gpu_transpose(float *input, float *output, int N1, int N2){
-    dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
-    dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
-    _gpu_transpose<<<gridsize, blocksize>>>(input, output, N2, N1);
-}
-
-/// 2D transpose
-void gpu_transpose_async(float *input, float *output, int N1, int N2){
-    dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
-    dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
-    //_gpu_transpose<<<gridsize, blocksize, gpu_getstream()>>>(input, output, N2, N1);
-    _gpu_transpose<<<gridsize, blocksize>>>(input, output, N2, N1); ///@todo STREAM!
-}
+/// 2D transpose real
+// void gpu_transpose(float *input, float *output, int N1, int N2){
+//     dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
+//     dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
+//     _gpu_transpose<<<gridsize, blocksize>>>(input, output, N2, N1);
+// }
+// 
+// /// 2D transpose real
+// void gpu_transpose_async(float *input, float *output, int N1, int N2){
+//     dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
+//     dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
+//     //_gpu_transpose<<<gridsize, blocksize, gpu_getstream()>>>(input, output, N2, N1);
+//     _gpu_transpose<<<gridsize, blocksize>>>(input, output, N2, N1); ///@todo STREAM!
+// }
 
 
 ///@todo need to time this on 2.0 hardware

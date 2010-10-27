@@ -9,14 +9,15 @@ openNanoMag
 
 TeraGpuMag (Refers to TeraFlop)
 SpinCrunch (Refers to number crunching)
-TeslaSpin (Tesla is a GPU brand)
+TeslaSpin (Tesla is a GPU brand and )
 FermiMag (Fermi is a GPU architecture)
 
 MPMMS (Massively Parallel Micro Magnetic Simulator)
 SPeeMagS
 xspinsim, xspins (pronouced k'spins, eXtreme Spin Simulator)
 GeeMags
-
+gmaxs
+teslamags
 
 TODO (Arne)
 

@@ -1,3 +1,6 @@
+/**
+ * @author Arne
+ */
 #include "gpu_bigfft.h"
 #include "gpu_safe.h"
 #include "cufft.h"

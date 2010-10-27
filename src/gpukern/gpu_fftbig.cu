@@ -1,3 +1,6 @@
+/**
+ * @author Ben
+ */
 #include <cufft.h>
 #include <cufft.h>
 #include "gpu_safe.h"
