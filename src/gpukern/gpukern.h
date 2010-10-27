@@ -18,6 +18,7 @@
 #include "gpu_normalize.h"
 #include "gpu_tensor.h"
 #include "gpu_torque.h"
+#include "gpu_spintorque.h"
 #include "gpu_transpose.h"
 #include "gpu_zeropad.h"
 #include "gpu_properties.h"
