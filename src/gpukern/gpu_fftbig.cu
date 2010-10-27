@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-int MAXSIZE = 4*1024*1024;
+int MAXSIZE = 8*1024*1024;
 
 void init_bigfft(bigfft* plan, int size_fft, int stride_in, int stride_out, cufftType type, int Nffts){
 
