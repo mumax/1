@@ -44,6 +44,7 @@ type Input struct {
 	demag_accuracy int
 	dt             float32
 	solvertype     string
+	j              [3]float32 // current density in A/m^2
 }
 
 

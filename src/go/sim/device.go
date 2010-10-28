@@ -76,6 +76,14 @@ type Device interface {
 	// overwrites h with torque(m, h) * dtGilbert. N = length of one component
 	deltaM(m, h uintptr, alpha, dtGilbert float32, N int)
 
+	// overwrites h with torque(m, h) * dtGilbert, inculding spin-transfer torque terms. size = of one component
+	// dtGilb = dt / (1+alpha^2)
+	// alpha = damping
+	// beta = b(1+alpha*xi)
+	// epsillon = b(xi-alpha)
+	// b = µB / e * Ms (Bohr magneton, electron charge, saturation magnetization)
+	// u = current density / (2*cell size)
+	// here be dragons
 	spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, dtGilb float32, size []int)
 
 	// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
