@@ -1,5 +1,7 @@
 # Spintorque standard problem
 
+maxerror 1e-5
+
 aexch:  13e-12
 msat:   8e5
 
@@ -9,12 +11,12 @@ gridsize:  1     64     64
 #relax
 vortex: 1 1
 alpha:  1
-run:    10e-9
+run:    1e-9
 save:   m png
 
 #run
 alpha:            0.1
-currentdensity:   0 0 1e12
+#currentdensity:   0 0 1e12
 xi:               0.05
 spinpolarization: 1
 
