@@ -18,6 +18,7 @@ OFILES=\
 	timer.o\
 	gpu_stream.o\
 	gpu_reduction.o\
+	gpu_spintorque.o\
 # 	gpu_anal.o\
 
 all: libgpukern.so libgpukern.a
@@ -87,8 +88,14 @@ gpu_reduction.o:  gpu_reduction.h gpu_reduction.cu
 gpu_bigfft.o:  gpu_bigfft.h gpu_bigfft.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_bigfft.cu
 
+gpu_spintorque.o:  gpu_spintorque.h gpu_spintorque.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_spintorque.cu
 
-test:	all transpose_test zeropad_test reduction_test fft_test
+test:	all transpose_test zeropad_test reduction_test fft_test spintorque_test
+
+spintorque_test:	spintorque_test.cpp libgpukern.so
+	$(CPP) $(CFLAGS) libgpukern.so spintorque_test.cpp -o spintorque_test
+	./spintorque_test
 
 transpose_test:	transpose_test.cpp libgpukern.so
 	$(CPP) $(CFLAGS) libgpukern.so transpose_test.cpp -o transpose_test

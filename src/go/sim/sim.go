@@ -33,18 +33,18 @@ import (
 // same as sim.dt (which is in internal units)
 //
 type Input struct {
-	aexch          float32
-	msat           float32
-	alpha          float32
-	size           [3]int
-	cellSize       [3]float32
-	partSize       [3]float32
-	sizeSet        bool // Input file may set only 2 of size, cellSize, partSize. The last one being calculated automatically. It is an error to set all 3 of them so we keep track of which is set by the user.
+	aexch          float32    // Exchange constant in SI units (J/m)
+	msat           float32    // Saturation magnetization in SI units (A/m)
+	size           [3]int     // Grid size in number of cells
+	cellSize       [3]float32 // Cell size in SI units (m)
+	partSize       [3]float32 // Total magnet size in SI units(m), = size * cellSize
+	sizeSet        bool       // Input file may set only 2 of size, cellSize, partSize. The last one being calculated automatically. It is an error to set all 3 of them so we keep track of which is set by the user.
 	cellSizeSet    bool
 	partSizeSet    bool
 	demag_accuracy int
 	dt             float32
 	solvertype     string
+	j              [3]float32 // current density in A/m^2
 }
 
 
@@ -186,10 +186,9 @@ func (s *Sim) init() {
 	}
 	s.aExch = s.input.aexch
 
-	if s.input.alpha <= 0. {
-		s.Warn("Damping parameter alpha =  ", s.input.alpha)
+	if s.alpha <= 0. {
+		s.Warn("Damping parameter alpha =  ", s.alpha)
 	}
-	s.alpha = s.input.alpha
 
 	s.metadata["msat"] = fmt.Sprint(s.mSat)
 	s.metadata["aexch"] = fmt.Sprint(s.aExch)

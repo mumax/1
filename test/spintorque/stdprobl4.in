@@ -1,0 +1,31 @@
+# Micromagnetic standard problem 4
+
+metadata  description standard_problem_4
+
+solvertype  	heun
+dt           	0.01E-12    # s
+maxerror	1E-4
+#maxdm		0.01
+
+# material
+msat       	800E3       # A/m
+aexch      	1.3E-11     # J/m
+alpha      	0.02
+
+# geometry
+partsize    3E-9  125E-9 500E-9
+size       	1     32          128    
+#cellsize   	3E-9  3.90625E-9  3.90625E-9  # m
+
+# initial magnetization
+load    	../stdprobl4/s-state.tensor
+
+
+# run
+autosave	m	png	50E-12
+autosave m binary 50E-12
+autosave  m ascii 100E-12
+autosave	table	ascii	10E-12
+staticfield 	0     4.3E-3    -24.6E-3  # T
+run          	1E-9                      # s
+

@@ -28,11 +28,11 @@ func PNG(out io.Writer, t *tensor.T4) {
 func DrawTensor(t *tensor.T4) *NRGBA {
 	assert(tensor.Rank(t) == 4)
 
-	w, h := t.Size()[2], t.Size()[3]
+	h, w := t.Size()[2], t.Size()[3]
 	img := NewNRGBA(w, h)
 	arr := t.Array()
-	for i := 0; i < w; i++ {
-		for j := 0; j < h; j++ {
+	for i := 0; i < h; i++ {
+		for j := 0; j < w; j++ {
 			var x, y, z float32 = 0., 0., 0.
 			for k := 0; k < t.Size()[1]; k++ {
 				x += arr[X][k][i][j]
@@ -42,7 +42,7 @@ func DrawTensor(t *tensor.T4) *NRGBA {
 			x /= float32(t.Size()[1])
 			y /= float32(t.Size()[1])
 			z /= float32(t.Size()[1])
-			img.Set(i, j, HSLMap(z, y, x)) // TODO: x is thickness for now...
+			img.Set(j, (h-1)-i, HSLMap(z, y, x)) // TODO: x is thickness for now...
 		}
 	}
 	return img
@@ -64,7 +64,7 @@ func GreyMap(min, max, value float32) NRGBAColor {
 func HSLMap(x, y, z float32) NRGBAColor {
 	s := fsqrt(x*x + y*y + z*z)
 	l := 0.5*z + 0.5
-	h := float32(math.Atan2(float64(x), float64(y)))
+	h := float32(math.Atan2(float64(y), float64(x)))
 	return HSL(h, s, l)
 }
 
