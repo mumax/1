@@ -7,14 +7,14 @@ aexch:  13e-12
 msat:   8e5
 
 partsize:  10e-9 100e-9 100e-9
-gridsize:  1     64    64
+gridsize:  8     64    64
 
 #relax
 loadm    relaxed.tensor
-#alpha:  1
-#run:    1e-9
-#save:   m png
-#save:   m binary
+alpha:  1
+run:    1e-9
+save:   m png
+save:   m binary
 
 
 #run

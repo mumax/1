@@ -194,9 +194,6 @@ func (s *Sim) init() {
 	s.metadata["aexch"] = fmt.Sprint(s.aExch)
 	s.metadata["alpha"] = fmt.Sprint(s.alpha)
 
-  //debug
-	 s.Println("current density unit: ", s.UnitCurrentDensity(), "A/m^2")
-
 	// (2) Size must be set before memory allocation
 	s.initSize()
 	L := s.UnitLength()

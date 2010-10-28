@@ -16,14 +16,13 @@ func (s *Sim) Xi(xi float32) {
 
 // Sets the current spin polarization (0-100%)
 func (s *Sim) SpinPolarization(p float32) {
-  s.spinPol = p
+	s.spinPol = p
 }
 
 // Sets the current density (A/m^2)
 func (s *Sim) CurrentDensity(jx, jy, jz float32) {
-  s.input.j[X] = jx
-  s.input.j[Y] = jy
-  s.input.j[Z] = jz
-  s.Println("current density: ", s.input.j, "A/m^2")
+	s.input.j[X] = jx
+	s.input.j[Y] = jy
+	s.input.j[Z] = jz
+	s.Println("current density: ", s.input.j, "A/m^2")
 }
-
