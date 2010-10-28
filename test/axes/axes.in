@@ -1,0 +1,13 @@
+
+msat 800e3
+aexch 13e-12
+maxerror 1e-5
+
+gridsize 1  32	128
+cellsize 4e-9 4e-9 4e-9
+uniform  0 0 1
+
+alpha 1
+run 0.01e-9
+save m png
+
