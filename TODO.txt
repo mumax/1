@@ -1,5 +1,7 @@
 Choose a googlable name. Suggestions:
 
+omicrom 
+
 openGpuMag
 openMagSim -> spain
 openGSpin
