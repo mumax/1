@@ -17,6 +17,7 @@ type Material struct {
 	mu0    float32 // mu0 in N/A^2
 	gamma0 float32 // Gyromagnetic ratio in m/As
 	alpha  float32 // Damping parameter
+	xi     float32 // Spin-transfer torque: degree of non-adiabaticity
 }
 
 
@@ -66,17 +67,17 @@ func (mat *Material) UnitEnergy() float32 {
 
 // The internal unit of electrical current, expressed in A
 func (mat *Material) UnitCurrent() float32 {
-  return mat.mSat * mat.UnitLength()
+	return mat.mSat * mat.UnitLength()
 }
 
 // The internal unit of electrical current density, expressed in A/m^2
 func (mat *Material) UnitCurrentDensity() float32 {
-  return mat.mSat / mat.UnitLength()
+	return mat.mSat / mat.UnitLength()
 }
 
 // The internal unit of electrical charge, expressed in Q
 func (mat *Material) UnitCharge() float32 {
-  return mat.UnitCurrent() * mat.UnitTime()
+	return mat.UnitCurrent() * mat.UnitTime()
 }
 
 

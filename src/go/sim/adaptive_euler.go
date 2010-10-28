@@ -35,11 +35,10 @@ func NewAdaptiveEuler(s *Sim) *AdaptiveEuler {
 
 func (this *AdaptiveEuler) Step() {
 	m, h := this.mDev, this.h
-	alpha := this.alpha
 
 	// 	this.Normalize(this.m)
 	this.calcHeff(m, h)
-	this.Torque(m, h, alpha)
+	this.Torque(m, h)
 	torque := h // h is overwritten by deltaM
 
 	// only set an adaptive step if maxDm is defined.
@@ -48,9 +47,7 @@ func (this *AdaptiveEuler) Step() {
 		this.dt = this.maxDm / maxtorque
 	}
 
-	dtGilb := this.dt / (1 + alpha*alpha)
-
-	this.MAdd(m, dtGilb, torque)
+	this.MAdd(m, this.dt, torque)
 	this.Normalize(m)
 }
 
