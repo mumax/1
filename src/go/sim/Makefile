@@ -29,6 +29,7 @@ GOFILES=\
 	simbackend.go\
 	simconfig.go\
 	simfield.go\
+	simspintorque.go\
 	simgeom.go\
 	simmaterial.go\
 	simoutput.go\

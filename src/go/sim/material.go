@@ -12,14 +12,15 @@ import (
 )
 
 type Material struct {
-	aExch  float32 // Exchange constant in J/m
-	mSat   float32 // Saturation magnetization in A/m
-	mu0    float32 // mu0 in N/A^2
-	gamma0 float32 // Gyromagnetic ratio in m/As
-	muB    float32 // Bohr magneton in Am^2
-	e      float32 // Electron charge in As
-	alpha  float32 // Damping parameter
-	xi     float32 // Spin-transfer torque: degree of non-adiabaticity
+	aExch   float32 // Exchange constant in J/m
+	mSat    float32 // Saturation magnetization in A/m
+	mu0     float32 // mu0 in N/A^2
+	gamma0  float32 // Gyromagnetic ratio in m/As
+	muB     float32 // Bohr magneton in Am^2
+	e       float32 // Electron charge in As
+	alpha   float32 // Damping parameter
+	xi      float32 // Spin-transfer torque: degree of non-adiabaticity
+	spinPol float32 // Spin-transfer torque: spin-polarization of the electrical current (0-100%)
 }
 
 

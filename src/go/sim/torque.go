@@ -39,11 +39,11 @@ func (s *Sim) SpintorqueDeltaM(m, h *DevTensor, dt float32) {
 	beta := b * (1 + s.alpha*s.xi)
 	epsillon := b * (s.xi - s.alpha)
 
-  u := [3]float32{}
-  for i:= range u{
-    u[i] = 0.5 * ( s.input.j[i] / s.UnitCurrentDensity() ) / (s.cellSize[i])
-  }
-  fmt.Println("alpha ", alpha, ", beta ", beta, ", epsillon ", epsillon)
+	u := [3]float32{}
+	for i := range u {
+		u[i] = 0.5 * (s.input.j[i] / s.UnitCurrentDensity()) / (s.cellSize[i])
+	}
+	fmt.Println("alpha ", alpha, ", beta ", beta, ", epsillon ", epsillon)
 	s.spintorqueDeltaM(m.data, h.data, alpha, beta, epsillon, u[:], dtGilb, m.size[1:]) // TODO: we need sim.size3D, sim.size4D to avoid slicing al the time.
 }
 
