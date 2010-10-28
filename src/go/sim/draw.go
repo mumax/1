@@ -42,7 +42,7 @@ func DrawTensor(t *tensor.T4) *NRGBA {
 			x /= float32(t.Size()[1])
 			y /= float32(t.Size()[1])
 			z /= float32(t.Size()[1])
-			img.Set(j, i, HSLMap(z, y, x)) // TODO: x is thickness for now...
+			img.Set(j, h-i, HSLMap(z, y, x)) // TODO: x is thickness for now...
 		}
 	}
 	return img
