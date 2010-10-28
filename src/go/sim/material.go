@@ -71,6 +71,13 @@ func (mat *Material) UnitCurrent() float32 {
   return mat.mSat * mat.UnitLength()
 }
 
+// The internal unit of electrical charge, expressed in Q
+func (mat *Material) UnitCharge() float32 {
+  assert(mat.Valid())
+  return mat.UnitCurrent() * mat.UnitTime()
+}
+
+
 // Returns true if the material parameters are valid
 func (mat *Material) Valid() bool {
 	return mat.aExch > 0. && mat.mSat > 0. && mat.gamma0 > 0 && mat.mu0 > 0
