@@ -33,4 +33,6 @@ known bugs
 
 [0009] OPEN arne:
  crash reports are not redirected to output.log
- 
+
+[0010] OPEN arne:
+ when no maxerror is specified, the time step is very small. 
