@@ -39,7 +39,15 @@ func (s *Sim) SpintorqueDeltaM(m, h *DevTensor, dt float32) {
 
 	alpha := s.alpha
 	dtGilb := dt / (1 + alpha*alpha)
-	b := (s.muB / s.UnitMoment()) / ((s.e / s.UnitCharge()) * (1))
+
+  muB := s.muB / s.UnitMoment()
+  e := s.e / s.UnitCharge()
+  P := s.spinPol
+  xi := s.xi
+  // Ms = 1
+  
+	b := P * muB / (e * 1 * (1+xi*xi))
+	
 	beta := b * (1 + s.alpha*s.xi)
 	epsillon := b * (s.xi - s.alpha)
 

@@ -6,17 +6,19 @@ aexch:  13e-12
 msat:   8e5
 
 partsize:  10e-9 100e-9 100e-9
-gridsize:  1     64     64
+gridsize:  1     128    128
 
 #relax
-vortex: 1 1
-alpha:  1
-run:    1e-9
-save:   m png
+#vortex: 1 1
+#alpha:  1
+#run:    1e-9
+#save:   m png
+#save:   m binary
+loadm    relaxed.tensor
 
 #run
 alpha:            0.1
-#currentdensity:   0 0 1e12
+currentdensity:   0 0 1e12
 xi:               0.05
 spinpolarization: 1
 

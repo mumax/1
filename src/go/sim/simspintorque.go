@@ -24,5 +24,6 @@ func (s *Sim) CurrentDensity(jx, jy, jz float32) {
   s.input.j[X] = jx
   s.input.j[Y] = jy
   s.input.j[Z] = jz
+  s.Println("current density: ", s.input.j, "A/m^2")
 }
 
