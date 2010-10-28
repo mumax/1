@@ -1,17 +1,20 @@
 
-solvertype euler
-dt 1E-12
+solvertype heun
+maxerror 1e-4
 
 msat 100E3
 aexch 1E-13
 
-size 1 64 64
-cellsize 3E-9 3E-9 3E-9
+gridsize 1 128 128
+partsize 50E-9 500E-9 500E-9
 vortex 1 1
 
+alpha 2
+run 10e-9
 
-rotatingburst 1 1E9 1.5708  50e-12 10E-9
-autosave table ascii 10E-12
+alpha 0.01
+rotatingburst 1e-3 640e6 1.5708  50e-12 1000E-9
+autosave table ascii 100E-12
 
-run 500E-9
+run 100E-9
 

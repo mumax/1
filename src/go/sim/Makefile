@@ -11,9 +11,11 @@ CGOFILES=\
 GOFILES=\
 	device.go\
 	backend.go\
+	multigpu.go\
 	tensor.go\
 	fft.go\
 	conv.go\
+	torque.go\
 	solver.go\
 	euler.go\
 	heun.go\
@@ -27,6 +29,7 @@ GOFILES=\
 	simbackend.go\
 	simconfig.go\
 	simfield.go\
+	simspintorque.go\
 	simgeom.go\
 	simmaterial.go\
 	simoutput.go\
@@ -47,6 +50,7 @@ GOFILES=\
 	stdout.go\
 	simmetadata.go\
 	resample.go\
+	error.go\
 
 CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so
 

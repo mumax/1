@@ -8,6 +8,7 @@ package tensor
 
 import (
 	"io"
+	"os"
 	"bufio"
 	"fmt"
 	"encoding/binary"
@@ -15,6 +16,16 @@ import (
 	"strings"
 	"strconv"
 )
+
+// Utility to read from a file instead of io.Reader
+func ReadF(filename string) *T {
+	in, err := os.Open(filename, os.O_RDONLY, 0666)
+	defer in.Close()
+	if err != nil {
+		panic(err)
+	}
+	return Read(in)
+}
 
 func Read(in_ io.Reader) *T {
 	in := bufio.NewReader(in_)
@@ -123,6 +134,7 @@ func ReadDataAscii(in_ io.Reader, t Interface) {
 	for i := range list {
 		_, err := fmt.Fscan(in, &list[i])
 		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error reading element ", i)
 			panic(err)
 		}
 	}

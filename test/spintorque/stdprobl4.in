@@ -18,7 +18,7 @@ size       	1     32          128
 #cellsize   	3E-9  3.90625E-9  3.90625E-9  # m
 
 # initial magnetization
-load    	s-state.tensor
+load    	../stdprobl4/s-state.tensor
 
 
 # run

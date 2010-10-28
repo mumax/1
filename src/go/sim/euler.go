@@ -21,11 +21,10 @@ func (this *Euler) String() string {
 
 func (this *Euler) Step() {
 	m, h := this.mDev, this.h
-	alpha, dt := this.alpha, this.dt
 
 	// 	this.Normalize(this.m)
 	this.calcHeff(m, h)
-	this.DeltaM(m, h, alpha, dt/(1+alpha*alpha))
+	this.DeltaM(m, h, this.dt)
 	deltaM := h // h is overwritten by deltaM
 
 	this.Add(m, deltaM)
