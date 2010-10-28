@@ -49,8 +49,8 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
       //
     } 
     float diffmx = ux * (mx2 - mx1);
-    float diffmy = uy * (my2 - my1);
-    float diffmz = uz * (mz2 - mz1);
+    float diffmy = ux * (my2 - my1);
+    float diffmz = ux * (mz2 - mz1);
 
 
     // derivative in Y direction
@@ -70,9 +70,9 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
     } else {
       //
     } 
-    diffmx += ux * (mx2 - mx1);
+    diffmx += uy * (mx2 - mx1);
     diffmy += uy * (my2 - my1);
-    diffmz += uz * (mz2 - mz1);
+    diffmz += uy * (mz2 - mz1);
 
 
     // derivative in Z direction
@@ -92,8 +92,8 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
     } else {
       //
     } 
-    diffmx += ux * (mx2 - mx1);
-    diffmy += uy * (my2 - my1);
+    diffmx += uz * (mx2 - mx1);
+    diffmy += uz * (my2 - my1);
     diffmz += uz * (mz2 - mz1);
 
 
