@@ -32,6 +32,8 @@ int main(int argc, char** argv){
   tensor* Host = new_tensorN(4, size4D);
   
 //   evaluate_field(ts->field, m, ts->h);
+  
+//   return(0);
 //   
 //   int* size4d_h = tensor_size4D(p->size);
 //   tensor* hHost = new_tensorN(4, size4d_h);
@@ -123,19 +125,14 @@ param* read_param(){
   p->aexch = 1.3E-11;
   p->alpha = 1.0;
 
-  p->size[X] = 32;
-  p->size[Y] = 32;
-  p->size[Z] = 32;
-
-//   p->size[X] = 2;
-//   p->size[Y] = 4;
-//   p->size[Z] = 8;
+  p->size[X] = 64;
+  p->size[Y] = 64;
+  p->size[Z] = 64;
 
   double L = unitlength(p);
   printf("unitlength: %e\n", L);
   
   p->cellSize[X] = 3.0E-9 / L;
-//   p->cellSize[X] = 3.0E-9 / L;
   p->cellSize[Y] = 3.90625E-9 / L;
   p->cellSize[Z] = 3.90625E-9 / L;
 

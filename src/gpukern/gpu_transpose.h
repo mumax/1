@@ -28,7 +28,7 @@ void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2)
 void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2);
 
 /// Swaps the Y and Z dimension of an array of complex numbers in interleaved format
-void gpu_transpose_complex_XZ(float *input, float *output, int N0, int N1, int N2);
+void gpu_transpose_complex_XZ(float *input, float *output, int j, int N0, int N1, int N2);
 
 
 #ifdef __cplusplus

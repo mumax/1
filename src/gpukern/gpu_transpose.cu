@@ -77,7 +77,7 @@ void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2)
 
 
 
-__global__ void _gpu_transpose_complex_XZ(complex* input, complex* output, int N1, int N2, int dim_XZ, int dim_YZ)
+__global__ void _gpu_transpose_complex_XZ(complex* input, complex* output, int N1, int N2, int Ny, int y)
 {
   __shared__ complex block[BLOCKSIZE][BLOCKSIZE+1];
 
@@ -92,10 +92,10 @@ __global__ void _gpu_transpose_complex_XZ(complex* input, complex* output, int N
   {
     // "major" indices inside the entire matrix
     int I = BI * BLOCKSIZE + i;
-    int J = (BJ * BLOCKSIZE + j);
+    int J = BJ * BLOCKSIZE + j;
 
     if((I < N1) && (J < N2)){
-      block[j][i] = input[J * dim_YZ + I];
+      block[j][i] = input[J * N1*Ny + y*N1 + I];
     }
   }
   __syncthreads();
@@ -106,18 +106,69 @@ __global__ void _gpu_transpose_complex_XZ(complex* input, complex* output, int N
     int Jt = BI * BLOCKSIZE + j;
 
     if((It < N2) && (Jt < N1)){
-      output[Jt * dim_XZ + It] = block[i][j];
+//      output[Jt * N2*Ny + y*N2 + It] = block[i][j];
+      output[Jt * N2*Ny + y*N2 + It] = block[i][j];
     }
   }
+  
+  return;
 }
 
-void gpu_transpose_complex_XZ(float *input, float *output, int N0, int N1, int N2){
+
+// __global__ void _gpu_transpose_complex_XZ(complex* input, complex* output, int N0, int N1, int N2, int y)
+// {
+//   __shared__ complex block[BLOCKSIZE][BLOCKSIZE+1];
+// 
+//   // index of the block inside the blockmatrix
+//   int BK = blockIdx.x;   
+//   int BI = blockIdx.y;
+// 
+//   // "minor" indices inside the tile
+//   int k = threadIdx.x;
+//   int i = threadIdx.y;
+// 
+//   {
+//     // "major" indices inside the entire matrix
+//     int K = BK * BLOCKSIZE + k;     //z-richting
+//     int I = BI * BLOCKSIZE + i;     //x-richting
+// 
+//     if((I < N0) && (K < N2)){
+//       block[i][k] = input[I * N1*N2 + y*N2 + K];
+// //       block[j][i].real = (float) J * N1*Ny + y*Ny + I;
+//     }
+//   }
+//   __syncthreads();
+// 
+//   {
+//     // Major indices with transposed blocks but not transposed minor indices
+//     int It = BK * BLOCKSIZE + i;
+//     int Kt = BI * BLOCKSIZE + k;
+// 
+//     if((It < N2) && (Jt < N1)){
+//       output[Jt * N2/2*Ny + y*N2/2 + It] = block[i][j];
+//     }
+//   }
+//   
+//   return;
+// }
+
+void gpu_transpose_complex_XZ(float *input, float *output, int j, int N0, int N1, int N2){
     N2 /= 2;
     dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N0-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N0
     dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
-    _gpu_transpose_complex_XZ<<<gridsize, blocksize>>>((complex*)input, (complex*)output, N2, N0, N0*N2, N1*N2);
+//     printf("gridsize: %d, %d, %d\n", (N2-1) / BLOCKSIZE + 1, (N0-1) / BLOCKSIZE + 1, 1);
+    _gpu_transpose_complex_XZ<<<gridsize, blocksize>>>((complex*)input, (complex*)output, N2, N0, N1, j);
+    gpu_sync();
 }
 
+// void gpu_transpose_complex_XZ_inv(float *input, float *output, int j, int N0, int N1, int N2){
+//     N2 /= 2;
+//     dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N0-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N0
+//     dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
+// //     printf("gridsize: %d, %d, %d\n", (N2-1) / BLOCKSIZE + 1, (N0-1) / BLOCKSIZE + 1, 1);
+//     _gpu_transpose_complex_XZ<<<gridsize, blocksize>>>((complex*)input, (complex*)output, N2, N0, N1, j);
+//     gpu_sync();
+// }
 
 
 
@@ -156,7 +207,7 @@ void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2)
   dim3 blockSize(BLOCKSIZE, BLOCKSIZE, 1);
   check3dconf(gridSize, blockSize);
 
-  for(int j=0; j<N1; j++){
+ for(int j=0; j<N1; j++){
     //_gpu_transposeXZ_complex<<<gridSize, blockSize, gpu_getstream()>>>(source, dest, N0, N1, N2, j);
     _gpu_transposeXZ_complex<<<gridSize, blockSize>>>(source, dest, N0, N1, N2, j); ///@todo STREAM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! (x2)
   }
