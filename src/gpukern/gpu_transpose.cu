@@ -64,113 +64,63 @@ void gpu_transpose_complex(float *input, float *output, int N1, int N2){
     _gpu_transpose_complex<<<gridsize, blocksize>>>((complex*)input, (complex*)output, N2, N1);
 }
 
-/// 2D transpose
-void gpu_transpose_complex_async(float *input, float *output, int N1, int N2){
-    N2 /= 2;
-    dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
-    dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
-    _gpu_transpose_complex<<<gridsize, blocksize>>>((complex*)input, (complex*)output, N2, N1);  /// ///////////////// @todo STREAM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-}
-
-/*
- * Replacing BLOCKSIZE+1 by BLOCKSIZE (generating bank conflicts) barely makes it slower.
- */
-/*
- * Transposing a block matrix:
- * 1) Transpose the elements inside each block "internally"
- * 2) Transpose the blocks inside the matrix.
- */
-// __global__ void _gpu_transpose(float *input, float *output, int N1, int N2)
-// {
-//   // With this peculiar size there are no shared memory bank conflicts.
-//   // See NVIDIA's CUDA examples: "efficient matrix transpose".
-//   // However, this barely seems to affect performance:
-//   // removing the "+1" makes it only 5% slower, so no need to worry if
-//   // something HAS to be implemented with memory bank conflicts.
-//   __shared__ float block[BLOCKSIZE][BLOCKSIZE+1];
-// 
-//   // index of the block inside the blockmatrix
-//   int BI = blockIdx.x;
-//   int BJ = blockIdx.y;
-//   
-//   // "minor" indices inside the tile
-//   int i = threadIdx.x;
-//   int j = threadIdx.y;
-//   
-//   {
-//     // "major" indices inside the entire matrix
-//     int I = BI * BLOCKSIZE + i;
-//     int J = BJ * BLOCKSIZE + j;
-//     
-//     if((I < N1) && (J < N2)){
-//       block[j][i] = input[J * N1 + I];
-//     }
-//   }
-//   __syncthreads();
-//   
-//   {
-//     // Major indices with transposed blocks but not transposed minor indices
-//     int It = BJ * BLOCKSIZE + i;
-//     int Jt = BI * BLOCKSIZE + j;
-//     
-//     if((It < N2) && (Jt < N1)){
-//       output[Jt * N2 + It] = block[i][j];
-//     }
-//   }
-// }
 
 
-///@internal For debugging only
-// __global__ void _gpu_transpose_slow(float *input, float *output, int N1, int N2)
-// {
-// 
-//   // index of the block inside the blockmatrix
-//   int BI = blockIdx.x;
-//   int BJ = blockIdx.y;
-// 
-//   // "minor" indices inside the tile
-//   int i = threadIdx.x;
-//   int j = threadIdx.y;
-// 
-//   // "major" indices inside the entire matrix
-//   int I = BI * BLOCKSIZE + i;
-//   int J = BJ * BLOCKSIZE + j;
-// 
-//   // Major indices with transposed blocks but not transposed minor indices
-// //   int It = BJ * BLOCKSIZE + i;
-// //   int Jt = BI * BLOCKSIZE + j;
-// 
-//   if((I < N1) && (J < N2)){
-//     output[I * N2 + J] = input[J * N1 + I];
-//   }
-// 
-// }
-
-/// 2D transpose real
-// void gpu_transpose(float *input, float *output, int N1, int N2){
-//     dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
-//     dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
-//     _gpu_transpose<<<gridsize, blocksize>>>(input, output, N2, N1);
-// }
-// 
-// /// 2D transpose real
-// void gpu_transpose_async(float *input, float *output, int N1, int N2){
-//     dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
-//     dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
-//     //_gpu_transpose<<<gridsize, blocksize, gpu_getstream()>>>(input, output, N2, N1);
-//     _gpu_transpose<<<gridsize, blocksize>>>(input, output, N2, N1); ///@todo STREAM!
-// }
-
-
-///@todo need to time this on 2.0 hardware
 void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
 //   timer_start("transposeYZ");
   for(int i=0; i<N0; i++){
-    gpu_transpose_complex_async(&source[i*N1*N2], &dest[i*N1*N2], N1, N2);
+    gpu_transpose_complex(&source[i*N1*N2], &dest[i*N1*N2], N1, N2);
   }
    gpu_sync();
 //    timer_stop("transposeYZ");
 }
+
+
+
+__global__ void _gpu_transpose_complex_XZ(complex* input, complex* output, int N1, int N2, int dim_XZ, int dim_YZ)
+{
+  __shared__ complex block[BLOCKSIZE][BLOCKSIZE+1];
+
+  // index of the block inside the blockmatrix
+  int BI = blockIdx.x;
+  int BJ = blockIdx.y;
+
+  // "minor" indices inside the tile
+  int i = threadIdx.x;
+  int j = threadIdx.y;
+
+  {
+    // "major" indices inside the entire matrix
+    int I = BI * BLOCKSIZE + i;
+    int J = (BJ * BLOCKSIZE + j);
+
+    if((I < N1) && (J < N2)){
+      block[j][i] = input[J * dim_YZ + I];
+    }
+  }
+  __syncthreads();
+
+  {
+    // Major indices with transposed blocks but not transposed minor indices
+    int It = BJ * BLOCKSIZE + i;
+    int Jt = BI * BLOCKSIZE + j;
+
+    if((It < N2) && (Jt < N1)){
+      output[Jt * dim_XZ + It] = block[i][j];
+    }
+  }
+}
+
+void gpu_transpose_complex_XZ(float *input, float *output, int N0, int N1, int N2){
+    N2 /= 2;
+    dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N0-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N0
+    dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
+    _gpu_transpose_complex_XZ<<<gridsize, blocksize>>>((complex*)input, (complex*)output, N2, N0, N0*N2, N1*N2);
+}
+
+
+
+
 
 
 
@@ -216,6 +166,27 @@ void gpu_transposeXZ_complex(float* source, float* dest, int N0, int N1, int N2)
 //  timer_stop("transposeXZ");
 }
 
+
+
+
+
+/// 2D transpose
+// void gpu_transpose_complex_async(float *input, float *output, int N1, int N2){
+//     N2 /= 2;
+//     dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
+//     dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
+//     _gpu_transpose_complex<<<gridsize, blocksize>>>((complex*)input, (complex*)output, N2, N1);  /// ///////////////// @todo STREAM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// }
+
+///@todo need to time this on 2.0 hardware
+// void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2){
+// //   timer_start("transposeYZ");
+//   for(int i=0; i<N0; i++){
+//     gpu_transpose_complex_async(&source[i*N1*N2], &dest[i*N1*N2], N1, N2);
+//   }
+//    gpu_sync();
+// //    timer_stop("transposeYZ");
+// }
 
 
 #ifdef __cplusplus
