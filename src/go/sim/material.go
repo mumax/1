@@ -52,7 +52,7 @@ func (mat *Material) UnitTime() float32 {
 }
 
 
-// The internal unit of field, expressed in tesla.
+// The internal unit of field (magnetic induction "B", not "H"), expressed in tesla.
 func (mat *Material) UnitField() float32 {
 	assert(mat.Valid())
 	return mat.mu0 * mat.mSat
@@ -61,19 +61,21 @@ func (mat *Material) UnitField() float32 {
 
 // The internal unit of energy, expressed in J.
 func (mat *Material) UnitEnergy() float32 {
-	assert(mat.Valid())
 	return mat.aExch * mat.UnitLength()
 }
 
 // The internal unit of electrical current, expressed in A
 func (mat *Material) UnitCurrent() float32 {
-  assert(mat.Valid())
   return mat.mSat * mat.UnitLength()
+}
+
+// The internal unit of electrical current density, expressed in A/m^2
+func (mat *Material) UnitCurrentDensity() float32 {
+  return mat.mSat / mat.UnitLength()
 }
 
 // The internal unit of electrical charge, expressed in Q
 func (mat *Material) UnitCharge() float32 {
-  assert(mat.Valid())
   return mat.UnitCurrent() * mat.UnitTime()
 }
 
