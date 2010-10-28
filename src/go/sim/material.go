@@ -65,6 +65,11 @@ func (mat *Material) UnitEnergy() float32 {
 	return mat.aExch * mat.UnitLength()
 }
 
+// The internal unit of electrical current, expressed in A
+func (mat *Material) UnitCurrent() float32 {
+  assert(mat.Valid())
+  return mat.mSat * mat.UnitLength()
+}
 
 // Returns true if the material parameters are valid
 func (mat *Material) Valid() bool {
