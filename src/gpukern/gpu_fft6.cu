@@ -194,7 +194,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
  
     
       // out of place FFTs in X-direction
-    timer_start("fwfft_on_x");
+    timer_start("fw_fft_on_x");
     bigfft_execC2C(plan->planX, (cufftComplex*)data2, (cufftComplex*)output, CUFFT_FORWARD);               // it's in output
     gpu_sync();
     timer_stop("fw_fft_on_x");
