@@ -1,5 +1,9 @@
 Choose a googlable name. Suggestions:
 
+TeslaLab
+Teslab
+TesLa2b
+teslab2
 
 GUMMS: Ghent University Micromagnetic simulator/solver  (100.000 hits)
 GUMagS: Ghent University Magnetic simulator/solver (64 hits)
