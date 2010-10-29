@@ -129,7 +129,13 @@ func main_master() {
 			sim.Errorln("Input file does not contain any commands to make the simulation run. Use, e.g., \"run\".")
 		}
 		// The next two lines cause a nil pointer panic when the simulation is not fully initialized
-		if sim.BeenValid && Verbosity > 2 {
+		if sim.BeenValid && Verbosity > 1 {
+      down()
+      down()
+      down()
+      down()
+      down()
+      
 			sim.TimerPrintDetail()
 			sim.PrintTimer(os.Stdout)
 		}

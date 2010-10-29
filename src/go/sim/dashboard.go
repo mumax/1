@@ -24,7 +24,7 @@ func updateDashboard(sim *Sim) {
 		return
 	}
 
-	fmt.Print(HIDECURSOR)
+// 	fmt.Print(HIDECURSOR)
 
 	T := sim.UnitTime()
 
@@ -89,8 +89,14 @@ func eraseln() {
 }
 
 func up() {
-	fmt.Printf(LINEUP)
+  fmt.Printf(LINEUP)
 }
+
+func down() {
+  fmt.Printf(LINEDOWN)
+}
+
+
 
 // ANSI escape sequences
 const (
@@ -101,8 +107,10 @@ const (
 	RESET = "\033[0m"
 	// Bold
 	BOLD = "\033[1m"
-	// Line up
-	LINEUP = "\033[1A"
+ // Line up
+  LINEUP = "\033[1A"
+  // Line down
+  LINEDOWN = "\033[1B"
 	// Hide cursor
 	HIDECURSOR = "\033[?25l"
 	// Show cursor
