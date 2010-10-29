@@ -1,5 +1,6 @@
 #include "main-ben.h"
 #include "timer.h"
+#include "gpu_properties.h"
 
 param* read_param();
 void initialize_m(tensor *, param *);
@@ -9,8 +10,10 @@ int main(int argc, char** argv){
 
  
   printf("*** Device properties ***\n");
-//   print_device_properties(stdout);
-  param* p = read_param();
+//  print_device_properties(stdout);
+  gpu_print_properties(stdout);
+
+param* p = read_param();
   param_print(stdout, p);
 
     // initialization of kernel
