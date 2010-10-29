@@ -1,9 +1,6 @@
 # Micromagnetic standard problem 4
 # but 3D version
 
-
-
-
 solvertype:  	heun
 maxerror:       1E-5             
 
@@ -13,16 +10,16 @@ aexch:      	1.3E-11     # J/m
 alpha:      	0.02
 
 # geometry 
-size:       	2     32          128
-cellsize:   	1.5E-9  3.90625E-9  3.90625E-9  # m
+gridsize:       128 32 2
+partsize:   	500e-9	125e-9 3e-9
 
 # initial magnetization
 load:    	s-state.tensor
 
 
 # run
-autosave:	m	png	50E-12
-autosave:	table	ascii	10E-12
-staticfield: 	0     4.3E-3    -24.6E-3  # T
-run:          	1E-9                      # s
+autosave:	m	 png	   50E-12
+autosave:	table	 ascii	   10E-12
+staticfield: 	-24.6E-3 4.3E-3    0
+run:          	0.1E-9                     
 
