@@ -101,16 +101,8 @@ void yz_transpose_in_place_inv(float *data,
                                int *pSSize
                                );
                                
-void xz_transpose_out_of_place_fw(float *input, 
-                                  float *output, 
-                                  int *pSSize
-                                  );
 
-void xz_transpose_out_of_place_inv(float *input, 
-                                   float *output, 
-                                   int *pSSize
-                                   );
-
+                               
 // functions for copying to and from padded matrix ****************************************************
 /**
  * @internal

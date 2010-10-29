@@ -142,7 +142,8 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
      
     timer_start("fw_xz_transpose");
 //     gpu_transposeXZ_complex(data, data2, N0, N2, N1*N3);                                                   // it's in data2
-    xz_transpose_out_of_place_fw(data, data2, pSSize);
+//    xz_transpose_out_of_place_fw(data, data2, pSSize);
+    gpu_transpose_complex_XZ(data, data2, 0, pSSize[0], pSSize[1], pSSize[2]);
     timer_stop("fw_xz_transpose");
     
     
@@ -180,7 +181,8 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
       // XZ transpose still needs to be out of place
     timer_start("inv_xz_transpose");
 //     gpu_transposeXZ_complex(data2, data, N1, N2, N0*N3);                                                   // it's in data
-    xz_transpose_out_of_place_inv(data2, data, pSSize);
+//     xz_transpose_out_of_place_inv(data2, data, pSSize);
+    gpu_transpose_complex_XZ(data2, data, 0, pSSize[2]/2, pSSize[1], pSSize[0]*2);
     timer_stop("inv_xz_transpose");
   }
   
@@ -283,27 +285,6 @@ void yz_transpose_in_place_inv(float *data, int *size, int *pSSize){
   return;
 }
 
-
-
-void xz_transpose_out_of_place_fw(float *input, float *output, int *pSSize){
-
-//   for (int j=0; j<pSSize[Y]; j++){       // transpose each plane out of place
-    gpu_transpose_complex_XZ(input, output, 0, pSSize[X], pSSize[Y], pSSize[Z]);
-//   }
-  gpu_sync();
-  
-  return;
-}
-
-void xz_transpose_out_of_place_inv(float *input, float *output, int *pSSize){
-
-//   for (int j=0; j<pSSize[Y]; j++){       // transpose each plane out of place
-    gpu_transpose_complex_XZ(input, output, 0, pSSize[Z]/2, pSSize[Y], pSSize[X]*2);
-//   }
-  gpu_sync();
-  
-  return;
-}
 
 
 
