@@ -287,9 +287,9 @@ void yz_transpose_in_place_inv(float *data, int *size, int *pSSize){
 
 void xz_transpose_out_of_place_fw(float *input, float *output, int *pSSize){
 
-  for (int j=0; j<pSSize[Y]; j++){       // transpose each plane out of place
-    gpu_transpose_complex_XZ(input, output, j, pSSize[X], pSSize[Y], pSSize[Z]);
-  }
+//   for (int j=0; j<pSSize[Y]; j++){       // transpose each plane out of place
+    gpu_transpose_complex_XZ(input, output, 0, pSSize[X], pSSize[Y], pSSize[Z]);
+//   }
   gpu_sync();
   
   return;
@@ -297,9 +297,9 @@ void xz_transpose_out_of_place_fw(float *input, float *output, int *pSSize){
 
 void xz_transpose_out_of_place_inv(float *input, float *output, int *pSSize){
 
-  for (int j=0; j<pSSize[Y]; j++){       // transpose each plane out of place
-    gpu_transpose_complex_XZ(input, output, j, pSSize[Z]/2, pSSize[Y], pSSize[X]*2);
-  }
+//   for (int j=0; j<pSSize[Y]; j++){       // transpose each plane out of place
+    gpu_transpose_complex_XZ(input, output, 0, pSSize[Z]/2, pSSize[Y], pSSize[X]*2);
+//   }
   gpu_sync();
   
   return;

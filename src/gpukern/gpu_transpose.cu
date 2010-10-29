@@ -81,39 +81,40 @@ __global__ void _gpu_transpose_complex_XZ(complex* input, complex* output, int N
 {
   __shared__ complex block[BLOCKSIZE][BLOCKSIZE+1];
 
-  // index of the block inside the blockmatrix
- int BI = blockIdx.x;
- int BJ = blockIdx.y;
-//   int BI = blockIdx.y;
-//   int BJ = blockIdx.x;
+  for (int y=0; y<Ny; y++){
+    // index of the block inside the blockmatrix
+  int BI = blockIdx.x;
+  int BJ = blockIdx.y;
+//     int BI = blockIdx.y;
+//     int BJ = blockIdx.x;
 
-  // "minor" indices inside the tile
- int i = threadIdx.x;
- int j = threadIdx.y;
-//   int i = threadIdx.y;
-//   int j = threadIdx.x;
+    // "minor" indices inside the tile
+  int i = threadIdx.x;
+  int j = threadIdx.y;
+//     int i = threadIdx.y;
+//     int j = threadIdx.x;
 
-  {
-    // "major" indices inside the entire matrix
-    int I = BI * BLOCKSIZE + i;
-    int J = BJ * BLOCKSIZE + j;
+    {
+      // "major" indices inside the entire matrix
+      int I = BI * BLOCKSIZE + i;
+      int J = BJ * BLOCKSIZE + j;
 
-    if((I < N1) && (J < N2)){
-       block[j][i] = input[J * N1*Ny + y*N1 + I];
-/*      block[j][i].real = 1.0f;
-      block[j][i].imag = 1.0f;*/
+      if((I < N1) && (J < N2)){
+        block[j][i] = input[J * N1*Ny + y*N1 + I];
+      }
     }
-  }
-  __syncthreads();
+    __syncthreads();
 
-  {
-    // Major indices with transposed blocks but not transposed minor indices
-    int It = BJ * BLOCKSIZE + i;
-    int Jt = BI * BLOCKSIZE + j;
+    {
+      // Major indices with transposed blocks but not transposed minor indices
+      int It = BJ * BLOCKSIZE + i;
+      int Jt = BI * BLOCKSIZE + j;
 
-    if((It < N2) && (Jt < N1)){
-      output[Jt * N2*Ny + y*N2 + It] = block[i][j];
+      if((It < N2) && (Jt < N1)){
+        output[Jt * N2*Ny + y*N2 + It] = block[i][j];
+      }
     }
+    __syncthreads();
   }
   
   return;
