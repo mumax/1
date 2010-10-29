@@ -77,7 +77,7 @@ void gpu_transposeYZ_complex(float* source, float* dest, int N0, int N1, int N2)
 
 
 
-__global__ void _gpu_transpose_complex_XZ(complex* input, complex* output, int N1, int N2, int Ny, int y)
+__global__ void _gpu_transpose_complex_XZ(complex* input, complex* output, int N1, int N2, int Ny)
 {
   __shared__ complex block[BLOCKSIZE][BLOCKSIZE+1];
 
@@ -117,12 +117,12 @@ __global__ void _gpu_transpose_complex_XZ(complex* input, complex* output, int N
 }
 
 
-void gpu_transpose_complex_XZ(float *input, float *output, int j, int N0, int N1, int N2){
+void gpu_transpose_complex_XZ(float *input, float *output, int N0, int N1, int N2){
     N2 /= 2;
     dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N0-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N0
     dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
 
-    _gpu_transpose_complex_XZ<<<gridsize, blocksize>>>((complex*)input, (complex*)output, N2, N0, N1, j);
+    _gpu_transpose_complex_XZ<<<gridsize, blocksize>>>((complex*)input, (complex*)output, N2, N0, N1);
 
 }
 
