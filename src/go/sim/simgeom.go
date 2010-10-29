@@ -75,7 +75,7 @@ func (s *Sim) updateSizes() {
 	in := &s.input
 
 	if in.sizeSet && in.cellSizeSet && in.partSizeSet {
-		panic(InputError("size, cellsize and partsize may not all be specified together. Specify any two of them and the third one will be calculated automatically."))
+		panic(InputErr("size, cellsize and partsize may not all be specified together. Specify any two of them and the third one will be calculated automatically."))
 	}
 
 	if in.sizeSet && in.cellSizeSet {
@@ -98,6 +98,7 @@ func (s *Sim) updateSizes() {
 		}
 		s.Println("Calculated number of cells:", in.size)
 	}
+
 	s.invalidate()
 }
 
