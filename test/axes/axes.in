@@ -1,0 +1,24 @@
+
+msat 800e3
+aexch 13e-12
+maxerror 1e-5
+
+gridsize 64	64 1
+cellsize 4e-9 4e-9 40e-9
+vortex 1 1
+setm  4 0 0 	1 0 0
+setm  0 2 0 	0 1 0
+save m png
+
+alpha 1
+staticfield  20e-3 0 0
+run 1e-9
+
+save m png
+autosave m png 100e-12
+alpha 0.05
+staticfield 0 0 0
+run 10e-9
+
+
+

@@ -8,6 +8,7 @@ OFILES=\
 	gpu_linalg.o\
 	gpu_normalize.o\
 	gpu_torque.o\
+	gpu_spintorque.o\
 	gpu_transpose.o\
 	gpu_transpose2.o\
 	gpu_kernmul.o\
@@ -95,8 +96,14 @@ gpu_fftbig.o: gpu_fftbig.h gpu_fftbig.cu
 gpu_fft6.o:  gpu_fft6.h gpu_fft6.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft6.cu
 
+gpu_spintorque.o:  gpu_spintorque.h gpu_spintorque.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_spintorque.cu
 
-test:	all transpose_test zeropad_test reduction_test fft_test
+test:	all transpose_test zeropad_test reduction_test fft_test spintorque_test
+
+spintorque_test:	spintorque_test.cpp libgpukern.so
+	$(CPP) $(CFLAGS) libgpukern.so spintorque_test.cpp -o spintorque_test
+	./spintorque_test
 
 transpose_test:	transpose_test.cpp libgpukern.so
 	$(CPP) $(CFLAGS) libgpukern.so transpose_test.cpp -o transpose_test

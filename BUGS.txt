@@ -33,4 +33,9 @@ known bugs
 
 [0009] OPEN arne:
  crash reports are not redirected to output.log
- 
+
+[0010] OPEN arne:
+ when no maxerror is specified, the time step is very small.
+
+[0011] OPEN arne:
+ png's are saved according to the left-hand-rule. the X,Y,Z axes lie very annoying (Z should be out-of-plane)

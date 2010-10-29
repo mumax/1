@@ -26,19 +26,18 @@ func NewHeun(f *Sim) *Heun {
 
 
 func (s *Heun) Step() {
-	gilbertDt := s.dt / (1 + s.alpha*s.alpha)
 	m := s.mDev
 	m1est := s.m1est
 
 	s.calcHeff(m, s.h)
-	s.DeltaM(m, s.h, s.alpha, gilbertDt)
+	s.DeltaM(m, s.h, s.dt)
 	TensorCopyOn(s.h, s.t0)
 	TensorCopyOn(m, m1est)
 	s.Add(m1est, s.t0)
 	s.Normalize(m1est)
 
 	s.calcHeff(s.m1est, s.h)
-	s.DeltaM(s.m1est, s.h, s.alpha, gilbertDt)
+	s.DeltaM(s.m1est, s.h, s.dt)
 	tm1est := s.h
 	t := tm1est
 	s.LinearCombination(t, s.t0, 0.5, 0.5)

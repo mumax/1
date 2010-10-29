@@ -11,9 +11,11 @@ CGOFILES=\
 GOFILES=\
 	device.go\
 	backend.go\
+	multigpu.go\
 	tensor.go\
 	fft.go\
 	conv.go\
+	torque.go\
 	solver.go\
 	euler.go\
 	heun.go\
@@ -24,9 +26,9 @@ GOFILES=\
 	material.go\
 	util.go\
 	sim.go\
-	simbackend.go\
 	simconfig.go\
 	simfield.go\
+	simspintorque.go\
 	simgeom.go\
 	simmaterial.go\
 	simoutput.go\

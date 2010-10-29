@@ -7,22 +7,22 @@
 package sim
 
 // This file implements the methods for setting
-// material parameters.
+// spintorque parameters.
 
-// Sets the exchange constant, defined in J/m
-func (s *Sim) AExch(a float32) {
-	s.input.aexch = a
-	s.invalidate()
+// Sets the degree of non-adiabaticity (dimensionless)
+func (s *Sim) Xi(xi float32) {
+	s.xi = xi
 }
 
-// Sets the saturation magnetization, defined in A/m
-func (s *Sim) MSat(ms float32) {
-	s.input.msat = ms
-	s.invalidate()
+// Sets the current spin polarization (0-100%)
+func (s *Sim) SpinPolarization(p float32) {
+	s.spinPol = p
 }
 
-// Sets the damping coefficient
-func (s *Sim) Alpha(a float32) {
-	s.alpha = a
-	s.invalidate() // should not invalidate
+// Sets the current density (A/m^2)
+func (s *Sim) CurrentDensity(jz, jy, jx float32) {
+	s.input.j[X] = jx
+	s.input.j[Y] = jy
+	s.input.j[Z] = jz
+	s.Println("current density: ", s.input.j, "A/m^2")
 }

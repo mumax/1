@@ -16,17 +16,19 @@ import (
 	"tensor"
 )
 
-// INTERNAL: to be called before setting a magnetization state,
-// ensures local memory for m has been allocated already
-// func (s *Sim) ensure_m() {
-// 	if s.mLocal == nil {
-// 		s.mLocal = tensor.NewTensor4([]int{3, s.size[X], s.size[Y], s.size[Z]})
-// 	}
-// }
+// Sets the magnetization of cell (x,y,z) to (mx, my, mz)
+func (s *Sim) SetM(z, y, x int, mz, my, mx float32) {
+	s.initMLocal()
+	a := s.mLocal.Array()
+	a[X][x][y][z] = mx
+	a[Y][x][y][z] = my
+	a[Z][x][y][z] = mz
+	s.invalidate() // todo: we do not need to invalidate everything here!
+}
 
 // Make the magnetization uniform.
 // (mx, my, mz) needs not to be normalized.
-func (s *Sim) Uniform(mx, my, mz float32) {
+func (s *Sim) Uniform(mz, my, mx float32) {
 	s.initMLocal()
 	a := s.mLocal.Array()
 	for i := range a[0] {
@@ -38,7 +40,6 @@ func (s *Sim) Uniform(mx, my, mz float32) {
 			}
 		}
 	}
-	// 	normalize(a)
 	s.invalidate() // todo: we do not need to invalidate everything here!
 }
 
@@ -63,7 +64,6 @@ func (s *Sim) Vortex(circulation, polarization int) {
 		a[Y][i][cy][cx] = 0.
 		a[X][i][cy][cx] = float32(polarization)
 	}
-	// 	normalize(a)
 	s.invalidate()
 }
 
@@ -95,28 +95,8 @@ func (s *Sim) AddNoise(amplitude float32) {
 	for i := range list {
 		list[i] += amplitude * float32(rand.Float()-0.5)
 	}
-	// 	normalize(s.mLocal.Array())
 	s.invalidate()
 }
-
-//INTERNAL
-// func normalize(a [][][][]float32) {
-// 	for i := range a[0] {
-// 		for j := range a[0][i] {
-// 			for k := range a[0][i][j] {
-// 				x := a[X][i][j][k]
-// 				y := a[Y][i][j][k]
-// 				z := a[Z][i][j][k]
-// 
-// 				norm := 1. / fsqrt(x*x+y*y+z*z)
-// 
-// 				a[X][i][j][k] *= norm
-// 				a[Y][i][j][k] *= norm
-// 				a[Z][i][j][k] *= norm
-// 			}
-// 		}
-// 	}
-// }
 
 // TODO: we are in trouble here if we have automatic transpose of the geometry for performance
 // X needs to be the out-of-plane direction
