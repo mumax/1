@@ -15,36 +15,30 @@ import (
 // This file implements the methods for
 // controlling the simulation geometry.
 
+
 // DEPRECATED: uses GridSize which is clearer.
 // Set the mesh size (number of cells in each direction)
 // Note: for performance reasons the last size should be big.
-// TODO: if the above is not the case, transparently transpose.
-func (s *Sim) Size(x, y, z int) {
+func (s *Sim) GridSize(z, y, x int) {
 	if x <= 0 || y <= 0 || z <= 0 {
-		s.Errorln("Size should be > 0")
-		os.Exit(-6)
-	}
-	if x > y || x > z {
-		s.Warn("For optimal efficiency, the number of cells in the first dimension (X) should be the smallest.\n E.g.: size 1 32 32 is much faster than size 32 32 1")
-	}
-	s.input.size[X] = x
-	s.input.size[Y] = y
-	s.input.size[Z] = z
-	s.input.sizeSet = true
-	s.updateSizes()
-	s.invalidate()
-}
-
-// clearer name for Size()
-// 
-func (s *Sim) GridSize(x, y, z int) {
-	s.Size(x, y, z)
+    s.Errorln("Size should be > 0")
+    os.Exit(-6)
+  }
+  if x > y || x > z {
+    s.Warn("For optimal efficiency, the number of cells in the last dimension (Z) should be the smallest.\n E.g.: gridsize 32 32 1 is much faster than gridsize 1 32 32")
+  }
+  s.input.size[X] = x
+  s.input.size[Y] = y
+  s.input.size[Z] = z
+  s.input.sizeSet = true
+  s.updateSizes()
+  s.invalidate()
 }
 
 // TODO: We need one function that sets all metadata centrally
 
 // Defines the cell size in meters
-func (s *Sim) CellSize(x, y, z float32) {
+func (s *Sim) CellSize(z, y, x float32) {
 	if x <= 0. || y <= 0. || z <= 0. {
 		s.Errorln("Cell size should be > 0")
 		os.Exit(-6)
@@ -60,7 +54,7 @@ func (s *Sim) CellSize(x, y, z float32) {
 	s.invalidate()
 }
 
-func (s *Sim) PartSize(x, y, z float32) {
+func (s *Sim) PartSize(z, y, x float32) {
 	if x <= 0. || y <= 0. || z <= 0. {
 		s.Errorln("Part size should be > 0")
 		os.Exit(-6)
@@ -81,7 +75,7 @@ func (s *Sim) updateSizes() {
 	in := &s.input
 
 	if in.sizeSet && in.cellSizeSet && in.partSizeSet {
-		panic(InputError("size, cellsize and partsize may not all be specified together. Specify any two of them and the third one will be calculated automatically."))
+		panic(InputErr("size, cellsize and partsize may not all be specified together. Specify any two of them and the third one will be calculated automatically."))
 	}
 
 	if in.sizeSet && in.cellSizeSet {
@@ -104,6 +98,7 @@ func (s *Sim) updateSizes() {
 		}
 		s.Println("Calculated number of cells:", in.size)
 	}
+
 	s.invalidate()
 }
 

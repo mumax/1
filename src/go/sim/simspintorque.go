@@ -20,7 +20,7 @@ func (s *Sim) SpinPolarization(p float32) {
 }
 
 // Sets the current density (A/m^2)
-func (s *Sim) CurrentDensity(jx, jy, jz float32) {
+func (s *Sim) CurrentDensity(jz, jy, jx float32) {
 	s.input.j[X] = jx
 	s.input.j[Y] = jy
 	s.input.j[Z] = jz

@@ -8,10 +8,10 @@ package sim
 // a stackdump.
 
 // The input file contains illegal input
-type InputError string
+type InputErr string
 
 // A file could not be read/written
-type IOError string
+type IOErr string
 
 // An unexpected error occured which sould be reported
 type Bug string

@@ -204,6 +204,9 @@ func (s *Sim) init() {
 			os.Exit(-6)
 		}
 	}
+	if s.size[Z] == 1{
+    panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
+  }
 
 	// (3) Allocate memory, but only if needed
 	// Free previous memory only if it has the wrong size

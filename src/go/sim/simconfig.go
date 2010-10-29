@@ -17,7 +17,7 @@ import (
 )
 
 // Sets the magnetization of cell (x,y,z) to (mx, my, mz)
-func (s *Sim) SetM(x, y, z int, mx, my, mz float32) {
+func (s *Sim) SetM(z, y, x int, mz, my, mx float32) {
 	s.initMLocal()
 	a := s.mLocal.Array()
 	a[X][x][y][z] = mx
@@ -28,7 +28,7 @@ func (s *Sim) SetM(x, y, z int, mx, my, mz float32) {
 
 // Make the magnetization uniform.
 // (mx, my, mz) needs not to be normalized.
-func (s *Sim) Uniform(mx, my, mz float32) {
+func (s *Sim) Uniform(mz, my, mx float32) {
 	s.initMLocal()
 	a := s.mLocal.Array()
 	for i := range a[0] {

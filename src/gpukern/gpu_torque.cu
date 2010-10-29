@@ -12,15 +12,15 @@ __global__ void _gpu_deltaM(float* mx, float* my, float* mz, float* hx, float* h
   int i = threadindex;
 
   if(i < N){
-    // - m cross H
-    float _mxHx = -my[i] * hz[i] + hy[i] * mz[i];
-    float _mxHy =  mx[i] * hz[i] - hx[i] * mz[i];
-    float _mxHz = -mx[i] * hy[i] + hx[i] * my[i];
+    //  m cross H
+    float _mxHx =  my[i] * hz[i] - hy[i] * mz[i];
+    float _mxHy = -mx[i] * hz[i] + hx[i] * mz[i];
+    float _mxHz =  mx[i] * hy[i] - hx[i] * my[i];
 
     // - m cross (m cross H)
-    float _mxmxHx =  my[i] * _mxHz - _mxHy * mz[i];
-    float _mxmxHy = -mx[i] * _mxHz + _mxHx * mz[i];
-    float _mxmxHz =  mx[i] * _mxHy - _mxHx * my[i];
+    float _mxmxHx = -my[i] * _mxHz + _mxHy * mz[i];
+    float _mxmxHy = +mx[i] * _mxHz - _mxHx * mz[i];
+    float _mxmxHz = -mx[i] * _mxHy + _mxHx * my[i];
 
     hx[i] = dt_gilb * (_mxHx + _mxmxHx * alpha);
     hy[i] = dt_gilb * (_mxHy + _mxmxHy * alpha);

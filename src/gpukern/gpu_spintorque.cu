@@ -133,9 +133,9 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
     float _mxmxHdy = -Mx * _mxHdz + _mxHdx * Mz;
     float _mxmxHdz =  Mx * _mxHdy - _mxHdx * My;
     
-    hx[I] = dt_gilb * (_mxHpx + _mxmxHdx);
-    hy[I] = dt_gilb * (_mxHpy + _mxmxHdy);
-    hz[I] = dt_gilb * (_mxHpz + _mxmxHdz);
+    hx[I] = dt_gilb * (-_mxHpx + _mxmxHdx);
+    hy[I] = dt_gilb * (-_mxHpy + _mxmxHdy);
+    hz[I] = dt_gilb * (-_mxHpz + _mxmxHdz);
   }
   
 }
