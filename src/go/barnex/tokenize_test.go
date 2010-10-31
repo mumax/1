@@ -6,5 +6,6 @@ import (
 
 
 func TestTokenize(t *testing.T) {
+	t := newTokenizer(str)
 	Tokenize("Hello World")
 }

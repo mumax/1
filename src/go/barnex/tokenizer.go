@@ -5,11 +5,8 @@ import (
 )
 
 func Tokenize(str string) {
+	t := newTokenizer(str)
 
-	for t := newTokenizer(str); t.currchr != -1; t.nextChr() {
-		fmt.Print(string(byte(t.currchr)))
-	}
-	return
 }
 
 func newTokenizer(str string) *tokenizer {
@@ -31,6 +28,12 @@ func newTokenizer(str string) *tokenizer {
 	return t
 }
 
+func (t *tokenizer) skipWhitespace() {
+	for IsWhitespace(t.currchr) {
+		t.nextChr()
+	}
+}
+
 // Advances the tokenizer to the next character,
 // which can be retrieved with tokenizer.currchr
 func (t *tokenizer) nextChr() {
@@ -45,12 +48,10 @@ func (t *tokenizer) nextChr() {
 }
 
 type tokenizer struct {
-  
-	str              string // string being tokenized
-	
-	pos              int    // position of currchr in string
-	currchr          int    // current character
-	prevchr, nextchr int    // previous/next character
+	str string // string being tokenized
 
-	
+	pos              int // position of currchr in string
+	currchr          int // current character
+	prevchr, nextchr int // previous/next character
+
 }
