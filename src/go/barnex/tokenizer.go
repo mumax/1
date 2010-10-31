@@ -7,7 +7,7 @@ import (
 func Tokenize(str string) {
 
 	for t := newTokenizer(str); t.currchr != -1; t.nextChr() {
-		fmt.Print(t.currchr)
+		fmt.Print(string(byte(t.currchr)))
 	}
 	return
 }
@@ -31,17 +31,26 @@ func newTokenizer(str string) *tokenizer {
 	return t
 }
 
+// Advances the tokenizer to the next character,
+// which can be retrieved with tokenizer.currchr
 func (t *tokenizer) nextChr() {
 	t.prevchr = t.currchr
 	t.currchr = t.nextchr
-	if len(t.str) > t.pos {
+	if len(t.str) > t.pos+2 {
 		t.pos++
-		t.nextchr = int(t.str[t.pos])
+		t.nextchr = int(t.str[t.pos+1])
+	} else {
+		t.nextchr = -1
 	}
 }
 
 type tokenizer struct {
-	str                       string
-	pos                       int
-	prevchr, currchr, nextchr int
+  
+	str              string // string being tokenized
+	
+	pos              int    // position of currchr in string
+	currchr          int    // current character
+	prevchr, nextchr int    // previous/next character
+
+	
 }
