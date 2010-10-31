@@ -4,7 +4,8 @@ PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 TARG=barnex
 
 GOFILES=\
-	tokenizer.go
+	tokenizer.go\
+	node.go
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 
