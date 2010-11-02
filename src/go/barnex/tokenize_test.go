@@ -18,7 +18,12 @@ func TestTokenize(t *testing.T) {
 	var s scanner.Scanner
 	handler := ErrHandler{}
 	s.Init(fname, source, handler, 0)
-	
+
+	pos, tok, lit := s.Scan()
+  for tok != token.EOF{
+    fmt.Println(pos, tok, string(lit))
+    pos, tok, lit = s.Scan()
+  }
 }
 
 type ErrHandler struct{
