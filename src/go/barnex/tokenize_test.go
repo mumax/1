@@ -17,7 +17,7 @@ func TestTokenize(t *testing.T) {
   }
 	var s scanner.Scanner
 	handler := ErrHandler{}
-	s.Init(fname, source, handler, 0)
+	s.Init(fname, source, handler, scanner.InsertSemis)
 
 	pos, tok, lit := s.Scan()
   for tok != token.EOF{
