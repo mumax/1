@@ -150,7 +150,7 @@ type Table struct {
 
 // table output settings
 const (
-	TABLE_HEADER = "# time (s)\t mx\t my\t mz\t Bx(T)\t By(T)\t Bz(T)\tmaxTorqueX\tmaxTorqueY\tmaxTorqueZ\tdt(s)\terror\tid"
+	TABLE_HEADER = "# time (s)\t mx\t my\t mz\t Bx(T)\t By(T)\t Bz(T)\tmaxTorqueX\tmaxTorqueY\tmaxTorqueZ\tminMz\tmaxMz\tdt(s)\terror\tid"
 	COL_WIDTH    = 15
 )
 
@@ -167,6 +167,10 @@ func (t *Table) Save(s *Sim) {
 		fmt.Fprintln(t.out, TABLE_HEADER)
 	}
 
+  //                                                                      IMPORTANT: this is one of the places where X,Y,Z get swapped
+  //                                                                      what is (X,Y,Z) internally becomes (Z,Y,X) for the user!
+
+  // calculate reduced quantities
 	m := [3]float32{}
 	torque := [3]float32{}
 	N := Len(s.size3D)
@@ -174,11 +178,13 @@ func (t *Table) Save(s *Sim) {
 		m[i] = s.devsum.Reduce(s.mComp[i]) / float32(N)
 		torque[i] = abs32(s.devmaxabs.Reduce(s.hComp[i]) / s.dt)
 	}
+	minMz, maxMz := s.devmin.Reduce(s.mComp[X]), s.devmax.Reduce(s.mComp[X])
 
 	// 	B := s.UnitField()
-	fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float32(s.time)*s.UnitTime(), m[X], m[Y], m[Z])
+	fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float32(s.time)*s.UnitTime(), m[Z], m[Y], m[X])
 	fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", s.hextSI[Z], s.hextSI[Y], s.hextSI[X])
-	fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", torque[X], torque[Y], torque[Z])
+  fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", torque[Z], torque[Y], torque[X])
+  fmt.Fprintf(t.out, "% .6e\t% .6e\t", minMz, maxMz)
 	fmt.Fprintf(t.out, "%.5g\t", s.dt*s.UnitTime())
 	fmt.Fprintf(t.out, "%.4g\t", s.stepError)
 	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)

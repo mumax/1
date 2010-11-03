@@ -93,7 +93,9 @@ type Sim struct {
 	outschedule []Output // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
 	autosaveIdx int      // Unique identifier of output state. Updated each time output is saved.
 	devsum      Reductor // Reduces mx, my, mz (SUM) on the device, used to output the avarage magnetization
-	devmaxabs   Reductor // Reduces the torque (maxabs) on the device, used to output max dm/dt (note that
+	devmaxabs   Reductor // Reduces the torque (maxabs) on the device, used to output max dm/dt
+	devmin      Reductor
+	devmax      Reductor
 	//  preciseStep  bool              // Should we cut the time step to save the output at the precise moment specified?
 
 	silent    bool              // Do not print anything to os.Stdout when silent == true, only to log file
@@ -203,6 +205,8 @@ func (s *Sim) initReductors() {
 	N := Len(s.size3D)
 	s.devsum.InitSum(s.Backend, N)
 	s.devmaxabs.InitMaxAbs(s.Backend, N)
+	s.devmax.InitMax(s.Backend, N)
+	s.devmin.InitMin(s.Backend, N)
 }
 
 func (s *Sim) initMLocal() {

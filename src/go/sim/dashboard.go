@@ -39,7 +39,7 @@ func updateDashboard(sim *Sim) {
 	time := time.Seconds() - sim.starttime
 	fmt.Printf(
 		BOLD+"running:"+RESET+"%3dd:%02dh:%02dm:%02ds",
-		time/DAY, (time/HOUR)%24, (time/MIN)%60, time%60)
+		time/DAY, (time/HOUR)%24, (time/MINUTE)%60, time%60)
 	erase()
 	fmt.Println()
 
@@ -118,9 +118,10 @@ const (
 	RED = "\033[31m"
 )
 
+// Time units expressed in seconds
 const (
-	MIN  = 60
-	HOUR = 60 * MIN
+	MINUTE  = 60
+	HOUR = 60 * MINUTE
 	DAY  = 24 * HOUR
 )
 

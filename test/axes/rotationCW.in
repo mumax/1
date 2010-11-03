@@ -14,10 +14,10 @@ run 1e-9
 
 save m png
 autosave m png 100e-12
-autosave table ascii 10e-12
+autosave table ascii 5e-12
 alpha 0.05
 rotatingburst 20e-3  1000e6 -1.5708 50E-12 8e-9
-run 5e-9
+run 2e-9
 
 
 

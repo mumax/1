@@ -43,5 +43,15 @@ for i; do
   echo $(echo $svgrc; echo set output '"'$svgfile'";'; echo $cmd_b; echo set output';') | gnuplot;
   ps2pdf -dEPSCrop $epsfile $pdffile
 
+  cmd_b='set xlabel "time(ns)"; set ylabel "min/max Mz"; plot '$file' using ($1*1E9):11 with lines title "min", '$file' using ($1*1E9):12 with lines title "max";'
+
+  epsfile=$i.maxmz.eps
+  pdffile=$i.maxmz.pdf
+  svgfile=$i.maxmz.svg
+
+  echo $(echo $epsrc; echo set output '"'$epsfile'";'; echo $cmd_b; echo set output';') | gnuplot;
+  echo $(echo $svgrc; echo set output '"'$svgfile'";'; echo $cmd_b; echo set output';') | gnuplot;
+  ps2pdf -dEPSCrop $epsfile $pdffile
+
 
 done;
