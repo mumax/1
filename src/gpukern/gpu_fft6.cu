@@ -287,7 +287,6 @@ void yz_transpose_in_place_inv(float *data, int *size, int *pSSize){
 
 // functions for copying to and from padded matrix ****************************************************
 
-
 /// @internal Does padding and unpadding, not necessarily by a factor 2
 __global__ void _gpu_copy_pad(int N, float* source, float* dest, 
                                int S1, int S2,                  ///< source sizes Y and Z
@@ -295,17 +294,16 @@ __global__ void _gpu_copy_pad(int N, float* source, float* dest,
                                ){
 
   ///@todo check timing with x<->y
-  int i = blockIdx.x/N;
-  int J = blockIdx.x%N;
-  int j = J * blockDim.x + threadIdx.x;
+
+  int j = blockIdx.x * blockDim.x + threadIdx.x;
   int k = blockIdx.y * blockDim.y + threadIdx.y;
 
   if(j<S1 && k<S2)
-    dest[(i*D1 + j)*D2 + k] = source[(i*S1 + j)*S2 + k];
+    for (int i=0; i<N; i++)
+      dest[(i*D1 + j)*D2 + k] = source[(i*S1 + j)*S2 + k];
 
   return;
 }
-
 
 void gpu_copy_to_pad(float* source, float* dest, int *unpad_size, int *pad_size){          //for padding of the tensor, 2d and 3d applicable
   
@@ -314,20 +312,19 @@ void gpu_copy_to_pad(float* source, float* dest, int *unpad_size, int *pad_size)
   int S2 = unpad_size[Z];
 
   
-  dim3 gridSize(S0*divUp(S1, BLOCKSIZE), divUp(S2, BLOCKSIZE), 1);
+  dim3 gridSize(divUp(S1, BLOCKSIZE), divUp(S2, BLOCKSIZE), 1);
   dim3 blockSize(BLOCKSIZE, BLOCKSIZE, 1);
   check3dconf(gridSize, blockSize);
 
   if ( pad_size[X]!=unpad_size[X] || pad_size[Y]!=unpad_size[Y])
-    _gpu_copy_pad<<<gridSize, blockSize>>>(divUp(S1, BLOCKSIZE), source, dest, S1, S2, S1, pad_size[Z]-2);      // for out of place forward FFTs in z-direction, contiguous data arrays
+    _gpu_copy_pad<<<gridSize, blockSize>>>(S0, source, dest, S1, S2, S1, pad_size[Z]-2);      // for out of place forward FFTs in z-direction, contiguous data arrays
   else
-    _gpu_copy_pad<<<gridSize, blockSize>>>(divUp(S1, BLOCKSIZE), source, dest, S1, S2, S1, pad_size[Z]);        // for in place forward FFTs in z-direction, contiguous data arrays
+    _gpu_copy_pad<<<gridSize, blockSize>>>(S0, source, dest, S1, S2, S1, pad_size[Z]);        // for in place forward FFTs in z-direction, contiguous data arrays
 
   gpu_sync();
   
   return;
 }
-
 
 void gpu_copy_to_unpad(float* source, float* dest, int *pad_size, int *unpad_size){        //for unpadding of the tensor, 2d and 3d applicable
   
@@ -335,20 +332,83 @@ void gpu_copy_to_unpad(float* source, float* dest, int *pad_size, int *unpad_siz
   int D1 = unpad_size[Y];
   int D2 = unpad_size[Z];
 
-  dim3 gridSize(D0*divUp(D1, BLOCKSIZE), divUp(D2, BLOCKSIZE), 1);
+  dim3 gridSize(divUp(D1, BLOCKSIZE), divUp(D2, BLOCKSIZE), 1);
   dim3 blockSize(BLOCKSIZE, BLOCKSIZE, 1);
   check3dconf(gridSize, blockSize);
 
   if ( pad_size[X]!=unpad_size[X] || pad_size[Y]!=unpad_size[Y])
-    _gpu_copy_pad<<<gridSize, blockSize>>>(divUp(D1, BLOCKSIZE), source, dest, D1,  pad_size[Z]-2, D1, D2);       // for out of place inverse FFTs in z-direction, contiguous data arrays
+    _gpu_copy_pad<<<gridSize, blockSize>>>(D0, source, dest, D1,  pad_size[Z]-2, D1, D2);       // for out of place inverse FFTs in z-direction, contiguous data arrays
   else
-    _gpu_copy_pad<<<gridSize, blockSize>>>(divUp(D1, BLOCKSIZE), source, dest, D1,  pad_size[Z], D1, D2);         // for in place inverse FFTs in z-direction, contiguous data arrays
+    _gpu_copy_pad<<<gridSize, blockSize>>>(D0, source, dest, D1,  pad_size[Z], D1, D2);         // for in place inverse FFTs in z-direction, contiguous data arrays
     
   gpu_sync();
   
   return;
 }
 
+
+
+
+
+// __global__ void _gpu_copy_pad(int N, float* source, float* dest, 
+//                                int S1, int S2,                  ///< source sizes Y and Z
+//                                int D1, int D2                   ///< destination size Y and Z
+//                                ){
+// 
+//   ///@todo check timing with x<->y
+//   int i = blockIdx.x/N;
+//   int J = blockIdx.x%N;
+//   int j = J * blockDim.x + threadIdx.x;
+//   int k = blockIdx.y * blockDim.y + threadIdx.y;
+// 
+//   if(j<S1 && k<S2)
+//     dest[(i*D1 + j)*D2 + k] = source[(i*S1 + j)*S2 + k];
+// 
+//   return;
+// }
+// 
+// 
+// void gpu_copy_to_pad(float* source, float* dest, int *unpad_size, int *pad_size){          //for padding of the tensor, 2d and 3d applicable
+//   
+//   int S0 = unpad_size[X];
+//   int S1 = unpad_size[Y];
+//   int S2 = unpad_size[Z];
+// 
+//   
+//   dim3 gridSize(S0*divUp(S1, BLOCKSIZE), divUp(S2, BLOCKSIZE), 1);
+//   dim3 blockSize(BLOCKSIZE, BLOCKSIZE, 1);
+//   check3dconf(gridSize, blockSize);
+// 
+//   if ( pad_size[X]!=unpad_size[X] || pad_size[Y]!=unpad_size[Y])
+//     _gpu_copy_pad<<<gridSize, blockSize>>>(divUp(S1, BLOCKSIZE), source, dest, S1, S2, S1, pad_size[Z]-2);      // for out of place forward FFTs in z-direction, contiguous data arrays
+//   else
+//     _gpu_copy_pad<<<gridSize, blockSize>>>(divUp(S1, BLOCKSIZE), source, dest, S1, S2, S1, pad_size[Z]);        // for in place forward FFTs in z-direction, contiguous data arrays
+// 
+//   gpu_sync();
+//   
+//   return;
+// }
+// 
+// 
+// void gpu_copy_to_unpad(float* source, float* dest, int *pad_size, int *unpad_size){        //for unpadding of the tensor, 2d and 3d applicable
+//   
+//   int D0 = unpad_size[X];
+//   int D1 = unpad_size[Y];
+//   int D2 = unpad_size[Z];
+// 
+//   dim3 gridSize(D0*divUp(D1, BLOCKSIZE), divUp(D2, BLOCKSIZE), 1);
+//   dim3 blockSize(BLOCKSIZE, BLOCKSIZE, 1);
+//   check3dconf(gridSize, blockSize);
+// 
+//   if ( pad_size[X]!=unpad_size[X] || pad_size[Y]!=unpad_size[Y])
+//     _gpu_copy_pad<<<gridSize, blockSize>>>(divUp(D1, BLOCKSIZE), source, dest, D1,  pad_size[Z]-2, D1, D2);       // for out of place inverse FFTs in z-direction, contiguous data arrays
+//   else
+//     _gpu_copy_pad<<<gridSize, blockSize>>>(divUp(D1, BLOCKSIZE), source, dest, D1,  pad_size[Z], D1, D2);         // for in place inverse FFTs in z-direction, contiguous data arrays
+//     
+//   gpu_sync();
+//   
+//   return;
+// }
 
 
 

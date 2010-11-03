@@ -1,5 +1,5 @@
 /**
- * @author Arne
+ * @author Ben
  */
 #include "../macros.h"
 #include "gpu_transpose2.h"
