@@ -27,9 +27,9 @@ import (
 // t.Stop("other loop")
 // t.PrintTimer(os.Stdout)
 //
-type Timer struct{
-  clocks map[string]*Stopwatch
-  current *Stopwatch
+type Timer struct {
+	clocks  map[string]*Stopwatch
+	current *Stopwatch
 }
 
 func NewTimer() Timer {
@@ -37,9 +37,9 @@ func NewTimer() Timer {
 }
 
 func (t *Timer) Start(tag string) {
-  if t.current != nil{
-    panic(Bug("Timer.Start(" + tag + "): already running"))
-  }
+	if t.current != nil {
+		panic(Bug("Timer.Start(" + tag + "): already running"))
+	}
 	s, ok := t.clocks[tag]
 	if !ok {
 		s = new(Stopwatch)

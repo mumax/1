@@ -61,35 +61,45 @@ type Input struct {
 // TODO order of initialization is too important in input file, should be more versatile
 //
 type Sim struct {
-	input        Input         // stores the original input parameters in SI units
-	valid        bool          // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
-	BeenValid    bool          // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
-	backend      *Backend      // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
-	mLocal       *tensor.T4    // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
-	normMap      *DevTensor    // Per-cell magnetization norm. nil means the norm is 1.0 everywhere.
-	Material                   // Stores material parameters and manages the internal units
-	Mesh                       // Stores the size of the simulation grid
-	Conv                       // Convolution plan for the magnetostatic field
-	AppliedField               // returns the externally applied in function of time
-	hextSI       [3]float32    // stores the externally applied field returned by AppliedField, in SI UNITS
-	mDev, h      *DevTensor    // magnetization/effective field on the device (GPU), 4D tensor
+	input     Input // stores the original input parameters in SI units
+	valid     bool  // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
+	BeenValid bool  // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
+
+	backend *Backend // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
+
+	mDev         *DevTensor    // magnetization on the device (GPU), 4D tensor
+	h            *DevTensor    // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
 	mComp, hComp [3]*DevTensor // magnetization/field components, 3 x 3D tensors
-	Solver                     // Does the time stepping, can be euler, heun, ...
-	time         float64       // The total time (internal units)
-	dt           float32       // The time step (internal units). May be updated by adaptive-step solvers
-	maxDm        float32       // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
-	maxError     float32       // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
-	stepError    float32       // The actual error estimate of the last step. Not all solvers update this value.
-	steps        int           // The total number of steps taken so far
-	starttime    int64         // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
-	outschedule  []Output      // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
-	// 	preciseStep  bool              // Should we cut the time step to save the output at the precise moment specified?
-	autosaveIdx int               // Unique identifier of output state. Updated each time output is saved.
-	outputdir   string            // Where to save output files.
-	mUpToDate   bool              // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
-	silent      bool              // Do not print anything to os.Stdout when silent == true, only to log file
-	out         *os.File          // Output log file
-	metadata    map[string]string // Metadata to be added to headers of saved tensors
+	mLocal       *tensor.T4    // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
+	mUpToDate    bool          // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
+	normMap      *DevTensor    // Per-cell magnetization norm. nil means the norm is 1.0 everywhere. Stored on the device
+	Conv                       // Convolution plan for the magnetostatic field
+
+	Material // Stores material parameters and manages the internal units
+	Mesh     // Stores the size of the simulation grid
+
+	AppliedField            // returns the externally applied in function of time
+	hextSI       [3]float32 // stores the externally applied field returned by AppliedField, in SI UNITS
+
+	Solver            // Does the time stepping, can be euler, heun, ...
+	time      float64 // The total time (internal units)
+	dt        float32 // The time step (internal units). May be updated by adaptive-step solvers
+	maxDm     float32 // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
+	maxError  float32 // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
+	stepError float32 // The actual error estimate of the last step. Not all solvers update this value.
+	steps     int     // The total number of steps taken so far
+
+	outschedule []Output    // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
+	autosaveIdx int         // Unique identifier of output state. Updated each time output is saved.
+	avgM        [3]Reductor // Reduces mx, my, mz (SUM) on the device, used to output the avarage magnetization
+	maxTorque   [3]Reductor // Reduces the torque (maxabs) on the device, used to output max dm/dt (note that 
+	//  preciseStep  bool              // Should we cut the time step to save the output at the precise moment specified?
+
+	silent    bool              // Do not print anything to os.Stdout when silent == true, only to log file
+	outputdir string            // Where to save output files.
+	out       *os.File          // Output log file
+	metadata  map[string]string // Metadata to be added to headers of saved tensors
+	starttime int64             // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
 }
 
 func New(outputdir string) *Sim {
@@ -204,9 +214,9 @@ func (s *Sim) init() {
 			os.Exit(-6)
 		}
 	}
-	if s.size[Z] == 1{
-    panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
-  }
+	if s.size[Z] == 1 {
+		panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
+	}
 
 	// (3) Allocate memory, but only if needed
 	// Free previous memory only if it has the wrong size

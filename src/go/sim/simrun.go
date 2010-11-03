@@ -37,12 +37,12 @@ func (s *Sim) Run(time float64) {
 		updateDashboard(s)
 
 		// step
-// 		s.Start("Step")
+		// 		s.Start("Step")
 		s.Step()
 		s.steps++
 		s.time += float64(s.dt)
 		s.mUpToDate = false
-// 		s.Stop("Step")
+		// 		s.Stop("Step")
 
 	}
 	// 	s.PrintTimer(os.Stdout)

@@ -21,18 +21,18 @@ import (
 // Note: for performance reasons the last size should be big.
 func (s *Sim) GridSize(z, y, x int) {
 	if x <= 0 || y <= 0 || z <= 0 {
-    s.Errorln("Size should be > 0")
-    os.Exit(-6)
-  }
-  if x > y || x > z {
-    s.Warn("For optimal efficiency, the number of cells in the last dimension (Z) should be the smallest.\n E.g.: gridsize 32 32 1 is much faster than gridsize 1 32 32")
-  }
-  s.input.size[X] = x
-  s.input.size[Y] = y
-  s.input.size[Z] = z
-  s.input.sizeSet = true
-  s.updateSizes()
-  s.invalidate()
+		s.Errorln("Size should be > 0")
+		os.Exit(-6)
+	}
+	if x > y || x > z {
+		s.Warn("For optimal efficiency, the number of cells in the last dimension (Z) should be the smallest.\n E.g.: gridsize 32 32 1 is much faster than gridsize 1 32 32")
+	}
+	s.input.size[X] = x
+	s.input.size[Y] = y
+	s.input.size[Z] = z
+	s.input.sizeSet = true
+	s.updateSizes()
+	s.invalidate()
 }
 
 // TODO: We need one function that sets all metadata centrally

@@ -130,12 +130,12 @@ func main_master() {
 		}
 		// The next two lines cause a nil pointer panic when the simulation is not fully initialized
 		if sim.BeenValid && Verbosity > 1 {
-      down()
-      down()
-      down()
-      down()
-      down()
-      
+			down()
+			down()
+			down()
+			down()
+			down()
+
 			sim.TimerPrintDetail()
 			sim.PrintTimer(os.Stdout)
 		}
