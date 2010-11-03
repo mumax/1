@@ -32,6 +32,7 @@ type Material struct {
 // }
 
 func (s *Sim) InitMaterial() {
+  s.Println("Initializing material parameters")
 	s.mu0 = 4.0E-7 * Pi
 	s.gamma0 = 2.211E5
 	s.muB = 9.2740091523E-24

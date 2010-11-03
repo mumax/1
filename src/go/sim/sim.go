@@ -154,7 +154,44 @@ func (s *Sim) initSize() {
 		s.size4D[i+1] = s.size[i]
 	}
 	s.Println("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
+
+
 }
+
+func(s *Sim) initCellSize(){
+  L := s.UnitLength()
+  for i := range s.size {
+    s.cellSize[i] = s.input.cellSize[i] / L
+    if !(s.cellSize[i] > 0.) {
+      s.Errorln("The cell size should be set first. E.g. cellsize 1E-9 1E-9 1E-9")
+      os.Exit(-6)
+    }
+  }
+  if s.size[Z] == 1 {
+    panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
+  }
+}
+
+func (s *Sim) initDevMem(){
+// Free previous memory only if it has the wrong size
+  //  if s.mDev != nil && !tensor.EqualSize(s.mDev.Size(), s.size4D[0:]) {
+  //    // TODO: free
+  //    s.mDev = nil
+  //    s.h = nil
+  //  }
+
+  //  if s.mDev == nil {
+  s.Println("Allocating device memory " + fmt.Sprint(s.size4D))
+  s.mDev = NewTensor(s.Backend, s.size4D[0:])
+  s.h = NewTensor(s.Backend, s.size4D[0:])
+  s.printMem()
+  s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
+  for i := range s.mComp {
+    s.mComp[i] = s.mDev.Component(i)
+    s.hComp[i] = s.h.Component(i)
+  }
+}
+
 
 func (s *Sim) initMLocal() {
 	s.initSize()
@@ -177,46 +214,17 @@ func (s *Sim) init() {
 	}
 	s.Println("Initializing simulation state")
 
-
 	// (1) Material parameters control the units,
 	// so they need to be set up first
 	s.InitMaterial() // sets gamma, mu0
 
-
 	// (2) Size must be set before memory allocation
 	s.initSize()
-	L := s.UnitLength()
-	for i := range s.size {
-		s.cellSize[i] = s.input.cellSize[i] / L
-		if !(s.cellSize[i] > 0.) {
-			s.Errorln("The cell size should be set first. E.g. cellsize 1E-9 1E-9 1E-9")
-			os.Exit(-6)
-		}
-	}
-	if s.size[Z] == 1 {
-		panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
-	}
+
+  s.initCellSize()
 
 	// (3) Allocate memory, but only if needed
-	// Free previous memory only if it has the wrong size
-	// Todo device should not have been changed
-	// 	if s.mDev != nil && !tensor.EqualSize(s.mDev.Size(), s.size4D[0:]) {
-	// 		// TODO: free
-	// 		s.mDev = nil
-	// 		s.h = nil
-	// 	}
-
-	// 	if s.mDev == nil {
-	s.Println("Allocating device memory " + fmt.Sprint(s.size4D))
-	s.mDev = NewTensor(s.Backend, s.size4D[0:])
-	s.h = NewTensor(s.Backend, s.size4D[0:])
-	s.printMem()
-	s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
-	for i := range s.mComp {
-		s.mComp[i] = s.mDev.Component(i)
-		s.hComp[i] = s.h.Component(i)
-	}
-	// 	}
+  s.initDevMem()
 
 	// allocate local storage for m
 	s.initMLocal()
