@@ -181,25 +181,7 @@ func (s *Sim) init() {
 	// (1) Material parameters control the units,
 	// so they need to be set up first
 	s.InitMaterial() // sets gamma, mu0
-	if s.input.msat == 0. {
-		s.Errorln("Saturation magnetization should first be set. E.g. msat 800E3")
-		os.Exit(-6)
-	}
-	s.mSat = s.input.msat
 
-	if s.input.aexch == 0. {
-		s.Errorln("Exchange constant should first be set. E.g. aexch 12E-13")
-		os.Exit(-6)
-	}
-	s.aExch = s.input.aexch
-
-	if s.alpha <= 0. {
-		s.Warn("Damping parameter alpha =  ", s.alpha)
-	}
-
-	s.metadata["msat"] = fmt.Sprint(s.mSat)
-	s.metadata["aexch"] = fmt.Sprint(s.aExch)
-	s.metadata["alpha"] = fmt.Sprint(s.alpha)
 
 	// (2) Size must be set before memory allocation
 	s.initSize()
