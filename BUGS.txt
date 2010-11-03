@@ -38,4 +38,7 @@ known bugs
  when no maxerror is specified, the time step is very small.
 
 [0011] OPEN arne:
+ when more than one input file is specified the GPU gets initialized twice-> CUDA setGPU error
+
+[0011] OPEN arne:
  png's are saved according to the left-hand-rule. the X,Y,Z axes lie very annoying (Z should be out-of-plane)
