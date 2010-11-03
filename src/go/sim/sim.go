@@ -68,6 +68,7 @@ type Sim struct {
 	// 	backend *Backend // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
 
 	mDev         *DevTensor    // magnetization on the device (GPU), 4D tensor
+	size3D       []int         //simulation grid size (without 3 as first element)
 	h            *DevTensor    // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
 	mComp, hComp [3]*DevTensor // magnetization/field components, 3 x 3D tensors
 	mLocal       *tensor.T4    // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
@@ -89,10 +90,10 @@ type Sim struct {
 	stepError float32 // The actual error estimate of the last step. Not all solvers update this value.
 	steps     int     // The total number of steps taken so far
 
-	outschedule []Output    // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
-	autosaveIdx int         // Unique identifier of output state. Updated each time output is saved.
-	avgM        [3]Reductor // Reduces mx, my, mz (SUM) on the device, used to output the avarage magnetization
-	maxTorque   [3]Reductor // Reduces the torque (maxabs) on the device, used to output max dm/dt (note that 
+	outschedule []Output // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
+	autosaveIdx int      // Unique identifier of output state. Updated each time output is saved.
+	devsum      Reductor // Reduces mx, my, mz (SUM) on the device, used to output the avarage magnetization
+	devmaxabs   Reductor // Reduces the torque (maxabs) on the device, used to output max dm/dt (note that
 	//  preciseStep  bool              // Should we cut the time step to save the output at the precise moment specified?
 
 	silent    bool              // Do not print anything to os.Stdout when silent == true, only to log file
@@ -145,6 +146,7 @@ func (s *Sim) IsValid() bool {
 
 
 func (s *Sim) initSize() {
+
 	s.size4D[0] = 3 // 3-component vectors
 	for i := range s.size {
 		s.size[i] = s.input.size[i]
@@ -156,45 +158,52 @@ func (s *Sim) initSize() {
 	}
 	s.Println("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
 
-
+	s.size3D = s.size4D[1:]
 }
 
 
-func(s *Sim) initCellSize(){
-  L := s.UnitLength()
-  for i := range s.size {
-    s.cellSize[i] = s.input.cellSize[i] / L
-    if !(s.cellSize[i] > 0.) {
-      s.Errorln("The cell size should be set first. E.g. cellsize 1E-9 1E-9 1E-9")
-      os.Exit(-6)
-    }
-  }
-  if s.size[Z] == 1 {
-    panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
-  }
+func (s *Sim) initCellSize() {
+	L := s.UnitLength()
+	for i := range s.size {
+		s.cellSize[i] = s.input.cellSize[i] / L
+		if !(s.cellSize[i] > 0.) {
+			s.Errorln("The cell size should be set first. E.g. cellsize 1E-9 1E-9 1E-9")
+			os.Exit(-6)
+		}
+	}
+	if s.size[Z] == 1 {
+		panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
+	}
 }
 
 
-func (s *Sim) initDevMem(){
-// Free previous memory only if it has the wrong size
-  //  if s.mDev != nil && !tensor.EqualSize(s.mDev.Size(), s.size4D[0:]) {
-  //    // TODO: free
-  //    s.mDev = nil
-  //    s.h = nil
-  //  }
+func (s *Sim) initDevMem() {
+	// Free previous memory only if it has the wrong size
+	//  if s.mDev != nil && !tensor.EqualSize(s.mDev.Size(), s.size4D[0:]) {
+	//    // TODO: free
+	//    s.mDev = nil
+	//    s.h = nil
+	//  }
 
-  //  if s.mDev == nil {
-  s.Println("Allocating device memory " + fmt.Sprint(s.size4D))
-  s.mDev = NewTensor(s.Backend, s.size4D[0:])
-  s.h = NewTensor(s.Backend, s.size4D[0:])
-  s.printMem()
-  s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
-  for i := range s.mComp {
-    s.mComp[i] = s.mDev.Component(i)
-    s.hComp[i] = s.h.Component(i)
-  }
+	//  if s.mDev == nil {
+	s.Println("Allocating device memory " + fmt.Sprint(s.size4D))
+	s.mDev = NewTensor(s.Backend, s.size4D[0:])
+	s.h = NewTensor(s.Backend, s.size4D[0:])
+	s.printMem()
+	s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
+	for i := range s.mComp {
+		s.mComp[i] = s.mDev.Component(i)
+		s.hComp[i] = s.h.Component(i)
+	}
+
+	s.initReductors()
 }
 
+func (s *Sim) initReductors() {
+  N := Len(s.size3D)
+	s.devsum.InitSum(s.Backend, N)
+	s.devmaxabs.InitMaxAbs(s.Backend, N)
+}
 
 func (s *Sim) initMLocal() {
 	s.initSize()
@@ -211,21 +220,28 @@ func (s *Sim) initMLocal() {
 }
 
 
-func (s *Sim) initConv(){
-  s.paddedsize = padSize(s.size[0:])
+func (s *Sim) initConv() {
+	s.paddedsize = padSize(s.size[0:])
 
-  s.Println("Calculating kernel (may take a moment)") // --- In fact, it takes 3 moments, one in each direction.
-  demag := FaceKernel6(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy)
-  exch := Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
-  // Add Exchange kernel to demag kernel
-  for i := range demag {
-    D := demag[i].List()
-    E := exch[i].List()
-    for j := range D {
-      D[j] += E[j]
-    }
-  }
-  s.Conv = *NewConv(s.Backend, s.size[0:], demag)
+	s.Println("Calculating kernel (may take a moment)") // --- In fact, it takes 3 moments, one in each direction.
+	demag := FaceKernel6(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy)
+	exch := Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
+	// Add Exchange kernel to demag kernel
+	for i := range demag {
+		D := demag[i].List()
+		E := exch[i].List()
+		for j := range D {
+			D[j] += E[j]
+		}
+	}
+	s.Conv = *NewConv(s.Backend, s.size[0:], demag)
+}
+
+
+func (s *Sim) initSolver() {
+	s.Println("Initializing solver: ", s.input.solvertype)
+	s.dt = s.input.dt / s.UnitTime()
+	s.Solver = NewSolver(s.input.solvertype, s)
 }
 
 
@@ -243,10 +259,10 @@ func (s *Sim) init() {
 	// (2) Size must be set before memory allocation
 	s.initSize()
 
-  s.initCellSize()
+	s.initCellSize()
 
 	// (3) Allocate memory, but only if needed
-  s.initDevMem()
+	s.initDevMem()
 
 	// allocate local storage for m
 	s.initMLocal()
@@ -259,15 +275,11 @@ func (s *Sim) init() {
 	// 	TensorCopyFrom(s.mDev, s.mLocal)
 
 	// (4) Calculate kernel & set up convolution
-
-  s.initConv()
-	
-	s.printMem()
+	s.initConv()
 
 	// (5) Time stepping
-	s.Println("Initializing solver: ", s.input.solvertype)
-	s.dt = s.input.dt / s.UnitTime()
-	s.Solver = NewSolver(s.input.solvertype, s)
+	s.initSolver()
+
 	s.printMem()
 
 	s.valid = true // we can start the real work now
