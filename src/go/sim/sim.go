@@ -143,6 +143,7 @@ func (s *Sim) IsValid() bool {
 	return s.valid
 }
 
+
 func (s *Sim) initSize() {
 	s.size4D[0] = 3 // 3-component vectors
 	for i := range s.size {
@@ -158,6 +159,7 @@ func (s *Sim) initSize() {
 
 }
 
+
 func(s *Sim) initCellSize(){
   L := s.UnitLength()
   for i := range s.size {
@@ -171,6 +173,7 @@ func(s *Sim) initCellSize(){
     panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
   }
 }
+
 
 func (s *Sim) initDevMem(){
 // Free previous memory only if it has the wrong size
@@ -207,6 +210,25 @@ func (s *Sim) initMLocal() {
 	// 	normalize(s.mLocal.Array())
 }
 
+
+func (s *Sim) initConv(){
+  s.paddedsize = padSize(s.size[0:])
+
+  s.Println("Calculating kernel (may take a moment)") // --- In fact, it takes 3 moments, one in each direction.
+  demag := FaceKernel6(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy)
+  exch := Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
+  // Add Exchange kernel to demag kernel
+  for i := range demag {
+    D := demag[i].List()
+    E := exch[i].List()
+    for j := range D {
+      D[j] += E[j]
+    }
+  }
+  s.Conv = *NewConv(s.Backend, s.size[0:], demag)
+}
+
+
 // (Re-)initialize the simulation tree, necessary before running.
 func (s *Sim) init() {
 	if s.IsValid() {
@@ -238,20 +260,8 @@ func (s *Sim) init() {
 
 	// (4) Calculate kernel & set up convolution
 
-	s.paddedsize = padSize(s.size[0:])
-
-	s.Println("Calculating kernel (may take a moment)") // --- In fact, it takes 3 moments, one in each direction.
-	demag := FaceKernel6(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy)
-	exch := Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
-	// Add Exchange kernel to demag kernel
-	for i := range demag {
-		D := demag[i].List()
-		E := exch[i].List()
-		for j := range D {
-			D[j] += E[j]
-		}
-	}
-	s.Conv = *NewConv(s.Backend, s.size[0:], demag)
+  s.initConv()
+	
 	s.printMem()
 
 	// (5) Time stepping
