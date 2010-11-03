@@ -37,8 +37,13 @@ known bugs
 [0010] OPEN arne:
  when no maxerror is specified, the time step is very small.
 
-[0011] OPEN arne:
+[0011] SOLVED arne:
  when more than one input file is specified the GPU gets initialized twice-> CUDA setGPU error
+ -> Backend now stored gpuid, SetDevice() is safe even if gpuid already set.
 
-[0011] OPEN arne:
+[0012] SOLVED arne:
  png's are saved according to the left-hand-rule. the X,Y,Z axes lie very annoying (Z should be out-of-plane)
+ -> Input is now always: largest("user X"), large("user Y"), small ("user Z"), png's stored accordingly
+
+ [0013] OPEN arne:
+.tensor format still saves in XYZ 

@@ -25,12 +25,12 @@ import (
 
 type Backend struct {
 	Device
-	// 	Initiated bool
+	gpuid int
 	Timer
 }
 
 func NewBackend(d Device) *Backend {
-	return &Backend{d, NewTimer()}
+	return &Backend{d, -1, NewTimer()}
 }
 
 //_________________________________________________________________________ safe wrappers for Device methods
@@ -43,6 +43,13 @@ func NewBackend(d Device) *Backend {
 // 		dev.Initiated = true
 // 	}
 // }
+
+func (dev *Backend)SetDevice(gpuid int){
+  if dev.gpuid != gpuid{
+    dev.gpuid = gpuid
+    dev.setDevice(gpuid)
+  }
+}
 
 // Copies a number of float32s from host to GPU
 func (dev *Backend) memcpyTo(source *float32, dest uintptr, nFloats int) {

@@ -106,7 +106,7 @@ func main_master() {
 			sim.Backend.init()
 		} else {
 			sim.Backend = GPU
-			sim.Backend.setDevice(*gpuid)
+			sim.Backend.SetDevice(*gpuid)
 			sim.Backend.init()
 		}
 		refsh := refsh.New()
