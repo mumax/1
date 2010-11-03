@@ -10,6 +10,7 @@ import (
 	"fmt"
 )
 
+
 type Reductor struct {
 	*Backend
 	operation          int
@@ -17,6 +18,7 @@ type Reductor struct {
 	hostbuffer         []float32
 	blocks, threads, N int
 }
+
 
 // Reduces the data,
 // i.e., calucates the sum, maximum, ...
@@ -26,10 +28,12 @@ func (r *Reductor) Reduce(input *DevTensor) float32 {
 	return r.reduce(r.operation, input.data, r.devbuffer, &(r.hostbuffer[0]), r.blocks, r.threads, r.N)
 }
 
+
 // Unsafe version of Reduce().
 func (r *Reductor) reduce_(data uintptr) float32 {
 	return r.reduce(r.operation, data, r.devbuffer, &(r.hostbuffer[0]), r.blocks, r.threads, r.N)
 }
+
 
 func NewSum(b *Backend, N int) *Reductor {
 	r := new(Reductor)
@@ -50,10 +54,25 @@ func NewMax(b *Backend, N int) *Reductor {
 	return r
 }
 
+
 func (r *Reductor) InitMax(b *Backend, N int) {
-	r.init(b, N)
-	r.operation = MAX
+  r.init(b, N)
+  r.operation = MAX
 }
+
+
+func NewMin(b *Backend, N int) *Reductor {
+  r := new(Reductor)
+  r.InitMin(b, N)
+  return r
+}
+
+
+func (r *Reductor) InitMin(b *Backend, N int) {
+  r.init(b, N)
+  r.operation = MIN
+}
+
 
 func NewMaxAbs(b *Backend, N int) *Reductor {
 	r := new(Reductor)
