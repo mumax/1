@@ -177,10 +177,6 @@ func (s *Sim) init() {
 	}
 	s.Println("Initializing simulation state")
 
-	dev := s.Backend
-	// 	dev.InitBackend()
-	assert(s.Backend != nil)
-	assert(s != nil)
 
 	// (1) Material parameters control the units,
 	// so they need to be set up first
@@ -230,8 +226,8 @@ func (s *Sim) init() {
 
 	// 	if s.mDev == nil {
 	s.Println("Allocating device memory " + fmt.Sprint(s.size4D))
-	s.mDev = NewTensor(dev, s.size4D[0:])
-	s.h = NewTensor(dev, s.size4D[0:])
+	s.mDev = NewTensor(s.Backend, s.size4D[0:])
+	s.h = NewTensor(s.Backend, s.size4D[0:])
 	s.printMem()
 	s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
 	for i := range s.mComp {
@@ -265,7 +261,7 @@ func (s *Sim) init() {
 			D[j] += E[j]
 		}
 	}
-	s.Conv = *NewConv(dev, s.size[0:], demag)
+	s.Conv = *NewConv(s.Backend, s.size[0:], demag)
 	s.printMem()
 
 	// (5) Time stepping
