@@ -200,7 +200,7 @@ func (s *Sim) initDevMem() {
 }
 
 func (s *Sim) initReductors() {
-  N := Len(s.size3D)
+	N := Len(s.size3D)
 	s.devsum.InitSum(s.Backend, N)
 	s.devmaxabs.InitMaxAbs(s.Backend, N)
 }

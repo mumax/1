@@ -166,20 +166,19 @@ func (t *Table) Save(s *Sim) {
 		s.Println("Opened data table file")
 		fmt.Fprintln(t.out, TABLE_HEADER)
 	}
-	
-	m:= [3]float32{}
+
+	m := [3]float32{}
 	torque := [3]float32{}
 	N := Len(s.size3D)
-  for i:= range m{
-    m[i] = s.devsum.Reduce(s.mComp[i]) / float32(N)
-    torque[i] = abs32(s.devmaxabs.Reduce(s.hComp[i]) / s.dt)
-  }
-  
-	
+	for i := range m {
+		m[i] = s.devsum.Reduce(s.mComp[i]) / float32(N)
+		torque[i] = abs32(s.devmaxabs.Reduce(s.hComp[i]) / s.dt)
+	}
+
 	// 	B := s.UnitField()
 	fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float32(s.time)*s.UnitTime(), m[X], m[Y], m[Z])
- fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", s.hextSI[Z], s.hextSI[Y], s.hextSI[X])
-  fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", torque[X], torque[Y], torque[Z])
+	fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", s.hextSI[Z], s.hextSI[Y], s.hextSI[X])
+	fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", torque[X], torque[Y], torque[Z])
 	fmt.Fprintf(t.out, "%.5g\t", s.dt*s.UnitTime())
 	fmt.Fprintf(t.out, "%.4g\t", s.stepError)
 	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
@@ -244,9 +243,9 @@ func (m *MPng) Save(s *Sim) {
 
 
 //INTERNAL
-func abs32(x float32) float32{
-  if x > 0{
-    return x
-  }
-  return -x
+func abs32(x float32) float32 {
+	if x > 0 {
+		return x
+	}
+	return -x
 }

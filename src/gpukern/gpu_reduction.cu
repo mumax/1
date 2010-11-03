@@ -28,7 +28,9 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// This code has been significantly modified from its original version.
+// This code has been significantly modified from its original version:
+//  - restricted to use only floats
+//  - more reduction operations than the original "sum" have been added (min, max, maxabs, ...)
 // Note that you have to comply with both the above BSD and GPL licences.
 
 #include "gpu_reduction.h"
@@ -176,6 +178,61 @@ __global__ void _gpu_max_kernel(float* g_idata, float* g_odata, unsigned int n) 
       g_odata[blockIdx.x] = sdata[0];
 }
 
+
+/// This kernel takes a partial minimum
+template <unsigned int blockSize, bool nIsPow2>
+__global__ void _gpu_min_kernel(float* g_idata, float* g_odata, unsigned int n) {
+  float* sdata = SharedMemory<float>();
+
+  // perform first level of reduction,
+  // reading from global memory, writing to shared memory
+  unsigned int tid = threadIdx.x;
+  unsigned int i = blockIdx.x*blockSize*2 + threadIdx.x;
+  unsigned int gridSize = blockSize*2*gridDim.x;
+
+  float myMin = 1E37;
+
+  // we reduce multiple elements per thread.  The number is determined by the
+  // number of active thread blocks (via gridDim).  More blocks will result
+  // in a larger gridSize and therefore fewer elements per thread
+  while (i < n)
+  {
+    myMin = fmin(myMin, g_idata[i]);
+    // ensure we don't read out of bounds -- this is optimized away for powerOf2 sized arrays
+    if (nIsPow2 || i + blockSize < n)
+      myMin = fmin(myMin, g_idata[i+blockSize]);
+    i += gridSize;
+  }
+
+  // each thread puts its local sum into shared memory
+  sdata[tid] = myMin;
+  __syncthreads();
+
+
+  // do reduction in shared mem
+  if (blockSize >= 512) { if (tid < 256) { myMin = fmin(myMin, sdata[tid + 256]); sdata[tid] = myMin; } __syncthreads(); }
+  if (blockSize >= 256) { if (tid < 128) { myMin = fmin(myMin, sdata[tid + 128]); sdata[tid] = myMin; } __syncthreads(); }
+  if (blockSize >= 128) { if (tid <  64) { myMin = fmin(myMin, sdata[tid +  64]); sdata[tid] = myMin; } __syncthreads(); }
+
+  if (tid < 32)
+    {
+      // now that we are using warp-synchronous programming (below)
+      // we need to declare our shared memory volatile so that the compiler
+      // doesn't reorder stores to it and induce incorrect behavior.
+      volatile float* smem = sdata;
+      if (blockSize >=  64) { myMin = fmin(myMin, smem[tid + 32]); smem[tid] = myMin;  }
+      if (blockSize >=  32) { myMin = fmin(myMin, smem[tid + 16]); smem[tid] = myMin;  }
+      if (blockSize >=  16) { myMin = fmin(myMin, smem[tid +  8]); smem[tid] = myMin;  }
+      if (blockSize >=   8) { myMin = fmin(myMin, smem[tid +  4]); smem[tid] = myMin;  }
+      if (blockSize >=   4) { myMin = fmin(myMin, smem[tid +  2]); smem[tid] = myMin;  }
+      if (blockSize >=   2) { myMin = fmin(myMin, smem[tid +  1]); smem[tid] = myMin;  }
+    }
+    // write result for this block to global mem
+    if (tid == 0)
+      g_odata[blockIdx.x] = sdata[0];
+}
+
+
 /// This kernel takes a partial maximum of absolute values
 template <unsigned int blockSize, bool nIsPow2>
 __global__ void _gpu_maxabs_kernel(float* g_idata, float* g_odata, unsigned int n) {
@@ -276,6 +333,7 @@ void gpu_partial_sums(float* d_idata, float* d_odata, int blocks, int threads, i
   gpu_sync();
 }
 
+
 void gpu_partial_max(float* d_idata, float* d_odata, int blocks, int threads, int size) {
   dim3 dimBlock(threads, 1, 1);
   dim3 dimGrid(blocks, 1, 1);
@@ -318,6 +376,51 @@ void gpu_partial_max(float* d_idata, float* d_odata, int blocks, int threads, in
   }
   gpu_sync();
 }
+
+
+void gpu_partial_min(float* d_idata, float* d_odata, int blocks, int threads, int size) {
+  dim3 dimBlock(threads, 1, 1);
+  dim3 dimGrid(blocks, 1, 1);
+
+  // when there is only one warp per block, we need to allocate two warps
+  // worth of shared memory so that we don't index shared memory out of bounds
+  int smemSize = (threads <= 32) ? 2 * threads * sizeof(float) : threads * sizeof(float);
+
+  if (isPow2(size))
+  {
+    switch (threads)
+    {
+      case 512: _gpu_min_kernel<512, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case 256: _gpu_min_kernel<256, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case 128: _gpu_min_kernel<128, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case  64: _gpu_min_kernel< 64, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case  32: _gpu_min_kernel< 32, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case  16: _gpu_min_kernel< 16, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case   8: _gpu_min_kernel<  8, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case   4: _gpu_min_kernel<  4, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case   2: _gpu_min_kernel<  2, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case   1: _gpu_min_kernel<  1, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+    }
+  }
+  else
+  {
+    switch (threads)
+    {
+      case 512: _gpu_min_kernel<512, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case 256: _gpu_min_kernel<256, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case 128: _gpu_min_kernel<128, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case  64: _gpu_min_kernel< 64, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case  32: _gpu_min_kernel< 32, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case  16: _gpu_min_kernel< 16, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case   8: _gpu_min_kernel<  8, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case   4: _gpu_min_kernel<  4, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case   2: _gpu_min_kernel<  2, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case   1: _gpu_min_kernel<  1, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+    }
+  }
+  gpu_sync();
+}
+
 
 void gpu_partial_maxabs(float* d_idata, float* d_odata, int blocks, int threads, int size) {
   dim3 dimBlock(threads, 1, 1);
@@ -362,6 +465,7 @@ void gpu_partial_maxabs(float* d_idata, float* d_odata, int blocks, int threads,
   gpu_sync();
 }
 
+
 float gpu_reduce(int operation, float* input, float* dev2, float* host2, int blocks, int threads, int N){
   switch(operation){
     default: abort(); break;
@@ -375,11 +479,21 @@ float gpu_reduce(int operation, float* input, float* dev2, float* host2, int blo
       }
       return sum;
     }
+    case REDUCE_MIN:
+    {
+      gpu_partial_min(input, dev2, blocks, threads, N);
+      memcpy_from_gpu(dev2, host2, blocks);
+      float min = host2[0];
+      for(int i=0; i<blocks; i++){
+        min = fmin(min, host2[i]);
+      }
+      return min;
+    }
     case REDUCE_MAX:
     {
       gpu_partial_max(input, dev2, blocks, threads, N);
       memcpy_from_gpu(dev2, host2, blocks);
-      float max = 0.;
+      float max = host2[0];
       for(int i=0; i<blocks; i++){
         max = fmax(max, host2[i]);
       }
@@ -398,6 +512,7 @@ float gpu_reduce(int operation, float* input, float* dev2, float* host2, int blo
 
   }
 }
+
 
 ///@internal for debugging only, use gpu_reduce() instead of this function
 ///@warning leaks memory
