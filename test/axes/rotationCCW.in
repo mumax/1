@@ -5,7 +5,6 @@ maxerror 1e-5
 
 gridsize 64 64 1
 cellsize 4e-9 4e-9 40e-9
-cylinder
 vortex 1 1
 save m png
 
