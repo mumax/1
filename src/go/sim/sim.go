@@ -65,7 +65,7 @@ type Sim struct {
 	valid     bool  // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
 	BeenValid bool  // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
 
-// 	backend *Backend // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
+	// 	backend *Backend // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
 
 	mDev         *DevTensor    // magnetization on the device (GPU), 4D tensor
 	h            *DevTensor    // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
@@ -102,14 +102,15 @@ type Sim struct {
 	starttime int64             // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
 }
 
-func New(outputdir string) *Sim {
-	return NewSim(outputdir)
+func New(outputdir string, backend *Backend) *Sim {
+	return NewSim(outputdir, backend)
 }
 
-func NewSim(outputdir string) *Sim {
+func NewSim(outputdir string, backend *Backend) *Sim {
 	sim := new(Sim)
+	sim.Backend = backend
+	sim.Backend.init()
 	sim.starttime = time.Seconds()
-	sim.Backend = GPU //TODO: check if GPU is present, use CPU otherwise
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
 	sim.input.demag_accuracy = 8

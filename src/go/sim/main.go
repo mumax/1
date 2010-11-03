@@ -87,7 +87,17 @@ func main_master() {
 		//TODO it would be safer to abort when the output dir is not empty
 		outfile := removeExtension(infile) + ".out"
 
-		sim := NewSim(outfile)
+		// Set the device
+		var backend *Backend
+		if *cpu {
+			backend = CPU
+
+		} else {
+			backend = GPU
+			backend.SetDevice(*gpuid)
+		}
+
+		sim := NewSim(outfile, backend)
 		defer sim.out.Close()
 
 		// file "running" indicates the simulation is running
@@ -100,15 +110,6 @@ func main_master() {
 		runningfile.Close()
 
 		sim.silent = *silent
-		// Set the device
-		if *cpu {
-			sim.Backend = CPU
-			sim.Backend.init()
-		} else {
-			sim.Backend = GPU
-			sim.Backend.SetDevice(*gpuid)
-			sim.Backend.init()
-		}
 		refsh := refsh.New()
 		refsh.CrashOnError = true
 		refsh.AddAllMethods(sim)

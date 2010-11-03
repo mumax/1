@@ -44,11 +44,11 @@ func NewBackend(d Device) *Backend {
 // 	}
 // }
 
-func (dev *Backend)SetDevice(gpuid int){
-  if dev.gpuid != gpuid{
-    dev.gpuid = gpuid
-    dev.setDevice(gpuid)
-  }
+func (dev *Backend) SetDevice(gpuid int) {
+	if dev.gpuid != gpuid {
+		dev.gpuid = gpuid
+		dev.setDevice(gpuid)
+	}
 }
 
 // Copies a number of float32s from host to GPU
