@@ -34,9 +34,9 @@ param* p = read_param();
   int* size4D = tensor_size4D(p->size);
   tensor* Host = new_tensorN(4, size4D);
   
-//   evaluate_field(ts->field, m, ts->h);
+/*   evaluate_field(ts->field, m, ts->h);
   
-//   return(0);
+   return(0);*/
 //   
 //   int* size4d_h = tensor_size4D(p->size);
 //   tensor* hHost = new_tensorN(4, size4d_h);
@@ -143,7 +143,7 @@ param* read_param(){
   p->demagCoarse[Y] = 1;
   p->demagCoarse[Z] = 1;
   
-  p->demagPeriodic[X] = 0;
+  p->demagPeriodic[X] = 10;
   p->demagPeriodic[Y] = 0;
   p->demagPeriodic[Z] = 0;
 

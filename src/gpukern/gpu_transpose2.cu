@@ -76,7 +76,7 @@ __global__ void _gpu_transpose_complex_offset2(complex* input, complex* output, 
   __shared__ complex block[BLOCKSIZE][BLOCKSIZE+1];
 
   for (int x=0; x<N; x++){
-    int ind1 = x*stride1/2;
+    int ind1 = x*stride1;
     
     // index of the block inside the blockmatrix
     int BI = blockIdx.x;
@@ -104,7 +104,7 @@ __global__ void _gpu_transpose_complex_offset2(complex* input, complex* output, 
     int Jt = BI * BLOCKSIZE + j;
 
     if((It < N2) && (Jt < N1)){
-      output[x*stride2/2 + Jt * (N2+offset_out) + It] = block[i][j];
+      output[x*stride2 + Jt * (N2+offset_out) + It] = block[i][j];
     }
     __syncthreads();
   }
