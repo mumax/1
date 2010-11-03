@@ -102,12 +102,12 @@ func main_master() {
 		sim.silent = *silent
 		// Set the device
 		if *cpu {
-			sim.backend = CPU
-			sim.backend.init()
+			sim.Backend = CPU
+			sim.Backend.init()
 		} else {
-			sim.backend = GPU
-			sim.backend.setDevice(*gpuid)
-			sim.backend.init()
+			sim.Backend = GPU
+			sim.Backend.setDevice(*gpuid)
+			sim.Backend.init()
 		}
 		refsh := refsh.New()
 		refsh.CrashOnError = true

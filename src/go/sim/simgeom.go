@@ -105,7 +105,7 @@ func (s *Sim) updateSizes() {
 func (sim *Sim) initNormMap() {
 	sim.initMLocal()
 	if sim.normMap == nil {
-		sim.normMap = NewTensor(sim.backend, Size3D(sim.mLocal.Size()))
+		sim.normMap = NewTensor(sim.Backend, Size3D(sim.mLocal.Size()))
 	}
 }
 

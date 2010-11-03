@@ -65,7 +65,7 @@ type Sim struct {
 	valid     bool  // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
 	BeenValid bool  // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
 
-	backend *Backend // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
+// 	backend *Backend // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
 
 	mDev         *DevTensor    // magnetization on the device (GPU), 4D tensor
 	h            *DevTensor    // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
@@ -109,7 +109,7 @@ func New(outputdir string) *Sim {
 func NewSim(outputdir string) *Sim {
 	sim := new(Sim)
 	sim.starttime = time.Seconds()
-	sim.backend = GPU //TODO: check if GPU is present, use CPU otherwise
+	sim.Backend = GPU //TODO: check if GPU is present, use CPU otherwise
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
 	sim.input.demag_accuracy = 8
@@ -176,9 +176,9 @@ func (s *Sim) init() {
 	}
 	s.Println("Initializing simulation state")
 
-	dev := s.backend
+	dev := s.Backend
 	// 	dev.InitBackend()
-	assert(s.backend != nil)
+	assert(s.Backend != nil)
 	assert(s != nil)
 
 	// (1) Material parameters control the units,
