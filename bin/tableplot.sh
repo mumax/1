@@ -33,5 +33,15 @@ for i; do
   echo $(echo $svgrc; echo set output '"'$svgfile'";'; echo $cmd_b; echo set output';') | gnuplot;
   ps2pdf -dEPSCrop $epsfile $pdffile
 
+  cmd_b='set xlabel "time(ns)"; set ylabel "max torque(unitless)"; plot '$file' using ($1*1E9):8 with lines title "tx", '$file' using ($1*1E9):9 with lines title "ty", '$file' using ($1*1E9):10 with lines title "tz";'
+
+  epsfile=$i.torque.eps
+  pdffile=$i.torque.pdf
+  svgfile=$i.torque.svg
+
+  echo $(echo $epsrc; echo set output '"'$epsfile'";'; echo $cmd_b; echo set output';') | gnuplot;
+  echo $(echo $svgrc; echo set output '"'$svgfile'";'; echo $cmd_b; echo set output';') | gnuplot;
+  ps2pdf -dEPSCrop $epsfile $pdffile
+
 
 done;

@@ -150,7 +150,7 @@ type Table struct {
 
 // table output settings
 const (
-	TABLE_HEADER = "# time (s)\t mx\t my\t mz\t Bx(T)\t By(T)\t Bz(T)\tdt(s)\terror\tid"
+	TABLE_HEADER = "# time (s)\t mx\t my\t mz\t Bx(T)\t By(T)\t Bz(T)\tmaxTorqueX\tmaxTorqueY\tmaxTorqueZ\tdt(s)\terror\tid"
 	COL_WIDTH    = 15
 )
 
@@ -172,13 +172,14 @@ func (t *Table) Save(s *Sim) {
 	N := Len(s.size3D)
   for i:= range m{
     m[i] = s.devsum.Reduce(s.mComp[i]) / float32(N)
-    torque[i] = s.devmaxabs.Reduce(s.hComp[i]) / s.dt
+    torque[i] = abs32(s.devmaxabs.Reduce(s.hComp[i]) / s.dt)
   }
   
 	
 	// 	B := s.UnitField()
 	fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float32(s.time)*s.UnitTime(), m[X], m[Y], m[Z])
-	fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", s.hextSI[Z], s.hextSI[Y], s.hextSI[X])
+ fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", s.hextSI[Z], s.hextSI[Y], s.hextSI[X])
+  fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", torque[X], torque[Y], torque[Z])
 	fmt.Fprintf(t.out, "%.5g\t", s.dt*s.UnitTime())
 	fmt.Fprintf(t.out, "%.4g\t", s.stepError)
 	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
@@ -239,4 +240,13 @@ func (m *MPng) Save(s *Sim) {
 	// 	defer out.Flush()
 	PNG(out, s.mLocal)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
+}
+
+
+//INTERNAL
+func abs32(x float32) float32{
+  if x > 0{
+    return x
+  }
+  return -x
 }
