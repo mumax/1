@@ -231,22 +231,30 @@ void yz_transpose_in_place_fw(float *data, int *size, int *pSSize){
 
   int offset = pSSize[X]*pSSize[Y]*pSSize[Z]/2;    //start of second half
   int pSSize_YZ = pSSize[Y]*pSSize[Z];
+  int stride1 = size[Y]*pSSize[Z];
+  int stride2 = pSSize[Y]*pSSize[Z];
 
   if (size[X]!=pSSize[X]){
-    for (int i=0; i<size[X]; i++){       // transpose each plane out of place: can be parallellized
-      int ind1 = offset + i*size[Y]*pSSize[Z];
-      int ind2 = i*pSSize_YZ;
-      gpu_transpose_complex_offset(data + ind1, data + ind2, size[Y], pSSize[Z], 0, pSSize[Y]-size[Y]);
+/*//     for (int i=0; i<size[X]; i++){       // transpose each plane out of place: can be parallellized
+//      int ind1 = offset + i*size[Y]*pSSize[Z];
+//      int ind2 = i*pSSize_YZ;
+      gpu_transpose_complex_offset2(data + offset, data, size[Y], pSSize[Z], 0, pSSize[Y]-size[Y], size[X], stride1, stride2);
+//       gpu_transpose_complex_offset (data + ind1, data + ind2, size[Y], pSSize[Z], 0, pSSize[Y]-size[Y]);
+//     }
+    gpu_sync();
+  }*/
+   for (int i=0; i<size[X]; i++){       // transpose each plane out of place: can be parallellized
+     int ind1 = offset + i*size[Y]*pSSize[Z];
+     int ind2 = i*pSSize_YZ;
+     gpu_transpose_complex_offset(data + ind1, data + ind2, size[Y], pSSize[Z], 0, pSSize[Y]-size[Y]);
     }
     gpu_sync();
-    gpu_zero(data + offset, offset);     // possible to delete values in gpu_transpose_complex
   }
   else{     //padding in the y-direction
     for (int i=0; i<size[X]-1; i++){       // transpose all but the last plane out of place: can only partly be parallellized
       int ind1 = offset + i*size[Y]*pSSize[Z];
       int ind2 = i*pSSize_YZ;
-      gpu_transpose_complex_offset(data + ind1, data + ind2, size[Y], pSSize[Z], 0, pSSize[Y]-size[Y]);
-      gpu_zero(data + offset + i*size[Y]*pSSize[Z], size[Y]*pSSize[Z]);     // deletable
+      gpu_transpose_complex_offset(data + offset, data, size[Y], pSSize[Z], 0, pSSize[Y]-size[Y]);
     }
     gpu_transpose_complex_in_plane_fw(data + (size[X]-1)*pSSize_YZ, size[Y], pSSize[Z]);
   }
@@ -281,6 +289,62 @@ void yz_transpose_in_place_inv(float *data, int *size, int *pSSize){
   return;
 }
 
+
+
+
+// void yz_transpose_in_place_fw(float *data, int *size, int *pSSize){
+// 
+//   int offset = pSSize[X]*pSSize[Y]*pSSize[Z]/2;    //start of second half
+//   int pSSize_YZ = pSSize[Y]*pSSize[Z];
+// 
+//   if (size[X]!=pSSize[X]){
+//     for (int i=0; i<size[X]; i++){       // transpose each plane out of place: can be parallellized
+//       int ind1 = offset + i*size[Y]*pSSize[Z];
+//       int ind2 = i*pSSize_YZ;
+//       gpu_transpose_complex_offset(data + ind1, data + ind2, size[Y], pSSize[Z], 0, pSSize[Y]-size[Y]);
+//     }
+//     gpu_sync();
+//     gpu_zero(data + offset, offset);     // possible to delete values in gpu_transpose_complex
+//   }
+//   else{     //padding in the y-direction
+//     for (int i=0; i<size[X]-1; i++){       // transpose all but the last plane out of place: can only partly be parallellized
+//       int ind1 = offset + i*size[Y]*pSSize[Z];
+//       int ind2 = i*pSSize_YZ;
+//       gpu_transpose_complex_offset(data + ind1, data + ind2, size[Y], pSSize[Z], 0, pSSize[Y]-size[Y]);
+//     }
+//     gpu_transpose_complex_in_plane_fw(data + (size[X]-1)*pSSize_YZ, size[Y], pSSize[Z]);
+//   }
+//   
+//   return;
+// }
+// 
+// void yz_transpose_in_place_inv(float *data, int *size, int *pSSize){
+// 
+//   int offset = pSSize[X]*pSSize[Y]*pSSize[Z]/2;    //start of second half
+//   int pSSize_YZ = pSSize[Y]*pSSize[Z];
+// 
+//   if (size[X]!=pSSize[X])
+//       // transpose each plane out of place: can be parallellized
+//     for (int i=0; i<size[X]; i++){
+//       int ind1 = i*pSSize_YZ;
+//       int ind2 = offset + i*size[Y]*pSSize[Z];
+//       gpu_transpose_complex_offset(data + ind1, data + ind2, pSSize[Z]/2, 2*size[Y], pSSize[Y]-size[Y], 0);
+//     }
+//   else{
+//       // last plane needs to transposed in plane
+//     gpu_transpose_complex_in_plane_inv(data + (size[X]-1)*pSSize_YZ, pSSize[Z]/2, 2*size[Y]);
+//       // transpose all but the last plane out of place: can only partly be parallellized
+//     for (int i=0; i<size[X]-1; i++){
+//       int ind1 = i*pSSize_YZ;
+//       int ind2 = offset + i*size[Y]*pSSize[Z];
+//       gpu_transpose_complex_offset(data + ind1, data + ind2, pSSize[Z]/2, 2*size[Y], pSSize[Y]-size[Y], 0);
+// 
+//     }
+//   }
+//   
+//   return;
+// }
+// 
 
 
 

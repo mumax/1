@@ -42,6 +42,8 @@ __global__ void _gpu_transpose_complex_offset(complex* input, complex* output, i
 
   if((I < N1) && (J < N2)){
     block[j][i] = input[J * (N1 + offset_in) + I];
+    input[J * (N1 + offset_in) + I].real = 0.0f; 
+    input[J * (N1 + offset_in) + I].imag = 0.0f; 
   }
   __syncthreads();
 
@@ -63,6 +65,59 @@ void gpu_transpose_complex_offset(float *input, float *output, int N1, int N2, i
   dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
   dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
   _gpu_transpose_complex_offset<<<gridsize, blocksize>>>((complex*)input, (complex*)output, N2, N1, offset_in, offset_out);
+}
+
+
+
+
+
+__global__ void _gpu_transpose_complex_offset2(complex* input, complex* output, int N1, int N2, int offset_in, int offset_out, int N, int stride1, int stride2){
+  
+  __shared__ complex block[BLOCKSIZE][BLOCKSIZE+1];
+
+  for (int x=0; x<N; x++){
+    int ind1 = x*stride1/2;
+    
+    // index of the block inside the blockmatrix
+    int BI = blockIdx.x;
+    int BJ = blockIdx.y;
+
+    // "minor" indices inside the tile
+    int i = threadIdx.x;
+    int j = threadIdx.y;
+
+
+    // "major" indices inside the entire matrix
+    int I = BI * BLOCKSIZE + i;
+    int J = BJ * BLOCKSIZE + j;
+
+    if((I < N1) && (J < N2)){
+      block[j][i] = input[ind1 + J * (N1 + offset_in) + I];
+      input[ind1 + J * (N1 + offset_in) + I].real = 0.0f; 
+      input[ind1 + J * (N1 + offset_in) + I].imag = 0.0f; 
+    }
+    __syncthreads();
+
+
+    // Major indices with transposed blocks but not transposed minor indices
+    int It = BJ * BLOCKSIZE + i;
+    int Jt = BI * BLOCKSIZE + j;
+
+    if((It < N2) && (Jt < N1)){
+      output[x*stride2/2 + Jt * (N2+offset_out) + It] = block[i][j];
+    }
+    __syncthreads();
+  }
+  
+  return;
+}
+
+void gpu_transpose_complex_offset2(float *input, float *output, int N1, int N2, int offset_in, int offset_out, int N, int stride1, int stride2){
+  N2 /= 2;
+
+  dim3 gridsize((N2-1) / BLOCKSIZE + 1, (N1-1) / BLOCKSIZE + 1, 1); // integer division rounded UP. Yes it has to be N2, N1
+  dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
+  _gpu_transpose_complex_offset2<<<gridsize, blocksize>>>((complex*)input, (complex*)output, N2, N1, offset_in, offset_out, N, stride1, stride2);
 }
 
 
