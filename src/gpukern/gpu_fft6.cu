@@ -129,7 +129,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
     gpu_sync();
     
       // YZ-transpose needs to be out of place.
-    gpu_transposeYZ_complex(data, data2, N0, N1, N2*N3);                                                   // it's in data2
+    gpu_transpose_complex_YZ(data, data2, N1, N2*N3, N0);                                                   // it's in data2
     
       // perform the FFTs in the Y-direction
     bigfft_execC2C(plan->planY, (cufftComplex*)data2,  (cufftComplex*)data, CUFFT_FORWARD);                // it's in data
@@ -138,8 +138,6 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
 
   if(N0 > 1){    // not done for 2D transforms
       // XZ transpose still needs to be out of place
-      
-     
     timer_start("fw_xz_transpose");
 //     gpu_transposeXZ_complex(data, data2, N0, N2, N1*N3);                                                   // it's in data2
     gpu_transpose_complex_XZ(data, data2, pSSize[0], pSSize[1], pSSize[2]);
@@ -209,7 +207,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
     gpu_sync();
     
       // YZ-transpose needs to be out of place.
-    gpu_transposeYZ_complex(data2, data, N0, N2, N1*N3);                                                   // it's in data   
+    gpu_transpose_complex_YZ(data2, data, N2, N1*N3, N0);                                                   // it's in data   
 
       // in place FFTs in Z-direction
     bigfft_execC2R(plan->invPlanZ, (cufftComplex*) data, (cufftReal*) data );                              // it's in data
