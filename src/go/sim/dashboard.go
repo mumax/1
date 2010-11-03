@@ -120,9 +120,9 @@ const (
 
 // Time units expressed in seconds
 const (
-	MINUTE  = 60
-	HOUR = 60 * MINUTE
-	DAY  = 24 * HOUR
+	MINUTE = 60
+	HOUR   = 60 * MINUTE
+	DAY    = 24 * HOUR
 )
 
 const (

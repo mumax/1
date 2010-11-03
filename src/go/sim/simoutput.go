@@ -167,10 +167,10 @@ func (t *Table) Save(s *Sim) {
 		fmt.Fprintln(t.out, TABLE_HEADER)
 	}
 
-  //                                                                      IMPORTANT: this is one of the places where X,Y,Z get swapped
-  //                                                                      what is (X,Y,Z) internally becomes (Z,Y,X) for the user!
+	//                                                                      IMPORTANT: this is one of the places where X,Y,Z get swapped
+	//                                                                      what is (X,Y,Z) internally becomes (Z,Y,X) for the user!
 
-  // calculate reduced quantities
+	// calculate reduced quantities
 	m := [3]float32{}
 	torque := [3]float32{}
 	N := Len(s.size3D)
@@ -183,8 +183,8 @@ func (t *Table) Save(s *Sim) {
 	// 	B := s.UnitField()
 	fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float32(s.time)*s.UnitTime(), m[Z], m[Y], m[X])
 	fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", s.hextSI[Z], s.hextSI[Y], s.hextSI[X])
-  fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", torque[Z], torque[Y], torque[X])
-  fmt.Fprintf(t.out, "% .6e\t% .6e\t", minMz, maxMz)
+	fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", torque[Z], torque[Y], torque[X])
+	fmt.Fprintf(t.out, "% .6e\t% .6e\t", minMz, maxMz)
 	fmt.Fprintf(t.out, "%.5g\t", s.dt*s.UnitTime())
 	fmt.Fprintf(t.out, "%.4g\t", s.stepError)
 	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)

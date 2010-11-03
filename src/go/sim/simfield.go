@@ -18,7 +18,7 @@ import (
 
 //                                                                      IMPORTANT: this is one of the places where X,Y,Z get swapped
 //                                                                      what is (X,Y,Z) internally becomes (Z,Y,X) for the user!
-  
+
 // Apply a static field defined in Tesla
 func (s *Sim) StaticField(hz, hy, hx float32) {
 	s.AppliedField = &staticField{[3]float32{hx, hy, hz}} // pass it on in tesla so that it stays independent of other problem parameters

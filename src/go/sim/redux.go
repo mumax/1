@@ -56,21 +56,21 @@ func NewMax(b *Backend, N int) *Reductor {
 
 
 func (r *Reductor) InitMax(b *Backend, N int) {
-  r.init(b, N)
-  r.operation = MAX
+	r.init(b, N)
+	r.operation = MAX
 }
 
 
 func NewMin(b *Backend, N int) *Reductor {
-  r := new(Reductor)
-  r.InitMin(b, N)
-  return r
+	r := new(Reductor)
+	r.InitMin(b, N)
+	return r
 }
 
 
 func (r *Reductor) InitMin(b *Backend, N int) {
-  r.init(b, N)
-  r.operation = MIN
+	r.init(b, N)
+	r.operation = MIN
 }
 
 

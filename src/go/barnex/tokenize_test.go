@@ -7,9 +7,9 @@ import (
 
 
 func TestTokenize(t *testing.T) {
-  node := Tokenize("test.txt")
-  for node != nil{
-    fmt.Println(node)
-    node = node.Next
-  }
+	node := Tokenize("test.txt")
+	for node != nil {
+		fmt.Println(node)
+		node = node.Next
+	}
 }

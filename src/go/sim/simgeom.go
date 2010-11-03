@@ -17,7 +17,7 @@ import (
 
 //                                                                      IMPORTANT: this is one of the places where X,Y,Z get swapped
 //                                                                      what is (X,Y,Z) internally becomes (Z,Y,X) for the user!
-  
+
 
 // Set the mesh size (number of cells in each direction)
 // Note: for performance reasons the last size should be big.
