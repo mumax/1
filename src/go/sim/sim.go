@@ -12,6 +12,7 @@ import (
 	"time"
 	"fmt"
 	"os"
+	"rand"
 )
 
 
@@ -223,6 +224,39 @@ func (s *Sim) initMLocal() {
 	// 	normalize(s.mLocal.Array())
 }
 
+// checks if the initial magnetization makes sense
+// TODO: m=0,0,0 should not be a warning when the corresponding normMap is zero as well.
+func (s *Sim) checkInitialM(){
+  // All zeros: not initialized: error
+  list := s.mLocal.List()
+  ok := false
+  for _,m:=range list{
+    if m != 0. {ok = true} 
+  }
+  if !ok{
+    //s.Warn("Initial magnetization was not set")
+    panic(InputErr("Initial magnetization was not set"))
+  }
+
+  // Some zeros: may or may not be a mistake,
+  // warn and set to random.
+  warned := false
+  m := s.mLocal.Array()
+    for i:=range m[0]{
+      for j:=range m[0][i]{
+        for k:=range m[0][i][j]{
+          if m[X][i][j][k] == 0. && m[Y][i][j][k] == 0. && m[Z][i][j][k] == 0.{
+            if !warned{
+              s.Warn("Some initial magnetization vectors were zero, set to a random value")
+              warned = true
+            }
+            m[X][i][j][k] , m[Y][i][j][k] , m[Z][i][j][k] = rand.Float32()-0.5, rand.Float32()-0.5, rand.Float32()-0.5;
+          }
+        }
+      }
+    }
+}
+
 
 func (s *Sim) initConv() {
 	s.paddedsize = padSize(s.size[0:])
@@ -271,6 +305,9 @@ func (s *Sim) init() {
 	// allocate local storage for m
 	s.initMLocal()
 
+  // check if m has been initialized
+  s.checkInitialM()
+  
 	// copy to GPU and normalize on the GPU, according to the normmap.
 	TensorCopyTo(s.mLocal, s.mDev)
 	// 	s.Normalize(s.mDev) // mysteriously crashes
