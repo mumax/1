@@ -24,8 +24,7 @@ func Tokenize(fname string) *Node {
 	for tok != token.EOF {
 		fmt.Println(pos, tok, lit)
 		node := NewNode(pos, tok, string(lit))
-		node.Prev = prev
-		node.Prev.Next = node
+		prev.Append(node)
 		pos, tok, lit = s.Scan()
 		prev = node
 	}
