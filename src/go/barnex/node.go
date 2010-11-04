@@ -4,6 +4,13 @@ import (
 	"go/token"
 )
 
+
+const(
+  EOF = token.EOF
+  LPAREN = token.LPAREN
+  RPAREN = token.RPAREN
+  )
+  
 type Node struct {
 	Next, Prev *Node
 	Parent     *Node
@@ -16,7 +23,15 @@ type Node struct {
 
 
 func NewRootNode() *Node {
-	return new(Node)
+	t := new(Node)
+	t.Type = token.EOF
+	return t
+}
+
+func NewEOFNode() *Node {
+	t := new(Node)
+	t.Type = token.EOF
+	return t
 }
 
 
