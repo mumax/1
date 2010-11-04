@@ -1,5 +1,25 @@
 Choose a googlable name. Suggestions:
 
+GPmUMag (pronouced G-P-mu-MAG)
+gpµMAG
+
+TeslaLab (not googleable)
+Teslab (not googleable)
+TesLa2b
+teslab2
+
+GUMMS: Ghent University Micromagnetic simulator/solver  (100.000 hits)
+GUMagS: Ghent University Magnetic simulator/solver (64 hits)
+
+MPMMS (Massively Parallel Micro Magnetic Simulator)
+SPeeMagS
+xspinsim, xspins (pronouced k'spins, eXtreme Spin Simulator)
+GeeMags
+gmaxs
+teslamags
+
+omicron / omicrom
+
 openGpuMag
 openMagSim -> spain
 openGSpin
@@ -9,13 +29,8 @@ openNanoMag
 
 TeraGpuMag (Refers to TeraFlop)
 SpinCrunch (Refers to number crunching)
-TeslaSpin (Tesla is a GPU brand)
+TeslaSpin (Tesla is a GPU brand and )
 FermiMag (Fermi is a GPU architecture)
-
-MPMMS (Massively Parallel Micro Magnetic Simulator)
-SPeeMagS
-xspinsim, xspins (pronouced k'spins, eXtreme Spin Simulator)
-GeeMags
 
 
 TODO (Arne)

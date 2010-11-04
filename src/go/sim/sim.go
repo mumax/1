@@ -12,6 +12,7 @@ import (
 	"time"
 	"fmt"
 	"os"
+	"rand"
 )
 
 
@@ -61,45 +62,59 @@ type Input struct {
 // TODO order of initialization is too important in input file, should be more versatile
 //
 type Sim struct {
-	input        Input         // stores the original input parameters in SI units
-	valid        bool          // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
-	BeenValid    bool          // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
-	backend      *Backend      // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
-	mLocal       *tensor.T4    // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
-	normMap      *DevTensor    // Per-cell magnetization norm. nil means the norm is 1.0 everywhere.
-	Material                   // Stores material parameters and manages the internal units
-	Mesh                       // Stores the size of the simulation grid
-	Conv                       // Convolution plan for the magnetostatic field
-	AppliedField               // returns the externally applied in function of time
-	hextSI       [3]float32    // stores the externally applied field returned by AppliedField, in SI UNITS
-	mDev, h      *DevTensor    // magnetization/effective field on the device (GPU), 4D tensor
+	input     Input // stores the original input parameters in SI units
+	valid     bool  // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
+	BeenValid bool  // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
+
+	// 	backend *Backend // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
+
+	mDev         *DevTensor    // magnetization on the device (GPU), 4D tensor
+	size3D       []int         //simulation grid size (without 3 as first element)
+	h            *DevTensor    // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
 	mComp, hComp [3]*DevTensor // magnetization/field components, 3 x 3D tensors
-	Solver                     // Does the time stepping, can be euler, heun, ...
-	time         float64       // The total time (internal units)
-	dt           float32       // The time step (internal units). May be updated by adaptive-step solvers
-	maxDm        float32       // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
-	maxError     float32       // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
-	stepError    float32       // The actual error estimate of the last step. Not all solvers update this value.
-	steps        int           // The total number of steps taken so far
-	starttime    int64         // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
-	outschedule  []Output      // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
-	// 	preciseStep  bool              // Should we cut the time step to save the output at the precise moment specified?
-	autosaveIdx int               // Unique identifier of output state. Updated each time output is saved.
-	outputdir   string            // Where to save output files.
-	mUpToDate   bool              // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
-	silent      bool              // Do not print anything to os.Stdout when silent == true, only to log file
-	out         *os.File          // Output log file
-	metadata    map[string]string // Metadata to be added to headers of saved tensors
+	mLocal       *tensor.T4    // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
+	mUpToDate    bool          // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
+	normMap      *DevTensor    // Per-cell magnetization norm. nil means the norm is 1.0 everywhere. Stored on the device
+	Conv                       // Convolution plan for the magnetostatic field
+
+	Material // Stores material parameters and manages the internal units
+	Mesh     // Stores the size of the simulation grid
+
+	AppliedField            // returns the externally applied in function of time
+	hextSI       [3]float32 // stores the externally applied field returned by AppliedField, in SI UNITS
+
+	Solver            // Does the time stepping, can be euler, heun, ...
+	time      float64 // The total time (internal units)
+	dt        float32 // The time step (internal units). May be updated by adaptive-step solvers
+	maxDm     float32 // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
+	maxError  float32 // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
+	stepError float32 // The actual error estimate of the last step. Not all solvers update this value.
+	steps     int     // The total number of steps taken so far
+
+	outschedule []Output // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
+	autosaveIdx int      // Unique identifier of output state. Updated each time output is saved.
+	devsum      Reductor // Reduces mx, my, mz (SUM) on the device, used to output the avarage magnetization
+	devmaxabs   Reductor // Reduces the torque (maxabs) on the device, used to output max dm/dt
+	devmin      Reductor
+	devmax      Reductor
+	//  preciseStep  bool              // Should we cut the time step to save the output at the precise moment specified?
+
+	silent    bool              // Do not print anything to os.Stdout when silent == true, only to log file
+	outputdir string            // Where to save output files.
+	out       *os.File          // Output log file
+	metadata  map[string]string // Metadata to be added to headers of saved tensors
+	starttime int64             // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
 }
 
-func New(outputdir string) *Sim {
-	return NewSim(outputdir)
+func New(outputdir string, backend *Backend) *Sim {
+	return NewSim(outputdir, backend)
 }
 
-func NewSim(outputdir string) *Sim {
+func NewSim(outputdir string, backend *Backend) *Sim {
 	sim := new(Sim)
+	sim.Backend = backend
+	sim.Backend.init()
 	sim.starttime = time.Seconds()
-	sim.backend = GPU //TODO: check if GPU is present, use CPU otherwise
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
 	sim.input.demag_accuracy = 8
@@ -132,7 +147,9 @@ func (s *Sim) IsValid() bool {
 	return s.valid
 }
 
+
 func (s *Sim) initSize() {
+
 	s.size4D[0] = 3 // 3-component vectors
 	for i := range s.size {
 		s.size[i] = s.input.size[i]
@@ -143,6 +160,54 @@ func (s *Sim) initSize() {
 		s.size4D[i+1] = s.size[i]
 	}
 	s.Println("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
+
+	s.size3D = s.size4D[1:]
+}
+
+
+func (s *Sim) initCellSize() {
+	L := s.UnitLength()
+	for i := range s.size {
+		s.cellSize[i] = s.input.cellSize[i] / L
+		if !(s.cellSize[i] > 0.) {
+			s.Errorln("The cell size should be set first. E.g. cellsize 1E-9 1E-9 1E-9")
+			os.Exit(-6)
+		}
+	}
+	if s.size[Z] == 1 {
+		panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
+	}
+}
+
+
+func (s *Sim) initDevMem() {
+	// Free previous memory only if it has the wrong size
+	//  if s.mDev != nil && !tensor.EqualSize(s.mDev.Size(), s.size4D[0:]) {
+	//    // TODO: free
+	//    s.mDev = nil
+	//    s.h = nil
+	//  }
+
+	//  if s.mDev == nil {
+	s.Println("Allocating device memory " + fmt.Sprint(s.size4D))
+	s.mDev = NewTensor(s.Backend, s.size4D[0:])
+	s.h = NewTensor(s.Backend, s.size4D[0:])
+	s.printMem()
+	s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
+	for i := range s.mComp {
+		s.mComp[i] = s.mDev.Component(i)
+		s.hComp[i] = s.h.Component(i)
+	}
+
+	s.initReductors()
+}
+
+func (s *Sim) initReductors() {
+	N := Len(s.size3D)
+	s.devsum.InitSum(s.Backend, N)
+	s.devmaxabs.InitMaxAbs(s.Backend, N)
+	s.devmax.InitMax(s.Backend, N)
+	s.devmin.InitMin(s.Backend, N)
 }
 
 func (s *Sim) initMLocal() {
@@ -159,88 +224,41 @@ func (s *Sim) initMLocal() {
 	// 	normalize(s.mLocal.Array())
 }
 
-// (Re-)initialize the simulation tree, necessary before running.
-func (s *Sim) init() {
-	if s.IsValid() {
-		return //no work to do
-	}
-	s.Println("Initializing simulation state")
-
-	dev := s.backend
-	// 	dev.InitBackend()
-	assert(s.backend != nil)
-	assert(s != nil)
-
-	// (1) Material parameters control the units,
-	// so they need to be set up first
-	s.InitMaterial() // sets gamma, mu0
-	if s.input.msat == 0. {
-		s.Errorln("Saturation magnetization should first be set. E.g. msat 800E3")
-		os.Exit(-6)
-	}
-	s.mSat = s.input.msat
-
-	if s.input.aexch == 0. {
-		s.Errorln("Exchange constant should first be set. E.g. aexch 12E-13")
-		os.Exit(-6)
-	}
-	s.aExch = s.input.aexch
-
-	if s.alpha <= 0. {
-		s.Warn("Damping parameter alpha =  ", s.alpha)
-	}
-
-	s.metadata["msat"] = fmt.Sprint(s.mSat)
-	s.metadata["aexch"] = fmt.Sprint(s.aExch)
-	s.metadata["alpha"] = fmt.Sprint(s.alpha)
-
-	// (2) Size must be set before memory allocation
-	s.initSize()
-	L := s.UnitLength()
-	for i := range s.size {
-		s.cellSize[i] = s.input.cellSize[i] / L
-		if !(s.cellSize[i] > 0.) {
-			s.Errorln("The cell size should be set first. E.g. cellsize 1E-9 1E-9 1E-9")
-			os.Exit(-6)
-		}
-	}
-	if s.size[Z] == 1{
-    panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
+// checks if the initial magnetization makes sense
+// TODO: m=0,0,0 should not be a warning when the corresponding normMap is zero as well.
+func (s *Sim) checkInitialM(){
+  // All zeros: not initialized: error
+  list := s.mLocal.List()
+  ok := false
+  for _,m:=range list{
+    if m != 0. {ok = true} 
+  }
+  if !ok{
+    s.Warn("Initial magnetization was not set")
+    panic(InputErr("Initial magnetization was not set"))
   }
 
-	// (3) Allocate memory, but only if needed
-	// Free previous memory only if it has the wrong size
-	// Todo device should not have been changed
-	// 	if s.mDev != nil && !tensor.EqualSize(s.mDev.Size(), s.size4D[0:]) {
-	// 		// TODO: free
-	// 		s.mDev = nil
-	// 		s.h = nil
-	// 	}
+  // Some zeros: may or may not be a mistake,
+  // warn and set to random.
+  warned := false
+  m := s.mLocal.Array()
+    for i:=range m[0]{
+      for j:=range m[0][i]{
+        for k:=range m[0][i][j]{
+          if m[X][i][j][k] == 0. && m[Y][i][j][k] == 0. && m[Z][i][j][k] == 0.{
+            if !warned{
+              s.Warn("Some initial magnetization vectors were zero, set to a random value")
+              warned = true
+            }
+            m[X][i][j][k] , m[Y][i][j][k] , m[Z][i][j][k] = rand.Float32()-0.5, rand.Float32()-0.5, rand.Float32()-0.5;
+          }
+        }
+      }
+    }
+}
 
-	// 	if s.mDev == nil {
-	s.Println("Allocating device memory " + fmt.Sprint(s.size4D))
-	s.mDev = NewTensor(dev, s.size4D[0:])
-	s.h = NewTensor(dev, s.size4D[0:])
-	s.printMem()
-	s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
-	for i := range s.mComp {
-		s.mComp[i] = s.mDev.Component(i)
-		s.hComp[i] = s.h.Component(i)
-	}
-	// 	}
 
-	// allocate local storage for m
-	s.initMLocal()
-
-	// copy to GPU and normalize on the GPU, according to the normmap.
-	TensorCopyTo(s.mLocal, s.mDev)
-	// 	s.Normalize(s.mDev) // mysteriously crashes
-	// then copy back to local so we can see the normalized initial state.
-	// (so m0000000.tensor is normalized)
-	// 	TensorCopyFrom(s.mDev, s.mLocal)
-
-	// (4) Calculate kernel & set up convolution
-
+func (s *Sim) initConv() {
 	s.paddedsize = padSize(s.size[0:])
 
 	s.Println("Calculating kernel (may take a moment)") // --- In fact, it takes 3 moments, one in each direction.
@@ -254,13 +272,55 @@ func (s *Sim) init() {
 			D[j] += E[j]
 		}
 	}
-	s.Conv = *NewConv(dev, s.size[0:], demag)
-	s.printMem()
+	s.Conv = *NewConv(s.Backend, s.size[0:], demag)
+}
 
-	// (5) Time stepping
+
+func (s *Sim) initSolver() {
 	s.Println("Initializing solver: ", s.input.solvertype)
 	s.dt = s.input.dt / s.UnitTime()
 	s.Solver = NewSolver(s.input.solvertype, s)
+}
+
+
+// (Re-)initialize the simulation tree, necessary before running.
+func (s *Sim) init() {
+	if s.IsValid() {
+		return //no work to do
+	}
+	s.Println("Initializing simulation state")
+
+	// (1) Material parameters control the units,
+	// so they need to be set up first
+	s.InitMaterial() // sets gamma, mu0
+
+	// (2) Size must be set before memory allocation
+	s.initSize()
+
+	s.initCellSize()
+
+	// (3) Allocate memory, but only if needed
+	s.initDevMem()
+
+	// allocate local storage for m
+	s.initMLocal()
+
+  // check if m has been initialized
+  s.checkInitialM()
+  
+	// copy to GPU and normalize on the GPU, according to the normmap.
+	TensorCopyTo(s.mLocal, s.mDev)
+	// 	s.Normalize(s.mDev) // mysteriously crashes
+	// then copy back to local so we can see the normalized initial state.
+	// (so m0000000.tensor is normalized)
+	// 	TensorCopyFrom(s.mDev, s.mLocal)
+
+	// (4) Calculate kernel & set up convolution
+	s.initConv()
+
+	// (5) Time stepping
+	s.initSolver()
+
 	s.printMem()
 
 	s.valid = true // we can start the real work now

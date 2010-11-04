@@ -20,9 +20,9 @@ type AdaptiveHeun struct {
 func NewAdaptiveHeun(sim *Sim) *AdaptiveHeun {
 	this := new(AdaptiveHeun)
 	this.Sim = sim
-	this.m1est = NewTensor(sim.backend, Size4D(sim.size[0:]))
-	this.t0 = NewTensor(sim.backend, Size4D(sim.size[0:]))
-	this.Reductor.InitMaxAbs(this.backend, prod(sim.size4D[0:]))
+	this.m1est = NewTensor(sim.Backend, Size4D(sim.size[0:]))
+	this.t0 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
+	this.Reductor.InitMaxAbs(sim.Backend, prod(sim.size4D[0:]))
 	// There has to be an initial dt set so we can start
 	if this.dt == 0. {
 		this.dt = 0.00001 // initial dt guess (internal units)

@@ -27,37 +27,45 @@ import (
 // t.Stop("other loop")
 // t.PrintTimer(os.Stdout)
 //
-type Timer map[string]*Stopwatch
+type Timer struct {
+	clocks  map[string]*Stopwatch
+	current *Stopwatch
+}
 
 func NewTimer() Timer {
-	return Timer(make(map[string]*Stopwatch))
+	return Timer{make(map[string]*Stopwatch), nil}
 }
 
-func (t Timer) Start(tag string) {
-	s, ok := t[tag]
+func (t *Timer) Start(tag string) {
+	if t.current != nil {
+		panic(Bug("Timer.Start(" + tag + "): already running"))
+	}
+	s, ok := t.clocks[tag]
 	if !ok {
 		s = new(Stopwatch)
-		t[tag] = s
+		t.clocks[tag] = s
 	}
 	if s.start != 0 {
-		panic("Timer.Start(" + tag + "): already running")
+		panic(Bug("Timer.Start(" + tag + "): already running"))
 	}
 	s.start = time.Nanoseconds()
+	t.current = s
 }
 
-func (t Timer) Stop(tag string) {
-	s, ok := t[tag]
-	if !ok {
-		panic("Timer.Stop(" + tag + "): was not started")
+func (t *Timer) Stop() {
+	s := t.current
+	if s == nil {
+		panic(Bug("Timer.Stop(): was not started"))
 	}
 	s.total += (time.Nanoseconds() - s.start)
 	s.invocations++
 	s.start = 0
+	t.current = nil
 }
 
-func (t Timer) PrintTimer(out io.Writer) {
-	for tag, s := range t {
-		fmt.Fprintln(out, tag, ":", s.total/1000000, "ms", "(", float64(s.total)/float64(1000000*int64(s.invocations)), "ms/invocation)")
+func (t *Timer) PrintTimer(out io.Writer) {
+	for tag, s := range t.clocks {
+		fmt.Fprintln(out, tag, ":", float(s.total)/1000000000, "s", "(", float64(s.total)/float64(1000000*int64(s.invocations)), "ms/invocation)")
 	}
 }
 

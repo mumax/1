@@ -87,7 +87,17 @@ func main_master() {
 		//TODO it would be safer to abort when the output dir is not empty
 		outfile := removeExtension(infile) + ".out"
 
-		sim := NewSim(outfile)
+		// Set the device
+		var backend *Backend
+		if *cpu {
+			backend = CPU
+
+		} else {
+			backend = GPU
+			backend.SetDevice(*gpuid)
+		}
+
+		sim := NewSim(outfile, backend)
 		defer sim.out.Close()
 
 		// file "running" indicates the simulation is running
@@ -100,15 +110,6 @@ func main_master() {
 		runningfile.Close()
 
 		sim.silent = *silent
-		// Set the device
-		if *cpu {
-			sim.backend = CPU
-			sim.backend.init()
-		} else {
-			sim.backend = GPU
-			sim.backend.setDevice(*gpuid)
-			sim.backend.init()
-		}
 		refsh := refsh.New()
 		refsh.CrashOnError = true
 		refsh.AddAllMethods(sim)
@@ -129,7 +130,13 @@ func main_master() {
 			sim.Errorln("Input file does not contain any commands to make the simulation run. Use, e.g., \"run\".")
 		}
 		// The next two lines cause a nil pointer panic when the simulation is not fully initialized
-		if sim.BeenValid && Verbosity > 2 {
+		if sim.BeenValid && Verbosity > 1 {
+			down()
+			down()
+			down()
+			down()
+			down()
+
 			sim.TimerPrintDetail()
 			sim.PrintTimer(os.Stdout)
 		}
@@ -199,12 +206,33 @@ func filename(str string) string {
 // This function is deferred from Main(). If a panic()
 // occurs, it prints a nice explanation and asks to
 // mail the crash report.
+// TODO: we need to wrap sim in the error value so
+// we can report to its log
 func crashreport() {
 	error := recover()
 	if error != nil {
-		fmt.Fprintln(os.Stderr,
-			`
-			
+    switch t:= error.(type){
+      default: crash(error)
+    }
+	}
+}
+
+func fail(){
+//   err2 := os.Rename(running, sim.outputdir+"/failed")
+//     if err2 != nil {
+//       fmt.Fprintln(os.Stderr, err2)
+//     }
+}
+
+func crash(error interface{}){
+//   err2 := os.Rename(running, sim.outputdir+"/crashed")
+//     if err2 != nil {
+//       fmt.Fprintln(os.Stderr, err2)
+//     }
+    
+  fmt.Fprintln(os.Stderr,
+      `
+
 ---------------------------------------------------------------------
 Aw snap, the program has crahsed.
 If you would like to see this issue fixed, please mail a bugreport to
@@ -215,6 +243,5 @@ with Ctrl+Shift+C).
 ---------------------------------------------------------------------
 
 `)
-		panic(error)
-	}
+    panic(error)
 }

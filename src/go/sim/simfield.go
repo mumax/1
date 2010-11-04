@@ -15,6 +15,10 @@ import (
 // the applied magnetic field.
 // TODO: we need a time 0 !
 
+
+//                                                                      IMPORTANT: this is one of the places where X,Y,Z get swapped
+//                                                                      what is (X,Y,Z) internally becomes (Z,Y,X) for the user!
+
 // Apply a static field defined in Tesla
 func (s *Sim) StaticField(hz, hy, hx float32) {
 	s.AppliedField = &staticField{[3]float32{hx, hy, hz}} // pass it on in tesla so that it stays independent of other problem parameters
@@ -93,7 +97,8 @@ func (field *rotatingField) GetAppliedField(time float64) [3]float32 {
 }
 
 
-// Apply a rotating burst
+// Apply a rotating burst.
+// phase: -pi/2=CW, pi/2=CCW
 func (s *Sim) RotatingBurst(h float32, freq, phase, risetime, duration float64) {
 	s.AppliedField = &rotatingBurst{h, freq, phase, risetime, duration}
 	s.Println("Applied field: Rotating burst, ", h, " T, frequency: ", freq, " Hz ", "phase between X-Y: ", phase, " risetime: ", risetime, " s", ", duration: ", duration, " s")
@@ -106,6 +111,7 @@ type rotatingBurst struct {
 }
 
 const SQRT2 = 1.414213562373095
+
 
 func (field *rotatingBurst) GetAppliedField(time float64) [3]float32 {
 	sinx := float32(Sin(field.freq * 2 * Pi * time))

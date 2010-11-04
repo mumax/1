@@ -76,20 +76,26 @@ func (conv *Conv) Convolve(source, dest *DevTensor) {
 	//Sync
 
 	// Forward FFT
+	conv.Start("fw FFT")
 	for i := 0; i < 3; i++ {
 		conv.Forward(mcomp[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
 	}
+	conv.Stop()
 
 	// Point-wise kernel multiplication in reciprocal space
+	conv.Start("kern mul")
 	conv.kernelMul(buffer[X].data, buffer[Y].data, buffer[Z].data,
 		kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
 		kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
 		6, Len(buffer[X].size)) // nRealNumbers
+	conv.Stop()
 
 	// Inverse FFT
+	conv.Start("bw FFT")
 	for i := 0; i < 3; i++ {
 		conv.Inverse(buffer[i], hcomp[i]) // should not be asynchronous unless we have 3 fft's (?)
 	}
+	conv.Stop()
 }
 
 // INTERNAL: Loads a convolution kernel.

@@ -14,6 +14,7 @@ extern "C" {
 #define REDUCE_ADD 1
 #define REDUCE_MAX 2
 #define REDUCE_MAXABS 3
+#define REDUCE_MIN 4
 
 
 float gpu_reduce(int operation, float* input, float* output, float* buffer, int blocks, int threadsPerBlock, int N);

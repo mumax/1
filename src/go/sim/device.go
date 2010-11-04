@@ -193,4 +193,5 @@ const (
 	ADD    = 1
 	MAX    = 2
 	MAXABS = 3
+	MIN    = 4
 )
