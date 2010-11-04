@@ -9,8 +9,10 @@ func Parse(fname string) (start, stop *Node) {
 
 // parses everything BETWEEN start and stop,
 // excluding start and stop
-func parse(start, stop *Node) {
-	parseBrackets(start, stop)
+func parse(start, stop *Node) (root *Node){
+  root = NewNode()
+
+  
 }
 
 func parseBrackets(start, stop *Node) {
