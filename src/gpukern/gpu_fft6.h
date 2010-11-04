@@ -145,8 +145,28 @@ void gpu_copy_to_unpad2(float* source,        ///< input: padded source as conti
                         int *pad_size,        ///< size of the corresponding padded tensor
                         int *unpad_size       ///< size of the corresponding unpadded tensor 
                         ); 
-                          
-                               
+             
+/**
+ * @internal
+ * pads the input tensor 'source' and saves it in tensor 'dest', 2d and 3d applicable.
+ */
+void gpu_copy_to_pad3(float* source,         ///< input: unpadded source as contiguous float array
+                      float* dest,           ///< output: padded destination as contiguous float array
+                      int *unpad_size,       ///< size of the corresponding unpadded tensor 
+                      int *pad_size          ///< size of the corresponding padded tensor
+                      );
+
+/**
+ * @internal
+ * copies the non-zero elements from the padded the input tensor 'source' towards tensor 'dest', 2d and 3d applicable.
+ */
+void gpu_copy_to_unpad3(float* source,        ///< input: padded source as contiguous float array
+                        float* dest,          ///< output: unpadded destination as contiguous float array
+                        int *pad_size,        ///< size of the corresponding padded tensor
+                        int *unpad_size       ///< size of the corresponding unpadded tensor 
+                        ); 
+
+// void split_int (int N, int *N1, int *N2);                  
                                
 #ifdef __cplusplus
 }
