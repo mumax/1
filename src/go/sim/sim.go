@@ -234,7 +234,7 @@ func (s *Sim) checkInitialM(){
     if m != 0. {ok = true} 
   }
   if !ok{
-    //s.Warn("Initial magnetization was not set")
+    s.Warn("Initial magnetization was not set")
     panic(InputErr("Initial magnetization was not set"))
   }
 

@@ -206,12 +206,33 @@ func filename(str string) string {
 // This function is deferred from Main(). If a panic()
 // occurs, it prints a nice explanation and asks to
 // mail the crash report.
+// TODO: we need to wrap sim in the error value so
+// we can report to its log
 func crashreport() {
 	error := recover()
 	if error != nil {
-		fmt.Fprintln(os.Stderr,
-			`
-			
+    switch t:= error.(type){
+      default: crash(error)
+    }
+	}
+}
+
+func fail(){
+//   err2 := os.Rename(running, sim.outputdir+"/failed")
+//     if err2 != nil {
+//       fmt.Fprintln(os.Stderr, err2)
+//     }
+}
+
+func crash(error interface{}){
+//   err2 := os.Rename(running, sim.outputdir+"/crashed")
+//     if err2 != nil {
+//       fmt.Fprintln(os.Stderr, err2)
+//     }
+    
+  fmt.Fprintln(os.Stderr,
+      `
+
 ---------------------------------------------------------------------
 Aw snap, the program has crahsed.
 If you would like to see this issue fixed, please mail a bugreport to
@@ -222,6 +243,5 @@ with Ctrl+Shift+C).
 ---------------------------------------------------------------------
 
 `)
-		panic(error)
-	}
+    panic(error)
 }
