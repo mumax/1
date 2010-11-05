@@ -31,6 +31,7 @@ GOFILES=\
 	simspintorque.go\
 	simgeom.go\
 	edge.go\
+	geom.go\
 	simmaterial.go\
 	simoutput.go\
 	simrun.go\
