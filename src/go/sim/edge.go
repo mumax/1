@@ -26,18 +26,14 @@ func (s *Sim) initGeom() {
 	sizex := s.mLocal.Size()[1]
 	sizey := s.mLocal.Size()[2]
 	sizez := s.mLocal.Size()[3]
-	
-  centerx := 0.5 * (s.input.partSize[X])
-  centery := 0.5 * (s.input.partSize[Y])
-  centerz := 0.5 * (s.input.partSize[Z])
-
 
 	for i := 0; i < sizex; i++ {
-    x := (float32(i)+.5) * (s.input.partSize[X] / float32(sizex)) - centerx
+    x := (float32(i)+.5) * (s.input.partSize[X] / float32(sizex)) - 0.5 * (s.input.partSize[X])
 		for j := 0; j < sizey; j++ {
-		y := (float32(j)+.5) * (s.input.partSize[Y] / float32(sizey)) - centery
+		y := (float32(j)+.5) * (s.input.partSize[Y] / float32(sizey)) - 0.5 * (s.input.partSize[Y])
 			for k := 0; k < sizez; k++ {
-			z := (float32(k)+.5) * (s.input.partSize[Z] / float32(sizez)) -centerz
+			z := (float32(k)+.5) * (s.input.partSize[Z] / float32(sizez)) - 0.5 * (s.input.partSize[Z])
+			
 				if s.geom.Inside(x, y, z) {
 					norm.Array()[i][j][k] = 1.
 				} else {

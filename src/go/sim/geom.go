@@ -7,7 +7,7 @@
 package sim
 
 import (
-	"fmt"
+	
 )
 
 type Geom interface {
