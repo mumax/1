@@ -23,22 +23,27 @@ func (s *Sim) initGeom() {
 
 	norm := tensor.NewT3(s.normMap.Size())
 
-	sizex := s.mLocal.Size()[1]
-	sizey := s.mLocal.Size()[2]
-	sizez := s.mLocal.Size()[3]
+  refine := pow(2, s.edgecorr)
+  s.Println("Edge refinement: ", refine)
+  refine3 := float32(pow(refine, 3))
+  
+	sizex := s.mLocal.Size()[1] * refine
+	sizey := s.mLocal.Size()[2] * refine
+	sizez := s.mLocal.Size()[3] * refine
 
+  // TODO: can be optimized for 2D
 	for i := 0; i < sizex; i++ {
     x := (float32(i)+.5) * (s.input.partSize[X] / float32(sizex)) - 0.5 * (s.input.partSize[X])
 		for j := 0; j < sizey; j++ {
 		y := (float32(j)+.5) * (s.input.partSize[Y] / float32(sizey)) - 0.5 * (s.input.partSize[Y])
 			for k := 0; k < sizez; k++ {
 			z := (float32(k)+.5) * (s.input.partSize[Z] / float32(sizez)) - 0.5 * (s.input.partSize[Z])
+
 			
 				if s.geom.Inside(x, y, z) {
-					norm.Array()[i][j][k] = 1.
-				} else {
-					norm.Array()[i][j][k] = 0.
-				}
+					norm.Array()[i/refine][j/refine][k/refine] += 1./refine3
+        }
+        
 			}
 		}
 	}
@@ -57,4 +62,12 @@ func (sim *Sim) initNormMap() {
 	if sim.normMap == nil {
 		sim.normMap = NewTensor(sim.Backend, Size3D(sim.mLocal.Size()))
 	}
+}
+
+func pow(base, exp int) int{
+  result := 1
+  for i:=0; i<exp; i++{
+    result *= base
+  }
+  return result
 }
