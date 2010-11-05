@@ -71,19 +71,23 @@ func (s *Sim) initGeom() {
 	s.Println("Initializing edge corrections")
 
 	s.allocEdgeKern()
-	
+	E := make([]*tensor.T3, 6)  //local copy
+	for i := range s.edgeKern {
+		E[i] = tensor.NewT3(Size3D(s.mLocal.Size()))
+	}
 
-// 	for i := 0; i < sizex; i++ {
-// 		x := (float32(i)+.5)*(s.input.partSize[X]/float32(sizex)) - 0.5*(s.input.partSize[X]) // fine coordinate inside the magnet, SI units
-// 		for j := 0; j < sizey; j++ {
-// 			y := (float32(j)+.5)*(s.input.partSize[Y]/float32(sizey)) - 0.5*(s.input.partSize[Y])
-// 			for k := 0; k < sizez; k++ {
-// 				z := (float32(k)+.5)*(s.input.partSize[Z]/float32(sizez)) - 0.5*(s.input.partSize[Z])
-// 
-// 			}
-// 		}
-// 	}
-// 	TensorCopyTo(norm, s.normMap)
+	
+	// 	for i := 0; i < sizex; i++ {
+	// 		x := (float32(i)+.5)*(s.input.partSize[X]/float32(sizex)) - 0.5*(s.input.partSize[X]) // fine coordinate inside the magnet, SI units
+	// 		for j := 0; j < sizey; j++ {
+	// 			y := (float32(j)+.5)*(s.input.partSize[Y]/float32(sizey)) - 0.5*(s.input.partSize[Y])
+	// 			for k := 0; k < sizez; k++ {
+	// 				z := (float32(k)+.5)*(s.input.partSize[Z]/float32(sizez)) - 0.5*(s.input.partSize[Z])
+	// 
+	// 			}
+	// 		}
+	// 	}
+	// 	TensorCopyTo(norm, s.normMap)
 
 }
 
@@ -104,10 +108,10 @@ func (sim *Sim) allocEdgeKern() {
 	if sim.edgeKern == nil {
 		sim.Println("Allocating Edge Kernel")
 		sim.edgeKern = make([]*DevTensor, 6)
-		for i:=range sim.edgeKern{
-      sim.edgeKern[i] = NewTensor(sim.Backend, Size3D(sim.mLocal.Size()))
+		for i := range sim.edgeKern {
+			sim.edgeKern[i] = NewTensor(sim.Backend, Size3D(sim.mLocal.Size()))
+		}
 	}
-  }
 }
 
 
