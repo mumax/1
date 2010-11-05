@@ -55,7 +55,10 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
 			}
 		}
 	}
-	assert(k[XZ].Array()[0][0][0] == selfKernel(X, cellsize, accuracy)[Z])
+	for s:=0; s<3; s++{
+    for d:=0; d<3; d++{
+      assert(k[KernIdx[s][d]].Array()[0][0][0] == selfKernel(s, cellsize, accuracy)[d])
+    }}
 	return k
 }
 

@@ -92,8 +92,7 @@ const (
 // Maps the 3x3 indices of the symmetric demag kernel (K_ij) onto
 // a length 6 array containing the upper triangular part:
 // (Kxx, Kyy, Kzz, Kyz, Kxz, Kxy)
-// Invalid (unused) indices like ZX return -1.
 var KernIdx [3][3]int = [3][3]int{
 	[3]int{XX, XY, XZ},
-	[3]int{-1, YY, YZ},
-	[3]int{-1, -1, ZZ}}
+	[3]int{XY, YY, YZ},
+	[3]int{XZ, YZ, ZZ}}
