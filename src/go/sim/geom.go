@@ -6,9 +6,7 @@
 
 package sim
 
-import (
-	
-)
+import ()
 
 type Geom interface {
 	Inside(x, y, z float32) bool

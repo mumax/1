@@ -99,17 +99,16 @@ func (dev *Backend) Add(a, b *DevTensor) {
 
 // a[i] += cnst * b[i]
 func (dev *Backend) MAdd(a *DevTensor, cnst float32, b *DevTensor) {
-  assert(tensor.EqualSize(a.size, b.size))
-  dev.madd(a.data, cnst, b.data, tensor.Prod(a.Size()))
+	assert(tensor.EqualSize(a.size, b.size))
+	dev.madd(a.data, cnst, b.data, tensor.Prod(a.Size()))
 }
 
 // a[i] += b[i] * c[i]
 func (dev *Backend) MAdd2(a, b, c *DevTensor) {
-  assert(tensor.EqualSize(a.size, b.size))
-  assert(tensor.EqualSize(b.size, c.size))
-  dev.madd2(a.data, b.data, c.data, tensor.Prod(a.Size()))
+	assert(tensor.EqualSize(a.size, b.size))
+	assert(tensor.EqualSize(b.size, c.size))
+	dev.madd2(a.data, b.data, c.data, tensor.Prod(a.Size()))
 }
-
 
 
 // a[i]  = weightA * a[i] + weightB * b[i]
