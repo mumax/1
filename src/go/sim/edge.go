@@ -12,7 +12,7 @@ import (
 
 
 func (s *Sim) addEdgeField(m, h *DevTensor){
-  
+  panic("todo")
 }
 
 

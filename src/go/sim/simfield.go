@@ -142,10 +142,16 @@ func (s *Sim) calcHeff(m, h *DevTensor) {
 	s.Convolve(m, h)
 
 	// (2) Add the externally applied field
+
+  // PROBLEM: DON'T WANT TO ALLOCATE HCOMP OVER AND OVER,
+  // USE S.hComp BUFFER FOR NOW
+  assert(h == s.h)
+  hComp := s.hComp
+  
 	if s.AppliedField != nil {
 		s.hextSI = s.GetAppliedField(s.time * float64(s.UnitTime()))
-		for i := range s.hComp {
-			s.AddConstant(s.hComp[i], s.hextSI[i]/s.UnitField())
+		for i := range hComp {
+			s.AddConstant(hComp[i], s.hextSI[i]/s.UnitField())
 		}
 	}
 
