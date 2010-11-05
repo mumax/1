@@ -145,7 +145,7 @@ func (sim *Sim) Cylinder() {
 
 	for i := 0; i < sizex; i++ {
 		for j := 0; j < sizey; j++ {
-			x := float64(j-sizey/2) + 0.5 // add 0.5 to be at the center of the cell, not a vertex (gives nicer round shape)
+			x := float64(j-sizey/2) + 0.5 // add 0.5 to be at the center of the cell, not at a corner vertex (gives nicer round shape)
 			for k := 0; k < sizez; k++ {
 				y := float64(k-sizez/2) + 0.5
 				if sqr(x/rx)+sqr(y/ry) <= 1 {
@@ -164,5 +164,3 @@ func sqr(x float64) float64 {
 	return x * x
 }
 
-// TODO: Defining the overall size and the (perhaps maximum) cell size,
-// and letting the program choose the number of cells would be handy.
