@@ -115,7 +115,7 @@ func (s *Sim) EdgeCorrection(accuracy int) {
 
 
 func (sim *Sim) LoadMSat(file string) {
-	sim.initNormMap()
+	sim.allocNormMap()
 	sim.Println("Loading space-dependent saturation magnetization (norm)", file)
 	in, err := os.Open(file, os.O_RDONLY, 0666)
 	defer in.Close()
