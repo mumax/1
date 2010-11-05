@@ -74,7 +74,6 @@ type Sim struct {
 	mComp, hComp [3]*DevTensor // magnetization/field components, 3 x 3D tensors
 	mLocal       *tensor.T4    // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
 	mUpToDate    bool          // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
-	normMap      *DevTensor    // Per-cell magnetization norm. nil means the norm is 1.0 everywhere. Stored on the device
 	Conv                       // Convolution plan for the magnetostatic field
 
 	Material // Stores material parameters and manages the internal units
@@ -104,6 +103,11 @@ type Sim struct {
 	out       *os.File          // Output log file
 	metadata  map[string]string // Metadata to be added to headers of saved tensors
 	starttime int64             // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
+
+	geom     Geom
+	normMap  *DevTensor // Per-cell magnetization norm. nil means the norm is 1.0 everywhere. Stored on the device
+	edgecorr int
+	edgemap  *DevTensor
 }
 
 func New(outputdir string, backend *Backend) *Sim {
@@ -226,35 +230,37 @@ func (s *Sim) initMLocal() {
 
 // checks if the initial magnetization makes sense
 // TODO: m=0,0,0 should not be a warning when the corresponding normMap is zero as well.
-func (s *Sim) checkInitialM(){
-  // All zeros: not initialized: error
-  list := s.mLocal.List()
-  ok := false
-  for _,m:=range list{
-    if m != 0. {ok = true} 
-  }
-  if !ok{
-    s.Warn("Initial magnetization was not set")
-    panic(InputErr("Initial magnetization was not set"))
-  }
+func (s *Sim) checkInitialM() {
+	// All zeros: not initialized: error
+	list := s.mLocal.List()
+	ok := false
+	for _, m := range list {
+		if m != 0. {
+			ok = true
+		}
+	}
+	if !ok {
+		s.Warn("Initial magnetization was not set")
+		panic(InputErr("Initial magnetization was not set"))
+	}
 
-  // Some zeros: may or may not be a mistake,
-  // warn and set to random.
-  warned := false
-  m := s.mLocal.Array()
-    for i:=range m[0]{
-      for j:=range m[0][i]{
-        for k:=range m[0][i][j]{
-          if m[X][i][j][k] == 0. && m[Y][i][j][k] == 0. && m[Z][i][j][k] == 0.{
-            if !warned{
-              s.Warn("Some initial magnetization vectors were zero, set to a random value")
-              warned = true
-            }
-            m[X][i][j][k] , m[Y][i][j][k] , m[Z][i][j][k] = rand.Float32()-0.5, rand.Float32()-0.5, rand.Float32()-0.5;
-          }
-        }
-      }
-    }
+	// Some zeros: may or may not be a mistake,
+	// warn and set to random.
+	warned := false
+	m := s.mLocal.Array()
+	for i := range m[0] {
+		for j := range m[0][i] {
+			for k := range m[0][i][j] {
+				if m[X][i][j][k] == 0. && m[Y][i][j][k] == 0. && m[Z][i][j][k] == 0. {
+					if !warned {
+						s.Warn("Some initial magnetization vectors were zero, set to a random value")
+						warned = true
+					}
+					m[X][i][j][k], m[Y][i][j][k], m[Z][i][j][k] = rand.Float32()-0.5, rand.Float32()-0.5, rand.Float32()-0.5
+				}
+			}
+		}
+	}
 }
 
 
@@ -305,9 +311,9 @@ func (s *Sim) init() {
 	// allocate local storage for m
 	s.initMLocal()
 
-  // check if m has been initialized
-  s.checkInitialM()
-  
+	// check if m has been initialized
+	s.checkInitialM()
+
 	// copy to GPU and normalize on the GPU, according to the normmap.
 	TensorCopyTo(s.mLocal, s.mDev)
 	// 	s.Normalize(s.mDev) // mysteriously crashes
@@ -317,6 +323,8 @@ func (s *Sim) init() {
 
 	// (4) Calculate kernel & set up convolution
 	s.initConv()
+
+	s.initGeom()
 
 	// (5) Time stepping
 	s.initSolver()

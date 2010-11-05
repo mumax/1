@@ -6,3 +6,22 @@
 
 package sim
 
+import (
+	"fmt"
+)
+
+type Geom interface {
+	Inside(x, y, z float32) bool
+}
+
+
+type Ellipsoid struct {
+	rx, ry, rz float32
+}
+
+func (s *Ellipsoid) Inside(x, y, z float32) bool {
+	x /= s.rx
+	y /= s.ry
+	z /= s.rz
+	return x*x+y*y+z*z <= 1.
+}

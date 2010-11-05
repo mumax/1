@@ -211,27 +211,28 @@ func filename(str string) string {
 func crashreport() {
 	error := recover()
 	if error != nil {
-    switch t:= error.(type){
-      default: crash(error)
-    }
+		switch t := error.(type) {
+		default:
+			crash(error)
+		}
 	}
 }
 
-func fail(){
-//   err2 := os.Rename(running, sim.outputdir+"/failed")
-//     if err2 != nil {
-//       fmt.Fprintln(os.Stderr, err2)
-//     }
+func fail() {
+	//   err2 := os.Rename(running, sim.outputdir+"/failed")
+	//     if err2 != nil {
+	//       fmt.Fprintln(os.Stderr, err2)
+	//     }
 }
 
-func crash(error interface{}){
-//   err2 := os.Rename(running, sim.outputdir+"/crashed")
-//     if err2 != nil {
-//       fmt.Fprintln(os.Stderr, err2)
-//     }
-    
-  fmt.Fprintln(os.Stderr,
-      `
+func crash(error interface{}) {
+	//   err2 := os.Rename(running, sim.outputdir+"/crashed")
+	//     if err2 != nil {
+	//       fmt.Fprintln(os.Stderr, err2)
+	//     }
+
+	fmt.Fprintln(os.Stderr,
+		`
 
 ---------------------------------------------------------------------
 Aw snap, the program has crahsed.
@@ -243,5 +244,5 @@ with Ctrl+Shift+C).
 ---------------------------------------------------------------------
 
 `)
-    panic(error)
+	panic(error)
 }
