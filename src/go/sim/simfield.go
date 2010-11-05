@@ -148,4 +148,9 @@ func (s *Sim) calcHeff(m, h *DevTensor) {
 			s.AddConstant(s.hComp[i], s.hextSI[i]/s.UnitField())
 		}
 	}
+
+	// (3) Add the edge-correction field
+  if s.edgeCorr != 0{
+    s.addEdgeField(m, h)
+  }
 }

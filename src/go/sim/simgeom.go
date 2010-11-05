@@ -109,7 +109,7 @@ func (s *Sim) updateSizes() {
 // Sets the accuracy of edge corrections.
 // 0 means no correction.
 func (s *Sim) EdgeCorrection(accuracy int) {
-	s.edgecorr = accuracy
+	s.edgeCorr = accuracy
 	s.invalidate()
 }
 

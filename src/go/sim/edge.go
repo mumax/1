@@ -10,6 +10,12 @@ import (
 	"tensor"
 )
 
+
+func (s *Sim) addEdgeField(m, h *DevTensor){
+  
+}
+
+
 // TODO: what if there is already an msat map that represents variations
 // in the material, not geometry? It should not just be overwritten...
 func (s *Sim) initGeom() {
@@ -23,7 +29,7 @@ func (s *Sim) initGeom() {
 
 	s.initNormMap()
 
-	if s.edgecorr == 0 {
+	if s.edgeCorr == 0 {
 		return
 	}
 
@@ -66,16 +72,19 @@ func (s *Sim) initGeom() {
 }
 
 
+// Calculates normMap (the norm of MSat, per cell),
+// based on the magnet geometry.
+// The normMap for the cell will lie between 0 and 1 depending
+// on the portion of the cell that lies inside the geometry
 func (s *Sim) initNormMap() {
-	// (1) Initialize and calculate the norm map
-	// (norm of msat)
+  
 	s.allocNormMap()
 	norm := tensor.NewT3(s.normMap.Size()) // local copy
 
 	// Even without edge corrections it is good to have soft (antialiased) edges
 	// Normally we use the same subsampling accuracy as required by the edge corrections,
 	// but when edgecorrection==0, we use a default smoothness.
-	softness := s.edgecorr
+	softness := s.edgeCorr
 	if softness == 0 {
 		softness = 3
 		s.Println("Using default edge smoothness: 2^", softness)
