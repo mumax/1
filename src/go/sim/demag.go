@@ -11,7 +11,16 @@ import (
 	. "math"
 )
 
-
+// Calculates the magnetostatic kernel
+//
+// size: size of the kernel, usually 2 x larger than the size of the magnetization due to zero padding
+// accuracy: use 2^accuracy integration points
+//
+// return value: A symmetric rank 5 tensor K[sourcedir][destdir][x][y][z]
+// (e.g. K[X][Y][1][2][3] gives H_y at position (1, 2, 3) due to a unit dipole m_x at the origin.
+// Only the non-redundant elements of this symmetric tensor are returned: XX, YY, ZZ, YZ, XZ, XY
+// You can use the function KernIdx to convert from source-dest pairs like XX to 1D indices:
+// K[KernIdx[X][X]] returns K[XX]
 func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
 	k := make([]*tensor.T3, 6)
 	for i := range k {
@@ -46,19 +55,23 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
 			}
 		}
 	}
+	assert(k[XZ].Array()[0][0][0] == selfKernel(X, cellsize, accuracy)[Z])
 	return k
 }
 
-// func selfKernel(cellsize []float32, accuracy int) []float32{
-//   B := tensor.NewVector()
-//   R := tensor.NewVector()
-//   faceIntegral(B, R, cellsize, accuracy)
-//   return []float32{B.Component[X]}
-// }
+// Calculates only the self-kernel K[ij][0][0][0].
+// used for edge corrections where we need to subtract this generic self kernel contribution and
+// replace it by an edge-corrected version specific for each cell.
+func selfKernel(sourcedir int, cellsize []float32, accuracy int) []float32{
+  B := tensor.NewVector()
+  R := tensor.NewVector()
+  faceIntegral(B, R, cellsize, sourcedir, accuracy)
+  return []float32{B.Component[X], B.Component[Y], B.Component[Z]}
+}
 
-/**
- * Magnetostatic field at position r (integer, number of cellsizes away form source) for a given source magnetization direction m (X, Y, or Z)
- */
+
+// Magnetostatic field at position r (integer, number of cellsizes away form source) for a given source magnetization direction m (X, Y, or
+// s = source direction (x, y, z)
 func faceIntegral(B, R *tensor.Vector, cellsize []float32, s int, accuracy int) {
 	n := accuracy                  // number of integration points = n^2
 	u, v, w := s, (s+1)%3, (s+2)%3 // u = direction of source (s), v & w are the orthogonal directions
