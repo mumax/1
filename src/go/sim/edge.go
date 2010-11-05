@@ -21,6 +21,43 @@ func (s *Sim) initGeom() {
 		return
 	}
 
+	s.initNormMap()
+
+	if s.edgecorr == 0 {
+		return
+	}
+
+	s.Println("Initializing edge corrections")
+
+	s.allocEdgeKern()
+	E := make([]*tensor.T3, 6) //local copy
+	for i := range s.edgeKern {
+		E[i] = tensor.NewT3(Size3D(s.mLocal.Size()))
+	}
+
+	// the demag self-kernel for cuboid cells.
+	// for each non-cuboid cell, we will need to subtract it and replace it by the edge-corrected kernel
+	// 	selfK := [][]float32{
+	// 		selfKernel(X, s.cellSize[:], s.input.demag_accuracy),
+	// 		selfKernel(Y, s.cellSize[:], s.input.demag_accuracy),
+	// 		selfKernel(Z, s.cellSize[:], s.input.demag_accuracy)}
+
+	// 	for i := 0; i < sizex; i++ {
+	// 		x := (float32(i)+.5)*(s.input.partSize[X]/float32(sizex)) - 0.5*(s.input.partSize[X]) // fine coordinate inside the magnet, SI units
+	// 		for j := 0; j < sizey; j++ {
+	// 			y := (float32(j)+.5)*(s.input.partSize[Y]/float32(sizey)) - 0.5*(s.input.partSize[Y])
+	// 			for k := 0; k < sizez; k++ {
+	// 				z := (float32(k)+.5)*(s.input.partSize[Z]/float32(sizez)) - 0.5*(s.input.partSize[Z])
+	// 
+	// 			}
+	// 		}
+	// 	}
+	// 	TensorCopyTo(norm, s.normMap)
+
+}
+
+
+func (s *Sim) initNormMap() {
 	// (1) Initialize and calculate the norm map
 	// (norm of msat)
 	s.allocNormMap()
@@ -63,32 +100,6 @@ func (s *Sim) initGeom() {
 		}
 	}
 	TensorCopyTo(norm, s.normMap)
-
-	if s.edgecorr == 0 {
-		return
-	}
-
-	s.Println("Initializing edge corrections")
-
-	s.allocEdgeKern()
-	E := make([]*tensor.T3, 6)  //local copy
-	for i := range s.edgeKern {
-		E[i] = tensor.NewT3(Size3D(s.mLocal.Size()))
-	}
-
-	
-	// 	for i := 0; i < sizex; i++ {
-	// 		x := (float32(i)+.5)*(s.input.partSize[X]/float32(sizex)) - 0.5*(s.input.partSize[X]) // fine coordinate inside the magnet, SI units
-	// 		for j := 0; j < sizey; j++ {
-	// 			y := (float32(j)+.5)*(s.input.partSize[Y]/float32(sizey)) - 0.5*(s.input.partSize[Y])
-	// 			for k := 0; k < sizez; k++ {
-	// 				z := (float32(k)+.5)*(s.input.partSize[Z]/float32(sizez)) - 0.5*(s.input.partSize[Z])
-	// 
-	// 			}
-	// 		}
-	// 	}
-	// 	TensorCopyTo(norm, s.normMap)
-
 }
 
 
