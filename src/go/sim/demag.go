@@ -49,6 +49,12 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
 	return k
 }
 
+// func selfKernel(cellsize []float32, accuracy int) []float32{
+//   B := tensor.NewVector()
+//   R := tensor.NewVector()
+//   faceIntegral(B, R, cellsize, accuracy)
+//   return []float32{B.Component[X]}
+// }
 
 /**
  * Magnetostatic field at position r (integer, number of cellsizes away form source) for a given source magnetization direction m (X, Y, or Z)

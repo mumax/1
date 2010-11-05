@@ -35,7 +35,7 @@ func (s *Sim) initGeom() {
 		s.Println("Using default edge smoothness: 2^", softness)
 	}
 
-	refine := pow(2, edgecorr) // use refine x refine x refine subcells per cell. refine = 2^edgecorr
+	refine := pow(2, softness) // use refine x refine x refine subcells per cell. refine = 2^edgecorr
 	s.Println("Edge refinement: ", refine)
 	refine3 := float32(pow(refine, 3))
 
