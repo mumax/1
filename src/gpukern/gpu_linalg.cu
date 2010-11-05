@@ -22,6 +22,7 @@ void gpu_add(float* a, float* b, int N){
   gpu_sync();
 }
 
+
 ///@internal
 __global__ void _gpu_madd(float* a, float cnst, float* b, int N){
   int i = threadindex;
@@ -36,6 +37,24 @@ void gpu_madd(float* a, float cnst, float* b, int N){
   _gpu_madd<<<gridSize, blockSize>>>(a, cnst, b, N);
   gpu_sync();
 }
+
+
+///@internal
+__global__ void _gpu_madd2(float* a, float* b, float* c, int N){
+  int i = threadindex;
+  if(i < N){
+    a[i] += b[i] * c[i];
+  }
+}
+
+void gpu_madd2(float* a, float* b, float* c, int N){
+  dim3 gridSize, blockSize;
+  make1dconf(N, &gridSize, &blockSize);
+  _gpu_madd2<<<gridSize, blockSize>>>(a, b, c, N);
+  gpu_sync();
+}
+
+
 
 ///@internal
 __global__ void _gpu_add_constant(float* a, float cnst, int N){
