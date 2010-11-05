@@ -70,14 +70,44 @@ func (s *Sim) initGeom() {
 
 	s.Println("Initializing edge corrections")
 
+	s.allocEdgeKern()
+	
+
+// 	for i := 0; i < sizex; i++ {
+// 		x := (float32(i)+.5)*(s.input.partSize[X]/float32(sizex)) - 0.5*(s.input.partSize[X]) // fine coordinate inside the magnet, SI units
+// 		for j := 0; j < sizey; j++ {
+// 			y := (float32(j)+.5)*(s.input.partSize[Y]/float32(sizey)) - 0.5*(s.input.partSize[Y])
+// 			for k := 0; k < sizez; k++ {
+// 				z := (float32(k)+.5)*(s.input.partSize[Z]/float32(sizez)) - 0.5*(s.input.partSize[Z])
+// 
+// 			}
+// 		}
+// 	}
+// 	TensorCopyTo(norm, s.normMap)
+
 }
 
 
 func (sim *Sim) allocNormMap() {
 	sim.initMLocal()
 	if sim.normMap == nil {
+		sim.Println("Allocating Norm Map")
 		sim.normMap = NewTensor(sim.Backend, Size3D(sim.mLocal.Size()))
 	}
+}
+
+// TODO: we could save a lot of memory here for cubic/square cells:
+// Kxx = Kyy = Kzz, ...
+// just make them point to the same underlying storage
+func (sim *Sim) allocEdgeKern() {
+	sim.initMLocal()
+	if sim.edgeKern == nil {
+		sim.Println("Allocating Edge Kernel")
+		sim.edgeKern = make([]*DevTensor, 6)
+		for i:=range sim.edgeKern{
+      sim.edgeKern[i] = NewTensor(sim.Backend, Size3D(sim.mLocal.Size()))
+	}
+  }
 }
 
 

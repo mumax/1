@@ -104,10 +104,11 @@ type Sim struct {
 	metadata  map[string]string // Metadata to be added to headers of saved tensors
 	starttime int64             // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
 
-	geom     Geom
-	normMap  *DevTensor // Per-cell magnetization norm. nil means the norm is 1.0 everywhere. Stored on the device
-	edgecorr int
-	edgemap  *DevTensor
+	// Geometry
+	geom     Geom         // Shape of the magnet (has Inside(x,y,z) func)
+	normMap  *DevTensor   // Per-cell magnetization norm. nil means the norm is 1.0 everywhere. Stored on the device
+	edgecorr int          // 0: no edge correction, >0: 2^edgecorr cell subsampling for edge corrections
+	edgeKern []*DevTensor // Per-cell self-kernel used for edge corrections (could also store some anisotropy types)
 }
 
 func New(outputdir string, backend *Backend) *Sim {

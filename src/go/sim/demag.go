@@ -11,6 +11,7 @@ import (
 	. "math"
 )
 
+
 // Calculates the magnetostatic kernel
 //
 // size: size of the kernel, usually 2 x larger than the size of the magnetization due to zero padding
@@ -55,21 +56,26 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
 			}
 		}
 	}
-	for s:=0; s<3; s++{
-    for d:=0; d<3; d++{
-      assert(k[KernIdx[s][d]].Array()[0][0][0] == selfKernel(s, cellsize, accuracy)[d])
-    }}
+
+	// This is really just a unit test for selfkernel,
+	// TODO: remove when edgecorrections are fully tested.
+	for s := 0; s < 3; s++ {
+		for d := 0; d < 3; d++ {
+			assert(k[KernIdx[s][d]].Array()[0][0][0] == selfKernel(s, cellsize, accuracy)[d])
+		}
+	}
+
 	return k
 }
 
 // Calculates only the self-kernel K[ij][0][0][0].
 // used for edge corrections where we need to subtract this generic self kernel contribution and
 // replace it by an edge-corrected version specific for each cell.
-func selfKernel(sourcedir int, cellsize []float32, accuracy int) []float32{
-  B := tensor.NewVector()
-  R := tensor.NewVector()
-  faceIntegral(B, R, cellsize, sourcedir, accuracy)
-  return []float32{B.Component[X], B.Component[Y], B.Component[Z]}
+func selfKernel(sourcedir int, cellsize []float32, accuracy int) []float32 {
+	B := tensor.NewVector()
+	R := tensor.NewVector()
+	faceIntegral(B, R, cellsize, sourcedir, accuracy)
+	return []float32{B.Component[X], B.Component[Y], B.Component[Z]}
 }
 
 
