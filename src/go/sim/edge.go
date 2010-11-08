@@ -12,7 +12,7 @@ import (
 
 
 func (s *Sim) addEdgeField(m, h *DevTensor){
-  panic("todo")
+  s.MAdd2(h, m, s.edgeKern)
 }
 
 
@@ -20,7 +20,7 @@ func (s *Sim) addEdgeField(m, h *DevTensor){
 // in the material, not geometry? It should not just be overwritten...
 func (s *Sim) initGeom() {
 
-	s.initMLocal()
+	s.initMLocal()  // inits sizes etc.
 
 	if s.geom == nil {
 		s.Println("Square geometry")
@@ -36,14 +36,14 @@ func (s *Sim) initGeom() {
 	s.Println("Initializing edge corrections")
 
 	s.allocEdgeKern()
-	e := make([]*tensor.T3, 6) //local copy
-	E := make([][][][]float32, 6)
+	e := make([]*tensor.T3, 6)    // local copy of edge kernel
+	E := make([][][][]float32, 6) // edge kernel as array
 	for i := range s.edgeKern {
 		e[i] = tensor.NewT3(Size3D(s.mLocal.Size()))
 		E[i] = e[i].Array()
 	}
 
-	// the demag self-kernel for cuboid cells.
+	// the demag self-kernel for cuboid cells, as calculated by demag.go
 	// for each non-cuboid cell, we will need to subtract it and replace it by the edge-corrected kernel
 	selfK := [][]float32{
 		selfKernel(X, s.cellSize[:], s.input.demag_accuracy),
@@ -69,6 +69,8 @@ func (s *Sim) initGeom() {
   for i:=range e{
     TensorCopyTo(e[i], s.edgeKern[i])
   }
+
+  
 }
 
 

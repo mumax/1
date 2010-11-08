@@ -19,6 +19,7 @@ OFILES=\
 	gpu_stream.o\
 	gpu_reduction.o\
 	gpu_spintorque.o\
+	gpu_anis.o\
 # 	gpu_anal.o\
 
 all: libgpukern.so libgpukern.a
@@ -90,6 +91,9 @@ gpu_bigfft.o:  gpu_bigfft.h gpu_bigfft.cu
 
 gpu_spintorque.o:  gpu_spintorque.h gpu_spintorque.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_spintorque.cu
+
+gpu_anis.o:  gpu_anis.h gpu_anis.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_anis.cu
 
 test:	all transpose_test zeropad_test reduction_test fft_test spintorque_test
 
