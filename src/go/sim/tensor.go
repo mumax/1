@@ -22,6 +22,7 @@ const (
 type DevTensor struct {
 	*Backend              // wraps the Device where the Tensor resides on (GPU/CPU/...)
 	size     []int
+	length   int
 	data     uintptr      // points to float32 array on the GPU/CPU
 	comp     []*DevTensor // wraps the components. E.g. mx = m.comp[0], currently only one level deep.
 }
@@ -31,12 +32,12 @@ func NewTensor(b *Backend, size []int) *DevTensor {
 	t := new(DevTensor)
 	t.Backend = b
 	t.size = make([]int, len(size))
-	length := 1
+	t.length = 1
 	for i := range size {
 		t.size[i] = size[i]
-		length *= size[i]
+		t.length *= size[i]
 	}
-	t.data = b.newArray(length)
+	t.data = b.newArray(t.length)
 	ZeroTensor(t)
 
   // initialize component list
@@ -54,8 +55,9 @@ func NewTensor(b *Backend, size []int) *DevTensor {
 }
 
 // Wraps a pre-allocated device array in a tensor
+// comp remains uninitialized
 func AsTensor(b *Backend, data uintptr, size []int) *DevTensor {
-	return &DevTensor{b, size, data, nil}
+	return &DevTensor{b, size, Len(size), data, nil}
 }
 
 // func (t *DevTensor) Get(index []int) float32 {
