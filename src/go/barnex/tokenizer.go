@@ -29,9 +29,9 @@ func Tokenize(fname string) (start, stop *Node) {
 		prev = node
 	}
 
-  stop = NewEOFNode()
+	stop = NewEOFNode()
 	prev.Append(stop)
-  
+
 	return
 }
 

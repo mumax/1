@@ -5,12 +5,12 @@ import (
 )
 
 
-const(
-  EOF = token.EOF
-  LPAREN = token.LPAREN
-  RPAREN = token.RPAREN
-  )
-  
+const (
+	EOF    = token.EOF
+	LPAREN = token.LPAREN
+	RPAREN = token.RPAREN
+)
+
 type Node struct {
 	Next, Prev *Node
 	Parent     *Node
