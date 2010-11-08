@@ -56,6 +56,11 @@ type Device interface {
 	// vector-vector multiply-add a[i] += b[i] * c[i]
 	madd2(a, b, c uintptr, N int)
 
+  // Adds a linear anisotropy contribution to h:
+  // h_i += Sum_i k_ij * m_j
+  // Used for edge corrections.
+  addLinAnis(hx, hy, hz, mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, N int)
+
 	// adds the constant cnst to a. N = length of a
 	addConstant(a uintptr, cnst float32, N int)
 

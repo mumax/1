@@ -12,7 +12,7 @@ import (
 
 
 func (s *Sim) addEdgeField(m, h *DevTensor){
-  s.MAdd2(h, m, s.edgeKern)
+  s.AddLinAnis(m, h, s.edgeKern)
 }
 
 

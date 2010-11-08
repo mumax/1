@@ -27,3 +27,4 @@
 #include "gpu_reduction.h"
 #include "gpu_conf.h"
 #include "gpu_safe.h"
+#include "gpu_anis.h"

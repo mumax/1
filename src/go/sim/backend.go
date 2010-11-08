@@ -110,6 +110,9 @@ func (dev *Backend) MAdd2(a, b, c *DevTensor) {
 	dev.madd2(a.data, b.data, c.data, tensor.Prod(a.Size()))
 }
 
+func (dev *Backend) AddLinAnis(h, m *DevTensor, K []*DevTensor){
+  
+}
 
 // a[i]  = weightA * a[i] + weightB * b[i]
 func (dev *Backend) LinearCombination(a, b *DevTensor, weightA, weightB float32) {
