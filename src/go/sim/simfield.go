@@ -143,9 +143,6 @@ func (s *Sim) calcHeff(m, h *DevTensor) {
 
 	// (2) Add the externally applied field
 
-	// PROBLEM: DON'T WANT TO ALLOCATE HCOMP OVER AND OVER,
-	// USE S.hComp BUFFER FOR NOW
-	assert(h == s.h)
 	hComp := s.h.comp
 
 	if s.AppliedField != nil {
