@@ -22,7 +22,6 @@ type Conv struct {
 	FFT
 	kernel [6]*DevTensor
 	buffer [3]*DevTensor
-
 }
 
 // dataSize = size of input data (one componenten of the magnetization), e.g., 4 x 32 x 32.
@@ -64,11 +63,11 @@ func (conv *Conv) Convolve(source, dest *DevTensor) {
 	mcomp, hcomp := source.comp, dest.comp
 	buffer := conv.buffer
 	kernel := conv.kernel
-// 	mLen := Len(mcomp[0].size)
-// 	for i := 0; i < 3; i++ {
-// 		mcomp[i].data = conv.arrayOffset(source.data, i*mLen)
-// 		hcomp[i].data = conv.arrayOffset(dest.data, i*mLen)
-// 	}
+	// 	mLen := Len(mcomp[0].size)
+	// 	for i := 0; i < 3; i++ {
+	// 		mcomp[i].data = conv.arrayOffset(source.data, i*mLen)
+	// 		hcomp[i].data = conv.arrayOffset(dest.data, i*mLen)
+	// 	}
 
 	//Sync
 

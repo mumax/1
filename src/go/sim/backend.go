@@ -111,11 +111,11 @@ func (dev *Backend) MAdd2(a, b, c *DevTensor) {
 }
 
 func (dev *Backend) AddLinAnis(h, m *DevTensor, K []*DevTensor) {
-  dev.addLinAnis(h.comp[X].data, h.comp[Y].data, h.comp[Z].data,
-  m.comp[X].data, m.comp[Y].data, m.comp[Z].data,
-  K[XX].data, K[YY].data, K[ZZ].data,
-  K[YZ].data, K[XZ].data, K[XY].data,
-                 h.length)
+	dev.addLinAnis(h.comp[X].data, h.comp[Y].data, h.comp[Z].data,
+		m.comp[X].data, m.comp[Y].data, m.comp[Z].data,
+		K[XX].data, K[YY].data, K[ZZ].data,
+		K[YZ].data, K[XZ].data, K[XY].data,
+		h.length)
 }
 
 // a[i]  = weightA * a[i] + weightB * b[i]

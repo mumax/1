@@ -20,7 +20,7 @@ const (
 // A tensor on the calculating device (CPU, GPU),
 // not directly accessible as a go array.
 type DevTensor struct {
-	*Backend              // wraps the Device where the Tensor resides on (GPU/CPU/...)
+	*Backend // wraps the Device where the Tensor resides on (GPU/CPU/...)
 	size     []int
 	length   int
 	data     uintptr      // points to float32 array on the GPU/CPU
@@ -40,7 +40,7 @@ func NewTensor(b *Backend, size []int) *DevTensor {
 	t.data = b.newArray(t.length)
 	ZeroTensor(t)
 
-  // initialize component list
+	// initialize component list
 	if size[0] > 0 {
 		compsize := Len(size[1:])
 		t.comp = make([]*DevTensor, size[0])
@@ -50,7 +50,7 @@ func NewTensor(b *Backend, size []int) *DevTensor {
 	}
 
 	// TODO: runtime.SetFinalizer(t, Free)
-  // also free components
+	// also free components
 	return t
 }
 

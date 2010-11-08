@@ -29,7 +29,8 @@ func (s *Sim) initGeom() {
 
 	s.initNormMap()
 
-	if s.edgeCorr == 0 {
+	edgeCorr := s.edgeCorr
+	if edgeCorr == 0 {
 		return
 	}
 
@@ -50,19 +51,57 @@ func (s *Sim) initGeom() {
 		selfKernel(Y, s.cellSize[:], s.input.demag_accuracy),
 		selfKernel(Z, s.cellSize[:], s.input.demag_accuracy)}
 
+	subSize := []int{2 * edgeCorr, 2 * edgeCorr, 2 * edgeCorr} // 2*: zero-padding
+	subCellSize := []float32{s.cellSize[X] / float32(edgeCorr), s.cellSize[Y] / float32(edgeCorr), s.cellSize[Z] / float32(edgeCorr)}
+	subK := FaceKernel6(subSize, subCellSize, s.input.demag_accuracy)
+
 	sizex := s.mLocal.Size()[1]
 	sizey := s.mLocal.Size()[2]
 	sizez := s.mLocal.Size()[3]
 
-	for s := 0; s < 3; s++ {
-		for d := 0; d < 3; d++ {
+	for S := 0; S < 3; S++ {
+		for D := 0; D < 3; D++ {
+
 			for i := 0; i < sizex; i++ {
 				for j := 0; j < sizey; j++ {
 					for k := 0; k < sizez; k++ {
-						E[KernIdx[s][d]][i][j][k] = -selfK[s][d]
+
+						E[KernIdx[S][D]][i][j][k] = -selfK[S][D]
+
+						for si := 0; si < edgeCorr; si++ {
+							xs := (float32(i*edgeCorr+si)+.5)*(s.input.partSize[X]/float32(sizex*edgeCorr)) - 0.5*(s.input.partSize[X])
+							for sj := 0; sj < edgeCorr; sj++ {
+								ys := (float32(j*edgeCorr+sj)+.5)*(s.input.partSize[Y]/float32(sizey*edgeCorr)) - 0.5*(s.input.partSize[Y])
+								for sk := 0; sk < edgeCorr; sk++ {
+									zs := (float32(k*edgeCorr+sk)+.5)*(s.input.partSize[Z]/float32(sizez*edgeCorr)) - 0.5*(s.input.partSize[Z])
+
+									if s.geom.Inside(xs, ys, zs) {
+
+										for di := 0; di < edgeCorr; di++ {
+											xd := (float32(i*edgeCorr+di)+.5)*(s.input.partSize[X]/float32(sizex*edgeCorr)) - 0.5*(s.input.partSize[X])
+											for dj := 0; dj < edgeCorr; dj++ {
+												yd := (float32(j*edgeCorr+dj)+.5)*(s.input.partSize[Y]/float32(sizey*edgeCorr)) - 0.5*(s.input.partSize[Y])
+												for dk := 0; dk < edgeCorr; dk++ {
+													zd := (float32(k*edgeCorr+dk)+.5)*(s.input.partSize[Z]/float32(sizez*edgeCorr)) - 0.5*(s.input.partSize[Z])
+
+                          if s.geom.Inside(xd, yd, zd){
+                            E[KernIdx[S][D]][i][j][k] += subK[KernIdx[S][D]].TArray[wrap(di-si, 2*edgeCorr)][wrap(dj-sj, 2*edgeCorr)][wrap(dk-sk, 2*edgeCorr)] //* InvNorm
+                          }
+
+												}
+											}
+										}
+
+									}
+
+								}
+							}
+						}
+
 					}
 				}
 			}
+
 		}
 	}
 
