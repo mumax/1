@@ -138,34 +138,12 @@ func (sim *Sim) Cylinder() {
 	sim.initSize()
 	sim.geom = &Ellipsoid{float32(math.Inf(1)), sim.input.partSize[Y] / 2., sim.input.partSize[Z] / 2.}
 	sim.invalidate()
+}
 
-	// 	sim.initMLocal()
-	// 	sim.Println("Geometry: cylinder")
-	// 
-	// 	sim.initNormMap()
-	// 	norm := tensor.NewT3(sim.normMap.Size())
-	// 
-	// 	sizex := sim.mLocal.Size()[1]
-	// 	sizey := sim.mLocal.Size()[2]
-	// 	sizez := sim.mLocal.Size()[3]
-	// 	rx := float64(sizey / 2)
-	// 	ry := float64(sizez / 2)
-	// 
-	// 	for i := 0; i < sizex; i++ {
-	// 		for j := 0; j < sizey; j++ {
-	// 			x := float64(j-sizey/2) + 0.5 // add 0.5 to be at the center of the cell, not at a corner vertex (gives nicer round shape)
-	// 			for k := 0; k < sizez; k++ {
-	// 				y := float64(k-sizez/2) + 0.5
-	// 				if sqr(x/rx)+sqr(y/ry) <= 1 {
-	// 					norm.Array()[i][j][k] = 1.
-	// 				} else {
-	// 					norm.Array()[i][j][k] = 0.
-	// 				}
-	// 
-	// 			}
-	// 		}
-	// 	}
-	// 	TensorCopyTo(norm, sim.normMap)
+func (s *Sim) TestGeom(w, h float32) {
+	s.initSize()
+	s.geom = &Wave{w, h}
+	s.invalidate()
 }
 
 func sqr(x float64) float64 {

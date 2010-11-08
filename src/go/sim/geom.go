@@ -6,7 +6,12 @@
 
 package sim
 
-import ()
+import (
+	. "math"
+)
+
+//                                                      HERE IT MAY GET TRICKY WITH XYZ vs ZYX
+//                                                      SHOULD WE USE USER AXES HERE?
 
 type Geom interface {
 	Inside(x, y, z float32) bool
@@ -22,4 +27,15 @@ func (s *Ellipsoid) Inside(x, y, z float32) bool {
 	y /= s.ry
 	z /= s.rz
 	return x*x+y*y+z*z <= 1.
+}
+
+
+type Wave struct {
+	w, h float32
+}
+
+func (w *Wave) Inside(x, y, z float32) bool {
+	h := w.h / 8
+	sin := float32(Sin(float64(z / w.w * Pi)))
+	return x < h*(sin+3) && x > h*(sin-3)
 }

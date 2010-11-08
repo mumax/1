@@ -3,9 +3,9 @@ aexch      	1.3E-11
 alpha      	2
 
 partsize	500e-9	500e-9	50e-9
-gridsize	64	64	1
+gridsize	16	16	1
 cylinder
-edgecorrection	4
+edgecorrection	3
 
 vortex		1	1
 

@@ -8,6 +8,7 @@ package sim
 
 import (
 	"tensor"
+	"fmt"
 )
 
 
@@ -29,8 +30,8 @@ func (s *Sim) initGeom() {
 
 	s.initNormMap()
 
-	edgeCorr := s.edgeCorr
-	if edgeCorr == 0 {
+	edgeCorr := pow(2, s.edgeCorr)
+	if edgeCorr == 1 {
 		return
 	}
 
@@ -59,52 +60,67 @@ func (s *Sim) initGeom() {
 	sizey := s.mLocal.Size()[2]
 	sizez := s.mLocal.Size()[3]
 
-	for S := 0; S < 3; S++ {
-		for D := 0; D < 3; D++ {
+	count := 0
 
-			for i := 0; i < sizex; i++ {
-				for j := 0; j < sizey; j++ {
-					for k := 0; k < sizez; k++ {
-
-						E[KernIdx[S][D]][i][j][k] = -selfK[S][D]
-
-						for si := 0; si < edgeCorr; si++ {
-							xs := (float32(i*edgeCorr+si)+.5)*(s.input.partSize[X]/float32(sizex*edgeCorr)) - 0.5*(s.input.partSize[X])
-							for sj := 0; sj < edgeCorr; sj++ {
-								ys := (float32(j*edgeCorr+sj)+.5)*(s.input.partSize[Y]/float32(sizey*edgeCorr)) - 0.5*(s.input.partSize[Y])
-								for sk := 0; sk < edgeCorr; sk++ {
-									zs := (float32(k*edgeCorr+sk)+.5)*(s.input.partSize[Z]/float32(sizez*edgeCorr)) - 0.5*(s.input.partSize[Z])
-
-									if s.geom.Inside(xs, ys, zs) {
-
-										for di := 0; di < edgeCorr; di++ {
-											xd := (float32(i*edgeCorr+di)+.5)*(s.input.partSize[X]/float32(sizex*edgeCorr)) - 0.5*(s.input.partSize[X])
-											for dj := 0; dj < edgeCorr; dj++ {
-												yd := (float32(j*edgeCorr+dj)+.5)*(s.input.partSize[Y]/float32(sizey*edgeCorr)) - 0.5*(s.input.partSize[Y])
-												for dk := 0; dk < edgeCorr; dk++ {
-													zd := (float32(k*edgeCorr+dk)+.5)*(s.input.partSize[Z]/float32(sizez*edgeCorr)) - 0.5*(s.input.partSize[Z])
-
-                          if s.geom.Inside(xd, yd, zd){
-                            E[KernIdx[S][D]][i][j][k] += subK[KernIdx[S][D]].TArray[wrap(di-si, 2*edgeCorr)][wrap(dj-sj, 2*edgeCorr)][wrap(dk-sk, 2*edgeCorr)] //* InvNorm
-                          }
-
-												}
-											}
-										}
-
-									}
-
-								}
-							}
-						}
-
-					}
-				}
-			}
-
+	insideCache := make([][][]bool, edgeCorr)
+	for i := range insideCache {
+		insideCache[i] = make([][]bool, edgeCorr)
+		for j := range insideCache[i] {
+			insideCache[i][j] = make([]bool, edgeCorr)
 		}
 	}
 
+	for i := 0; i < sizex; i++ {
+		for j := 0; j < sizey; j++ {
+			for k := 0; k < sizez; k++ {
+
+				for si := 0; si < edgeCorr; si++ {
+					xs := (float32(i*edgeCorr+si)+.5)*(s.input.partSize[X]/float32(sizex*edgeCorr)) - 0.5*(s.input.partSize[X])
+					for sj := 0; sj < edgeCorr; sj++ {
+						ys := (float32(j*edgeCorr+sj)+.5)*(s.input.partSize[Y]/float32(sizey*edgeCorr)) - 0.5*(s.input.partSize[Y])
+						for sk := 0; sk < edgeCorr; sk++ {
+							zs := (float32(k*edgeCorr+sk)+.5)*(s.input.partSize[Z]/float32(sizez*edgeCorr)) - 0.5*(s.input.partSize[Z])
+
+							insideCache[si][sj][sk] = s.geom.Inside(xs, ys, zs)
+						}
+					}
+				}
+
+				norm := s.normLocal.TArray[i][j][k]
+				if norm > 0 && norm < 1 {
+					count++
+					fmt.Println("norm: ", norm)
+					for S := 0; S < 3; S++ {
+						for D := 0; D < 3; D++ {
+							E[KernIdx[S][D]][i][j][k] = -selfK[S][D]
+
+							for si := 0; si < edgeCorr; si++ {
+								for sj := 0; sj < edgeCorr; sj++ {
+									for sk := 0; sk < edgeCorr; sk++ {
+
+										if insideCache[si][sj][sk] {
+
+											for di := 0; di < edgeCorr; di++ {
+												for dj := 0; dj < edgeCorr; dj++ {
+													for dk := 0; dk < edgeCorr; dk++ {
+
+														if insideCache[di][dj][dk] {
+															E[KernIdx[S][D]][i][j][k] += subK[KernIdx[S][D]].TArray[wrap(di-si, 2*edgeCorr)][wrap(dj-sj, 2*edgeCorr)][wrap(dk-sk, 2*edgeCorr)] / norm
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	s.Println(count, " cells with edge-corrections")
 	for i := range e {
 		TensorCopyTo(e[i], s.edgeKern[i])
 	}
@@ -119,7 +135,8 @@ func (s *Sim) initGeom() {
 func (s *Sim) initNormMap() {
 
 	s.allocNormMap()
-	norm := tensor.NewT3(s.normMap.Size()) // local copy
+	s.normLocal = tensor.NewT3(s.normMap.Size()) // local copy
+	norm := s.normLocal
 
 	// Even without edge corrections it is good to have soft (antialiased) edges
 	// Normally we use the same subsampling accuracy as required by the edge corrections,
