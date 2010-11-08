@@ -52,12 +52,12 @@ func (d Gpu) madd2(a, b, c uintptr, N int) {
 	C.gpu_madd2((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), (*C.float)(unsafe.Pointer(c)), C.int(N))
 }
 
-func (c Gpu) addLinAnis(hx, hy, hz, mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, N int){
-  C.gpu_add_lin_anisotropy((*C.float)(unsafe.Pointer(hx)), (*C.float)(unsafe.Pointer(hy)), (*C.float)(unsafe.Pointer(hz)),
-                           (*C.float)(unsafe.Pointer(mx)), (*C.float)(unsafe.Pointer(my)), (*C.float)(unsafe.Pointer(mz)),
-                           (*C.float)(unsafe.Pointer(kxx)), (*C.float)(unsafe.Pointer(kyy)), (*C.float)(unsafe.Pointer(kzz)),
-                           (*C.float)(unsafe.Pointer(kyz)), (*C.float)(unsafe.Pointer(kxz)), (*C.float)(unsafe.Pointer(kxy)),
-                           (C.int)(N))
+func (c Gpu) addLinAnis(hx, hy, hz, mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, N int) {
+	C.gpu_add_lin_anisotropy((*C.float)(unsafe.Pointer(hx)), (*C.float)(unsafe.Pointer(hy)), (*C.float)(unsafe.Pointer(hz)),
+		(*C.float)(unsafe.Pointer(mx)), (*C.float)(unsafe.Pointer(my)), (*C.float)(unsafe.Pointer(mz)),
+		(*C.float)(unsafe.Pointer(kxx)), (*C.float)(unsafe.Pointer(kyy)), (*C.float)(unsafe.Pointer(kzz)),
+		(*C.float)(unsafe.Pointer(kyz)), (*C.float)(unsafe.Pointer(kxz)), (*C.float)(unsafe.Pointer(kxy)),
+		(C.int)(N))
 }
 
 func (d Gpu) linearCombination(a, b uintptr, weightA, weightB float32, N int) {

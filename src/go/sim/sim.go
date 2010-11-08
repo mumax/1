@@ -71,7 +71,7 @@ type Sim struct {
 	mDev         *DevTensor    // magnetization on the device (GPU), 4D tensor
 	size3D       []int         //simulation grid size (without 3 as first element)
 	h            *DevTensor    // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
-	mComp, hComp [3]*DevTensor // magnetization/field components, 3 x 3D tensors
+	//mComp, hComp [3]*DevTensor // magnetization/field components, 3 x 3D tensors
 	mLocal       *tensor.T4    // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
 	mUpToDate    bool          // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
 	Conv                       // Convolution plan for the magnetostatic field
@@ -198,11 +198,11 @@ func (s *Sim) initDevMem() {
 	s.mDev = NewTensor(s.Backend, s.size4D[0:])
 	s.h = NewTensor(s.Backend, s.size4D[0:])
 	s.printMem()
-	s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
-	for i := range s.mComp {
-		s.mComp[i] = s.mDev.Component(i)
-		s.hComp[i] = s.h.Component(i)
-	}
+// 	s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
+// 	for i := range s.mComp {
+// 		s.mComp[i] = s.mDev.Component(i)
+// 		s.hComp[i] = s.h.Component(i)
+// 	}
 
 	s.initReductors()
 }

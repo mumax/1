@@ -22,8 +22,7 @@ type Conv struct {
 	FFT
 	kernel [6]*DevTensor
 	buffer [3]*DevTensor
-	mcomp  [3]*DevTensor // only a buffer, automatically set at each conv()
-	hcomp  [3]*DevTensor // only a buffer, automatically set at each conv()
+
 }
 
 // dataSize = size of input data (one componenten of the magnetization), e.g., 4 x 32 x 32.
@@ -45,8 +44,6 @@ func NewConv(backend *Backend, dataSize []int, kernel []*tensor.T3) *Conv {
 	///@todo do not allocate for infinite2D problem
 	for i := 0; i < 3; i++ {
 		conv.buffer[i] = NewTensor(conv.Backend, conv.PhysicSize())
-		conv.mcomp[i] = &DevTensor{conv.Backend, dataSize, uintptr(0)}
-		conv.hcomp[i] = &DevTensor{conv.Backend, dataSize, uintptr(0)}
 	}
 	conv.loadKernel6(kernel)
 
@@ -64,14 +61,14 @@ func (conv *Conv) Convolve(source, dest *DevTensor) {
 	}
 
 	// initialize mcomp, hcomp, re-using them from conv to avoid repeated allocation
-	mcomp, hcomp := conv.mcomp, conv.hcomp
+	mcomp, hcomp := source.comp, dest.comp
 	buffer := conv.buffer
 	kernel := conv.kernel
-	mLen := Len(mcomp[0].size)
-	for i := 0; i < 3; i++ {
-		mcomp[i].data = conv.arrayOffset(source.data, i*mLen)
-		hcomp[i].data = conv.arrayOffset(dest.data, i*mLen)
-	}
+// 	mLen := Len(mcomp[0].size)
+// 	for i := 0; i < 3; i++ {
+// 		mcomp[i].data = conv.arrayOffset(source.data, i*mLen)
+// 		hcomp[i].data = conv.arrayOffset(dest.data, i*mLen)
+// 	}
 
 	//Sync
 

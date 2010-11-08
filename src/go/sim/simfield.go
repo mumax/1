@@ -143,11 +143,11 @@ func (s *Sim) calcHeff(m, h *DevTensor) {
 
 	// (2) Add the externally applied field
 
-  // PROBLEM: DON'T WANT TO ALLOCATE HCOMP OVER AND OVER,
-  // USE S.hComp BUFFER FOR NOW
-  assert(h == s.h)
-  hComp := s.hComp
-  
+	// PROBLEM: DON'T WANT TO ALLOCATE HCOMP OVER AND OVER,
+	// USE S.hComp BUFFER FOR NOW
+	assert(h == s.h)
+	hComp := s.h.comp
+
 	if s.AppliedField != nil {
 		s.hextSI = s.GetAppliedField(s.time * float64(s.UnitTime()))
 		for i := range hComp {
@@ -156,7 +156,7 @@ func (s *Sim) calcHeff(m, h *DevTensor) {
 	}
 
 	// (3) Add the edge-correction field
-  if s.edgeCorr != 0{
-    s.addEdgeField(m, h)
-  }
+	if s.edgeCorr != 0 {
+		s.addEdgeField(m, h)
+	}
 }

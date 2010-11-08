@@ -11,8 +11,8 @@ import (
 )
 
 
-func (s *Sim) addEdgeField(m, h *DevTensor){
-  s.AddLinAnis(m, h, s.edgeKern)
+func (s *Sim) addEdgeField(m, h *DevTensor) {
+	s.AddLinAnis(m, h, s.edgeKern)
 }
 
 
@@ -20,7 +20,7 @@ func (s *Sim) addEdgeField(m, h *DevTensor){
 // in the material, not geometry? It should not just be overwritten...
 func (s *Sim) initGeom() {
 
-	s.initMLocal()  // inits sizes etc.
+	s.initMLocal() // inits sizes etc.
 
 	if s.geom == nil {
 		s.Println("Square geometry")
@@ -59,18 +59,17 @@ func (s *Sim) initGeom() {
 			for i := 0; i < sizex; i++ {
 				for j := 0; j < sizey; j++ {
 					for k := 0; k < sizez; k++ {
-            E[KernIdx[s][d]][i][j][k] = -selfK[s][d]
+						E[KernIdx[s][d]][i][j][k] = -selfK[s][d]
 					}
 				}
 			}
 		}
 	}
 
-  for i:=range e{
-    TensorCopyTo(e[i], s.edgeKern[i])
-  }
+	for i := range e {
+		TensorCopyTo(e[i], s.edgeKern[i])
+	}
 
-  
 }
 
 
@@ -79,7 +78,7 @@ func (s *Sim) initGeom() {
 // The normMap for the cell will lie between 0 and 1 depending
 // on the portion of the cell that lies inside the geometry
 func (s *Sim) initNormMap() {
-  
+
 	s.allocNormMap()
 	norm := tensor.NewT3(s.normMap.Size()) // local copy
 
