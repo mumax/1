@@ -50,7 +50,8 @@ void evaluate_anal_fw_step(timestepper *ts, tensor *m, double *totalTime){
   gpuanalfw* anal_fw = (gpuanalfw*)ts->solver;
   evaluate_field(ts->field, m, ts->h);
 
-  gpu_anal_fw_step(anal_fw->params, m, m, ts->h);
+  gpu_anal_fw_step(anal_fw->params->maxDt, anal_fw->params->alpha, m->len/3, m->list, m->list, ts->h->list);
+//   gpu_anal_fw_step(anal_fw->params->maxDt, anal_fw->params->alpha, m, m, ts->h);
 
   if (ts->totalSteps % 10 == 0)              // to correct rounding of errors
     gpu_normalize_uniform(m->list, m->len/3);
@@ -66,10 +67,10 @@ void evaluate_anal_pc_step(timestepper *ts, tensor *m, double *totalTime){
   gpuanalpc* anal_pc = (gpuanalpc*)ts->solver;
 
   evaluate_field(ts->field, m, ts->h);
-  gpu_anal_fw_step(anal_pc->params, m, anal_pc->m2, ts->h);
+  gpu_anal_fw_step(anal_pc->params->maxDt, anal_pc->params->alpha, m->len/3, m->list, anal_pc->m2->list, ts->h->list);
   evaluate_field(ts->field, anal_pc->m2, anal_pc->h2);
-  gpu_anal_pc_mean_h(ts->h, anal_pc->h2);
-  gpu_anal_fw_step(anal_pc->params, m, m, ts->h);
+  gpu_anal_pc_mean_h(ts->h->list, anal_pc->h2->list, m->len/3);
+  gpu_anal_fw_step(anal_pc->params->maxDt, anal_pc->params->alpha, m->len/3, m->list, m->list, ts->h->list);
 
   if (ts->totalSteps % 10 == 0)             // to correct rounding of errors
     gpu_normalize_uniform(m->list, m->len/3);

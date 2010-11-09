@@ -18,7 +18,6 @@ OFILES=\
 	param.o\
 	timer.o\
 	gputil.o\
-	gpu_anal.o\
 	field.o\
 	timestep.o\
 	kernel.o\
@@ -29,6 +28,7 @@ OFILES=\
 	cpu_exch.o\
 	gpu_exchange.o\
 	gpu_heun.o\
+	gpu_init_anal.o\
 # 	gpu_fftbig.o\
 #	gpu_fft6.o\
 # 	gpu_fft4.o\
@@ -60,9 +60,6 @@ gpu_micromag3d_kernel.o:	gpu_micromag3d_kernel.h gpu_micromag3d_kernel.cu
 gpu_micromag2d_kernel.o:	gpu_micromag2d_kernel.h gpu_micromag2d_kernel.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_micromag2d_kernel.cu
 
-gpu_anal.o:	gpu_anal.h gpu_anal.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_anal.cu
-
 gpu_conv.o:	gpu_conv.h gpu_conv.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_conv.cu
 
@@ -84,6 +81,8 @@ cpu_exch.o:	cpu_exch.h cpu_exch.cpp
 gpu_exchange.o:	gpu_exchange.h gpu_exchange.cu
 	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_exchange.cu
 
+gpu_init_anal.o:	gpu_init_anal.h gpu_init_anal.cu
+	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_init_anal.cu
 
 
 main: $(OFILES) main.cpp

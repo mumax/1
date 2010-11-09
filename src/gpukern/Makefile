@@ -19,9 +19,9 @@ OFILES=\
 	gpu_reduction.o\
 	gpu_fftbig.o\
 	gpu_fft6.o\
+ 	gpu_anal.o\
 # 	gpu_fft3.o\
 #	gpu_bigfft.o\
-# 	gpu_anal.o\
 
 all: libgpukern.so libgpukern.a
 
@@ -78,9 +78,6 @@ gpu_kernmul.o:  gpu_kernmul.h gpu_kernmul.cu
 gpu_zeropad.o:  gpu_zeropad.h gpu_zeropad.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_zeropad.cu
 
-# gpu_anal.o:  gpu_anal.h gpu_anal.cu
-# 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_anal.cu
-
 gpu_init.o:  gpu_init.h gpu_init.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_init.cu
 
@@ -98,6 +95,10 @@ gpu_fft6.o:  gpu_fft6.h gpu_fft6.cu
 
 gpu_spintorque.o:  gpu_spintorque.h gpu_spintorque.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_spintorque.cu
+
+gpu_anal.o:	gpu_anal.h gpu_anal.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_anal.cu
+
 
 test:	all transpose_test zeropad_test reduction_test fft_test spintorque_test
 

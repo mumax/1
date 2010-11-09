@@ -129,8 +129,8 @@ param* read_param(){
   p->alpha = 1.0;
 
   p->size[X] = 1;
-  p->size[Y] = 512;
-  p->size[Z] = 512;
+  p->size[Y] = 32;
+  p->size[Z] = 128;
 
   double L = unitlength(p);
   printf("unitlength: %e\n", L);
