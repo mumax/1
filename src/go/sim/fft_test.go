@@ -17,7 +17,7 @@ import (
 var backend = GPU
 
 var fft_test_sizes [][]int = [][]int{
-	[]int{2, 128, 128}}//,
+	[]int{1, 8, 8}}//,
  	//[]int{2, 4, 8}}
   //[]int{1, 32, 64}}
 
@@ -129,14 +129,15 @@ func TestFFT(t *testing.T) {
 
     host, hostT, hostTT := tensor.NewT(size), tensor.NewT(outsize), tensor.NewT(size)
 
-   host.List()[0] = 1.
+
     for i := 0; i < size[0]; i++ {
       for j := 0; j < size[1]; j++ {
         for k := 0; k < size[2]; k++ {
-          host.List()[i*size[1]*size[2]+j*size[2]+k] = 0. + (rand.Float32()-.5) //1.
+          host.List()[i*size[1]*size[2]+j*size[2]+k] = 0. + 0.*(rand.Float32()-.5) //1.
         }
       }
     }
+       host.List()[39] = 1.
 
     TensorCopyTo(host, dev)
 
