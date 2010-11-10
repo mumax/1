@@ -41,7 +41,7 @@ var ENDIANESS = binary.LittleEndian
 
 // Writes in the default format (binary)
 func Write(out_ io.Writer, t Interface) {
-	WriteBinary(out_, t)
+	WriteAscii(out_, t)
 }
 
 // TODO: need better error returning,

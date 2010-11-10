@@ -18,7 +18,7 @@ func TestPad(t *testing.T) {
 	big := []int{6, 12, 32}
 
 	dev1, dev2 := NewTensor(backend, small), NewTensor(backend, big)
-	host1, host2 := tensor.NewTensorN(small), tensor.NewTensorN(small)
+	host1, host2 := tensor.NewT(small), tensor.NewT(small)
 
 	for i := range host1.List() {
 		host1.List()[i] = float32(i)

@@ -9,8 +9,7 @@ package sim
 import (
 	"testing"
 	"tensor"
-	"fmt"
-	"os"
+	_ "os"
 )
 
 func TestConv(t *testing.T) {
@@ -22,17 +21,25 @@ func TestConv(t *testing.T) {
 	kernel := FaceKernel6(kernelSize, []float32{1., 1., 1.}, 8)
 	conv := NewConv(backend, size, kernel)
 
-	for i := range conv.kernel {
-		fmt.Println("K", i)
-		if conv.kernel[i] != nil {
-			tensor.Format(os.Stdout, conv.kernel[i])
-		}
-	}
+// 	for i := range conv.kernel {
+// 		fmt.Println("K", i)
+// 		if conv.kernel[i] != nil {
+// 			tensor.Format(os.Stdout, conv.kernel[i])
+// 		}
+// 	}
 
+  mLocal := tensor.NewT4(size4D)
+  mLocal.Array()[X][0][7][7] = 1.
+  
+  
 	m, h := NewTensor(backend, size4D), NewTensor(backend, size4D)
+  TensorCopyTo(mLocal, m)
 
-	m.Set([]int{0, 0, 7, 7}, 1.)
-	tensor.WriteFile("m.t", m)
-	conv.Convolve(m, h)
-	tensor.WriteFile("h.t", h)
+  conv.Convolve(m, h)
+
+  hLocal := tensor.NewT4(size4D)
+  TensorCopyFrom(h, hLocal)
+
+	//out, _ := os.Open("h.tensor", os.O_WRONLY, 0666)
+	//tensor.WriteAscii(os.Stdout, hLocal)
 }

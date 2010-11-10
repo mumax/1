@@ -15,7 +15,7 @@ import (
 func TestCopy(t *testing.T) {
 	size := []int{4, 8, 16}
 	dev1, dev2 := NewTensor(backend, size), NewTensor(backend, size)
-	host1, host2 := tensor.NewTensorN(size), tensor.NewTensorN(size)
+	host1, host2 := tensor.NewT(size), tensor.NewT(size)
 
 	for i := range host1.List() {
 		host1.List()[i] = float32(i)
