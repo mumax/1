@@ -17,7 +17,7 @@ import (
 var backend = GPU
 
 var fft_test_sizes [][]int = [][]int{
-	[]int{4, 32, 128}}//,
+	[]int{2, 128, 128}}//,
  	//[]int{2, 4, 8}}
   //[]int{1, 32, 64}}
 
