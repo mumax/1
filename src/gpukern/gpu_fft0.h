@@ -28,7 +28,6 @@ typedef struct{
   cufftHandle fwPlan;
   cufftHandle invPlan;
 
-  //float* buffer1;
 
 }gpuFFT3dPlan;
 
@@ -40,8 +39,11 @@ typedef struct{
  * but they are efficiently handled during the transform.
  */
 gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size,       ///< size of real input data (3D)
-                                      int* paddedsize  ///< size of the padded data (3D). Should be at least the size of the input data. If the kernel is larger, the input data is assumed to be padded with zero's which are efficiently handled by the FFT
+                                      int* paddedsize  ///< size of the padded data (3D). Should be at least the size of the input data. If the kernel is larger, the input data is assumed to be padded with zero's which are NOT efficiently handled by the FFT
                                       );
+
+                                      
+void delete_gpuFFT3dPlan(gpuFFT3dPlan* plan);
 
 /**
  * @internal
