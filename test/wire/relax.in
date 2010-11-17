@@ -1,0 +1,18 @@
+
+msat	800e3
+aexch	13e-12
+
+alpha		2
+maxerror	1e-4
+
+gridsize	512	16	16
+partsize	1000e-9	60e-9	60e-9
+
+ellipsoid	inf	30e-9	30e-9
+
+uniform		1	0	0
+
+
+autosave	m	png	100e-12
+autosave	table	ascii	10e-12
+run		1e-9

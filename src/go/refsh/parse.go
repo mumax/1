@@ -12,6 +12,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"math"
 )
 
 func (refsh *Refsh) parseArgs(fname string, argv []string) []Value {
@@ -61,6 +62,12 @@ func parseInt(str string) int {
 }
 
 func parseFloat(str string) float {
+	if str == "inf" {
+		return float(math.Inf(1))
+	}
+	if str == "-inf" {
+		return float(math.Inf(-1))
+	}
 	i, err := strconv.Atof(strings.ToLower(str))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Could not parse to float:", str)
@@ -70,6 +77,12 @@ func parseFloat(str string) float {
 }
 
 func parseFloat64(str string) float64 {
+	if str == "inf" {
+		return math.Inf(1)
+	}
+	if str == "-inf" {
+		return math.Inf(-1)
+	}
 	i, err := strconv.Atof64(strings.ToLower(str))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Could not parse to float64:", str)
@@ -79,6 +92,12 @@ func parseFloat64(str string) float64 {
 }
 
 func parseFloat32(str string) float32 {
+	if str == "inf" {
+		return float32(math.Inf(1))
+	}
+	if str == "-inf" {
+		return float32(math.Inf(-1))
+	}
 	i, err := strconv.Atof32(strings.ToLower(str))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Could not parse to float32:", str)
