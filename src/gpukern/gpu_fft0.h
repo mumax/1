@@ -28,7 +28,7 @@ typedef struct{
   cufftHandle fwPlan;
   cufftHandle invPlan;
 
-  float* buffer1;
+  //float* buffer1;
 
 }gpuFFT3dPlan;
 

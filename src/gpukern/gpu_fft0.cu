@@ -58,7 +58,7 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
     gpu_safefft(cufftPlan2d(&(plan->invPlan), paddedSize[Y], paddedSize[Z], CUFFT_C2R))
   }
 
-  plan->buffer1 = new_gpu_array(paddedSize[X] * paddedSize[Y] * complexZ);
+  //plan->buffer1 = new_gpu_array(paddedSize[X] * paddedSize[Y] * complexZ);
 
   return plan;
 }
