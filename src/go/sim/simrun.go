@@ -8,6 +8,7 @@ package sim
 
 import (
 	"fmt"
+	"math"
 )
 
 // This file implements the methods for time stepping
@@ -42,6 +43,11 @@ func (s *Sim) Run(time float64) {
 		s.steps++
 		s.time += float64(s.dt)
 		s.mUpToDate = false
+
+		if math.IsNaN(s.time) || math.IsInf(s.time, 0){
+      panic("Time step = " + fmt.Sprint( s.dt ))
+    }
+    
 		// 		s.Stop("Step")
 
 	}

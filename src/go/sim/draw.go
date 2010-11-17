@@ -130,7 +130,7 @@ func fmod(number, mod float32) float32 {
 	for number < mod {
 		number += mod
 	}
-	for number > mod {
+	for number >= mod {
 		number -= mod
 	}
 	return number

@@ -1,11 +1,11 @@
 
-msat	800e3
-aexch	13e-12
+msat	414e3
+aexch	1.05e-11
 
 alpha		2
-maxerror	1e-4
+maxerror	1e-5
 
-gridsize	512	16	16
+gridsize	512	32	32
 partsize	1000e-9	60e-9	60e-9
 
 ellipsoid	inf	30e-9	30e-9
@@ -13,6 +13,14 @@ ellipsoid	inf	30e-9	30e-9
 uniform		1	0	0
 
 
-autosave	m	png	100e-12
-autosave	table	ascii	10e-12
+
+run		2e-9
+
+save		m	binary
+
+autosave	m	png	25e-12
+autosave	table	ascii	25e-12
+
+alpha		0.1
+staticfield	-200e-3	0	0	
 run		1e-9
