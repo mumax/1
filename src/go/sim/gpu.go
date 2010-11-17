@@ -136,10 +136,9 @@ func (d Gpu) newFFTPlan(dataSize, logicSize []int) uintptr {
 }
 
 
-func (d Gpu) freeFFTPlan(plan uintptr){
-  C.delete_gpuFFT3dPlan((*C.gpuFFT3dPlan)(unsafe.Pointer(plan)))
+func (d Gpu) freeFFTPlan(plan uintptr) {
+	C.delete_gpuFFT3dPlan((*C.gpuFFT3dPlan)(unsafe.Pointer(plan)))
 }
-
 
 
 func (d Gpu) fft(plan uintptr, in, out uintptr, direction int) {

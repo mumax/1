@@ -54,6 +54,16 @@ func NewTensor(b *Backend, size []int) *DevTensor {
 	return t
 }
 
+// Frees the underlying storage.
+// It is safe to double-free.
+func (t *DevTensor) Free() {
+	if t.data != 0 {
+		t.freeArray(t.data)
+		t.data = 0
+	}
+}
+
+
 // Wraps a pre-allocated device array in a tensor
 // comp remains uninitialized
 func AsTensor(b *Backend, data uintptr, size []int) *DevTensor {

@@ -17,10 +17,10 @@ import (
 var backend = GPU
 
 var fft_test_sizes [][]int = [][]int{
-    {1, 8, 8},
-    {2, 4, 8},
-    {1, 32, 64},
-    {4, 8, 16}}
+	{1, 8, 8},
+	{2, 4, 8},
+	{1, 32, 64},
+	{4, 8, 16}}
 
 
 func TestFFTPadded(t *testing.T) {
@@ -43,7 +43,7 @@ func TestFFTPadded(t *testing.T) {
 		host, hostT, hostTT := tensor.NewT(size), tensor.NewT(outsize), tensor.NewT(size)
 		hostP, hostPT, hostPTT := tensor.NewT(paddedsize), tensor.NewT(outsize), tensor.NewT(paddedsize)
 
-   host.List()[0] = 1.
+		host.List()[0] = 1.
 		for i := 0; i < size[0]; i++ {
 			for j := 0; j < size[1]; j++ {
 				for k := 0; k < size[2]; k++ {
@@ -68,19 +68,15 @@ func TestFFTPadded(t *testing.T) {
 		fftP.Inverse(devPT, devPTT)
 		TensorCopyFrom(devPTT, hostPTT)
 
-    fmt.Println("in:")
-    host.WriteTo(os.Stdout)
+		fmt.Println("in:")
+		host.WriteTo(os.Stdout)
 
+		fmt.Println("out(padded):")
+		hostT.WriteTo(os.Stdout)
 
-    fmt.Println("out(padded):")
-    hostT.WriteTo(os.Stdout)
+		fmt.Println("backtransformed:")
+		hostTT.WriteTo(os.Stdout)
 
-
-    fmt.Println("backtransformed:")
-    hostTT.WriteTo(os.Stdout)
-
-  
-    
 		var (
 			errorTT  float32 = 0
 			errorPTT float32 = 0
@@ -118,71 +114,64 @@ func TestFFTPadded(t *testing.T) {
 
 func TestFFT(t *testing.T) {
 
+	for _, size := range fft_test_sizes {
 
-  for _, size := range fft_test_sizes {
+		fft := NewFFT(backend, size)
+		fmt.Println(fft)
+		outsize := fft.PhysicSize()
 
+		dev, devT, devTT := NewTensor(backend, size), NewTensor(backend, outsize), NewTensor(backend, size)
 
-    fft := NewFFT(backend, size)
-    fmt.Println(fft)
-    outsize := fft.PhysicSize()
+		host, hostT, hostTT := tensor.NewT(size), tensor.NewT(outsize), tensor.NewT(size)
 
-    dev, devT, devTT := NewTensor(backend, size), NewTensor(backend, outsize), NewTensor(backend, size)
+		for i := 0; i < size[0]; i++ {
+			for j := 0; j < size[1]; j++ {
+				for k := 0; k < size[2]; k++ {
+					host.List()[i*size[1]*size[2]+j*size[2]+k] = 0. + 1.*(rand.Float32()-.5) //1.
+				}
+			}
+		}
+		//     host.List()[63] = 1.
 
-    host, hostT, hostTT := tensor.NewT(size), tensor.NewT(outsize), tensor.NewT(size)
+		//     list := host.List()
+		//     for i:= range list{
+		//       list[i]=float32(i)
+		//     }
 
+		TensorCopyTo(host, dev)
 
-    for i := 0; i < size[0]; i++ {
-      for j := 0; j < size[1]; j++ {
-        for k := 0; k < size[2]; k++ {
-          host.List()[i*size[1]*size[2]+j*size[2]+k] = 0. + 1.*(rand.Float32()-.5) //1.
-        }
-      }
-    }
-//     host.List()[63] = 1.
+		fft.Forward(dev, devT)
+		TensorCopyFrom(devT, hostT)
 
-//     list := host.List()
-//     for i:= range list{
-//       list[i]=float32(i)
-//     }
+		fft.Inverse(devT, devTT)
+		TensorCopyFrom(devTT, hostTT)
 
-    TensorCopyTo(host, dev)
+		fmt.Println("in:")
+		host.WriteTo(os.Stdout)
 
-    fft.Forward(dev, devT)
-    TensorCopyFrom(devT, hostT)
+		fmt.Println("out:")
+		hostT.WriteTo(os.Stdout)
 
-    fft.Inverse(devT, devTT)
-    TensorCopyFrom(devTT, hostTT)
+		fmt.Println("backtransformed:")
+		hostTT.WriteTo(os.Stdout)
 
+		var (
+			errorTT float32 = 0
+		)
 
-    fmt.Println("in:")
-    host.WriteTo(os.Stdout)
-
-
-    fmt.Println("out:")
-    hostT.WriteTo(os.Stdout)
-
-
-    fmt.Println("backtransformed:")
-    hostTT.WriteTo(os.Stdout)
-
-
-    var (
-      errorTT  float32 = 0
-    )
-
-   fmt.Println("Normalization: ", fft.Normalization())
-    for i := range hostTT.List() {
-      hostTT.List()[i] /= float32(fft.Normalization())
-      if abs(host.List()[i]-hostTT.List()[i]) > errorTT {
-        errorTT = abs(host.List()[i] - hostTT.List()[i])
-      }
-    }
-    //tensor.Format(os.Stdout, host2)
-    fmt.Println("transformed² FFT error:                    ", errorTT)
-    if errorTT > 1E-4  {
-      t.Fail()
-    }
-  }
+		fmt.Println("Normalization: ", fft.Normalization())
+		for i := range hostTT.List() {
+			hostTT.List()[i] /= float32(fft.Normalization())
+			if abs(host.List()[i]-hostTT.List()[i]) > errorTT {
+				errorTT = abs(host.List()[i] - hostTT.List()[i])
+			}
+		}
+		//tensor.Format(os.Stdout, host2)
+		fmt.Println("transformed² FFT error:                    ", errorTT)
+		if errorTT > 1E-4 {
+			t.Fail()
+		}
+	}
 
 }
 

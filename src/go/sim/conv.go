@@ -63,11 +63,6 @@ func (conv *Conv) Convolve(source, dest *DevTensor) {
 	mcomp, hcomp := source.comp, dest.comp
 	buffer := conv.buffer
 	kernel := conv.kernel
-	// 	mLen := Len(mcomp[0].size)
-	// 	for i := 0; i < 3; i++ {
-	// 		mcomp[i].data = conv.arrayOffset(source.data, i*mLen)
-	// 		hcomp[i].data = conv.arrayOffset(dest.data, i*mLen)
-	// 	}
 
 	//Sync
 
@@ -129,6 +124,11 @@ func (conv *Conv) loadKernel6(kernel []*tensor.T3) {
 		conv.kernel[i] = NewTensor(conv.Backend, conv.KernelSize())
 		conv.memcpyTo(&listOut[0], conv.kernel[i].data, Len(conv.kernel[i].Size()))
 	}
+
+	fft.Free()
+	devIn.Free()
+	devOut.Free()
+	
 }
 
 

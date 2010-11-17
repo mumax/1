@@ -165,7 +165,7 @@ func (s *Sim) initSize() {
 		}
 		s.size4D[i+1] = s.size[i]
 	}
-// 	s.Println("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
+	// 	s.Println("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
 
 	s.size3D = s.size4D[1:]
 }
@@ -219,7 +219,7 @@ func (s *Sim) initReductors() {
 func (s *Sim) initMLocal() {
 	s.initSize()
 	if s.mLocal == nil {
-    s.Println("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
+		s.Println("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
 		s.Println("Allocating local memory " + fmt.Sprint(s.size4D))
 		s.mLocal = tensor.NewT4(s.size4D[0:])
 	}

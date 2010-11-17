@@ -19,29 +19,28 @@ func TestConv(t *testing.T) {
 	kernelSize := padSize(size)
 
 	kernel := ZeroKernel6(kernelSize)
-  kernel[XX].Array()[0][0][0] = 1.
-  kernel[XX].Array()[0][0][1] = 1.
-  
-  kernel[YY].Array()[0][0][0] = 0.
-  kernel[ZZ].Array()[0][0][0] = 0.
-  
+	kernel[XX].Array()[0][0][0] = 1.
+	kernel[XX].Array()[0][0][1] = 1.
+
+	kernel[YY].Array()[0][0][0] = 0.
+	kernel[ZZ].Array()[0][0][0] = 0.
+
 	conv := NewConv(backend, size, kernel)
 
+	mLocal := tensor.NewT4(size4D)
+	mLocal.Array()[X][0][0][0] = 1.
+	mLocal.Array()[Y][0][0][0] = 0.
+	mLocal.Array()[Z][0][0][0] = 3.
 
-  mLocal := tensor.NewT4(size4D)
-  mLocal.Array()[X][0][0][0] = 1.
-  mLocal.Array()[Y][0][0][0] = 0.
-  mLocal.Array()[Z][0][0][0] = 3.
-  
-  mLocal.WriteTo(os.Stdout)
-  
+	mLocal.WriteTo(os.Stdout)
+
 	m, h := NewTensor(backend, size4D), NewTensor(backend, size4D)
-  TensorCopyTo(mLocal, m)
+	TensorCopyTo(mLocal, m)
 
-  conv.Convolve(m, h)
+	conv.Convolve(m, h)
 
-  hLocal := tensor.NewT4(size4D)
-  TensorCopyFrom(h, hLocal)
+	hLocal := tensor.NewT4(size4D)
+	TensorCopyFrom(h, hLocal)
 
-  hLocal.WriteTo(os.Stdout)
+	hLocal.WriteTo(os.Stdout)
 }

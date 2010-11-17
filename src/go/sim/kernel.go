@@ -31,28 +31,28 @@ package sim
 
 
 import (
-		"tensor"
+	"tensor"
 	. "math"
 )
 
 // Zero kernel, for debugging.
 func ZeroKernel6(paddedsize []int) []*tensor.T3 {
-  size := paddedsize
-  k := make([]*tensor.T3, 6)
-  for i := range k {
-    k[i] = tensor.NewT3(size)
-  }
-  return k
+	size := paddedsize
+	k := make([]*tensor.T3, 6)
+	for i := range k {
+		k[i] = tensor.NewT3(size)
+	}
+	return k
 }
 
 // Unit kernel, for debugging.
 func UnitKernel6(paddedsize []int) []*tensor.T3 {
 	size := paddedsize
-  k := make([]*tensor.T3, 6)
-  for i := range k {
-    k[i] = tensor.NewT3(size)
-  }
-	
+	k := make([]*tensor.T3, 6)
+	for i := range k {
+		k[i] = tensor.NewT3(size)
+	}
+
 	for c := 0; c < 3; c++ {
 		k[KernIdx[c][c]].Array()[0][0][0] = 1.
 	}
