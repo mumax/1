@@ -55,7 +55,8 @@ void gpu_zero(float* data, int N){
   make1dconf(N, &gridSize, &blockSize);
   _gpu_zero<<<gridSize, blockSize>>>(data, N);
   gpu_sync();
-  
+
+// NOTE: cudaMemset sometimes fails misteriously
 //   debugvv(fprintf(stderr, "gpu_zero(%p, %d)\n", data, nElements));
 //   gpu_safe( cudaMemset(data, 0, nElements*sizeof(float)) );
 //   gpu_sync();

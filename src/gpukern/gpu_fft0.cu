@@ -70,10 +70,11 @@ gpuFFT3dPlan* new_gpuFFT3dPlan(int* size){
 
 void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
     gpu_zero(plan->buffer1, plan->paddedSize[X]* plan->paddedSize[Y]* (plan->paddedSize[Z]+2));
-    gpu_copy_pad(input, output, plan->size[X], plan->size[Y], plan->size[Z], plan->paddedSize[X], plan->paddedSize[Y], (plan->paddedSize[Z]+2));
+    
+    gpu_copy_pad(input, output, plan->size[X], plan->size[Y], plan->size[Z], plan->paddedSize[X], plan->paddedSize[Y], (plan->paddedSize[Z]));
 
     //memcpy_on_gpu(input, plan->buffer1, plan->paddedSize[X]*plan->paddedSize[Y]*plan->paddedSize[Z]);
-    gpu_safefft( cufftExecR2C(plan->fwPlan, (cufftReal*)output, (cufftComplex*)output) );
+    //gpu_safefft( cufftExecR2C(plan->fwPlan, (cufftReal*)output, (cufftComplex*)output) );
 
      //gpu_safefft( cufftExecR2C(plan->fwPlan, (cufftReal*)input, (cufftComplex*)output) );
 

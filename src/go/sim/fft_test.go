@@ -139,10 +139,10 @@ func TestFFT(t *testing.T) {
     }
     host.List()[63] = 1.
 
-    list := host.List()
-    for i:= range list{
-      list[i]=float32(i)
-    }
+//     list := host.List()
+//     for i:= range list{
+//       list[i]=float32(i)
+//     }
 
     TensorCopyTo(host, dev)
 
