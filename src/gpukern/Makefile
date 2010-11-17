@@ -11,7 +11,7 @@ OFILES=\
 	gpu_transpose.o\
 	gpu_transpose2.o\
 	gpu_bigfft.o\
-	gpu_fft3.o\
+	gpu_fft0.o\
 	gpu_kernmul.o\
 	gpu_zeropad.o\
 	gpu_init.o\
