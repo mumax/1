@@ -8,6 +8,7 @@ package sim
 
 import (
 	"tensor"
+// 	"fmt"
 )
 
 // "Conv" is a 3D vector convolution "plan".
@@ -75,10 +76,23 @@ func (conv *Conv) Convolve(source, dest *DevTensor) {
 
 	// Point-wise kernel multiplication in reciprocal space
 	conv.Start("kern mul")
-	conv.kernelMul(buffer[X].data, buffer[Y].data, buffer[Z].data,
-		kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
-		kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
-		6, Len(buffer[X].size)) // nRealNumbers
+
+	kernType := conv.KernType()
+
+	switch kernType {
+	default:
+		panic("Bug")
+	case 6:
+		conv.kernelMul(buffer[X].data, buffer[Y].data, buffer[Z].data,
+			kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
+			kernel[YZ].data, kernel[XZ].data, kernel[XY].data,
+			kernType, Len(buffer[X].size)) // nRealNumbers
+	case 4:
+		conv.kernelMul(buffer[X].data, buffer[Y].data, buffer[Z].data,
+			kernel[XX].data, kernel[YY].data, kernel[ZZ].data,
+			kernel[YZ].data, 0, 0,
+			kernType, Len(buffer[X].size)) // nRealNumbers
+	}
 	conv.Stop()
 
 	// Inverse FFT
@@ -111,26 +125,57 @@ func (conv *Conv) loadKernel6(kernel []*tensor.T3) {
 	devOut := NewTensor(conv.Backend, fft.PhysicSize())
 	hostOut := tensor.NewT3(fft.PhysicSize())
 
+//   allocCount := 0
+  
 	for i := range conv.kernel {
-		TensorCopyTo(kernel[i], devIn)
-		fft.Forward(devIn, devOut)
-		TensorCopyFrom(devOut, hostOut)
-		listOut := hostOut.List()
+		if conv.needKernComp(i) { // the zero components are not stored
+//       allocCount++
+			TensorCopyTo(kernel[i], devIn)
+			fft.Forward(devIn, devOut)
+			TensorCopyFrom(devOut, hostOut)
+			listOut := hostOut.List()
 
-		for j := 0; j < len(listOut)/2; j++ {
-			listOut[j] = listOut[2*j] * norm
+			for j := 0; j < len(listOut)/2; j++ {
+				listOut[j] = listOut[2*j] * norm
+			}
+
+			conv.kernel[i] = NewTensor(conv.Backend, conv.KernelSize())
+			conv.memcpyTo(&listOut[0], conv.kernel[i].data, Len(conv.kernel[i].Size()))
 		}
-
-		conv.kernel[i] = NewTensor(conv.Backend, conv.KernelSize())
-		conv.memcpyTo(&listOut[0], conv.kernel[i].data, Len(conv.kernel[i].Size()))
 	}
 
+//   fmt.Println(allocCount, " non-zero kernel components.")
 	fft.Free()
 	devIn.Free()
 	devOut.Free()
-	
+
 }
 
+// The kernel type: how many kernel components are nonzero.
+// General 3D case: 6 (symmetric kernel)
+// 2D case: 4 (Kxy = KxZ = 0)
+// infinitely thick 2D case: 3 (Kxy = KxZ = Kxx = 0)
+func (conv *Conv) KernType() int {
+	kernType := 6
+	if conv.logicSize[X] == 1 { // 2D simulation: Kxy = Kxz = 0, do not multiply with zeros
+		kernType = 4
+	}
+	return kernType
+}
+
+// Returns true if a a kernel component (e.g. XX) is non-zero
+func (conv *Conv) needKernComp(comp int) bool {
+	if conv.KernType() == 6 {
+		return true
+	}
+	if comp == XY || comp == XZ {
+		return false
+	}
+	if conv.KernType() == 3 && comp == XX {
+		return false
+	}
+	return true
+}
 
 // size of the (real) kernel
 func (conv *Conv) KernelSize() []int {

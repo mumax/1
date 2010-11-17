@@ -14,7 +14,7 @@ uniform		1	0	0
 
 
 
-run		2e-9
+run		1e-9
 
 save		m	binary
 

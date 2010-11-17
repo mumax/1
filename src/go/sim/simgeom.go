@@ -141,9 +141,9 @@ func (sim *Sim) Cylinder() {
 }
 
 
-func (sim *Sim) Ellipsoid(rz, ry, rx float32){
-  sim.geom = &Ellipsoid{rx, ry, rz}
-  sim.invalidate()
+func (sim *Sim) Ellipsoid(rz, ry, rx float32) {
+	sim.geom = &Ellipsoid{rx, ry, rz}
+	sim.invalidate()
 }
 
 func (s *Sim) TestGeom(w, h float32) {
