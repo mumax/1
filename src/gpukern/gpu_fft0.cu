@@ -86,7 +86,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
 
 void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
   
-  //gpu_safefft( cufftExecC2R(plan->invPlan, (cufftComplex*)input, (cufftReal*)output) );
+  gpu_safefft( cufftExecC2R(plan->invPlan, (cufftComplex*)input, (cufftReal*)input) );
 
   gpu_copy_unpad(input, output, plan->paddedSize[X], plan->paddedSize[Y], (plan->paddedSize[Z]+2), plan->size[X], plan->size[Y], plan->size[Z]);
   //memcpy_on_gpu(plan->buffer1, output, plan->paddedSize[X]*plan->paddedSize[Y]*plan->paddedSize[Z]);
