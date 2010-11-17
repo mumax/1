@@ -146,6 +146,11 @@ func (d Cpu) newFFTPlan(dataSize, logicSize []int) uintptr {
 	return uintptr(unsafe.Pointer(C.new_cpuFFT3dPlan_inplace(Csize, CpaddedSize)))
 }
 
+func (d Cpu) freeFFTPlan(plan uintptr){
+  panic(Bug("Unimplemented"))
+  //C.delete_cpuFFT3dPlan((*C.gpuFFT3dPlan)(unsafe.Pointer(plan)))
+}
+
 func (d Cpu) fft(plan uintptr, in, out uintptr, direction int) {
 	switch direction {
 	default:

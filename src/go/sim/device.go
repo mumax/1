@@ -160,6 +160,8 @@ type Device interface {
 
 	fft(plan uintptr, in, out uintptr, direction int)
 
+	freeFFTPlan(plan uintptr)
+
 	//______________________________________________________________________________ already safe
 
 	// The GPU stride in number of float32s (!)
