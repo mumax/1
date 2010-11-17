@@ -92,7 +92,7 @@ func daemon_startsim(file string) {
 	// This acts as a synchronization mechanism between multiple daemons:
 	// should another daemon already have started this simulation in the meanwhile,
 	// then this directory exists and we should abort.
-	outfile := removeExtension(file) + ".out"
+	outfile := RemoveExtension(file) + ".out"
 	err := os.Mkdir(outfile, 0777)
 	// if the directory already exists, then another daemon had already started the simulation in the meanwhile
 	// TODO: we should check if the error really is a "file exists"
@@ -178,7 +178,7 @@ func findInputFile(dir string) string {
 	// First look for input files in the top-level directory...
 	for _, info := range fileinfo {
 		file := dir + "/" + info.Name
-		if strings.HasSuffix(file, ".in") && !contains(fileinfo, removeExtension(removePath(file))+".out") {
+		if strings.HasSuffix(file, ".in") && !contains(fileinfo, RemoveExtension(RemovePath(file))+".out") {
 			return file
 		}
 	}

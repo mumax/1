@@ -130,10 +130,10 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	// This is neccesary, e.g., when a sim deamon is run from a directory other
 	// than the directory of the input file and files with relative paths are
 	// read (e.g. "include file", "load file")
-	workdir := parentDir(outputdir)
+	workdir := ParentDir(outputdir)
 	fmt.Println("chdir ", workdir)
 	os.Chdir(workdir)
-	sim.outputDir(filename(outputdir))
+	sim.outputDir(Filename(outputdir))
 	sim.metadata = make(map[string]string)
 	sim.initWriters()
 	sim.invalidate() //just to make sure we will init()

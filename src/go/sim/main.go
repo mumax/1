@@ -85,7 +85,7 @@ func main_master() {
 		defer in.Close()
 
 		//TODO it would be safer to abort when the output dir is not empty
-		outfile := removeExtension(infile) + ".out"
+		outfile := RemoveExtension(infile) + ".out"
 
 		// Set the device
 		var backend *Backend
@@ -148,7 +148,7 @@ func main_master() {
 
 // Removes a filename extension.
 // I.e., the part after the dot, if present.
-func removeExtension(str string) string {
+func RemoveExtension(str string) string {
 	dotpos := len(str) - 1
 	for dotpos >= 0 && str[dotpos] != '.' {
 		dotpos--
@@ -158,7 +158,7 @@ func removeExtension(str string) string {
 
 // Removes a filename path.
 // I.e., the part before the last /, if present.
-func removePath(str string) string {
+func RemovePath(str string) string {
 	slashpos := len(str) - 1
 	for slashpos >= 0 && str[slashpos] != '/' {
 		slashpos--
@@ -169,7 +169,7 @@ func removePath(str string) string {
 // Returns the parent directory of a file.
 // I.e., the part after the /, if present, is removed.
 // If there is no explicit path, "." is returned.
-func parentDir(str string) string {
+func ParentDir(str string) string {
 	slashpos := len(str) - 1
 	for slashpos >= 0 && str[slashpos] != '/' {
 		slashpos--
@@ -184,7 +184,7 @@ func parentDir(str string) string {
 // Complementary function of parentDir
 // Removes the path in front of the file name.
 // I.e., the part before the last /, if present, is removed.
-func filename(str string) string {
+func Filename(str string) string {
 	slashpos := len(str) - 1
 	for slashpos >= 0 && str[slashpos] != '/' {
 		slashpos--

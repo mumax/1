@@ -18,8 +18,8 @@ run		1e-9
 
 save		m	binary
 
-autosave	m	png	25e-12
-autosave	table	ascii	25e-12
+autosave	m	binary	10e-12
+autosave	table	ascii	10e-12
 
 alpha		0.1
 staticfield	-200e-3	0	0	
