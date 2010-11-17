@@ -11,13 +11,14 @@ static	Node*	makenewvar(Type*, NodeList**, Node**);
 static	Node*	ascompatee1(int, Node*, Node*, NodeList**);
 static	NodeList*	ascompatee(int, NodeList*, NodeList*, NodeList**);
 static	NodeList*	ascompatet(int, NodeList*, Type**, int, NodeList**);
-static	NodeList*	ascompatte(int, Type**, NodeList*, int, NodeList**);
+static	NodeList*	ascompatte(int, int, Type**, NodeList*, int, NodeList**);
 static	Node*	convas(Node*, NodeList**);
 static	void	heapmoves(void);
 static	NodeList*	paramstoheap(Type **argin, int out);
 static	NodeList*	reorder1(NodeList*);
 static	NodeList*	reorder3(NodeList*);
 static	Node*	addstr(Node*, NodeList**);
+static	Node*	append(Node*, NodeList**);
 
 static	NodeList*	walkdefstack;
 
@@ -513,7 +514,7 @@ walkstmt(Node **np)
 			n->list = reorder3(ll);
 			break;
 		}
-		ll = ascompatte(n->op, getoutarg(curfn->type), n->list, 1, &n->ninit);
+		ll = ascompatte(n->op, 0, getoutarg(curfn->type), n->list, 1, &n->ninit);
 		n->list = ll;
 		break;
 
@@ -654,8 +655,6 @@ walkexpr(Node **np, NodeList **init)
 	case OAND:
 	case OOR:
 	case OXOR:
-	case OANDAND:
-	case OOROR:
 	case OSUB:
 	case OMUL:
 	case OEQ:
@@ -668,6 +667,17 @@ walkexpr(Node **np, NodeList **init)
 	case OCMPLX:
 		walkexpr(&n->left, init);
 		walkexpr(&n->right, init);
+		goto ret;
+	
+	case OANDAND:
+	case OOROR:
+		walkexpr(&n->left, init);
+		// cannot put side effects from n->right on init,
+		// because they cannot run before n->left is checked.
+		// save elsewhere and store on the eventual n->right.
+		ll = nil;
+		walkexpr(&n->right, &ll);
+		n->right->ninit = concat(n->right->ninit, ll);
 		goto ret;
 
 	case OPRINT:
@@ -699,7 +709,7 @@ walkexpr(Node **np, NodeList **init)
 			goto ret;
 		walkexpr(&n->left, init);
 		walkexprlist(n->list, init);
-		ll = ascompatte(n->op, getinarg(t), n->list, 0, init);
+		ll = ascompatte(n->op, n->isddd, getinarg(t), n->list, 0, init);
 		n->list = reorder1(ll);
 		goto ret;
 
@@ -709,7 +719,7 @@ walkexpr(Node **np, NodeList **init)
 			goto ret;
 		walkexpr(&n->left, init);
 		walkexprlist(n->list, init);
-		ll = ascompatte(n->op, getinarg(t), n->list, 0, init);
+		ll = ascompatte(n->op, n->isddd, getinarg(t), n->list, 0, init);
 		n->list = reorder1(ll);
 		if(isselect(n)) {
 			// special prob with selectsend and selectrecv:
@@ -719,7 +729,7 @@ walkexpr(Node **np, NodeList **init)
 			Node *b;
 			b = nodbool(0);
 			typecheck(&b, Erv);
-			lr = ascompatte(n->op, getoutarg(t), list1(b), 0, init);
+			lr = ascompatte(n->op, 0, getoutarg(t), list1(b), 0, init);
 			n->list = concat(n->list, lr);
 		}
 		goto ret;
@@ -730,8 +740,8 @@ walkexpr(Node **np, NodeList **init)
 			goto ret;
 		walkexpr(&n->left, init);
 		walkexprlist(n->list, init);
-		ll = ascompatte(n->op, getthis(t), list1(n->left->left), 0, init);
-		lr = ascompatte(n->op, getinarg(t), n->list, 0, init);
+		ll = ascompatte(n->op, 0, getthis(t), list1(n->left->left), 0, init);
+		lr = ascompatte(n->op, n->isddd, getinarg(t), n->list, 0, init);
 		ll = concat(ll, lr);
 		n->left->left = N;
 		ullmancalc(n->left);
@@ -995,9 +1005,11 @@ walkexpr(Node **np, NodeList **init)
 		 */
 		et = n->left->type->etype;
 		if(iscomplex[et] && n->op == ODIV) {
-			n = mkcall("complex128div", n->type, init,
+			t = n->type;
+			n = mkcall("complex128div", types[TCOMPLEX128], init,
 				conv(n->left, types[TCOMPLEX128]),
 				conv(n->right, types[TCOMPLEX128]));
+			n = conv(n, t);
 			goto ret;
 		}
 		/*
@@ -1024,9 +1036,14 @@ walkexpr(Node **np, NodeList **init)
 
 		// if range of type cannot exceed static array bound,
 		// disable bounds check
-		if(!isslice(n->left->type))
+		if(isfixedarray(n->left->type))
 		if(n->right->type->width < 4)
 		if((1<<(8*n->right->type->width)) <= n->left->type->bound)
+			n->etype = 1;
+
+		if(isconst(n->left, CTSTR))
+		if(n->right->type->width < 4)
+		if((1<<(8*n->right->type->width)) <= n->left->val.u.sval->len)
 			n->etype = 1;
 
 		// check for static out of bounds
@@ -1034,12 +1051,20 @@ walkexpr(Node **np, NodeList **init)
 			v = mpgetfix(n->right->val.u.xval);
 			len = 1LL<<60;
 			t = n->left->type;
+			if(isconst(n->left, CTSTR))
+				len = n->left->val.u.sval->len;
 			if(t != T && isptr[t->etype])
 				t = t->type;
 			if(isfixedarray(t))
 				len = t->bound;
 			if(v < 0 || v >= (1LL<<31) || v >= len)
 				yyerror("index out of bounds");
+			else if(isconst(n->left, CTSTR)) {
+				// replace "abc"[2] with 'b'.
+				// delayed until now because "abc"[2] is not
+				// an ideal constant.
+				nodconst(n, n->type, n->left->val.u.sval->s[v]);
+			}
 		}
 		goto ret;
 
@@ -1196,11 +1221,27 @@ walkexpr(Node **np, NodeList **init)
 			goto ret;
 		}
 
+		// prepare for rewrite below
+		if(n->etype == OEQ || n->etype == ONE) {
+			n->left = cheapexpr(n->left, init);
+			n->right = cheapexpr(n->right, init);
+		}
+
 		// sys_cmpstring(s1, s2) :: 0
 		r = mkcall("cmpstring", types[TINT], init,
 			conv(n->left, types[TSTRING]),
 			conv(n->right, types[TSTRING]));
 		r = nod(n->etype, r, nodintconst(0));
+
+		// quick check of len before full compare for == or !=
+		if(n->etype == OEQ || n->etype == ONE) {
+			if(n->etype == OEQ)
+				r = nod(OANDAND, nod(OEQ, nod(OLEN, n->left, N), nod(OLEN, n->right, N)), r);
+			else
+				r = nod(OOROR, nod(ONE, nod(OLEN, n->left, N), nod(OLEN, n->right, N)), r);
+			typecheck(&r, Erv);
+			walkexpr(&r, nil);
+		}
 		typecheck(&r, Erv);
 		n = r;
 		goto ret;
@@ -1226,17 +1267,16 @@ walkexpr(Node **np, NodeList **init)
 				l);
 		}
 		goto ret;
-
-	case OINDEXSTR:
-		// TODO(rsc): should be done in back end
-		// sys_indexstring(s, i)
-		n = mkcall("indexstring", n->type, init,
-			conv(n->left, types[TSTRING]),
-			conv(n->right, types[TINT]));
+	
+	case OAPPEND:
+		n = append(n, init);
 		goto ret;
 
 	case OCOPY:
-		fn = syslook("slicecopy", 1);
+		if(n->right->type->etype == TSTRING)
+			fn = syslook("slicestringcopy", 1);
+		else
+			fn = syslook("slicecopy", 1);
 		argtype(fn, n->left->type);
 		argtype(fn, n->right->type);
 		n = mkcall1(fn, n->type, init,
@@ -1574,7 +1614,7 @@ dumpnodetypes(NodeList *l, char *what)
  *	func(expr-list)
  */
 static NodeList*
-ascompatte(int op, Type **nl, NodeList *lr, int fp, NodeList **init)
+ascompatte(int op, int isddd, Type **nl, NodeList *lr, int fp, NodeList **init)
 {
 	Type *l, *ll;
 	Node *r, *a;
@@ -1629,7 +1669,7 @@ loop:
 		// only if we are assigning a single ddd
 		// argument to a ddd parameter then it is
 		// passed thru unencapsulated
-		if(r != N && lr->next == nil && r->isddd && eqtype(l->type, r->type)) {
+		if(r != N && lr->next == nil && isddd && eqtype(l->type, r->type)) {
 			a = nod(OAS, nodarg(l, fp), r);
 			a = convas(a, init);
 			nn = list(nn, a);
@@ -1824,7 +1864,7 @@ walkprint(Node *nn, NodeList **init, int defer)
 	if(defer) {
 		if(op == OPRINTN)
 			fmtprint(&fmt, "\n");
-		on = syslook("printf", 1);
+		on = syslook("goprintf", 1);
 		on->type = functype(nil, intypes, nil);
 		args->n = nod(OLITERAL, N, N);
 		args->n->val.ctype = CTSTR;
@@ -1853,7 +1893,7 @@ callnew(Type *t)
 	Node *fn;
 
 	dowidth(t);
-	fn = syslook("mal", 1);
+	fn = syslook("new", 1);
 	argtype(fn, t);
 	return mkcall1(fn, ptrto(t), nil, nodintconst(t->width));
 }
@@ -2269,5 +2309,46 @@ addstr(Node *n, NodeList **init)
 	walkexpr(&r, init);
 	r->type = n->type;
 	
+	return r;
+}
+
+static Node*
+append(Node *n, NodeList **init)
+{
+	int i, j;
+	Node *f, *r;
+	NodeList *in, *args;
+	
+	if(n->isddd) {
+		f = syslook("appendslice", 1);
+		argtype(f, n->type);
+		argtype(f, n->type->type);
+		argtype(f, n->type);
+		r = mkcall1(f, n->type, init, typename(n->type), n->list->n, n->list->next->n);
+		return r;
+	}
+
+	j = count(n->list) - 1;
+	f = syslook("append", 1);
+	f->type = T;
+	f->ntype = nod(OTFUNC, N, N);
+	in = list1(nod(ODCLFIELD, N, typenod(ptrto(types[TUINT8]))));	// type
+	in = list(in, nod(ODCLFIELD, N, typenod(types[TINT])));	// count
+	in = list(in, nod(ODCLFIELD, N, typenod(n->type)));	// slice
+	for(i=0; i<j; i++)
+		in = list(in, nod(ODCLFIELD, N, typenod(n->type->type)));
+	f->ntype->list = in;
+	f->ntype->rlist = list1(nod(ODCLFIELD, N, typenod(n->type)));
+	
+	args = list1(typename(n->type));
+	args = list(args, nodintconst(j));
+	args = concat(args, n->list);
+	
+	r = nod(OCALL, f, N);
+	r->list = args;
+	typecheck(&r, Erv);
+	walkexpr(&r, init);
+	r->type = n->type;
+
 	return r;
 }

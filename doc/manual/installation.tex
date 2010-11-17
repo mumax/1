@@ -15,7 +15,8 @@ You will also need to install the proprietary \textsc{NVIDIA} graphics \idx{driv
 
 Otherwise, you can install the driver located in \file{dep/cuda}. You have to install it when your X-server is not running: logout from your grahpical session, then use the ``\idx{Console login}'' of your login manager (or press Ctrl-Alt-F1) to obtain a text console. Log in and \cmd{cd} to \file{dep/cuda} the \prog root directory. Type\footnote{Or \cmd{sudo ./devdriver\_3.1\_linux\_32\_256.40.run} on a 32-bit system.}\footnote{Possibly a later version of this driver may be present}
 
-\shell{sudo ./devdriver\_3.1\_linux\_64\_256.40.run}
+\shell{cd \prog/dep/cuda\\
+sudo ./devdriver\_3.1\_linux\_64\_256.40.run}
 
 and follow the instructions. Then reboot your computer. Note that you may have to re-install this driver after every kernel upgrade. To check your system, you can run the progam \idxcmd{nvidia-settings} which shows information about your GPU and driver.
 
@@ -30,7 +31,11 @@ blacklist rivatv
 \end{verbatim}
 \normalsize
 
-Then also remove all distribution-provided \textsc{NVIDIA} drivers with \cmd{sudo apt-get --purge remove nvidia-*}. Then follow the above instructions to re-install the driver provided by \textsc{NVIDIA}.
+Then also remove all distribution-provided \textsc{NVIDIA} drivers with
+
+\shell{sudo apt-get --purge remove nvidia-*}
+
+Then follow the above instructions to re-install the driver provided by \textsc{NVIDIA}.
 
 Not that you may have to run an X-server (i.e., have a graphical desktop installed) for the GPU driver to work correctly. So if you run ubuntu server edition, you may have to install ubuntu-desktop or kubuntu-desktop.
 
@@ -38,7 +43,8 @@ Not that you may have to run an X-server (i.e., have a graphical desktop install
 
 We recommend downloading a pre-compiled version of the program for either a 32-bit or 64-bit architecture. The 64-bit version is recommended if your system supports it. You can place the \prog directory anywhere on your hard drive. The only needed setup is running 
 
-\shell{./setup\_64bit.sh}
+\shell{cd \prog\\
+./setup\_64bit.sh}
 
 (or \cmd{./setup\_32bit.sh} on a 32-bit system). This will create the \cmd{\prog} program in the \file{bin/} directory. Note that you have to re-run the setup 
 script if you moved the \prog directory to a different location on your hard drive. You can now start the the program by typing \cmd{/path/to/\prog/bin/\prog} in a terminal, where you replace \file{/path/to/\prog} by the actual location where you put the \prog directory.

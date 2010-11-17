@@ -1,5 +1,7 @@
-#!/usr/bin/env python
-#
+# coding=utf-8
+# (The line above is necessary so that I can use 世界 in the
+# *comment* below without Python getting all bent out of shape.)
+
 # Copyright 2007-2009 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -111,6 +113,34 @@ contributors = {}
 missing_codereview = None
 
 #######################################################################
+# RE: UNICODE STRING HANDLING
+#
+# Python distinguishes between the str (string of bytes)
+# and unicode (string of code points) types.  Most operations
+# work on either one just fine, but some (like regexp matching)
+# require unicode, and others (like write) require str.
+#
+# As befits the language, Python hides the distinction between
+# unicode and str by converting between them silently, but
+# *only* if all the bytes/code points involved are 7-bit ASCII.
+# This means that if you're not careful, your program works
+# fine on "hello, world" and fails on "hello, 世界".  And of course,
+# the obvious way to be careful - use static types - is unavailable.
+# So the only way is trial and error to find where to put explicit
+# conversions.
+#
+# Because more functions do implicit conversion to str (string of bytes)
+# than do implicit conversion to unicode (string of code points),
+# the convention in this module is to represent all text as str,
+# converting to unicode only when calling a unicode-only function
+# and then converting back to str as soon as possible.
+
+def typecheck(s, t):
+	if type(s) != t:
+		raise util.Abort("type check failed: %s has type %s != %s" % (repr(s), type(s), t))
+
+
+#######################################################################
 # Change list parsing.
 #
 # Change lists are stored in .hg/codereview/cl.nnnnnn
@@ -127,9 +157,9 @@ diff --git a/~rietveld~placeholder~ b/~rietveld~placeholder~
 new file mode 100644
 """
 
-
 class CL(object):
 	def __init__(self, name):
+		typecheck(name, str)
 		self.name = name
 		self.desc = ''
 		self.files = []
@@ -152,6 +182,7 @@ class CL(object):
 		s += "Files:\n"
 		for f in cl.files:
 			s += "\t" + f + "\n"
+		typecheck(s, str)
 		return s
 
 	def EditorText(self):
@@ -176,6 +207,7 @@ class CL(object):
 			for f in cl.files:
 				s += "\t" + f + "\n"
 			s += "\n"
+		typecheck(s, str)
 		return s
 
 	def PendingText(self):
@@ -190,6 +222,7 @@ class CL(object):
 		s += "\tFiles:\n"
 		for f in cl.files:
 			s += "\t\t" + f + "\n"
+		typecheck(s, str)
 		return s
 
 	def Flush(self, ui, repo):
@@ -217,13 +250,14 @@ class CL(object):
 			s = s[0:55] + "..."
 		if self.name != "new":
 			s = "code review %s: %s" % (self.name, s)
+		typecheck(s, str)
 		return s
 
 	def Upload(self, ui, repo, send_mail=False, gofmt=True, gofmt_just_warn=False):
 		if not self.files:
 			ui.warn("no files in change list\n")
 		if ui.configbool("codereview", "force_gofmt", True) and gofmt:
-			CheckGofmt(ui, repo, self.files, just_warn=gofmt_just_warn)
+			CheckFormat(ui, repo, self.files, just_warn=gofmt_just_warn)
 		set_status("uploading CL metadata + diffs")
 		os.chdir(repo.root)
 		form_fields = [
@@ -292,14 +326,18 @@ class CL(object):
 			pmsg += "I'd like you to review this change.\n"
 		else:
 			pmsg += "Please take another look.\n"
+		typecheck(pmsg, str)
 		PostMessage(ui, self.name, pmsg, subject=self.Subject())
 		self.mailed = True
 		self.Flush(ui, repo)
 
 def GoodCLName(name):
+	typecheck(name, str)
 	return re.match("^[0-9]+$", name)
 
 def ParseCL(text, name):
+	typecheck(text, str)
+	typecheck(name, str)
 	sname = None
 	lineno = 0
 	sections = {
@@ -361,18 +399,22 @@ def ParseCL(text, name):
 	return cl, 0, ''
 
 def SplitCommaSpace(s):
+	typecheck(s, str)
 	s = s.strip()
 	if s == "":
 		return []
 	return re.split(", *", s)
 
 def CutDomain(s):
+	typecheck(s, str)
 	i = s.find('@')
 	if i >= 0:
 		s = s[0:i]
 	return s
 
 def JoinComma(l):
+	for s in l:
+		typecheck(s, str)
 	return ", ".join(l)
 
 def ExceptionDetail():
@@ -391,6 +433,7 @@ def IsLocalCL(ui, repo, name):
 
 # Load CL from disk and/or the web.
 def LoadCL(ui, repo, name, web=True):
+	typecheck(name, str)
 	set_status("loading CL " + name)
 	if not GoodCLName(name):
 		return None, "invalid CL name"
@@ -512,6 +555,7 @@ def RepoDir(ui, repo):
 	url = url[5:]
 	if url.endswith('/'):
 		url = url[:-1]
+	typecheck(url, str)
 	return url
 
 # Find (or make) code review directory.  On error, ui.warn and return None
@@ -526,10 +570,12 @@ def CodeReviewDir(ui, repo):
 		except:
 			ui.warn('cannot mkdir %s: %s\n' % (dir, ExceptionDetail()))
 			return None
+	typecheck(dir, str)
 	return dir
 
 # Strip maximal common leading white space prefix from text
 def StripCommon(text):
+	typecheck(text, str)
 	ws = None
 	for line in text.split('\n'):
 		line = line.rstrip()
@@ -558,17 +604,22 @@ def StripCommon(text):
 		t += line + '\n'
 	while len(t) >= 2 and t[-2:] == '\n\n':
 		t = t[:-1]
+	typecheck(t, str)
 	return t
 
 # Indent text with indent.
 def Indent(text, indent):
+	typecheck(text, str)
+	typecheck(indent, str)
 	t = ''
 	for line in text.split('\n'):
 		t += indent + line + '\n'
+	typecheck(t, str)
 	return t
 
 # Return the first line of l
 def line1(text):
+	typecheck(text, str)
 	return text.split('\n')[0]
 
 _change_prolog = """# Change list.
@@ -732,9 +783,13 @@ def RelativePath(path, cwd):
 		return path[n+1:]
 	return path
 
-# Check that gofmt run on the list of files does not change them
-def CheckGofmt(ui, repo, files, just_warn=False):
+def CheckFormat(ui, repo, files, just_warn=False):
 	set_status("running gofmt")
+	CheckGofmt(ui, repo, files, just_warn)
+	CheckTabfmt(ui, repo, files, just_warn)
+
+# Check that gofmt run on the list of files does not change them
+def CheckGofmt(ui, repo, files, just_warn):
 	files = [f for f in files if (f.startswith('src/') or f.startswith('test/bench/')) and f.endswith('.go')]
 	if not files:
 		return
@@ -757,6 +812,32 @@ def CheckGofmt(ui, repo, files, just_warn=False):
 		return
 	if len(data) > 0:
 		msg = "gofmt needs to format these files (run hg gofmt):\n" + Indent(data, "\t").rstrip()
+		if just_warn:
+			ui.warn("warning: " + msg + "\n")
+		else:
+			raise util.Abort(msg)
+	return
+
+# Check that *.[chys] files indent using tabs.
+def CheckTabfmt(ui, repo, files, just_warn):
+	files = [f for f in files if f.startswith('src/') and re.search(r"\.[chys]$", f)]
+	if not files:
+		return
+	cwd = os.getcwd()
+	files = [RelativePath(repo.root + '/' + f, cwd) for f in files]
+	files = [f for f in files if os.access(f, 0)]
+	badfiles = []
+	for f in files:
+		try:
+			for line in open(f, 'r'):
+				if line.startswith('    '):
+					badfiles.append(f)
+					break
+		except:
+			# ignore cannot open file, etc.
+			pass
+	if len(badfiles) > 0:
+		msg = "these files use spaces for indentation (use tabs instead):\n\t" + "\n\t".join(badfiles)
 		if just_warn:
 			ui.warn("warning: " + msg + "\n")
 		else:
@@ -1159,7 +1240,7 @@ def submit(ui, repo, *pats, **opts):
 
 	# check gofmt for real; allowed upload to warn in order to save CL.
 	cl.Flush(ui, repo)
-	CheckGofmt(ui, repo, cl.files)
+	CheckFormat(ui, repo, cl.files)
 
 	about += "%s%s\n" % (server_url_base, cl.name)
 
@@ -1464,7 +1545,7 @@ class FormParser(HTMLParser):
 			self.handle_data("&" + name + ";")
 	def handle_data(self, data):
 		if self.curdata is not None:
-			self.curdata += data.decode("utf-8").encode("utf-8")
+			self.curdata += data
 
 # XML parser
 def XMLGet(ui, path):
@@ -1480,7 +1561,7 @@ def IsRietveldSubmitted(ui, clname, hex):
 	if feed is None:
 		return False
 	for sum in feed.findall("{http://www.w3.org/2005/Atom}entry/{http://www.w3.org/2005/Atom}summary"):
-		text = sum.findtext("", None).strip()
+		text = sum.text.strip()
 		m = re.match('\*\*\* Submitted as [^*]*?([0-9a-f]+) \*\*\*', text)
 		if m is not None and len(m.group(1)) >= 8 and hex.startswith(m.group(1)):
 			return True
@@ -1514,7 +1595,7 @@ def DownloadCL(ui, repo, clname):
 	# Find author - first entry will be author who created CL.
 	nick = None
 	for author in feed.findall("{http://www.w3.org/2005/Atom}entry/{http://www.w3.org/2005/Atom}author/{http://www.w3.org/2005/Atom}name"):
-		nick = author.findtext("", None).strip()
+		nick = author.text.strip()
 		break
 	if not nick:
 		return None, None, "CL has no author"
@@ -1604,6 +1685,10 @@ def MySend1(request_path, payload=None,
 				f.close()
 				# Translate \r\n into \n, because Rietveld doesn't.
 				response = response.replace('\r\n', '\n')
+				# who knows what urllib will give us
+				if type(response) == unicode:
+					response = response.encode("utf-8")
+				typecheck(response, str)
 				return response
 			except urllib2.HTTPError, e:
 				if tries > 3:
@@ -1622,11 +1707,13 @@ def MySend1(request_path, payload=None,
 
 def GetForm(url):
 	f = FormParser()
-	f.feed(MySend(url))
+	f.feed(MySend(url).decode("utf-8"))	# f.feed wants unicode
 	f.close()
+	# convert back to utf-8 to restore sanity
+	m = {}
 	for k,v in f.map.items():
-		f.map[k] = v.replace("\r\n", "\n");
-	return f.map
+		m[k.encode("utf-8")] = v.replace("\r\n", "\n").encode("utf-8")
+	return m
 
 # Fetch the settings for the CL, like reviewer and CC list, by
 # scraping the Rietveld editing forms.
@@ -2237,17 +2324,16 @@ def EncodeMultipartFormData(fields, files):
 	CRLF = '\r\n'
 	lines = []
 	for (key, value) in fields:
+		typecheck(key, str)
+		typecheck(value, str)
 		lines.append('--' + BOUNDARY)
 		lines.append('Content-Disposition: form-data; name="%s"' % key)
 		lines.append('')
-		if type(value) == unicode:
-			value = value.encode("utf-8")
 		lines.append(value)
 	for (key, filename, value) in files:
-		if type(filename) == unicode:
-			filename = filename.encode("utf-8")
-		if type(value) == unicode:
-			value = value.encode("utf-8")
+		typecheck(key, str)
+		typecheck(filename, str)
+		typecheck(value, str)
 		lines.append('--' + BOUNDARY)
 		lines.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
 		lines.append('Content-Type: %s' % GetContentType(filename))

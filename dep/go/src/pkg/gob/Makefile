@@ -8,8 +8,10 @@ TARG=gob
 GOFILES=\
 	decode.go\
 	decoder.go\
+	doc.go\
 	encode.go\
 	encoder.go\
+	error.go\
 	type.go\
 
 include ../../Make.pkg

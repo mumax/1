@@ -32,11 +32,11 @@ aexch      	1.3e-11
 alpha      	0.02
 
 # geometry 
-gridsize 	1     32          128    
-cellsize   	3E-9  3.90625E-9  3.90625E-9
+gridsize	1     	32      128    
+partsize	500e-9	125e-9 	3e-9
 
 # initial magnetization
-uniform		1 1 1
+uniform		1 1 0
 
 # run
 autosave	table	ascii	10E-12
@@ -48,7 +48,7 @@ run          	1E-9
 
 \paragraph{Comments} All text after a hashmark (\#) is considered a \idx{comment} and is ignored by the simulation. In the above example, the statements \cmd{\# material}, \cmd{\# geometry}, \ldots are thus comments. They are only included for clarity and could be omitted.
 
-\paragraph{Commands} All the other text in the input file is treated as a series of \idx{commands} that are executed in the order they are specified. In general, the order of the commands matters but should be easy to deduce.  E.g., you can not call \command{run} to start the time evolution when you have not first specified the material parameters, simulation size, etc\ldots. On the other hand, after having {run} the simulation for some time, you \emph{can} change the material parameters and call commands like \command{run} again. Either way, the program will tell you if can not run a certain command yet because some parameters should be set first. A list of commands is found below.
+\paragraph{Commands} All the other text in the input file is treated as a series of \idx{commands} that are executed in the order they are specified. In general, the order of the commands matters but should be easy to deduce.  E.g., you can not call \command{run} to start the time evolution when you have not first specified the material parameters, simulation size, etc\ldots. On the other hand, after having {run} the simulation for some time, you \emph{can} change the material parameters and call commands like \command{run} again. Either way, the program will tell you if it can not run a certain command yet because some parameters should be set first. A list of commands is found below.
 
 \subsubsection*{Material parameters}
 \begin{tabular}{ll}
@@ -58,7 +58,7 @@ run          	1E-9
 \end{tabular}
 
 \subsubsection*{Part size}
-To define the magnet size, you must specify \emph{exactly two} of the three values below.\\
+To define the magnet size, you must specify \emph{exactly two} of the three commands below.\\
 
 \begin{tabular}{ll}
 \defcommand[x y z]{partsize}  & Sets the size of the magnet, specified in m. \\
@@ -67,18 +67,33 @@ To define the magnet size, you must specify \emph{exactly two} of the three valu
 \end{tabular}\\
 \bigskip
 
-After having set two of these values, the remaining one is calculated automatically. E.g. the part size and cell size automatically fix the number of cells.
+\begin{itemize}
+ \item After having set two of these values, the remaining one is calculated automatically. E.g. the part size and cell size automatically fix the number of cells.
+ \item For performance reasons, the number of cells in each direction should preferentially be a power of two.
+ \item For a 2D simulation, one can simply use $N_x \times N_y \times 1$ cells. In that case, optimized algorithms for a 2D geometry are used. Note that only the last dimension ($Z$) can be $1$ cell large, e.g., $1 \times N_y \times N_z$ is not a valid grid size.
+\end{itemize}
 
-\subsubsection*{Initial state}
+
+\subsubsection*{Initial magnetization state}
 \begin{tabular}{ll}
-\defcommand[$m_x$ $m_y$ $m_z$]{uniform}  & Initializes the magnetization to a uniform state.
+\defcommand[$m_x$ $m_y$ $m_z$]{uniform}  & Initializes the magnetization to a uniform state.\\
+\defcommand[amplitude]{addnoise} & Adds random noise with the specified amplitude to a previously\\& defined magnetization state.
+\end{tabular}
+
+
+
+
+\subsubsection{Applied magnetic field}
+\begin{tabular}{ll}
+\defcommand[$B_x$ $B_y$ $B_z$]{staticfield}  & Applies a static magnetic field, specified in tesla.\\
 \end{tabular}
 
 \subsubsection*{Scheduled output}
 \begin{tabular}{ll}
+\defcommand[what format interval]{autosave}  & $what$ = m (magnetization) or table.\\
+& $format$ = ascii, binary or png.\\
+& $interval$ = save output every $interval$ seconds.
 \end{tabular}
-
-
 
 
 \subsection{Output}

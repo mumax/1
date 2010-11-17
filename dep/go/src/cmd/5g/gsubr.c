@@ -305,6 +305,11 @@ regalloc(Node *n, Type *t, Node *o)
 				goto out;
 		yyerror("out of floating point registers");
 		goto err;
+
+	case TCOMPLEX64:
+	case TCOMPLEX128:
+		tempname(n, t);
+		return;
 	}
 	yyerror("regalloc: unknown type %T", t);
 
@@ -334,6 +339,8 @@ regfree(Node *n)
 		print("regalloc fix %d float %d\n", fixfree, floatfree);
 	}
 
+	if(n->op == ONAME && iscomplex[n->type->etype])
+		return;
 	if(n->op != OREGISTER && n->op != OINDREG)
 		fatal("regfree: not a register");
 	i = n->val.u.reg;
@@ -538,6 +545,11 @@ gmove(Node *f, Node *t)
 	ft = simsimtype(f->type);
 	tt = simsimtype(t->type);
 	cvt = t->type;
+
+	if(iscomplex[ft] || iscomplex[tt]) {
+		complexmove(f, t);
+		return;
+	}
 
 	// cannot have two memory operands;
 	// except 64-bit, which always copies via registers anyway.
@@ -1666,6 +1678,8 @@ sudoaddable(int as, Node *n, Addr *a, int *w)
 		goto odot;
 
 	case OINDEX:
+		if(n->left->type->etype == TSTRING)
+			return 0;
 		cleani += 2;
 		reg = &clean[cleani-1];
 		reg1 = &clean[cleani-2];
@@ -1835,14 +1849,20 @@ oindex:
 		gmove(&n2, reg);
 	}
 
-	if(*w == 1)
+	switch(*w) {
+	case 1:
 		gins(AADD, reg1, reg);
-	else if(*w == 2)
+		break;
+	case 2:
 		gshift(AADD, reg1, SHIFT_LL, 1, reg);
-	else if(*w == 4)
+		break;
+	case 4:
 		gshift(AADD, reg1, SHIFT_LL, 2, reg);
-	else if(*w == 8)
+		break;
+	case 8:
 		gshift(AADD, reg1, SHIFT_LL, 3, reg);
+		break;
+	}
 
 	naddr(reg1, a, 1);
 	a->type = D_OREG;

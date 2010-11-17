@@ -9,6 +9,7 @@ TARG=8l
 
 OFILES=\
 	asm.$O\
+	data.$O\
 	dwarf.$O\
 	elf.$O\
 	enam.$O\
@@ -20,7 +21,9 @@ OFILES=\
 	optab.$O\
 	pass.$O\
 	pe.$O\
+	prof.$O\
 	span.$O\
+	symtab.$O\
 
 
 HFILES=\

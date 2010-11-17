@@ -52,7 +52,7 @@ static void fixlbrace(int);
 %type	<node>	stmt ntype
 %type	<node>	arg_type
 %type	<node>	case caseblock
-%type	<node>	compound_stmt dotname embed expr
+%type	<node>	compound_stmt dotname embed expr complitexpr
 %type	<node>	expr_or_type
 %type	<node>	fndcl fnliteral
 %type	<node>	for_body for_header for_stmt if_header if_stmt non_dcl_stmt
@@ -673,11 +673,13 @@ select_stmt:
 	LSELECT
 	{
 		markdcl();
+		typesw = nod(OXXX, typesw, N);
 	}
 	switch_body
 	{
 		$$ = nod(OSELECT, N, N);
 		$$->list = $3;
+		typesw = typesw->left;
 		popdcl();
 	}
 
@@ -887,6 +889,20 @@ pexpr_no_paren:
 	}
 |	fnliteral
 
+keyval:
+	expr ':' complitexpr
+	{
+		$$ = nod(OKEY, $1, $3);
+	}
+
+complitexpr:
+	expr
+|	'{' braced_keyval_list '}'
+	{
+		$$ = nod(OCOMPLIT, N, N);
+		$$->list = $2;
+	}
+
 pexpr:
 	pexpr_no_paren
 |	'(' expr_or_type ')'
@@ -1091,13 +1107,6 @@ interfacetype:
 		$$ = nod(OTINTER, N, N);
 		fixlbrace($2);
 	}
-
-keyval:
-	expr ':' expr
-	{
-		$$ = nod(OKEY, $1, $3);
-	}
-
 
 /*
  * function stuff
@@ -1550,7 +1559,7 @@ keyval_list:
 	{
 		$$ = list1($1);
 	}
-|	expr
+|	complitexpr
 	{
 		$$ = list1($1);
 	}
@@ -1558,7 +1567,7 @@ keyval_list:
 	{
 		$$ = list($1, $3);
 	}
-|	keyval_list ',' expr
+|	keyval_list ',' complitexpr
 	{
 		$$ = list($1, $3);
 	}

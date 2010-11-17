@@ -10,7 +10,6 @@ import (
 	. "reflect"
 	"fmt"
 	"os"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -47,7 +46,7 @@ func parseArg(arg string, argtype Type) Value {
 	case "string":
 		return NewValue(arg)
 	}
-	log.Crash() // is never reached.
+	panic("Bug") // is never reached.
 	return NewValue(666)
 }
 

@@ -2,24 +2,31 @@
 
 // MACHINE GENERATED - DO NOT EDIT.
 
+// Manual corrections: TODO(rsc): need to fix godefs
+//	remove duplicate PtraceRegs type
+//	change RawSockaddrUnix field to Path [108]int8 (was uint8)
+//  add padding to EpollEvent
+
 package syscall
 
 // Constants
 const (
-	sizeofPtr           = 0x4
-	sizeofShort         = 0x2
-	sizeofInt           = 0x4
-	sizeofLong          = 0x4
-	sizeofLongLong      = 0x8
-	PathMax             = 0x1000
-	SizeofSockaddrInet4 = 0x10
-	SizeofSockaddrInet6 = 0x1c
-	SizeofSockaddrAny   = 0x70
-	SizeofSockaddrUnix  = 0x6e
-	SizeofLinger        = 0x8
-	SizeofMsghdr        = 0x1c
-	SizeofCmsghdr       = 0xc
-	SizeofInotifyEvent  = 0x10
+	sizeofPtr               = 0x4
+	sizeofShort             = 0x2
+	sizeofInt               = 0x4
+	sizeofLong              = 0x4
+	sizeofLongLong          = 0x8
+	PathMax                 = 0x1000
+	SizeofSockaddrInet4     = 0x10
+	SizeofSockaddrInet6     = 0x1c
+	SizeofSockaddrAny       = 0x70
+	SizeofSockaddrUnix      = 0x6e
+	SizeofSockaddrLinklayer = 0x14
+	SizeofLinger            = 0x8
+	SizeofMsghdr            = 0x1c
+	SizeofCmsghdr           = 0xc
+	SizeofUcred             = 0xc
+	SizeofInotifyEvent      = 0x10
 )
 
 // Types
@@ -62,6 +69,7 @@ type Timex struct {
 	Calcnt    int32
 	Errcnt    int32
 	Stbcnt    int32
+	Tai       int32
 	Pad0      int32
 	Pad1      int32
 	Pad2      int32
@@ -73,7 +81,6 @@ type Timex struct {
 	Pad8      int32
 	Pad9      int32
 	Pad10     int32
-	Pad11     int32
 }
 
 type Time_t int32
@@ -182,6 +189,16 @@ type RawSockaddrUnix struct {
 	Path   [108]int8
 }
 
+type RawSockaddrLinklayer struct {
+	Family   uint16
+	Protocol uint16
+	Ifindex  int32
+	Hatype   uint16
+	Pkttype  uint8
+	Halen    uint8
+	Addr     [8]uint8
+}
+
 type RawSockaddr struct {
 	Family uint16
 	Data   [14]uint8
@@ -218,6 +235,12 @@ type Cmsghdr struct {
 	Len   uint32
 	Level int32
 	Type  int32
+}
+
+type Ucred struct {
+	Pid int32
+	Uid uint32
+	Gid uint32
 }
 
 type InotifyEvent struct {
@@ -268,6 +291,7 @@ type Ustat_t struct {
 
 type EpollEvent struct {
 	Events uint32
+	PadFd  int32
 	Fd     int32
 	Pad    int32
 }

@@ -123,31 +123,31 @@ func (t *T) Fatalf(format string, args ...interface{}) {
 
 // An internal type but exported because it is cross-package; part of the implementation
 // of gotest.
-type Test struct {
+type InternalTest struct {
 	Name string
 	F    func(*T)
 }
 
-func tRunner(t *T, test *Test) {
+func tRunner(t *T, test *InternalTest) {
 	test.F(t)
 	t.ch <- t
 }
 
 // An internal function but exported because it is cross-package; part of the implementation
 // of gotest.
-func Main(tests []Test) {
+func Main(matchString func(pat, str string) (bool, os.Error), tests []InternalTest) {
 	flag.Parse()
 	ok := true
 	if len(tests) == 0 {
 		println("testing: warning: no tests to run")
 	}
-	re, err := CompileRegexp(*match)
-	if err != "" {
-		println("invalid regexp for -match:", err)
-		os.Exit(1)
-	}
 	for i := 0; i < len(tests); i++ {
-		if !re.MatchString(tests[i].Name) {
+		matched, err := matchString(*match, tests[i].Name)
+		if err != nil {
+			println("invalid regexp for -match:", err)
+			os.Exit(1)
+		}
+		if !matched {
 			continue
 		}
 		if *chatty {

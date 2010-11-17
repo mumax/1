@@ -436,7 +436,9 @@ importfile(Val *f, int line)
 	path = f->u.sval;
 	if(islocalname(path)) {
 		cleanbuf = mal(strlen(pathname) + strlen(path->s) + 2);
-		sprint(cleanbuf, "%s/%s", pathname, path->s);
+		strcpy(cleanbuf, pathname);
+		strcat(cleanbuf, "/");
+		strcat(cleanbuf, path->s);
 		cleanname(cleanbuf);
 		path = strlit(cleanbuf);
 	}
@@ -726,13 +728,9 @@ l0:
 		if(c1 == '/') {
 			c = getlinepragma();
 			for(;;) {
-				if(c == '\n') {
+				if(c == '\n' || c == EOF) {
 					ungetc(c);
 					goto l0;
-				}
-				if(c == EOF) {
-					yyerror("eof in comment");
-					errorexit();
 				}
 				c = getr();
 			}
@@ -1529,6 +1527,7 @@ static	struct
 	"type",		LTYPE,		Txxx,		OXXX,
 	"var",		LVAR,		Txxx,		OXXX,
 
+	"append",		LNAME,		Txxx,		OAPPEND,
 	"cap",		LNAME,		Txxx,		OCAP,
 	"close",	LNAME,		Txxx,		OCLOSE,
 	"closed",	LNAME,		Txxx,		OCLOSED,

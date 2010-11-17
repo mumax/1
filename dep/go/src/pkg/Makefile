@@ -31,6 +31,7 @@ DIRS=\
 	crypto/aes\
 	crypto/block\
 	crypto/blowfish\
+	crypto/cast5\
 	crypto/hmac\
 	crypto/md4\
 	crypto/md5\
@@ -50,6 +51,7 @@ DIRS=\
 	debug/macho\
 	debug/elf\
 	debug/gosym\
+	debug/pe\
 	debug/proc\
 	ebnf\
 	encoding/ascii85\
@@ -63,7 +65,6 @@ DIRS=\
 	exp/draw\
 	exp/draw/x11\
 	exp/eval\
-	exp/iterable\
 	expvar\
 	flag\
 	fmt\
@@ -97,7 +98,6 @@ DIRS=\
 	net/dict\
 	net/textproto\
 	netchan\
-	nntp\
 	os\
 	os/signal\
 	patch\
@@ -110,6 +110,7 @@ DIRS=\
 	runtime\
 	runtime/pprof\
 	scanner\
+	smtp\
 	sort\
 	strconv\
 	strings\
@@ -123,6 +124,7 @@ DIRS=\
 	testing/quick\
 	testing/script\
 	time\
+	try\
 	unicode\
 	utf16\
 	utf8\
@@ -149,10 +151,11 @@ NOTEST=\
 	image/jpeg\
 	net/dict\
 	rand\
-	runtime\
 	runtime/pprof\
 	syscall\
+	testing\
 	testing/iotest\
+	try\
 	../libcgo\
 	../cmd/cgo\
 	../cmd/ebnflint\
@@ -173,6 +176,7 @@ endif
 # Disable tests that NaCl cannot run yet.
 ifeq ($(GOOS),nacl)
 NOTEST+=archive/tar  # no pipe
+NOTEST+=archive/zip  # no pread
 NOTEST+=debug/dwarf  # no pread
 NOTEST+=debug/macho  # no pread
 NOTEST+=debug/elf    # no pread
@@ -193,66 +197,10 @@ endif
 # Disable tests that windows cannot run yet.
 ifeq ($(GOOS),windows)
 NOTEST+=exec         # no pipe
-NOTEST+=os           # many things unimplemented
 NOTEST+=os/signal    # no signals
 NOTEST+=path         # tree walking does not work
 NOTEST+=syslog       # no network
 NOTEST+=time         # no syscall.Kill, syscall.SIGCHLD for sleep tests
-NOTEST+=websocket    # no network
-endif
-
-ifeq ($(GOARCH),arm)
-# Tests that fail, probably 5g bugs.
-# Disable so that dashboard all.bash can catch regressions.
-NOTEST+=archive/tar
-NOTEST+=archive/zip
-NOTEST+=asn1
-NOTEST+=big
-NOTEST+=bytes
-NOTEST+=cmath
-NOTEST+=compress/gzip
-NOTEST+=compress/zlib
-NOTEST+=crypto/block
-NOTEST+=crypto/ocsp
-NOTEST+=crypto/rsa
-NOTEST+=crypto/subtle
-NOTEST+=crypto/tls
-NOTEST+=crypto/x509
-NOTEST+=debug/dwarf
-NOTEST+=debug/elf
-NOTEST+=debug/macho
-NOTEST+=encoding/binary
-NOTEST+=exp/datafmt
-NOTEST+=exp/eval
-NOTEST+=expvar
-NOTEST+=flag
-NOTEST+=fmt
-NOTEST+=go/printer
-NOTEST+=gob
-NOTEST+=http
-NOTEST+=image/png
-NOTEST+=io
-NOTEST+=json
-NOTEST+=log
-NOTEST+=math
-NOTEST+=mime
-NOTEST+=mime/multipart
-NOTEST+=net
-NOTEST+=netchan
-NOTEST+=os
-NOTEST+=os/signal
-NOTEST+=reflect
-NOTEST+=rpc
-NOTEST+=rpc/jsonrpc
-NOTEST+=scanner
-NOTEST+=strconv
-NOTEST+=strings
-NOTEST+=syslog
-NOTEST+=template
-NOTEST+=testing/quick
-NOTEST+=time
-NOTEST+=websocket
-NOTEST+=xml
 endif
 
 TEST=\

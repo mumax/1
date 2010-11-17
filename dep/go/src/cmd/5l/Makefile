@@ -9,6 +9,7 @@ TARG=5l
 
 OFILES=\
 	asm.$O\
+	data.$O\
 	elf.$O\
 	enam.$O\
 	lib.$O\
@@ -17,9 +18,11 @@ OFILES=\
 	obj.$O\
 	optab.$O\
 	pass.$O\
+	prof.$O\
 	thumb.$O\
 	softfloat.$O\
 	span.$O\
+	symtab.$O\
 	go.$O\
 
 HFILES=\

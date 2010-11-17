@@ -82,11 +82,11 @@ func main() {
 	if *buildRevision != "" {
 		c, err := getCommit(*buildRevision)
 		if err != nil {
-			log.Exit("Error finding revision:", err)
+			log.Exit("Error finding revision: ", err)
 		}
 		for _, b := range builders {
 			if err := b.buildCommit(c); err != nil {
-				log.Stderr(err)
+				log.Println(err)
 			}
 			runQueuedBenchmark()
 		}
@@ -96,7 +96,7 @@ func main() {
 	for {
 		err := run(nil, goroot, "hg", "pull", "-u")
 		if err != nil {
-			log.Stderr("hg pull failed:", err)
+			log.Println("hg pull failed:", err)
 			time.Sleep(waitInterval)
 			continue
 		}
@@ -129,7 +129,7 @@ func runQueuedBenchmark() bool {
 
 func runBenchmark(r BenchRequest) {
 	// run benchmarks and send to dashboard
-	log.Stderrf("%s benchmarking %d", r.builder.name, r.commit.num)
+	log.Println(r.builder.name, "benchmarking", r.commit.num)
 	defer os.RemoveAll(r.path)
 	pkg := path.Join(r.path, "go", "src", "pkg")
 	bin := path.Join(r.path, "go", "bin")
@@ -138,13 +138,14 @@ func runBenchmark(r BenchRequest) {
 		"GOARCH=" + r.builder.goarch,
 		"PATH=" + bin + ":" + os.Getenv("PATH"),
 	}
-	benchLog, _, err := runLog(env, pkg, "gomake", "bench")
+	logfile := path.Join(r.path, "bench.log")
+	benchLog, _, err := runLog(env, logfile, pkg, "gomake", "bench")
 	if err != nil {
-		log.Stderr("%s gomake bench:", r.builder.name, err)
+		log.Println(r.builder.name, "gomake bench:", err)
 		return
 	}
 	if err = r.builder.recordBenchmarks(benchLog, r.commit); err != nil {
-		log.Stderr("recordBenchmarks:", err)
+		log.Println("recordBenchmarks:", err)
 	}
 }
 
@@ -156,7 +157,7 @@ func NewBuilder(builder string) (*Builder, os.Error) {
 	if len(s) == 2 {
 		b.goos, b.goarch = s[0], s[1]
 	} else {
-		return nil, errf("unsupported builder form: %s", builder)
+		return nil, fmt.Errorf("unsupported builder form: %s", builder)
 	}
 
 	// read keys from keyfile
@@ -166,7 +167,7 @@ func NewBuilder(builder string) (*Builder, os.Error) {
 	}
 	c, err := ioutil.ReadFile(fn)
 	if err != nil {
-		return nil, errf("readKeys %s (%s): %s", b.name, fn, err)
+		return nil, fmt.Errorf("readKeys %s (%s): %s", b.name, fn, err)
 	}
 	v := strings.Split(string(c), "\n", -1)
 	b.key = v[0]
@@ -184,21 +185,20 @@ func (b *Builder) build() bool {
 	defer func() {
 		err := recover()
 		if err != nil {
-			log.Stderr("%s build: %s", b.name, err)
+			log.Println(b.name, "build:", err)
 		}
 	}()
 	c, err := b.nextCommit()
 	if err != nil {
-		log.Stderr(err)
+		log.Println(err)
 		return false
 	}
 	if c == nil {
 		return false
 	}
-	log.Stderrf("%s building %d", b.name, c.num)
 	err = b.buildCommit(*c)
 	if err != nil {
-		log.Stderr(err)
+		log.Println(err)
 	}
 	return true
 }
@@ -207,7 +207,7 @@ func (b *Builder) build() bool {
 func (b *Builder) nextCommit() (nextC *Commit, err os.Error) {
 	defer func() {
 		if err != nil {
-			err = errf("%s nextCommit: %s", b.name, err)
+			err = fmt.Errorf("%s nextCommit: %s", b.name, err)
 		}
 	}()
 	hw, err := b.getHighWater()
@@ -229,9 +229,11 @@ func (b *Builder) nextCommit() (nextC *Commit, err os.Error) {
 func (b *Builder) buildCommit(c Commit) (err os.Error) {
 	defer func() {
 		if err != nil {
-			err = errf("%s buildCommit: %d: %s", b.name, c.num, err)
+			err = fmt.Errorf("%s buildCommit: %d: %s", b.name, c.num, err)
 		}
 	}()
+
+	log.Println(b.name, "building", c.num)
 
 	// create place in which to do work
 	workpath := path.Join(buildroot, b.name+"-"+strconv.Itoa(c.num))
@@ -263,15 +265,18 @@ func (b *Builder) buildCommit(c Commit) (err os.Error) {
 	env := []string{
 		"GOOS=" + b.goos,
 		"GOARCH=" + b.goarch,
+		"GOHOSTOS=" + os.Getenv("GOHOSTOS"),
+		"GOHOSTARCH=" + os.Getenv("GOHOSTARCH"),
 		"GOROOT_FINAL=/usr/local/go",
 		"PATH=" + os.Getenv("PATH"),
 	}
 	srcDir := path.Join(workpath, "go", "src")
 
 	// build
-	buildLog, status, err := runLog(env, srcDir, *buildCmd)
+	logfile := path.Join(workpath, "build.log")
+	buildLog, status, err := runLog(env, logfile, srcDir, *buildCmd)
 	if err != nil {
-		return errf("all.bash: %s", err)
+		return fmt.Errorf("all.bash: %s", err)
 	}
 	if status != 0 {
 		// record failure
@@ -280,7 +285,7 @@ func (b *Builder) buildCommit(c Commit) (err os.Error) {
 
 	// record success
 	if err = b.recordResult("", c); err != nil {
-		return errf("recordResult: %s", err)
+		return fmt.Errorf("recordResult: %s", err)
 	}
 
 	// send benchmark request if benchmarks are enabled
@@ -303,16 +308,15 @@ func (b *Builder) buildCommit(c Commit) (err os.Error) {
 		// clean out build state
 		err = run(env, srcDir, "./clean.bash", "--nopkg")
 		if err != nil {
-			return errf("clean.bash: %s", err)
+			return fmt.Errorf("clean.bash: %s", err)
 		}
 		// upload binary release
 		fn := fmt.Sprintf("%s.%s-%s.tar.gz", release, b.goos, b.goarch)
 		err = run(nil, workpath, "tar", "czf", fn, "go")
 		if err != nil {
-			return errf("tar: %s", err)
+			return fmt.Errorf("tar: %s", err)
 		}
-		err = run(nil, workpath, "python",
-			path.Join(goroot, codePyScript),
+		err = run(nil, workpath, path.Join(goroot, codePyScript),
 			"-s", release,
 			"-p", codeProject,
 			"-u", b.codeUsername,
@@ -332,8 +336,4 @@ func isDirectory(name string) bool {
 func isFile(name string) bool {
 	s, err := os.Stat(name)
 	return err == nil && (s.IsRegular() || s.IsSymlink())
-}
-
-func errf(format string, args ...interface{}) os.Error {
-	return os.NewError(fmt.Sprintf(format, args))
 }
