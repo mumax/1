@@ -69,7 +69,7 @@ gpuFFT3dPlan* new_gpuFFT3dPlan(int* size){
 }
 
 void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
-    gpu_zero(plan->buffer1, plan->paddedSize[X]* plan->paddedSize[Y]* (plan->paddedSize[Z]+2));
+    gpu_zero(output, plan->paddedSize[X]* plan->paddedSize[Y]* (plan->paddedSize[Z]+2));
     
     gpu_copy_pad(input, output, plan->size[X], plan->size[Y], plan->size[Z], plan->paddedSize[X], plan->paddedSize[Y], (plan->paddedSize[Z]+2));
 
@@ -80,6 +80,7 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
 
 //   memcpy_on_gpu(input, output, plan->paddedSize[X]*plan->paddedSize[Y]*plan->paddedSize[Z]);
 
+  gpu_sync();
 }
 
 
@@ -92,6 +93,7 @@ void gpuFFT3dPlan_inverse(gpuFFT3dPlan* plan, float* input, float* output){
   //memcpy_on_gpu(plan->buffer1, output, plan->paddedSize[X]*plan->paddedSize[Y]*plan->paddedSize[Z]);
 
 //   memcpy_on_gpu(input, output, plan->paddedSize[X]*plan->paddedSize[Y]*plan->paddedSize[Z]);
+  gpu_sync();
 }
 
 

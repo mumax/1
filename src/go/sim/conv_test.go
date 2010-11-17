@@ -9,28 +9,31 @@ package sim
 import (
 	"testing"
 	"tensor"
-	_ "os"
+	"os"
 )
 
 func TestConv(t *testing.T) {
 
-	size4D := []int{3, 1, 8, 8}
+	size4D := []int{3, 2, 8, 8}
 	size := size4D[1:]
 	kernelSize := padSize(size)
 
-	kernel := FaceKernel6(kernelSize, []float32{1., 1., 1.}, 8)
+	kernel := ZeroKernel6(kernelSize)
+  kernel[XX].Array()[0][0][0] = 1.
+  kernel[XX].Array()[0][0][1] = 1.
+  
+  kernel[YY].Array()[0][0][0] = 0.
+  kernel[ZZ].Array()[0][0][0] = 0.
+  
 	conv := NewConv(backend, size, kernel)
 
-// 	for i := range conv.kernel {
-// 		fmt.Println("K", i)
-// 		if conv.kernel[i] != nil {
-// 			tensor.Format(os.Stdout, conv.kernel[i])
-// 		}
-// 	}
 
   mLocal := tensor.NewT4(size4D)
-  mLocal.Array()[X][0][7][7] = 1.
+  mLocal.Array()[X][0][0][0] = 1.
+  mLocal.Array()[Y][0][0][0] = 0.
+  mLocal.Array()[Z][0][0][0] = 3.
   
+  mLocal.WriteTo(os.Stdout)
   
 	m, h := NewTensor(backend, size4D), NewTensor(backend, size4D)
   TensorCopyTo(mLocal, m)
@@ -40,6 +43,5 @@ func TestConv(t *testing.T) {
   hLocal := tensor.NewT4(size4D)
   TensorCopyFrom(h, hLocal)
 
-	//out, _ := os.Open("h.tensor", os.O_WRONLY, 0666)
-	//tensor.WriteAscii(os.Stdout, hLocal)
+  hLocal.WriteTo(os.Stdout)
 }

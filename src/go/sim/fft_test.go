@@ -17,9 +17,10 @@ import (
 var backend = GPU
 
 var fft_test_sizes [][]int = [][]int{
-	[]int{1, 8, 8}}//,
-//   []int{2, 4, 8},
-//   []int{1, 32, 64}}
+    {1, 8, 8},
+    {2, 4, 8},
+    {1, 32, 64},
+    {4, 8, 16}}
 
 
 func TestFFTPadded(t *testing.T) {
