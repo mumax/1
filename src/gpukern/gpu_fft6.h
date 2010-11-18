@@ -166,7 +166,7 @@ void gpu_copy_to_unpad3(float* source,        ///< input: padded source as conti
                         int *unpad_size       ///< size of the corresponding unpadded tensor 
                         ); 
 
-void delete_FFT3dPlan(gpuFFT3dPlan* kernel_plan);
+void delete_gpuFFT3dPlan(gpuFFT3dPlan* plan);
                                
 #ifdef __cplusplus
 }

@@ -14,8 +14,7 @@ gridsize       	128 	32 	1
 partsize   	500E-9  125E-9  3E-9
 
 # initial magnetization
-#load    	s-state.tensor
-uniform		1 1 0
+load    	s-state.tensor
 
 
 # run

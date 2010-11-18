@@ -353,8 +353,8 @@ void gpu_copy_to_unpad(float* source, float* dest, int *pad_size, int *unpad_siz
   return;
 }
 
-
-void delete_FFT3dPlan(gpuFFT3dPlan* plan){
+     
+void delete_gpuFFT3dPlan(gpuFFT3dPlan* plan){
 
     //free all bigfft plans
   delete_bigfft(plan->fwPlanZ);
