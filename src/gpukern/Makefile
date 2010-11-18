@@ -8,7 +8,6 @@ OFILES=\
 	gpu_linalg.o\
 	gpu_normalize.o\
 	gpu_torque.o\
-	gpu_spintorque.o\
 	gpu_transpose.o\
 	gpu_transpose2.o\
 	gpu_kernmul.o\
@@ -20,11 +19,8 @@ OFILES=\
 	gpu_fftbig.o\
 	gpu_fft6.o\
  	gpu_anal.o\
-# 	gpu_fft3.o\
-#	gpu_bigfft.o\
 	gpu_spintorque.o\
 	gpu_anis.o\
-# 	gpu_anal.o\
 
 all: libgpukern.so libgpukern.a
 
@@ -102,14 +98,11 @@ gpu_fft6.o:  gpu_fft6.h gpu_fft6.cu
 gpu_spintorque.o:  gpu_spintorque.h gpu_spintorque.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_spintorque.cu
 
-<<<<<<< HEAD
 gpu_anal.o:	gpu_anal.h gpu_anal.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_anal.cu
 
-=======
 gpu_anis.o:  gpu_anis.h gpu_anis.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_anis.cu
->>>>>>> devarne2
 
 test:	all transpose_test zeropad_test reduction_test fft_test spintorque_test
 
