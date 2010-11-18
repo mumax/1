@@ -1,0 +1,1026 @@
+maxerror	1e-4
+
+msat       	800e3 
+aexch      	13e-12
+
+partsize	200e-9	100e-9	10e-9
+gridsize	64	32	1
+
+uniform		1 0 0
+addnoise	0.1
+cylinder
+
+alpha		2
+run	2e-9
+
+autosave	m	png	1e-9
+autosave	table	ascii	1e-9
+
+staticfield 0e-3 0 0
+run 1e-9
+staticfield 1e-3 0 0
+run 1e-9
+staticfield 2e-3 0 0
+run 1e-9
+staticfield 3e-3 0 0
+run 1e-9
+staticfield 4e-3 0 0
+run 1e-9
+staticfield 5e-3 0 0
+run 1e-9
+staticfield 6e-3 0 0
+run 1e-9
+staticfield 7e-3 0 0
+run 1e-9
+staticfield 8e-3 0 0
+run 1e-9
+staticfield 9e-3 0 0
+run 1e-9
+staticfield 10e-3 0 0
+run 1e-9
+staticfield 11e-3 0 0
+run 1e-9
+staticfield 12e-3 0 0
+run 1e-9
+staticfield 13e-3 0 0
+run 1e-9
+staticfield 14e-3 0 0
+run 1e-9
+staticfield 15e-3 0 0
+run 1e-9
+staticfield 16e-3 0 0
+run 1e-9
+staticfield 17e-3 0 0
+run 1e-9
+staticfield 18e-3 0 0
+run 1e-9
+staticfield 19e-3 0 0
+run 1e-9
+staticfield 20e-3 0 0
+run 1e-9
+staticfield 21e-3 0 0
+run 1e-9
+staticfield 22e-3 0 0
+run 1e-9
+staticfield 23e-3 0 0
+run 1e-9
+staticfield 24e-3 0 0
+run 1e-9
+staticfield 25e-3 0 0
+run 1e-9
+staticfield 26e-3 0 0
+run 1e-9
+staticfield 27e-3 0 0
+run 1e-9
+staticfield 28e-3 0 0
+run 1e-9
+staticfield 29e-3 0 0
+run 1e-9
+staticfield 30e-3 0 0
+run 1e-9
+staticfield 31e-3 0 0
+run 1e-9
+staticfield 32e-3 0 0
+run 1e-9
+staticfield 33e-3 0 0
+run 1e-9
+staticfield 34e-3 0 0
+run 1e-9
+staticfield 35e-3 0 0
+run 1e-9
+staticfield 36e-3 0 0
+run 1e-9
+staticfield 37e-3 0 0
+run 1e-9
+staticfield 38e-3 0 0
+run 1e-9
+staticfield 39e-3 0 0
+run 1e-9
+staticfield 40e-3 0 0
+run 1e-9
+staticfield 41e-3 0 0
+run 1e-9
+staticfield 42e-3 0 0
+run 1e-9
+staticfield 43e-3 0 0
+run 1e-9
+staticfield 44e-3 0 0
+run 1e-9
+staticfield 45e-3 0 0
+run 1e-9
+staticfield 46e-3 0 0
+run 1e-9
+staticfield 47e-3 0 0
+run 1e-9
+staticfield 48e-3 0 0
+run 1e-9
+staticfield 49e-3 0 0
+run 1e-9
+staticfield 50e-3 0 0
+run 1e-9
+staticfield 51e-3 0 0
+run 1e-9
+staticfield 52e-3 0 0
+run 1e-9
+staticfield 53e-3 0 0
+run 1e-9
+staticfield 54e-3 0 0
+run 1e-9
+staticfield 55e-3 0 0
+run 1e-9
+staticfield 56e-3 0 0
+run 1e-9
+staticfield 57e-3 0 0
+run 1e-9
+staticfield 58e-3 0 0
+run 1e-9
+staticfield 59e-3 0 0
+run 1e-9
+staticfield 60e-3 0 0
+run 1e-9
+staticfield 61e-3 0 0
+run 1e-9
+staticfield 62e-3 0 0
+run 1e-9
+staticfield 63e-3 0 0
+run 1e-9
+staticfield 64e-3 0 0
+run 1e-9
+staticfield 65e-3 0 0
+run 1e-9
+staticfield 66e-3 0 0
+run 1e-9
+staticfield 67e-3 0 0
+run 1e-9
+staticfield 68e-3 0 0
+run 1e-9
+staticfield 69e-3 0 0
+run 1e-9
+staticfield 70e-3 0 0
+run 1e-9
+staticfield 71e-3 0 0
+run 1e-9
+staticfield 72e-3 0 0
+run 1e-9
+staticfield 73e-3 0 0
+run 1e-9
+staticfield 74e-3 0 0
+run 1e-9
+staticfield 75e-3 0 0
+run 1e-9
+staticfield 76e-3 0 0
+run 1e-9
+staticfield 77e-3 0 0
+run 1e-9
+staticfield 78e-3 0 0
+run 1e-9
+staticfield 79e-3 0 0
+run 1e-9
+staticfield 80e-3 0 0
+run 1e-9
+staticfield 81e-3 0 0
+run 1e-9
+staticfield 82e-3 0 0
+run 1e-9
+staticfield 83e-3 0 0
+run 1e-9
+staticfield 84e-3 0 0
+run 1e-9
+staticfield 85e-3 0 0
+run 1e-9
+staticfield 86e-3 0 0
+run 1e-9
+staticfield 87e-3 0 0
+run 1e-9
+staticfield 88e-3 0 0
+run 1e-9
+staticfield 89e-3 0 0
+run 1e-9
+staticfield 90e-3 0 0
+run 1e-9
+staticfield 91e-3 0 0
+run 1e-9
+staticfield 92e-3 0 0
+run 1e-9
+staticfield 93e-3 0 0
+run 1e-9
+staticfield 94e-3 0 0
+run 1e-9
+staticfield 95e-3 0 0
+run 1e-9
+staticfield 96e-3 0 0
+run 1e-9
+staticfield 97e-3 0 0
+run 1e-9
+staticfield 98e-3 0 0
+run 1e-9
+staticfield 99e-3 0 0
+run 1e-9
+staticfield 100e-3 0 0
+run 1e-9
+staticfield 100e-3 0 0
+run 1e-9
+staticfield 99e-3 0 0
+run 1e-9
+staticfield 98e-3 0 0
+run 1e-9
+staticfield 97e-3 0 0
+run 1e-9
+staticfield 96e-3 0 0
+run 1e-9
+staticfield 95e-3 0 0
+run 1e-9
+staticfield 94e-3 0 0
+run 1e-9
+staticfield 93e-3 0 0
+run 1e-9
+staticfield 92e-3 0 0
+run 1e-9
+staticfield 91e-3 0 0
+run 1e-9
+staticfield 90e-3 0 0
+run 1e-9
+staticfield 89e-3 0 0
+run 1e-9
+staticfield 88e-3 0 0
+run 1e-9
+staticfield 87e-3 0 0
+run 1e-9
+staticfield 86e-3 0 0
+run 1e-9
+staticfield 85e-3 0 0
+run 1e-9
+staticfield 84e-3 0 0
+run 1e-9
+staticfield 83e-3 0 0
+run 1e-9
+staticfield 82e-3 0 0
+run 1e-9
+staticfield 81e-3 0 0
+run 1e-9
+staticfield 80e-3 0 0
+run 1e-9
+staticfield 79e-3 0 0
+run 1e-9
+staticfield 78e-3 0 0
+run 1e-9
+staticfield 77e-3 0 0
+run 1e-9
+staticfield 76e-3 0 0
+run 1e-9
+staticfield 75e-3 0 0
+run 1e-9
+staticfield 74e-3 0 0
+run 1e-9
+staticfield 73e-3 0 0
+run 1e-9
+staticfield 72e-3 0 0
+run 1e-9
+staticfield 71e-3 0 0
+run 1e-9
+staticfield 70e-3 0 0
+run 1e-9
+staticfield 69e-3 0 0
+run 1e-9
+staticfield 68e-3 0 0
+run 1e-9
+staticfield 67e-3 0 0
+run 1e-9
+staticfield 66e-3 0 0
+run 1e-9
+staticfield 65e-3 0 0
+run 1e-9
+staticfield 64e-3 0 0
+run 1e-9
+staticfield 63e-3 0 0
+run 1e-9
+staticfield 62e-3 0 0
+run 1e-9
+staticfield 61e-3 0 0
+run 1e-9
+staticfield 60e-3 0 0
+run 1e-9
+staticfield 59e-3 0 0
+run 1e-9
+staticfield 58e-3 0 0
+run 1e-9
+staticfield 57e-3 0 0
+run 1e-9
+staticfield 56e-3 0 0
+run 1e-9
+staticfield 55e-3 0 0
+run 1e-9
+staticfield 54e-3 0 0
+run 1e-9
+staticfield 53e-3 0 0
+run 1e-9
+staticfield 52e-3 0 0
+run 1e-9
+staticfield 51e-3 0 0
+run 1e-9
+staticfield 50e-3 0 0
+run 1e-9
+staticfield 49e-3 0 0
+run 1e-9
+staticfield 48e-3 0 0
+run 1e-9
+staticfield 47e-3 0 0
+run 1e-9
+staticfield 46e-3 0 0
+run 1e-9
+staticfield 45e-3 0 0
+run 1e-9
+staticfield 44e-3 0 0
+run 1e-9
+staticfield 43e-3 0 0
+run 1e-9
+staticfield 42e-3 0 0
+run 1e-9
+staticfield 41e-3 0 0
+run 1e-9
+staticfield 40e-3 0 0
+run 1e-9
+staticfield 39e-3 0 0
+run 1e-9
+staticfield 38e-3 0 0
+run 1e-9
+staticfield 37e-3 0 0
+run 1e-9
+staticfield 36e-3 0 0
+run 1e-9
+staticfield 35e-3 0 0
+run 1e-9
+staticfield 34e-3 0 0
+run 1e-9
+staticfield 33e-3 0 0
+run 1e-9
+staticfield 32e-3 0 0
+run 1e-9
+staticfield 31e-3 0 0
+run 1e-9
+staticfield 30e-3 0 0
+run 1e-9
+staticfield 29e-3 0 0
+run 1e-9
+staticfield 28e-3 0 0
+run 1e-9
+staticfield 27e-3 0 0
+run 1e-9
+staticfield 26e-3 0 0
+run 1e-9
+staticfield 25e-3 0 0
+run 1e-9
+staticfield 24e-3 0 0
+run 1e-9
+staticfield 23e-3 0 0
+run 1e-9
+staticfield 22e-3 0 0
+run 1e-9
+staticfield 21e-3 0 0
+run 1e-9
+staticfield 20e-3 0 0
+run 1e-9
+staticfield 19e-3 0 0
+run 1e-9
+staticfield 18e-3 0 0
+run 1e-9
+staticfield 17e-3 0 0
+run 1e-9
+staticfield 16e-3 0 0
+run 1e-9
+staticfield 15e-3 0 0
+run 1e-9
+staticfield 14e-3 0 0
+run 1e-9
+staticfield 13e-3 0 0
+run 1e-9
+staticfield 12e-3 0 0
+run 1e-9
+staticfield 11e-3 0 0
+run 1e-9
+staticfield 10e-3 0 0
+run 1e-9
+staticfield 9e-3 0 0
+run 1e-9
+staticfield 8e-3 0 0
+run 1e-9
+staticfield 7e-3 0 0
+run 1e-9
+staticfield 6e-3 0 0
+run 1e-9
+staticfield 5e-3 0 0
+run 1e-9
+staticfield 4e-3 0 0
+run 1e-9
+staticfield 3e-3 0 0
+run 1e-9
+staticfield 2e-3 0 0
+run 1e-9
+staticfield 1e-3 0 0
+run 1e-9
+staticfield 0e-3 0 0
+run 1e-9
+staticfield -1e-3 0 0
+run 1e-9
+staticfield -2e-3 0 0
+run 1e-9
+staticfield -3e-3 0 0
+run 1e-9
+staticfield -4e-3 0 0
+run 1e-9
+staticfield -5e-3 0 0
+run 1e-9
+staticfield -6e-3 0 0
+run 1e-9
+staticfield -7e-3 0 0
+run 1e-9
+staticfield -8e-3 0 0
+run 1e-9
+staticfield -9e-3 0 0
+run 1e-9
+staticfield -10e-3 0 0
+run 1e-9
+staticfield -11e-3 0 0
+run 1e-9
+staticfield -12e-3 0 0
+run 1e-9
+staticfield -13e-3 0 0
+run 1e-9
+staticfield -14e-3 0 0
+run 1e-9
+staticfield -15e-3 0 0
+run 1e-9
+staticfield -16e-3 0 0
+run 1e-9
+staticfield -17e-3 0 0
+run 1e-9
+staticfield -18e-3 0 0
+run 1e-9
+staticfield -19e-3 0 0
+run 1e-9
+staticfield -20e-3 0 0
+run 1e-9
+staticfield -21e-3 0 0
+run 1e-9
+staticfield -22e-3 0 0
+run 1e-9
+staticfield -23e-3 0 0
+run 1e-9
+staticfield -24e-3 0 0
+run 1e-9
+staticfield -25e-3 0 0
+run 1e-9
+staticfield -26e-3 0 0
+run 1e-9
+staticfield -27e-3 0 0
+run 1e-9
+staticfield -28e-3 0 0
+run 1e-9
+staticfield -29e-3 0 0
+run 1e-9
+staticfield -30e-3 0 0
+run 1e-9
+staticfield -31e-3 0 0
+run 1e-9
+staticfield -32e-3 0 0
+run 1e-9
+staticfield -33e-3 0 0
+run 1e-9
+staticfield -34e-3 0 0
+run 1e-9
+staticfield -35e-3 0 0
+run 1e-9
+staticfield -36e-3 0 0
+run 1e-9
+staticfield -37e-3 0 0
+run 1e-9
+staticfield -38e-3 0 0
+run 1e-9
+staticfield -39e-3 0 0
+run 1e-9
+staticfield -40e-3 0 0
+run 1e-9
+staticfield -41e-3 0 0
+run 1e-9
+staticfield -42e-3 0 0
+run 1e-9
+staticfield -43e-3 0 0
+run 1e-9
+staticfield -44e-3 0 0
+run 1e-9
+staticfield -45e-3 0 0
+run 1e-9
+staticfield -46e-3 0 0
+run 1e-9
+staticfield -47e-3 0 0
+run 1e-9
+staticfield -48e-3 0 0
+run 1e-9
+staticfield -49e-3 0 0
+run 1e-9
+staticfield -50e-3 0 0
+run 1e-9
+staticfield -51e-3 0 0
+run 1e-9
+staticfield -52e-3 0 0
+run 1e-9
+staticfield -53e-3 0 0
+run 1e-9
+staticfield -54e-3 0 0
+run 1e-9
+staticfield -55e-3 0 0
+run 1e-9
+staticfield -56e-3 0 0
+run 1e-9
+staticfield -57e-3 0 0
+run 1e-9
+staticfield -58e-3 0 0
+run 1e-9
+staticfield -59e-3 0 0
+run 1e-9
+staticfield -60e-3 0 0
+run 1e-9
+staticfield -61e-3 0 0
+run 1e-9
+staticfield -62e-3 0 0
+run 1e-9
+staticfield -63e-3 0 0
+run 1e-9
+staticfield -64e-3 0 0
+run 1e-9
+staticfield -65e-3 0 0
+run 1e-9
+staticfield -66e-3 0 0
+run 1e-9
+staticfield -67e-3 0 0
+run 1e-9
+staticfield -68e-3 0 0
+run 1e-9
+staticfield -69e-3 0 0
+run 1e-9
+staticfield -70e-3 0 0
+run 1e-9
+staticfield -71e-3 0 0
+run 1e-9
+staticfield -72e-3 0 0
+run 1e-9
+staticfield -73e-3 0 0
+run 1e-9
+staticfield -74e-3 0 0
+run 1e-9
+staticfield -75e-3 0 0
+run 1e-9
+staticfield -76e-3 0 0
+run 1e-9
+staticfield -77e-3 0 0
+run 1e-9
+staticfield -78e-3 0 0
+run 1e-9
+staticfield -79e-3 0 0
+run 1e-9
+staticfield -80e-3 0 0
+run 1e-9
+staticfield -81e-3 0 0
+run 1e-9
+staticfield -82e-3 0 0
+run 1e-9
+staticfield -83e-3 0 0
+run 1e-9
+staticfield -84e-3 0 0
+run 1e-9
+staticfield -85e-3 0 0
+run 1e-9
+staticfield -86e-3 0 0
+run 1e-9
+staticfield -87e-3 0 0
+run 1e-9
+staticfield -88e-3 0 0
+run 1e-9
+staticfield -89e-3 0 0
+run 1e-9
+staticfield -90e-3 0 0
+run 1e-9
+staticfield -91e-3 0 0
+run 1e-9
+staticfield -92e-3 0 0
+run 1e-9
+staticfield -93e-3 0 0
+run 1e-9
+staticfield -94e-3 0 0
+run 1e-9
+staticfield -95e-3 0 0
+run 1e-9
+staticfield -96e-3 0 0
+run 1e-9
+staticfield -97e-3 0 0
+run 1e-9
+staticfield -98e-3 0 0
+run 1e-9
+staticfield -99e-3 0 0
+run 1e-9
+staticfield -100e-3 0 0
+run 1e-9
+staticfield -100e-3 0 0
+run 1e-9
+staticfield -99e-3 0 0
+run 1e-9
+staticfield -98e-3 0 0
+run 1e-9
+staticfield -97e-3 0 0
+run 1e-9
+staticfield -96e-3 0 0
+run 1e-9
+staticfield -95e-3 0 0
+run 1e-9
+staticfield -94e-3 0 0
+run 1e-9
+staticfield -93e-3 0 0
+run 1e-9
+staticfield -92e-3 0 0
+run 1e-9
+staticfield -91e-3 0 0
+run 1e-9
+staticfield -90e-3 0 0
+run 1e-9
+staticfield -89e-3 0 0
+run 1e-9
+staticfield -88e-3 0 0
+run 1e-9
+staticfield -87e-3 0 0
+run 1e-9
+staticfield -86e-3 0 0
+run 1e-9
+staticfield -85e-3 0 0
+run 1e-9
+staticfield -84e-3 0 0
+run 1e-9
+staticfield -83e-3 0 0
+run 1e-9
+staticfield -82e-3 0 0
+run 1e-9
+staticfield -81e-3 0 0
+run 1e-9
+staticfield -80e-3 0 0
+run 1e-9
+staticfield -79e-3 0 0
+run 1e-9
+staticfield -78e-3 0 0
+run 1e-9
+staticfield -77e-3 0 0
+run 1e-9
+staticfield -76e-3 0 0
+run 1e-9
+staticfield -75e-3 0 0
+run 1e-9
+staticfield -74e-3 0 0
+run 1e-9
+staticfield -73e-3 0 0
+run 1e-9
+staticfield -72e-3 0 0
+run 1e-9
+staticfield -71e-3 0 0
+run 1e-9
+staticfield -70e-3 0 0
+run 1e-9
+staticfield -69e-3 0 0
+run 1e-9
+staticfield -68e-3 0 0
+run 1e-9
+staticfield -67e-3 0 0
+run 1e-9
+staticfield -66e-3 0 0
+run 1e-9
+staticfield -65e-3 0 0
+run 1e-9
+staticfield -64e-3 0 0
+run 1e-9
+staticfield -63e-3 0 0
+run 1e-9
+staticfield -62e-3 0 0
+run 1e-9
+staticfield -61e-3 0 0
+run 1e-9
+staticfield -60e-3 0 0
+run 1e-9
+staticfield -59e-3 0 0
+run 1e-9
+staticfield -58e-3 0 0
+run 1e-9
+staticfield -57e-3 0 0
+run 1e-9
+staticfield -56e-3 0 0
+run 1e-9
+staticfield -55e-3 0 0
+run 1e-9
+staticfield -54e-3 0 0
+run 1e-9
+staticfield -53e-3 0 0
+run 1e-9
+staticfield -52e-3 0 0
+run 1e-9
+staticfield -51e-3 0 0
+run 1e-9
+staticfield -50e-3 0 0
+run 1e-9
+staticfield -49e-3 0 0
+run 1e-9
+staticfield -48e-3 0 0
+run 1e-9
+staticfield -47e-3 0 0
+run 1e-9
+staticfield -46e-3 0 0
+run 1e-9
+staticfield -45e-3 0 0
+run 1e-9
+staticfield -44e-3 0 0
+run 1e-9
+staticfield -43e-3 0 0
+run 1e-9
+staticfield -42e-3 0 0
+run 1e-9
+staticfield -41e-3 0 0
+run 1e-9
+staticfield -40e-3 0 0
+run 1e-9
+staticfield -39e-3 0 0
+run 1e-9
+staticfield -38e-3 0 0
+run 1e-9
+staticfield -37e-3 0 0
+run 1e-9
+staticfield -36e-3 0 0
+run 1e-9
+staticfield -35e-3 0 0
+run 1e-9
+staticfield -34e-3 0 0
+run 1e-9
+staticfield -33e-3 0 0
+run 1e-9
+staticfield -32e-3 0 0
+run 1e-9
+staticfield -31e-3 0 0
+run 1e-9
+staticfield -30e-3 0 0
+run 1e-9
+staticfield -29e-3 0 0
+run 1e-9
+staticfield -28e-3 0 0
+run 1e-9
+staticfield -27e-3 0 0
+run 1e-9
+staticfield -26e-3 0 0
+run 1e-9
+staticfield -25e-3 0 0
+run 1e-9
+staticfield -24e-3 0 0
+run 1e-9
+staticfield -23e-3 0 0
+run 1e-9
+staticfield -22e-3 0 0
+run 1e-9
+staticfield -21e-3 0 0
+run 1e-9
+staticfield -20e-3 0 0
+run 1e-9
+staticfield -19e-3 0 0
+run 1e-9
+staticfield -18e-3 0 0
+run 1e-9
+staticfield -17e-3 0 0
+run 1e-9
+staticfield -16e-3 0 0
+run 1e-9
+staticfield -15e-3 0 0
+run 1e-9
+staticfield -14e-3 0 0
+run 1e-9
+staticfield -13e-3 0 0
+run 1e-9
+staticfield -12e-3 0 0
+run 1e-9
+staticfield -11e-3 0 0
+run 1e-9
+staticfield -10e-3 0 0
+run 1e-9
+staticfield -9e-3 0 0
+run 1e-9
+staticfield -8e-3 0 0
+run 1e-9
+staticfield -7e-3 0 0
+run 1e-9
+staticfield -6e-3 0 0
+run 1e-9
+staticfield -5e-3 0 0
+run 1e-9
+staticfield -4e-3 0 0
+run 1e-9
+staticfield -3e-3 0 0
+run 1e-9
+staticfield -2e-3 0 0
+run 1e-9
+staticfield -1e-3 0 0
+run 1e-9
+staticfield 0e-3 0 0
+run 1e-9
+staticfield 0e-3 0 0
+run 1e-9
+staticfield 1e-3 0 0
+run 1e-9
+staticfield 2e-3 0 0
+run 1e-9
+staticfield 3e-3 0 0
+run 1e-9
+staticfield 4e-3 0 0
+run 1e-9
+staticfield 5e-3 0 0
+run 1e-9
+staticfield 6e-3 0 0
+run 1e-9
+staticfield 7e-3 0 0
+run 1e-9
+staticfield 8e-3 0 0
+run 1e-9
+staticfield 9e-3 0 0
+run 1e-9
+staticfield 10e-3 0 0
+run 1e-9
+staticfield 11e-3 0 0
+run 1e-9
+staticfield 12e-3 0 0
+run 1e-9
+staticfield 13e-3 0 0
+run 1e-9
+staticfield 14e-3 0 0
+run 1e-9
+staticfield 15e-3 0 0
+run 1e-9
+staticfield 16e-3 0 0
+run 1e-9
+staticfield 17e-3 0 0
+run 1e-9
+staticfield 18e-3 0 0
+run 1e-9
+staticfield 19e-3 0 0
+run 1e-9
+staticfield 20e-3 0 0
+run 1e-9
+staticfield 21e-3 0 0
+run 1e-9
+staticfield 22e-3 0 0
+run 1e-9
+staticfield 23e-3 0 0
+run 1e-9
+staticfield 24e-3 0 0
+run 1e-9
+staticfield 25e-3 0 0
+run 1e-9
+staticfield 26e-3 0 0
+run 1e-9
+staticfield 27e-3 0 0
+run 1e-9
+staticfield 28e-3 0 0
+run 1e-9
+staticfield 29e-3 0 0
+run 1e-9
+staticfield 30e-3 0 0
+run 1e-9
+staticfield 31e-3 0 0
+run 1e-9
+staticfield 32e-3 0 0
+run 1e-9
+staticfield 33e-3 0 0
+run 1e-9
+staticfield 34e-3 0 0
+run 1e-9
+staticfield 35e-3 0 0
+run 1e-9
+staticfield 36e-3 0 0
+run 1e-9
+staticfield 37e-3 0 0
+run 1e-9
+staticfield 38e-3 0 0
+run 1e-9
+staticfield 39e-3 0 0
+run 1e-9
+staticfield 40e-3 0 0
+run 1e-9
+staticfield 41e-3 0 0
+run 1e-9
+staticfield 42e-3 0 0
+run 1e-9
+staticfield 43e-3 0 0
+run 1e-9
+staticfield 44e-3 0 0
+run 1e-9
+staticfield 45e-3 0 0
+run 1e-9
+staticfield 46e-3 0 0
+run 1e-9
+staticfield 47e-3 0 0
+run 1e-9
+staticfield 48e-3 0 0
+run 1e-9
+staticfield 49e-3 0 0
+run 1e-9
+staticfield 50e-3 0 0
+run 1e-9
+staticfield 51e-3 0 0
+run 1e-9
+staticfield 52e-3 0 0
+run 1e-9
+staticfield 53e-3 0 0
+run 1e-9
+staticfield 54e-3 0 0
+run 1e-9
+staticfield 55e-3 0 0
+run 1e-9
+staticfield 56e-3 0 0
+run 1e-9
+staticfield 57e-3 0 0
+run 1e-9
+staticfield 58e-3 0 0
+run 1e-9
+staticfield 59e-3 0 0
+run 1e-9
+staticfield 60e-3 0 0
+run 1e-9
+staticfield 61e-3 0 0
+run 1e-9
+staticfield 62e-3 0 0
+run 1e-9
+staticfield 63e-3 0 0
+run 1e-9
+staticfield 64e-3 0 0
+run 1e-9
+staticfield 65e-3 0 0
+run 1e-9
+staticfield 66e-3 0 0
+run 1e-9
+staticfield 67e-3 0 0
+run 1e-9
+staticfield 68e-3 0 0
+run 1e-9
+staticfield 69e-3 0 0
+run 1e-9
+staticfield 70e-3 0 0
+run 1e-9
+staticfield 71e-3 0 0
+run 1e-9
+staticfield 72e-3 0 0
+run 1e-9
+staticfield 73e-3 0 0
+run 1e-9
+staticfield 74e-3 0 0
+run 1e-9
+staticfield 75e-3 0 0
+run 1e-9
+staticfield 76e-3 0 0
+run 1e-9
+staticfield 77e-3 0 0
+run 1e-9
+staticfield 78e-3 0 0
+run 1e-9
+staticfield 79e-3 0 0
+run 1e-9
+staticfield 80e-3 0 0
+run 1e-9
+staticfield 81e-3 0 0
+run 1e-9
+staticfield 82e-3 0 0
+run 1e-9
+staticfield 83e-3 0 0
+run 1e-9
+staticfield 84e-3 0 0
+run 1e-9
+staticfield 85e-3 0 0
+run 1e-9
+staticfield 86e-3 0 0
+run 1e-9
+staticfield 87e-3 0 0
+run 1e-9
+staticfield 88e-3 0 0
+run 1e-9
+staticfield 89e-3 0 0
+run 1e-9
+staticfield 90e-3 0 0
+run 1e-9
+staticfield 91e-3 0 0
+run 1e-9
+staticfield 92e-3 0 0
+run 1e-9
+staticfield 93e-3 0 0
+run 1e-9
+staticfield 94e-3 0 0
+run 1e-9
+staticfield 95e-3 0 0
+run 1e-9
+staticfield 96e-3 0 0
+run 1e-9
+staticfield 97e-3 0 0
+run 1e-9
+staticfield 98e-3 0 0
+run 1e-9
+staticfield 99e-3 0 0
+run 1e-9
+staticfield 100e-3 0 0
+run 1e-9

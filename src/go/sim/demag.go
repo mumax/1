@@ -68,6 +68,54 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
 	return k
 }
 
+// Smart version of FaceKernel6, uses symmetry to cut cpu time roughly in 1/8
+func FastKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
+  k := make([]*tensor.T3, 6)
+  for i := range k {
+    k[i] = tensor.NewT3(size)
+  }
+  B := tensor.NewVector()
+  R := tensor.NewVector()
+
+  x1 := -(size[X] - 1) / 2
+  x2 := size[X]/2 - 1
+  // support for 2D simulations (thickness 1)
+  if size[X] == 1 {
+    x2 = 0
+  }
+
+  for s := 0; s < 3; s++ { // source index Ksdxyz
+    for x := x1; x <= x2; x++ { // in each dimension, go from -(size-1)/2 to size/2 -1, wrapped. It's crucial that the unused rows remain zero, otherwise the FFT'ed kernel is not purely real anymore.
+      xw := wrap(x, size[X])
+      for y := -(size[Y] - 1) / 2; y <= size[Y]/2-1; y++ {
+        yw := wrap(y, size[Y])
+        for z := -(size[Z] - 1) / 2; z <= size[Z]/2-1; z++ {
+          zw := wrap(z, size[Z])
+          R.Set(float32(x)*cellsize[X], float32(y)*cellsize[Y], float32(z)*cellsize[Z])
+
+          faceIntegral(B, R, cellsize, s, accuracy)
+
+          for d := s; d < 3; d++ { // destination index Ksdxyz
+            i := KernIdx[s][d] // 3x3 symmetric index to 1x6 index
+            k[i].Array()[xw][yw][zw] = B.Component[d]
+          }
+        }
+      }
+    }
+  }
+
+  // This is really just a unit test for selfkernel,
+  // TODO: remove when edgecorrections are fully tested.
+  for s := 0; s < 3; s++ {
+    for d := 0; d < 3; d++ {
+      assert(k[KernIdx[s][d]].Array()[0][0][0] == selfKernel(s, cellsize, accuracy)[d])
+    }
+  }
+
+  return k
+}
+
+
 // Calculates only the self-kernel K[ij][0][0][0].
 // used for edge corrections where we need to subtract this generic self kernel contribution and
 // replace it by an edge-corrected version specific for each cell.
