@@ -19,6 +19,7 @@ param* p = read_param();
     // initialization of kernel
   tensor* kernel = new_kernel(p);
     // initialization of m
+  printf("kernel initialized\n");
   int* size4d = tensor_size4D(p->size);
   tensor *m = new_gputensor(4, size4d);
   initialize_m (m, p);
@@ -34,9 +35,9 @@ param* p = read_param();
   int* size4D = tensor_size4D(p->size);
   tensor* Host = new_tensorN(4, size4D);
   
-/*   evaluate_field(ts->field, m, ts->h);
+//    evaluate_field(ts->field, m, ts->h);
   
-   return(0);*/
+//    return(0);
 //   
 //   int* size4d_h = tensor_size4D(p->size);
 //   tensor* hHost = new_tensorN(4, size4d_h);
@@ -130,7 +131,7 @@ param* read_param(){
 
   p->size[X] = 1;
   p->size[Y] = 32;
-  p->size[Z] = 1024;
+  p->size[Z] = 128;
 
   double L = unitlength(p);
   printf("unitlength: %e\n", L);

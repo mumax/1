@@ -14,6 +14,8 @@
 extern "C" {
 #endif
 
+#define BLOCKSIZE 16
+
 
 tensor *gpu_micromag3d_kernel(param* p){
   
@@ -62,7 +64,12 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(float *dev_kernel, int *
     dim3 gridsize1((kernelSize[X]+1)/2,kernelSize[Y]/2, 1);
     dim3 blocksize1(kernelSize[Z]/2, 1,1);
     check3dconf(gridsize1, blocksize1);
-    
+
+//     dim3 gridsize1(divUp((kernelSize[X]+1)/2, BLOCKSIZE), divUp(kernelSize[Y]/2, BLOCKSIZE), 1);
+//     dim3 blocksize1(BLOCKSIZE, BLOCKSIZE,1);
+//     check3dconf(gridsize1, blocksize1);
+
+    printf("gridsize: %d, %d, %d\n", divUp((kernelSize[X]+1)/2, BLOCKSIZE), divUp(kernelSize[Y]/2, BLOCKSIZE), 1);
     int N2 = kernelStorageN/2;
     dim3 gridsize2, blocksize2;
     make1dconf(N2, &gridsize2, &blocksize2);
@@ -80,7 +87,6 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(float *dev_kernel, int *
         _gpu_init_Greens_kernel_elements_micromag3d<<<gridsize1, blocksize1>>>(dev_temp1, kernelSize[X], kernelSize[Y], kernelSize[Z], exchType, exchInConv[X], exchInConv[Y], exchInConv[Z], co1, co2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
         gpu_sync();
           // Fourier transform the kernel component.
-//         gpuFFT3dPlan_forward(kernel_plan, dev_temp1, dev_temp2); 
         gpuFFT3dPlan_forward(kernel_plan, dev_temp1, dev_temp2);
         gpu_sync();
           // Copy the real parts to the corresponding place in the dev_kernel tensor.
@@ -103,6 +109,8 @@ __global__ void _gpu_init_Greens_kernel_elements_micromag3d(float *dev_temp, int
 
   /// @todo possible redeclaration of threadparameters required when using 'make3dconf' for thread launching.
 
+/*  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  int j = blockIdx.y * blockDim.y + threadIdx.y;*/
   int i = blockIdx.x;
   int j = blockIdx.y;
   int k = threadIdx.x; 
@@ -110,22 +118,25 @@ __global__ void _gpu_init_Greens_kernel_elements_micromag3d(float *dev_temp, int
   int N2 = Nkernel_Z;
   int N12 = Nkernel_Y * N2;
 
-    dev_temp[            i*N12 +             j*N2 +           k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchType, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2,  i,  j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
-  if (i>0)
-    dev_temp[(Nkernel_X-i)*N12 +             j*N2 +           k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchType, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2, -i,  j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
-  if (j>0)
-    dev_temp[            i*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchType, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2,  i, -j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
-  if (k>0) 
-    dev_temp[            i*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchType, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2,  i,  j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
-  if (i>0 && j>0)
-    dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchType, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2, -i, -j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
-  if (i>0 && k>0) 
-    dev_temp[(Nkernel_X-i)*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchType, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2, -i,  j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
-  if (j>0 && k>0) 
-    dev_temp[            i*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchType, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2,  i, -j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
-  if (i>0 && j>0 && k>0) 
-    dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchType, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2, -i, -j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
-
+  if ( i<((Nkernel_X+1)/2) && j<(Nkernel_Y/2) )
+//     for (int k=0; k<N2/2; k++){
+        dev_temp[            i*N12 +             j*N2 +           k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchType, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2,  i,  j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+      if (i>0)
+        dev_temp[(Nkernel_X-i)*N12 +             j*N2 +           k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchType, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2, -i,  j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+      if (j>0)
+        dev_temp[            i*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchType, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2,  i, -j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+      if (k>0) 
+        dev_temp[            i*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchType, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2,  i,  j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+      if (i>0 && j>0)
+        dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchType, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2, -i, -j,  k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+      if (i>0 && k>0) 
+        dev_temp[(Nkernel_X-i)*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchType, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2, -i,  j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+      if (j>0 && k>0) 
+        dev_temp[            i*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchType, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2,  i, -j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+      if (i>0 && j>0 && k>0) 
+        dev_temp[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, exchType, exchInConv_X, exchInConv_Y, exchInConv_Z, co1, co2, -i, -j, -k, FD_cell_size_X, FD_cell_size_Y, FD_cell_size_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+//     }
+  
   return;
 }
 

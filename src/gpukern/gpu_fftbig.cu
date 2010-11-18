@@ -28,7 +28,7 @@ void init_bigfft(bigfft* plan, int size_fft, int stride_in, int stride_out, cuff
     plan->Plan_2 = plan->Plan_1;
 
   plan->batch_Plans  = (cufftHandle *) calloc(plan->Nbatch, sizeof(cufftHandle));
-  for (int i=0; i<plan->Nbatch-2; i++)
+  for (int i=0; i<plan->Nbatch-1; i++)
     plan->batch_Plans[i] = plan->Plan_1;
   plan->batch_Plans[plan->Nbatch-1] = plan->Plan_2;
     
@@ -99,7 +99,7 @@ void bigfft_execR2C(bigfft* plan, cufftReal* input, cufftComplex* output){
     int index_out = plan->batch_index_out[i]/2;*/
     int index_in  = plan->batch_index_in [i];
     int index_out = plan->batch_index_out[i]/2;
-//     printf("R2C: %d, %d\n", index_in, index_out);
+//     printf("R2C: %d, %d, %d\n", i, index_in, index_out);
     gpu_safefft( cufftExecR2C(plan->batch_Plans[i], input + index_in,  output + index_out) );
   }
 

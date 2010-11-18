@@ -353,9 +353,10 @@ void gpu_copy_to_unpad(float* source, float* dest, int *pad_size, int *unpad_siz
 }
 
 
-// void delete_FFT3dPlan(gpuFFT3dPlan* kernel_plan){
-// 
-// }
+void delete_FFT3dPlan(gpuFFT3dPlan* kernel_plan){
+
+  return;
+}
 
 
 // __global__ void _gpu_copy_pad(int N, float* source, float* dest, 
