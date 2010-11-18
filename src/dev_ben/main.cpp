@@ -49,7 +49,7 @@ param* p = read_param();
 
 //    return(0);
 //   FILE *av =fopen("./Data/m_av_fw_2e-1", "w");
-  for(int i=0; i<10; i++){
+  for(int i=0; i<100; i++){
 
     
 //     tensor_copy_from_gpu(m, Host);
@@ -130,7 +130,7 @@ param* read_param(){
 
   p->size[X] = 1;
   p->size[Y] = 32;
-  p->size[Z] = 128;
+  p->size[Z] = 1024;
 
   double L = unitlength(p);
   printf("unitlength: %e\n", L);

@@ -5,7 +5,8 @@
 extern "C" {
 #endif
 
-#define BLOCKSIZE 32
+//#define BLOCKSIZE 32
+#define BLOCKSIZE 16
 
 gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
 
@@ -352,7 +353,9 @@ void gpu_copy_to_unpad(float* source, float* dest, int *pad_size, int *unpad_siz
 }
 
 
-
+// void delete_FFT3dPlan(gpuFFT3dPlan* kernel_plan){
+// 
+// }
 
 
 // __global__ void _gpu_copy_pad(int N, float* source, float* dest, 

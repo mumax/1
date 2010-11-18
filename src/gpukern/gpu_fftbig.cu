@@ -24,13 +24,20 @@ void init_bigfft(bigfft* plan, int size_fft, int stride_in, int stride_out, cuff
     gpu_safefft( cufftPlan1d( &plan->Plan_2, size_fft, type, plan->batch[plan->Nbatch-1]) );
 //     gpu_safefft( cufftSetCompatibilityMode(plan->Plan_2, CUFFT_COMPATIBILITY_NATIVE) );
   }
-  plan->batch_Plans  = (cufftHandle *) calloc(plan->Nbatch, sizeof(cufftHandle));
+  else 
+    plan->Plan_2 = plan->Plan_1;
 
-  for (int i=0; i<plan->Nbatch; i++)
-    if ( plan->batch[i] == plan->batch[0] )
-      plan->batch_Plans[i] = plan->Plan_1;
-    else
-      plan->batch_Plans[i] = plan->Plan_2;
+  plan->batch_Plans  = (cufftHandle *) calloc(plan->Nbatch, sizeof(cufftHandle));
+  for (int i=0; i<plan->Nbatch-2; i++)
+    plan->batch_Plans[i] = plan->Plan_1;
+  plan->batch_Plans[plan->Nbatch-1] = plan->Plan_2;
+    
+
+//   for (int i=0; i<plan->Nbatch; i++)
+//     if ( plan->batch[i] == plan->batch[0] )
+//       plan->batch_Plans[i] = plan->Plan_1;
+//     else
+//       plan->batch_Plans[i] = plan->Plan_2;
 
   return;
 }
