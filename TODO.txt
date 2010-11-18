@@ -1,5 +1,6 @@
 Choose a googlable name. Suggestions:
 
+cudamag
 
 spinsimd (Spin SIMulator on SIMD architectures (zoals GPU, paralelle CPU))
 
