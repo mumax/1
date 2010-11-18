@@ -62,8 +62,8 @@ func (d Cpu) linearCombination(a, b uintptr, weightA, weightB float32, N int) {
 }
 
 func (d Cpu) reduce(operation int, input, output uintptr, buffer *float32, blocks, threads, N int) float32 {
-	//C.cpu_reduce(C.int(operation), (*C.float)(input), (*C.float)(output), C.int(blocks), C.int(threads), C.int(N))
-	panic("unimplemented")
+	return float32(C.cpu_reduce(C.int(operation), (*C.float)(unsafe.Pointer(input)), (*C.float)(unsafe.Pointer(output)), (*C.float)(unsafe.Pointer(buffer)), C.int(blocks), C.int(threads), C.int(N)))
+	//panic("unimplemented")
 }
 
 func (d Cpu) addConstant(a uintptr, cnst float32, N int) {

@@ -54,7 +54,7 @@ func (s *Sim) initGeom() {
 
 	subSize := []int{2 * edgeCorr, 2 * edgeCorr, 2 * edgeCorr} // 2*: zero-padding
 	subCellSize := []float32{s.cellSize[X] / float32(edgeCorr), s.cellSize[Y] / float32(edgeCorr), s.cellSize[Z] / float32(edgeCorr)}
-	NO_PBC := []int{0, 0, 0}  // no periodic boundary conditins
+	NO_PBC := []int{0, 0, 0} // no periodic boundary conditins
 	// kernel for the sub-cells within one cell.
 	subK := FaceKernel6(subSize, subCellSize, s.input.demag_accuracy, NO_PBC)
 
