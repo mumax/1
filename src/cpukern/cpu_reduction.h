@@ -17,7 +17,7 @@ extern "C" {
 
 
 /// Reduces the input (array on device)
-float gpu_reduce(int operation,     ///< REDUCE_ADD, REDUCE_MAX, ... 
+float cpu_reduce(int operation,     ///< REDUCE_ADD, REDUCE_MAX, ... 
                  float* input,      ///< input data on device
                  float* devbuffer,  ///< device buffer of size "blocks"
                  float* hostbuffer, ///< host buffer of size "blocks"

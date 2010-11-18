@@ -16,7 +16,7 @@ float cpu_sum(float* input, int N){
 
 
 /// Reduces the input (array on device)
-float gpu_reduce(int operation, float* input, float* devbuffer, float* hostbuffer, int blocks, int threadsPerBlock, int N){
+float cpu_reduce(int operation, float* input, float* devbuffer, float* hostbuffer, int blocks, int threadsPerBlock, int N){
   switch(operation){
     default: abort();
     case REDUCE_ADD: return cpu_sum(input, N);
