@@ -8,7 +8,7 @@ demagaccuracy 1
 #autosave      table ascii  50E-12
 
 # time stepping
-solvertype   euler
+solvertype   heun
 
 # material: permalloy
 msat         800E3
@@ -16,7 +16,7 @@ aexch        1.3E-11
 
 
 # geometry
-size         1	2048 2048
+gridsize     2048 2048 1
 cellsize     1E-9  1E-9   1E-9
 
 # initial magnetization

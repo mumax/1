@@ -18,6 +18,9 @@ void gpu_add(float* a, float* b, int N);
 /// a[i] += cnst * b[i]
 void gpu_madd(float* a, float cnst, float* b, int N);
 
+/// a[i] += b[i] * c[i]
+void gpu_madd2(float* a, float* b, float* c, int N);
+
 /// Adds a constant to array a
 void gpu_add_constant(float* a, float cnst, int N);
 

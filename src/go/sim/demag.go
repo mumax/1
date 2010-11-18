@@ -12,12 +12,16 @@ import (
 )
 
 
-/// converts from the full "rank-5" kernel format to the symmetric "array-of-rank3-tensors" format
-// func FaceKernel6(unpaddedsize []int, cellsize []float32, accuracy int) []*tensor.Tensor3 {
-// 	k9 := FaceKernel(unpaddedsize, cellsize, accuracy)
-// 	return toSymmetric(k9)
-// }
-
+// Calculates the magnetostatic kernel
+//
+// size: size of the kernel, usually 2 x larger than the size of the magnetization due to zero padding
+// accuracy: use 2^accuracy integration points
+//
+// return value: A symmetric rank 5 tensor K[sourcedir][destdir][x][y][z]
+// (e.g. K[X][Y][1][2][3] gives H_y at position (1, 2, 3) due to a unit dipole m_x at the origin.
+// Only the non-redundant elements of this symmetric tensor are returned: XX, YY, ZZ, YZ, XZ, XY
+// You can use the function KernIdx to convert from source-dest pairs like XX to 1D indices:
+// K[KernIdx[X][X]] returns K[XX]
 func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
 	k := make([]*tensor.T3, 6)
 	for i := range k {
@@ -52,46 +56,31 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
 			}
 		}
 	}
+
+	// This is really just a unit test for selfkernel,
+	// TODO: remove when edgecorrections are fully tested.
+	for s := 0; s < 3; s++ {
+		for d := 0; d < 3; d++ {
+			assert(k[KernIdx[s][d]].Array()[0][0][0] == selfKernel(s, cellsize, accuracy)[d])
+		}
+	}
+
 	return k
 }
 
-/// Integrates the demag field based on multiple points per face.
-// func FaceKernel(size []int, cellsize []float32, accuracy int) *tensor.Tensor5 {
-// 	//size := PadSize(unpaddedsize)
-// 	k := tensor.NewTensor5([]int{3, 3, size[0], size[1], size[2]})
-// 	B := tensor.NewVector()
-// 	R := tensor.NewVector()
-// 
-// 	for s := 0; s < 3; s++ { // source index Ksdxyz
-// 		for x := -(size[X] - 1) / 2; x <= size[X]/2-1; x++ { // in each dimension, go from -(size-1)/2 to size/2 -1, wrapped. It's crucial that the unused rows remain zero, otherwise the FFT'ed kernel is not purely real anymore.
-// 			xw := wrap(x, size[X])
-// 			for y := -(size[Y] - 1) / 2; y <= size[Y]/2-1; y++ {
-// 				yw := wrap(y, size[Y])
-// 				for z := -(size[Z] - 1) / 2; z <= size[Z]/2-1; z++ {
-// 					zw := wrap(z, size[Z])
-// 					R.Set(float32(x)*cellsize[X], float32(y)*cellsize[Y], float32(z)*cellsize[Z])
-// 
-// 					faceIntegral(B, R, cellsize, s, accuracy)
-// 
-// 					for d := 0; d < 3; d++ { // destination index Ksdxyz
-// 						k.Array()[s][d][xw][yw][zw] = B.Component[d]
-// 					}
-// 
-// 					//    if(xw == size[X]/2 + 1 || yw == size[Y]/2 + 1 || zw == size[Z]/2 + 1){
-// 					//
-// 					//       }
-// 
-// 				}
-// 			}
-// 		}
-// 	}
-// 	return k
-// }
+// Calculates only the self-kernel K[ij][0][0][0].
+// used for edge corrections where we need to subtract this generic self kernel contribution and
+// replace it by an edge-corrected version specific for each cell.
+func selfKernel(sourcedir int, cellsize []float32, accuracy int) []float32 {
+	B := tensor.NewVector()
+	R := tensor.NewVector()
+	faceIntegral(B, R, cellsize, sourcedir, accuracy)
+	return []float32{B.Component[X], B.Component[Y], B.Component[Z]}
+}
 
 
-/**
- * Magnetostatic field at position r (integer, number of cellsizes away form source) for a given source magnetization direction m (X, Y, or Z)
- */
+// Magnetostatic field at position r (integer, number of cellsizes away form source) for a given source magnetization direction m (X, Y, or
+// s = source direction (x, y, z)
 func faceIntegral(B, R *tensor.Vector, cellsize []float32, s int, accuracy int) {
 	n := accuracy                  // number of integration points = n^2
 	u, v, w := s, (s+1)%3, (s+2)%3 // u = direction of source (s), v & w are the orthogonal directions

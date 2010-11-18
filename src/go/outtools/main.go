@@ -29,6 +29,7 @@ import (
 	"iotool"
 	"strings"
 	"strconv"
+	"sim"
 )
 
 // When a panic occurs, do not crash
@@ -41,6 +42,32 @@ func (m *Main) Print(fname string) {
 	t := ReadF(fname)
 	WriteAscii(os.Stdout, t)
 }
+
+
+func (m *Main) DrawSlice(fname string, slicepos int){
+  tensor := ToT4(ReadF(fname))
+
+  size := make([]int, 4)
+  for i := range size{
+  size[i] = tensor.Size()[i]
+  }
+  size[1] = 1
+
+  slice := NewT4(size)
+  for  c := 0; c < 3; c++{
+    for  j := 0; j < size[2]; j++{
+      for  k := 0; k < size[3]; k++{
+        slice.TArray[c][0][j][k] = tensor.TArray[c][slicepos][j][k]
+      }
+    }
+  }
+  
+  outname := sim.RemoveExtension(fname) + ".png"
+  out, err := os.Open(outname, os.O_WRONLY|os.O_CREATE, 0666)
+  if err != nil{panic(err)}
+  sim.PNG(out, slice)
+}
+
 
 // Calculates the RMS response of the in-plane magnetization.
 // Used for, e.g., magnetic resonance.
@@ -136,6 +163,7 @@ func (m *Main) CorePol(fname string) (maxMz float64, updown string) {
 
 func main() {
 	sh := refsh.New()
+	sh.CrashOnError = true
 	main_ := NewMain()
 	sh.AddAllMethods(main_)
 

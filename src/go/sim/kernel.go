@@ -13,37 +13,51 @@ package sim
 //  * return only 1/8 of the total kernel and have a function to obtain the rest via mirroring (good for storing them)
 //  * return []Tensor3 right away without conversion
 
-/**
- * A kernel is a rank 5 Tensor: K[S][D][x][y][z].
- * S and D are source and destination directions, ranging from 0 (X) to 2 (Z).
- * K[S][D][x][y][z] is the D-the component of the magnetic field at position
- * (x,y,z) due to a unit spin along direction S, at the origin.
- *
- * As the kernel is symmetric Ksd == Kds, we only work with the upper-triangular part
- *
- * The kernel is usually twice the size of the magnetization field we want to convolve it with.
- * The indices are wrapped: a negative index i is stored at N-abs(i), with N
- * the total size in that direction.
- *
- * Idea: we migth calculate in the kernel in double precession and only round it
- * just before it is returned, or even after doing the FFT. Because it is used over
- * and over, this small gain in accuracy *might* be worth it.
- */
+
+// A kernel is a rank 5 Tensor: K[S][D][x][y][z].
+// S and D are source and destination directions, ranging from 0 (X) to 2 (Z).
+// K[S][D][x][y][z] is the D-the component of the magnetic field at position
+// (x,y,z) due to a unit spin along direction S, at the origin.
+//
+// As the kernel is symmetric Ksd == Kds, we only work with the upper-triangular part
+//
+// The kernel is usually twice the size of the magnetization field we want to convolve it with.
+// The indices are wrapped: a negative index i is stored at N-abs(i), with N
+// the total size in that direction.
+//
+// Idea: we migth calculate in the kernel in double precession and only round it
+// just before it is returned, or even after doing the FFT. Because it is used over
+// and over, this small gain in accuracy *might* be worth it.
+
 
 import (
-	// 	"tensor"
+	"tensor"
 	. "math"
 )
 
-/** Unit kernel, for debugging. */
-// func UnitKernel(paddedsize []int) *tensor.T5 {
-// 	size := paddedsize
-// 	k := tensor.NewTensor5([]int{3, 3, size[0], size[1], size[2]})
-// 	for c := 0; c < 3; c++ {
-// 		k.Array()[c][c][0][0][0] = 1.
-// 	}
-// 	return k
-// }
+// Zero kernel, for debugging.
+func ZeroKernel6(paddedsize []int) []*tensor.T3 {
+	size := paddedsize
+	k := make([]*tensor.T3, 6)
+	for i := range k {
+		k[i] = tensor.NewT3(size)
+	}
+	return k
+}
+
+// Unit kernel, for debugging.
+func UnitKernel6(paddedsize []int) []*tensor.T3 {
+	size := paddedsize
+	k := make([]*tensor.T3, 6)
+	for i := range k {
+		k[i] = tensor.NewT3(size)
+	}
+
+	for c := 0; c < 3; c++ {
+		k[KernIdx[c][c]].Array()[0][0][0] = 1.
+	}
+	return k
+}
 
 // Modulo-like function:
 // Wraps an index to [0, max] by adding/subtracting a multiple of max.
@@ -92,8 +106,7 @@ const (
 // Maps the 3x3 indices of the symmetric demag kernel (K_ij) onto
 // a length 6 array containing the upper triangular part:
 // (Kxx, Kyy, Kzz, Kyz, Kxz, Kxy)
-// Invalid (unused) indices like ZX return -1.
 var KernIdx [3][3]int = [3][3]int{
 	[3]int{XX, XY, XZ},
-	[3]int{-1, YY, YZ},
-	[3]int{-1, -1, ZZ}}
+	[3]int{XY, YY, YZ},
+	[3]int{XZ, YZ, ZZ}}

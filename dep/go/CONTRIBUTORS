@@ -34,6 +34,7 @@
 Abhinav Gupta <abhinav.g90@gmail.com>
 Adam Langley <agl@golang.org>
 Adrian O'Grady <elpollouk@gmail.com>
+Albert Strasheim <fullung@gmail.com>
 Alex Brainman <alex.brainman@gmail.com>
 Amrut Joshi <amrut.joshi@gmail.com>
 Andrei Vieru <euvieru@gmail.com>
@@ -51,11 +52,13 @@ Austin Clements <aclements@csail.mit.edu>
 Balazs Lecz <leczb@google.com>
 Ben Eitzen <eitzenb@golang.org>
 Ben Olive <sionide21@gmail.com>
+Benny Siegert <bsiegert@gmail.com>
 Bill Neubauer <wcn@golang.org> <wcn@google.com>
 Brad Fitzpatrick <brad@danga.com> <bradfitz@gmail.com>
 Brendan O'Dea <bod@golang.org>
 Cary Hull <chull@google.com>
 Charles L. Dorian <cldorian@gmail.com>
+Chris Jones <chris@cjones.org> <chris.jones.yar@gmail.com>
 Chris Lennert <calennert@gmail.com>
 Christian Himpel <chressie@googlemail.com>
 Christopher Wedgwood <cw@f00f.org>
@@ -75,8 +78,10 @@ Eric Clark <zerohp@gmail.com>
 Evan Shaw <chickencha@gmail.com>
 Fazlul Shahriar <fshahriar@gmail.com>
 Firmansyah Adiputra <frm.adiputra@gmail.com>
+Florian Uekermann <florian@uekermann-online.de> <f1@uekermann-online.de>
 Fumitoshi Ukai <ukai@google.com>
 Giles Lean <giles.lean@pobox.com>
+Graham Miller <graham.miller@gmail.com>
 Gustavo Niemeyer <gustavo@niemeyer.net> <n13m3y3r@gmail.com>
 Hector Chu <hectorchu@gmail.com>
 Ian Lance Taylor <iant@golang.org>
@@ -91,12 +96,14 @@ James Toy <nil@opensesame.st>
 James Whitehead <jnwhiteh@gmail.com>
 Jan H. Hosang <jan.hosang@gmail.com>
 Jan Mercl <befelemepeseveze@gmail.com>
+Jim McGrath <jimmc2@gmail.com>
 Joe Poirier <jdpoirier@gmail.com>
 Jonathan Wills <runningwild@gmail.com>
 Josh Goebel <dreamer3@gmail.com>
 Jukka-Pekka Kekkonen <karatepekka@gmail.com>
 Kai Backman <kaib@golang.org>
 Kei Son <hey.calmdown@gmail.com>
+Keith Rarick <kr@xph.us>
 Ken Friedenbach <kenliz@cruzio.com>
 Ken Thompson <ken@golang.org>
 Kevin Ballard <kevin@sb.org>
@@ -133,7 +140,7 @@ Robert Griesemer <gri@golang.org>
 Roger Peppe <rogpeppe@gmail.com>
 Ross Light <rlight2@gmail.com>
 Russ Cox <rsc@golang.org>
-Sam Thorogood <thorogood@google.com>
+Sam Thorogood <thorogood@google.com> <sam.thorogood@gmail.com>
 Scott Schwartz <scotts@golang.org>
 Scott Lawrence <bytbox@gmail.com>
 Sebastien Binet	<seb.binet@gmail.com>
@@ -155,5 +162,7 @@ Vish Subramanian <vish@google.com>
 Wei Guangjing <vcc.163@gmail.com>
 William Josephson <wjosephson@gmail.com>
 Yongjian Xu <i3dmaster@gmail.com>
+Yasuhiro Matsumoto <mattn.jp@gmail.com>
 Yuusei Kuwana <kuwana@kumama.org>
+Yuval Pavel Zholkover <paulzhol@gmail.com>
 Yves Junqueira <yves.junqueira@gmail.com>

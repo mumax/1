@@ -34,7 +34,7 @@ import (
 // expLog is a logging convenience function.  The first argument must be a string.
 func expLog(args ...interface{}) {
 	args[0] = "netchan export: " + args[0].(string)
-	log.Stderr(args...)
+	log.Print(args...)
 }
 
 // An Exporter allows a set of channels to be published on a single
@@ -52,6 +52,7 @@ type expClient struct {
 	errored bool       // client has been sent an error
 	seqNum  int64      // sequences messages sent to client; has value of highest sent
 	ackNum  int64      // highest sequence number acknowledged
+	seqLock sync.Mutex // guarantees messages are in sequence, only locked under mu
 }
 
 func newClient(exp *Exporter, conn net.Conn) *expClient {
@@ -107,6 +108,7 @@ func (client *expClient) run() {
 		}
 		switch hdr.payloadType {
 		case payRequest:
+			*req = request{}
 			if err := client.decode(reqValue); err != nil {
 				expLog("error decoding client request:", err)
 				break
@@ -170,8 +172,10 @@ func (client *expClient) serveRecv(hdr header, count int64) {
 		client.mu.Lock()
 		client.seqNum++
 		hdr.seqNum = client.seqNum
-		err := client.encode(&hdr, payData, val.Interface())
+		client.seqLock.Lock() // guarantee ordering of messages
 		client.mu.Unlock()
+		err := client.encode(&hdr, payData, val.Interface())
+		client.seqLock.Unlock()
 		if err != nil {
 			expLog("error encoding client response:", err)
 			client.sendError(&hdr, err.String())
@@ -343,5 +347,21 @@ func (exp *Exporter) Export(name string, chT interface{}, dir Dir) os.Error {
 		return os.ErrorString("channel name already being exported:" + name)
 	}
 	exp.chans[name] = &chanDir{ch, dir}
+	return nil
+}
+
+// Hangup disassociates the named channel from the Exporter and closes
+// the channel.  Messages in flight for the channel may be dropped.
+func (exp *Exporter) Hangup(name string) os.Error {
+	exp.mu.Lock()
+	chDir, ok := exp.chans[name]
+	if ok {
+		exp.chans[name] = nil, false
+	}
+	exp.mu.Unlock()
+	if !ok {
+		return os.ErrorString("netchan export: hangup: no such channel: " + name)
+	}
+	chDir.ch.Close()
 	return nil
 }

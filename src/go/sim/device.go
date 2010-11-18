@@ -50,8 +50,16 @@ type Device interface {
 	// adds b to a. N = length of a = length of b
 	add(a, b uintptr, N int)
 
-	// vector multiply-add a[i] += cnst * b[i]
+	// vector-constant multiply-add a[i] += cnst * b[i]
 	madd(a uintptr, cnst float32, b uintptr, N int)
+
+	// vector-vector multiply-add a[i] += b[i] * c[i]
+	madd2(a, b, c uintptr, N int)
+
+	// Adds a linear anisotropy contribution to h:
+	// h_i += Sum_i k_ij * m_j
+	// Used for edge corrections.
+	addLinAnis(hx, hy, hz, mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, N int)
 
 	// adds the constant cnst to a. N = length of a
 	addConstant(a uintptr, cnst float32, N int)
@@ -152,6 +160,8 @@ type Device interface {
 
 	fft(plan uintptr, in, out uintptr, direction int)
 
+	freeFFTPlan(plan uintptr)
+
 	//______________________________________________________________________________ already safe
 
 	// The GPU stride in number of float32s (!)
@@ -193,4 +203,5 @@ const (
 	ADD    = 1
 	MAX    = 2
 	MAXABS = 3
+	MIN    = 4
 )

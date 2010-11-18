@@ -6,6 +6,8 @@
 #include	<libc.h>
 #include	<bio.h>
 
+#undef OAPPEND
+
 // avoid <ctype.h>
 #undef isblank
 #define isblank goisblank
@@ -41,7 +43,7 @@ enum
 	AMEMWORD,
 
 	BADWIDTH	= -1000000000,
-	MAXWIDTH        = 1<<30
+	MAXWIDTH	= 1<<30
 };
 
 /*
@@ -210,13 +212,15 @@ struct	Node
 	uchar	dodata;		// compile literal assignment as data statement
 	uchar	used;
 	uchar	isddd;
-	uchar	pun;		// dont registerize variable ONAME
+	uchar	pun;		// don't registerize variable ONAME
 	uchar	readonly;
+	uchar	implicit;	// don't show in printout
 
 	// most nodes
 	Node*	left;
 	Node*	right;
 	Type*	type;
+	Type*	realtype;	// as determined by typecheck
 	NodeList*	list;
 	NodeList*	rlist;
 
@@ -347,6 +351,7 @@ enum
 	OADD, OSUB, OOR, OXOR, OADDSTR,
 	OADDR,
 	OANDAND,
+	OAPPEND,
 	OARRAY,
 	OARRAYBYTESTR, OARRAYRUNESTR,
 	OSTRARRAYBYTE, OSTRARRAYRUNE,
@@ -367,7 +372,7 @@ enum
 	ODOTTYPE2,
 	OEQ, ONE, OLT, OLE, OGE, OGT,
 	OIND,
-	OINDEX, OINDEXSTR, OINDEXMAP,
+	OINDEX, OINDEXMAP,
 	OKEY, OPARAM,
 	OLEN,
 	OMAKE, OMAKECHAN, OMAKEMAP, OMAKESLICE,
@@ -403,7 +408,6 @@ enum
 	ORETURN,
 	OSELECT,
 	OSWITCH,
-	OTYPECASE,
 	OTYPESW,	// l = r.(type)
 
 	// types
@@ -636,9 +640,9 @@ EXTERN	Label*	labellist;
  *
  * typedef	struct
  * {				// must not move anything
- * 	uchar	array[8];	// pointer to data
- * 	uchar	nel[4];		// number of elements
- * 	uchar	cap[4];		// allocated number of elements
+ *	uchar	array[8];	// pointer to data
+ *	uchar	nel[4];		// number of elements
+ *	uchar	cap[4];		// allocated number of elements
  * } Array;
  */
 EXTERN	int	Array_array;	// runtime offsetof(Array,array) - same for String
@@ -653,8 +657,8 @@ EXTERN	int	sizeof_Array;	// runtime sizeof(Array)
  *
  * typedef	struct
  * {				// must not move anything
- * 	uchar	array[8];	// pointer to data
- * 	uchar	nel[4];		// number of elements
+ *	uchar	array[8];	// pointer to data
+ *	uchar	nel[4];		// number of elements
  * } String;
  */
 EXTERN	int	sizeof_String;	// runtime sizeof(String)
@@ -1110,6 +1114,7 @@ Type*	ptrto(Type *t);
 void*	remal(void *p, int32 on, int32 n);
 Sym*	restrictlookup(char *name, Pkg *pkg);
 Node*	safeexpr(Node *n, NodeList **init);
+Node*	cheapexpr(Node *n, NodeList **init);
 int32	setlineno(Node *n);
 void	setmaxarg(Type *t);
 Type*	shallow(Type *t);

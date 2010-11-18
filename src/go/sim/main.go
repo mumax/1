@@ -85,9 +85,19 @@ func main_master() {
 		defer in.Close()
 
 		//TODO it would be safer to abort when the output dir is not empty
-		outfile := removeExtension(infile) + ".out"
+		outfile := RemoveExtension(infile) + ".out"
 
-		sim := NewSim(outfile)
+		// Set the device
+		var backend *Backend
+		if *cpu {
+			backend = CPU
+
+		} else {
+			backend = GPU
+			backend.SetDevice(*gpuid)
+		}
+
+		sim := NewSim(outfile, backend)
 		defer sim.out.Close()
 
 		// file "running" indicates the simulation is running
@@ -100,15 +110,6 @@ func main_master() {
 		runningfile.Close()
 
 		sim.silent = *silent
-		// Set the device
-		if *cpu {
-			sim.backend = CPU
-			sim.backend.init()
-		} else {
-			sim.backend = GPU
-			sim.backend.setDevice(*gpuid)
-			sim.backend.init()
-		}
 		refsh := refsh.New()
 		refsh.CrashOnError = true
 		refsh.AddAllMethods(sim)
@@ -130,11 +131,12 @@ func main_master() {
 		}
 		// The next two lines cause a nil pointer panic when the simulation is not fully initialized
 		if sim.BeenValid && Verbosity > 1 {
-      down()
-      down()
-      down()
-      down()
-      down()
+			down()
+			down()
+			down()
+			down()
+			down()
+
 			sim.TimerPrintDetail()
 			sim.PrintTimer(os.Stdout)
 		}
@@ -146,7 +148,7 @@ func main_master() {
 
 // Removes a filename extension.
 // I.e., the part after the dot, if present.
-func removeExtension(str string) string {
+func RemoveExtension(str string) string {
 	dotpos := len(str) - 1
 	for dotpos >= 0 && str[dotpos] != '.' {
 		dotpos--
@@ -156,7 +158,7 @@ func removeExtension(str string) string {
 
 // Removes a filename path.
 // I.e., the part before the last /, if present.
-func removePath(str string) string {
+func RemovePath(str string) string {
 	slashpos := len(str) - 1
 	for slashpos >= 0 && str[slashpos] != '/' {
 		slashpos--
@@ -167,7 +169,7 @@ func removePath(str string) string {
 // Returns the parent directory of a file.
 // I.e., the part after the /, if present, is removed.
 // If there is no explicit path, "." is returned.
-func parentDir(str string) string {
+func ParentDir(str string) string {
 	slashpos := len(str) - 1
 	for slashpos >= 0 && str[slashpos] != '/' {
 		slashpos--
@@ -182,7 +184,7 @@ func parentDir(str string) string {
 // Complementary function of parentDir
 // Removes the path in front of the file name.
 // I.e., the part before the last /, if present, is removed.
-func filename(str string) string {
+func Filename(str string) string {
 	slashpos := len(str) - 1
 	for slashpos >= 0 && str[slashpos] != '/' {
 		slashpos--
@@ -204,12 +206,34 @@ func filename(str string) string {
 // This function is deferred from Main(). If a panic()
 // occurs, it prints a nice explanation and asks to
 // mail the crash report.
+// TODO: we need to wrap sim in the error value so
+// we can report to its log
 func crashreport() {
 	error := recover()
 	if error != nil {
-		fmt.Fprintln(os.Stderr,
-			`
-			
+		switch t := error.(type) {
+		default:
+			crash(error)
+		}
+	}
+}
+
+func fail() {
+	//   err2 := os.Rename(running, sim.outputdir+"/failed")
+	//     if err2 != nil {
+	//       fmt.Fprintln(os.Stderr, err2)
+	//     }
+}
+
+func crash(error interface{}) {
+	//   err2 := os.Rename(running, sim.outputdir+"/crashed")
+	//     if err2 != nil {
+	//       fmt.Fprintln(os.Stderr, err2)
+	//     }
+
+	fmt.Fprintln(os.Stderr,
+		`
+
 ---------------------------------------------------------------------
 Aw snap, the program has crahsed.
 If you would like to see this issue fixed, please mail a bugreport to
@@ -220,6 +244,5 @@ with Ctrl+Shift+C).
 ---------------------------------------------------------------------
 
 `)
-		panic(error)
-	}
+	panic(error)
 }

@@ -1,7 +1,7 @@
 # Micromagnetic standard problem 4
 
 metadata:  	description standard_problem_4
-maxerror:	1E-4
+maxerror:	1e-4
 
 # material
 msat       	800E3   
@@ -18,7 +18,6 @@ load    	s-state.tensor
 
 # run
 autosave	m	png	50E-12
-autosave m binary 50E-12
 autosave  m ascii 100E-12
 autosave	table	ascii	10E-12
 staticfield 	-24.6E-3     4.3E-3    0  # T

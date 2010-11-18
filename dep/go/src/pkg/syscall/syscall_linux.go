@@ -261,8 +261,47 @@ func (sa *SockaddrUnix) sockaddr() (uintptr, _Socklen, int) {
 	return uintptr(unsafe.Pointer(&sa.raw)), 1 + _Socklen(n) + 1, 0
 }
 
+type SockaddrLinklayer struct {
+	Protocol uint16
+	Ifindex  int
+	Hatype   uint16
+	Pkttype  uint8
+	Halen    uint8
+	Addr     [8]byte
+	raw      RawSockaddrLinklayer
+}
+
+func (sa *SockaddrLinklayer) sockaddr() (uintptr, _Socklen, int) {
+	if sa.Ifindex < 0 || sa.Ifindex > 0x7fffffff {
+		return 0, 0, EINVAL
+	}
+	sa.raw.Family = AF_PACKET
+	sa.raw.Protocol = sa.Protocol
+	sa.raw.Ifindex = int32(sa.Ifindex)
+	sa.raw.Hatype = sa.Hatype
+	sa.raw.Pkttype = sa.Pkttype
+	sa.raw.Halen = sa.Halen
+	for i := 0; i < len(sa.Addr); i++ {
+		sa.raw.Addr[i] = sa.Addr[i]
+	}
+	return uintptr(unsafe.Pointer(&sa.raw)), SizeofSockaddrLinklayer, 0
+}
+
 func anyToSockaddr(rsa *RawSockaddrAny) (Sockaddr, int) {
 	switch rsa.Addr.Family {
+	case AF_PACKET:
+		pp := (*RawSockaddrLinklayer)(unsafe.Pointer(rsa))
+		sa := new(SockaddrLinklayer)
+		sa.Protocol = pp.Protocol
+		sa.Ifindex = int(pp.Ifindex)
+		sa.Hatype = pp.Hatype
+		sa.Pkttype = pp.Pkttype
+		sa.Halen = pp.Halen
+		for i := 0; i < len(sa.Addr); i++ {
+			sa.Addr[i] = pp.Addr[i]
+		}
+		return sa, 0
+
 	case AF_UNIX:
 		pp := (*RawSockaddrUnix)(unsafe.Pointer(rsa))
 		sa := new(SockaddrUnix)
@@ -584,7 +623,6 @@ func PtraceDetach(pid int) (errno int) { return ptrace(PTRACE_DETACH, pid, 0, 0)
 //sys	fcntl(fd int, cmd int, arg int) (val int, errno int)
 //sys	Fdatasync(fd int) (errno int)
 //sys	Fsync(fd int) (errno int)
-//sys	Ftruncate(fd int, length int64) (errno int)
 //sys	Getdents(fd int, buf []byte) (n int, errno int) = SYS_GETDENTS64
 //sys	Getpgid(pid int) (pgid int, errno int)
 //sys	Getpgrp() (pid int)
@@ -607,8 +645,6 @@ func PtraceDetach(pid int) (errno int) { return ptrace(PTRACE_DETACH, pid, 0, 0)
 //sys	Nanosleep(time *Timespec, leftover *Timespec) (errno int)
 //sys	Pause() (errno int)
 //sys	PivotRoot(newroot string, putold string) (errno int) = SYS_PIVOT_ROOT
-//sys	Pread(fd int, p []byte, offset int64) (n int, errno int) = SYS_PREAD64
-//sys	Pwrite(fd int, p []byte, offset int64) (n int, errno int) = SYS_PWRITE64
 //sys	Read(fd int, p []byte) (n int, errno int)
 //sys	Readlink(path string, buf []byte) (n int, errno int)
 //sys	Rename(oldpath string, newpath string) (errno int)
@@ -628,7 +664,6 @@ func PtraceDetach(pid int) (errno int) { return ptrace(PTRACE_DETACH, pid, 0, 0)
 //sys	Tee(rfd int, wfd int, len int, flags int) (n int64, errno int)
 //sys	Tgkill(tgid int, tid int, sig int) (errno int)
 //sys	Times(tms *Tms) (ticks uintptr, errno int)
-//sys	Truncate(path string, length int64) (errno int)
 //sys	Umask(mask int) (oldmask int)
 //sys	Uname(buf *Utsname) (errno int)
 //sys	Unlink(path string) (errno int)

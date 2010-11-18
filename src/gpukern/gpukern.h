@@ -11,7 +11,7 @@
  */
 
 
-#include "gpu_fft3.h"
+#include "gpu_fft0.h"
 #include "gpu_kernmul.h"
 #include "gpu_linalg.h"
 #include "gpu_mem.h"
@@ -27,3 +27,4 @@
 #include "gpu_reduction.h"
 #include "gpu_conf.h"
 #include "gpu_safe.h"
+#include "gpu_anis.h"

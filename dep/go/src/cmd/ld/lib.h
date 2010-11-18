@@ -103,6 +103,7 @@ void	addlibpath(char *srcref, char *objref, char *file, char *pkg);
 Section*	addsection(Segment*, char*, int);
 void	copyhistfrog(char *buf, int nbuf);
 void	addhist(int32 line, int type);
+void	asmlc(void);
 void	histtoauto(void);
 void	collapsefrog(Sym *s);
 Sym*	lookup(char *symb, int v);
@@ -120,19 +121,50 @@ void	errorexit(void);
 void	mangle(char*);
 void	objfile(char *file, char *pkg);
 void	libinit(void);
+void	pclntab(void);
+void	symtab(void);
 void	Lflag(char *arg);
 void	usage(void);
 void	ldobj1(Biobuf *f, char*, int64 len, char *pn);
 void	ldobj(Biobuf*, char*, int64, char*, int);
 void	ldpkg(Biobuf*, char*, int64, char*, int);
 void	mark(Sym *s);
+void	mkfwd(void);
 char*	expandpkg(char*, char*);
 void	deadcode(void);
 void	ewrite(int, void*, int);
+Reloc*	addrel(Sym*);
+void	codeblk(int32, int32);
+void	datblk(int32, int32);
+Sym*	datsort(Sym*);
+void	reloc(void);
+void	savedata(Sym*, Prog*);
+void	symgrow(Sym*, int32);
+vlong	addstring(Sym*, char*);
+vlong	adduint32(Sym*, uint32);
+vlong	adduint64(Sym*, uint64);
+vlong	addaddr(Sym*, Sym*);
+vlong	addsize(Sym*, Sym*);
+vlong	adduint8(Sym*, uint8);
+vlong	adduint16(Sym*, uint16);
+void	asmsym(void);
+void	asmelfsym64(void);
+void	strnput(char*, int);
+void	dodata(void);
+void	address(void);
+void	genasmsym(void (*put)(Sym*, char*, int, vlong, vlong, int, Sym*));
+vlong	datoff(vlong);
 
 int	pathchar(void);
 void*	mal(uint32);
+void	unmal(void*, uint32);
 void	mywhatsys(void);
+
+// relocation size bits
+enum {
+	Rbig = 128,
+	Rlittle = 64,
+};
 
 /* set by call to mywhatsys() */
 extern	char*	goroot;

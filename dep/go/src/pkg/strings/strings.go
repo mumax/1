@@ -61,6 +61,11 @@ func Count(s, sep string) int {
 	return n
 }
 
+// Contains returns true if substr is within s.
+func Contains(s, substr string) bool {
+	return Index(s, substr) != -1
+}
+
 // Index returns the index of the first instance of sep in s, or -1 if sep is not present in s.
 func Index(s, sep string) int {
 	n := len(sep)
@@ -527,21 +532,10 @@ func Replace(s, old, new string, n int) string {
 		} else {
 			j += Index(s[start:], old)
 		}
-		w += copyString(t[w:], s[start:j])
-		w += copyString(t[w:], new)
+		w += copy(t[w:], s[start:j])
+		w += copy(t[w:], new)
 		start = j + len(old)
 	}
-	w += copyString(t[w:], s[start:])
+	w += copy(t[w:], s[start:])
 	return string(t[0:w])
-}
-
-func copyString(dst []byte, src string) int {
-	n := len(dst)
-	if n > len(src) {
-		n = len(src)
-	}
-	for i := 0; i < n; i++ {
-		dst[i] = src[i]
-	}
-	return n
 }

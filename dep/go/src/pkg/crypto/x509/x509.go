@@ -187,19 +187,19 @@ func (n *Name) fillFromRDNSequence(rdns *rdnSequence) {
 			case 5:
 				n.SerialNumber = value
 			case 6:
-				n.Country = appendString(n.Country, value)
+				n.Country = append(n.Country, value)
 			case 7:
-				n.Locality = appendString(n.Locality, value)
+				n.Locality = append(n.Locality, value)
 			case 8:
-				n.Province = appendString(n.Province, value)
+				n.Province = append(n.Province, value)
 			case 9:
-				n.StreetAddress = appendString(n.StreetAddress, value)
+				n.StreetAddress = append(n.StreetAddress, value)
 			case 10:
-				n.Organization = appendString(n.Organization, value)
+				n.Organization = append(n.Organization, value)
 			case 11:
-				n.OrganizationalUnit = appendString(n.OrganizationalUnit, value)
+				n.OrganizationalUnit = append(n.OrganizationalUnit, value)
 			case 17:
-				n.PostalCode = appendString(n.PostalCode, value)
+				n.PostalCode = append(n.PostalCode, value)
 			}
 		}
 	}
@@ -221,39 +221,39 @@ func (n Name) toRDNSequence() (ret rdnSequence) {
 	ret = make([]relativeDistinguishedNameSET, 9 /* maximum number of elements */ )
 	i := 0
 	if len(n.Country) > 0 {
-		ret[i] = []attributeTypeAndValue{attributeTypeAndValue{oidCountry, n.Country}}
+		ret[i] = []attributeTypeAndValue{{oidCountry, n.Country}}
 		i++
 	}
 	if len(n.Organization) > 0 {
-		ret[i] = []attributeTypeAndValue{attributeTypeAndValue{oidOrganization, n.Organization}}
+		ret[i] = []attributeTypeAndValue{{oidOrganization, n.Organization}}
 		i++
 	}
 	if len(n.OrganizationalUnit) > 0 {
-		ret[i] = []attributeTypeAndValue{attributeTypeAndValue{oidOrganizationalUnit, n.OrganizationalUnit}}
+		ret[i] = []attributeTypeAndValue{{oidOrganizationalUnit, n.OrganizationalUnit}}
 		i++
 	}
 	if len(n.CommonName) > 0 {
-		ret[i] = []attributeTypeAndValue{attributeTypeAndValue{oidCommonName, n.CommonName}}
+		ret[i] = []attributeTypeAndValue{{oidCommonName, n.CommonName}}
 		i++
 	}
 	if len(n.SerialNumber) > 0 {
-		ret[i] = []attributeTypeAndValue{attributeTypeAndValue{oidSerialNumber, n.SerialNumber}}
+		ret[i] = []attributeTypeAndValue{{oidSerialNumber, n.SerialNumber}}
 		i++
 	}
 	if len(n.Locality) > 0 {
-		ret[i] = []attributeTypeAndValue{attributeTypeAndValue{oidLocatity, n.Locality}}
+		ret[i] = []attributeTypeAndValue{{oidLocatity, n.Locality}}
 		i++
 	}
 	if len(n.Province) > 0 {
-		ret[i] = []attributeTypeAndValue{attributeTypeAndValue{oidProvince, n.Province}}
+		ret[i] = []attributeTypeAndValue{{oidProvince, n.Province}}
 		i++
 	}
 	if len(n.StreetAddress) > 0 {
-		ret[i] = []attributeTypeAndValue{attributeTypeAndValue{oidStreetAddress, n.StreetAddress}}
+		ret[i] = []attributeTypeAndValue{{oidStreetAddress, n.StreetAddress}}
 		i++
 	}
 	if len(n.PostalCode) > 0 {
-		ret[i] = []attributeTypeAndValue{attributeTypeAndValue{oidPostalCode, n.PostalCode}}
+		ret[i] = []attributeTypeAndValue{{oidPostalCode, n.PostalCode}}
 		i++
 	}
 
@@ -501,19 +501,6 @@ func parsePublicKey(algo PublicKeyAlgorithm, asn1Data []byte) (interface{}, os.E
 	panic("unreachable")
 }
 
-func appendString(in []string, v string) (out []string) {
-	if cap(in)-len(in) < 1 {
-		out = make([]string, len(in)+1, len(in)*2+1)
-		for i, v := range in {
-			out[i] = v
-		}
-	} else {
-		out = in[0 : len(in)+1]
-	}
-	out[len(in)] = v
-	return out
-}
-
 func parseCertificate(in *certificate) (*Certificate, os.Error) {
 	out := new(Certificate)
 	out.Raw = in.TBSCertificate.Raw
@@ -603,10 +590,10 @@ func parseCertificate(in *certificate) (*Certificate, os.Error) {
 					}
 					switch v.Tag {
 					case 1:
-						out.EmailAddresses = appendString(out.EmailAddresses, string(v.Bytes))
+						out.EmailAddresses = append(out.EmailAddresses, string(v.Bytes))
 						parsedName = true
 					case 2:
-						out.DNSNames = appendString(out.DNSNames, string(v.Bytes))
+						out.DNSNames = append(out.DNSNames, string(v.Bytes))
 						parsedName = true
 					}
 				}

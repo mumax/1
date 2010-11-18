@@ -48,6 +48,15 @@ func (d Cpu) madd(a uintptr, cnst float32, b uintptr, N int) {
 	C.cpu_madd((*C.float)(unsafe.Pointer(a)), C.float(cnst), (*C.float)(unsafe.Pointer(b)), C.int(N))
 }
 
+func (d Cpu) madd2(a, b, c uintptr, N int) {
+	panic(Bug("unimplemented"))
+	//C.cpu_madd2((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), (*C.float)(unsafe.Pointer(c)), C.int(N))
+}
+
+func (c Cpu) addLinAnis(hx, hy, hz, mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, N int) {
+	panic(Bug("unimplemented"))
+}
+
 func (d Cpu) linearCombination(a, b uintptr, weightA, weightB float32, N int) {
 	C.cpu_linear_combination((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(weightA), C.float(weightB), C.int(N))
 }
@@ -135,6 +144,11 @@ func (d Cpu) newFFTPlan(dataSize, logicSize []int) uintptr {
 	Csize := (*C.int)(unsafe.Pointer(&dataSize[0]))
 	CpaddedSize := (*C.int)(unsafe.Pointer(&logicSize[0]))
 	return uintptr(unsafe.Pointer(C.new_cpuFFT3dPlan_inplace(Csize, CpaddedSize)))
+}
+
+func (d Cpu) freeFFTPlan(plan uintptr) {
+	panic(Bug("Unimplemented"))
+	//C.delete_cpuFFT3dPlan((*C.gpuFFT3dPlan)(unsafe.Pointer(plan)))
 }
 
 func (d Cpu) fft(plan uintptr, in, out uintptr, direction int) {

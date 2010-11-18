@@ -53,11 +53,14 @@ var (
 	procCryptAcquireContextW       = getSysProcAddr(modadvapi32, "CryptAcquireContextW")
 	procCryptReleaseContext        = getSysProcAddr(modadvapi32, "CryptReleaseContext")
 	procCryptGenRandom             = getSysProcAddr(modadvapi32, "CryptGenRandom")
+	procOpenProcess                = getSysProcAddr(modkernel32, "OpenProcess")
+	procGetExitCodeProcess         = getSysProcAddr(modkernel32, "GetExitCodeProcess")
 	procGetEnvironmentStringsW     = getSysProcAddr(modkernel32, "GetEnvironmentStringsW")
 	procFreeEnvironmentStringsW    = getSysProcAddr(modkernel32, "FreeEnvironmentStringsW")
 	procGetEnvironmentVariableW    = getSysProcAddr(modkernel32, "GetEnvironmentVariableW")
 	procSetEnvironmentVariableW    = getSysProcAddr(modkernel32, "SetEnvironmentVariableW")
 	procSetFileTime                = getSysProcAddr(modkernel32, "SetFileTime")
+	procGetFileAttributesW         = getSysProcAddr(modkernel32, "GetFileAttributesW")
 	procWSAStartup                 = getSysProcAddr(modwsock32, "WSAStartup")
 	procWSACleanup                 = getSysProcAddr(modwsock32, "WSACleanup")
 	procsocket                     = getSysProcAddr(modwsock32, "socket")
@@ -679,6 +682,36 @@ func CryptGenRandom(provhandle uint32, buflen uint32, buf *byte) (ok bool, errno
 	return
 }
 
+func OpenProcess(da uint32, b int, pid uint32) (handle uint32, errno int) {
+	r0, _, e1 := Syscall(procOpenProcess, uintptr(da), uintptr(b), uintptr(pid))
+	handle = uint32(r0)
+	if handle == 0 {
+		if e1 != 0 {
+			errno = int(e1)
+		} else {
+			errno = EINVAL
+		}
+	} else {
+		errno = 0
+	}
+	return
+}
+
+func GetExitCodeProcess(h uint32, c *uint32) (ok bool, errno int) {
+	r0, _, e1 := Syscall(procGetExitCodeProcess, uintptr(h), uintptr(unsafe.Pointer(c)), 0)
+	ok = bool(r0 != 0)
+	if !ok {
+		if e1 != 0 {
+			errno = int(e1)
+		} else {
+			errno = EINVAL
+		}
+	} else {
+		errno = 0
+	}
+	return
+}
+
 func GetEnvironmentStrings() (envs *uint16, errno int) {
 	r0, _, e1 := Syscall(procGetEnvironmentStringsW, 0, 0, 0)
 	envs = (*uint16)(unsafe.Pointer(r0))
@@ -743,6 +776,21 @@ func SetFileTime(handle int32, ctime *Filetime, atime *Filetime, wtime *Filetime
 	r0, _, e1 := Syscall6(procSetFileTime, uintptr(handle), uintptr(unsafe.Pointer(ctime)), uintptr(unsafe.Pointer(atime)), uintptr(unsafe.Pointer(wtime)), 0, 0)
 	ok = bool(r0 != 0)
 	if !ok {
+		if e1 != 0 {
+			errno = int(e1)
+		} else {
+			errno = EINVAL
+		}
+	} else {
+		errno = 0
+	}
+	return
+}
+
+func GetFileAttributes(name *uint16) (attrs uint32, errno int) {
+	r0, _, e1 := Syscall(procGetFileAttributesW, uintptr(unsafe.Pointer(name)), 0, 0)
+	attrs = uint32(r0)
+	if attrs == INVALID_FILE_ATTRIBUTES {
 		if e1 != 0 {
 			errno = int(e1)
 		} else {

@@ -17,7 +17,7 @@ import (
 // impLog is a logging convenience function.  The first argument must be a string.
 func impLog(args ...interface{}) {
 	args[0] = "netchan import: " + args[0].(string)
-	log.Stderr(args...)
+	log.Print(args...)
 }
 
 // An Importer allows a set of channels to be imported from a single
@@ -201,5 +201,21 @@ func (imp *Importer) ImportNValues(name string, chT interface{}, dir Dir, n int)
 			}
 		}()
 	}
+	return nil
+}
+
+// Hangup disassociates the named channel from the Importer and closes
+// the channel.  Messages in flight for the channel may be dropped.
+func (imp *Importer) Hangup(name string) os.Error {
+	imp.chanLock.Lock()
+	chDir, ok := imp.chans[name]
+	if ok {
+		imp.chans[name] = nil, false
+	}
+	imp.chanLock.Unlock()
+	if !ok {
+		return os.ErrorString("netchan import: hangup: no such channel: " + name)
+	}
+	chDir.ch.Close()
 	return nil
 }

@@ -20,9 +20,11 @@ const (
 // A tensor on the calculating device (CPU, GPU),
 // not directly accessible as a go array.
 type DevTensor struct {
-	*Backend ///< wraps the Device where the Tensor resides on (GPU/CPU/...)
+	*Backend // wraps the Device where the Tensor resides on (GPU/CPU/...)
 	size     []int
-	data     uintptr // points to float32 array on the GPU/CPU
+	length   int
+	data     uintptr      // points to float32 array on the GPU/CPU
+	comp     []*DevTensor // wraps the components. E.g. mx = m.comp[0], currently only one level deep.
 }
 
 // Allocates a new tensor on the device represented by Backend
@@ -30,20 +32,42 @@ func NewTensor(b *Backend, size []int) *DevTensor {
 	t := new(DevTensor)
 	t.Backend = b
 	t.size = make([]int, len(size))
-	length := 1
+	t.length = 1
 	for i := range size {
 		t.size[i] = size[i]
-		length *= size[i]
+		t.length *= size[i]
 	}
-	t.data = b.newArray(length)
+	t.data = b.newArray(t.length)
 	ZeroTensor(t)
+
+	// initialize component list
+	if size[0] > 0 {
+		compsize := Len(size[1:])
+		t.comp = make([]*DevTensor, size[0])
+		for i := range t.comp {
+			t.comp[i] = AsTensor(b, b.arrayOffset(t.data, i*compsize), size[1:])
+		}
+	}
+
 	// TODO: runtime.SetFinalizer(t, Free)
+	// also free components
 	return t
 }
 
+// Frees the underlying storage.
+// It is safe to double-free.
+func (t *DevTensor) Free() {
+	if t.data != 0 {
+		t.freeArray(t.data)
+		t.data = 0
+	}
+}
+
+
 // Wraps a pre-allocated device array in a tensor
+// comp remains uninitialized
 func AsTensor(b *Backend, data uintptr, size []int) *DevTensor {
-	return &DevTensor{b, size, data}
+	return &DevTensor{b, size, Len(size), data, nil}
 }
 
 // func (t *DevTensor) Get(index []int) float32 {
@@ -62,12 +86,12 @@ func (t *DevTensor) Size() []int {
 }
 
 
-func (t *DevTensor) Component(comp int) *DevTensor {
-	assert(comp >= 0 && comp < t.size[0])
-	size := t.size[1:]
-	data := t.arrayOffset(t.data, comp*Len(size))
-	return &DevTensor{t.Backend, size, data}
-}
+// func (t *DevTensor) Component(comp int) *DevTensor {
+// 	assert(comp >= 0 && comp < t.size[0])
+// 	size := t.size[1:]
+// 	data := t.arrayOffset(t.data, comp*Len(size))
+// 	return &DevTensor{t.Backend, size, data}
+// }
 
 
 func Len(size []int) int {

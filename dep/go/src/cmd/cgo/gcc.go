@@ -12,6 +12,7 @@ import (
 	"debug/dwarf"
 	"debug/elf"
 	"debug/macho"
+	"debug/pe"
 	"flag"
 	"fmt"
 	"go/ast"
@@ -222,14 +223,14 @@ func (p *Package) guessKinds(f *File) []*Name {
 		switch {
 		default:
 			continue
-		case strings.Index(line, ": useless type name in empty declaration") >= 0:
+		case strings.Contains(line, ": useless type name in empty declaration"):
 			what = "type"
 			isConst[i] = false
-		case strings.Index(line, ": statement with no effect") >= 0:
+		case strings.Contains(line, ": statement with no effect"):
 			what = "not-type" // const or func or var
-		case strings.Index(line, "undeclared") >= 0:
+		case strings.Contains(line, "undeclared"):
 			error(noPos, "%s", strings.TrimSpace(line[colon+1:]))
-		case strings.Index(line, "is not an integer constant") >= 0:
+		case strings.Contains(line, "is not an integer constant"):
 			isConst[i] = false
 			continue
 		}
@@ -495,7 +496,7 @@ func (p *Package) gccCmd() []string {
 // returns the corresponding DWARF data and any messages
 // printed to standard error.
 func (p *Package) gccDebug(stdin []byte) *dwarf.Data {
-	runGcc(stdin, concat(p.gccCmd(), p.GccOptions))
+	runGcc(stdin, append(p.gccCmd(), p.GccOptions...))
 
 	// Try to parse f as ELF and Mach-O and hope one works.
 	var f interface {
@@ -504,7 +505,9 @@ func (p *Package) gccDebug(stdin []byte) *dwarf.Data {
 	var err os.Error
 	if f, err = elf.Open(gccTmp); err != nil {
 		if f, err = macho.Open(gccTmp); err != nil {
-			fatal("cannot parse gcc output %s as ELF or Mach-O object", gccTmp)
+			if f, err = pe.Open(gccTmp); err != nil {
+				fatal("cannot parse gcc output %s as ELF or Mach-O or PE object", gccTmp)
+			}
 		}
 	}
 
@@ -521,7 +524,7 @@ func (p *Package) gccDebug(stdin []byte) *dwarf.Data {
 // and its included files.
 func (p *Package) gccDefines(stdin []byte) string {
 	base := []string{p.gccName(), p.gccMachine(), "-E", "-dM", "-xc", "-"}
-	stdout, _ := runGcc(stdin, concat(base, p.GccOptions))
+	stdout, _ := runGcc(stdin, append(base, p.GccOptions...))
 	return stdout
 }
 
@@ -530,7 +533,7 @@ func (p *Package) gccDefines(stdin []byte) string {
 // gcc to fail.
 func (p *Package) gccErrors(stdin []byte) string {
 	// TODO(rsc): require failure
-	args := concat(p.gccCmd(), p.GccOptions)
+	args := append(p.gccCmd(), p.GccOptions...)
 	if *debugGcc {
 		fmt.Fprintf(os.Stderr, "$ %s <<EOF\n", strings.Join(args, " "))
 		os.Stderr.Write(stdin)

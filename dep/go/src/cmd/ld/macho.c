@@ -47,6 +47,10 @@ newMachoLoad(uint32 type, uint32 ndata)
 		diag("too many loads");
 		errorexit();
 	}
+	
+	if(macho64 && (ndata & 1))
+		ndata++;
+	
 	l = &load[nload++];
 	l->type = type;
 	l->ndata = ndata;
@@ -277,7 +281,7 @@ domacho(void)
 	char *p;
 	uchar *dat;
 	uint32 x;
-	Sym *s;
+	Sym *s, *smacho;
 	Sym **impsym;
 
 	ptrsize = 4;
@@ -290,7 +294,7 @@ domacho(void)
 
 	impsym = nil;
 	for(h=0; h<NHASH; h++) {
-		for(s=hash[h]; s!=S; s=s->link) {
+		for(s=hash[h]; s!=S; s=s->hash) {
 			if(!s->reachable || (s->type != STEXT && s->type != SDATA && s->type != SBSS) || s->dynimpname == nil)
 				continue;
 			if(debug['d']) {
@@ -348,10 +352,16 @@ domacho(void)
 		}
 	}
 
+	smacho = lookup("__nl_symbol_ptr", 0);
+	smacho->type = SMACHO;
+	smacho->reachable = 1;
 	for(h=0; h<nimpsym; h++) {
 		s = impsym[h];
-		s->type = SMACHO;
+		s->type = SMACHO | SSUB;
+		s->sub = smacho->sub;
+		smacho->sub = s;
 		s->value = (nexpsym+h) * ptrsize;
+		s->reachable = 1;
 
 		/* symbol table entry - darwin still puts _ prefixes on all C symbols */
 		x = nstrtab;
@@ -394,7 +404,9 @@ domacho(void)
 		dat[3] = x>>24;
 	}
 
-	dynptrsize = (nexpsym+nimpsym) * ptrsize;
+	smacho->size = (nexpsym+nimpsym) * ptrsize;
+	if(smacho->size == 0)
+		smacho->reachable = 0;
 }
 
 vlong
@@ -404,19 +416,22 @@ domacholink(void)
 	uchar *p;
 	Sym *s;
 	uint64 val;
+	Sym *smacho;
+	
+	smacho = lookup("__nl_symbol_ptr", 0);
 
 	linkoff = 0;
-	if(nlinkdata > 0) {
-		linkoff = rnd(HEADR+textsize, INITRND) + rnd(datsize, INITRND);
+	if(nlinkdata > 0 || nstrtab > 0) {
+		linkoff = rnd(HEADR+segtext.len, INITRND) + rnd(segdata.filelen - smacho->size, INITRND);
 		seek(cout, linkoff, 0);
 
 		for(i = 0; i<nexpsym; ++i) {
 			s = expsym[i].s;
 			val = s->value;
-			if(s->type == SUNDEF)
+			if(s->type == SXREF)
 				diag("export of undefined symbol %s", s->name);
 			if (s->type != STEXT)
-				val += INITDAT;
+				val += segdata.vaddr;
 			p = linkdata+expsym[i].off;
 			p[0] = val;
 			p[1] = val >> 8;
@@ -437,7 +452,7 @@ domacholink(void)
 }
 
 void
-asmbmacho(vlong symdatva, vlong symo)
+asmbmacho(void)
 {
 	vlong v, w;
 	vlong va;
@@ -448,6 +463,7 @@ asmbmacho(vlong symdatva, vlong symo)
 	MachoSeg *ms;
 	MachoDebug *md;
 	MachoLoad *ml;
+	Sym *smacho;
 
 	/* apple MACH */
 	va = INITTEXT - HEADR;
@@ -473,7 +489,7 @@ asmbmacho(vlong symdatva, vlong symo)
 	ms->vsize = va;
 
 	/* text */
-	v = rnd(HEADR+textsize, INITRND);
+	v = rnd(HEADR+segtext.len, INITRND);
 	ms = newMachoSeg("__TEXT", 1);
 	ms->vaddr = va;
 	ms->vsize = v;
@@ -483,29 +499,31 @@ asmbmacho(vlong symdatva, vlong symo)
 
 	msect = newMachoSect(ms, "__text");
 	msect->addr = INITTEXT;
-	msect->size = textsize;
+	msect->size = segtext.sect->len;
 	msect->off = INITTEXT - va;
 	msect->flag = 0x400;	/* flag - some instructions */
 
 	/* data */
-	w = datsize+dynptrsize+bsssize;
-	ms = newMachoSeg("__DATA", 2+(dynptrsize>0));
+	smacho = lookup("__nl_symbol_ptr", 0);
+	w = segdata.len;
+	ms = newMachoSeg("__DATA", 2+(smacho->size > 0));
 	ms->vaddr = va+v;
 	ms->vsize = w;
 	ms->fileoffset = v;
-	ms->filesize = datsize;
+	ms->filesize = segdata.filelen;
 	ms->prot1 = 7;
 	ms->prot2 = 3;
 
 	msect = newMachoSect(ms, "__data");
 	msect->addr = va+v;
-	msect->size = datsize;
+	msect->size = segdata.filelen - smacho->size;
 	msect->off = v;
 
-	if(dynptrsize > 0) {
+	if(smacho->size > 0) {
 		msect = newMachoSect(ms, "__nl_symbol_ptr");
-		msect->addr = va+v+datsize;
-		msect->size = dynptrsize;
+		msect->addr = smacho->value;
+		msect->size = smacho->size;
+		msect->off = datoff(msect->addr);
 		msect->align = 2;
 		msect->flag = 6;	/* section with nonlazy symbol pointers */
 		/*
@@ -520,8 +538,8 @@ asmbmacho(vlong symdatva, vlong symo)
 	}
 
 	msect = newMachoSect(ms, "__bss");
-	msect->addr = va+v+datsize+dynptrsize;
-	msect->size = bsssize;
+	msect->addr = va+v+segdata.filelen;
+	msect->size = segdata.len - segdata.filelen;
 	msect->flag = 1;	/* flag - zero fill */
 
 	switch(thechar) {
@@ -546,10 +564,10 @@ asmbmacho(vlong symdatva, vlong symo)
 	if(!debug['d']) {
 		int nsym;
 
-		nsym = dynptrsize/ptrsize;
+		nsym = smacho->size/ptrsize;
 
 		ms = newMachoSeg("__LINKEDIT", 0);
-		ms->vaddr = va+v+rnd(datsize+dynptrsize+bsssize, INITRND);
+		ms->vaddr = va+v+rnd(segdata.len, INITRND);
 		ms->vsize = nlinkdata+nstrtab;
 		ms->fileoffset = linkoff;
 		ms->filesize = nlinkdata+nstrtab;
@@ -603,21 +621,17 @@ asmbmacho(vlong symdatva, vlong symo)
 	}
 
 	if(!debug['s']) {
-		ms = newMachoSeg("__SYMDAT", 1);
-		ms->vaddr = symdatva;
-		ms->vsize = 8+symsize+lcsize;
-		ms->fileoffset = symo;
-		ms->filesize = 8+symsize+lcsize;
-		ms->prot1 = 7;
-		ms->prot2 = 5;
+		Sym *s;
 
 		md = newMachoDebug();
-		md->fileoffset = symo+8;
-		md->filesize = symsize;
+		s = lookup("symtab", 0);
+		md->fileoffset = datoff(s->value);
+		md->filesize = s->size;
 
 		md = newMachoDebug();
-		md->fileoffset = symo+8+symsize;
-		md->filesize = lcsize;
+		s = lookup("pclntab", 0);
+		md->fileoffset = datoff(s->value);
+		md->filesize = s->size;
 
 		dwarfaddmachoheaders();
 	}

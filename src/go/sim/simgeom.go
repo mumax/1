@@ -10,29 +10,32 @@ import (
 	"tensor"
 	"os"
 	"fmt"
+	"math"
 )
 
 // This file implements the methods for
 // controlling the simulation geometry.
 
+//                                                                      IMPORTANT: this is one of the places where X,Y,Z get swapped
+//                                                                      what is (X,Y,Z) internally becomes (Z,Y,X) for the user!
 
-// DEPRECATED: uses GridSize which is clearer.
+
 // Set the mesh size (number of cells in each direction)
 // Note: for performance reasons the last size should be big.
 func (s *Sim) GridSize(z, y, x int) {
 	if x <= 0 || y <= 0 || z <= 0 {
-    s.Errorln("Size should be > 0")
-    os.Exit(-6)
-  }
-  if x > y || x > z {
-    s.Warn("For optimal efficiency, the number of cells in the last dimension (Z) should be the smallest.\n E.g.: gridsize 32 32 1 is much faster than gridsize 1 32 32")
-  }
-  s.input.size[X] = x
-  s.input.size[Y] = y
-  s.input.size[Z] = z
-  s.input.sizeSet = true
-  s.updateSizes()
-  s.invalidate()
+		s.Errorln("Size should be > 0")
+		os.Exit(-6)
+	}
+	if x > y || x > z {
+		s.Warn("For optimal efficiency, the number of cells in the last dimension (Z) should be the smallest.\n E.g.: gridsize 32 32 1 is much faster than gridsize 1 32 32")
+	}
+	s.input.size[X] = x
+	s.input.size[Y] = y
+	s.input.size[Z] = z
+	s.input.sizeSet = true
+	s.updateSizes()
+	s.invalidate()
 }
 
 // TODO: We need one function that sets all metadata centrally
@@ -102,15 +105,17 @@ func (s *Sim) updateSizes() {
 	s.invalidate()
 }
 
-func (sim *Sim) initNormMap() {
-	sim.initMLocal()
-	if sim.normMap == nil {
-		sim.normMap = NewTensor(sim.backend, Size3D(sim.mLocal.Size()))
-	}
+
+// Sets the accuracy of edge corrections.
+// 0 means no correction.
+func (s *Sim) EdgeCorrection(accuracy int) {
+	s.edgeCorr = accuracy
+	s.invalidate()
 }
 
+
 func (sim *Sim) LoadMSat(file string) {
-	sim.initNormMap()
+	sim.allocNormMap()
 	sim.Println("Loading space-dependent saturation magnetization (norm)", file)
 	in, err := os.Open(file, os.O_RDONLY, 0666)
 	defer in.Close()
@@ -129,38 +134,24 @@ func (sim *Sim) LoadMSat(file string) {
 // Sets up the normMap for a (possibly ellipsoidal) cylinder geometry along Z.
 // Does not take into account the aspect ratio of the cells.
 func (sim *Sim) Cylinder() {
-	sim.initMLocal()
-	sim.Println("Geometry: cylinder")
 
-	sim.initNormMap()
-	norm := tensor.NewT3(sim.normMap.Size())
+	sim.initSize()
+	sim.geom = &Ellipsoid{float32(math.Inf(1)), sim.input.partSize[Y] / 2., sim.input.partSize[Z] / 2.}
+	sim.invalidate()
+}
 
-	sizex := sim.mLocal.Size()[1]
-	sizey := sim.mLocal.Size()[2]
-	sizez := sim.mLocal.Size()[3]
-	rx := float64(sizey / 2)
-	ry := float64(sizez / 2)
 
-	for i := 0; i < sizex; i++ {
-		for j := 0; j < sizey; j++ {
-			x := float64(j-sizey/2) + 0.5 // add 0.5 to be at the center of the cell, not a vertex (gives nicer round shape)
-			for k := 0; k < sizez; k++ {
-				y := float64(k-sizez/2) + 0.5
-				if sqr(x/rx)+sqr(y/ry) <= 1 {
-					norm.Array()[i][j][k] = 1.
-				} else {
-					norm.Array()[i][j][k] = 0.
-				}
+func (sim *Sim) Ellipsoid(rz, ry, rx float32) {
+	sim.geom = &Ellipsoid{rx, ry, rz}
+	sim.invalidate()
+}
 
-			}
-		}
-	}
-	TensorCopyTo(norm, sim.normMap)
+func (s *Sim) TestGeom(w, h float32) {
+	s.initSize()
+	s.geom = &Wave{w, h}
+	s.invalidate()
 }
 
 func sqr(x float64) float64 {
 	return x * x
 }
-
-// TODO: Defining the overall size and the (perhaps maximum) cell size,
-// and letting the program choose the number of cells would be handy.

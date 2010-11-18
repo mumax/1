@@ -24,7 +24,7 @@ func updateDashboard(sim *Sim) {
 		return
 	}
 
-// 	fmt.Print(HIDECURSOR)
+	// 	fmt.Print(HIDECURSOR)
 
 	T := sim.UnitTime()
 
@@ -39,7 +39,7 @@ func updateDashboard(sim *Sim) {
 	time := time.Seconds() - sim.starttime
 	fmt.Printf(
 		BOLD+"running:"+RESET+"%3dd:%02dh:%02dm:%02ds",
-		time/DAY, (time/HOUR)%24, (time/MIN)%60, time%60)
+		time/DAY, (time/HOUR)%24, (time/MINUTE)%60, time%60)
 	erase()
 	fmt.Println()
 
@@ -89,13 +89,12 @@ func eraseln() {
 }
 
 func up() {
-  fmt.Printf(LINEUP)
+	fmt.Printf(LINEUP)
 }
 
 func down() {
-  fmt.Printf(LINEDOWN)
+	fmt.Printf(LINEDOWN)
 }
-
 
 
 // ANSI escape sequences
@@ -107,10 +106,10 @@ const (
 	RESET = "\033[0m"
 	// Bold
 	BOLD = "\033[1m"
- // Line up
-  LINEUP = "\033[1A"
-  // Line down
-  LINEDOWN = "\033[1B"
+	// Line up
+	LINEUP = "\033[1A"
+	// Line down
+	LINEDOWN = "\033[1B"
 	// Hide cursor
 	HIDECURSOR = "\033[?25l"
 	// Show cursor
@@ -119,10 +118,11 @@ const (
 	RED = "\033[31m"
 )
 
+// Time units expressed in seconds
 const (
-	MIN  = 60
-	HOUR = 60 * MIN
-	DAY  = 24 * HOUR
+	MINUTE = 60
+	HOUR   = 60 * MINUTE
+	DAY    = 24 * HOUR
 )
 
 const (

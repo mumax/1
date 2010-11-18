@@ -2,6 +2,10 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Software floating point interpretaton of ARM 7500 FP instructions.
+// The interpretation is not bit compatible with the 7500.
+// It uses true little-endian doubles, while the 7500 used mixed-endian.
+
 #include "runtime.h"
 
 void	abort(void);
@@ -10,29 +14,13 @@ static void
 fabort(void)
 {
 	if (1) {
-		printf("Unsupported floating point instruction\n");
-		abort();
+		runtime·printf("Unsupported floating point instruction\n");
+		runtime·abort();
 	}
 }
 
 static uint32 doabort = 0;
 static uint32 trace = 0;
-
-#define DOUBLE_EXPBIAS 1023
-#define DOUBLE_MANT_MASK 0xfffffffffffffull
-#define DOUBLE_MANT_TOP_BIT 0x10000000000000ull
-#define DZERO 0x0000000000000000ull
-#define DNZERO 0x8000000000000000ull
-#define DONE 0x3ff0000000000000ull
-#define DINF 0x7ff0000000000000ull
-#define DNINF 0xfff0000000000000ull
-#define DNAN 0x7FF0000000000001ull
-
-#define SINGLE_EXPBIAS 127
-#define FINF 0x7f800000ul
-#define FNINF 0xff800000ul
-#define FNAN 0x7f800000ul
-
 
 static const int8* opnames[] = {
 	// binary
@@ -100,7 +88,7 @@ precision(uint32 i)
 	case 0x80:
 		return 1;
 	default:
-		fabort();
+		runtime·fabort();
 	}
 	return 0;
 }
@@ -115,72 +103,31 @@ frhs(uint32 rhs)
 	}
 }
 
-static int32
-fexp(uint64 f)
-{
-	return (int32)((uint32)(f >> 52) & 0x7ff) - DOUBLE_EXPBIAS;
-}
-
-static uint32
-fsign(uint64 f)
-{
-	return (uint32)(f >> 63) & 0x1;
-}
-
-static uint64
-fmantissa(uint64 f)
-{
-	return f &0x000fffffffffffffll;
-}
-
 static void
 fprint(void)
 {
 	uint32 i;
 	for (i = 0; i < 8; i++) {
-		printf("\tf%d:\t%X\n", i, m->freg[i]);
+		runtime·printf("\tf%d:\t%X\n", i, m->freg[i]);
 	}
 }
 
 static uint32
 d2s(uint64 d)
 {
-	if ((d & ~(1ull << 63)) == 0)
-		return (uint32)(d>>32);
-	if (d == DINF)
-		return FINF;
-	if (d == DNINF)
-		return FNINF;
-	if ((d & ~(1ull << 63)) == DNAN)
-		return FNAN;
-	return (d>>32 & 0x80000000) |	//sign
-		((uint32)(fexp(d) + SINGLE_EXPBIAS) & 0xff) << 23 |	// exponent
-		(d >> 29 & 0x7fffff);	// mantissa
+	uint32 x;
+	
+	runtime·f64to32c(d, &x);
+	return x;
 }
 
 static uint64
 s2d(uint32 s)
 {
-	if ((s & ~(1ul << 31)) == 0)
-		return (uint64)(s) << 32;
-	if (s == FINF)
-		return DINF;
-	if (s == FNINF)
-		return DNINF;
-	if ((s & ~(1ul << 31)) == FNAN)
-		return DNAN;
-	return (uint64)(s & 0x80000000) << 63 |	// sign
-		(uint64)((s >> 23 &0xff) + (DOUBLE_EXPBIAS - SINGLE_EXPBIAS)) << 52  |	// exponent
-		(uint64)(s & 0x7fffff) << 29;	// mantissa
-}
-
-static int64
-rsh(int64 f, int32 s)
-{
-	if (s >= 0)
-		return f>>s;
-	else
-		return f<<-s;
+	uint64 x;
+	
+	runtime·f32to64c(s, &x);
+	return x;
 }
 
 // cdp, data processing instructions
@@ -188,12 +135,8 @@ static void
 dataprocess(uint32* pc)
 {
 	uint32 i, opcode, unary, dest, lhs, rhs, prec;
-	uint32 high;
-	int32 expd, exp0, exp1;
-	uint64 fraw0, fraw1, exp, sign;
-	uint64 fd, f0, f1;
-	int64 fsd, fs0, fs1;
-
+	uint64 l, r;
+	uint64 fd;
 	i = *pc;
 
 	// data processing
@@ -204,142 +147,41 @@ dataprocess(uint32* pc)
 	lhs = i>>16 & 7;
 	rhs = i & 15;
 
-	prec = precision(i);
+	prec = runtime·precision(i);
 //	if (prec != 1)
 //		goto undef;
 
 	if (unary) {
 		switch (opcode) {
 		case 0: // mvf
-			m->freg[dest] = frhs(rhs);
+			fd = runtime·frhs(rhs);
+			if(prec == 0)
+				fd = runtime·s2d(d2s(fd));
+			m->freg[dest] = fd;
 			goto ret;
 		default:
 			goto undef;
 		}
 	} else {
-		fraw0 = m->freg[lhs];
-		fraw1 = frhs(rhs);
-		if (isNaN(float64frombits(fraw0)) || isNaN(float64frombits(fraw1))) {
-			m->freg[dest] = DNAN;
-			goto ret;
-		}
+		l = m->freg[lhs];
+		r = runtime·frhs(rhs);
 		switch (opcode) {
-		case 2: // suf
-			fraw1 ^= 0x1ll << 63;
-			// fallthrough
-		case 0: // adf
-			if (fraw0 == DZERO || fraw0 == DNZERO) {
-				m->freg[dest] = fraw1;
-				goto ret;
-			}
-			if (fraw1 == DZERO || fraw1 == DNZERO) {
-				m->freg[dest] = fraw0;
-				goto ret;
-			}
-			fs0 = fraw0 & DOUBLE_MANT_MASK | DOUBLE_MANT_TOP_BIT;
-			fs1 = fraw1 & DOUBLE_MANT_MASK | DOUBLE_MANT_TOP_BIT;
-			exp0 = fexp(fraw0);
-			exp1 = fexp(fraw1);
-			if (exp0 > exp1)
-				fs1 = rsh(fs1, exp0-exp1);
-			else
-				fs0 = rsh(fs0, exp1-exp0);
-			if (fraw0 & 0x1ll<<63)
-				fs0 = -fs0;
-			if (fraw1 & 0x1ll<<63)
-				fs1 = -fs1;
-			fsd = fs0 + fs1;
-			if (fsd == 0) {
-				m->freg[dest] = DZERO;
-				goto ret;
-			}
-			sign = (uint64)fsd & 0x1ll<<63;
-			if (fsd < 0)
-				fsd = -fsd;
-			for (expd = 55; expd > 0; expd--) {
-				if (0x1ll<<expd & fsd)
-					break;
-			}
-			if (expd - 52 < 0)
-				fsd <<= -(expd - 52);
-			else
-				fsd >>= expd - 52;
-			if (exp0 > exp1)
-				exp = expd + exp0 - 52;
-			else
-				exp = expd + exp1 - 52;
-			// too small value, can't represent
-			if (1<<31 & expd) {
-				m->freg[dest] = DZERO;
-				goto ret;
-			}
-			// infinity
-			if (expd > 1<<12) {
-				m->freg[dest] = DINF;
-				goto ret;
-			}
-			fd = sign | (exp + DOUBLE_EXPBIAS)<<52 | (uint64)fsd & DOUBLE_MANT_MASK;
-			m->freg[dest] = fd;
-			goto ret;
-
-		case 4: //dvf
-			if ((fraw1 & ~(1ull<<63)) == 0) {
-				if ((fraw0 & ~(1ull<<63)) == 0) {
-					m->freg[dest] = DNAN;
-				} else {
-					sign = fraw0 & 1ull<<63 ^ fraw1 & 1ull<<63;
-					m->freg[dest] = sign | DINF;
-				}
-				goto ret;
-			}
-			// reciprocal for fraw1
-			if (fraw1 == DONE)
-				goto muf;
-			f0 = 0x1ll << 63;
-			f1 = fraw1 & DOUBLE_MANT_MASK | DOUBLE_MANT_TOP_BIT;
-			f1 >>= 21;
-			fd = f0/f1;
-			fd <<= 21;
-			fd &= DOUBLE_MANT_MASK;
-			exp1 = -fexp(fraw1) - 1;
-			sign = fraw1 & 0x1ll<<63;
-			fraw1 = sign | (uint64)(exp1 + DOUBLE_EXPBIAS)<<52 | fd;
-			// fallthrough
-		case 1: // muf
-muf:			
-			if (fraw0 == DNZERO || fraw1 == DNZERO) {
-				m->freg[dest] = DNZERO;
-				goto ret;
-			}
-			if (fraw0 == DZERO || fraw1 == DZERO) {
-				m->freg[dest] = DZERO;
-				goto ret;
-			}
-			if (fraw0 == DONE) {
-				m->freg[dest] = fraw1;
-				goto ret;
-			}
-			if (fraw1 == DONE) {
-				m->freg[dest] = fraw0;
-				goto ret;
-			}
-			f0 = fraw0>>21 & 0x7fffffff | 0x1ll<<31;
-			f1 = fraw1>>21 & 0x7fffffff | 0x1ll<<31;
-			fd = f0*f1;
-			high = fd >> 63;
-			if (high)
-				fd = fd >> 11 & DOUBLE_MANT_MASK;
-			else
-				fd = fd >> 10 & DOUBLE_MANT_MASK;
-			exp = (uint64)(fexp(fraw0) + fexp(fraw1) + !!high + DOUBLE_EXPBIAS) & 0x7ff;
-			sign = fraw0 >> 63 ^ fraw1 >> 63;
-			fd = sign<<63 | exp<<52 | fd;
-			m->freg[dest] = fd;
-			goto ret;
-
 		default:
 			goto undef;
+		case 0:
+			runtime·fadd64c(l, r, &m->freg[dest]);
+			break;
+		case 1:
+			runtime·fmul64c(l, r, &m->freg[dest]);
+			break;
+		case 2:
+			runtime·fsub64c(l, r, &m->freg[dest]);
+			break;
+		case 4:
+			runtime·fdiv64c(l, r, &m->freg[dest]);
+			break;
 		}
+		goto ret;
 	}
 
 
@@ -348,18 +190,18 @@ undef:
 
 ret:
 	if (trace || doabort) {
-		printf(" %p %x\t%s%s\tf%d, ", pc, *pc, opnames[opcode | unary<<4],
+		runtime·printf(" %p %x\t%s%s\tf%d, ", pc, *pc, opnames[opcode | unary<<4],
 			fpprec[prec], dest);
 		if (!unary)
-			printf("f%d, ", lhs);
+			runtime·printf("f%d, ", lhs);
 		if (rhs & 0x8)
-			printf("#%s\n", fpconst[rhs&0x7]);
+			runtime·printf("#%s\n", fpconst[rhs&0x7]);
 		else
-			printf("f%d\n", rhs&0x7);
-		fprint();
+			runtime·printf("f%d\n", rhs&0x7);
+		runtime·fprint();
 	}
 	if (doabort)
-		fabort();
+		runtime·fabort();
 }
 
 #define CPSR 14
@@ -370,68 +212,36 @@ ret:
 
 // cmf, compare floating point
 static void
-compare(uint32 *pc, uint32 *regs) {
-	uint32 i, flags, lhs, rhs, sign0, sign1;
-	uint64 f0, f1, mant0, mant1;
-	int32 exp0, exp1;
+compare(uint32 *pc, uint32 *regs)
+{
+	uint32 i, flags, lhs, rhs;
+	uint64 l, r;
+	int32 cmp;
+	bool nan;
 
 	i = *pc;
 	flags = 0;
 	lhs = i>>16 & 0x7;
 	rhs = i & 0xf;
 
-	f0 = m->freg[lhs];
-	f1 = frhs(rhs);
-	if (isNaN(float64frombits(f0)) || isNaN(float64frombits(f1))) {
+	l = m->freg[lhs];
+	r = runtime·frhs(rhs);
+	runtime·fcmp64c(l, r, &cmp, &nan);
+	if (nan)
 		flags = FLAGS_C | FLAGS_V;
-		goto ret;
-	}
-	if (f0 == f1) {
+	else if (cmp == 0)
 		flags = FLAGS_Z | FLAGS_C;
-		goto ret;
-	}
-
-	sign0 = fsign(f0);
-	sign1 = fsign(f1);
-	if (sign0 == 1 && sign1 == 0) {
+	else if (cmp < 0)
 		flags = FLAGS_N;
-		goto ret;
-	}
-	if (sign0 == 0 && sign1 == 1) {
+	else
 		flags = FLAGS_C;
-		goto ret;
-	}
 
-	if (sign0 == 0) {
-		exp0 = fexp(f0);
-		exp1 = fexp(f1);
-		mant0 = fmantissa(f0);
-		mant1 = fmantissa(f1);
-	} else {
-		exp0 = fexp(f1);
-		exp1 = fexp(f0);
-		mant0 = fmantissa(f1);
-		mant1 = fmantissa(f0);
-	}
-
-	if (exp0 > exp1) {
-		flags = FLAGS_C;
-	} else if (exp0 < exp1) {
-		flags = FLAGS_N;
-	} else {
-		if (mant0 > mant1)
-			flags = FLAGS_C;
-		else
-			flags = FLAGS_N;
-	}
-
-ret:
 	if (trace) {
-		printf(" %p %x\tcmf\tf%d, ", pc, *pc, lhs);
+		runtime·printf(" %p %x\tcmf\tf%d, ", pc, *pc, lhs);
 		if (rhs & 0x8)
-			printf("#%s\n", fpconst[rhs&0x7]);
+			runtime·printf("#%s\n", fpconst[rhs&0x7]);
 		else
-			printf("f%d\n", rhs&0x7);
+			runtime·printf("f%d\n", rhs&0x7);
 	}
 	regs[CPSR] = regs[CPSR] & 0x0fffffff | flags;
 }
@@ -448,7 +258,7 @@ loadstore(uint32 *pc, uint32 *regs)
 	isload = i>>20&1;
 	p = i>>24&1;
 	ud = i>>23&1;
-	tlen = i>>(22 - 1)&1 | i>>15&1;
+	tlen = i>>(22 - 1)&2 | i>>15&1;
 	wb = i>>21&1;
 	reg = i>>16 &0xf;
 	freg = i>>12 &0x7;
@@ -468,12 +278,12 @@ loadstore(uint32 *pc, uint32 *regs)
 		if (tlen)
 			m->freg[freg] = *((uint64*)addr);
 		else
-			m->freg[freg] = s2d(*((uint32*)addr));
+			m->freg[freg] = runtime·s2d(*((uint32*)addr));
 	else
 		if (tlen)
 			*((uint64*)addr) = m->freg[freg];
 		else
-			*((uint32*)addr) = d2s(m->freg[freg]);
+			*((uint32*)addr) = runtime·d2s(m->freg[freg]);
 	goto ret;
 
 undef:
@@ -482,102 +292,56 @@ undef:
 ret:
 	if (trace || doabort) {
 		if (isload)
-			printf(" %p %x\tldf", pc, *pc);
+			runtime·printf(" %p %x\tldf", pc, *pc);
 		else
-			printf(" %p %x\tstf", pc, *pc);
-		printf("%s\t\tf%d, %s%d(r%d)", fpprec[tlen], freg, ud ? "" : "-", offset, reg);
-		printf("\t\t// %p", regs[reg] + (ud ? offset : -offset));
+			runtime·printf(" %p %x\tstf", pc, *pc);
+		runtime·printf("%s\t\tf%d, %s%d(r%d)", fpprec[tlen], freg, ud ? "" : "-", offset, reg);
+		runtime·printf("\t\t// %p", regs[reg] + (ud ? offset : -offset));
 		if (coproc != 1 || p != 1 || wb != 0)
-			printf(" coproc: %d pre: %d wb %d", coproc, p, wb);
-		printf("\n");
-		fprint();
+			runtime·printf(" coproc: %d pre: %d wb %d", coproc, p, wb);
+		runtime·printf("\n");
+		runtime·fprint();
 	}
 	if (doabort)
-		fabort();
-}
-
-static void
-loadconst(uint32 *pc, uint32 *regs)
-{
-	uint32 offset;
-	uint32 *addr;
-
-	if (*pc & 0xfffff000 != 0xe59fb838 ||
-		*(pc+1) != 0xe08bb00c ||
-		*(pc+2) & 0xffff8fff != 0xed9b0100)
-		goto undef;
-
-	offset = *pc & 0xfff;
-	addr = (uint32*)((uint8*)pc + offset + 8);
-//printf("DEBUG: addr %p *addr %x final %p\n", addr, *addr, *addr + regs[12]);
-	regs[11] = *addr + regs[12];
-	loadstore(pc + 2, regs);
-	goto ret;
-
-undef:
-	doabort = 1;
-
-ret:
-	if (trace || doabort) {
-		printf(" %p coproc const %x %x %x\n", pc, *pc, *(pc+1), *(pc+2));
-	}
-	if (doabort)
-		fabort();
+		runtime·fabort();
 }
 
 static void
 fltfix(uint32 *pc, uint32 *regs)
 {
-	uint32 i, toarm, freg, reg, sign, val, prec;
-	int32 rd, exp;
-	uint64 fd, f0;
+	uint32 i, toarm, freg, reg, prec;
+	int64 val;
+	uint64 f0;
+	bool ok;
 	
 	i = *pc;
 	toarm = i>>20 & 0x1;
 	freg = i>>16 & 0x7;
 	reg = i>>12 & 0xf;
-	prec = precision(i);
+	prec = runtime·precision(i);
 
-	if (toarm) { //fix
+	if (toarm) { // fix
 		f0 = m->freg[freg];
-		fd = f0 & DOUBLE_MANT_MASK | DOUBLE_MANT_TOP_BIT;
-		exp = fexp(f0) - 52;
-		if (exp < 0)
-			fd = fd>>(-exp);
-		else
-			fd = fd<<exp;
-		rd = ((int32)fd & 0x7fffffff);
-		if (f0 & 0x1ll<<63)
-			rd = -rd;
-		regs[reg] = (uint32)rd;
+		runtime·f64tointc(f0, &val, &ok);
+		if (!ok || (int32)val != val)
+			val = 0;
+		regs[reg] = val;
 	} else { // flt
-		if (regs[reg] == 0) {
-			m->freg[freg] = DZERO;
-			goto ret;
-		}
-		sign = regs[reg] >> 31 & 0x1;
-		val = regs[reg];
-		if (sign) val = -val;
-		for (exp = 31; exp >= 0; exp--) {
-			if (1<<(exp) & val)
-				break;
-		}
-		fd = (uint64)val<<(52-exp) & DOUBLE_MANT_MASK;
-		m->freg[freg] = (uint64)(sign) << 63 | 
-			(uint64)(exp + DOUBLE_EXPBIAS) << 52 | fd;
+		runtime·fintto64c((int32)regs[reg], &f0);
+		m->freg[freg] = f0;
 	}
 	goto ret;
 	
 ret:
 	if (trace || doabort) {
 		if (toarm)
-			printf(" %p %x\tfix%s\t\tr%d, f%d\n", pc, *pc, fpprec[prec], reg, freg);
+			runtime·printf(" %p %x\tfix%s\t\tr%d, f%d\n", pc, *pc, fpprec[prec], reg, freg);
 		else
-			printf(" %p %x\tflt%s\t\tf%d, r%d\n", pc, *pc, fpprec[prec], freg, reg);
-		fprint();
+			runtime·printf(" %p %x\tflt%s\t\tf%d, r%d\n", pc, *pc, fpprec[prec], freg, reg);
+		runtime·fprint();
 	}
 	if (doabort)
-		fabort();
+		runtime·fabort();
 }
 
 // returns number of words that the fp instruction is occupying, 0 if next instruction isn't float.
@@ -586,6 +350,8 @@ static uint32
 stepflt(uint32 *pc, uint32 *regs)
 {
 	uint32 i, c;
+
+//printf("stepflt %p %p\n", pc, *pc);
 
 	i = *pc;
 
@@ -601,33 +367,42 @@ stepflt(uint32 *pc, uint32 *regs)
 	c = i >> 25 & 7;
 	switch(c) {
 	case 6: // 110
-		loadstore(pc, regs);
+		runtime·loadstore(pc, regs);
 		return 1;
 	case 7: // 111
-		if (i>>24 & 1) return 0; // ignore swi
+		if (i>>24 & 1)
+			return 0; // ignore swi
 
 		if (i>>4 & 1) { //data transfer
 			if ((i&0x00f0ff00) == 0x0090f100) {
-				compare(pc, regs);
+				runtime·compare(pc, regs);
 			} else if ((i&0x00e00f10) == 0x00000110) {
-				fltfix(pc, regs);
+				runtime·fltfix(pc, regs);
 			} else {
-				printf(" %p %x\t// case 7 fail\n", pc, i);
-				fabort();
+				runtime·printf(" %p %x\t// case 7 fail\n", pc, i);
+				runtime·fabort();
 			}
 		} else {
-			dataprocess(pc);
+			runtime·dataprocess(pc);
 		}
 		return 1;
 	}
 
-	// lookahead for virtual instructions that span multiple arm instructions
-	c = ((*pc & 0x0f000000) >> 16) |
-		((*(pc + 1)  & 0x0f000000) >> 20) |
-		((*(pc + 2) & 0x0f000000) >> 24);
-	if(c == 0x50d) { // 0101 0000 1101
-		loadconst(pc, regs);
-		return 3;
+	if((i&0xfffff000) == 0xe59fb000) {
+		// load r11 from pc-relative address.
+		// might be part of a floating point move
+		// (or might not, but no harm in simulating
+		// one instruction too many).
+		regs[11] = *(uint32*)((uint8*)pc + (i&0xfff) + 8);
+		return 1;
+	}
+	
+	if(i == 0xe08bb00d) {
+		// add sp to 11.
+		// might be part of a large stack offset address
+		// (or might not, but again no harm done).
+		regs[11] += regs[13];
+		return 1;
 	}
 
 	return 0;
@@ -635,14 +410,12 @@ stepflt(uint32 *pc, uint32 *regs)
 
 #pragma textflag 7
 uint32*
-_sfloat2(uint32 *lr, uint32 r0)
+runtime·_sfloat2(uint32 *lr, uint32 r0)
 {
 	uint32 skip;
-//	uint32 cpsr;
 
-	while(skip = stepflt(lr, &r0)) {
+	while(skip = runtime·stepflt(lr, &r0))
 		lr += skip;
-	}
 	return lr;
 }
 

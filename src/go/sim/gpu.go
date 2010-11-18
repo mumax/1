@@ -48,6 +48,19 @@ func (d Gpu) madd(a uintptr, cnst float32, b uintptr, N int) {
 	C.gpu_madd((*C.float)(unsafe.Pointer(a)), C.float(cnst), (*C.float)(unsafe.Pointer(b)), C.int(N))
 }
 
+func (d Gpu) madd2(a, b, c uintptr, N int) {
+	C.gpu_madd2((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), (*C.float)(unsafe.Pointer(c)), C.int(N))
+}
+
+func (c Gpu) addLinAnis(hx, hy, hz, mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, N int) {
+	C.gpu_add_lin_anisotropy(
+		(*C.float)(unsafe.Pointer(hx)), (*C.float)(unsafe.Pointer(hy)), (*C.float)(unsafe.Pointer(hz)),
+		(*C.float)(unsafe.Pointer(mx)), (*C.float)(unsafe.Pointer(my)), (*C.float)(unsafe.Pointer(mz)),
+		(*C.float)(unsafe.Pointer(kxx)), (*C.float)(unsafe.Pointer(kyy)), (*C.float)(unsafe.Pointer(kzz)),
+		(*C.float)(unsafe.Pointer(kyz)), (*C.float)(unsafe.Pointer(kxz)), (*C.float)(unsafe.Pointer(kxy)),
+		(C.int)(N))
+}
+
 func (d Gpu) linearCombination(a, b uintptr, weightA, weightB float32, N int) {
 	C.gpu_linear_combination((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(weightA), C.float(weightB), C.int(N))
 }
@@ -96,6 +109,12 @@ func (d Gpu) kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, kernelt
 			(*C.float)(unsafe.Pointer(kxx)), (*C.float)(unsafe.Pointer(kyy)), (*C.float)(unsafe.Pointer(kzz)),
 			(*C.float)(unsafe.Pointer(kyz)), (*C.float)(unsafe.Pointer(kxz)), (*C.float)(unsafe.Pointer(kxy)),
 			C.int(nRealNumbers))
+	case 4:
+		C.gpu_kernelmul4(
+			(*C.float)(unsafe.Pointer(mx)), (*C.float)(unsafe.Pointer(my)), (*C.float)(unsafe.Pointer(mz)),
+			(*C.float)(unsafe.Pointer(kxx)), (*C.float)(unsafe.Pointer(kyy)), (*C.float)(unsafe.Pointer(kzz)),
+			(*C.float)(unsafe.Pointer(kyz)),
+			C.int(nRealNumbers))
 	}
 }
 
@@ -120,6 +139,11 @@ func (d Gpu) newFFTPlan(dataSize, logicSize []int) uintptr {
 	Csize := (*C.int)(unsafe.Pointer(&dataSize[0]))
 	CpaddedSize := (*C.int)(unsafe.Pointer(&logicSize[0]))
 	return uintptr(unsafe.Pointer(C.new_gpuFFT3dPlan_padded(Csize, CpaddedSize)))
+}
+
+
+func (d Gpu) freeFFTPlan(plan uintptr) {
+	C.delete_gpuFFT3dPlan((*C.gpuFFT3dPlan)(unsafe.Pointer(plan)))
 }
 
 

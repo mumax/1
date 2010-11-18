@@ -159,6 +159,12 @@ func Sprintf(format string, a ...interface{}) string {
 	return s
 }
 
+// Errorf formats according to a format specifier and returns the string 
+// converted to an os.ErrorString, which satisfies the os.Error interface.
+func Errorf(format string, a ...interface{}) os.Error {
+	return os.ErrorString(Sprintf(format, a...))
+}
+
 // These routines do not take a format string
 
 // Fprint formats using the default formats for its operands and writes to w.
@@ -433,7 +439,7 @@ func (p *pp) fmtString(v string, verb int, goSyntax bool, value interface{}) {
 }
 
 func (p *pp) fmtBytes(v []byte, verb int, goSyntax bool, depth int, value interface{}) {
-	if verb == 'v' {
+	if verb == 'v' || verb == 'd' {
 		if goSyntax {
 			p.buf.Write(bytesBytes)
 		} else {

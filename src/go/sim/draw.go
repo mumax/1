@@ -121,6 +121,27 @@ func HSL(h, s, l float32) NRGBAColor {
 
 	m := l - 0.5*c
 	r, g, b = r+m, g+m, b+m
+
+	if r > 1. {
+		r = 1.
+	}
+	if g > 1. {
+		g = 1.
+	}
+	if b > 1. {
+		b = 1.
+	}
+
+	if r < 0. {
+		r = 0.
+	}
+	if g < 0. {
+		g = 0.
+	}
+	if b < 0. {
+		b = 0.
+	}
+
 	R, G, B := uint8(255*r), uint8(255*g), uint8(255*b)
 	return NRGBAColor{R, G, B, 255}
 }
@@ -130,7 +151,7 @@ func fmod(number, mod float32) float32 {
 	for number < mod {
 		number += mod
 	}
-	for number > mod {
+	for number >= mod {
 		number -= mod
 	}
 	return number

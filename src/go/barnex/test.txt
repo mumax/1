@@ -1,0 +1,11 @@
+//stdprobl 4
+
+/*
+ *  comment
+ */
+
+
+msat 34e3
+alpha 0.01
+
+save m "filename"

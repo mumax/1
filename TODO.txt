@@ -1,8 +1,18 @@
 Choose a googlable name. Suggestions:
 
 
-TeslaLab
-Teslab
+spinsimd (Spin SIMulator on SIMD architectures (zoals GPU, paralelle CPU))
+
+GP2mag (2 is een kwadraat: GPGPMag: General purpose Graphics Processor Magnetic sims of zo,
+cfr: GPGPU (General purpose gpu's), cfr. de M3S solver)
+
+xspinsim, xspins (pronouced k'spins, eXtreme Spin Simulator)
+
+something with: flux, lithos,
+fluxmag
+
+hephaestos (greek god of metalworking)
+
 
 GPmUMag (pronouced G-P-mu-MAG)
 gpµMAG
