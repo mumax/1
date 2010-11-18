@@ -60,6 +60,8 @@ void bigfft_execC2C(bigfft* plan,
                     cufftComplex* output,
                     int direction);
 
+void delete_bigfft(bigfft *plan);
+
 #ifdef __cplusplus
 }
 #endif
