@@ -6,24 +6,20 @@ extern "C" {
 #endif
 
 /// @todo parallellize
-void cpu_sum(float* input, float* output, int N){
+float cpu_sum(float* input, int N){
   float sum = 0.0;
   for(int i=0; i<N; i++){
     sum += input[i];
   }
-  output[0] = sum;
+  return sum;
 }
 
-/// unlike the GPU version, we put everything in output[0]
-float cpu_reduce(int operation, float* input, float* output, float* buffer, int blocks, int threadsPerBlock, int N){
-  
-  for(int i=0; i<blocks; i++){
-    output[i] = 0.;
-  }
-  
+
+/// Reduces the input (array on device)
+float gpu_reduce(int operation, float* input, float* devbuffer, float* hostbuffer, int blocks, int threadsPerBlock, int N){
   switch(operation){
-    default: abort(); break;
-    case REDUCE_ADD: cpu_sum(input, output, N);
+    default: abort();
+    case REDUCE_ADD: return cpu_sum(input, N);
   }
 }
 

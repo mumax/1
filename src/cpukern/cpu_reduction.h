@@ -16,7 +16,15 @@ extern "C" {
 #define REDUCE_MIN 4
 
 
-float cpu_reduce(int operation, float* input, float* output, float* buffer, int blocks, int threadsPerBlock, int N);
+/// Reduces the input (array on device)
+float gpu_reduce(int operation,     ///< REDUCE_ADD, REDUCE_MAX, ... 
+                 float* input,      ///< input data on device
+                 float* devbuffer,  ///< device buffer of size "blocks"
+                 float* hostbuffer, ///< host buffer of size "blocks"
+                 int blocks,        ///< blocks * threadsPerBlock * 2 = N
+                 int threadsPerBlock,///< threads per thread block (maximum is device dependent)
+                 int N              ///< input size
+                 );
 
 #ifdef __cplusplus
 }
