@@ -22,7 +22,7 @@ import (
 // Only the non-redundant elements of this symmetric tensor are returned: XX, YY, ZZ, YZ, XZ, XY
 // You can use the function KernIdx to convert from source-dest pairs like XX to 1D indices:
 // K[KernIdx[X][X]] returns K[XX]
-func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
+func FaceKernel6(size []int, cellsize []float32, accuracy int, periodic []int) []*tensor.T3 {
 	k := make([]*tensor.T3, 6)
 	for i := range k {
 		k[i] = tensor.NewT3(size)
@@ -33,16 +33,22 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
 	x1 := -(size[X] - 1) / 2
 	x2 := size[X]/2 - 1
 	// support for 2D simulations (thickness 1)
-	if size[X] == 1 {
+	if size[X] == 1 && periodic[X] == 0{
 		x2 = 0
 	}
 
+  y1 := -(size[Y] - 1) / 2
+  y2 :=  size[Y]/2-1
+  
+  z1 := -(size[Z] - 1) / 2
+  z2 := size[Z]/2-1
+  
 	for s := 0; s < 3; s++ { // source index Ksdxyz
 		for x := x1; x <= x2; x++ { // in each dimension, go from -(size-1)/2 to size/2 -1, wrapped. It's crucial that the unused rows remain zero, otherwise the FFT'ed kernel is not purely real anymore.
 			xw := wrap(x, size[X])
-			for y := -(size[Y] - 1) / 2; y <= size[Y]/2-1; y++ {
+			for y := y1; y <= y2; y++ {
 				yw := wrap(y, size[Y])
-				for z := -(size[Z] - 1) / 2; z <= size[Z]/2-1; z++ {
+				for z := z1; z <= z2; z++ {
 					zw := wrap(z, size[Z])
 					R.Set(float32(x)*cellsize[X], float32(y)*cellsize[Y], float32(z)*cellsize[Z])
 
