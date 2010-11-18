@@ -66,6 +66,10 @@ cpuFFT3dPlan* new_cpuFFT3dPlan_padded(int* size, int* paddedSize, float* source,
   return plan;
 }
 
+void delete_cpuFFT3dPlan(cpuFFT3dPlan* plan){
+  //TODO
+}
+
 cpuFFT3dPlan* new_cpuFFT3dPlan_outplace(int* datasize, int* paddedSize){
   int paddedN = paddedSize[X] * paddedSize[Y] * (paddedSize[Z]+2);
   float* in = new_cpu_array(paddedN);

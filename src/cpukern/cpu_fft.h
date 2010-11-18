@@ -62,6 +62,7 @@ cpuFFT3dPlan* new_cpuFFT3dPlan_inplace(int* datasize,       ///< size of real in
                                       int* paddedsize  ///< size of the padded data (3D). Should be at least the size of the input data. If the kernel is larger, the input data is assumed to be padded with zero's which are efficiently handled by the FFT
                                       );
                                       
+void delete_cpuFFT3dPlan(cpuFFT3dPlan* plan);                                      
                                       
 /**
  * Creates a general real-to-complex 3D FFT plan.
