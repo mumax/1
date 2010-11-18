@@ -74,11 +74,11 @@ func (s *Sim) PartSize(z, y, x float32) {
 }
 
 
-func (s *Sim) Periodic(z, x, y int){
-  s.periodic[X] = x
-  s.periodic[Y] = y
-  s.periodic[Z] = z
-  s.invalidate()
+func (s *Sim) Periodic(z, x, y int) {
+	s.periodic[X] = x
+	s.periodic[Y] = y
+	s.periodic[Z] = z
+	s.invalidate()
 }
 
 // Input file may set only 2 values in the set {size, cellSize, partSize}. The last one is calculated here. It is an error to set all 3 of them.

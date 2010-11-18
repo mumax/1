@@ -105,7 +105,7 @@ type Sim struct {
 	starttime int64             // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
 
 	// Geometry
-  periodic  [3]int       // Periodic boundary conditions? 0=no, >0=yes
+	periodic  [3]int       // Periodic boundary conditions? 0=no, >0=yes
 	geom      Geom         // Shape of the magnet (has Inside(x,y,z) func)
 	normMap   *DevTensor   // Per-cell magnetization norm. nil means the norm is 1.0 everywhere. Stored on the device
 	normLocal *tensor.T3   // local copy of devNorm

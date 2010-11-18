@@ -82,7 +82,7 @@ func FSqrt(x float64) float32 {
 func padSize(size []int, periodic []int) []int {
 	paddedsize := make([]int, len(size))
 	for i := range size {
-		if size[i] > 1 && periodic[i] == 0{
+		if size[i] > 1 && periodic[i] == 0 {
 			paddedsize[i] = 2 * size[i]
 		} else {
 			paddedsize[i] = size[i]
