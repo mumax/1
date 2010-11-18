@@ -516,19 +516,19 @@ float gpu_reduce(int operation, float* input, float* dev2, float* host2, int blo
 
 ///@internal for debugging only, use gpu_reduce() instead of this function
 ///@warning leaks memory
-float gpu_sum(float* data, int N){
-  
-  int threads = 128;
-  while (N <= threads){
-    threads /= 2;
-  }
-  int blocks = divUp(N, threads*2);
-
-  float* dev2 = new_gpu_array(blocks);
-  float* host2 = (float*)calloc(blocks, sizeof(float));
-
-  return gpu_reduce(REDUCE_ADD, data, dev2, host2, blocks, threads, N);
-}
+// float gpu_sum(float* data, int N){
+//   
+//   int threads = 128;
+//   while (N <= threads){
+//     threads /= 2;
+//   }
+//   int blocks = divUp(N, threads*2);
+// 
+//   float* dev2 = new_gpu_array(blocks);
+//   float* host2 = (float*)calloc(blocks, sizeof(float));
+// 
+//   return gpu_reduce(REDUCE_ADD, data, dev2, host2, blocks, threads, N);
+// }
 
 #ifdef __cplusplus
 }

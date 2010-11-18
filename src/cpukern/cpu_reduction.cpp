@@ -15,8 +15,8 @@ void cpu_sum(float* input, float* output, int N){
 }
 
 /// unlike the GPU version, we put everything in output[0]
-void cpu_reduce(int operation, float* input, float* output, int blocks, int threadsPerBlock, int N){
-
+float cpu_reduce(int operation, float* input, float* output, float* buffer, int blocks, int threadsPerBlock, int N){
+  
   for(int i=0; i<blocks; i++){
     output[i] = 0.;
   }
