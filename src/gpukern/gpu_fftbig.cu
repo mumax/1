@@ -31,13 +31,6 @@ void init_bigfft(bigfft* plan, int size_fft, int stride_in, int stride_out, cuff
   for (int i=0; i<plan->Nbatch-1; i++)
     plan->batch_Plans[i] = plan->Plan_1;
   plan->batch_Plans[plan->Nbatch-1] = plan->Plan_2;
-    
-
-//   for (int i=0; i<plan->Nbatch; i++)
-//     if ( plan->batch[i] == plan->batch[0] )
-//       plan->batch_Plans[i] = plan->Plan_1;
-//     else
-//       plan->batch_Plans[i] = plan->Plan_2;
 
   return;
 }
@@ -129,6 +122,21 @@ void bigfft_execC2C(bigfft* plan, cufftComplex* input, cufftComplex* output, int
   return;
 }
 
+void delete_bigfft(bigfft *plan){
+
+  if (plan->Plan_2 != plan->Plan_1)
+    cufftDestroy(plan->Plan_2);
+  cufftDestroy(plan->Plan_1);
+  
+  free (plan->batch_Plans);
+  free (plan->batch_index_in);
+  free (plan->batch_index_out);
+  free (plan->batch);
+  
+  free (plan);
+  
+  return;
+}
 
 #ifdef __cplusplus
 }

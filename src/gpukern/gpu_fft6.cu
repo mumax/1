@@ -74,7 +74,8 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
       printf("X: Nbatch: %d, i: %d, batch: %d, batch_index_in: %d, batch_index_out: %d\n", plan->planX->Nbatch, i, plan->planX->batch[i], plan->planX->batch_index_in[i], plan->planX->batch_index_out[i]);
   printf("\n");  
   
-  plan->transp = new_gpu_array(plan->paddedStorageN);
+  if (N0>0)
+    plan->transp = new_gpu_array(plan->paddedStorageN);
   
   return plan;
 }
@@ -353,8 +354,25 @@ void gpu_copy_to_unpad(float* source, float* dest, int *pad_size, int *unpad_siz
 }
 
 
-void delete_FFT3dPlan(gpuFFT3dPlan* kernel_plan){
+void delete_FFT3dPlan(gpuFFT3dPlan* plan){
 
+    //free all bigfft plans
+  delete_bigfft(plan->fwPlanZ);
+  delete_bigfft(plan->invPlanZ);
+  delete_bigfft(plan->planY);
+  if (plan->size[0]>1)
+    delete_bigfft(plan->planX);
+  
+    //free buffer for out-of-place transpose
+  if (plan->size[0]>1)
+    free_gpu_array(plan->transp);
+  
+  free (plan->size);
+  free (plan->paddedSize);
+  free (plan->paddedStorageSize);
+  
+  free (plan);
+  
   return;
 }
 

@@ -55,8 +55,8 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(float *dev_kernel, int *
   float *dev_temp2 = new_gpu_array(kernelStorageN);                       // temp array on device for storage of zero padded kernel component (output of fft routine)
  
   // Define gpugrids and blocks ___________________________________________________________________
-    dim3 gridsize1(1,kernelSize[Y]/2, 1);
-    dim3 blocksize1(kernelSize[Z]/2, 1,1);
+    dim3 gridsize1(kernelSize[Y]/2,kernelSize[Z]/2, 1);
+    dim3 blocksize1(1,1,1);
     check3dconf(gridsize1, blocksize1);
     
     int N = kernelStorageN/2;
@@ -95,8 +95,8 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(float *dev_kernel, int *
 
 __global__ void _gpu_init_Greens_kernel_elements_micromag2d(float *dev_temp, int Nkernel_Y, int Nkernel_Z, int exchType, int exchInConv_Y, int exchInConv_Z, int co1, int co2, float FD_cell_size_Y, float FD_cell_size_Z, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
   
-  int j = blockIdx.y;
-  int k = threadIdx.x; 
+  int j = blockIdx.x;
+  int k = blockIdx.y; 
 
   int N2 = Nkernel_Z;
 

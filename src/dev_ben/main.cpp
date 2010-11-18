@@ -19,7 +19,6 @@ param* p = read_param();
     // initialization of kernel
   tensor* kernel = new_kernel(p);
     // initialization of m
-  printf("kernel initialized\n");
   int* size4d = tensor_size4D(p->size);
   tensor *m = new_gputensor(4, size4d);
   initialize_m (m, p);
@@ -82,6 +81,7 @@ param* p = read_param();
 
   timer_printdetail();
 //   fclose(av);
+  
 
   return 0;
 }
