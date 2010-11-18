@@ -8,7 +8,7 @@ package sim
 
 import (
 	"tensor"
-// 	"fmt"
+	// 	"fmt"
 )
 
 // "Conv" is a 3D vector convolution "plan".
@@ -24,6 +24,7 @@ type Conv struct {
 	kernel [6]*DevTensor
 	buffer [3]*DevTensor
 }
+
 
 // dataSize = size of input data (one componenten of the magnetization), e.g., 4 x 32 x 32.
 // The size of the kernel componenents (Kxx, Kxy, ...) must be at least the size of the input data,
@@ -125,11 +126,11 @@ func (conv *Conv) loadKernel6(kernel []*tensor.T3) {
 	devOut := NewTensor(conv.Backend, fft.PhysicSize())
 	hostOut := tensor.NewT3(fft.PhysicSize())
 
-//   allocCount := 0
-  
+	//   allocCount := 0
+
 	for i := range conv.kernel {
 		if conv.needKernComp(i) { // the zero components are not stored
-//       allocCount++
+			//       allocCount++
 			TensorCopyTo(kernel[i], devIn)
 			fft.Forward(devIn, devOut)
 			TensorCopyFrom(devOut, hostOut)
@@ -144,7 +145,7 @@ func (conv *Conv) loadKernel6(kernel []*tensor.T3) {
 		}
 	}
 
-//   fmt.Println(allocCount, " non-zero kernel components.")
+	//   fmt.Println(allocCount, " non-zero kernel components.")
 	fft.Free()
 	devIn.Free()
 	devOut.Free()

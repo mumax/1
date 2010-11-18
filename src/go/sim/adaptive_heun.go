@@ -58,8 +58,15 @@ func (s *AdaptiveHeun) Step() {
 		// TODO if error is too large, undo the step
 
 		// calculate new step
-		s.dt = s.dt * s.maxError / error
+    factor := s.maxError / error
+    // do not increase by time step by more than 100%
+    if factor > 2. {factor = 2.}
+    // do not decrease to less than 1%
+    if factor < 0.01 {factor = 0.01}
+    
+		s.dt = s.dt * factor
 	}
+	
 }
 
 

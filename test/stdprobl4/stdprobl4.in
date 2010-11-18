@@ -1,7 +1,7 @@
 # Micromagnetic standard problem 4
 
 metadata:  	description standard_problem_4
-maxerror:	1e-4
+maxerror	1e-4
 
 # material
 msat       	800E3   
@@ -14,7 +14,9 @@ gridsize       	128 	32 	1
 partsize   	500E-9  125E-9  3E-9
 
 # initial magnetization
-load    	s-state.tensor
+#load    	s-state.tensor
+uniform		1 1 0
+
 
 # run
 autosave	m	png	50E-12
