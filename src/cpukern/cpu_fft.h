@@ -22,10 +22,10 @@ typedef float complex_t[2];
  */
 typedef struct{
   int* size;               ///< logical size of the (real) input data
-  int N;                   ///< total number of floats in size
+  //int N;                   ///< total number of floats in size
   
   int* paddedSize;         ///< size after zero-padding. @note zero-padding is conditional and not necessarily performed in each direction. Therefore, "paddedSize" is not necessarily twice "size".
-  int paddedN;             ///< total number of floats in paddedSize
+  //int paddedN;             ///< total number of floats in paddedSize
   
   //int* paddedStorageSize;  ///< A real-to-complex FFT requires padding with one complex number in the last dimension. However, is this would result in misalgned memory, we pad with (typically) 64 floats
   //int paddedStorageN;      ///< total number of floats in paddedStorageSize

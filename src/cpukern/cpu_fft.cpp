@@ -11,6 +11,7 @@ extern "C" {
 ///@todo cleanup
 
 /**
+ * @internal 
  * Creates a new FFT plan for transforming the magnetization. 
  * Zero-padding in each dimension is optional, and rows with
  * only zero's are not transformed.
@@ -29,22 +30,16 @@ cpuFFT3dPlan* new_cpuFFT3dPlan_padded(int* size, int* paddedSize, float* source,
   
   cpuFFT3dPlan* plan = (cpuFFT3dPlan*)malloc(sizeof(cpuFFT3dPlan));
   
-  plan->size = (int*)calloc(3, sizeof(int));    ///@todo not int* but int[3]
+  plan->size = (int*)calloc(3, sizeof(int));
   plan->paddedSize = (int*)calloc(3, sizeof(int));
-//  plan->paddedStorageSize = (int*)calloc(3, sizeof(int));
-  
-//   int* paddedSize = plan->paddedSize;
-//  int* paddedStorageSize = plan->paddedStorageSize;
   
   plan->size[0] = N0; 
   plan->size[1] = N1; 
   plan->size[2] = N2;
-  plan->N = N0 * N1 * N2;
   
   plan->paddedSize[X] = paddedSize[X];
   plan->paddedSize[Y] = paddedSize[Y];
   plan->paddedSize[Z] = paddedSize[Z];
-  plan->paddedN = plan->paddedSize[0] * plan->paddedSize[1] * plan->paddedSize[2];
   
 //   plan->paddedStorageSize[X] = plan->paddedSize[X];
 //   plan->paddedStorageSize[Y] = plan->paddedSize[Y];
@@ -110,44 +105,7 @@ cpuFFT3dPlan* new_cpuFFT3dPlan_inplace(int* datasize, int* paddedSize){
 
 
 void cpuFFT3dPlan_forward(cpuFFT3dPlan* plan, float* input, float* output){
-//  fftwf_execute_dft_r2c((fftwf_plan) plan->fwPlan, input, (complex_t*)output);
-//   int* size = plan->size;
-//   int* pSSize = plan->paddedStorageSize;
-//   int N0 = pSSize[X];
-//   int N1 = pSSize[Y];
-//   int N2 = pSSize[Z]/2; // we treat the complex data as an N0 x N1 x N2 x 2 array
-//   int N3 = 2;
-//   int N = N0*N1*N2*N3;
-//   float* transp = plan->transp;
-// 
-//   //timer_start("FFT_z");
-//   for(int i=0; i<size[X]; i++){
-//     for(int j=0; j<size[Y]; j++){
-//       float* rowIn  = &( input[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-//       float* rowOut = &(output[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-//       cpu_safe( cufftExecR2C(plan->fwPlanZ, (cufftReal*)rowIn,  (cufftComplex*)rowOut) );
-//     }
-//   }
-//   cudaThreadSynchronize();
-//   //timer_stop("FFT_z");
-// 
-//   cpu_transposeYZ_complex(output, transp, N0, N1, N2*N3);
-//   memcpy_cpu_to_cpu(transp, input, N);
-// 
-//   //timer_start("FFT_y");
-//   cpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)input,  (cufftComplex*)output, CUFFT_FORWARD) );
-//   cudaThreadSynchronize();
-//   //timer_stop("FFT_y");
-// 
-//   // support for 2D transforms: do not transform if first dimension has size 1
-//   if(N0 > 1){
-//     cpu_transposeXZ_complex(output, transp, N0, N2, N1*N3); // size has changed due to previous transpose!
-//     memcpy_cpu_to_cpu(transp, input, N);
-//     //timer_start("FFT_x");
-//     cpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)input,  (cufftComplex*)output, CUFFT_FORWARD) );
-//     cudaThreadSynchronize();
-//     //timer_stop("FFT_x");
-//   }
+  fftwf_execute_dft_r2c((fftwf_plan) plan->fwPlan, input, (complex_t*)output);
 
 }
 
@@ -166,51 +124,14 @@ void cpuFFT3dPlan_forward(cpuFFT3dPlan* plan, float* input, float* output){
 // }
 
 void cpuFFT3dPlan_inverse(cpuFFT3dPlan* plan, float* input, float* output){
-//  fftwf_execute_dft_c2r((fftwf_plan) plan->bwPlan, (complex_t*)input, output);
-//   int* size = plan->size;
-//   int* pSSize = plan->paddedStorageSize;
-//   int N0 = pSSize[X];
-//   int N1 = pSSize[Y];
-//   int N2 = pSSize[Z]/2; // we treat the complex data as an N0 x N1 x N2 x 2 array
-//   int N3 = 2;
-//   int N = N0*N1*N2*N3;
-//   float* transp = plan->transp;
-// 
-//   if (N0 > 1){
-//     // input data is XZ transposed
-// //     timer_start("FFT_x");
-//     cpu_safe( cufftExecC2C(plan->planX, (cufftComplex*)input,  (cufftComplex*)output, CUFFT_INVERSE) );
-//     cudaThreadSynchronize();
-// //     timer_stop("FFT_x");
-//     cpu_transposeXZ_complex(output, transp, N1, N2, N0*N3); // size has changed due to previous transpose!
-//     memcpy_cpu_to_cpu(transp, input, N);
-//   }
-// 
-// //   timer_start("FFT_y");
-//     cpu_safe( cufftExecC2C(plan->planY, (cufftComplex*)input,  (cufftComplex*)output, CUFFT_INVERSE) );
-//   cudaThreadSynchronize();
-// //   timer_stop("FFT_y");
-//   
-//   cpu_transposeYZ_complex(output, transp, N0, N2, N1*N3);
-//   memcpy_cpu_to_cpu(transp, input, N);
-// 
-// //   timer_start("FFT_z");
-//     for(int i=0; i<size[X]; i++){
-//     for(int j=0; j<size[Y]; j++){
-//       float* rowIn  = &( input[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-//       float* rowOut = &(output[i * pSSize[Y] * pSSize[Z] + j * pSSize[Z]]);
-//       cpu_safe( cufftExecC2R(plan->invPlanZ, (cufftComplex*)rowIn, (cufftReal*)rowOut) );
-//     }
-//   }
-//   cudaThreadSynchronize();
-// //   timer_stop("FFT_z");
+  fftwf_execute_dft_c2r((fftwf_plan) plan->bwPlan, (complex_t*)input, output);
 }
 
 
-int cpuFFT3dPlan_normalization(cpuFFT3dPlan* plan){
-  return plan->paddedSize[X] * plan->paddedSize[Y] * plan->paddedSize[Z];
-}
-
+// int cpuFFT3dPlan_normalization(cpuFFT3dPlan* plan){
+//   return plan->paddedSize[X] * plan->paddedSize[Y] * plan->paddedSize[Z];
+// }
+// 
 
 
 // //_____________________________________________________________________________________________ exec plan
