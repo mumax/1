@@ -78,11 +78,11 @@ func FSqrt(x float64) float32 {
 	return float32(Sqrt(x))
 }
 
-// Add padding x 2 in all directions, except when a dimension == 1 (no padding neccesary)
-func padSize(size []int) []int {
+// Add padding x 2 in all directions where periodic == 0, except when a dimension == 1 (no padding neccesary)
+func padSize(size []int, periodic []int) []int {
 	paddedsize := make([]int, len(size))
 	for i := range size {
-		if size[i] > 1 {
+		if size[i] > 1 && periodic[i] == 0{
 			paddedsize[i] = 2 * size[i]
 		} else {
 			paddedsize[i] = size[i]

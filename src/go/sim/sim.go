@@ -105,6 +105,7 @@ type Sim struct {
 	starttime int64             // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
 
 	// Geometry
+  periodic  [3]int       // Periodic boundary conditions? 0=no, >0=yes
 	geom      Geom         // Shape of the magnet (has Inside(x,y,z) func)
 	normMap   *DevTensor   // Per-cell magnetization norm. nil means the norm is 1.0 everywhere. Stored on the device
 	normLocal *tensor.T3   // local copy of devNorm
@@ -112,9 +113,11 @@ type Sim struct {
 	edgeKern  []*DevTensor // Per-cell self-kernel used for edge corrections (could also store some anisotropy types)
 }
 
+
 func New(outputdir string, backend *Backend) *Sim {
 	return NewSim(outputdir, backend)
 }
+
 
 func NewSim(outputdir string, backend *Backend) *Sim {
 	sim := new(Sim)
@@ -140,6 +143,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	return sim
 }
 
+
 // When a parmeter is changed, the simulation state is invalidated until it gets (re-)initialized by init().
 func (s *Sim) invalidate() {
 	if s.IsValid() {
@@ -147,6 +151,7 @@ func (s *Sim) invalidate() {
 	}
 	s.valid = false
 }
+
 
 // When it returns false, init() needs to be called before running.
 func (s *Sim) IsValid() bool {
@@ -208,6 +213,7 @@ func (s *Sim) initDevMem() {
 	s.initReductors()
 }
 
+
 func (s *Sim) initReductors() {
 	N := Len(s.size3D)
 	s.devsum.InitSum(s.Backend, N)
@@ -215,6 +221,7 @@ func (s *Sim) initReductors() {
 	s.devmax.InitMax(s.Backend, N)
 	s.devmin.InitMin(s.Backend, N)
 }
+
 
 func (s *Sim) initMLocal() {
 	s.initSize()
@@ -230,6 +237,7 @@ func (s *Sim) initMLocal() {
 	}
 	// 	normalize(s.mLocal.Array())
 }
+
 
 // checks if the initial magnetization makes sense
 // TODO: m=0,0,0 should not be a warning when the corresponding normMap is zero as well.
@@ -268,7 +276,7 @@ func (s *Sim) checkInitialM() {
 
 
 func (s *Sim) initConv() {
-	s.paddedsize = padSize(s.size[0:])
+	s.paddedsize = padSize(s.size[:], s.periodic[:])
 
 	s.Println("Calculating kernel (may take a moment)") // --- In fact, it takes 3 moments, one in each direction.
 	demag := FaceKernel6(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy)

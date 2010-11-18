@@ -25,6 +25,7 @@ type Conv struct {
 	buffer [3]*DevTensor
 }
 
+
 // dataSize = size of input data (one componenten of the magnetization), e.g., 4 x 32 x 32.
 // The size of the kernel componenents (Kxx, Kxy, ...) must be at least the size of the input data,
 // but may be larger. Typically, there will be zero-padding by a factor of 2. e.g. the kernel
