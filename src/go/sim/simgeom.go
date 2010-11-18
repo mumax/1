@@ -74,7 +74,7 @@ func (s *Sim) PartSize(z, y, x float32) {
 }
 
 
-func (s *Sim) Periodic(z, x, y int) {
+func (s *Sim) Periodic(z, y, x int) {
 	s.periodic[X] = x
 	s.periodic[Y] = y
 	s.periodic[Z] = z

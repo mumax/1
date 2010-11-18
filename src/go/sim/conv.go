@@ -8,7 +8,7 @@ package sim
 
 import (
 	"tensor"
-	// 	"fmt"
+// 		"fmt"
 )
 
 // "Conv" is a 3D vector convolution "plan".
@@ -136,9 +136,18 @@ func (conv *Conv) loadKernel6(kernel []*tensor.T3) {
 			TensorCopyFrom(devOut, hostOut)
 			listOut := hostOut.List()
 
+      // Normally, the FFT'ed kernel is purely real because of symmetry,
+      // so we only store the real parts...
+      maximg := float32(0.)
 			for j := 0; j < len(listOut)/2; j++ {
 				listOut[j] = listOut[2*j] * norm
+				if abs32(listOut[2*j+1]) > maximg{
+          maximg = abs32(listOut[2*j+1])
+        }
 			}
+			// ...however, we check that the imaginary parts are nearly zero,
+      // just to be sure we did not make a mistake during kernel creation.
+			assert(maximg < 1e-5)
 
 			conv.kernel[i] = NewTensor(conv.Backend, conv.KernelSize())
 			conv.memcpyTo(&listOut[0], conv.kernel[i].data, Len(conv.kernel[i].Size()))

@@ -42,6 +42,13 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int, periodic []int) [
   
   z1 := -(size[Z] - 1) / 2
   z2 := size[Z]/2-1
+
+  x1 *= (periodic[X]+1)
+  x2 *= (periodic[X]+1)
+  y1 *= (periodic[Y]+1)
+  y2 *= (periodic[Y]+1)
+  z1 *= (periodic[Z]+1)
+  z2 *= (periodic[Z]+1)
   
 	for s := 0; s < 3; s++ { // source index Ksdxyz
 		for x := x1; x <= x2; x++ { // in each dimension, go from -(size-1)/2 to size/2 -1, wrapped. It's crucial that the unused rows remain zero, otherwise the FFT'ed kernel is not purely real anymore.
@@ -56,7 +63,7 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int, periodic []int) [
 
 					for d := s; d < 3; d++ { // destination index Ksdxyz
 						i := KernIdx[s][d] // 3x3 symmetric index to 1x6 index
-						k[i].Array()[xw][yw][zw] = B.Component[d]
+						k[i].Array()[xw][yw][zw] += B.Component[d]  // We have to ADD because there are multiple contributions in case of periodicity
 					}
 				}
 			}
@@ -65,11 +72,11 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int, periodic []int) [
 
 	// This is really just a unit test for selfkernel,
 	// TODO: remove when edgecorrections are fully tested.
-	for s := 0; s < 3; s++ {
-		for d := 0; d < 3; d++ {
-			assert(k[KernIdx[s][d]].Array()[0][0][0] == selfKernel(s, cellsize, accuracy)[d])
-		}
-	}
+// 	for s := 0; s < 3; s++ {
+// 		for d := 0; d < 3; d++ {
+// 			assert(k[KernIdx[s][d]].Array()[0][0][0] == selfKernel(s, cellsize, accuracy)[d])
+// 		}
+// 	}
 
 	return k
 }
