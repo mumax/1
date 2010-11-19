@@ -6,18 +6,65 @@
 
 package sim
 
+// The Geom interface describes arbitrary geometries
+
 import (
 	. "math"
 )
 
-//                                                      HERE IT MAY GET TRICKY WITH XYZ vs ZYX
-//                                                      SHOULD WE USE USER AXES HERE?
-
+// Returns true if the point (x,y,z) (in SI units, internal axes)
+// lies inside the geometry
 type Geom interface {
 	Inside(x, y, z float32) bool
 }
 
+//////////// csg operations
 
+// Union (boolean OR) of geometries
+type Or struct {
+	children []Geom
+}
+
+func (s *Or) Inside(x, y, z float32) bool {
+	for _, child := range s.children {
+		if child.Inside(x, y, z) {
+			return true
+		}
+	}
+	return false
+}
+
+
+// Intersection (boolean AND) of geometries
+type And struct {
+  children []Geom
+}
+
+func (s *And) Inside(x, y, z float32) bool {
+  for _, child := range s.children {
+    if !child.Inside(x, y, z) {
+      return false
+    }
+  }
+  return true
+}
+
+
+///////////// affine transforms
+
+// Translates the wrapped geometry
+type Translated struct{
+  original Geom
+  deltaX, deltaY, deltaZ float32
+}
+
+func (s *Translated) Inside(x, y, z float32) bool{
+  return s.original.Inside(x-s.deltaX, y-s.deltaY, z-s.deltaZ)
+}
+
+
+// Ellipsoid with semi-axes rx, ry, rz.
+// Becomes a cylinder when an axis is infinte.
 type Ellipsoid struct {
 	rx, ry, rz float32
 }
@@ -30,6 +77,7 @@ func (s *Ellipsoid) Inside(x, y, z float32) bool {
 }
 
 
+// DEBUG
 type Wave struct {
 	w, h float32
 }
