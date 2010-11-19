@@ -101,7 +101,7 @@ func (d Cpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {
 
 
 func (d Cpu) extractReal(complex, real uintptr, NReal int) {
-    panic("deprecated")
+	panic("deprecated")
 	//C.cpu_extract_real((*C.float)(unsafe.Pointer(complex)), (*C.float)(unsafe.Pointer(real)), C.int(NReal))
 }
 
@@ -109,12 +109,12 @@ func (d Cpu) kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, kernelt
 	switch kerneltype {
 	default:
 		panic(fmt.Sprintf("Unknown kernel type:", kerneltype))
-    case 4:
-      C.cpu_kernelmul4(
-            (*C.float)(unsafe.Pointer(mx)), (*C.float)(unsafe.Pointer(my)), (*C.float)(unsafe.Pointer(mz)),
-            (*C.float)(unsafe.Pointer(kxx)), (*C.float)(unsafe.Pointer(kyy)), (*C.float)(unsafe.Pointer(kzz)),
-            (*C.float)(unsafe.Pointer(kyz)),
-            C.int(nRealNumbers))
+	case 4:
+		C.cpu_kernelmul4(
+			(*C.float)(unsafe.Pointer(mx)), (*C.float)(unsafe.Pointer(my)), (*C.float)(unsafe.Pointer(mz)),
+			(*C.float)(unsafe.Pointer(kxx)), (*C.float)(unsafe.Pointer(kyy)), (*C.float)(unsafe.Pointer(kzz)),
+			(*C.float)(unsafe.Pointer(kyz)),
+			C.int(nRealNumbers))
 	case 6:
 		C.cpu_kernelmul6(
 			(*C.float)(unsafe.Pointer(mx)), (*C.float)(unsafe.Pointer(my)), (*C.float)(unsafe.Pointer(mz)),
