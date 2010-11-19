@@ -24,46 +24,89 @@ import (
 )
 
 func (s *Sim) lookupKernel(size []int, cellsize []float32, accuracy int, periodic []int) (kernel []*tensor.T3) {
-  // If anything goes wrong unexpectedly, we just return a freshly calculated kernel.
-  defer func() {
+
+	// If anything goes wrong unexpectedly, we just return a freshly calculated kernel.
+	defer func() {
 		err := recover()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			kernel = FaceKernel6(size, cellsize, accuracy, periodic)
 		}
 	}()
-	
+	///////////////////////////////////////////////////////////////////////////////////
+
 
 	kerndir := s.wisdomdir + "/" + wisdomFileName(size, cellsize, accuracy, periodic)
-	fmt.Println("using wisdom: ", kerndir)
 
 	if fileExists(kerndir) {
+		fmt.Println("using wisdom: ", kerndir)
 		kernel = make([]*tensor.T3, 6)
 		for i := range kernel {
 			if s.needKernComp(i) {
 
+				kernel[i] = s.loadKernComp(kerndir, i)
+
 			}
 		}
+		fmt.Println("wisdom loaded")
+		return
 	} else {
 		kernel = FaceKernel6(size, cellsize, accuracy, periodic)
-		storeKernel(kernel, kerndir)
+		s.storeKernel(kernel, kerndir)
 	}
 
 	return
 }
 
-func storeKernel(kernel []*tensor.T3, kerndir string){
-  // If anything goes wrong unexpectedly, then the kernel could not be saved,
-  // but we should continue to run.
-  defer func(){
-    err := recover()
-    if err != nil{
-      fmt.Fprintln(os.Stderr, "Could not store kernel wisdom: ", err)
-    }
-  }()
+// Loads kerndir/k**.tensor
+func (s *Sim) loadKernComp(kerndir string, component int) *tensor.T3 {
+	file := kerndir + "/k" + KernString[component] + ".tensor"
+	in, err := os.Open(file, os.O_RDONLY, 0666)
+	defer in.Close()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		panic(err)
+	}
+	return tensor.ToT3(tensor.Read(in))
+}
 
+
+func (s *Sim) storeKernel(kernel []*tensor.T3, kerndir string) {
+  fmt.Println("storing wisdom: ", kerndir)
   
+	// If anything goes wrong unexpectedly, then the kernel could not be saved,
+	// but we should continue to run.
+	defer func() {
+		err := recover()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Could not store kernel wisdom: ", err)
+		}
+	}()
+
+  err1 := os.MkdirAll(kerndir, 0777)
+  if err1 != nil{
+    fmt.Fprintln(os.Stderr, err1)
+  }
   
+	for i := range kernel {
+		if s.needKernComp(i) {
+
+      file := kerndir + "/k" + KernString[i] + ".tensor"
+			out, err := os.Open(file, os.O_CREATE|os.O_WRONLY, 0666)
+			defer out.Close()
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				return
+			}
+
+			kernel[i].WriteTo(out)
+
+		}
+	}
+
+	fmt.Println("storing wisdom OK")
+  
+
 }
 
 // returns a directory name (w/o absolute path) to store the kernel with given parameters
