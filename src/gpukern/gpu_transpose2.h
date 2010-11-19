@@ -18,6 +18,7 @@ extern "C" {
 /// 2D complex matrix transpose. Input size: N1 x N2/2 complex numbers, Output size: N2/2 x N1 complex numbers.
 /// Offsets introduced to make the compatible for zero padded matrices.
 void gpu_transpose_complex_offset(float *input, float *output, int N1, int N2, int offset_in, int offset_out);
+void gpu_transpose_complex_offset2(float *input, float *output, int N1, int N2, int offset_in, int offset_out, int N, int stride1, int stride2);
 
 /// 2D complex matrix transpose for zero padded matrix as needed in the forward FFT routine.  This routine is 'in plane'.
 /// Input size: N1 x N2/2 complex numbers, Output size: N2/2 x N1 complex numbers

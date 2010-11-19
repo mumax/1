@@ -226,7 +226,7 @@ func (b *Reader) ReadRune() (rune int, size int, err os.Error) {
 // regard it is stricter than UnreadByte, which will unread the last byte
 // from any read operation.)
 func (b *Reader) UnreadRune() os.Error {
-	if b.lastRuneSize < 0 {
+	if b.lastRuneSize < 0 || b.r == 0 {
 		return ErrInvalidUnreadRune
 	}
 	b.r -= b.lastRuneSize
@@ -284,7 +284,7 @@ func (b *Reader) ReadSlice(delim byte) (line []byte, err os.Error) {
 }
 
 // ReadBytes reads until the first occurrence of delim in the input,
-// returning a string containing the data up to and including the delimiter.
+// returning a slice containing the data up to and including the delimiter.
 // If ReadBytes encounters an error before finding a delimiter,
 // it returns the data read before the error and the error itself (often os.EOF).
 // ReadBytes returns err != nil if and only if line does not end in delim.
@@ -293,7 +293,6 @@ func (b *Reader) ReadBytes(delim byte) (line []byte, err os.Error) {
 	// accumulating full buffers.
 	var frag []byte
 	var full [][]byte
-	nfull := 0
 	err = nil
 
 	for {
@@ -310,26 +309,12 @@ func (b *Reader) ReadBytes(delim byte) (line []byte, err os.Error) {
 		// Make a copy of the buffer.
 		buf := make([]byte, len(frag))
 		copy(buf, frag)
-
-		// Grow list if needed.
-		if full == nil {
-			full = make([][]byte, 16)
-		} else if nfull >= len(full) {
-			newfull := make([][]byte, len(full)*2)
-			for i := 0; i < len(full); i++ {
-				newfull[i] = full[i]
-			}
-			full = newfull
-		}
-
-		// Save buffer
-		full[nfull] = buf
-		nfull++
+		full = append(full, buf)
 	}
 
 	// Allocate new buffer to hold the full pieces and the fragment.
 	n := 0
-	for i := 0; i < nfull; i++ {
+	for i := range full {
 		n += len(full[i])
 	}
 	n += len(frag)
@@ -337,9 +322,8 @@ func (b *Reader) ReadBytes(delim byte) (line []byte, err os.Error) {
 	// Copy full pieces and fragment in.
 	buf := make([]byte, n)
 	n = 0
-	for i := 0; i < nfull; i++ {
-		copy(buf[n:], full[i])
-		n += len(full[i])
+	for i := range full {
+		n += copy(buf[n:], full[i])
 	}
 	copy(buf[n:], frag)
 	return buf, err

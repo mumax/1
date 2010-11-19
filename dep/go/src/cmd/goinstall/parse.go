@@ -56,7 +56,7 @@ func goFiles(dir string, allowMain bool) (files []string, imports map[string]str
 			// do we return pkgName=="main".
 			// A mix of main and another package reverts
 			// to the original (allowMain=false) behaviour.
-			if allowMain && pkgName == "main" {
+			if s == "main" || pkgName == "main" {
 				return goFiles(dir, false)
 			}
 			return nil, nil, "", os.ErrorString("multiple package names in " + dir)
@@ -69,7 +69,7 @@ func goFiles(dir string, allowMain bool) (files []string, imports map[string]str
 				quoted := string(spec.(*ast.ImportSpec).Path.Value)
 				unquoted, err := strconv.Unquote(quoted)
 				if err != nil {
-					log.Crashf("%s: parser returned invalid quoted string: <%s>", filename, quoted)
+					log.Panicf("%s: parser returned invalid quoted string: <%s>", filename, quoted)
 				}
 				imports[unquoted] = filename
 			}

@@ -28,6 +28,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+// Printing.
+
 #include "l.h"
 #include "../ld/lib.h"
 
@@ -42,6 +44,7 @@ listinit(void)
 	fmtinstall('S', Sconv);
 	fmtinstall('N', Nconv);
 	fmtinstall('O', Oconv);		// C_type constants
+	fmtinstall('I', Iconv);
 }
 
 void
@@ -81,18 +84,18 @@ Pconv(Fmt *fp)
 		break;
 
 	case ADATA:
-	case AINIT:
-	case ADYNT:
+	case AINIT_:
+	case ADYNT_:
 		fmtprint(fp, "(%d)	%A%C	%D/%d,%D",
 			p->line, a, p->scond, &p->from, p->reg, &p->to);
 		break;
 
 	case AWORD:
-		fmtprint(fp, "WORD %x", p->to.offset);
+		fmtprint(fp, "(%d)	WORD	%D", p->line, &p->to);
 		break;
 
 	case ADWORD:
-		fmtprint(fp, "DWORD %x %x", p->from.offset, p->to.offset);
+		fmtprint(fp, "(%d)	DWORD	%D %D", p->line, &p->from, &p->to);
 		break;
 	}
 	return 0;
@@ -261,9 +264,9 @@ Dconv(Fmt *fp)
 		if(curp->cond != P) {
 			v = curp->cond->pc;
 			if(a->sym != S)
-				snprint(str, sizeof str, "%s+%.5lux(BRANCH)", a->sym->name, v);
+				snprint(str, sizeof str, "%s+%.5ux(BRANCH)", a->sym->name, v);
 			else
-				snprint(str, sizeof str, "%.5lux(BRANCH)", v);
+				snprint(str, sizeof str, "%.5ux(BRANCH)", v);
 		} else
 			if(a->sym != S)
 				snprint(str, sizeof str, "%s+%d(APC)", a->sym->name, a->offset);
@@ -272,7 +275,7 @@ Dconv(Fmt *fp)
 		break;
 
 	case D_FCONST:
-		snprint(str, sizeof str, "$%e", ieeedtod(a->ieee));
+		snprint(str, sizeof str, "$%e", ieeedtod(&a->ieee));
 		break;
 
 	case D_SCONST:
@@ -372,15 +375,45 @@ Sconv(Fmt *fp)
 	return fmtstrcpy(fp, str);
 }
 
+int
+Iconv(Fmt *fp)
+{
+	int i, n;
+	uint32 *p;
+	char *s;
+	Fmt fmt;
+	
+	n = fp->prec;
+	fp->prec = 0;
+	if(!(fp->flags&FmtPrec) || n < 0)
+		return fmtstrcpy(fp, "%I");
+	fp->flags &= ~FmtPrec;
+	p = va_arg(fp->args, uint32*);
+
+	// format into temporary buffer and
+	// call fmtstrcpy to handle padding.
+	fmtstrinit(&fmt);
+	for(i=0; i<n/4; i++) {
+		if(i > 0)
+			fmtprint(&fmt, " ");
+		fmtprint(&fmt, "%.8ux", *p++);
+	}
+	s = fmtstrflush(&fmt);
+	fmtstrcpy(fp, s);
+	free(s);
+	return 0;
+}
+
 static char*
 cnames[] =
 {
 	[C_ADDR]	= "C_ADDR",
 	[C_BCON]	= "C_BCON",
 	[C_FAUTO]	= "C_FAUTO",
-	[C_FCON]	= "C_FCON",
+	[C_ZFCON]	= "C_SFCON",
+	[C_SFCON]	= "C_SFCON",
+	[C_LFCON]	= "C_LFCON",
 	[C_FCR]		= "C_FCR",
-	[C_FEXT]	= "C_FEXT",
 	[C_FOREG]	= "C_FOREG",
 	[C_FREG]	= "C_FREG",
 	[C_GACON]	= "C_GACON",
@@ -389,9 +422,7 @@ cnames[] =
 	[C_GOK]		= "C_GOK",
 	[C_GOREG]	= "C_GOREG",
 	[C_HAUTO]	= "C_HAUTO",
-	[C_HEXT]	= "C_HEXT",
 	[C_HFAUTO]	= "C_HFAUTO",
-	[C_HFEXT]	= "C_HFEXT",
 	[C_HFOREG]	= "C_HFOREG",
 	[C_HOREG]	= "C_HOREG",
 	[C_HREG]	= "C_HREG",
@@ -399,8 +430,6 @@ cnames[] =
 	[C_LAUTO]	= "C_LAUTO",
 	[C_LBRA]	= "C_LBRA",
 	[C_LCON]	= "C_LCON",
-	[C_LECON]	= "C_LECON",
-	[C_LEXT]	= "C_LEXT",
 	[C_LOREG]	= "C_LOREG",
 	[C_NCON]	= "C_NCON",
 	[C_NONE]	= "C_NONE",
@@ -409,7 +438,6 @@ cnames[] =
 	[C_PSR]		= "C_PSR",
 	[C_RACON]	= "C_RACON",
 	[C_RCON]	= "C_RCON",
-	[C_RECON]	= "C_RECON",
 	[C_REG]		= "C_REG",
 	[C_REGREG]	= "C_REGREG",
 	[C_ROREG]	= "C_ROREG",
@@ -417,7 +445,6 @@ cnames[] =
 	[C_SAUTO]	= "C_SAUTO",
 	[C_SBRA]	= "C_SBRA",
 	[C_SCON]	= "C_SCON",
-	[C_SEXT]	= "C_SEXT",
 	[C_SHIFT]	= "C_SHIFT",
 	[C_SOREG]	= "C_SOREG",
 	[C_SP]		= "C_SP",
@@ -441,19 +468,22 @@ Oconv(Fmt *fp)
 void
 diag(char *fmt, ...)
 {
-	char buf[STRINGSZ], *tn;
+	char buf[STRINGSZ], *tn, *sep;
 	va_list arg;
 
-	tn = "??none??";
-	if(curtext != P && curtext->from.sym != S)
-		tn = curtext->from.sym->name;
+	tn = "";
+	sep = "";
+	if(cursym != S) {
+		tn = cursym->name;
+		sep = ": ";
+	}
 	va_start(arg, fmt);
 	vseprint(buf, buf+sizeof(buf), fmt, arg);
 	va_end(arg);
-	print("%s: %s\n", tn, buf);
+	print("%s%s%s\n", tn, sep, buf);
 
 	nerrors++;
-	if(nerrors > 10) {
+	if(nerrors > 20) {
 		print("too many errors\n");
 		errorexit();
 	}

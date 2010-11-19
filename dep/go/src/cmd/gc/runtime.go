@@ -10,7 +10,7 @@ package PACKAGE
 
 // emitted by compiler, not referred to by go programs
 
-func mal(int32) *any
+func new(int32) *any
 func panicindex()
 func panicslice()
 func throwreturn()
@@ -31,15 +31,18 @@ func printeface(any)
 func printslice(any)
 func printnl()
 func printsp()
-func printf()
+func goprintf()
 
 // filled in by compiler: int n, string, string, ...
 func concatstring()
 
+// filled in by compiler: Type*, int n, Slice, ...
+func append()
+func appendslice(typ *byte, x any, y []any) any
+
 func cmpstring(string, string) int
 func slicestring(string, int, int) string
 func slicestring1(string, int) string
-func indexstring(string, int) byte
 func intstring(int64) string
 func slicebytetostring([]byte) string
 func sliceinttostring([]int) string
@@ -48,6 +51,7 @@ func stringtosliceint(string) []int
 func stringiter(string, int) int
 func stringiter2(string, int) (retk int, retv int)
 func slicecopy(to any, fr any, wid uint32) int
+func slicestringcopy(to any, fr any) int
 
 // interface conversions
 func convI2E(elem any) (ret any)

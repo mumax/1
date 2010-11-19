@@ -20,6 +20,7 @@
 #include "gpu_normalize.h"
 // #include "gpueuler.h"
 #include "gpu_heun.h"
+#include "gpu_init_anal.h"
 #include "gpu_anal.h"
 
 #ifdef __cplusplus
@@ -52,6 +53,7 @@ void evaluate_heun_step(timestepper *ts, tensor *m, double *totalTime);
 void evaluate_euler_step(timestepper *ts, tensor *m, double *totalTime);
 
 void evaluate_anal_fw_step(timestepper *ts, tensor *m, double *totalTime);
+
 void evaluate_anal_pc_step(timestepper *ts, tensor *m, double *totalTime);
 
               

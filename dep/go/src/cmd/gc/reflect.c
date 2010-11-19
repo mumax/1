@@ -286,15 +286,6 @@ imethods(Type *t)
 				oldlist = pc;
 			genwrapper(t, f, isym, 0);
 		}
-		
-		// Generate wrapper for pointer to interface type.
-		isym = methodsym(method, ptrto(t), 0);
-		if(!(isym->flags & SymSiggen)) {
-			isym->flags |= SymSiggen;
-			if(oldlist == nil)
-				oldlist = pc;
-			genwrapper(ptrto(t), f, isym, 0);
-		}
 	}
 
 	if(oldlist) {
@@ -607,6 +598,7 @@ dcommontype(Sym *s, int ot, Type *t)
 	//		alg uint8;
 	//		align uint8;
 	//		fieldAlign uint8;
+        //              kind uint8;
 	//		string *string;
 	//		*nameInfo;
 	//	}
@@ -624,9 +616,11 @@ dcommontype(Sym *s, int ot, Type *t)
 	i = kinds[t->etype];
 	if(t->etype == TARRAY && t->bound < 0)
 		i = KindSlice;
+	if(isptr[t->etype] && t->type->etype == TANY)
+                i = KindUnsafePointer;
 	if(!haspointers(t))
 		i |= KindNoPointers;
-	ot = duint8(s, ot, i);
+	ot = duint8(s, ot, i);  // kind
 	longsymnames = 1;
 	p = smprint("%-T", t);
 	longsymnames = 0;
@@ -819,6 +813,7 @@ ok:
 	case TPTR32:
 	case TPTR64:
 		if(t->type->etype == TANY) {
+                        // ../../pkg/runtime/type.go:/UnsafePointerType
 			ot = dcommontype(s, ot, t);
 			break;
 		}

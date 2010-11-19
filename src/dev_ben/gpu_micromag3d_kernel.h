@@ -12,17 +12,6 @@
 #ifndef GPU_MICROMAG3D_KERNEL_H
 #define GPU_MICROMAG3D_KERNEL_H
 
-#include "tensor.h"
-#include "gputil.h"
-#include "param.h"
-//#include "gpufft2.h"
-#include "gpu_fft.h"
-#include "assert.h"
-#include "timer.h"
-#include <stdio.h>
-#include "gpu_conf.h"
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -62,7 +51,7 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag3d(float *dev_kernel,  			/
                                                         int *repetition, 					///< 3 ints, for periodicity: e.g. 2*repetition[0]+1 is the number of periods considered the x-direction ([0,0,0] means no periodic repetition)
                                                         float *dev_qd_P_10,  			///< float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device)
                                                         float *dev_qd_W_10,  			///< float array (10 floats) containing the 10 Gauss quadrature weights (on device)
-                                                        gpuFFT3dPlan* kernel_plan  /// FFT plan for the execution of the forward FFT of the kernel.
+                                                        gpuFFT3dPlan *kernel_plan  /// FFT plan for the execution of the forward FFT of the kernel.
                                                         );
 
 /**

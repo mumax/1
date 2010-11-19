@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -19,7 +20,7 @@ type Commit struct {
 func getCommit(rev string) (c Commit, err os.Error) {
 	defer func() {
 		if err != nil {
-			err = errf("getCommit: %s: %s", rev, err)
+			err = fmt.Errorf("getCommit: %s: %s", rev, err)
 		}
 	}()
 	parts, err := getCommitParts(rev)
@@ -44,7 +45,7 @@ func getCommit(rev string) (c Commit, err os.Error) {
 
 func getCommitParts(rev string) (parts []string, err os.Error) {
 	const format = "{rev}>{node}>{author|escape}>{date}>{desc}"
-	s, _, err := runLog(nil, goroot,
+	s, _, err := runLog(nil, "", goroot,
 		"hg", "log", "-r", rev, "-l", "1", "--template", format)
 	if err != nil {
 		return

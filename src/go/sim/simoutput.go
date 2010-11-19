@@ -175,10 +175,10 @@ func (t *Table) Save(s *Sim) {
 	torque := [3]float32{}
 	N := Len(s.size3D)
 	for i := range m {
-		m[i] = s.devsum.Reduce(s.mComp[i]) / float32(N)
-		torque[i] = abs32(s.devmaxabs.Reduce(s.hComp[i]) / s.dt)
+		m[i] = s.devsum.Reduce(s.mDev.comp[i]) / float32(N)
+		torque[i] = abs32(s.devmaxabs.Reduce(s.h.comp[i]) / s.dt)
 	}
-	minMz, maxMz := s.devmin.Reduce(s.mComp[X]), s.devmax.Reduce(s.mComp[X])
+	minMz, maxMz := s.devmin.Reduce(s.mDev.comp[X]), s.devmax.Reduce(s.mDev.comp[X])
 
 	// 	B := s.UnitField()
 	fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float32(s.time)*s.UnitTime(), m[Z], m[Y], m[X])

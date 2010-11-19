@@ -6,20 +6,22 @@ package syscall
 
 // Constants
 const (
-	sizeofPtr           = 0x4
-	sizeofShort         = 0x2
-	sizeofInt           = 0x4
-	sizeofLong          = 0x4
-	sizeofLongLong      = 0x8
-	PathMax             = 0x1000
-	SizeofSockaddrInet4 = 0x10
-	SizeofSockaddrInet6 = 0x1c
-	SizeofSockaddrAny   = 0x70
-	SizeofSockaddrUnix  = 0x6e
-	SizeofLinger        = 0x8
-	SizeofMsghdr        = 0x1c
-	SizeofCmsghdr       = 0xc
-	SizeofInotifyEvent  = 0x10
+	sizeofPtr               = 0x4
+	sizeofShort             = 0x2
+	sizeofInt               = 0x4
+	sizeofLong              = 0x4
+	sizeofLongLong          = 0x8
+	PathMax                 = 0x1000
+	SizeofSockaddrInet4     = 0x10
+	SizeofSockaddrInet6     = 0x1c
+	SizeofSockaddrAny       = 0x70
+	SizeofSockaddrUnix      = 0x6e
+	SizeofSockaddrLinklayer = 0x14
+	SizeofLinger            = 0x8
+	SizeofMsghdr            = 0x1c
+	SizeofCmsghdr           = 0xc
+	SizeofUcred             = 0xc
+	SizeofInotifyEvent      = 0x10
 )
 
 // Types
@@ -180,6 +182,16 @@ type RawSockaddrUnix struct {
 	Path   [108]int8
 }
 
+type RawSockaddrLinklayer struct {
+	Family   uint16
+	Protocol uint16
+	Ifindex  int32
+	Hatype   uint16
+	Pkttype  uint8
+	Halen    uint8
+	Addr     [8]uint8
+}
+
 type RawSockaddr struct {
 	Family uint16
 	Data   [14]int8
@@ -216,6 +228,12 @@ type Cmsghdr struct {
 	Len   uint32
 	Level int32
 	Type  int32
+}
+
+type Ucred struct {
+	Pid int32
+	Uid uint32
+	Gid uint32
 }
 
 type InotifyEvent struct {

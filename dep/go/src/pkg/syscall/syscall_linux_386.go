@@ -30,6 +30,7 @@ func NsecToTimeval(nsec int64) (tv Timeval) {
 //sys	Chown(path string, uid int, gid int) (errno int) = SYS_CHOWN32
 //sys	Fchown(fd int, uid int, gid int) (errno int) = SYS_FCHOWN32
 //sys	Fstat(fd int, stat *Stat_t) (errno int) = SYS_FSTAT64
+//sys	Ftruncate(fd int, length int64) (errno int) = SYS_FTRUNCATE64
 //sys	Getegid() (egid int) = SYS_GETEGID32
 //sys	Geteuid() (euid int) = SYS_GETEUID32
 //sys	Getgid() (gid int) = SYS_GETGID32
@@ -38,6 +39,8 @@ func NsecToTimeval(nsec int64) (tv Timeval) {
 //sys	Iopl(level int) (errno int)
 //sys	Lchown(path string, uid int, gid int) (errno int) = SYS_LCHOWN32
 //sys	Lstat(path string, stat *Stat_t) (errno int) = SYS_LSTAT64
+//sys	Pread(fd int, p []byte, offset int64) (n int, errno int) = SYS_PREAD64
+//sys	Pwrite(fd int, p []byte, offset int64) (n int, errno int) = SYS_PWRITE64
 //sys	Setfsgid(gid int) (errno int) = SYS_SETFSGID32
 //sys	Setfsuid(uid int) (errno int) = SYS_SETFSUID32
 //sys	Setgid(gid int) (errno int) = SYS_SETGID32
@@ -47,6 +50,7 @@ func NsecToTimeval(nsec int64) (tv Timeval) {
 //sys	Setreuid(ruid int, euid int) (errno int) = SYS_SETREUID32
 //sys	Stat(path string, stat *Stat_t) (errno int) = SYS_STAT64
 //sys	SyncFileRange(fd int, off int64, n int64, flags int) (errno int)
+//sys	Truncate(path string, length int64) (errno int) = SYS_TRUNCATE64
 //sys	getgroups(n int, list *_Gid_t) (nn int, errno int) = SYS_GETGROUPS32
 //sys	setgroups(n int, list *_Gid_t) (errno int) = SYS_SETGROUPS32
 //sys	Select(nfd int, r *FdSet, w *FdSet, e *FdSet, timeout *Timeval) (n int, errno int) = SYS__NEWSELECT

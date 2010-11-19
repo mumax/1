@@ -147,27 +147,34 @@ importpath=$(gomake -s importpath)
 		echo 'import "./_xtest_"'
 	fi
 	echo 'import "testing"'
+	echo 'import __regexp__ "regexp"' # rename in case tested package is called regexp
 	# test array
 	echo
-	echo 'var tests = []testing.Test {'
+	echo 'var tests = []testing.InternalTest{'
 	for i in $tests
 	do
-		echo '	testing.Test{ "'$i'", '$i' },'
+		echo '	{"'$i'", '$i'},'
 	done
 	echo '}'
 	# benchmark array
-	echo 'var benchmarks = []testing.Benchmark {'
-	for i in $benchmarks
-	do
-		echo '	testing.Benchmark{ "'$i'", '$i' },'
-	done
-	echo '}'
-
+	if [ "$benchmarks" = "" ]
+	then
+		# keep the empty array gofmt-safe.
+		# (not an issue for the test array, which is never empty.)
+		echo 'var benchmarks = []testing.InternalBenchmark{}'
+	else
+		echo 'var benchmarks = []testing.InternalBenchmark{'
+		for i in $benchmarks
+		do
+			echo '	{"'$i'", '$i'},'
+		done
+		echo '}'
+	fi
 	# body
 	echo
 	echo 'func main() {'
-	echo '	testing.Main(tests);'
-	echo '	testing.RunBenchmarks(benchmarks)'
+	echo '	testing.Main(__regexp__.MatchString, tests)'
+	echo '	testing.RunBenchmarks(__regexp__.MatchString, benchmarks)'
 	echo '}'
 }>_testmain.go
 

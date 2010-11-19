@@ -1,0 +1,36 @@
+maxerror	1e-4
+
+msat       	800e3 
+aexch      	13e-12
+
+partsize	500e-9	500e-9	50e-9
+gridsize	128	128	1
+
+vortex		1	1
+
+alpha		2
+run	2e-9
+
+autosave	m	png	1e-9
+autosave	table	ascii	1e-9
+
+staticfield	1e-3	0	0
+run 		1e-9
+staticfield	2e-3	0	0
+run 		1e-9
+staticfield	3e-3	0	0
+run 		1e-9
+staticfield	4e-3	0	0
+run 		1e-9
+staticfield	5e-3	0	0
+run 		1e-9
+staticfield	6e-3	0	0
+run 		1e-9
+staticfield	7e-3	0	0
+run 		1e-9
+staticfield	8e-3	0	0
+run 		1e-9
+staticfield	9e-3	0	0
+run 		1e-9
+staticfield	10e-3	0	0
+run 		1e-9

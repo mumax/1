@@ -27,14 +27,15 @@ import (
 )
 
 var (
-	silent    *bool = flag.Bool("silent", false, "Do not show simulation output on the screen, only save to output.log")
-	daemon    *bool = flag.Bool("daemon", false, "Watch directories for new input files and run them automatically.")
-	watch     *int  = flag.Int("watch", 60, "With -daemon, re-check for new input files every N seconds. -watch=0 disables watching, program exits when no new input files are left.")
-	walltime  *int  = flag.Int("walltime", 0, "With -daemon, keep the deamon alive for N hours. Handy for nightly runs. -walltime=0 (default) runs the daemon forever.")
-	verbosity *int  = flag.Int("verbosity", 2, "Control the debug verbosity (0 - 3)")
-	gpuid     *int  = flag.Int("gpu", 0, "Select a GPU when more than one is present. Default GPU = 0") //TODO: also for master
-	cpu       *bool = flag.Bool("cpu", false, "Run on the CPU instead of GPU.")
-	updatedb  *int  = flag.Int("updatedisp", 100, "Update the terminal output every x milliseconds")
+	silent    *bool   = flag.Bool("silent", false, "Do not show simulation output on the screen, only save to output.log")
+	daemon    *bool   = flag.Bool("daemon", false, "Watch directories for new input files and run them automatically.")
+	watch     *int    = flag.Int("watch", 60, "With -daemon, re-check for new input files every N seconds. -watch=0 disables watching, program exits when no new input files are left.")
+	walltime  *int    = flag.Int("walltime", 0, "With -daemon, keep the deamon alive for N hours. Handy for nightly runs. -walltime=0 (default) runs the daemon forever.")
+	verbosity *int    = flag.Int("verbosity", 2, "Control the debug verbosity (0 - 3)")
+	gpuid     *int    = flag.Int("gpu", 0, "Select a GPU when more than one is present. Default GPU = 0") //TODO: also for master
+	cpu       *bool   = flag.Bool("cpu", false, "Run on the CPU instead of GPU.")
+	updatedb  *int    = flag.Int("updatedisp", 100, "Update the terminal output every x milliseconds")
+	wisdir    *string = flag.String("wisdom", defaultWisdomDir(), "Absolute directory to store cached kernels. \"\" disables caching")
 	// 	dryrun    *bool   = flag.Bool("dryrun", false, "Go quickly through the simulation sequence without calculating anything. Useful for debugging") // todo implement
 	//  server    *bool   = flag.Bool("server", false, "Run as a slave node in a cluster")
 	//  port      *int    = flag.Int("port", 2527, "Which network port to use")
@@ -64,6 +65,11 @@ func Main() {
 // when running in the normal "master" mode, i.e. given an input file to process locally
 func main_master() {
 
+	// a CUDA context is linked to a thread, and a context created in
+	// one thread can not be accessed by another one. Therefore, we
+	// have to lock the current goroutine to its current thread.
+	// Otherwise it may be mapped to another thread by the go runtime,
+	// making CUDA crash.
 	Debugvv("Locked OS thread")
 	runtime.LockOSThread()
 
@@ -85,7 +91,7 @@ func main_master() {
 		defer in.Close()
 
 		//TODO it would be safer to abort when the output dir is not empty
-		outfile := removeExtension(infile) + ".out"
+		outfile := RemoveExtension(infile) + ".out"
 
 		// Set the device
 		var backend *Backend
@@ -99,6 +105,8 @@ func main_master() {
 
 		sim := NewSim(outfile, backend)
 		defer sim.out.Close()
+
+		sim.wisdomdir = *wisdir
 
 		// file "running" indicates the simulation is running
 		running := sim.outputdir + "/running"
@@ -148,7 +156,7 @@ func main_master() {
 
 // Removes a filename extension.
 // I.e., the part after the dot, if present.
-func removeExtension(str string) string {
+func RemoveExtension(str string) string {
 	dotpos := len(str) - 1
 	for dotpos >= 0 && str[dotpos] != '.' {
 		dotpos--
@@ -158,7 +166,7 @@ func removeExtension(str string) string {
 
 // Removes a filename path.
 // I.e., the part before the last /, if present.
-func removePath(str string) string {
+func RemovePath(str string) string {
 	slashpos := len(str) - 1
 	for slashpos >= 0 && str[slashpos] != '/' {
 		slashpos--
@@ -169,7 +177,7 @@ func removePath(str string) string {
 // Returns the parent directory of a file.
 // I.e., the part after the /, if present, is removed.
 // If there is no explicit path, "." is returned.
-func parentDir(str string) string {
+func ParentDir(str string) string {
 	slashpos := len(str) - 1
 	for slashpos >= 0 && str[slashpos] != '/' {
 		slashpos--
@@ -184,7 +192,7 @@ func parentDir(str string) string {
 // Complementary function of parentDir
 // Removes the path in front of the file name.
 // I.e., the part before the last /, if present, is removed.
-func filename(str string) string {
+func Filename(str string) string {
 	slashpos := len(str) - 1
 	for slashpos >= 0 && str[slashpos] != '/' {
 		slashpos--
@@ -211,27 +219,28 @@ func filename(str string) string {
 func crashreport() {
 	error := recover()
 	if error != nil {
-    switch t:= error.(type){
-      default: crash(error)
-    }
+		switch t := error.(type) {
+		default:
+			crash(error)
+		}
 	}
 }
 
-func fail(){
-//   err2 := os.Rename(running, sim.outputdir+"/failed")
-//     if err2 != nil {
-//       fmt.Fprintln(os.Stderr, err2)
-//     }
+func fail() {
+	//   err2 := os.Rename(running, sim.outputdir+"/failed")
+	//     if err2 != nil {
+	//       fmt.Fprintln(os.Stderr, err2)
+	//     }
 }
 
-func crash(error interface{}){
-//   err2 := os.Rename(running, sim.outputdir+"/crashed")
-//     if err2 != nil {
-//       fmt.Fprintln(os.Stderr, err2)
-//     }
-    
-  fmt.Fprintln(os.Stderr,
-      `
+func crash(error interface{}) {
+	//   err2 := os.Rename(running, sim.outputdir+"/crashed")
+	//     if err2 != nil {
+	//       fmt.Fprintln(os.Stderr, err2)
+	//     }
+
+	fmt.Fprintln(os.Stderr,
+		`
 
 ---------------------------------------------------------------------
 Aw snap, the program has crahsed.
@@ -243,5 +252,5 @@ with Ctrl+Shift+C).
 ---------------------------------------------------------------------
 
 `)
-    panic(error)
+	panic(error)
 }

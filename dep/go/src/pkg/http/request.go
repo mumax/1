@@ -249,6 +249,8 @@ func readLineBytes(b *bufio.Reader) (p []byte, err os.Error) {
 		// If the caller asked for a line, there should be a line.
 		if err == os.EOF {
 			err = io.ErrUnexpectedEOF
+		} else if err == bufio.ErrBufferFull {
+			err = ErrLineTooLong
 		}
 		return nil, err
 	}
@@ -297,7 +299,7 @@ func readKeyValue(b *bufio.Reader) (key, value string, err os.Error) {
 	}
 
 	key = string(line[0:i])
-	if strings.Index(key, " ") >= 0 {
+	if strings.Contains(key, " ") {
 		// Key field has space - no good.
 		goto Malformed
 	}
@@ -687,5 +689,5 @@ func (r *Request) wantsHttp10KeepAlive() bool {
 	if !exists {
 		return false
 	}
-	return strings.Index(strings.ToLower(value), "keep-alive") != -1
+	return strings.Contains(strings.ToLower(value), "keep-alive")
 }

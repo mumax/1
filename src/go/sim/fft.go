@@ -22,6 +22,14 @@ func NewFFT(b *Backend, logicSize []int) *FFT {
 	return NewFFTPadded(b, logicSize, logicSize)
 }
 
+// Frees the underlying FFT plan.
+// It is safe to double-free.
+func (fft *FFT) Free() {
+	if fft.plan != 0 {
+		fft.freeFFTPlan(fft.plan)
+		fft.plan = 0
+	}
+}
 
 /**
  * logicSize is the size of the real input data, but this may contain a lot of zeros.

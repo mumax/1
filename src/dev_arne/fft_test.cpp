@@ -20,7 +20,7 @@ void printt(char* tag, float* data, int N0, int N1, int N2){
 }
 
 int main(){
-  int N0=2, N1=4, N2=8;
+  int N0=1, N1=1, N2=2048;
   int N = N0*N1*N2;
   int* size = new int[3];
   size[0] = N0;
@@ -57,7 +57,7 @@ int main(){
   }
 
 
-  printt("host1", host1, paddedsize[0], paddedsize[1], paddedsize[2]);
+//   printt("host1", host1, paddedsize[0], paddedsize[1], paddedsize[2]);
   memcpy_to_gpu(host1, devin, N);
 
     

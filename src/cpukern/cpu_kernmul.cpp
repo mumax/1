@@ -5,24 +5,24 @@
 extern "C" {
 #endif
 
-void cpu_extract_real(float* complex, float* real, int NReal){
-  #pragma omp parallel for
-  for(int e=0; e<NReal; e++){
-    real[e] = complex[2*e];
-  }
-}
+// void cpu_extract_real(float* complex, float* real, int NReal){
+//   #pragma omp parallel for
+//   for(int e=0; e<NReal; e++){
+//     real[e] = complex[2*e];
+//   }
+// }
 
 void cpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
                     float* fftKxx, float* fftKyy, float* fftKzz,
                     float* fftKyz, float* fftKxz, float* fftKxy,
                     int nRealNumbers){
-
-  //timer_start("kernel_mul");
+  
   assert(nRealNumbers > 0);
   assert(nRealNumbers % 2 == 0);
 
   #pragma omp parallel for
-  for(int e=0; e<nRealNumbers; e+=2){
+  for(int i=0; i<nRealNumbers/2; i++){
+    int e = i * 2;
     float reMx = fftMx[e  ];
     float imMx = fftMx[e+1];
 
@@ -32,13 +32,13 @@ void cpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
     float reMz = fftMz[e  ];
     float imMz = fftMz[e+1];
 
-    float Kxx = fftKxx[e/2];
-    float Kyy = fftKyy[e/2];
-    float Kzz = fftKzz[e/2];
+    float Kxx = fftKxx[i];
+    float Kyy = fftKyy[i];
+    float Kzz = fftKzz[i];
 
-    float Kyz = fftKyz[e/2];
-    float Kxz = fftKxz[e/2];
-    float Kxy = fftKxy[e/2];
+    float Kyz = fftKyz[i];
+    float Kxz = fftKxz[i];
+    float Kxy = fftKxy[i];
 
     fftMx[e  ] = reMx * Kxx + reMy * Kxy + reMz * Kxz;
     fftMx[e+1] = imMx * Kxx + imMy * Kxy + imMz * Kxz;
@@ -51,7 +51,42 @@ void cpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
 
   }
 
-  //timer_stop("kernel_mul");
+}
+
+
+void cpu_kernelmul4(float* fftMx,  float* fftMy,  float* fftMz,
+                    float* fftKxx, float* fftKyy, float* fftKzz,
+                    float* fftKyz,
+                    int nRealNumbers){
+  
+  assert(nRealNumbers > 0);
+  assert(nRealNumbers % 2 == 0);
+
+  #pragma omp parallel for
+  for(int i=0; i<nRealNumbers/2; i++){
+    int e = i * 2;
+    float reMx = fftMx[e  ];
+    float imMx = fftMx[e+1];
+
+    float reMy = fftMy[e  ];
+    float imMy = fftMy[e+1];
+
+    float reMz = fftMz[e  ];
+    float imMz = fftMz[e+1];
+
+    float Kxx = fftKxx[i];
+    float Kyy = fftKyy[i];
+    float Kzz = fftKzz[i];
+
+    float Kyz = fftKyz[i];
+
+    fftMx[e  ] = reMx * Kxx;
+    fftMx[e+1] = imMx * Kxx;
+    fftMy[e  ] = reMy * Kyy + reMz * Kyz;
+    fftMy[e+1] = imMy * Kyy + imMz * Kyz;
+    fftMz[e  ] = reMy * Kyz + reMz * Kzz;
+    fftMz[e+1] = imMy * Kyz + imMz * Kzz;
+  }
 }
 
 #ifdef __cplusplus

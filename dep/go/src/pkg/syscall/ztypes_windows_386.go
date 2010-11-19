@@ -20,6 +20,7 @@ const (
 const (
 	// Windows errors.
 	ERROR_FILE_NOT_FOUND      = 2
+	ERROR_PATH_NOT_FOUND      = 3
 	ERROR_NO_MORE_FILES       = 18
 	ERROR_BROKEN_PIPE         = 109
 	ERROR_INSUFFICIENT_BUFFER = 122
@@ -28,10 +29,6 @@ const (
 	ERROR_ENVVAR_NOT_FOUND    = 203
 	ERROR_DIRECTORY           = 267
 	ERROR_IO_PENDING          = 997
-	// Go names for Windows errors.
-	ENOTDIR = ERROR_DIRECTORY
-	// Windows reserves errors >= 1<<29 for application use.
-	APPLICATION_ERROR = 1 << 29
 )
 
 const (
@@ -68,6 +65,8 @@ const (
 	FILE_ATTRIBUTE_DIRECTORY = 0x00000010
 	FILE_ATTRIBUTE_ARCHIVE   = 0x00000020
 	FILE_ATTRIBUTE_NORMAL    = 0x00000080
+
+	INVALID_FILE_ATTRIBUTES = 0xffffffff
 
 	CREATE_NEW        = 1
 	CREATE_ALWAYS     = 2
@@ -107,7 +106,10 @@ const (
 	IGNORE                = 0
 	INFINITE              = 0xffffffff
 
-	WAIT_TIMEOUT = 258
+	WAIT_TIMEOUT   = 258
+	WAIT_ABANDONED = 0x00000080
+	WAIT_OBJECT_0  = 0x00000000
+	WAIT_FAILED    = 0xFFFFFFFF
 
 	CREATE_UNICODE_ENVIRONMENT = 0x00000400
 )
@@ -476,3 +478,10 @@ type DNSRecord struct {
 	Reserved uint32
 	Data     [40]byte
 }
+
+const (
+	HANDLE_FLAG_INHERIT            = 0x00000001
+	HANDLE_FLAG_PROTECT_FROM_CLOSE = 0x00000002
+
+	PROCESS_ALL_ACCESS = 0x001fffff
+)

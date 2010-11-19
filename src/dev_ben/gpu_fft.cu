@@ -1,4 +1,3 @@
-
 #include "gpu_fft.h"
 
 #ifdef __cplusplus

@@ -48,13 +48,22 @@ func (d Cpu) madd(a uintptr, cnst float32, b uintptr, N int) {
 	C.cpu_madd((*C.float)(unsafe.Pointer(a)), C.float(cnst), (*C.float)(unsafe.Pointer(b)), C.int(N))
 }
 
+func (d Cpu) madd2(a, b, c uintptr, N int) {
+	panic(Bug("unimplemented"))
+	//C.cpu_madd2((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), (*C.float)(unsafe.Pointer(c)), C.int(N))
+}
+
+func (c Cpu) addLinAnis(hx, hy, hz, mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, N int) {
+	panic(Bug("unimplemented"))
+}
+
 func (d Cpu) linearCombination(a, b uintptr, weightA, weightB float32, N int) {
 	C.cpu_linear_combination((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(weightA), C.float(weightB), C.int(N))
 }
 
 func (d Cpu) reduce(operation int, input, output uintptr, buffer *float32, blocks, threads, N int) float32 {
-	//C.cpu_reduce(C.int(operation), (*C.float)(input), (*C.float)(output), C.int(blocks), C.int(threads), C.int(N))
-	panic("unimplemented")
+	return float32(C.cpu_reduce(C.int(operation), (*C.float)(unsafe.Pointer(input)), (*C.float)(unsafe.Pointer(output)), (*C.float)(unsafe.Pointer(buffer)), C.int(blocks), C.int(threads), C.int(N)))
+	//panic("unimplemented")
 }
 
 func (d Cpu) addConstant(a uintptr, cnst float32, N int) {
@@ -83,7 +92,8 @@ func (d Cpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {
 	default:
 		panic(fmt.Sprintf("Unknown semianal order:", order))
 	case 0:
-		C.cpu_anal_fw_step_unsafe((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(dt), C.float(alpha), C.int(N))
+		panic("unimplemented")
+		//C.cpu_anal_fw_step_unsafe((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(dt), C.float(alpha), C.int(N))
 	}
 }
 
@@ -91,13 +101,20 @@ func (d Cpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {
 
 
 func (d Cpu) extractReal(complex, real uintptr, NReal int) {
-	C.cpu_extract_real((*C.float)(unsafe.Pointer(complex)), (*C.float)(unsafe.Pointer(real)), C.int(NReal))
+	panic("deprecated")
+	//C.cpu_extract_real((*C.float)(unsafe.Pointer(complex)), (*C.float)(unsafe.Pointer(real)), C.int(NReal))
 }
 
 func (d Cpu) kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, kerneltype, nRealNumbers int) {
 	switch kerneltype {
 	default:
 		panic(fmt.Sprintf("Unknown kernel type:", kerneltype))
+	case 4:
+		C.cpu_kernelmul4(
+			(*C.float)(unsafe.Pointer(mx)), (*C.float)(unsafe.Pointer(my)), (*C.float)(unsafe.Pointer(mz)),
+			(*C.float)(unsafe.Pointer(kxx)), (*C.float)(unsafe.Pointer(kyy)), (*C.float)(unsafe.Pointer(kzz)),
+			(*C.float)(unsafe.Pointer(kyz)),
+			C.int(nRealNumbers))
 	case 6:
 		C.cpu_kernelmul6(
 			(*C.float)(unsafe.Pointer(mx)), (*C.float)(unsafe.Pointer(my)), (*C.float)(unsafe.Pointer(mz)),
@@ -135,6 +152,11 @@ func (d Cpu) newFFTPlan(dataSize, logicSize []int) uintptr {
 	Csize := (*C.int)(unsafe.Pointer(&dataSize[0]))
 	CpaddedSize := (*C.int)(unsafe.Pointer(&logicSize[0]))
 	return uintptr(unsafe.Pointer(C.new_cpuFFT3dPlan_inplace(Csize, CpaddedSize)))
+}
+
+func (d Cpu) freeFFTPlan(plan uintptr) {
+	//panic(Bug("Unimplemented"))
+	C.delete_cpuFFT3dPlan((*C.cpuFFT3dPlan)(unsafe.Pointer(plan)))
 }
 
 func (d Cpu) fft(plan uintptr, in, out uintptr, direction int) {

@@ -68,14 +68,13 @@ type Sim struct {
 
 	// 	backend *Backend // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
 
-	mDev         *DevTensor    // magnetization on the device (GPU), 4D tensor
-	size3D       []int         //simulation grid size (without 3 as first element)
-	h            *DevTensor    // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
-	mComp, hComp [3]*DevTensor // magnetization/field components, 3 x 3D tensors
-	mLocal       *tensor.T4    // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
-	mUpToDate    bool          // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
-	normMap      *DevTensor    // Per-cell magnetization norm. nil means the norm is 1.0 everywhere. Stored on the device
-	Conv                       // Convolution plan for the magnetostatic field
+	mDev      *DevTensor // magnetization on the device (GPU), 4D tensor
+	size3D    []int      //simulation grid size (without 3 as first element)
+	h         *DevTensor // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
+	mLocal    *tensor.T4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
+	mUpToDate bool       // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
+	Conv                 // Convolution plan for the magnetostatic field
+	wisdomdir string     // Absolute path of the kernel wisdom root directory
 
 	Material // Stores material parameters and manages the internal units
 	Mesh     // Stores the size of the simulation grid
@@ -104,11 +103,21 @@ type Sim struct {
 	out       *os.File          // Output log file
 	metadata  map[string]string // Metadata to be added to headers of saved tensors
 	starttime int64             // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
+
+	// Geometry
+	periodic  [3]int       // Periodic boundary conditions? 0=no, >0=yes
+	geom      Geom         // Shape of the magnet (has Inside(x,y,z) func)
+	normMap   *DevTensor   // Per-cell magnetization norm. nil means the norm is 1.0 everywhere. Stored on the device
+	normLocal *tensor.T3   // local copy of devNorm
+	edgeCorr  int          // 0: no edge correction, >0: 2^edgecorr cell subsampling for edge corrections
+	edgeKern  []*DevTensor // Per-cell self-kernel used for edge corrections (could also store some anisotropy types)
 }
+
 
 func New(outputdir string, backend *Backend) *Sim {
 	return NewSim(outputdir, backend)
 }
+
 
 func NewSim(outputdir string, backend *Backend) *Sim {
 	sim := new(Sim)
@@ -124,15 +133,16 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	// This is neccesary, e.g., when a sim deamon is run from a directory other
 	// than the directory of the input file and files with relative paths are
 	// read (e.g. "include file", "load file")
-	workdir := parentDir(outputdir)
+	workdir := ParentDir(outputdir)
 	fmt.Println("chdir ", workdir)
 	os.Chdir(workdir)
-	sim.outputDir(filename(outputdir))
+	sim.outputDir(Filename(outputdir))
 	sim.metadata = make(map[string]string)
 	sim.initWriters()
 	sim.invalidate() //just to make sure we will init()
 	return sim
 }
+
 
 // When a parmeter is changed, the simulation state is invalidated until it gets (re-)initialized by init().
 func (s *Sim) invalidate() {
@@ -141,6 +151,7 @@ func (s *Sim) invalidate() {
 	}
 	s.valid = false
 }
+
 
 // When it returns false, init() needs to be called before running.
 func (s *Sim) IsValid() bool {
@@ -159,7 +170,7 @@ func (s *Sim) initSize() {
 		}
 		s.size4D[i+1] = s.size[i]
 	}
-	s.Println("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
+	// 	s.Println("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
 
 	s.size3D = s.size4D[1:]
 }
@@ -193,14 +204,15 @@ func (s *Sim) initDevMem() {
 	s.mDev = NewTensor(s.Backend, s.size4D[0:])
 	s.h = NewTensor(s.Backend, s.size4D[0:])
 	s.printMem()
-	s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
-	for i := range s.mComp {
-		s.mComp[i] = s.mDev.Component(i)
-		s.hComp[i] = s.h.Component(i)
-	}
+	// 	s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
+	// 	for i := range s.mComp {
+	// 		s.mComp[i] = s.mDev.Component(i)
+	// 		s.hComp[i] = s.h.Component(i)
+	// 	}
 
 	s.initReductors()
 }
+
 
 func (s *Sim) initReductors() {
 	N := Len(s.size3D)
@@ -210,9 +222,11 @@ func (s *Sim) initReductors() {
 	s.devmin.InitMin(s.Backend, N)
 }
 
+
 func (s *Sim) initMLocal() {
 	s.initSize()
 	if s.mLocal == nil {
+		s.Println("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
 		s.Println("Allocating local memory " + fmt.Sprint(s.size4D))
 		s.mLocal = tensor.NewT4(s.size4D[0:])
 	}
@@ -224,45 +238,49 @@ func (s *Sim) initMLocal() {
 	// 	normalize(s.mLocal.Array())
 }
 
+
 // checks if the initial magnetization makes sense
 // TODO: m=0,0,0 should not be a warning when the corresponding normMap is zero as well.
-func (s *Sim) checkInitialM(){
-  // All zeros: not initialized: error
-  list := s.mLocal.List()
-  ok := false
-  for _,m:=range list{
-    if m != 0. {ok = true} 
-  }
-  if !ok{
-    s.Warn("Initial magnetization was not set")
-    panic(InputErr("Initial magnetization was not set"))
-  }
+func (s *Sim) checkInitialM() {
+	// All zeros: not initialized: error
+	list := s.mLocal.List()
+	ok := false
+	for _, m := range list {
+		if m != 0. {
+			ok = true
+		}
+	}
+	if !ok {
+		s.Warn("Initial magnetization was not set")
+		panic(InputErr("Initial magnetization was not set"))
+	}
 
-  // Some zeros: may or may not be a mistake,
-  // warn and set to random.
-  warned := false
-  m := s.mLocal.Array()
-    for i:=range m[0]{
-      for j:=range m[0][i]{
-        for k:=range m[0][i][j]{
-          if m[X][i][j][k] == 0. && m[Y][i][j][k] == 0. && m[Z][i][j][k] == 0.{
-            if !warned{
-              s.Warn("Some initial magnetization vectors were zero, set to a random value")
-              warned = true
-            }
-            m[X][i][j][k] , m[Y][i][j][k] , m[Z][i][j][k] = rand.Float32()-0.5, rand.Float32()-0.5, rand.Float32()-0.5;
-          }
-        }
-      }
-    }
+	// Some zeros: may or may not be a mistake,
+	// warn and set to random.
+	warned := false
+	m := s.mLocal.Array()
+	for i := range m[0] {
+		for j := range m[0][i] {
+			for k := range m[0][i][j] {
+				if m[X][i][j][k] == 0. && m[Y][i][j][k] == 0. && m[Z][i][j][k] == 0. {
+					if !warned {
+						s.Warn("Some initial magnetization vectors were zero, set to a random value")
+						warned = true
+					}
+					m[X][i][j][k], m[Y][i][j][k], m[Z][i][j][k] = rand.Float32()-0.5, rand.Float32()-0.5, rand.Float32()-0.5
+				}
+			}
+		}
+	}
 }
 
 
 func (s *Sim) initConv() {
-	s.paddedsize = padSize(s.size[0:])
+	s.paddedsize = padSize(s.size[:], s.periodic[:])
 
 	s.Println("Calculating kernel (may take a moment)") // --- In fact, it takes 3 moments, one in each direction.
-	demag := FaceKernel6(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy)
+	// lookupKernel first searches the wisdom directory and only calculates the kernel when it's not cached yet.
+	demag := s.LookupKernel(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy, s.periodic[:])
 	exch := Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
 	// Add Exchange kernel to demag kernel
 	for i := range demag {
@@ -305,9 +323,9 @@ func (s *Sim) init() {
 	// allocate local storage for m
 	s.initMLocal()
 
-  // check if m has been initialized
-  s.checkInitialM()
-  
+	// check if m has been initialized
+	s.checkInitialM()
+
 	// copy to GPU and normalize on the GPU, according to the normmap.
 	TensorCopyTo(s.mLocal, s.mDev)
 	// 	s.Normalize(s.mDev) // mysteriously crashes
@@ -317,6 +335,8 @@ func (s *Sim) init() {
 
 	// (4) Calculate kernel & set up convolution
 	s.initConv()
+
+	s.initGeom()
 
 	// (5) Time stepping
 	s.initSolver()

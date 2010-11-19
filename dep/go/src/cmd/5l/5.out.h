@@ -58,6 +58,7 @@
 #define	NFREG		8
 #define	FREGRET		0
 #define	FREGEXT		7
+#define	FREGTMP		15
 /* compiler allocates register variables F0 up */
 /* compiler allocates external registers F7 down */
 
@@ -158,8 +159,8 @@ enum	as
 	ARET,
 	ATEXT,
 	AWORD,
-	ADYNT,
-	AINIT,
+	ADYNT_,
+	AINIT_,
 	ABCASE,
 	ACASE,
 
@@ -246,6 +247,7 @@ enum	as
 
 /* internal only */
 #define	D_SIZE		(D_NONE+40)
+#define	D_PCREL		(D_NONE+41)
 
 /*
  * this is the ranlib header

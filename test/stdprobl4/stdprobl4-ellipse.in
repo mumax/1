@@ -13,6 +13,7 @@ alpha      	0.02
 gridsize       	128 	32 	1    
 partsize   	500E-9  125E-9  3E-9
 cylinder
+edgecorrection 3
 
 # initial magnetization
 uniform 1 0 0

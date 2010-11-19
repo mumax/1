@@ -1,0 +1,20 @@
+msat       	800E3   
+aexch      	1.3E-11     
+alpha      	2
+
+partsize	500e-9	100e-9	10e-9
+gridsize	64	16	4
+testgeom	100e-9 5e-9
+edgecorrection	3
+
+uniform 1 0 0
+
+solvertype	heun
+maxerror	1e-4
+
+autosave	m	png	100e-12
+
+run		5e-9
+
+
+

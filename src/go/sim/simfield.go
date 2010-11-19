@@ -142,10 +142,18 @@ func (s *Sim) calcHeff(m, h *DevTensor) {
 	s.Convolve(m, h)
 
 	// (2) Add the externally applied field
+
+	hComp := s.h.comp
+
 	if s.AppliedField != nil {
 		s.hextSI = s.GetAppliedField(s.time * float64(s.UnitTime()))
-		for i := range s.hComp {
-			s.AddConstant(s.hComp[i], s.hextSI[i]/s.UnitField())
+		for i := range hComp {
+			s.AddConstant(hComp[i], s.hextSI[i]/s.UnitField())
 		}
+	}
+
+	// (3) Add the edge-correction field
+	if s.edgeCorr != 0 {
+		s.addEdgeField(m, h)
 	}
 }

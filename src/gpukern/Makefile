@@ -10,16 +10,17 @@ OFILES=\
 	gpu_torque.o\
 	gpu_transpose.o\
 	gpu_transpose2.o\
-	gpu_bigfft.o\
-	gpu_fft3.o\
 	gpu_kernmul.o\
 	gpu_zeropad.o\
 	gpu_init.o\
 	timer.o\
 	gpu_stream.o\
 	gpu_reduction.o\
+	gpu_fftbig.o\
+	gpu_fft0.o\
+ 	gpu_anal.o\
 	gpu_spintorque.o\
-# 	gpu_anal.o\
+	gpu_anis.o\
 
 all: libgpukern.so libgpukern.a
 
@@ -64,11 +65,14 @@ gpu_transpose.o:  gpu_transpose.h gpu_transpose.cu
 gpu_transpose2.o:  gpu_transpose2.h gpu_transpose2.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_transpose2.cu
 
-gpu_fft4.o:  gpu_fft4.h gpu_fft4.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft4.cu
+# gpu_fft4.o:  gpu_fft4.h gpu_fft4.cu
+# 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft4.cu
+# 
+# gpu_fft3.o:  gpu_fft3.h gpu_fft3.cu
+# 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft3.cu
 
-gpu_fft3.o:  gpu_fft3.h gpu_fft3.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft3.cu
+gpu_fft0.o:  gpu_fft0.h gpu_fft0.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft0.cu
 
 gpu_kernmul.o:  gpu_kernmul.h gpu_kernmul.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_kernmul.cu
@@ -76,20 +80,29 @@ gpu_kernmul.o:  gpu_kernmul.h gpu_kernmul.cu
 gpu_zeropad.o:  gpu_zeropad.h gpu_zeropad.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_zeropad.cu
 
-# gpu_anal.o:  gpu_anal.h gpu_anal.cu
-# 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_anal.cu
-
 gpu_init.o:  gpu_init.h gpu_init.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_init.cu
 
 gpu_reduction.o:  gpu_reduction.h gpu_reduction.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_reduction.cu
 
-gpu_bigfft.o:  gpu_bigfft.h gpu_bigfft.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_bigfft.cu
+# gpu_bigfft.o:  gpu_bigfft.h gpu_bigfft.cu
+# 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_bigfft.cu
+
+gpu_fftbig.o: gpu_fftbig.h gpu_fftbig.cu
+	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_fftbig.cu
+
+gpu_fft6.o:  gpu_fft6.h gpu_fft6.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_fft6.cu
 
 gpu_spintorque.o:  gpu_spintorque.h gpu_spintorque.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_spintorque.cu
+
+gpu_anal.o:	gpu_anal.h gpu_anal.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_anal.cu
+
+gpu_anis.o:  gpu_anis.h gpu_anis.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_anis.cu
 
 test:	all transpose_test zeropad_test reduction_test fft_test spintorque_test
 

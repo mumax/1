@@ -55,15 +55,16 @@ void evaluate_micromag3d_conv(tensor *m, tensor *h, conv_data *conv){
   float *fftKzz = &conv->kernel->list[5*N/2];
 
     //Fourier transforming of fft_mi
-  for(int i=0; i<3; i++)
+  for(int i=0; i<3; i++){
+//    gpuFFT3dPlan_forward(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
     gpuFFT3dPlan_forward(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
-//    gpuFFT3dPlan_forward_big(conv->fftplan_big, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
-  
+  }
     // kernel multiplication
     gpu_kernelmul6(fftMx, fftMy, fftMz, fftKxx, fftKyy, fftKzz, fftKyz, fftKxz, fftKxy, N);
 
     //inverse Fourier transforming fft_hi
   for(int i=0; i<3; i++)
+//    gpuFFT3dPlan_inverse(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
     gpuFFT3dPlan_inverse(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
 
   return;
@@ -91,16 +92,18 @@ void evaluate_micromag3d_conv_Xthickness_1(tensor *m, tensor *h, conv_data *conv
 
 
   //Fourier transforming of fft_mi
-  for(int i=0; i<3; i++)
+  for(int i=0; i<3; i++){
+//   gpuFFT3dPlan_forward(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
     gpuFFT3dPlan_forward(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
-
+}
     // kernel multiplication
   gpu_kernelmul4(fftMx, fftMy,  fftMz, fftKxx, fftKyy, fftKzz, fftKyz, N);
 
     //inverse Fourier transforming fft_hi
-  for(int i=0; i<3; i++)
+  for(int i=0; i<3; i++){
+//    gpuFFT3dPlan_inverse(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
     gpuFFT3dPlan_inverse(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
-
+}
 
   return;
 }
@@ -125,6 +128,7 @@ void evaluate_micromag2d_conv(tensor *m, tensor *h, conv_data *conv){
 
     //Fourier transforming of fft_mi
   for(int i=0; i<2; i++)
+//    gpuFFT3dPlan_forward(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
     gpuFFT3dPlan_forward(conv->fftplan, m_comp[i], fft1_comp[i]);  ///@todo out-of-place
 
     // kernel multiplication
@@ -132,6 +136,7 @@ void evaluate_micromag2d_conv(tensor *m, tensor *h, conv_data *conv){
 
     //inverse Fourier transforming fft_hi
   for(int i=0; i<2; i++)
+//    gpuFFT3dPlan_inverse(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
     gpuFFT3dPlan_inverse(conv->fftplan, fft1_comp[i], h_comp[i]);  ///@todo out-of-place
 
   return;
@@ -163,7 +168,6 @@ conv_data *new_conv_data(param *p, tensor *kernel){
 
   conv->fft1 = new_gputensor(4, size4d);
   conv->fft2 = conv->fft1;
-  conv->fftplan_big = new_gpuFFT3dPlan_padded_big(p->size, p->kernelSize);
   conv->fftplan = new_gpuFFT3dPlan_padded(p->size, p->kernelSize);
   conv->kernel = kernel;
 

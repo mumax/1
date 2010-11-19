@@ -97,10 +97,25 @@ func (dev *Backend) Add(a, b *DevTensor) {
 	dev.add(a.data, b.data, tensor.Prod(a.Size()))
 }
 
-// a[i] += b[i]
+// a[i] += cnst * b[i]
 func (dev *Backend) MAdd(a *DevTensor, cnst float32, b *DevTensor) {
 	assert(tensor.EqualSize(a.size, b.size))
 	dev.madd(a.data, cnst, b.data, tensor.Prod(a.Size()))
+}
+
+// a[i] += b[i] * c[i]
+func (dev *Backend) MAdd2(a, b, c *DevTensor) {
+	assert(tensor.EqualSize(a.size, b.size))
+	assert(tensor.EqualSize(b.size, c.size))
+	dev.madd2(a.data, b.data, c.data, tensor.Prod(a.Size()))
+}
+
+func (dev *Backend) AddLinAnis(h, m *DevTensor, K []*DevTensor) {
+	dev.addLinAnis(h.comp[X].data, h.comp[Y].data, h.comp[Z].data,
+		m.comp[X].data, m.comp[Y].data, m.comp[Z].data,
+		K[XX].data, K[YY].data, K[ZZ].data,
+		K[YZ].data, K[XZ].data, K[XY].data,
+		h.length)
 }
 
 // a[i]  = weightA * a[i] + weightB * b[i]

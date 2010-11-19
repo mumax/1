@@ -5,7 +5,8 @@ TARG=barnex
 
 GOFILES=\
 	tokenizer.go\
-	node.go
+	node.go\
+	parser.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 

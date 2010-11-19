@@ -1,7 +1,5 @@
 # BIG simulation
 
-gpu
-
 demagaccuracy 0
 
 # schedule output

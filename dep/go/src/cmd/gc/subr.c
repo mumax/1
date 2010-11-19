@@ -810,6 +810,7 @@ goopnames[] =
 	[OANDAND]	= "&&",
 	[OANDNOT]	= "&^",
 	[OAND]		= "&",
+	[OAPPEND]	= "append",
 	[OAS]		= "=",
 	[OAS2]		= "=",
 	[OBREAK]	= "break",
@@ -934,12 +935,14 @@ Lconv(Fmt *fp)
 				break;
 			fmtprint(fp, " ");
 		}
+		if(debug['L'])
+			fmtprint(fp, "%s/", pathname);
 		if(a[i].line)
-			fmtprint(fp, "%s:%ld[%s:%ld]",
+			fmtprint(fp, "%s:%d[%s:%d]",
 				a[i].line->name, lno-a[i].ldel+1,
 				a[i].incl->name, lno-a[i].idel+1);
 		else
-			fmtprint(fp, "%s:%ld",
+			fmtprint(fp, "%s:%d",
 				a[i].incl->name, lno-a[i].idel+1);
 		lno = a[i].incl->line - 1;	// now print out start of this file
 	}
@@ -1018,10 +1021,10 @@ Jconv(Fmt *fp)
 		fmtprint(fp, " a(%d)", n->addable);
 
 	if(n->vargen != 0)
-		fmtprint(fp, " g(%ld)", n->vargen);
+		fmtprint(fp, " g(%d)", n->vargen);
 
 	if(n->lineno != 0)
-		fmtprint(fp, " l(%ld)", n->lineno);
+		fmtprint(fp, " l(%d)", n->lineno);
 
 	if(n->xoffset != 0)
 		fmtprint(fp, " x(%lld)", n->xoffset);
@@ -1043,6 +1046,9 @@ Jconv(Fmt *fp)
 
 	if(n->isddd != 0)
 		fmtprint(fp, " isddd(%d)", n->isddd);
+
+	if(n->implicit != 0)
+		fmtprint(fp, " implicit(%d)", n->implicit);
 
 	return 0;
 }
@@ -1271,7 +1277,7 @@ Tpretty(Fmt *fp, Type *t)
 			fmtprint(fp, "...%T", t->type->type);
 		else
 			fmtprint(fp, "%T", t->type);
-		if(t->note) {	
+		if(t->note) {
 			fmtprint(fp, " ");
 			if(exporting)
 				fmtprint(fp, ":");
@@ -1375,7 +1381,7 @@ Tconv(Fmt *fp)
 
 	case TARRAY:
 		if(t->bound >= 0)
-			fmtprint(fp, "[%ld]%T", t->bound, t->type);
+			fmtprint(fp, "[%d]%T", t->bound, t->type);
 		else
 			fmtprint(fp, "[]%T", t->type);
 		break;
@@ -1429,7 +1435,7 @@ Nconv(Fmt *fp)
 			fmtprint(fp, "%O%J", n->op, n);
 			break;
 		}
-		fmtprint(fp, "%O-%S G%ld%J", n->op,
+		fmtprint(fp, "%O-%S G%d%J", n->op,
 			n->sym, n->vargen, n);
 		goto ptyp;
 
@@ -1475,7 +1481,7 @@ Nconv(Fmt *fp)
 		break;
 	}
 	if(n->sym != S)
-		fmtprint(fp, " %S G%ld", n->sym, n->vargen);
+		fmtprint(fp, " %S G%d", n->sym, n->vargen);
 
 ptyp:
 	if(n->type != T)
@@ -2045,6 +2051,7 @@ assignconv(Node *n, Type *t, char *context)
 	r = nod(op, n, N);
 	r->type = t;
 	r->typecheck = 1;
+	r->implicit = 1;
 	return r;
 }
 
@@ -2328,7 +2335,7 @@ frame(int context)
 		case ONAME:
 			if(flag)
 				print("--- %s frame ---\n", p);
-			print("%O %S G%ld %T\n", n->op, n->sym, n->vargen, n->type);
+			print("%O %S G%d %T\n", n->op, n->sym, n->vargen, n->type);
 			flag = 0;
 			break;
 
@@ -2593,7 +2600,7 @@ brrev(int a)
 }
 
 /*
- * return side effect-free appending side effects to init.
+ * return side effect-free n, appending side effects to init.
  * result is assignable if n is.
  */
 Node*
@@ -2650,6 +2657,24 @@ safeexpr(Node *n, NodeList **init)
 	// make a copy; must not be used as an lvalue
 	if(islvalue(n))
 		fatal("missing lvalue case in safeexpr: %N", n);
+	return cheapexpr(n, init);
+}
+
+/*
+ * return side-effect free and cheap n, appending side effects to init.
+ * result may not be assignable.
+ */
+Node*
+cheapexpr(Node *n, NodeList **init)
+{
+	Node *a, *l;
+
+	switch(n->op) {
+	case ONAME:
+	case OLITERAL:
+		return n;
+	}
+
 	l = nod(OXXX, N, N);
 	tempname(l, n->type);
 	a = nod(OAS, l, n);
@@ -3587,10 +3612,11 @@ umagic(Magic *m)
 Sym*
 ngotype(Node *n)
 {
-	if(n->sym != S && strncmp(n->sym->name, "autotmp_", 8) != 0)
-	if(n->type->etype != TFUNC || n->type->thistuple == 0)
-	if(n->type->etype != TSTRUCT || n->type->funarg == 0)
-		return typename(n->type)->left->sym;
+	if(n->sym != S && n->realtype != T)
+	if(strncmp(n->sym->name, "autotmp_", 8) != 0)
+	if(strncmp(n->sym->name, "statictmp_", 8) != 0)
+		return typename(n->realtype)->left->sym;
+
 	return S;
 }
 
@@ -3664,4 +3690,3 @@ strlit(char *s)
 	t->len = strlen(s);
 	return t;
 }
-

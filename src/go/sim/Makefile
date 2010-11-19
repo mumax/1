@@ -30,6 +30,8 @@ GOFILES=\
 	simfield.go\
 	simspintorque.go\
 	simgeom.go\
+	edge.go\
+	geom.go\
 	simmaterial.go\
 	simoutput.go\
 	simrun.go\
@@ -50,6 +52,8 @@ GOFILES=\
 	simmetadata.go\
 	resample.go\
 	error.go\
+	wisdom.go\
+	
 
 CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so
 

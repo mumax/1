@@ -1,15 +1,49 @@
 package barnex
 
-func Parse(fname string) (root *Node) {
-	root = Tokenize(fname)
-
+func Parse(fname string) (start, stop *Node) {
+	start, stop = Tokenize(fname)
+	parse(start, stop)
+	// TODO root = ...
+	return
 }
 
-func parse(start, stop *Node) {
-	parseBrackets(start, stop)
+// parses everything BETWEEN start and stop,
+// excluding start and stop
+func parse(start, stop *Node) (root *Node) {
+	root = NewNode()
+
 }
 
 func parseBrackets(start, stop *Node) {
-	current := start
+	curr := start.Next
 
+	// scan for opening parenthesis
+	for curr.Type != EOF && curr.Type != LPAREN {
+		curr = curr.Next
+	}
+
+	// no opening parenthesis found: no work to do
+	if curr.Type == EOF {
+		return
+	}
+
+	assert(curr.Type == LPAREN)
+
+	// scan for opening parenthesis
+	for curr.Type != EOF && curr.Type != LPAREN {
+		curr = curr.Next
+	}
+
+	// no opening parenthesis found: no work to do
+	if curr.Type == EOF {
+		return
+	}
+
+}
+
+
+func assert(test bool) {
+	if !test {
+		panic("Assertion failed")
+	}
 }

@@ -1,0 +1,33 @@
+# BIG simulation
+
+
+demagaccuracy 1
+
+
+# schedule output
+#autosave      m     png   100E-12
+#autosave      table ascii  50E-12
+
+# time stepping
+solvertype   heun
+
+
+# material: permalloy
+msat         800E3
+aexch        1.3E-11
+
+
+# geometry
+gridsize     64 64 64
+cellsize     1E-9  1E-9   1E-9
+
+# initial magnetization
+vortex      1 1 
+
+
+# relax: 1000 steps
+alpha       2
+dt          0.1E-12
+run         0.1E-9
+
+
