@@ -54,3 +54,5 @@ known bugs
 [0015] SOLVED arne:
  simulation should give error message when no initial magnetization is set (or when it is zero/contains zeros)
 
+[0016] OPEN arne:
+ simulate daemon does not yet pass wisdom argument to child process (todo: also check other arguments while on it)
