@@ -23,7 +23,10 @@ import (
 	"tensor"
 )
 
-func (s *Sim) lookupKernel(size []int, cellsize []float32, accuracy int, periodic []int) (kernel []*tensor.T3) {
+
+// Returns the kernel from cache if possible.
+// Otherwise, a freshly calculated one is cached and returned.
+func (s *Sim) LookupKernel(size []int, cellsize []float32, accuracy int, periodic []int) (kernel []*tensor.T3) {
 
 	// If anything goes wrong unexpectedly, we just return a freshly calculated kernel.
 	defer func() {
@@ -60,7 +63,8 @@ func (s *Sim) lookupKernel(size []int, cellsize []float32, accuracy int, periodi
 	return
 }
 
-// Loads kerndir/k**.tensor
+
+// INTERNAL: Loads kerndir/k**.tensor
 func (s *Sim) loadKernComp(kerndir string, component int) *tensor.T3 {
 	file := kerndir + "/k" + KernString[component] + ".tensor"
 	in, err := os.Open(file, os.O_RDONLY, 0666)
@@ -73,6 +77,7 @@ func (s *Sim) loadKernComp(kerndir string, component int) *tensor.T3 {
 }
 
 
+// INTERNAL: Stores the kernel in kerndir
 func (s *Sim) storeKernel(kernel []*tensor.T3, kerndir string) {
 	// empty widomdir means we must not use wisdom
 	if s.wisdomdir == "" {
@@ -105,28 +110,26 @@ func (s *Sim) storeKernel(kernel []*tensor.T3, kerndir string) {
 				fmt.Fprintln(os.Stderr, err)
 				return
 			}
-
 			kernel[i].WriteTo(out)
-
 		}
 	}
-
 	fmt.Println("storing wisdom OK")
-
 }
 
-// returns a directory name (w/o absolute path) to store the kernel with given parameters
+
+// INTERNAL returns a directory name (w/o absolute path) to store the kernel with given parameters
 func wisdomFileName(size []int, cellsize []float32, accuracy int, periodic []int) string {
 	pbc := ""
 	if !(periodic[X] == 0 && periodic[Y] == 0 && periodic[Z] == 0) {
 		pbc = fmt.Sprint("pbc", periodic[Z], "x", periodic[Y], "x", periodic[X])
 	}
 	return fmt.Sprint(size[Z], "x", size[Y], "x", size[X], "/",
-		cellsize[Z], "x", cellsize[Y], "x", cellsize[X], "lex3", "/",
+		cellsize[Z], "x", cellsize[Y], "x", cellsize[X], "lex3",
 		pbc,
 		"acc", accuracy)
 }
 
+// INTERNAL
 // Absolute path of the default kernel root directory:
 // working directory + /kernelwisdom
 func defaultWisdomDir() string {
@@ -136,5 +139,4 @@ func defaultWisdomDir() string {
 		return "" // don't use wisdom
 	}
 	return wd + "/kernelwisdom"
-
 }
