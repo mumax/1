@@ -279,7 +279,8 @@ func (s *Sim) initConv() {
 	s.paddedsize = padSize(s.size[:], s.periodic[:])
 
 	s.Println("Calculating kernel (may take a moment)") // --- In fact, it takes 3 moments, one in each direction.
-	demag := FaceKernel6(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy, s.periodic[:])
+	// lookupKernel first searches the wisdom directory and only calculates the kernel when it's not cached yet.
+	demag := s.lookupKernel(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy, s.periodic[:])
 	exch := Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
 	// Add Exchange kernel to demag kernel
 	for i := range demag {

@@ -110,3 +110,6 @@ var KernIdx [3][3]int = [3][3]int{
 	[3]int{XX, XY, XZ},
 	[3]int{XY, YY, YZ},
 	[3]int{XZ, YZ, ZZ}}
+
+
+var KernString []string = []string{"xx", "yy", "zz", "yz", "xz", "xy"}

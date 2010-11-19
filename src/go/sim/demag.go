@@ -23,6 +23,7 @@ import (
 // You can use the function KernIdx to convert from source-dest pairs like XX to 1D indices:
 // K[KernIdx[X][X]] returns K[XX]
 func FaceKernel6(size []int, cellsize []float32, accuracy int, periodic []int) []*tensor.T3 {
+
 	k := make([]*tensor.T3, 6)
 	for i := range k {
 		k[i] = tensor.NewT3(size)
