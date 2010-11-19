@@ -33,19 +33,21 @@ func (s *Sim) lookupKernel(size []int, cellsize []float32, accuracy int, periodi
 			kernel = FaceKernel6(size, cellsize, accuracy, periodic)
 		}
 	}()
-	///////////////////////////////////////////////////////////////////////////////////
 
+	// empty widomdir means we must not use wisdom
+	if s.wisdomdir == "" {
+		kernel = FaceKernel6(size, cellsize, accuracy, periodic)
+		return
+	}
 
+	// try to load cached kernel
 	kerndir := s.wisdomdir + "/" + wisdomFileName(size, cellsize, accuracy, periodic)
-
 	if fileExists(kerndir) {
 		fmt.Println("using wisdom: ", kerndir)
 		kernel = make([]*tensor.T3, 6)
 		for i := range kernel {
 			if s.needKernComp(i) {
-
 				kernel[i] = s.loadKernComp(kerndir, i)
-
 			}
 		}
 		fmt.Println("wisdom loaded")
@@ -72,8 +74,13 @@ func (s *Sim) loadKernComp(kerndir string, component int) *tensor.T3 {
 
 
 func (s *Sim) storeKernel(kernel []*tensor.T3, kerndir string) {
-  fmt.Println("storing wisdom: ", kerndir)
-  
+	// empty widomdir means we must not use wisdom
+	if s.wisdomdir == "" {
+		return
+	}
+
+	fmt.Println("storing wisdom: ", kerndir)
+
 	// If anything goes wrong unexpectedly, then the kernel could not be saved,
 	// but we should continue to run.
 	defer func() {
@@ -83,15 +90,15 @@ func (s *Sim) storeKernel(kernel []*tensor.T3, kerndir string) {
 		}
 	}()
 
-  err1 := os.MkdirAll(kerndir, 0777)
-  if err1 != nil{
-    fmt.Fprintln(os.Stderr, err1)
-  }
-  
+	err1 := os.MkdirAll(kerndir, 0777)
+	if err1 != nil {
+		fmt.Fprintln(os.Stderr, err1)
+	}
+
 	for i := range kernel {
 		if s.needKernComp(i) {
 
-      file := kerndir + "/k" + KernString[i] + ".tensor"
+			file := kerndir + "/k" + KernString[i] + ".tensor"
 			out, err := os.Open(file, os.O_CREATE|os.O_WRONLY, 0666)
 			defer out.Close()
 			if err != nil {
@@ -105,7 +112,6 @@ func (s *Sim) storeKernel(kernel []*tensor.T3, kerndir string) {
 	}
 
 	fmt.Println("storing wisdom OK")
-  
 
 }
 

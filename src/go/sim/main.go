@@ -35,7 +35,7 @@ var (
 	gpuid     *int    = flag.Int("gpu", 0, "Select a GPU when more than one is present. Default GPU = 0") //TODO: also for master
 	cpu       *bool   = flag.Bool("cpu", false, "Run on the CPU instead of GPU.")
 	updatedb  *int    = flag.Int("updatedisp", 100, "Update the terminal output every x milliseconds")
-	wisdir    *string = flag.String("wisdom", defaultWisdomDir(), "Absolute directory to store cached kernels.")
+	wisdir    *string = flag.String("wisdom", defaultWisdomDir(), "Absolute directory to store cached kernels. \"\" means no caching")
 	// 	dryrun    *bool   = flag.Bool("dryrun", false, "Go quickly through the simulation sequence without calculating anything. Useful for debugging") // todo implement
 	//  server    *bool   = flag.Bool("server", false, "Run as a slave node in a cluster")
 	//  port      *int    = flag.Int("port", 2527, "Which network port to use")
