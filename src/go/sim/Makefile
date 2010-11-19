@@ -52,6 +52,7 @@ GOFILES=\
 	simmetadata.go\
 	resample.go\
 	error.go\
+	wisdom.go\
 	
 
 CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so
