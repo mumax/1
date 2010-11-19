@@ -110,7 +110,7 @@ func (s *Sim) storeKernel(kernel []*tensor.T3, kerndir string) {
 				fmt.Fprintln(os.Stderr, err)
 				return
 			}
-			kernel[i].WriteTo(out)
+			tensor.WriteBinary(out, kernel[i])
 		}
 	}
 	fmt.Println("storing wisdom OK")
