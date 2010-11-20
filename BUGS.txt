@@ -56,3 +56,7 @@ known bugs
 
 [0016] OPEN arne:
  simulate daemon does not yet pass wisdom argument to child process (todo: also check other arguments while on it)
+
+[0017] OPEN arne:
+ bad time steps are not undone, simulation does not crash when m=NaN
+
