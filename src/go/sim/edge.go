@@ -145,7 +145,7 @@ func (s *Sim) initNormMap() {
 	// but when edgecorrection==0, we use a default smoothness.
 	softness := s.edgeCorr
 	if softness == 0 {
-		softness = 3
+		softness = 0  // TODO Temporarily put softness to 0 as long as dynamics of unnormalized spins are not fixed
 		s.Println("Using default edge smoothness: 2^", softness)
 	}
 
