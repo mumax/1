@@ -60,3 +60,8 @@ known bugs
 [0017] OPEN arne:
  bad time steps are not undone, simulation does not crash when m=NaN
 
+[0018] OPEN arne:
+ time evolution of non-normalized spins is (most probably) wrong: "Ms" term in LL is not 1 and should not be ignored.
+ for the moment, edge smoothness should not be turned on by default.
+
+ 
