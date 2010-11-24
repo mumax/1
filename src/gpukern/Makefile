@@ -17,7 +17,7 @@ OFILES=\
 	gpu_stream.o\
 	gpu_reduction.o\
 	gpu_fftbig.o\
-	gpu_fft0.o\
+	gpu_fft6.o\
  	gpu_anal.o\
 	gpu_spintorque.o\
 	gpu_anis.o\
