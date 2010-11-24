@@ -1,0 +1,20 @@
+# Spintorque standard problem
+
+maxerror 1e-5
+
+aexch:  13e-12
+msat:   8e5
+
+partsize:  100e-9 100e-9 10e-9
+gridsize:  64     64	 1
+
+#relax
+vortex  1 1
+
+
+#run
+alpha 1
+autosave m     png   100e-12
+autosave table ascii 20e-12
+save m binary
+run 10e-9

@@ -1,5 +1,7 @@
 Choose a googlable name. Suggestions:
 
+MPMMS (Massively Parallel Micro Magnetic Simulator)
+
 cudamag
 
 spinsimd (Spin SIMulator on SIMD architectures (zoals GPU, paralelle CPU))
@@ -27,7 +29,7 @@ teslab2
 GUMMS: Ghent University Micromagnetic simulator/solver  (100.000 hits)
 GUMagS: Ghent University Magnetic simulator/solver (64 hits)
 
-MPMMS (Massively Parallel Micro Magnetic Simulator)
+
 SPeeMagS
 xspinsim, xspins (pronouced k'spins, eXtreme Spin Simulator)
 GeeMags

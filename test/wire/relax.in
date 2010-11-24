@@ -3,7 +3,7 @@ msat	414e3
 aexch	1.05e-11
 
 alpha		2
-maxerror	1e-5
+maxerror	1e-4
 
 gridsize	512	32	32
 partsize	1000e-9	60e-9	60e-9
