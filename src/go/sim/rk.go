@@ -84,7 +84,7 @@ func newAdaptiveRK(sim *Sim, order int) *RK{
 
 func (rk *RK) Step(){
   order := rk.order
-  //k := rk.k
+  k := rk.k
   time0 := rk.time
   h := rk.dt
   c := rk.c
@@ -92,12 +92,16 @@ func (rk *RK) Step(){
   
   for i:=0; i<order; i++{
     rk.time = time0 + float64(c[i] * h)
-    rk.calcHeff(m, rk.h)
-    rk.Torque(m, rk.h)
+    rk.calcHeff(m, k[i])
+    rk.Torque(m, k[i])
   }
 
+  //TODO: not 100% efficient, too many adds
+  for i:=range k{
+    rk.MAdd(m, rk.b[i]*h, k[i])
+  }
   
-  rk.LinearCombination(m, rk.h, 1.0, h)
+  //rk.LinearCombination(m, rk.k[0], rk.b[0], h)
   //rk.linearCombinationMany(m.data, rk.kdata, rk.b, m.length)
   
   rk.time = time0 // will be incremented by simrun.go

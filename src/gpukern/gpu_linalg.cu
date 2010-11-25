@@ -95,7 +95,7 @@ __global__ void _gpu_linear_combination_many(float* result, float** vectors, flo
   float result_i = result[i];
   
   if(i < NElem){  
-    for(int j=1; j<NVectors; j++){
+    for(int j=0; j<NVectors; j++){
       result_i += weights[j] * vectors[j][i];
     }
     result[i] = result_i;
