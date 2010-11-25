@@ -14,10 +14,10 @@ type Euler struct {
 	*Sim
 }
 
-func NewEuler(sim *Sim) *Euler{
-  e := new(Euler)
-  e.Sim = sim
-  return e
+func NewEuler(sim *Sim) *Euler {
+	e := new(Euler)
+	e.Sim = sim
+	return e
 }
 
 func (this *Euler) String() string {

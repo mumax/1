@@ -81,9 +81,11 @@ type Device interface {
 	// normalizes a vector field and multiplies with normMap. N = length of one component = length of normMap
 	normalizeMap(m, normMap uintptr, N int)
 
+  // Safe version: func (*Sim) DeltaM()
 	// overwrites h with torque(m, h) * dtGilbert. N = length of one component
 	deltaM(m, h uintptr, alpha, dtGilbert float32, N int)
 
+  // Safe version: func (*Sim) DeltaM()
 	// overwrites h with torque(m, h) * dtGilbert, inculding spin-transfer torque terms. size = of one component
 	// dtGilb = dt / (1+alpha^2)
 	// alpha = damping

@@ -19,7 +19,7 @@ GOFILES=\
 	solver.go\
 	euler.go\
 	heun.go\
-	rk23.go\
+	rk.go\
 	semianal.go\
 	kernel.go\
 	demag.go\

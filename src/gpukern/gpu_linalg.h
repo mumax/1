@@ -27,6 +27,11 @@ void gpu_add_constant(float* a, float cnst, int N);
 /// Linear combination: a = a*weightA + b*weightB
 void gpu_linear_combination(float* a, float* b, float weightA, float weightB, int N);
 
+/// Linear combination: result[i] = sum_j weights[j] * vectors[j][i]
+/// i = 0..NElem
+/// j = 0..NVectors
+void gpu_linear_combination_many(float* result, float** vectors, float* weights, int NVectors, int NElem);
+
 #ifdef __cplusplus
 }
 #endif
