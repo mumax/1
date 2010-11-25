@@ -37,29 +37,29 @@ func (s *Or) Inside(x, y, z float32) bool {
 
 // Intersection (boolean AND) of geometries
 type And struct {
-  children []Geom
+	children []Geom
 }
 
 func (s *And) Inside(x, y, z float32) bool {
-  for _, child := range s.children {
-    if !child.Inside(x, y, z) {
-      return false
-    }
-  }
-  return true
+	for _, child := range s.children {
+		if !child.Inside(x, y, z) {
+			return false
+		}
+	}
+	return true
 }
 
 
 ///////////// affine transforms
 
 // Translates the wrapped geometry
-type Translated struct{
-  original Geom
-  deltaX, deltaY, deltaZ float32
+type Translated struct {
+	original               Geom
+	deltaX, deltaY, deltaZ float32
 }
 
-func (s *Translated) Inside(x, y, z float32) bool{
-  return s.original.Inside(x-s.deltaX, y-s.deltaY, z-s.deltaZ)
+func (s *Translated) Inside(x, y, z float32) bool {
+	return s.original.Inside(x-s.deltaX, y-s.deltaY, z-s.deltaZ)
 }
 
 

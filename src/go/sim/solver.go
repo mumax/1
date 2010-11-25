@@ -16,13 +16,16 @@ func NewSolver(solvertype string, sim *Sim) Solver {
 	solvertype = strings.ToLower(solvertype)
 	switch solvertype {
 	default:
-		panic("Unknown solver type: " + solvertype + ". Options are: euler, semianal, heun.")
+		panic("Unknown solver type: " + solvertype + ". Options are: fixedeuler, euler, semianal1, heun.")
 	case "euler":
 		return NewAdaptiveEuler(sim)
+	case "fixedeuler":
+		return NewEuler(sim)
+
 	case "heun":
 		return NewAdaptiveHeun(sim)
-		// 	case "semianal":
-		// 		return &SemiAnal{SolverState{0., sim}, 0} //0th order by default TODO: make selectable ("semianal0", "semianal1" ?)
+	case "semianal1":
+		return NewSemiAnal1(sim)
 	}
 	panic("bug")
 	return nil // never reached

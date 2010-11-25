@@ -94,8 +94,7 @@ func (d Gpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {
 	default:
 		panic(fmt.Sprintf("Unknown semianal order:", order))
 	case 0:
-		panic("unimplemented")
-		//C.gpu_anal_fw_step_unsafe((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(dt), C.float(alpha), C.int(N))
+		C.gpu_anal_fw_step((C.float)(dt), (C.float)(alpha), (C.int)(N), (*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)))
 	}
 }
 
