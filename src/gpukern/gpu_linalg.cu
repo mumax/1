@@ -92,7 +92,7 @@ void gpu_linear_combination(float* a, float* b, float weightA, float weightB, in
 ///@internal kernel
 __global__ void _gpu_linear_combination_many(float* result, float** vectors, float* weights, int NVectors, int NElem){
   int i = threadindex;
-  float result_i = 0.0f;
+  float result_i = result[i];
   
   if(i < NElem){  
     for(int j=1; j<NVectors; j++){

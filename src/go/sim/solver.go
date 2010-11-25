@@ -10,6 +10,7 @@ import "strings"
 
 type Solver interface {
 	Step()
+	String() string
 }
 
 func NewSolver(solvertype string, sim *Sim) Solver {
