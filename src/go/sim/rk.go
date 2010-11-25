@@ -24,7 +24,7 @@ type RK struct {
 	c  []float32
 	b2 []float32
   k  []*DevTensor
-	
+	kdata []uintptr //contiguous array of data pointers from k (kdata[i] = k[i].data)
 }
 
 
@@ -40,6 +40,7 @@ func NewRK1(sim *Sim) *RK{
 // INTERNAL
 func (rk *RK) init(sim *Sim, order int){
   rk.order = order
+  rk.Sim = sim
   rk.a = make([][]float32, order)
   for i := range rk.a{
     rk.a[i] = make([]float32, order)
@@ -47,7 +48,11 @@ func (rk *RK) init(sim *Sim, order int){
   rk.b = make([]float32, order)
   rk.c = make([]float32, order)
   rk.k = make([]*DevTensor, order)
-  
+  rk.kdata = make([]uintptr, order)
+  for i:=range rk.k{
+    rk.k[i] = NewTensor(sim.Backend, sim.mDev.size)
+    rk.kdata[i] = rk.k[i].data
+  }
 }
 
 
@@ -56,6 +61,7 @@ func (rk *RK) free(){
   for i := range rk.k{
     rk.k[i].Free()
     rk.k[i] = nil
+    rk.kdata[i] = 0
   }
 }
 
@@ -88,6 +94,9 @@ func (rk *RK) Step(){
     rk.time = time0 + float64(c[i] * h)
     rk.DeltaM(m, k[i], c[i] * h)
   }
+
+  rk.linearCombinationMany(m.data, rk.kdata, rk.b, m.length)
+  
 }
 
 

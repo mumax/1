@@ -67,6 +67,8 @@ type Device interface {
 	// a = a * weightA + b * weightB
 	linearCombination(a, b uintptr, weightA, weightB float32, N int)
 
+	linearCombinationMany(result uintptr, vectors []uintptr, weights []float32, NElem int)
+
 	// partial data reduction (operation = add, max, maxabs, ...)
 	// input data size = N
 	// output = partially reduced data, usually reduced further on CPU. size = blocks
