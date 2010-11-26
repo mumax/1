@@ -1,8 +1,8 @@
 # Micromagnetic standard problem 4
 
 metadata:  	description standard_problem_4
-solvertype 	rk2
-dt		0.2e-12
+solvertype 	rk3
+dt		0.5e-12
 
 # material
 msat       	800E3   
@@ -23,5 +23,5 @@ autosave	m	png	50E-12
 autosave  m ascii 100E-12
 autosave	table	ascii	10E-12
 staticfield 	-24.6E-3     4.3E-3    0  # T
-run          	0.1E-9                      # s
+run          	1E-9                      # s
 

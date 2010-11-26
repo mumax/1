@@ -40,7 +40,7 @@ type RK struct {
 }
 
 
-// rk1: Euler method
+// rk1: Euler's method
 // 0 | 0
 // -----
 //   | 1
@@ -62,6 +62,24 @@ func NewRK2(sim *Sim) *RK {
 	rk.a[1][0] = 1.
 	rk.b[0] = .5
 	rk.b[1] = .5
+	return rk
+}
+
+
+// rk3: Kutta's method
+//  0  | 0    0  0
+//  1/2| 1/2  0  0
+//  1  | -1   2  0
+// ----------------
+//     | 1/6 2/3 1/6
+func NewRK3(sim *Sim) *RK {
+	rk := newRK(sim, 3)
+	rk.c = []float32{0., 1. / 2., 1.}
+	rk.a = [][]float32{
+		{0., 0., 0.},
+		{1. / 2., 0., 0.},
+		{-1., 2., 0}}
+	rk.b = []float32{1. / 6., 2. / 3., 1. / 6.}
 	return rk
 }
 
@@ -143,6 +161,7 @@ func (rk *RK) Step() {
 	}
 
 	rk.time = time0 // will be incremented by simrun.go
+	rk.Normalize(m)
 }
 
 
