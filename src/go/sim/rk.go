@@ -7,6 +7,7 @@
 package sim
 
 // This file implements a plethora of Runge-Kutta methods
+// Coefficients and descriptions are taken from wikipedia.
 // TODO: perhaps all the coefficients should be carefully
 // double-checked for typos?
 //
@@ -35,12 +36,12 @@ type RK struct {
 	stages     int
 	errororder float64 // the order of the less acurate solution used for the error estimate
 
-	a     [][]float32
-	b     []float32
-	c     []float32
-	b2    []float32    // weights to get lower order solution for error estimate, may be nil
-	k     []*DevTensor //
-	kdata []uintptr    //contiguous array of data pointers from k (kdata[i] = k[i].data), passable to C
+	a  [][]float32
+	b  []float32
+	c  []float32
+	b2 []float32    // weights to get lower order solution for error estimate, may be nil
+	k  []*DevTensor //
+	// 	kdata []uintptr    //contiguous array of data pointers from k (kdata[i] = k[i].data), passable to C
 
 	m0 *DevTensor // buffer to backup the starting magnetization
 
@@ -159,19 +160,25 @@ func NewRKCK(sim *Sim) *RK {
 	return rk
 }
 
-// Dormand-Prince
-// Does not work yet
+
+// Dormand-Prince method
+//
+// Uses six function evaluations to calculate fourth- and fifth-order accurate solutions.
+// The Dormand–Prince method has seven stages, but it uses only six function evaluations
+// per step because it has the FSAL (First Same As Last) property: the last stage is
+// evaluated at the same point as the first stage of the next step.
+// Dormand and Prince choose the coefficients of their method to minimize the error of
+// the fifth-order solution. This is the main difference with the Fehlberg method,
+// which was constructed so that the fourth-order solution has a small error.
+// For this reason, the Dormand–Prince method is more suitable when the higher-order
+// solution is used to continue the integration. [wikipedia.org]
+//
+// TODO: check if b2-b are not swapped.
+// The final 0. in the 5th-order solution seems suspicious,
+// but it's like that on wikipedia.
 func NewRKDP(sim *Sim) *RK {
 	rk := newRK(sim, 7)
 	rk.c = []float32{0., 1. / 5., 3. / 10., 4. / 5., 8. / 9., 1., 1.}
-	// 	rk.a = [][]float32{
-	// 		{0., 0., 0., 0., 0., 0., 0.},
-	// 		{1. / 5., 0., 0., 0., 0., 0., 0.},
-	// 		{3. / 40., 9. / 40., 0., 0., 0., 0., 0.},
-	// 		{44. / 45., -56. / 15., 32. / 9., 0., 0., 0., 0.},
-	// 		{19372. / 6561., -25360. / 2187., 64448. / 6561., -212 / 729, 0., 0., 0.},
-	// 		{9017. / 3168., -355. / 33., 46732. / 5247., 49. / 176., -5103. / 18656., 0., 0.},
-	// 		{35. / 384., 0., 500. / 1113., 125. / 192., -2187. / 6784., 11. / 84., 0.}}
 	rk.a = [][]float32{
 		{0., 0., 0., 0., 0., 0., 0.},
 		{1. / 5., 0., 0., 0., 0., 0., 0.},
@@ -199,19 +206,18 @@ func (rk *RK) init(sim *Sim, order int) {
 	rk.b = make([]float32, order)
 	rk.c = make([]float32, order)
 	rk.k = make([]*DevTensor, order)
-	rk.kdata = make([]uintptr, order)
-	for i := range rk.k {
-		if i == 0 {
-			// sim.h(Dev) is already allocated in sim but we don't really need it here,
-			// therefore, h is "recycled" and used as k[0] to save memory.
-			// Extra bonus: hDev now gets updated with (even accurate) values
-			// of h/torque, so those can now also be outputted by sim.
-			rk.k[i] = sim.h
-		} else {
-			rk.k[i] = NewTensor(sim.Backend, sim.mDev.size)
-		}
-		rk.kdata[i] = rk.k[i].data
+	//rk.kdata = make([]uintptr, order)
+
+	// initialize k:
+	// sim.h(Dev) is already allocated in sim but we don't really need it here,
+	// therefore, h is "recycled" and used as k[0] to save memory.
+	// Extra bonus: hDev now gets updated with (even accurate) values
+	// of h/torque, so those can now also be outputted by sim.
+	rk.k[0] = sim.h
+	for i := 1; i < rk.stages; i++ {
+		rk.k[i] = NewTensor(sim.Backend, sim.mDev.size)
 	}
+	
 	rk.m0 = NewTensor(sim.Backend, sim.mDev.size)
 }
 
@@ -227,7 +233,7 @@ func (rk *RK) free() {
 	for i := range rk.k {
 		rk.k[i].Free()
 		rk.k[i] = nil
-		rk.kdata[i] = 0
+		//rk.kdata[i] = 0
 	}
 }
 
