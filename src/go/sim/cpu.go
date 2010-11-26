@@ -61,14 +61,14 @@ func (d Cpu) linearCombination(a, b uintptr, weightA, weightB float32, N int) {
 	C.cpu_linear_combination((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(weightA), C.float(weightB), C.int(N))
 }
 
-func (d Cpu) linearCombinationMany(result uintptr, vectors []uintptr, weights []float32, NElem int){
-    panic("unimplemented")
-//   C.cpu_linear_combination_many(
-//     (*C.float)(unsafe.Pointer(result)),
-//     (**C.float)(unsafe.Pointer(&vectors[0])),
-//     (*C.float)(unsafe.Pointer(&weights[0])),
-//     (C.int)(NElem)
-//   )
+func (d Cpu) linearCombinationMany(result uintptr, vectors []uintptr, weights []float32, NElem int) {
+	panic("unimplemented")
+	//   C.cpu_linear_combination_many(
+	//     (*C.float)(unsafe.Pointer(result)),
+	//     (**C.float)(unsafe.Pointer(&vectors[0])),
+	//     (*C.float)(unsafe.Pointer(&weights[0])),
+	//     (C.int)(NElem)
+	//   )
 }
 
 func (d Cpu) reduce(operation int, input, output uintptr, buffer *float32, blocks, threads, N int) float32 {
