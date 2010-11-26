@@ -29,7 +29,7 @@ type RK struct {
 	*Sim
 
 	stages int
-	errororder float64
+	errororder float64  // the order of the less acurate solution used for the error estimate
 
 	a     [][]float32
 	b     []float32
@@ -38,9 +38,9 @@ type RK struct {
 	k     []*DevTensor //
 	kdata []uintptr    //contiguous array of data pointers from k (kdata[i] = k[i].data), passable to C
 
-	m0 *DevTensor // start m
+	m0 *DevTensor // buffer to backup the starting magnetization
 
-	Reductor // for error 
+	Reductor // maxabs for error estimate 
 }
 
 
@@ -103,22 +103,17 @@ func NewRK3(sim *Sim) *RK {
 
 
 // rk23: Bogacki–Shampine method
-//  0  | 0    0  0
-//  1/2| 1/2  0  0
-//  1  | -1   2  0
-// ----------------
-//     | 1/6 2/3 1/6
 func NewRK23(sim *Sim) *RK {
   rk := newRK(sim, 4)
   rk.c = []float32{0., 1. / 2., 3./4., 1.}
   rk.a = [][]float32{
     {0., 0., 0., 0.},
     {1. / 2., 0., 0., 0.},
-    {0., 3./4., 0., 0.}
+    {0., 3./4., 0., 0.},
     {2./9., 1./3., 4./9., 0.}}
-  rk.b = []float32{1. / 6., 2. / 3., 1. / 6.}
+  rk.b = []float32{2. / 9., 1. / 3., 4. / 9., 0.}
   rk.initAdaptive(2.)
-  rk.b2 = []float32{}
+  rk.b2 = []float32{7./24, 1./4., 1./3., 1./8.}
   return rk
 }
 
@@ -193,11 +188,11 @@ func newRK(sim *Sim, order int) *RK {
 
 
 // INTERNAL
-func newAdaptiveRK(sim *Sim, order int) *RK {
-	rk := newRK(sim, order)
-	rk.initAdaptive()
-	return rk
-}
+// func newAdaptiveRK(sim *Sim, order int) *RK {
+// 	rk := newRK(sim, order)
+// 	rk.initAdaptive()
+// 	return rk
+// }
 
 
 func (rk *RK) Step() {
