@@ -34,6 +34,8 @@ type RK struct {
 	*Sim
 
 	stages     int
+	fsal       bool    // First Same as Last?
+	fsal_initiated  bool
 	errororder float64 // the order of the less acurate solution used for the error estimate
 
 	a  [][]float32
@@ -110,6 +112,7 @@ func NewRK3(sim *Sim) *RK {
 // rk23: Bogacki–Shampine method
 func NewRK23(sim *Sim) *RK {
 	rk := newRK(sim, 4)
+ 	rk.fsal = true
 	rk.c = []float32{0., 1. / 2., 3. / 4., 1.}
 	rk.a = [][]float32{
 		{0., 0., 0., 0.},
@@ -271,6 +274,13 @@ func (rk *RK) Step() {
 	}
 
 	for i := 0; i < order; i++ {
+
+    //FSAL
+    if rk.fsal && i==0 && rk.fsal_initiated{
+      TensorCopyOn(k[order-1], k[0])
+      continue
+    }
+    
 		rk.time = time0 + float64(c[i]*h)
 		TensorCopyOn(m, m1)
 		for j := 0; j < order; j++ {
@@ -281,6 +291,7 @@ func (rk *RK) Step() {
 
 		rk.calcHeff(m1, k[i])
 		rk.Torque(m1, k[i])
+		rk.fsal_initiated = true
 	}
 
 	//Lowest-order solution for error estimate, if applicable
