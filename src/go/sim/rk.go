@@ -6,6 +6,8 @@
 
 package sim
 
+// This file implements a plethora of Runge-Kutta methods
+
 import (
 	"fmt"
 	"math"
@@ -156,7 +158,15 @@ func (rk *RK) init(sim *Sim, order int) {
 	rk.k = make([]*DevTensor, order)
 	rk.kdata = make([]uintptr, order)
 	for i := range rk.k {
+    if i == 0{
+      // sim.h(Dev) is already allocated in sim but we don't really need it here,
+      // therefore, h is "recycled" and used as k[0] to save memory.
+      // Extra bonus: hDev now gets updated with (even accurate) values
+      // of h/torque, so those can now also be outputted by sim.
+      rk.k[i] = sim.h 
+    }else{
 		rk.k[i] = NewTensor(sim.Backend, sim.mDev.size)
+    }
 		rk.kdata[i] = rk.k[i].data
 	}
 	rk.m0 = NewTensor(sim.Backend, sim.mDev.size)
