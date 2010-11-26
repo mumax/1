@@ -110,6 +110,11 @@ func NewRK3(sim *Sim) *RK {
 
 
 // rk23: Bogacki–Shampine method
+// The Bogacki–Shampine method is a Runge–Kutta method of order three
+// with four stages with the First Same As Last (FSAL) property,
+// so that it uses approximately three function evaluations per step.
+// It has an embedded second-order method
+// which can be used to implement adaptive step size.
 func NewRK23(sim *Sim) *RK {
 	rk := newRK(sim, 4)
  	rk.fsal = true
@@ -146,7 +151,8 @@ func NewRK4(sim *Sim) *RK {
 }
 
 
-// Cash-Karp
+// Cash-Karp method
+// Uses six function evaluations to calculate fourth- and fifth-order accurate solutions.
 func NewRKCK(sim *Sim) *RK {
 	rk := newRK(sim, 6)
 	rk.c = []float32{0., 1. / 5., 3. / 10., 3. / 5., 1., 7. / 8.}
