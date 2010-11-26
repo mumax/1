@@ -18,13 +18,15 @@ type RK struct {
 
   // y_(n+1) = y_(n) + dt * sum b_i * k_i
   //
-  // k_i = torque()
+  // k_i = torque(m0 + dt * sum a_ij * k_j, t0 + c_i*dt)
 	a  [][]float32
 	b  []float32
 	c  []float32
-	b2 []float32
-  k  []*DevTensor
-	kdata []uintptr //contiguous array of data pointers from k (kdata[i] = k[i].data)
+	b2 []float32    // weights to get lower order solution for error estimate, may be nil
+  k  []*DevTensor //
+	kdata []uintptr //contiguous array of data pointers from k (kdata[i] = k[i].data), passable to C
+
+	m0  *DevTensor  // start m
 }
 
 
@@ -39,8 +41,10 @@ func NewRK1(sim *Sim) *RK{
 
 // INTERNAL
 func (rk *RK) init(sim *Sim, order int){
+  
   rk.order = order
   rk.Sim = sim
+  
   rk.a = make([][]float32, order)
   for i := range rk.a{
     rk.a[i] = make([]float32, order)
@@ -53,6 +57,7 @@ func (rk *RK) init(sim *Sim, order int){
     rk.k[i] = NewTensor(sim.Backend, sim.mDev.size)
     rk.kdata[i] = rk.k[i].data
   }
+  rk.m0 = NewTensor(sim.Backend, sim.mDev.size)
 }
 
 
@@ -83,26 +88,34 @@ func newAdaptiveRK(sim *Sim, order int) *RK{
 
 
 func (rk *RK) Step(){
+  
   order := rk.order
   k := rk.k
   time0 := rk.time
   h := rk.dt
   c := rk.c
   m := rk.mDev
+  m1 := rk.m0
+  a := rk.a
+  
   
   for i:=0; i<order; i++{
     rk.time = time0 + float64(c[i] * h)
-    rk.calcHeff(m, k[i])
-    rk.Torque(m, k[i])
+    TensorCopyOn(m, m1)
+    for j:=0; j<order; j++{
+      if a[i][j] != 0.{
+        rk.MAdd(m1, h * a[i][j], k[j])
+      }
+    }
+    
+    rk.calcHeff(m1, k[i])
+    rk.Torque(m1, k[i])
   }
 
   //TODO: not 100% efficient, too many adds
   for i:=range k{
     rk.MAdd(m, rk.b[i]*h, k[i])
   }
-  
-  //rk.LinearCombination(m, rk.k[0], rk.b[0], h)
-  //rk.linearCombinationMany(m.data, rk.kdata, rk.b, m.length)
   
   rk.time = time0 // will be incremented by simrun.go
 }
