@@ -1,8 +1,8 @@
 # Micromagnetic standard problem 4
 
 metadata:  	description standard_problem_4
-solvertype 	rk3
-dt		0.5e-12
+solvertype 	rk4
+dt		0.8e-12
 
 # material
 msat       	800E3   

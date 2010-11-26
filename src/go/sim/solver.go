@@ -22,8 +22,10 @@ func NewSolver(solvertype string, sim *Sim) Solver {
 		return NewRK1(sim)
 	case "rk2":
 		return NewRK2(sim)
-	case "rk3":
-		return NewRK3(sim)
+ case "rk3":
+    return NewRK3(sim)
+ case "rk4":
+    return NewRK4(sim)
 	case "euler":
 		return NewAdaptiveEuler(sim)
 	case "fixedeuler":

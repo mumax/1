@@ -84,6 +84,26 @@ func NewRK3(sim *Sim) *RK {
 }
 
 
+// rk4: The classical Runge-Kutta method
+//  0  | 0    0  0   0
+//  1/2| 1/2  0  0   0
+//  1/2| 0  1/2  0   0
+//  1  | 0    0  1   0
+// ---------------------
+//     | 1/6 1/3 1/3 1/6
+func NewRK4(sim *Sim) *RK {
+	rk := newRK(sim, 4)
+	rk.c = []float32{0., 1. / 2., 1. / 2., 1.}
+	rk.a = [][]float32{
+		{0., 0., 0., 0.},
+		{1. / 2., 0., 0., 0.},
+		{0., 1. / 2., 0., 0.},
+		{0., 0., 1., 0}}
+	rk.b = []float32{1. / 6., 1. / 3., 1. / 3., 1. / 6.}
+	return rk
+}
+
+
 // INTERNAL
 func (rk *RK) init(sim *Sim, order int) {
 
