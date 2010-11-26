@@ -2,7 +2,7 @@
 
 metadata:  	description standard_problem_4
 solvertype 	rk23
-maxerror	1e-4
+maxerror	1e-3
 
 # material
 msat       	800E3   
