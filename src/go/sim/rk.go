@@ -28,7 +28,8 @@ import (
 type RK struct {
 	*Sim
 
-	order int
+	stages int
+	errororder float64
 
 	a     [][]float32
 	b     []float32
@@ -77,7 +78,7 @@ func NewRK2(sim *Sim) *RK {
 //   | 1  0
 func NewRK12(sim *Sim) *RK {
 	rk := NewRK2(sim)
-	rk.initAdaptive()
+	rk.initAdaptive(1.)
 	rk.b2 = []float32{1., 0.}
 	return rk
 }
@@ -90,15 +91,39 @@ func NewRK12(sim *Sim) *RK {
 // ----------------
 //     | 1/6 2/3 1/6
 func NewRK3(sim *Sim) *RK {
-	rk := newRK(sim, 3)
-	rk.c = []float32{0., 1. / 2., 1.}
-	rk.a = [][]float32{
-		{0., 0., 0.},
-		{1. / 2., 0., 0.},
-		{-1., 2., 0}}
-	rk.b = []float32{1. / 6., 2. / 3., 1. / 6.}
-	return rk
+  rk := newRK(sim, 3)
+  rk.c = []float32{0., 1. / 2., 1.}
+  rk.a = [][]float32{
+    {0., 0., 0.},
+    {1. / 2., 0., 0.},
+    {-1., 2., 0}}
+  rk.b = []float32{1. / 6., 2. / 3., 1. / 6.}
+  return rk
 }
+
+
+// rk23: Bogacki–Shampine method
+//  0  | 0    0  0
+//  1/2| 1/2  0  0
+//  1  | -1   2  0
+// ----------------
+//     | 1/6 2/3 1/6
+func NewRK23(sim *Sim) *RK {
+  rk := newRK(sim, 4)
+  rk.c = []float32{0., 1. / 2., 3./4., 1.}
+  rk.a = [][]float32{
+    {0., 0., 0., 0.},
+    {1. / 2., 0., 0., 0.},
+    {0., 3./4., 0., 0.}
+    {2./9., 1./3., 4./9., 0.}}
+  rk.b = []float32{1. / 6., 2. / 3., 1. / 6.}
+  rk.initAdaptive(2.)
+  rk.b2 = []float32{}
+  return rk
+}
+
+
+
 
 
 // rk4: The classical Runge-Kutta method
@@ -124,7 +149,7 @@ func NewRK4(sim *Sim) *RK {
 // INTERNAL
 func (rk *RK) init(sim *Sim, order int) {
 
-	rk.order = order
+	rk.stages = order
 	rk.Sim = sim
 
 	rk.a = make([][]float32, order)
@@ -142,9 +167,10 @@ func (rk *RK) init(sim *Sim, order int) {
 	rk.m0 = NewTensor(sim.Backend, sim.mDev.size)
 }
 
-func (rk *RK) initAdaptive() {
-	rk.b2 = make([]float32, rk.order)
+func (rk *RK) initAdaptive(errororder float64) {
+	rk.b2 = make([]float32, rk.stages)
 	rk.Reductor.InitMaxAbs(rk.Sim.Backend, prod(rk.size4D[0:]))
+	rk.errororder = errororder
 }
 
 
@@ -176,7 +202,7 @@ func newAdaptiveRK(sim *Sim, order int) *RK {
 
 func (rk *RK) Step() {
 
-	order := rk.order
+	order := rk.stages
 	k := rk.k
 	time0 := rk.time
 	h := rk.dt
@@ -231,7 +257,7 @@ func (rk *RK) Step() {
 		// calculate new step
 		assert(rk.maxError != 0.)
 		//TODO: what is the pre-factor of the error estimate?
-		factor := float32(math.Pow(float64(rk.maxError/error), float64(rk.order-1)))
+		factor := float32(math.Pow(float64(rk.maxError/error), 1./rk.errororder))
 
 		// do not increase by time step by more than 100%
 		if factor > 2. {
@@ -254,15 +280,15 @@ func (rk *RK) Step() {
 
 func (rk *RK) String() string {
 	str := ""
-	for i := 0; i < rk.order; i++ {
+	for i := 0; i < rk.stages; i++ {
 		str += fmt.Sprint(rk.c[i]) + "\t|\t"
-		for j := 0; j < rk.order; j++ {
+		for j := 0; j < rk.stages; j++ {
 			str += fmt.Sprint(rk.a[i][j]) + "\t"
 		}
 		str += "\n"
 	}
 	str += "----\n\t|\t"
-	for i := 0; i < rk.order; i++ {
+	for i := 0; i < rk.stages; i++ {
 		str += fmt.Sprint(rk.b[i]) + "\t"
 	}
 	return str
