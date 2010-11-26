@@ -8,6 +8,7 @@ package sim
 
 import (
 	"fmt"
+	"math"
 )
 
 // General Runge-Kutta solver
@@ -37,6 +38,8 @@ type RK struct {
 	kdata []uintptr    //contiguous array of data pointers from k (kdata[i] = k[i].data), passable to C
 
 	m0 *DevTensor // start m
+
+	Reductor // for error 
 }
 
 
@@ -62,6 +65,20 @@ func NewRK2(sim *Sim) *RK {
 	rk.a[1][0] = 1.
 	rk.b[0] = .5
 	rk.b[1] = .5
+	return rk
+}
+
+
+// rk12: Adaptive Heun
+// 0 | 0  0
+// 1 | 1  0
+// --------
+//   |.5 .5
+//   | 1  0
+func NewRK12(sim *Sim) *RK {
+	rk := NewRK2(sim)
+	rk.initAdaptive()
+	rk.b2 = []float32{1., 0.}
 	return rk
 }
 
@@ -125,6 +142,11 @@ func (rk *RK) init(sim *Sim, order int) {
 	rk.m0 = NewTensor(sim.Backend, sim.mDev.size)
 }
 
+func (rk *RK) initAdaptive() {
+	rk.b2 = make([]float32, rk.order)
+	rk.Reductor.InitMaxAbs(rk.Sim.Backend, prod(rk.size4D[0:]))
+}
+
 
 // INTERNAL
 func (rk *RK) free() {
@@ -143,10 +165,11 @@ func newRK(sim *Sim, order int) *RK {
 	return rk
 }
 
+
 // INTERNAL
 func newAdaptiveRK(sim *Sim, order int) *RK {
 	rk := newRK(sim, order)
-	rk.b2 = make([]float32, rk.order)
+	rk.initAdaptive()
 	return rk
 }
 
@@ -162,6 +185,11 @@ func (rk *RK) Step() {
 	m1 := rk.m0
 	a := rk.a
 
+  if rk.dt == 0.{
+    rk.dt = 1e-5 // program units, should really be small enough
+    rk.Println("Using default initial dt: ", rk.dt)
+  }
+
 	for i := 0; i < order; i++ {
 		rk.time = time0 + float64(c[i]*h)
 		TensorCopyOn(m, m1)
@@ -175,10 +203,49 @@ func (rk *RK) Step() {
 		rk.Torque(m1, k[i])
 	}
 
+	//Lowest-order solution for error estimate, if applicable
+	//from now, m1 = lower-order solution
+	if rk.b2 != nil {
+		TensorCopyOn(m, m1)
+		for i := range k {
+			if rk.b2[i] != 0. {
+				rk.MAdd(m1, rk.b2[i]*h, k[i])
+			}
+		}
+	}
+
+	//Highest-order solution (m)
 	//TODO: not 100% efficient, too many adds
 	for i := range k {
-		rk.MAdd(m, rk.b[i]*h, k[i])
+		if rk.b[i] != 0. {
+			rk.MAdd(m, rk.b[i]*h, k[i])
+		}
 	}
+
+	//calculate error if applicable
+	if rk.b2 != nil {
+		rk.MAdd(m1, -1, m) // make difference between high- and low-order solution
+		error := rk.Reduce(m1)
+		rk.stepError = error
+
+		// calculate new step
+		assert(rk.maxError != 0.)
+		//TODO: what is the pre-factor of the error estimate?
+		factor := float32(math.Pow(float64(rk.maxError/error), float64(rk.order-1)))
+
+		// do not increase by time step by more than 100%
+		if factor > 2. {
+			factor = 2.
+		}
+		// do not decrease to less than 1%
+		if factor < 0.01 {
+			factor = 0.01
+		}
+
+		rk.dt = rk.dt * factor
+	}
+
+	//todo: undo bad steps
 
 	rk.time = time0 // will be incremented by simrun.go
 	rk.Normalize(m)
