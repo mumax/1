@@ -71,6 +71,45 @@ func (m *Main) DrawSlice(fname string, slicepos int) {
 }
 
 
+func (m *Main) SwitchDetect(fname string, threshold float) (nswitch int, firsttime float, ok string) {
+  in, err := os.Open(fname, os.O_RDONLY, 0666)
+  if err != nil {
+    panic(err)
+  }
+
+  // discard header
+  header, _ := iotool.ReadLine(in)
+  for strings.HasPrefix(header, "#") {
+    header, _ = iotool.ReadLine(in)
+  }
+
+  line, eof := iotool.ReadLine(in)
+  sincelast := 0.
+  for !eof {
+    words := strings.Fields(line)
+//     torquex, _ := strconv.Atof(words[7])
+//     torquey, _ := strconv.Atof(words[8])
+    torquez, _ := strconv.Atof(words[9])
+    time, _ := strconv.Atof(words[0])
+
+    
+    
+    if (time-sincelast) > 100e-12 && torquez > threshold{
+      nswitch++
+      if firsttime == 0.{
+        firsttime = time
+      }
+      sincelast = time
+    }
+
+    line, eof = iotool.ReadLine(in)
+  }
+
+  ok = "#ok"
+  return
+}
+
+
 // Calculates the RMS response of the in-plane magnetization.
 // Used for, e.g., magnetic resonance.
 func (m *Main) InplaneRMS(fname string) (rms float64, ok string) {
