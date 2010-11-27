@@ -70,7 +70,9 @@ func (m *Main) DrawSlice(fname string, slicepos int) {
 	sim.PNG(out, slice)
 }
 
-
+// returns the number of times torque_z has gone over the threshold.
+// once over the threshold, it has to be at least 100ps before a new switch is reported.
+// firsttime = time of the first switch
 func (m *Main) SwitchDetect(fname string, threshold float) (nswitch int, firsttime float, ok string) {
   in, err := os.Open(fname, os.O_RDONLY, 0666)
   if err != nil {
