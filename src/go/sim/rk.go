@@ -33,10 +33,10 @@ import (
 type RK struct {
 	*Sim
 
-	stages     int
-	fsal       bool    // First Same as Last?
-	fsal_initiated  bool
-	errororder float64 // the order of the less acurate solution used for the error estimate
+	stages         int
+	fsal           bool // First Same as Last?
+	fsal_initiated bool
+	errororder     float64 // the order of the less acurate solution used for the error estimate
 
 	a  [][]float32
 	b  []float32
@@ -117,7 +117,7 @@ func NewRK3(sim *Sim) *RK {
 // which can be used to implement adaptive step size.
 func NewRK23(sim *Sim) *RK {
 	rk := newRK(sim, 4)
- 	rk.fsal = true
+	rk.fsal = true
 	rk.c = []float32{0., 1. / 2., 3. / 4., 1.}
 	rk.a = [][]float32{
 		{0., 0., 0., 0.},
@@ -226,7 +226,7 @@ func (rk *RK) init(sim *Sim, order int) {
 	for i := 1; i < rk.stages; i++ {
 		rk.k[i] = NewTensor(sim.Backend, sim.mDev.size)
 	}
-	
+
 	rk.m0 = NewTensor(sim.Backend, sim.mDev.size)
 }
 
@@ -281,12 +281,12 @@ func (rk *RK) Step() {
 
 	for i := 0; i < order; i++ {
 
-    //FSAL
-    if rk.fsal && i==0 && rk.fsal_initiated{
-      TensorCopyOn(k[order-1], k[0])
-      continue
-    }
-    
+		//FSAL
+		if rk.fsal && i == 0 && rk.fsal_initiated {
+			TensorCopyOn(k[order-1], k[0])
+			continue
+		}
+
 		rk.time = time0 + float64(c[i]*h)
 		TensorCopyOn(m, m1)
 		for j := 0; j < order; j++ {
