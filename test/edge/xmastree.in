@@ -1,18 +1,19 @@
 msat       	800E3   
 aexch      	1.3E-11     
-alpha      	0.1
+alpha      	0.01
 
 partsize	300e-9	400e-9	50e-9
-gridsize	192	256	1
+gridsize	192	256	4
 mask		xmastree.png
 edgecorrection	2
 
-addnoise	1
+load	xmastree.tensor
 
-
+#currentdensity   0 0 4e12
+#xi               0.05
 autosave	m	png	10e-12
-
-run		5e-9
+autosave	m 	binary 	100e-12
+run		1e-9
 
 
 
