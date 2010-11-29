@@ -16,6 +16,7 @@ var (
 	lastDashUpdate       int64 = 0
 	UpdateDashboardEvery int64 = 25 * 1000 * 1000 // in ns
 	dashboardNeedsUp     bool  = false
+	dashstart int64 = 0
 )
 
 func updateDashboard(sim *Sim) {
@@ -23,6 +24,8 @@ func updateDashboard(sim *Sim) {
 	if sim.silent {
 		return
 	}
+
+
 
 	// 	fmt.Print(HIDECURSOR)
 
@@ -34,6 +37,10 @@ func updateDashboard(sim *Sim) {
 	}
 	lastDashUpdate = nanotime
 
+  if dashstart == 0{
+    dashstart = nanotime
+  }
+  
 	//fmt.Print(HIDECURSOR)
 	// Walltime
 	time := time.Seconds() - sim.starttime
@@ -42,6 +49,11 @@ func updateDashboard(sim *Sim) {
 		time/DAY, (time/HOUR)%24, (time/MINUTE)%60, time%60)
 	erase()
 	fmt.Println()
+
+  t := (nanotime - dashstart) + 1 // add 1ns to avoid dividing by zero
+  stepsPerS := float64(sim.steps) / (float64(t) / 1e9)
+  realTime := sim.UnitTime() * float32(sim.time) / (float32(t) / 1e9)
+  
 
 	// Time stepping
 	fmt.Printf(
@@ -67,6 +79,13 @@ func updateDashboard(sim *Sim) {
 	erase()
 	fmt.Println()
 
+
+ // performance
+  fmt.Print("steps/s: ", RESET, stepsPerS,BOLD, " sim/real time: ", RESET,realTime)
+  erase()
+  fmt.Println()
+  
+	up()
 	up()
 	up()
 	up()

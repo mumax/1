@@ -30,12 +30,14 @@ known bugs
 
 [0008] OPEN arne:
  the simulation state gets re-initialized too often.
+ -> already much improved by kernelwisdom, but could be better
 
 [0009] OPEN arne:
  crash reports are not redirected to output.log
 
-[0010] OPEN arne:
+[0010] SOLVED arne:
  when no maxerror is specified, the time step is very small.
+ -> rk23 with maxerror = 1e-5 works nicely and fast, is now the default
 
 [0011] SOLVED arne:
  when more than one input file is specified the GPU gets initialized twice-> CUDA setGPU error
@@ -68,6 +70,9 @@ known bugs
  should not crash on (slightly) too big imag parts, only warn.
 
 [0020]
- normalization does not work correctly for 3D sims
+ non-uniform normalization does not work correctly for 3D sims?
+ for thickness 4: normalization fails, simulations goes NaN, thickness 1,2,8 are OK though.
+ ok for uniform normalization...
+
 
  

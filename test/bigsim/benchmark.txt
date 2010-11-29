@@ -1,3 +1,13 @@
+END 2010
+
+size    -cpu      -gpu
+32 ^3   15s/100   8s/1800
+64 ^3   37s/40      25/1800
+128 ^3  3m32/15
+
+
+MID 2010
+
 time/field update
 
   size      OOMMF                   We            Speedup
