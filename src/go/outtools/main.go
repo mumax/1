@@ -107,7 +107,11 @@ func (m *Main) SwitchDetect(fname string, threshold float) (nswitch int, firstti
     line, eof = iotool.ReadLine(in)
   }
 
-  ok = "#ok"
+  if nswitch > 0{
+    ok = "#yes"
+  }else{
+    ok = "#no"
+  }
   return
 }
 

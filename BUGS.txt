@@ -64,7 +64,7 @@ known bugs
  time evolution of non-normalized spins is (most probably) wrong: "Ms" term in LL is not 1 and should not be ignored.
  for the moment, edge smoothness should not be turned on by default.
 
-[0019] OPEN arne:
+[0019] SOLVED arne:
  should not crash on (slightly) too big imag parts, only warn.
 
 
