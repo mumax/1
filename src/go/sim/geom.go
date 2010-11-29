@@ -99,7 +99,7 @@ func NewMask(fname string, sizey, sizez float32) *Mask{
   
   width := img.Bounds().Max.X
   height := img.Bounds().Max.Y
-
+  
   inside := make([][]bool, height)
   for i:= range inside{
     inside[i]=make([]bool, width)
@@ -113,18 +113,17 @@ func NewMask(fname string, sizey, sizez float32) *Mask{
       }
     }
   }
-
   return &Mask{inside, sizey, sizez}
 }
 
 func(im *Mask) Inside(x, y, z float32) bool{
   inside := im.inside
-  width, height := len(inside), len(inside[0])
+  width, height := len(inside[0]), len(inside)
   
-  i := int( (y/float32(im.sizey)+.5) * float32(height))
-  j := int( (z/float32(im.sizez)+.5) * float32(width))
+  i := int( (y/im.sizey+.5) * float32(height))
+  j := int( (z/im.sizez+.5) * float32(width))
 
-  if i >= 0 && i<width && j >= 0 && j < height{
+  if i >= 0 && i<height && j >= 0 && j < width{
     return inside[i][j]
   }
   return false
