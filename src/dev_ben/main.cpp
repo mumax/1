@@ -13,7 +13,7 @@ int main(int argc, char** argv){
 //  print_device_properties(stdout);
   gpu_print_properties(stdout);
 
-param* p = read_param();
+  param* p = read_param();
   param_print(stdout, p);
 
     // initialization of kernel
@@ -212,6 +212,23 @@ void initialize_m(tensor *m, param *p){
 
 //   for(int i=0*mHost->len/3; i<3*mHost->len/3; i++)
 //     mHost->list[i] = 1.0;
+
+  tensor_copy_to_gpu(mHost, m);
+  
+  delete_tensor(mHost);
+  
+  return;
+}
+
+
+void initialize_vortex(tensor *m, param *p){
+
+  int* size4D = tensor_size4D(p->size);
+  tensor* mHost = new_tensorN(4, size4D);
+
+  int R = 10
+  for(int i=0; i<mHost->len; i++)
+    mHost->list[i] = 0.57735026;
 
   tensor_copy_to_gpu(mHost, m);
   
