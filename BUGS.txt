@@ -67,5 +67,7 @@ known bugs
 [0019] SOLVED arne:
  should not crash on (slightly) too big imag parts, only warn.
 
+[0020]
+ normalization does not work correctly for 3D sims
 
  
