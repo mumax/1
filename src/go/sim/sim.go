@@ -19,6 +19,7 @@ const (
 	DEFAULT_SOLVERTYPE     = "rk23"
 	DEFAULT_MAXERROR       = 1e-5
 	DEFAULT_DEMAG_ACCURACY = 8
+	DEFAULT_SPIN_POLARIZATION = 1
 )
 
 // Sim has an "input" member of type "Input".

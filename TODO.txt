@@ -1,5 +1,7 @@
 Choose a googlable name. Suggestions:
 
+mumax
+
 MPMMS (Massively Parallel Micro Magnetic Simulator)
 
 cudamag
