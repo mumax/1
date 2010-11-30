@@ -74,5 +74,8 @@ known bugs
  for thickness 4: normalization fails, simulations goes NaN, thickness 1,2,8 are OK though.
  ok for uniform normalization...
 
+[0021]
+ single-threaded CPU code does not speed up by using multiple threads, although it does occupy all processors.
+
 
  
