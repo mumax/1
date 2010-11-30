@@ -44,6 +44,8 @@ cpuFFT3dPlan* new_cpuFFT3dPlan_padded(int* size, int* paddedSize, float* source,
   plan->paddedSize[Z] = paddedSize[Z];
 
   ///@todo Check for NULL return value: plan could not be created
+
+  FILE* infile = fopen()
   fftw_status status = fftw_import_wisdom_from_file(infile);
   
   plan->fwPlan = fftwf_plan_dft_r2c_3d(paddedSize[X], paddedSize[Y], paddedSize[Z], source, (complex_t*)dest, FFTW_MEASURE | FFTW_USE_WISDOM); // replace by FFTW_PATIENT for super-duper performance
