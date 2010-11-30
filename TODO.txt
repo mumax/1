@@ -55,6 +55,7 @@ FermiMag (Fermi is a GPU architecture)
 
 TODO (Arne)
 
+* spin-torque term is not correct at the edge cells (both edge of the box and edge of the normmap)
 * flag for single/multi threaded cpu
 * use FFTW wisdom for cpu
 * play with cuda compatibility mode

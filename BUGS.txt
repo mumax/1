@@ -77,5 +77,7 @@ known bugs
 [0021]
  single-threaded CPU code does not speed up by using multiple threads, although it does occupy all processors.
 
+[0022]
+ spin-torque term is not correct at the edge cells (both edge of the box and edge of the normmap)
 
  

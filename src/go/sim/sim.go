@@ -300,7 +300,7 @@ func (s *Sim) initSolver() {
 	s.Println("Initializing solver: ", s.input.solvertype)
 	s.dt = s.input.dt / s.UnitTime()
 	s.Solver = NewSolver(s.input.solvertype, s)
-	s.Println(s.Solver.String())
+	//s.Println(s.Solver.String())
 }
 
 
