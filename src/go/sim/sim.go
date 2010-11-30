@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	DEFAULT_SOLVERTYPE     = "rk23"
-	DEFAULT_MAXERROR       = 1e-5
-	DEFAULT_DEMAG_ACCURACY = 8
+	DEFAULT_SOLVERTYPE        = "rk23"
+	DEFAULT_MAXERROR          = 1e-5
+	DEFAULT_DEMAG_ACCURACY    = 8
 	DEFAULT_SPIN_POLARIZATION = 1
 )
 
@@ -300,7 +300,7 @@ func (s *Sim) initSolver() {
 	s.Println("Initializing solver: ", s.input.solvertype)
 	s.dt = s.input.dt / s.UnitTime()
 	s.Solver = NewSolver(s.input.solvertype, s)
-	s.Println(s.Solver.String())
+	//s.Println(s.Solver.String())
 }
 
 

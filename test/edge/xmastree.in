@@ -1,6 +1,6 @@
 msat       	800E3   
 aexch      	1.3E-11     
-alpha      	1
+alpha      	0.01
 
 partsize	1200e-9	800e-9	50e-9
 gridsize	768	512	1
@@ -9,11 +9,13 @@ edgecorrection	2
 
 maxerror 1e-3
 
-uniform		1 0 0
+loadM relaxed.tensor
+setMRange 0 0 0 50 512 1 0 0 1
+
 save m ascii
 #loadm		xmastree.tensor
 
-autosave	m	png	100e-12
+autosave	m	png	10e-12
 autosave	m 	ascii 	100e-12
 run		5e-9
 
