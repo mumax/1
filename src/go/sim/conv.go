@@ -8,7 +8,8 @@ package sim
 
 import (
 	"tensor"
-	// 		"fmt"
+	"fmt"
+	"os"
 )
 
 // "Conv" is a 3D vector convolution "plan".
@@ -147,7 +148,9 @@ func (conv *Conv) loadKernel6(kernel []*tensor.T3) {
 			}
 			// ...however, we check that the imaginary parts are nearly zero,
 			// just to be sure we did not make a mistake during kernel creation.
-			assert(maximg < 1e-5)
+			if maximg > 1e-4 {
+				fmt.Fprintln(os.Stderr, "Warning: FFT Kernel max imaginary part=", maximg)
+			}
 
 			conv.kernel[i] = NewTensor(conv.Backend, conv.KernelSize())
 			conv.memcpyTo(&listOut[0], conv.kernel[i].data, Len(conv.kernel[i].Size()))

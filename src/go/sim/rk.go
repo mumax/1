@@ -6,6 +6,11 @@
 
 package sim
 
+// This file implements a plethora of Runge-Kutta methods
+// Coefficients and descriptions are taken from wikipedia.
+// TODO: perhaps all the coefficients should be carefully
+// double-checked for typos?
+//
 import (
 	"fmt"
 	"math"
@@ -28,15 +33,17 @@ import (
 type RK struct {
 	*Sim
 
-	stages int
-	errororder float64  // the order of the less acurate solution used for the error estimate
+	stages         int
+	fsal           bool // First Same as Last?
+	fsal_initiated bool
+	errororder     float64 // the order of the less acurate solution used for the error estimate
 
-	a     [][]float32
-	b     []float32
-	c     []float32
-	b2    []float32    // weights to get lower order solution for error estimate, may be nil
-	k     []*DevTensor //
-	kdata []uintptr    //contiguous array of data pointers from k (kdata[i] = k[i].data), passable to C
+	a  [][]float32
+	b  []float32
+	c  []float32
+	b2 []float32    // weights to get lower order solution for error estimate, may be nil
+	k  []*DevTensor //
+	// 	kdata []uintptr    //contiguous array of data pointers from k (kdata[i] = k[i].data), passable to C
 
 	m0 *DevTensor // buffer to backup the starting magnetization
 
@@ -91,34 +98,37 @@ func NewRK12(sim *Sim) *RK {
 // ----------------
 //     | 1/6 2/3 1/6
 func NewRK3(sim *Sim) *RK {
-  rk := newRK(sim, 3)
-  rk.c = []float32{0., 1. / 2., 1.}
-  rk.a = [][]float32{
-    {0., 0., 0.},
-    {1. / 2., 0., 0.},
-    {-1., 2., 0}}
-  rk.b = []float32{1. / 6., 2. / 3., 1. / 6.}
-  return rk
+	rk := newRK(sim, 3)
+	rk.c = []float32{0., 1. / 2., 1.}
+	rk.a = [][]float32{
+		{0., 0., 0.},
+		{1. / 2., 0., 0.},
+		{-1., 2., 0}}
+	rk.b = []float32{1. / 6., 2. / 3., 1. / 6.}
+	return rk
 }
 
 
 // rk23: Bogacki–Shampine method
+// The Bogacki–Shampine method is a Runge–Kutta method of order three
+// with four stages with the First Same As Last (FSAL) property,
+// so that it uses approximately three function evaluations per step.
+// It has an embedded second-order method
+// which can be used to implement adaptive step size.
 func NewRK23(sim *Sim) *RK {
-  rk := newRK(sim, 4)
-  rk.c = []float32{0., 1. / 2., 3./4., 1.}
-  rk.a = [][]float32{
-    {0., 0., 0., 0.},
-    {1. / 2., 0., 0., 0.},
-    {0., 3./4., 0., 0.},
-    {2./9., 1./3., 4./9., 0.}}
-  rk.b = []float32{2. / 9., 1. / 3., 4. / 9., 0.}
-  rk.initAdaptive(2.)
-  rk.b2 = []float32{7./24, 1./4., 1./3., 1./8.}
-  return rk
+	rk := newRK(sim, 4)
+	rk.fsal = true
+	rk.c = []float32{0., 1. / 2., 3. / 4., 1.}
+	rk.a = [][]float32{
+		{0., 0., 0., 0.},
+		{1. / 2., 0., 0., 0.},
+		{0., 3. / 4., 0., 0.},
+		{2. / 9., 1. / 3., 4. / 9., 0.}}
+	rk.b = []float32{2. / 9., 1. / 3., 4. / 9., 0.}
+	rk.initAdaptive(2.)
+	rk.b2 = []float32{7. / 24, 1. / 4., 1. / 3., 1. / 8.}
+	return rk
 }
-
-
-
 
 
 // rk4: The classical Runge-Kutta method
@@ -141,6 +151,57 @@ func NewRK4(sim *Sim) *RK {
 }
 
 
+// Cash-Karp method
+// Uses six function evaluations to calculate fourth- and fifth-order accurate solutions.
+func NewRKCK(sim *Sim) *RK {
+	rk := newRK(sim, 6)
+	rk.c = []float32{0., 1. / 5., 3. / 10., 3. / 5., 1., 7. / 8.}
+	rk.a = [][]float32{
+		{0, 0, 0, 0, 0, 0},
+		{1. / 5., 0, 0, 0, 0, 0},
+		{3. / 40., 9. / 40., 0, 0, 0, 0},
+		{3. / 10., -9. / 10., 6. / 5., 0, 0, 0},
+		{-11. / 54., 5. / 2., -70. / 27., 35. / 27., 0, 0},
+		{1631. / 55296., 175. / 512., 575. / 13824., 44275. / 110592., 253. / 4096., 0.}}
+	rk.b = []float32{37. / 378., 0, 250. / 621., 125. / 594., 0, 512. / 1771.}
+	rk.initAdaptive(4.)
+	rk.b2 = []float32{2825. / 27648., 0, 18575. / 48384., 13525. / 55296., 277. / 14336., 1. / 4.}
+	return rk
+}
+
+
+// Dormand-Prince method
+//
+// Uses six function evaluations to calculate fourth- and fifth-order accurate solutions.
+// The Dormand–Prince method has seven stages, but it uses only six function evaluations
+// per step because it has the FSAL (First Same As Last) property: the last stage is
+// evaluated at the same point as the first stage of the next step.
+// Dormand and Prince choose the coefficients of their method to minimize the error of
+// the fifth-order solution. This is the main difference with the Fehlberg method,
+// which was constructed so that the fourth-order solution has a small error.
+// For this reason, the Dormand–Prince method is more suitable when the higher-order
+// solution is used to continue the integration. [wikipedia.org]
+//
+// TODO: check if b2-b are not swapped.
+// The final 0. in the 5th-order solution seems suspicious,
+// but it's like that on wikipedia.
+func NewRKDP(sim *Sim) *RK {
+	rk := newRK(sim, 7)
+	rk.c = []float32{0., 1. / 5., 3. / 10., 4. / 5., 8. / 9., 1., 1.}
+	rk.a = [][]float32{
+		{0., 0., 0., 0., 0., 0., 0.},
+		{1. / 5., 0., 0., 0., 0., 0., 0.},
+		{3. / 40., 9. / 40., 0., 0., 0., 0., 0.},
+		{44. / 45., -56. / 15., 32. / 9., 0., 0., 0., 0.},
+		{19372. / 6561., -25360. / 2187., 64448. / 6561., -212. / 729., 0., 0., 0.},
+		{9017. / 3168., -355. / 33., 46732. / 5247., 49. / 176., -5103. / 18656., 0., 0.},
+		{35. / 384., 0., 500. / 1113., 125. / 192., -2187. / 6784., 11. / 84., 0., 0.}}
+	rk.b = []float32{35. / 384., 0., 500. / 1113., 125. / 192., -2187. / 6784., 11. / 84., 0}
+	rk.initAdaptive(4.)
+	rk.b2 = []float32{5179. / 57600., 0., 7571. / 16695., 393. / 640., -92097. / 339200., 187. / 2100., 1. / 40.}
+	return rk
+}
+
 // INTERNAL
 func (rk *RK) init(sim *Sim, order int) {
 
@@ -154,11 +215,18 @@ func (rk *RK) init(sim *Sim, order int) {
 	rk.b = make([]float32, order)
 	rk.c = make([]float32, order)
 	rk.k = make([]*DevTensor, order)
-	rk.kdata = make([]uintptr, order)
-	for i := range rk.k {
+	//rk.kdata = make([]uintptr, order)
+
+	// initialize k:
+	// sim.h(Dev) is already allocated in sim but we don't really need it here,
+	// therefore, h is "recycled" and used as k[0] to save memory.
+	// Extra bonus: hDev now gets updated with (even accurate) values
+	// of h/torque, so those can now also be outputted by sim.
+	rk.k[0] = sim.h
+	for i := 1; i < rk.stages; i++ {
 		rk.k[i] = NewTensor(sim.Backend, sim.mDev.size)
-		rk.kdata[i] = rk.k[i].data
 	}
+
 	rk.m0 = NewTensor(sim.Backend, sim.mDev.size)
 }
 
@@ -174,7 +242,7 @@ func (rk *RK) free() {
 	for i := range rk.k {
 		rk.k[i].Free()
 		rk.k[i] = nil
-		rk.kdata[i] = 0
+		//rk.kdata[i] = 0
 	}
 }
 
@@ -206,12 +274,19 @@ func (rk *RK) Step() {
 	m1 := rk.m0
 	a := rk.a
 
-  if rk.dt == 0.{
-    rk.dt = 1e-5 // program units, should really be small enough
-    rk.Println("Using default initial dt: ", rk.dt)
-  }
+	if rk.dt == 0. {
+		rk.dt = 1e-5 // program units, should really be small enough
+		rk.Println("Using default initial dt: ", rk.dt)
+	}
 
 	for i := 0; i < order; i++ {
+
+		//FSAL
+		if rk.fsal && i == 0 && rk.fsal_initiated {
+			TensorCopyOn(k[order-1], k[0])
+			continue
+		}
+
 		rk.time = time0 + float64(c[i]*h)
 		TensorCopyOn(m, m1)
 		for j := 0; j < order; j++ {
@@ -222,6 +297,7 @@ func (rk *RK) Step() {
 
 		rk.calcHeff(m1, k[i])
 		rk.Torque(m1, k[i])
+		rk.fsal_initiated = true
 	}
 
 	//Lowest-order solution for error estimate, if applicable
@@ -273,8 +349,9 @@ func (rk *RK) Step() {
 }
 
 
-func (rk *RK) String() string {
-	str := ""
+func (rk *RK) String() (str string) {
+	defer func() { recover(); return }()
+
 	for i := 0; i < rk.stages; i++ {
 		str += fmt.Sprint(rk.c[i]) + "\t|\t"
 		for j := 0; j < rk.stages; j++ {
@@ -285,6 +362,12 @@ func (rk *RK) String() string {
 	str += "----\n\t|\t"
 	for i := 0; i < rk.stages; i++ {
 		str += fmt.Sprint(rk.b[i]) + "\t"
+	}
+	if rk.b2 != nil {
+		str += "\n"
+		for i := 0; i < rk.stages; i++ {
+			str += fmt.Sprint(rk.b2[i]) + "\t"
+		}
 	}
 	return str
 }

@@ -1,8 +1,6 @@
 # Micromagnetic standard problem 4
 
 metadata:  	description standard_problem_4
-solvertype 	heun
-maxerror	1e-4
 
 # material
 msat       	800E3   

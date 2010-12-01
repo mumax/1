@@ -15,7 +15,7 @@ aexch        1.3E-11
 
 
 # geometry
-gridsize      512 512 1
+gridsize      500 500 1
 cellsize     1E-9  1E-9   1E-9
 
 # initial magnetization

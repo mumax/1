@@ -9,8 +9,6 @@
 #ifndef GPUANAL_H
 #define GPUANAL_H
 
-// #include "param.h"
-// #include "gputil.h"
 #include "gpu_safe.h"
 #include "gpu_conf.h"
 
@@ -18,40 +16,29 @@
 extern "C" {
 #endif
 
+
 /**
- * The internal data of the solver.
+ * Applies the analytical formulae once to obtain a new value for the magnetization based on a constant effective field.  
+ * This basis function can be invoked multiple times to come to higher order convergence schemes (e.g. predictor-corrector scheme)
  */
-// typedef struct{
-// 
-//   param *params;
-// 
-// }gpuanalfw;
-// 
-// typedef struct{
-// 
-//   param *params;
-//   tensor *m2;
-//   tensor *h2;
-// 
-// }gpuanalpc;
+void gpu_anal_fw_step(float dt,       ///< used time step
+                      float alpha,    ///< damping constant
+                      int Ntot,       ///< total number of FD cells in the simulation
+                      float *m_in,    ///< array containing the input magnetization
+                      float *m_out,   ///< array containing the output magnetization
+                      float *h        ///< array containing the effective field (no spin torque!)
+                      );
 
 
+/**
+ *Function to compute the mean effective field from two input arrays.  The result is stored in h1
+ */
+void gpu_anal_pc_mean_h(float *h1,    ///< first effective field array
+                        float *h2,    ///< second effective field array
+                        int Ntot      ///< total number of FD cells in the simulation
+                        );
 
-void gpu_anal_fw_step(float dt, float alpha, int Ntot, float *m_in, float *m_out, float *h);
 
-__global__ void _gpu_anal_fw_step (float *minx, float *miny, float *minz, float *moutx, float *mouty, float *moutz, float *hx, float *hy, float *hz, float dt, float alpha, int N);
-
-
-void gpu_anal_pc_mean_h(float *h1, float *h2, int N);
-
-__global__ void _gpu_anal_pc_meah_h (float *h1, float *h2, int N);
-
-/*
-gpuanalfw* new_gpuanalfw(param* p);
-
-gpuanalpc* new_gpuanalpc(param* p);
-
-*/
 #ifdef __cplusplus
 }
 #endif

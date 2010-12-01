@@ -58,6 +58,13 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
     gpu_safefft(cufftPlan2d(&(plan->invPlan), paddedSize[Y], paddedSize[Z], CUFFT_C2R))
   }
 
+/// @todo: investigate CUFFT_COMPATIBILITY modes:
+/// NATIVE *should* be faster but is actually slower and seems to give wrong results
+/// (FFT'ed kernel not purely real)
+/// Is the data layout not interleaved anymore? What is wrong?
+//   gpu_safefft( cufftSetCompatibilityMode((plan->fwPlan), CUFFT_COMPATIBILITY_NATIVE) );
+//   gpu_safefft( cufftSetCompatibilityMode((plan->invPlan), CUFFT_COMPATIBILITY_NATIVE) );
+  
   return plan;
 }
 

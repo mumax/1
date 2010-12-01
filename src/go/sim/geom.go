@@ -10,6 +10,8 @@ package sim
 
 import (
 	. "math"
+	"image/png"
+	"os"
 )
 
 // Returns true if the point (x,y,z) (in SI units, internal axes)
@@ -74,6 +76,62 @@ func (s *Ellipsoid) Inside(x, y, z float32) bool {
 	y /= s.ry
 	z /= s.rz
 	return x*x+y*y+z*z <= 1.
+}
+
+
+type Mask struct {
+	inside       [][]bool
+	sizey, sizez float32
+}
+
+
+func NewMask(fname string, sizey, sizez float32) *Mask {
+	in, err := os.Open(fname, os.O_RDONLY, 0666)
+	if err != nil {
+		panic(err)
+	}
+
+	img, err2 := png.Decode(in)
+	if err2 != nil {
+		panic(err2)
+	}
+
+	width := img.Bounds().Max.X
+	height := img.Bounds().Max.Y
+
+	inside := make([][]bool, height)
+	for i := range inside {
+		inside[i] = make([]bool, width)
+	}
+
+	for i := range inside {
+		for j := range inside[i] {
+			r, g, b, _ := img.At(j, height-1-i).RGBA()
+			if r+g+b < (0xFFFF*3)/2 {
+				inside[i][j] = true
+			}
+		}
+	}
+	return &Mask{inside, sizey, sizez}
+}
+
+func (im *Mask) Inside(x, y, z float32) bool {
+	inside := im.inside
+	width, height := len(inside[0]), len(inside)
+
+	i := int((y/im.sizey+.5)*float32(height) + .5)
+	j := int((z/im.sizez+.5)*float32(width) + .5)
+
+	if i >= 0 && i < height && j >= 0 && j < width {
+		return inside[i][j]
+	}
+	return false
+}
+
+
+func (sim *Sim) Mask(image string) {
+	sim.initSize()
+	sim.geom = NewMask(image, sim.input.partSize[Y], sim.input.partSize[Z])
 }
 
 

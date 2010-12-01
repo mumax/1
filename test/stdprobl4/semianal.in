@@ -1,9 +1,9 @@
 # Micromagnetic standard problem 4
 
-metadata:  	description standard_problem_4
+# metadata:  	description standard_problem_4
 
 solvertype  semianal1
-dt          0.01e-12
+dt          0.05e-12
 
 # material
 msat       	800E3   
