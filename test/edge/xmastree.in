@@ -10,12 +10,12 @@ edgecorrection	2
 maxerror 1e-3
 
 loadM relaxed.tensor
-setMRange 0 0 0 50 512 1 0 0 1
+setMRange 0 0 0 150 512 1 0 0 1
 
 save m ascii
 #loadm		xmastree.tensor
 
-autosave	m	png	10e-12
+autosave	m	png	2.5e-12
 autosave	m 	ascii 	100e-12
 run		5e-9
 
