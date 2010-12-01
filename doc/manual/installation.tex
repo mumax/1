@@ -13,7 +13,11 @@ To take advantage of the GPU acceleration, you need a \idx{CUDA capable} \textsc
 
 You will also need to install the proprietary \textsc{NVIDIA} graphics \idx{driver}. This driver may already be installed on your system. E.g., under Ubuntu, the ``Hardware drivers'' program may propose to install this driver. You should try to run a simulation on the GPU -- if that works, it means your driver is up to date.
 
-Otherwise, you can install the driver located in \file{dep/cuda}. You have to install it when your X-server is not running: logout from your grahpical session, then use the ``\idx{Console login}'' of your login manager (or press Ctrl-Alt-F1) to obtain a text console. Log in and \cmd{cd} to \file{dep/cuda} the \prog root directory. Type\footnote{Or \cmd{sudo ./devdriver\_3.1\_linux\_32\_256.40.run} on a 32-bit system.}\footnote{Possibly a later version of this driver may be present}
+Otherwise, you can install the driver located in \file{dep/cuda}. First, make sure you have the necessary build tools installed on your system:
+
+\shell{sudo apt-get install build-essential}
+
+You can then install the GPU driver when your X-server is not running: logout from your grahpical session, then use the ``\idx{Console login}'' of your login manager (or press Ctrl-Alt-F1) to obtain a text console. Log in and \cmd{cd} to \file{dep/cuda} the \prog root directory. Type\footnote{Or \cmd{sudo ./devdriver\_3.1\_linux\_32\_256.40.run} on a 32-bit system.}\footnote{Possibly a later version of this driver may be present}
 
 \shell{cd \prog/dep/cuda\\
 sudo ./devdriver\_3.1\_linux\_64\_256.40.run}
@@ -37,7 +41,7 @@ Then also remove all distribution-provided \textsc{NVIDIA} drivers with
 
 Then follow the above instructions to re-install the driver provided by \textsc{NVIDIA}.
 
-Not that you may have to run an X-server (i.e., have a graphical desktop installed) for the GPU driver to work correctly. So if you run ubuntu server edition, you may have to install ubuntu-desktop or kubuntu-desktop.
+Note that you \emph{may} have to run an X-server (i.e., have a graphical desktop installed) for the GPU driver to work correctly. So if you run ubuntu server edition, you may have to install ubuntu-desktop or kubuntu-desktop.
 
 \subsection{Setup}
 

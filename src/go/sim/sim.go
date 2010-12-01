@@ -15,9 +15,12 @@ import (
 	"rand"
 )
 
-
-//                                                                  WARNING: USE sim.backend, not sim.Backend
-//                                                                  TODO: need to get rid of this duplication
+const (
+	DEFAULT_SOLVERTYPE        = "rk23"
+	DEFAULT_MAXERROR          = 1e-5
+	DEFAULT_DEMAG_ACCURACY    = 8
+	DEFAULT_SPIN_POLARIZATION = 1
+)
 
 // Sim has an "input" member of type "Input".
 //
@@ -65,8 +68,6 @@ type Sim struct {
 	input     Input // stores the original input parameters in SI units
 	valid     bool  // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
 	BeenValid bool  // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
-
-	// 	backend *Backend // GPU or CPU TODO already stored in Conv, sim.backend <-> sim.Backend is not the same, confusing.
 
 	mDev      *DevTensor // magnetization on the device (GPU), 4D tensor
 	size3D    []int      //simulation grid size (without 3 as first element)
@@ -126,9 +127,10 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.starttime = time.Seconds()
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
-	sim.input.demag_accuracy = 8
-	sim.autosaveIdx = -1          // so we will start at 0 after the first increment
-	sim.input.solvertype = "heun" // the default for now. TODO change when a better one comes around
+	sim.input.demag_accuracy = DEFAULT_DEMAG_ACCURACY
+	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
+	sim.input.solvertype = DEFAULT_SOLVERTYPE
+	sim.maxError = DEFAULT_MAXERROR
 	// We run the simulation with working directory = directory of input file
 	// This is neccesary, e.g., when a sim deamon is run from a directory other
 	// than the directory of the input file and files with relative paths are
@@ -298,6 +300,7 @@ func (s *Sim) initSolver() {
 	s.Println("Initializing solver: ", s.input.solvertype)
 	s.dt = s.input.dt / s.UnitTime()
 	s.Solver = NewSolver(s.input.solvertype, s)
+	//s.Println(s.Solver.String())
 }
 
 

@@ -142,7 +142,6 @@ func (sim *Sim) LoadMSat(file string) {
 // Sets up the normMap for a (possibly ellipsoidal) cylinder geometry along Z.
 // Does not take into account the aspect ratio of the cells.
 func (sim *Sim) Cylinder() {
-
 	sim.initSize()
 	sim.geom = &Ellipsoid{float32(math.Inf(1)), sim.input.partSize[Y] / 2., sim.input.partSize[Z] / 2.}
 	sim.invalidate()
@@ -154,12 +153,22 @@ func (sim *Sim) Ellipsoid(rz, ry, rx float32) {
 	sim.invalidate()
 }
 
-func (s *Sim) TestGeom(w, h float32) {
-	s.initSize()
-	s.geom = &Wave{w, h}
-	s.invalidate()
-}
+
+// func(sim *Sim) DotArray(radius, spacing float32, repeat int){
+//   dot := &Ellipsoid{inf, radius, radius}
+//   
+// }
+
+
+//DEBUG
+// func (s *Sim) TestGeom(w, h float32) {
+// 	s.initSize()
+// 	s.geom = &Wave{w, h}
+// 	s.invalidate()
+// }
 
 func sqr(x float64) float64 {
 	return x * x
 }
+
+var inf float32 = float32(math.Inf(1))

@@ -2,6 +2,9 @@
 
 metadata:  	description standard_problem_4
 
+solvertype  fixedeuler
+dt          0.01e-12
+
 # material
 msat       	800E3   
 aexch      	1.3E-11     

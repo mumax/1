@@ -8,7 +8,6 @@ package sim
 
 import (
 	"tensor"
-	"fmt"
 )
 
 
@@ -91,7 +90,7 @@ func (s *Sim) initGeom() {
 				norm := s.normLocal.TArray[i][j][k]
 				if norm > 0 && norm < 1 {
 					count++
-					fmt.Println("norm: ", norm)
+					// 					fmt.Println("norm: ", norm)
 					for S := 0; S < 3; S++ {
 						for D := 0; D < 3; D++ {
 							E[KernIdx[S][D]][i][j][k] = -selfK[S][D]
@@ -145,7 +144,7 @@ func (s *Sim) initNormMap() {
 	// but when edgecorrection==0, we use a default smoothness.
 	softness := s.edgeCorr
 	if softness == 0 {
-		softness = 3
+		softness = 0 // TODO Temporarily put softness to 0 as long as dynamics of unnormalized spins are not fixed
 		s.Println("Using default edge smoothness: 2^", softness)
 	}
 
@@ -183,7 +182,7 @@ func (s *Sim) initNormMap() {
 func (sim *Sim) allocNormMap() {
 	sim.initMLocal()
 	if sim.normMap == nil {
-		sim.Println("Allocating Norm Map")
+		sim.Println("Allocating Norm Map ", Size3D(sim.mLocal.Size()))
 		sim.normMap = NewTensor(sim.Backend, Size3D(sim.mLocal.Size()))
 	}
 }

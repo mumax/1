@@ -67,6 +67,8 @@ type Device interface {
 	// a = a * weightA + b * weightB
 	linearCombination(a, b uintptr, weightA, weightB float32, N int)
 
+	linearCombinationMany(result uintptr, vectors []uintptr, weights []float32, NElem int)
+
 	// partial data reduction (operation = add, max, maxabs, ...)
 	// input data size = N
 	// output = partially reduced data, usually reduced further on CPU. size = blocks
@@ -81,9 +83,11 @@ type Device interface {
 	// normalizes a vector field and multiplies with normMap. N = length of one component = length of normMap
 	normalizeMap(m, normMap uintptr, N int)
 
+	// Safe version: func (*Sim) DeltaM()
 	// overwrites h with torque(m, h) * dtGilbert. N = length of one component
 	deltaM(m, h uintptr, alpha, dtGilbert float32, N int)
 
+	// Safe version: func (*Sim) DeltaM()
 	// overwrites h with torque(m, h) * dtGilbert, inculding spin-transfer torque terms. size = of one component
 	// dtGilb = dt / (1+alpha^2)
 	// alpha = damping
@@ -123,7 +127,7 @@ type Device interface {
 
 	//____________________________________________________________________ specialized (used in only one place)
 
-
+	// N: number of vectors 
 	semianalStep(m, h uintptr, dt, alpha float32, order, N int)
 
 	// Extract only the real parts form in interleaved complex array

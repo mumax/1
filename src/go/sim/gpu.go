@@ -65,6 +65,15 @@ func (d Gpu) linearCombination(a, b uintptr, weightA, weightB float32, N int) {
 	C.gpu_linear_combination((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(weightA), C.float(weightB), C.int(N))
 }
 
+func (d Gpu) linearCombinationMany(result uintptr, vectors []uintptr, weights []float32, NElem int) {
+	C.gpu_linear_combination_many(
+		(*C.float)(unsafe.Pointer(result)),
+		(**C.float)(unsafe.Pointer(&vectors[0])),
+		(*C.float)(unsafe.Pointer(&weights[0])),
+		(C.int)(len(vectors)),
+		(C.int)(NElem))
+}
+
 func (d Gpu) addConstant(a uintptr, cnst float32, N int) {
 	C.gpu_add_constant((*C.float)(unsafe.Pointer(a)), C.float(cnst), C.int(N))
 }
@@ -94,8 +103,7 @@ func (d Gpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {
 	default:
 		panic(fmt.Sprintf("Unknown semianal order:", order))
 	case 0:
-		panic("unimplemented")
-		//C.gpu_anal_fw_step_unsafe((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(dt), C.float(alpha), C.int(N))
+		C.gpu_anal_fw_step((C.float)(dt), (C.float)(alpha), (C.int)(N), (*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)))
 	}
 }
 

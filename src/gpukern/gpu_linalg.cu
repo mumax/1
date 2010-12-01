@@ -80,12 +80,36 @@ __global__ void _gpu_linear_combination(float* a, float* b, float weightA, float
   }
 }
 
+
 void gpu_linear_combination(float* a, float* b, float weightA, float weightB, int N){ 
   dim3 gridSize, blockSize;
   make1dconf(N, &gridSize, &blockSize);
   _gpu_linear_combination<<<gridSize, blockSize>>>(a, b, weightA, weightB, N);
   gpu_sync();
 }
+
+
+///@internal kernel
+__global__ void _gpu_linear_combination_many(float* result, float** vectors, float* weights, int NVectors, int NElem){
+  int i = threadindex;
+  float result_i = result[i];
+  
+  if(i < NElem){  
+    for(int j=0; j<NVectors; j++){
+      result_i += weights[j] * vectors[j][i];
+    }
+    result[i] = result_i;
+  }
+}
+
+
+void gpu_linear_combination_many(float* result, float** vectors, float* weights, int NVectors, int NElem){
+  dim3 gridSize, blockSize;
+  make1dconf(NElem, &gridSize, &blockSize);
+  _gpu_linear_combination_many<<<gridSize, blockSize>>>(result, vectors, weights, NVectors, NElem);
+  gpu_sync();
+}
+
 
 #ifdef __cplusplus
 }

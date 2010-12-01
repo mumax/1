@@ -37,6 +37,7 @@ func (s *Sim) InitMaterial() {
 	s.gamma0 = 2.211E5
 	s.muB = 9.2740091523E-24
 	s.e = 1.60217646E-19
+	s.spinPol = DEFAULT_SPIN_POLARIZATION
 
 	if s.input.msat == 0. {
 		s.Errorln("Saturation magnetization should first be set. E.g. msat 800E3")

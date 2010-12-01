@@ -23,10 +23,10 @@ type AdaptiveEuler struct {
 func NewAdaptiveEuler(s *Sim) *AdaptiveEuler {
 	e := new(AdaptiveEuler)
 	e.Sim = s
-	assert(e.Backend != nil)
+	//assert(e.Backend != nil)
 	// We use the "maximum norm" of the torque to set dt.
 	// Using the Euclidian norm would also work.
-	e.Reductor.InitMaxAbs(e.Backend, prod(s.size4D[0:]))
+	e.Reductor.InitMaxAbs(s.Backend, prod(s.size4D[0:]))
 	if s.maxDm == 0. {
 		s.maxDm = EULER_DEFAULT_MAXDM
 	}

@@ -30,12 +30,14 @@ known bugs
 
 [0008] OPEN arne:
  the simulation state gets re-initialized too often.
+ -> already much improved by kernelwisdom, but could be better
 
 [0009] OPEN arne:
  crash reports are not redirected to output.log
 
-[0010] OPEN arne:
+[0010] SOLVED arne:
  when no maxerror is specified, the time step is very small.
+ -> rk23 with maxerror = 1e-5 works nicely and fast, is now the default
 
 [0011] SOLVED arne:
  when more than one input file is specified the GPU gets initialized twice-> CUDA setGPU error
@@ -54,3 +56,28 @@ known bugs
 [0015] SOLVED arne:
  simulation should give error message when no initial magnetization is set (or when it is zero/contains zeros)
 
+[0016] OPEN arne:
+ simulate daemon does not yet pass wisdom argument to child process (todo: also check other arguments while on it)
+
+[0017] OPEN arne:
+ bad time steps are not undone, simulation does not crash when m=NaN
+
+[0018] OPEN arne:
+ time evolution of non-normalized spins is (most probably) wrong: "Ms" term in LL is not 1 and should not be ignored.
+ for the moment, edge smoothness should not be turned on by default.
+
+[0019] SOLVED arne:
+ should not crash on (slightly) too big imag parts, only warn.
+
+[0020]
+ non-uniform normalization does not work correctly for 3D sims?
+ for thickness 4: normalization fails, simulations goes NaN, thickness 1,2,8 are OK though.
+ ok for uniform normalization...
+
+[0021]
+ single-threaded CPU code does not speed up by using multiple threads, although it does occupy all processors.
+
+[0022]
+ spin-torque term is not correct at the edge cells (both edge of the box and edge of the normmap)
+
+ 

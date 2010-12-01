@@ -7,6 +7,7 @@ extern "C" {
 #endif
 
 
+///@todo Not correct at the edges with a normmap!
 
 
 
@@ -38,7 +39,14 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
       my1 = my[idx];
       mz1 = mz[idx];
     } else {
-     //
+      // How to handle edge cells?
+      // * leaving the m value zero gives too big a gradient
+      // * setting it to the central value gives the actual gradient / 2, should not hurt
+      // * problem with nonuniform norm!! what if a neighbor has zero norm (but still lies in the box)?
+      int idx = (i)*N1*N2 + j*N2 + k;
+      mx1 = mx[idx];
+      my1 = my[idx];
+      mz1 = mz[idx];
     }
     if (i+1 < N0){
       int idx = (i+1)*N1*N2 + j*N2 + k;
@@ -46,7 +54,10 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
       my2 = my[idx];
       mz2 = mz[idx];
     } else {
-      //
+      int idx = (i)*N1*N2 + j*N2 + k;
+      mx1 = mx[idx];
+      my1 = my[idx];
+      mz1 = mz[idx];
     } 
     float diffmx = ux * (mx2 - mx1);
     float diffmy = ux * (my2 - my1);
@@ -60,7 +71,10 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
       my1 = my[idx];
       mz1 = mz[idx];
     } else {
-      //
+      int idx = (i)*N1*N2 + (j)*N2 + k;
+      mx1 = mx[idx];
+      my1 = my[idx];
+      mz1 = mz[idx];
     } 
     if (j+1 < N1){
       int idx = (i)*N1*N2 + (j+1)*N2 + k;
@@ -68,7 +82,10 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
       my2 = my[idx];
       mz2 = mz[idx];
     } else {
-      //
+      int idx = (i)*N1*N2 + (j)*N2 + k;
+      mx2 = mx[idx];
+      my2 = my[idx];
+      mz2 = mz[idx];
     } 
     diffmx += uy * (mx2 - mx1);
     diffmy += uy * (my2 - my1);
@@ -82,7 +99,10 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
       my1 = my[idx];
       mz1 = mz[idx];
     } else {
-      //
+      int idx = (i)*N1*N2 + (j)*N2 + (k);
+      mx1 = mx[idx];
+      my1 = my[idx];
+      mz1 = mz[idx];
     } 
     if (k+1 < N2){
       int idx = (i)*N1*N2 + (j)*N2 + (k+1);
@@ -90,7 +110,10 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
       my2 = my[idx];
       mz2 = mz[idx];
     } else {
-      //
+      int idx = (i)*N1*N2 + (j)*N2 + (k);
+      mx2 = mx[idx];
+      my2 = my[idx];
+      mz2 = mz[idx];
     } 
     diffmx += uz * (mx2 - mx1);
     diffmy += uz * (my2 - my1);

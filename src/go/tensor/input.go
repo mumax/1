@@ -96,6 +96,7 @@ func ReadHeader(in_ io.Reader) map[string]string {
 	in := bufio.NewReader(in_)
 	line, eof := iotool.ReadLine(in)
 	for !eof && !isHeaderEnd(line) {
+    //if line == "" {continue}
 		key, value := parseHeaderLine(line)
 		header[key] = value
 		line, eof = iotool.ReadLine(in)
