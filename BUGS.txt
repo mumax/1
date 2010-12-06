@@ -80,4 +80,14 @@ known bugs
 [0022]
  spin-torque term is not correct at the edge cells (both edge of the box and edge of the normmap)
 
- 
+[0023]
+ gpu_copy_unpad crashes on some geometries (e.g. 32^3 but not 64^3)
+
+[0024]
+Default rk23 error per step sometimes too small: timestep becomes 1e-17 ps for relaxing a simple 64x64x64 uniform sphere...
+
+[0025]
+ average m also averages over cells with zero msat, so the saturated state does not have m=1. Perhaps calculate the correction factor ("volume of nonzero cells") once? and multiply only when data is saved? It should also be state in the manual
+
+ [0026]
+setting the solver type causes nil pointer dereference
