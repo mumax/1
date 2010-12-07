@@ -8,6 +8,14 @@ package sim
 
 // This file implements a plethora of Runge-Kutta methods
 // Coefficients and descriptions are taken from wikipedia.
+//
+// TODO: undo bad steps, NaN's are also bad steps
+//
+// TODO: for the error estimate, do not make the difference
+// between m_est and m_accurate, but between k_est and k_accurate.
+// this avoids truncation errors when subtracting two nearly equal
+// quantities.
+//
 // TODO: perhaps all the coefficients should be carefully
 // double-checked for typos?
 //
