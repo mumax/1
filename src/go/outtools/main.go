@@ -38,6 +38,16 @@ func (m *Main) Recover(value string) {
 	m.recover_val = value
 }
 
+func (m *Main) Draw(infile, outfile string){
+  t := ReadF(infile)
+  out, err := os.Open(outfile, os.O_CREATE|os.O_WRONLY, 0777)
+  defer out.Close()
+  if err != nil{
+    panic(err)
+  }
+  sim.PNG(out, t)
+}
+
 func (m *Main) Print(fname string) {
 	t := ReadF(fname)
 	WriteAscii(os.Stdout, t)

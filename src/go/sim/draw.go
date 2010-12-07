@@ -16,7 +16,7 @@ import (
 
 // Writes as png
 // TODO: rename
-func PNG(out io.Writer, t *tensor.T4) {
+func PNG(out io.Writer, t tensor.Interface) {
 	err := png.Encode(out, DrawTensor(t))
 	if err != nil {
 		panic(err)
@@ -25,7 +25,22 @@ func PNG(out io.Writer, t *tensor.T4) {
 
 // Draws rank 4 tensor (3D vector field) as image
 // averages data over X (usually thickness of thin film)
-func DrawTensor(t *tensor.T4) *NRGBA {
+func DrawTensor(t tensor.Interface) *NRGBA {
+	switch tensor.Rank(t) {
+	case 4:
+		return DrawTensor4(tensor.ToT4(t))
+	case 3:
+		return DrawTensor3(tensor.ToT3(t))
+	default:
+		panic("Illegal argument")
+	}
+	return nil
+}
+
+
+// Draws rank 4 tensor (3D vector field) as image
+// averages data over X (usually thickness of thin film)
+func DrawTensor4(t *tensor.T4) *NRGBA {
 	assert(tensor.Rank(t) == 4)
 
 	h, w := t.Size()[2], t.Size()[3]
@@ -46,8 +61,31 @@ func DrawTensor(t *tensor.T4) *NRGBA {
 		}
 	}
 	return img
-
 }
+
+
+// Draws rank 3 tensor (3D scalar field) as image
+// averages data over X (usually thickness of thin film)
+func DrawTensor3(t *tensor.T3) *NRGBA {
+	assert(tensor.Rank(t) == 3)
+
+	h, w := t.Size()[1], t.Size()[2]
+	img := NewNRGBA(w, h)
+	arr := t.Array()
+	for i := 0; i < h; i++ {
+		for j := 0; j < w; j++ {
+			var x float32 = 0.
+			for k := 0; k < t.Size()[1]; k++ {
+				x += arr[k][i][j]
+
+			}
+			x /= float32(t.Size()[0])
+			img.Set(j, (h-1)-i, GreyMap(0., 1., x))
+		}
+	}
+	return img
+}
+
 
 func GreyMap(min, max, value float32) NRGBAColor {
 	color := (value - min) / (max - min)

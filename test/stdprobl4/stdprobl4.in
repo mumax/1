@@ -11,6 +11,7 @@ alpha      	0.02
 # geometry 
 gridsize       	128 	32 	1    
 partsize   	500E-9  125E-9  3E-9
+demagaccuracy	10
 
 # initial magnetization
 load    	s-state.tensor
