@@ -6,6 +6,8 @@ all:
 	make install -C iotool
 	make install -C tensor
 	make install -C refsh
+	ln -s $(SIMROOT)/lib/libcpukern.so sim/
+	ln -s $(SIMROOT)/lib/libgpukern.so sim/
 	make install -C sim
 
 	make -C outtools

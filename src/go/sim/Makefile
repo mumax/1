@@ -55,8 +55,8 @@ GOFILES=\
 	error.go\
 	wisdom.go\
 	
-
-CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so
+# When installing, these libraries must be present (at least symlinked) in the current directory
+CGO_LDFLAGS+=libgpukern.so libcpukern.so
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a $(PKGDIR)/cgo_$(TARG).so 
 	
