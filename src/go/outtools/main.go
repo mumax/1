@@ -30,6 +30,7 @@ import (
 	"strings"
 	"strconv"
 	"sim"
+	"io/ioutil"
 )
 
 // When a panic occurs, do not crash
@@ -37,6 +38,37 @@ import (
 func (m *Main) Recover(value string) {
 	m.recover_val = value
 }
+
+
+func (m *Main) CoreSpeed(dirname string, pol float32) {
+	// loop over all files in the directory
+	fileinfo, err := ioutil.ReadDir(dirname)
+	if err != nil {
+		panic(err)
+	}
+
+	first := true
+	var prevx, prevy float32
+	var prevtime float64
+
+	for _, info := range fileinfo {
+		file := info.Name
+		if strings.HasSuffix(file, ".tensor") {
+			corex, corey, time := m.CorePos(file, pol)
+			if !first {
+				dx, dy := corex-prevx, corey-prevy
+				dt :=  time - prevtime
+				speed := Sqrt(float64(dx*dx+dy*dy)) / dt
+				fmt.Println(time, "\t", corex, "\t", corey, "\t", speed)
+
+				prevx, prevy = corex, corey
+				prevtime = time
+			}
+			first = false
+		}
+	}
+}
+
 
 // Finds vortex core position in file.
 // pol = 1 : up
@@ -63,23 +95,29 @@ func (m *Main) CorePos(fname string, pol float32) (corex, corey float32, time fl
 	corex = float32(maxX) + interpolate_maxpos(max, -1., pol*mz[maxZ][maxX-1][maxY], 1., pol*mz[maxZ][maxX+1][maxY])
 	corey = float32(maxY) + interpolate_maxpos(max, -1., pol*mz[maxZ][maxX][maxY-1], 1., pol*mz[maxZ][maxX][maxY+1])
 
-  // and express in length units
-	cellsizex, err1 := strconv.Atof(meta["partsize1"]) 
-  cellsizey, err2 := strconv.Atof(meta["partsize2"])
-  cellsizex /=  float(len(mz[0]))
-  cellsizey /=  float(len(mz[0][0]))
-  if err1 != nil{panic(err1)}
-  if err2 != nil{panic(err2)}
+	// and express in length units
+	cellsizex, err1 := strconv.Atof(meta["partsize1"])
+	cellsizey, err2 := strconv.Atof(meta["partsize2"])
+	cellsizex /= float(len(mz[0]))
+	cellsizey /= float(len(mz[0][0]))
+	if err1 != nil {
+		panic(err1)
+	}
+	if err2 != nil {
+		panic(err2)
+	}
 	corex *= float32(cellsizex)
-  corey *= float32(cellsizey)
+	corey *= float32(cellsizey)
 
-  // oops, turns out we were transposed all the time
+	// oops, turns out we were transposed all the time
 	corex, corey = corey, corex
 
 	// set time as well
-  var err3 os.Error
-  time, err3 = strconv.Atof64(meta["time"])
-  if err3!= nil{panic(err3)}
+	var err3 os.Error
+	time, err3 = strconv.Atof64(meta["time"])
+	if err3 != nil {
+		panic(err3)
+	}
 	return
 }
 
