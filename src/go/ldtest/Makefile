@@ -1,9 +1,11 @@
 all:
-	make -f Makefile-pkg
+	make -f Makefile-mylib
+	make install -f Makefile-pkg
 	make -f Makefile-main
 
 clean:
-	rm -rf *.6 *.c _obj *.cgo* _cgo_gotypes.go main *.so *.o
+	rm -rf *.6 _obj _cgo_defun.c *.cgo* _cgo_gotypes.go main *.so *.o *.a
+
 
 
 

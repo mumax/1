@@ -9,7 +9,7 @@ CGOFILES=\
 GOFILES=\
 	gofile.go\
 
-CGO_LDFLAGS+=\
+CGO_LDFLAGS+=mylib.so\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a $(PKGDIR)/cgo_$(TARG).so 
 	

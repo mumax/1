@@ -1,10 +1,7 @@
 package mypack
 
 /*
-#include <stdio.h>
-void c_hello(){
-  printf("Hello from C\n");
-}
+#include "mylib.h"
 */
 import "C"
 
