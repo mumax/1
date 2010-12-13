@@ -1,0 +1,8 @@
+package main
+
+import ("tensor"
+)
+
+func (m *Main) CorePos(fname string) (upx, upy, downx, downy float){
+  mag := tensor.FRead(fname)
+}

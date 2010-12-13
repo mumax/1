@@ -38,14 +38,68 @@ func (m *Main) Recover(value string) {
 	m.recover_val = value
 }
 
-func (m *Main) Draw(infile, outfile string){
-  t := ReadF(infile)
-  out, err := os.Open(outfile, os.O_CREATE|os.O_WRONLY, 0777)
-  defer out.Close()
-  if err != nil{
-    panic(err)
-  }
-  sim.PNG(out, t)
+// Finds vortex core position in file.
+// pol = 1 : up
+// pol = -1: down
+func (m *Main) CorePos(fname string, pol float32) (corex, corey float32) {
+	mag, meta := ReadMetaF(fname)
+	mz := ToT4(mag).TArray[Z]
+
+	// find coarse maximum (or minimum)
+	max := pol * mz[0][0][0]
+	maxX, maxY, maxZ := 0, 0, 0
+	for i := range mz {
+		for j := 1; j < len(mz[i])-1; j++ {
+			for k := 1; k < len(mz[i][j])-1; k++ {
+				if pol*mz[i][j][k] > max {
+					max = pol * mz[i][j][k]
+					maxX, maxY, maxZ = j, k, i
+				}
+			}
+		}
+	}
+
+	// then interpolate around the top
+	corex = float32(maxX) + interpolate_maxpos(max, -1., pol*mz[maxZ][maxX-1][maxY], 1., pol*mz[maxZ][maxX+1][maxY])
+	corey = float32(maxY) + interpolate_maxpos(max, -1., pol*mz[maxZ][maxX][maxY-1], 1., pol*mz[maxZ][maxX][maxY+1])
+
+  // and express in length units
+	cellsizex, err1 := strconv.Atof(meta["partsize1"]) 
+  cellsizey, err2 := strconv.Atof(meta["partsize2"])
+  cellsizex /=  float(len(mz[0]))
+  cellsizey /=  float(len(mz[0][0]))
+  if err1 != nil{panic(err1)}
+  if err2 != nil{panic(err2)}
+	corex *= float32(cellsizex)
+  corey *= float32(cellsizey)
+
+  // oops, turns out we were transposed all the time
+	corex, corey = corey, corex
+	
+	return
+}
+
+func interpolate_maxpos(f0, d1, f1, d2, f2 float32) float32 {
+	b := (f2 - f1) / (d2 - d1)
+	a := ((f2-f0)/d2 - (f0-f1)/(-d1)) / (d2 - d1)
+	return -b / (2 * a)
+}
+
+const (
+	X = 0
+	Y
+	Z
+)
+
+
+func (m *Main) Draw(infile, outfile string) {
+	t := ReadF(infile)
+	out, err := os.Open(outfile, os.O_CREATE|os.O_WRONLY, 0777)
+	defer out.Close()
+	if err != nil {
+		panic(err)
+	}
+	sim.PNG(out, t)
 }
 
 func (m *Main) Print(fname string) {
@@ -84,45 +138,43 @@ func (m *Main) DrawSlice(fname string, slicepos int) {
 // once over the threshold, it has to be at least 100ps before a new switch is reported.
 // firsttime = time of the first switch
 func (m *Main) SwitchDetect(fname string, threshold float) (nswitch int, firsttime float, ok string) {
-  in, err := os.Open(fname, os.O_RDONLY, 0666)
-  if err != nil {
-    panic(err)
-  }
+	in, err := os.Open(fname, os.O_RDONLY, 0666)
+	if err != nil {
+		panic(err)
+	}
 
-  // discard header
-  header, _ := iotool.ReadLine(in)
-  for strings.HasPrefix(header, "#") {
-    header, _ = iotool.ReadLine(in)
-  }
+	// discard header
+	header, _ := iotool.ReadLine(in)
+	for strings.HasPrefix(header, "#") {
+		header, _ = iotool.ReadLine(in)
+	}
 
-  line, eof := iotool.ReadLine(in)
-  sincelast := 0.
-  for !eof {
-    words := strings.Fields(line)
-//     torquex, _ := strconv.Atof(words[7])
-//     torquey, _ := strconv.Atof(words[8])
-    torquez, _ := strconv.Atof(words[9])
-    time, _ := strconv.Atof(words[0])
+	line, eof := iotool.ReadLine(in)
+	sincelast := 0.
+	for !eof {
+		words := strings.Fields(line)
+		//     torquex, _ := strconv.Atof(words[7])
+		//     torquey, _ := strconv.Atof(words[8])
+		torquez, _ := strconv.Atof(words[9])
+		time, _ := strconv.Atof(words[0])
 
-    
-    
-    if (time-sincelast) > 100e-12 && torquez > threshold{
-      nswitch++
-      if firsttime == 0.{
-        firsttime = time
-      }
-      sincelast = time
-    }
+		if (time-sincelast) > 100e-12 && torquez > threshold {
+			nswitch++
+			if firsttime == 0. {
+				firsttime = time
+			}
+			sincelast = time
+		}
 
-    line, eof = iotool.ReadLine(in)
-  }
+		line, eof = iotool.ReadLine(in)
+	}
 
-  if nswitch > 0{
-    ok = "#yes"
-  }else{
-    ok = "#no"
-  }
-  return
+	if nswitch > 0 {
+		ok = "#yes"
+	} else {
+		ok = "#no"
+	}
+	return
 }
 
 
