@@ -41,7 +41,7 @@ func (m *Main) Recover(value string) {
 // Finds vortex core position in file.
 // pol = 1 : up
 // pol = -1: down
-func (m *Main) CorePos(fname string, pol float32) (corex, corey float32) {
+func (m *Main) CorePos(fname string, pol float32) (corex, corey float32, time float64) {
 	mag, meta := ReadMetaF(fname)
 	mz := ToT4(mag).TArray[Z]
 
@@ -75,7 +75,11 @@ func (m *Main) CorePos(fname string, pol float32) (corex, corey float32) {
 
   // oops, turns out we were transposed all the time
 	corex, corey = corey, corex
-	
+
+	// set time as well
+  var err3 os.Error
+  time, err3 = strconv.Atof64(meta["time"])
+  if err3!= nil{panic(err3)}
 	return
 }
 
