@@ -6,10 +6,10 @@ all:
 	gomake install -C iotool
 	gomake install -C tensor
 	gomake install -C refsh
-	ln -s $(SIMROOT)/lib/libcpukern.so sim/
-	ln -s $(SIMROOT)/lib/libgpukern.so sim/
-	ln -s $(SIMROOT)/lib/libcpukern.a sim/
-	ln -s $(SIMROOT)/lib/libgpukern.a sim/
+	cp -f ../../lib/libcpukern.so sim/
+	cp -f ../../lib/libgpukern.so sim/
+# 	ln -sf $(SIMROOT)/lib/libcpukern.a sim/
+# 	ln -sf $(SIMROOT)/lib/libgpukern.a sim/
 
 	gomake install -C sim
 
