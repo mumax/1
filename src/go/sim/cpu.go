@@ -7,7 +7,7 @@
 package sim
 
 /*
-#include "cpukern.h"
+#include "../../cpukern/cpukern.h"
 */
 import "C"
 import "unsafe"

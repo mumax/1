@@ -7,8 +7,8 @@
 package sim
 
 /*
-#include "gpukern.h"
-#include "timer.h"
+#include "../../gpukern/gpukern.h"
+#include "../../timer.h"
 */
 import "C"
 import "unsafe"

@@ -3,35 +3,35 @@
 include ../../common.mk
 
 all:
-	make install -C iotool
-	make install -C tensor
-	make install -C refsh
+	gomake install -C iotool
+	gomake install -C tensor
+	gomake install -C refsh
 	ln -s $(SIMROOT)/lib/libcpukern.so sim/
 	ln -s $(SIMROOT)/lib/libgpukern.so sim/
 	ln -s $(SIMROOT)/lib/libcpukern.a sim/
 	ln -s $(SIMROOT)/lib/libgpukern.a sim/
 
-	make install -C sim
+	gomake install -C sim
 
-	make -C outtools
+	gomake -C outtools
 # 	make -C tensor-main
 # 	make -C kernel-main
 # 	make -C config-main
 # 	make -C draw
-	make -C main
+	gomake -C main
 
 .PHONY: clean
 clean:
-	make clean -C iotool
-	make clean -C tensor
-	make clean -C sim
-	make clean -C refsh
+	gomake clean -C iotool
+	gomake clean -C tensor
+	gomake clean -C sim
+	gomake clean -C refsh
 
-	make clean -C outtools
-	make clean -C tensor-main
-	make clean -C config-main
-	make clean -C draw
-	make clean -C main
+	gomake clean -C outtools
+	gomake clean -C tensor-main
+	gomake clean -C config-main
+	gomake clean -C draw
+	gomake clean -C main
 
 	rm -f $(GOROOT)/pkg/$(GOOS)_$(GOARCH)/sim.a
 	rm -f $(GOROOT)/pkg/$(GOOS)_$(GOARCH)/cgo_sim.so
@@ -39,8 +39,8 @@ clean:
 
 
 test:	all
-	make test -C tensor2
-	make test -C tensor
-	make test -C sim
+	gomake test -C tensor2
+	gomake test -C tensor
+	gomake test -C sim
 
 
