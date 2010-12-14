@@ -1,5 +1,5 @@
 # todo: we need to express the depencies between the packages
-
+LD_LIBRARY_PATH+=.
 include ../../common.mk
 
 all:

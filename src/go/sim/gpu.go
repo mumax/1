@@ -8,7 +8,6 @@ package sim
 
 /*
 #include "../../gpukern/gpukern.h"
-#include "../../timer.h"
 */
 import "C"
 import "unsafe"
@@ -213,5 +212,5 @@ func (d Gpu) String() string {
 }
 
 func (d Gpu) TimerPrintDetail() {
-	C.timer_printdetail()
+	//C.timer_printdetail()
 }

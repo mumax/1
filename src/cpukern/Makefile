@@ -1,6 +1,7 @@
 include ../../common.mk
 FFTWLIBS=$(CURDIR)/../../lib/fftw/lib/libfftw3f_threads.a $(CURDIR)/../../lib/fftw/lib/libfftw3f.a
 OMPFLAGS= -fopenmp
+CFLAGS+=-I../../lib/fftw/include/
 
 OFILES=\
 	cpu_properties.o\

@@ -54,9 +54,12 @@ GOFILES=\
 	resample.go\
 	error.go\
 	wisdom.go\
-	
+
+CGO_CFLAGS+=-I../../../lib/fftw/include/ -I/usr/local/cuda/include/
+
+
 # When installing, these libraries must be present (at least symlinked) in the current directory
-CGO_LDFLAGS+=libgpukern.so libcpukern.so
+#CGO_LDFLAGS+=-L../../../lib libgpukern.so libcpukern.so 
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a $(PKGDIR)/cgo_$(TARG).so 
 	
