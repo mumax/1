@@ -52,7 +52,7 @@ func (m *Main) CoreSpeed(dirname string, pol float32) {
 	var prevtime float64
 
 	for _, info := range fileinfo {
-		file := info.Name
+		file := dirname + "/" + info.Name
 		if strings.HasSuffix(file, ".tensor") {
 			corex, corey, time := m.CorePos(file, pol)
 			if !first {
