@@ -8,8 +8,6 @@ all:
 	gomake install -C refsh
 	cp -f ../../lib/libcpukern.so sim/
 	cp -f ../../lib/libgpukern.so sim/
-# 	ln -sf $(SIMROOT)/lib/libcpukern.a sim/
-# 	ln -sf $(SIMROOT)/lib/libgpukern.a sim/
 
 	gomake install -C sim
 

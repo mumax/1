@@ -6,4 +6,3 @@ all:
 .PHONY: clean
 clean:
 	make clean -C fftw
-	./clean-go.bash
