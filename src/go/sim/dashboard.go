@@ -13,10 +13,10 @@ import (
 )
 
 var (
-	lastDashUpdate       int64 = 0
-	UpdateDashboardEvery int64 = 25 * 1000 * 1000 // in ns
-	dashboardNeedsUp     bool  = false
-	dashstart            int64 = 0
+	lastDashUpdate       int64   = 0
+	UpdateDashboardEvery int64   = 25 * 1000 * 1000 // in ns
+	dashboardNeedsUp     bool    = false
+	dashstart            int64   = 0
 )
 
 func updateDashboard(sim *Sim) {

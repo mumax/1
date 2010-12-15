@@ -9,6 +9,7 @@ package sim
 import (
 	"fmt"
 	"math"
+	clock "time"
 )
 
 // This file implements the methods for time stepping
@@ -22,6 +23,11 @@ func (s *Sim) Run(time float64) {
 	s.Normalize(s.mDev)
 	s.mUpToDate = false
 
+  // re-initialize benchmark data
+  s.lastrunSteps = s.steps
+  s.lastrunWalltime = clock.Nanoseconds()
+  s.lastrunSimtime = s.time
+  
 	for s.time < stop {
 
 		// save output if so scheduled
@@ -38,7 +44,6 @@ func (s *Sim) Run(time float64) {
 		updateDashboard(s)
 
 		// step
-		// 		s.Start("Step")
 		s.Step()
 		s.steps++
 		s.time += float64(s.dt)
@@ -47,11 +52,15 @@ func (s *Sim) Run(time float64) {
 		if math.IsNaN(s.time) || math.IsInf(s.time, 0) {
 			panic("Time step = " + fmt.Sprint(s.dt))
 		}
-
-		// 		s.Stop("Step")
-
 	}
-	// 	s.PrintTimer(os.Stdout)
+
+	// update benchmark data
+  runtime := float64(clock.Nanoseconds() - s.lastrunWalltime) / 1e9 // time of last run in seconds
+  runsteps := s.steps - s.lastrunSteps
+  simtime := (s.time - s.lastrunSimtime) * float64(s.UnitTime())
+  s.LastrunStepsPerSecond = float64(runsteps) / runtime
+  s.LastrunSimtimePerSecond = simtime / runtime
+  
 	//does not invalidate
 }
 

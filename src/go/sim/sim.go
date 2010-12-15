@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"os"
 	"rand"
+	"bufio"
 )
 
 const (
@@ -112,6 +113,14 @@ type Sim struct {
 	normLocal *tensor.T3   // local copy of devNorm
 	edgeCorr  int          // 0: no edge correction, >0: 2^edgecorr cell subsampling for edge corrections
 	edgeKern  []*DevTensor // Per-cell self-kernel used for edge corrections (could also store some anisotropy types)
+
+	// Benchmark info
+  lastrunSteps  int
+  lastrunWalltime int64
+  lastrunSimtime float64
+  
+  LastrunStepsPerSecond float64
+  LastrunSimtimePerSecond float64
 }
 
 
@@ -359,4 +368,18 @@ func (sim *Sim) Normalize(m *DevTensor) {
 		assert(sim.normMap.size[0] == m.size[1] && sim.normMap.size[1] == m.size[2] && sim.normMap.size[2] == m.size[3])
 		sim.normalizeMap(m.data, sim.normMap.data, N)
 	}
+}
+
+// Appends some benchmarking information to a file:
+// sizeX, sizeY, sizeZ, totalSize, stpesPerSecond, simtimePerRealtime, #solvertype
+func (sim *Sim) SaveBenchmark(filename string) {
+	out, err := os.Open(filename, os.O_WRONLY|os.O_APPEND, 0666)
+	defer out.Close()
+	if err != nil {
+		panic(err)
+	}
+	out2 := bufio.NewWriter(out)
+	defer out2.Flush()
+	fmt.Fprint(out2, sim.size[X], "\t", sim.size[Y], "\t", sim.size[Z], "\t", sim.size[X]*sim.size[Y]*sim.size[Z], "\t")
+	fmt.Fprintln(out2, sim.LastrunStepsPerSecond, "\t", sim.LastrunSimtimePerSecond , "\t# ", sim.input.solvertype)
 }
