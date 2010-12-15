@@ -6,7 +6,8 @@ CLEANFILES+=*.t *.png *.jpg
 main:	*.go
 	$(GC) -I_obj *.go
 	$(LD) -L_obj -o $@ *.$O
-	ln -sf $(CURDIR)/main $(CURDIR)/../../../bin/simulate
+	cp -f $(CURDIR)/main $(CURDIR)/../../../bin/mumax-sim
+	cp -f $(GOROOT)/pkg/$(GOOS)_$(GOARCH)/cgo_sim.so ../../../lib
 
 .PHONY:	clean
 clean:
