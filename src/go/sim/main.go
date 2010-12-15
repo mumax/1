@@ -145,8 +145,8 @@ func main_master() {
 			down()
 			down()
 
-			sim.TimerPrintDetail()
-			sim.PrintTimer(os.Stdout)
+			//sim.TimerPrintDetail()
+			//sim.PrintTimer(os.Stdout)
 		}
 
 		// TODO need to free sim

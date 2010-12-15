@@ -27,7 +27,7 @@ const (
 )
 
 // shell command to start child simulation processes
-const SIMCOMMAND = "bin/simulate"
+const SIMCOMMAND = "bin/mumax"
 
 // start time
 var DAEMON_STARTTIME int64 = time.Nanoseconds()

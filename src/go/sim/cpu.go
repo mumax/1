@@ -283,5 +283,4 @@ func (d Cpu) String() string {
 
 func (d Cpu) TimerPrintDetail() {
 	//C.timer_printdetail()
-	fmt.Println("meh...")
 }
