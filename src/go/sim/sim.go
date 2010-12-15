@@ -373,13 +373,18 @@ func (sim *Sim) Normalize(m *DevTensor) {
 // Appends some benchmarking information to a file:
 // sizeX, sizeY, sizeZ, totalSize, stpesPerSecond, simtimePerRealtime, #solvertype
 func (sim *Sim) SaveBenchmark(filename string) {
-	out, err := os.Open(filename, os.O_WRONLY|os.O_APPEND, 0666)
+  needheader := !fileExists(filename)
+	out, err := os.Open(filename, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	defer out.Close()
 	if err != nil {
 		panic(err)
 	}
 	out2 := bufio.NewWriter(out)
 	defer out2.Flush()
-	fmt.Fprint(out2, sim.size[X], "\t", sim.size[Y], "\t", sim.size[Z], "\t", sim.size[X]*sim.size[Y]*sim.size[Z], "\t")
-	fmt.Fprintln(out2, sim.LastrunStepsPerSecond, "\t", sim.LastrunSimtimePerSecond , "\t# ", sim.input.solvertype)
+	if needheader{
+    fmt.Fprintln(out2, "# Benchmark info")
+    fmt.Fprintln(out2, "# size_x\tsize_y\tsize_z\ttotal_size\tsteps_per_second\tsimulated_time/wall_time\t#solver_type\tdevice")
+  }
+	fmt.Fprint(out2, sim.size[Z], "\t", sim.size[Y], "\t", sim.size[X], "\t", sim.size[X]*sim.size[Y]*sim.size[Z], "\t")
+	fmt.Fprintln(out2, sim.LastrunStepsPerSecond, "\t", sim.LastrunSimtimePerSecond , "\t# ", sim.input.solvertype, "\t", sim.Backend.String())
 }
