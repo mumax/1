@@ -18,7 +18,7 @@ partsize   	    500E-9  125E-9  3E-9
 uniform         1 1 0
 
 #relax
-alpha2
+alpha 2
 run 5e-9
 
 
