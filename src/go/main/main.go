@@ -8,11 +8,23 @@ package main
 
 import (
 	"sim"
+	"fmt"
 )
 
 // Wrapper for sim.Main.
 // This is a bit silly but sim.Main() is in package sim (not package main)
 // so it cannot be compiled to an executable directly.
 func main() {
+  fmt.Println(WELCOME)
 	sim.Main()
 }
+
+
+const WELCOME = `
+  MuMax 0.4.1514
+  (c) Arne Vansteenkiste & Ben Van de Wiele,
+      DyNaMat/EELAB UGent
+  This version is meant for internal testing purposes only,
+  please contact the authors if you like to distribute this program.
+  
+`

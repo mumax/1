@@ -1,4 +1,4 @@
-size_x	size_y	size_z	total_size	steps_per_second	simulated_time/wall_time	#solver_type	device
-128	32	1	4096	503.82066478201517 	 2.969619675585595e-10 	#  rk23 	 GPU
-128	32	1	4096	503.8151304263666 	 2.969587054987484e-10 	#  rk23 	 GPU
-128	32	1	4096	517.834785376248 	 3.052221702778483e-10 	#  rk23 	 GPU
+# Benchmark info
+# size_x	size_y	size_z	total_size	steps_per_second	simulated_time/wall_time	#solver_type	device
+128	32	1	4096	493.99060573669516 	 2.911679343253691e-10 	#  rk23 	 GPU
+128	32	1	4096	70.8160611998006 	 4.1840535597725744e-11 	#  rk23 	 CPU
