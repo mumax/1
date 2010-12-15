@@ -18,16 +18,16 @@ OFILES=\
 	cpu_fft.o\
 ### change to cpu_fft1.o when ready 
 
-all: libcpukern.so libcpukern.a
+all: libcpukern.so
 
 libcpukern.so: $(OFILES)
 	$(CPP) -shared $(CFLAGS) $(OMPFLAGS) $(OFILES) $(FFTWLIBS) -Wl,-soname,libcpukern.so -o libcpukern.so
-	ln -sf $(CURDIR)/libcpukern.so $(CURDIR)/../../lib/libcpukern.so
+	cp -f $(CURDIR)/libcpukern.so $(CURDIR)/../../lib/libcpukern.so
 	
 
 libcpukern.a:	$(OFILES)
 	ar rcs libcpukern.a $(OFILES) $(FFTWLIBS)
-	ln -sf $(CURDIR)/libcpukern.a $(CURDIR)/../../lib
+# 	ln -sf $(CURDIR)/libcpukern.a $(CURDIR)/../../lib
 
 cpu_properties.o:  cpu_properties.h cpu_properties.cpp                                                
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_properties.cpp

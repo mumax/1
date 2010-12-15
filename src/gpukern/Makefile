@@ -22,15 +22,15 @@ OFILES=\
 	gpu_spintorque.o\
 	gpu_anis.o\
 
-all: libgpukern.so libgpukern.a
+all: libgpukern.so
 
 libgpukern.so: $(OFILES)
 	$(NVCC) -shared $(NVCCFLAGS) $(OFILES) $(CUDALIBS) $(L) -o libgpukern.so
-	ln -sf $(CURDIR)/libgpukern.so $(CURDIR)/../../lib
+	cp -f $(CURDIR)/libgpukern.so $(CURDIR)/../../lib
 
 libgpukern.a:	$(OFILES)
 	ar rcs libgpukern.a $(OFILES)
-	ln -sf $(CURDIR)/libgpukern.a $(CURDIR)/../../lib
+# 	ln -sf $(CURDIR)/libgpukern.a $(CURDIR)/../../lib
 
 timer.o:  timer.h timer.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) timer.cpp
