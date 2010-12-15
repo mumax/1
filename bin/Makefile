@@ -3,5 +3,4 @@ all:
 
 .PHONY:	clean
 clean:
-	rm -rf *.so *.a setenv go/* config draw kernel tensor
-	touch go/~place-holder~
+	rm -rf mumax mumax-sim
