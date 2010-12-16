@@ -14,6 +14,7 @@ import (
 	"os"
 	"rand"
 	"bufio"
+	"sync"
 )
 
 const (
@@ -74,6 +75,7 @@ type Sim struct {
 	size3D    []int      //simulation grid size (without 3 as first element)
 	h         *DevTensor // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
 	mLocal    *tensor.T4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
+	mLocalLock sync.RWMutex
 	mUpToDate bool       // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
 	Conv                 // Convolution plan for the magnetostatic field
 	wisdomdir string     // Absolute path of the kernel wisdom root directory
