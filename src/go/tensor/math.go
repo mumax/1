@@ -19,5 +19,5 @@ func MinMax(t Interface) (min, max float32) {
 			max = val
 		}
 	}
-	return 
+	return
 }

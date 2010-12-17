@@ -71,14 +71,15 @@ type Sim struct {
 	valid     bool  // false when an init() is needed, e.g. when the input parameters have changed and do not correspond to the simulation anymore
 	BeenValid bool  // true if the sim has been valid at some point. used for idiot-proof input file handling (i.e. no "run" commands)
 
-	mDev      *DevTensor // magnetization on the device (GPU), 4D tensor
-	size3D    []int      //simulation grid size (without 3 as first element)
-	hDev      *DevTensor // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
-	mLocal    *tensor.T4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
-	mLocalLock sync.RWMutex
-	mUpToDate bool       // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
-	Conv                 // Convolution plan for the magnetostatic field
-	wisdomdir string     // Absolute path of the kernel wisdom root directory
+	mDev           *DevTensor // magnetization on the device (GPU), 4D tensor
+	size3D         []int      //simulation grid size (without 3 as first element)
+	hDev           *DevTensor // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
+	mLocal, hLocal *tensor.T4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
+	mLocalLock     sync.RWMutex
+	mUpToDate      bool // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
+
+	Conv             // Convolution plan for the magnetostatic field
+	wisdomdir string // Absolute path of the kernel wisdom root directory
 
 	Material // Stores material parameters and manages the internal units
 	Mesh     // Stores the size of the simulation grid
@@ -117,12 +118,12 @@ type Sim struct {
 	edgeKern  []*DevTensor // Per-cell self-kernel used for edge corrections (could also store some anisotropy types)
 
 	// Benchmark info
-  lastrunSteps  int
-  lastrunWalltime int64
-  lastrunSimtime float64
-  
-  LastrunStepsPerSecond float64
-  LastrunSimtimePerSecond float64
+	lastrunSteps    int
+	lastrunWalltime int64
+	lastrunSimtime  float64
+
+	LastrunStepsPerSecond   float64
+	LastrunSimtimePerSecond float64
 }
 
 
@@ -242,6 +243,10 @@ func (s *Sim) initMLocal() {
 		s.Println("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
 		s.Println("Allocating local memory " + fmt.Sprint(s.size4D))
 		s.mLocal = tensor.NewT4(s.size4D[0:])
+	}
+
+	if s.hLocal == nil {
+		s.hLocal = tensor.NewT4(s.size4D[0:])
 	}
 
 	if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
@@ -375,7 +380,7 @@ func (sim *Sim) Normalize(m *DevTensor) {
 // Appends some benchmarking information to a file:
 // sizeX, sizeY, sizeZ, totalSize, stpesPerSecond, simtimePerRealtime, #solvertype
 func (sim *Sim) SaveBenchmark(filename string) {
-  needheader := !fileExists(filename)
+	needheader := !fileExists(filename)
 	out, err := os.Open(filename, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	defer out.Close()
 	if err != nil {
@@ -383,10 +388,10 @@ func (sim *Sim) SaveBenchmark(filename string) {
 	}
 	out2 := bufio.NewWriter(out)
 	defer out2.Flush()
-	if needheader{
-    fmt.Fprintln(out2, "# Benchmark info")
-    fmt.Fprintln(out2, "# size_x\tsize_y\tsize_z\ttotal_size\tsteps_per_second\tsimulated_time/wall_time\t#solver_type\tdevice")
-  }
+	if needheader {
+		fmt.Fprintln(out2, "# Benchmark info")
+		fmt.Fprintln(out2, "# size_x\tsize_y\tsize_z\ttotal_size\tsteps_per_second\tsimulated_time/wall_time\t#solver_type\tdevice")
+	}
 	fmt.Fprint(out2, sim.size[Z], "\t", sim.size[Y], "\t", sim.size[X], "\t", sim.size[X]*sim.size[Y]*sim.size[Z], "\t")
-	fmt.Fprintln(out2, sim.LastrunStepsPerSecond, "\t", sim.LastrunSimtimePerSecond , "\t# ", sim.input.solvertype, "\t", sim.Backend.String())
+	fmt.Fprintln(out2, sim.LastrunStepsPerSecond, "\t", sim.LastrunSimtimePerSecond, "\t# ", sim.input.solvertype, "\t", sim.Backend.String())
 }

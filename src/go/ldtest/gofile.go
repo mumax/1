@@ -1,5 +1,5 @@
 package mypack
 
-func Hello(){
-  hello()
+func Hello() {
+	hello()
 }

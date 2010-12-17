@@ -15,7 +15,7 @@ import (
 // This is a bit silly but sim.Main() is in package sim (not package main)
 // so it cannot be compiled to an executable directly.
 func main() {
-  fmt.Println(WELCOME)
+	fmt.Println(WELCOME)
 	sim.Main()
 }
 

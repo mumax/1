@@ -1,9 +1,7 @@
-
-
 package main
 
 import (
- "mypack"
+	"mypack"
 )
 
 

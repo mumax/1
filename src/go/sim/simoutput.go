@@ -92,7 +92,7 @@ func (p *Periodic) SetInterval(interval float32) {
 func resolve(what, format string) Output {
 	switch what {
 	default:
-		panic("unknown output quantity " + what + ". options are: m, table")
+		panic("unknown output quantity " + what + ". options are: m, torque, table")
 	case "m":
 		switch format {
 		default:
@@ -104,6 +104,14 @@ func resolve(what, format string) Output {
 		case "png":
 			return &MPng{&Periodic{0., 0.}}
 		}
+	case "torque":
+		switch format {
+		default:
+			panic("unknown format " + format + ". options are: binary, ascii, png")
+		case "binary":
+			return &TorqueBinary{&Periodic{0., 0.}}
+		}
+
 	case "table":
 		//format gets ignored for now
 		return &Table{&Periodic{0., 0.}, nil}
@@ -228,6 +236,22 @@ func (m *MBinary) Save(s *Sim) {
 	out := fopen(fname)
 	defer out.Close()
 	tensor.WriteMetaTensorBinary(out, s.mLocal, s.metadata)
+	m.sinceoutput = float32(s.time) * s.UnitTime()
+}
+
+
+// INTERNAL
+type TorqueBinary struct {
+	*Periodic
+}
+
+// TODO: quick and dirty for the moment
+func (m *TorqueBinary) Save(s *Sim) {
+	fname := s.outputdir + "/" + "torque" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
+	out := fopen(fname)
+	defer out.Close()
+	TensorCopyFrom(s.hDev, s.hLocal) //!
+	tensor.WriteMetaTensorBinary(out, s.hLocal, s.metadata)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 

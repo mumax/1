@@ -5,6 +5,6 @@ package mypack
 */
 import "C"
 
-func hello(){
-  C.c_hello()
+func hello() {
+	C.c_hello()
 }

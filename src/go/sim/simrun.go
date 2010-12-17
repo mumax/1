@@ -23,11 +23,11 @@ func (s *Sim) Run(time float64) {
 	s.Normalize(s.mDev)
 	s.mUpToDate = false
 
-  // re-initialize benchmark data
-  s.lastrunSteps = s.steps
-  s.lastrunWalltime = clock.Nanoseconds()
-  s.lastrunSimtime = s.time
-  
+	// re-initialize benchmark data
+	s.lastrunSteps = s.steps
+	s.lastrunWalltime = clock.Nanoseconds()
+	s.lastrunSimtime = s.time
+
 	for s.time < stop {
 
 		// save output if so scheduled
@@ -55,12 +55,12 @@ func (s *Sim) Run(time float64) {
 	}
 
 	// update benchmark data
-  runtime := float64(clock.Nanoseconds() - s.lastrunWalltime) / 1e9 // time of last run in seconds
-  runsteps := s.steps - s.lastrunSteps
-  simtime := (s.time - s.lastrunSimtime) * float64(s.UnitTime())
-  s.LastrunStepsPerSecond = float64(runsteps) / runtime
-  s.LastrunSimtimePerSecond = simtime / runtime
-  
+	runtime := float64(clock.Nanoseconds()-s.lastrunWalltime) / 1e9 // time of last run in seconds
+	runsteps := s.steps - s.lastrunSteps
+	simtime := (s.time - s.lastrunSimtime) * float64(s.UnitTime())
+	s.LastrunStepsPerSecond = float64(runsteps) / runtime
+	s.LastrunSimtimePerSecond = simtime / runtime
+
 	//does not invalidate
 }
 
