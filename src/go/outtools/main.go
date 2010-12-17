@@ -40,6 +40,73 @@ func (m *Main) Recover(value string) {
 }
 
 
+func (m *Main) Gyrofield(dirname string, pol int){
+// loop over all files in the directory
+  fileinfo, err := ioutil.ReadDir(dirname)
+  if err != nil {
+    panic(err)
+  }
+  
+  var prev, prev2 *T4
+  var prevT, prev2T float64
+  
+  for _, info := range fileinfo {
+    file := dirname + "/" + info.Name
+    if strings.HasSuffix(file, ".tensor") {
+      mag, meta := ReadMetaF(file)
+      time, err2 := strconv.Atof64(meta["time"])
+      if err2 != nil{panic(err2)}
+      curr := ToT4(mag)
+
+      if prev2 != nil{
+        WriteF("gyrofield_" + file, gyrofield(prev2, prev, curr, time - prev2T, pol))
+      }
+
+      prev, prev2 = curr, prev
+      prevT, prev2T = time, prevT
+    }
+  }
+}
+
+// hz = -1/gamma  (m x dm/dt)_z / (mz + p)²
+func gyrofield(m0, m1, m2 *T4, dt float64, pol int) *T3{
+  m0L, _, m2L := m0.TList, m1.TList, m2.TList
+
+  dm := NewT4(m0.Size())
+  dmL := dm.TList
+  
+  for i := range dmL{
+    dmL[i] = (m2L[i] - m0L[i]) / float32(dt)
+  }
+
+  mxA, myA, mzA := m1.TArray[X], m1.TArray[Y], m1.TArray[Z]
+  dmxA, dmyA, dmzA := dm.TArray[X], dm.TArray[Y], dm.TArray[Z]
+
+  gyro := NewT3(m0.Size()[1:])
+  
+  for i := range mxA{
+    for j := range mxA[i]{
+      for k := range mxA[i][j]{
+        mx, my, mz := mxA[i][j][k], myA[i][j][k], mzA[i][j][k]
+        dmx, dmy, _ := dmxA[i][j][k], dmyA[i][j][k], dmzA[i][j][k]
+
+        mxdmz := mx * dmy - dmx * my
+
+        gyro.TArray[i][j][k] = -(1./gamma0) * (mxdmz / sqr(mz + float32(pol)))
+      }
+    }
+  }
+
+  return gyro
+}
+
+func sqr(a float32) float32{
+  return a*a
+}
+
+const gamma0 = 2.211e5
+
+
 func (m *Main) CoreSpeed(dirname string, pol float32) {
 	// loop over all files in the directory
 	fileinfo, err := ioutil.ReadDir(dirname)
