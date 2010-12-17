@@ -230,7 +230,7 @@ func (rk *RK) init(sim *Sim, order int) {
 	// therefore, h is "recycled" and used as k[0] to save memory.
 	// Extra bonus: hDev now gets updated with (even accurate) values
 	// of h/torque, so those can now also be outputted by sim.
-	rk.k[0] = sim.h
+	rk.k[0] = sim.hDev
 	for i := 1; i < rk.stages; i++ {
 		rk.k[i] = NewTensor(sim.Backend, sim.mDev.size)
 	}

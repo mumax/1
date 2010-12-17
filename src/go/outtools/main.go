@@ -92,7 +92,7 @@ func gyrofield(m0, m1, m2 *T4, dt float64, pol int) *T3{
 
         mxdmz := mx * dmy - dmx * my
 
-//         gyro.TArray[i][j][k] = (mxdmz / sqr(mz + float32(pol)))
+        gyro.TArray[i][j][k] = (mxdmz / sqr(mz + float32(pol)))
         gyro.TArray[i][j][k] = dmx//(mxdmz / sqr(mz + float32(pol)))
 
 

@@ -23,8 +23,8 @@ func NewSemiAnal1(sim *Sim) *SemiAnal1 {
 
 func (s *SemiAnal1) Step() {
 	m := s.mDev
-	s.calcHeff(m, s.h)
-	s.semianalStep(m.data, s.h.data, s.dt, s.alpha, 0, m.length/3)
+	s.calcHeff(m, s.hDev)
+	s.semianalStep(m.data, s.hDev.data, s.dt, s.alpha, 0, m.length/3)
 	s.Normalize(m)
 }
 
