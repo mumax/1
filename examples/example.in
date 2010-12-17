@@ -1,8 +1,9 @@
 # MuMax example file
 #
+# The contents of an input file are case-insensitive.
 # Lines starting with a '#', like this line, are comments.
 # They are ignored by mumax.
-
+#
 
 # (1) Material parameters
 # _______________________
@@ -21,14 +22,43 @@ alpha      	0.02
 # (2) Geometry
 # ____________
 
+# To define the geometry, you must specify exactly 2 out of these 3 statements:
+#
+# gridsize Nx Ny Nz          # defines the number of FD cells
+# partsize SizeX SizeY SizeZ # defines the total magnet size, in meters
+# cellsize SizeX SizeY SizeZ # defines the size of each FD cell, in meters
+#
+# When 2 of these sizes are specified, the 3d one is caluclated automatically.
+# It is most usual to define the partsize and gridsize, and have the cellsize be calculated automatically.
+#
+# Note: the gridsize should preferably contain highly factorable numbers,
+# like powers of 2 or small multiples of powers of two.
+# E.g.: a 128 x 256 x 4 gridsize will run much, much faster than a 101 x 223 x 3 grid.
+#
+# Note: For 2D simulations, use Nx x Ny x 1, not 1 x Nx x Ny
 #
 
 gridsize       	128 	  32 	    1    
 partsize   	    500E-9  125E-9  3E-9
 
 
-# initial magnetization
-uniform         1 1 0
+# (3) Initial magnetization
+# _________________________
+
+# There are several commands to set the initial magnetization:
+# A previously stored magnetization state can be loaded with "loadm filename":
+#
+# loadm myfile.tensor
+#
+# Also, there are a few pre-defined configurations available:
+#
+# uniform   mx my mz  # sets a uniform state, e.g.: uniform 1 0 0
+# vortex    circ pol  # sets a vortex state with given circulation and polarization, e.g.: vortex 1 -1
+#
+# Finally, an existing magnetization can be changed as follows:
+#
+# addnoise  amplitude # adds random noise to break the symmetry, e.g.: addnoise 0.01
+# 
 
 #relax
 alpha 2
