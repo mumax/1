@@ -7,16 +7,13 @@ all:
 	gomake install -C iotool
 	gomake install -C tensor
 	gomake install -C refsh
+	gomake install -C draw
 	cp -f ../../lib/libcpukern.so sim/
 	cp -f ../../lib/libgpukern.so sim/
 
 	gomake install -C sim
 
 	gomake -C outtools
-# 	make -C tensor-main
-# 	make -C kernel-main
-# 	make -C config-main
-# 	make -C draw
 	gomake -C main
 
 .PHONY: clean
