@@ -47,56 +47,33 @@ func (m *Main) Gyrofield(dirname string, pol int) {
 		panic(err)
 	}
 
-	var prev, prev2 *T4
-	var prevT, prev2T float64
-
 	for _, info := range fileinfo {
-		file := dirname + "/" + info.Name
-		if strings.HasSuffix(file, ".tensor") {
-			mag, meta := ReadMetaF(file)
-			time, err2 := strconv.Atof64(meta["time"])
-			if err2 != nil {
-				panic(err2)
-			}
-			curr := ToT4(mag)
-
-			if prev2 != nil {
-				WriteF(dirname+"/"+"gyrofield_"+info.Name, gyrofield(prev2, prev, curr, time-prev2T, pol))
-			}
-
-			prev, prev2 = curr, prev
-			prevT, prev2T = time, prevT
+		mfile := dirname + "/" + info.Name
+		if strings.HasPrefix(info.Name, "m") && strings.HasSuffix(mfile, ".tensor") {
+      hfile := dirname + "/torque" + info.Name[1:]
+			m := ToT4(ReadF(mfile))
+			torque := ToT4(ReadF(hfile))
+			
+      WriteF(dirname+"/"+"gyrofield_"+info.Name, gyrofield(m, torque, pol))
 		}
 	}
 }
 
 // hz = -1/gamma  (m x dm/dt)_z / (mz + p)²
-func gyrofield(m0, m1, m2 *T4, dt float64, pol int) *T3 {
-	m0L, _, m2L := m0.TList, m1.TList, m2.TList
+func gyrofield(m, torque *T4, pol int) *T3 {
 
-	dm := NewT4(m0.Size())
-	dmL := dm.TList
+	mx, my, mz := m.TArray[X], m.TArray[Y], m.TArray[Z]
+	tx, ty, _ := torque.TArray[X], torque.TArray[Y], torque.TArray[Z]
 
-	for i := range dmL {
-		dmL[i] = (m2L[i] - m0L[i]) // / float32(dt)
-	}
+	gyro := NewT3(m.Size()[1:])
 
-	mxA, myA, mzA := m1.TArray[X], m1.TArray[Y], m1.TArray[Z]
-	dmxA, dmyA, dmzA := dm.TArray[X], dm.TArray[Y], dm.TArray[Z]
+	for i := range mx {
+		for j := range mx[i] {
+			for k := range mx[i][j] {
 
-	gyro := NewT3(m0.Size()[1:])
+				mxdmz := mx[i][j][k]*ty[i][j][k] - tx[i][j][k]*my[i][j][k]
 
-	for i := range mxA {
-		for j := range mxA[i] {
-			for k := range mxA[i][j] {
-				mx, my, mz := mxA[i][j][k], myA[i][j][k], mzA[i][j][k]
-				dmx, dmy, _ := dmxA[i][j][k], dmyA[i][j][k], dmzA[i][j][k]
-
-				mxdmz := mx*dmy - dmx*my
-
-				gyro.TArray[i][j][k] = (mxdmz / sqr(mz+float32(pol)))
-				gyro.TArray[i][j][k] = dmx //(mxdmz / sqr(mz + float32(pol)))
-
+				gyro.TArray[i][j][k] = -mxdmz / sqr(mz[i][j][k]+float32(pol))
 
 			}
 		}
