@@ -11,6 +11,7 @@ GOFILES=\
 	vector.go\
 	input.go\
 	output.go\
+	math.go\
 	legacyio.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a

@@ -92,11 +92,9 @@ func gyrofield(m0, m1, m2 *T4, dt float64, pol int) *T3{
 
         mxdmz := mx * dmy - dmx * my
 
-        gyro.TArray[i][j][k] = -(1./gamma0) * (mxdmz / sqr(mz + float32(pol)))
+        gyro.TArray[i][j][k] = (mxdmz / sqr(mz + float32(pol)))
 
-        gyro.TArray[i][j][k] = dmx
 
-        
       }
     }
   }
@@ -200,8 +198,8 @@ func interpolate_maxpos(f0, d1, f1, d2, f2 float32) float32 {
 
 const (
 	X = 0
-	Y
-	Z
+	Y = 1
+	Z = 2
 )
 
 
