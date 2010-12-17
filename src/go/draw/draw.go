@@ -75,12 +75,12 @@ func DrawTensor3(t *tensor.T3) *NRGBA {
 	for i := 0; i < h; i++ {
 		for j := 0; j < w; j++ {
 			var x float32 = 0.
-			for k := 0; k < t.Size()[1]; k++ {
+			for k := 0; k < t.Size()[0]; k++ {
 				x += arr[k][i][j]
 
 			}
 			x /= float32(t.Size()[0])
-			img.Set(j, (h-1)-i, GreyMap(0., 1., x))
+			img.Set(j, (h-1)-i, GreyMap(-1., 1., x))
 		}
 	}
 	return img

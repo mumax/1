@@ -29,7 +29,7 @@ import (
 	"iotool"
 	"strings"
 	"strconv"
-// 	"sim"
+	"draw"
 	"io/ioutil"
 )
 
@@ -59,7 +59,7 @@ func (m *Main) Gyrofield(dirname string, pol int){
       curr := ToT4(mag)
 
       if prev2 != nil{
-        WriteF("gyrofield_" + file, gyrofield(prev2, prev, curr, time - prev2T, pol))
+        WriteF(dirname + "/" + "gyrofield_" + info.Name, gyrofield(prev2, prev, curr, time - prev2T, pol))
       }
 
       prev, prev2 = curr, prev
@@ -93,6 +93,10 @@ func gyrofield(m0, m1, m2 *T4, dt float64, pol int) *T3{
         mxdmz := mx * dmy - dmx * my
 
         gyro.TArray[i][j][k] = -(1./gamma0) * (mxdmz / sqr(mz + float32(pol)))
+
+        gyro.TArray[i][j][k] = dmx
+
+        
       }
     }
   }
@@ -201,15 +205,16 @@ const (
 )
 
 
-// func (m *Main) Draw(infile, outfile string) {
-// 	t := ReadF(infile)
-// 	out, err := os.Open(outfile, os.O_CREATE|os.O_WRONLY, 0777)
-// 	defer out.Close()
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	sim.PNG(out, t)
-// }
+func (m *Main) Draw(infile, outfile string) {
+	t := ReadF(infile)
+	out, err := os.Open(outfile, os.O_CREATE|os.O_WRONLY, 0777)
+	defer out.Close()
+	if err != nil {
+		panic(err)
+	}
+	draw.PNG(out, t)
+}
+
 
 func (m *Main) Print(fname string) {
 	t := ReadF(fname)
