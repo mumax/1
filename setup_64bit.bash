@@ -1,6 +1,6 @@
 #! /bin/bash
 
-OUTPUT=bin/mumax
+OUTPUT=tmpfile
 echo '#! /bin/bash' > $OUTPUT
 echo 'export SIMROOT='$(pwd) >> $OUTPUT
 
@@ -32,9 +32,15 @@ echo 'export LD_LIBRARY_PATH=$SIMROOT/lib:$LD_LIBRARY_PATH' >> $OUTPUT
 # echo 'export C_INCLUDE_PATH=$SIMROOT/src/gpukern:$SIMROOT/src/cpukern:$C_INCLUDE_PATH' >> $OUTPUT
 # echo 'export CPLUS_INCLUDE_PATH=$SIMROOT/src/gpukern:$SIMROOT/src/cpukern:$CPLUS_INCLUDE_PATH' >> $OUTPUT
 
-echo '$SIMROOT/bin/mumax-sim $@' >> $OUTPUT
+cp $OUTPUT bin/mumax
+echo '$SIMROOT/bin/mumax-sim $@' >> bin/mumax
+chmod u+x bin/mumax
 
-chmod u+x $OUTPUT
+cp $OUTPUT bin/outtools
+echo '$SIMROOT/bin/outtools-bin $@' >> bin/outtools
+chmod u+x bin/outtools
+
+rm -f $OUTPUT
 
 echo You can now run $SIMROOT/bin/mumax to start burning GPU cycles.
 echo Consider adding this line to your .bashrc file:
