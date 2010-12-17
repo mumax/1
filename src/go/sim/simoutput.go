@@ -18,6 +18,7 @@ import (
 	"tensor"
 	"os"
 	"tabwriter"
+	"draw"
 )
 
 
@@ -243,7 +244,7 @@ func (m *MPng) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".png"
 	out := fopen(fname)
 	// 	defer out.Flush()
-	PNG(out, s.mLocal)
+	draw.PNG(out, s.mLocal)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 

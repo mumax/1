@@ -6,8 +6,8 @@ all:
 	cp -f $(GOROOT)/pkg/$(GOOS)_$(GOARCH)/libcgo.so ../../lib
 	gomake install -C iotool
 	gomake install -C tensor
-	gomake install -C refsh
 	gomake install -C draw
+	gomake install -C refsh
 	cp -f ../../lib/libcpukern.so sim/
 	cp -f ../../lib/libgpukern.so sim/
 

@@ -4,7 +4,7 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-package sim
+package draw
 
 import (
 	"tensor"
@@ -201,3 +201,17 @@ func abs(number float32) float32 {
 	} // else
 	return number
 }
+
+
+// crashes if the test is false
+func assert(test bool) {
+	if !test {
+		panic("assertion failed")
+	}
+}
+
+const (
+	X = 0
+	Y
+	Z
+)

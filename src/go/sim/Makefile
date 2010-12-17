@@ -37,7 +37,6 @@ GOFILES=\
 	simoutput.go\
 	simrun.go\
 	simsolver.go\
-	draw.go\
 	remotedevice.go\
 	simserver.go\
 	timer.go\
