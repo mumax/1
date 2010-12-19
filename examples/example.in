@@ -66,7 +66,10 @@ mask  examplemask.png
 #
 # Also, there are a few pre-defined configurations available:
 #
-# uniform   mx my mz  # sets a uniform state, e.g.: uniform 1 0 0
+# uniform   mx my mz  # sets a uniform state, e.g.: 
+
+uniform 1 0 0
+
 # vortex    circ pol  # sets a vortex state with given circulation and polarization, e.g.: vortex 1 -1
 #
 # Finally, an existing magnetization can be changed as follows:
@@ -104,6 +107,7 @@ alpha   0.02
 staticfield 	-24.6E-3     4.3E-3    0 
 
 # Apply electrical current:
+# Note: This is not yet implemented on the CPU, works only on the GPU
 
 xi                  0.05        # Degree of non-adiabaticity
 spinpolarization    0.8         # Degree of spin-polarization
