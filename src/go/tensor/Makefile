@@ -12,6 +12,7 @@ GOFILES=\
 	input.go\
 	output.go\
 	legacyio.go\
+	codec.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 
