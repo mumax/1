@@ -54,11 +54,19 @@ func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
   hdr(out, "xStepSize", cellsize[Z])
   hdr(out, "yStepSize", cellsize[Y])
   hdr(out, "zStepSize", cellsize[X])
+  hdr(out, "xMin", 0)
+  hdr(out, "yMin", 0)
+  hdr(out, "zMin", 0)
+  hdr(out, "xMax", cellsize[Z] * float32(gridsize[Z]))
+  hdr(out, "yMax", cellsize[Y] * float32(gridsize[Y]))
+  hdr(out, "zMax", cellsize[X] * float32(gridsize[X]))
   hdr(out, "xNodes", gridsize[Z])
   hdr(out, "yNodes", gridsize[Y])
   hdr(out, "zNodes", gridsize[X])
 
-  
+  hdr(out, "ValueRangeMinMag", 1e-08) // not so "optional" as the OOMMF manual suggests...
+  hdr(out, "ValueRangeMaxMag", 1)
+
 	hdr(out, "valueunit", valueunit)
 	hdr(out, "valuemultiplier", multiplier)
 
