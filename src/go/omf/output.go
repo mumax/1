@@ -103,16 +103,25 @@ Example:
 */
 func (c *OmfCodec) Encode(out_ io.Writer, t tensor.Interface, metadata map[string]string) {
   out := bufio.NewWriter(out_)
+  format := "text"
 
   hdr(out, "OOMMF", "rectangular mesh v1.0")
   hdr(out, "Segment count", "1")
   hdr(out, "Begin", "Segment")
+  
   hdr(out, "Begin", "Header")
+  
   hdr(out, "Title", fmt.Sprint(out_))
-  hdr(out, "Desc", "")
   hdr(out, "meshtype", "rectangular")
   hdr(out, "meshunit", "m")
-  
+
+  hdr(out, "End", "Header")
+
+  hdr(out, "Begin", "Data " + format)
+
+
+  hdr(out, "End", "Data " + format)
+  hdr(out, "End", "Segment")
   
 }
 
