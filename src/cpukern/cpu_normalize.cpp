@@ -31,6 +31,9 @@ void cpu_normalize_map(float* m, float* map, int N){
   #pragma omp parallel for
   for(int i=0; i<N; i++){
     float norm = map[i]/sqrt(mx[i]*mx[i] + my[i]*my[i] + mz[i]*mz[i]);
+    if(map[i] == 0){  //HACK
+      norm = 0.;
+    }
     mx[i] *= norm;
     my[i] *= norm;
     mz[i] *= norm;
