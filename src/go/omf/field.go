@@ -8,24 +8,18 @@
 package omf
 
 import (
-  "tensor"
+	"tensor"
 )
 
-type Interface interface{
-  Mesh
-  Data() tensor.Interface
-  DataUnit() string
-  MetaData() map[string]string
+type Interface interface {
+	GetData() (data tensor.Interface, multiplier float32, unit string)
+	GetMesh() (cellsize []float32, unit string)
+	GetMetadata() map[string]string
 }
 
-type Mesh interface{
-  GridSize() []int
-  CellSize() []float32
-  MeshUnit() string
-}
 
-const(
-  X=0
-  Y=1
-  Z=2
+const (
+	X = 0
+	Y = 1
+	Z = 2
 )

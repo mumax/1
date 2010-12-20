@@ -7,55 +7,84 @@
 package omf
 
 import (
-  "io"
-  "bufio"
-  "fmt"
+	"io"
+	"bufio"
+	"fmt"
+	"tensor"
 )
 
-const(
-
-)
+const ()
 
 
 func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
-  out := bufio.NewWriter(out_)
-  defer out.Flush()
-  
-  format := "text"
+	out := bufio.NewWriter(out_)
+	defer out.Flush()
 
-  hdr(out, "OOMMF", "rectangular mesh v1.0")
-  hdr(out, "Segment count", "1")
-  hdr(out, "Begin", "Segment")
-  
-  hdr(out, "Begin", "Header")
-  
-  hdr(out, "Title", out_)
-  hdr(out, "meshtype", "rectangular")
-  
-  hdr(out, "meshunit", f.MeshUnit())
-  
-  hdr(out, "xBase", 0)
-  hdr(out, "yBase", 0)
-  hdr(out, "zBase", 0)
 
-  cellsize := f.CellSize()
+
+	tens, multiplier, valueunit := f.GetData()
+	data := (tensor.ToT4(tens)).Array()
+	vecsize := tens.Size()
+  if len(vecsize) != 4 {
+    panic("rank should be 4")
+  }
+  if vecsize[0] != 3 {
+    panic("size[0] should be 3")
+  }
+  gridsize := vecsize[1:]
+	cellsize, meshunit := f.GetMesh()
+
+	format := "text"
+
+	hdr(out, "OOMMF", "rectangular mesh v1.0")
+	hdr(out, "Segment count", "1")
+	hdr(out, "Begin", "Segment")
+
+	hdr(out, "Begin", "Header")
+
+	hdr(out, "Title", out_)
+	hdr(out, "meshtype", "rectangular")
+
+	hdr(out, "meshunit", meshunit)
+
+	hdr(out, "xBase", 0)
+	hdr(out, "yBase", 0)
+	hdr(out, "zBase", 0)
   hdr(out, "xStepSize", cellsize[X])
   hdr(out, "xStepSize", cellsize[Y])
   hdr(out, "xStepSize", cellsize[Z])
+  hdr(out, "xNodes", gridsize[X])
+  hdr(out, "yNodes", gridsize[Y])
+  hdr(out, "zNodes", gridsize[Z])
 
-
-  hdr(out, "End", "Header")
-
-  hdr(out, "Begin", "Data " + format)
-
-
-  hdr(out, "End", "Data " + format)
-  hdr(out, "End", "Segment")
   
+	hdr(out, "valueunit", valueunit)
+	hdr(out, "valuemultiplier", multiplier)
+
+	hdr(out, "End", "Header")
+
+	hdr(out, "Begin", "Data "+format)
+
+  for i:=range data[X]{
+    for j:=range data[X][i]{
+      for k:=range data[X][i][j]{
+        for c:=0; c<3; c++{
+          fmt.Fprint(out, data[c][i][j][k], " ")
+        }
+        fmt.Fprint(out, "\t")
+      }
+      fmt.Fprint(out, "\n")
+    }
+    fmt.Fprint(out, "\n")
+  }
+
+	hdr(out, "End", "Data "+format)
+	hdr(out, "End", "Segment")
+
 }
 
 // Writes a header key/value pair to out:
 // # Key: Value
-func hdr(out io.Writer, key string, value interface{}){
-  fmt.Fprintln(out, "# ", key, ": ", value)
+func hdr(out io.Writer, key string, value interface{}) {
+	fmt.Fprintln(out, "# ", key, ": ", value)
 }

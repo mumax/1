@@ -10,7 +10,7 @@
   OOMMF's .omf format.
 
   Example (from Donahue & Porter, edited):
-  
+
 # OOMMF: rectangular mesh v1.0
 #
 ## This is a comment.
@@ -96,28 +96,28 @@
 package omf
 
 import (
-  "io"
+	"io"
 )
 
 
-type Codec interface{
-  Encode(out io.Writer, f Interface)
-  Decode(in io.Reader) Interface
+type Codec interface {
+	Encode(out io.Writer, f Interface)
+	Decode(in io.Reader) Interface
 }
 
 
-type OmfCodec struct{
-  format uint
+type OmfCodec struct {
+	format uint
 }
 
-func (c *OmfCodec) Init(){
-  
+func (c *OmfCodec) Init() {
+
 }
 
-func NewOmfCodec() *OmfCodec{
-  c := new(OmfCodec)
-  c.Init()
-  return c
+func NewOmfCodec() *OmfCodec {
+	c := new(OmfCodec)
+	c.Init()
+	return c
 }
 
 // Encode/Decode implemented in output.go/input.go

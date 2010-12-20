@@ -7,13 +7,12 @@
 package omf
 
 import (
-  "io"
-  "tensor"
+	"io"
+	"tensor"
 )
 
 
 func (c *OmfCodec) Decode(in io.Reader) (tensor *tensor.T, metadata map[string]string) {
 
-  return
+	return
 }
-
