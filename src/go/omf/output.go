@@ -103,6 +103,8 @@ Example:
 */
 func (c *OmfCodec) Encode(out_ io.Writer, t tensor.Interface, metadata map[string]string) {
   out := bufio.NewWriter(out_)
+  defer out.Flush()
+  
   format := "text"
 
   hdr(out, "OOMMF", "rectangular mesh v1.0")
@@ -128,5 +130,5 @@ func (c *OmfCodec) Encode(out_ io.Writer, t tensor.Interface, metadata map[strin
 // Writes a header key/value pair to out:
 // # Key: Value
 func hdr(out io.Writer, key, value string){
-  
+  fmt.Fprintln(out, "# ", key, ": ", value)
 }
