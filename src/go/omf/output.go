@@ -15,7 +15,8 @@ import (
 
 const ()
 
-
+// Encodes the vector field in omf format.
+// The swap from ZYX (internal) to XYZ (external) is made here.
 func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
 	out := bufio.NewWriter(out_)
 	defer out.Flush()
@@ -50,12 +51,12 @@ func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
 	hdr(out, "xBase", 0)
 	hdr(out, "yBase", 0)
 	hdr(out, "zBase", 0)
-  hdr(out, "xStepSize", cellsize[X])
-  hdr(out, "xStepSize", cellsize[Y])
   hdr(out, "xStepSize", cellsize[Z])
-  hdr(out, "xNodes", gridsize[X])
+  hdr(out, "xStepSize", cellsize[Y])
+  hdr(out, "xStepSize", cellsize[X])
+  hdr(out, "xNodes", gridsize[Z])
   hdr(out, "yNodes", gridsize[Y])
-  hdr(out, "zNodes", gridsize[Z])
+  hdr(out, "zNodes", gridsize[X])
 
   
 	hdr(out, "valueunit", valueunit)
@@ -65,11 +66,11 @@ func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
 
 	hdr(out, "Begin", "Data "+format)
 
-  for i:=range data[X]{
-    for j:=range data[X][i]{
-      for k:=range data[X][i][j]{
+  for i:=0; i<gridsize[Z]; i++{
+    for j:=0; j<gridsize[Y]; j++{
+      for k:=0; k<gridsize[X]; k++{
         for c:=0; c<3; c++{
-          fmt.Fprint(out, data[c][i][j][k], " ")
+          fmt.Fprint(out, data[c][k][j][i], " ")
         }
         fmt.Fprint(out, "\t")
       }
