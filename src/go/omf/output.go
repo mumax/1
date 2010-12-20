@@ -43,7 +43,7 @@ func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
 
 	hdr(out, "Begin", "Header")
 
-	hdr(out, "Title", out_)
+	hdr(out, "Title", "mumax data") // TODO
 	hdr(out, "meshtype", "rectangular")
 
 	hdr(out, "meshunit", meshunit)
@@ -52,8 +52,8 @@ func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
 	hdr(out, "yBase", 0)
 	hdr(out, "zBase", 0)
   hdr(out, "xStepSize", cellsize[Z])
-  hdr(out, "xStepSize", cellsize[Y])
-  hdr(out, "xStepSize", cellsize[X])
+  hdr(out, "yStepSize", cellsize[Y])
+  hdr(out, "zStepSize", cellsize[X])
   hdr(out, "xNodes", gridsize[Z])
   hdr(out, "yNodes", gridsize[Y])
   hdr(out, "zNodes", gridsize[X])
