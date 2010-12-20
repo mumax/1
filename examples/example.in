@@ -49,7 +49,7 @@ partsize   	    500E-9  125E-9  3E-9
 
 # To define the shape, use one of the built-in shapes or apply a PNG mask
 
-mask  examplemask.png
+mask examplemask.png
 
 # built-in geometries:
 # ellipsoid rx ry rz   # ellipsoid with semi-axes rx, ry, rz
