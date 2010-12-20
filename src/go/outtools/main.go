@@ -62,8 +62,8 @@ func (m *Main) Gyrofield(dirname string, pol int) {
 // hz = -1/gamma  (m x dm/dt)_z / (mz + p)²
 func gyrofield(m, torque *T4, pol int) *T3 {
 
-	mx, my, mz := m.TArray[X], m.TArray[Y], m.TArray[Z]
-	tx, ty, _ := torque.TArray[X], torque.TArray[Y], torque.TArray[Z]
+	mx, my, mz := m.TArray[Z], m.TArray[Y], m.TArray[X]
+	tx, ty, _ := torque.TArray[Z], torque.TArray[Y], torque.TArray[X]
 
 	gyro := NewT3(m.Size()[1:])
 
@@ -74,6 +74,7 @@ func gyrofield(m, torque *T4, pol int) *T3 {
 				mxdmz := mx[i][j][k]*ty[i][j][k] - tx[i][j][k]*my[i][j][k]
 
 				gyro.TArray[i][j][k] = -mxdmz / sqr(mz[i][j][k]+float32(pol))
+				
 
 			}
 		}
@@ -81,6 +82,7 @@ func gyrofield(m, torque *T4, pol int) *T3 {
 
 	return gyro
 }
+
 
 func sqr(a float32) float32 {
 	return a * a
