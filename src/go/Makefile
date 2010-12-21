@@ -3,7 +3,7 @@ LD_LIBRARY_PATH+=.
 include ../../common.mk
 
 all:
-	cp -f $(GOROOT)/pkg/$(GOOS)_$(GOARCH)/libcgo.so ../../lib
+	cp -f $(GOROOT)/src/libcgo/libcgo.so ../../lib
 	gomake install -C iotool
 	gomake install -C tensor
 	gomake install -C omf
