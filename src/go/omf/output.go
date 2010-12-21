@@ -115,8 +115,9 @@ func writeDataBinary4(out io.Writer, tens tensor.Interface) {
   var controlnumber float32 = 1234567.0
   // Wicked conversion form float32 [4]byte in big-endian
   // encoding/binary is too slow
+  // Inlined for performance, terabytes of data will pass here...
   bytes = (*[4]byte)(unsafe.Pointer(&controlnumber))[:]
-  bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0]
+  bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0] // swap endianess
   out.Write(bytes)
   
 	// Here we loop over X,Y,Z, not Z,Y,X, because
