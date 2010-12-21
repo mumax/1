@@ -48,21 +48,21 @@ func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
 
 	hdr(out, "meshunit", meshunit)
 
-	hdr(out, "xBase", 0)
-	hdr(out, "yBase", 0)
-	hdr(out, "zBase", 0)
-  hdr(out, "xStepSize", cellsize[Z])
-  hdr(out, "yStepSize", cellsize[Y])
-  hdr(out, "zStepSize", cellsize[X])
-  hdr(out, "xMin", 0)
-  hdr(out, "yMin", 0)
-  hdr(out, "zMin", 0)
-  hdr(out, "xMax", cellsize[Z] * float32(gridsize[Z]))
-  hdr(out, "yMax", cellsize[Y] * float32(gridsize[Y]))
-  hdr(out, "zMax", cellsize[X] * float32(gridsize[X]))
-  hdr(out, "xNodes", gridsize[Z])
-  hdr(out, "yNodes", gridsize[Y])
-  hdr(out, "zNodes", gridsize[X])
+  hdr(out, "xbase", 0)
+  hdr(out, "ybase", 0)
+  hdr(out, "zbase", 0)
+  hdr(out, "xstepsize", cellsize[Z])
+  hdr(out, "ystepsize", cellsize[Y])
+  hdr(out, "zstepsize", cellsize[X])
+  hdr(out, "xmin", 0)
+  hdr(out, "ymin", 0)
+  hdr(out, "zmin", 0)
+  hdr(out, "xmax", cellsize[Z] * float32(gridsize[Z]))
+  hdr(out, "ymax", cellsize[Y] * float32(gridsize[Y]))
+  hdr(out, "zmax", cellsize[X] * float32(gridsize[X]))
+  hdr(out, "xnodes", gridsize[Z])
+  hdr(out, "ynodes", gridsize[Y])
+  hdr(out, "znodes", gridsize[X])
 
   hdr(out, "ValueRangeMinMag", 1e-08) // not so "optional" as the OOMMF manual suggests...
   hdr(out, "ValueRangeMaxMag", 1)
@@ -97,5 +97,5 @@ func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
 // Writes a header key/value pair to out:
 // # Key: Value
 func hdr(out io.Writer, key string, value interface{}) {
-	fmt.Fprintln(out, "# ", key, ": ", value)
+	fmt.Fprintf(out, "# %v: %v\n", key, value)
 }
