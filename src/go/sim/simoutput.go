@@ -104,8 +104,8 @@ func resolve(what, format string) Output {
 			return &MAscii{&Periodic{0., 0.}}
 		case "png":
 			return &MPng{&Periodic{0., 0.}}
-    case "omf":
-        return &MOmf{&Periodic{0., 0.}}
+		case "omf":
+			return &MOmf{&Periodic{0., 0.}}
 		}
 	case "torque":
 		switch format {
@@ -243,21 +243,21 @@ func (m *MBinary) Save(s *Sim) {
 }
 
 
-type MOmf struct{
-  *Periodic
+type MOmf struct {
+	*Periodic
 }
 
 // INTERNAL
 // TODO: files are not closed?
 // TODO/ also for writeAscii
 func (m *MOmf) Save(s *Sim) {
-  fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
-  out := fopen(fname)
-  defer out.Close()
-  var codec omf.OmfCodec
-  codec.Init()
-  codec.Encode(out, s)
-  m.sinceoutput = float32(s.time) * s.UnitTime()
+	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
+	out := fopen(fname)
+	defer out.Close()
+	var codec omf.OmfCodec
+	codec.Init()
+	codec.Encode(out, s)
+	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
 
@@ -295,18 +295,17 @@ func (m *MPng) Save(s *Sim) {
 
 // To implement omf.Interface:
 // TODO: generalize
-func (s *Sim) GetData() (data tensor.Interface, multiplier float32, unit string){
-  return s.mLocal, s.input.msat, "A/m"
+func (s *Sim) GetData() (data tensor.Interface, multiplier float32, unit string) {
+	return s.mLocal, s.input.msat, "A/m"
 }
 
-func (s *Sim)  GetMesh() (cellsize []float32, unit string){
-  return s.input.cellSize[:], "m"
+func (s *Sim) GetMesh() (cellsize []float32, unit string) {
+	return s.input.cellSize[:], "m"
 }
 
-func (s *Sim)  GetMetadata() map[string]string{
-  return s.metadata
+func (s *Sim) GetMetadata() map[string]string {
+	return s.metadata
 }
-
 
 
 //INTERNAL

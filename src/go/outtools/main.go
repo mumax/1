@@ -50,11 +50,11 @@ func (m *Main) Gyrofield(dirname string, pol int) {
 	for _, info := range fileinfo {
 		mfile := dirname + "/" + info.Name
 		if strings.HasPrefix(info.Name, "m") && strings.HasSuffix(mfile, ".tensor") {
-      hfile := dirname + "/torque" + info.Name[1:]
+			hfile := dirname + "/torque" + info.Name[1:]
 			m := ToT4(ReadF(mfile))
 			torque := ToT4(ReadF(hfile))
-			
-      WriteF(dirname+"/"+"gyrofield_"+info.Name, gyrofield(m, torque, pol))
+
+			WriteF(dirname+"/"+"gyrofield_"+info.Name, gyrofield(m, torque, pol))
 		}
 	}
 }
@@ -74,7 +74,6 @@ func gyrofield(m, torque *T4, pol int) *T3 {
 				mxdmz := mx[i][j][k]*ty[i][j][k] - tx[i][j][k]*my[i][j][k]
 
 				gyro.TArray[i][j][k] = -mxdmz / sqr(mz[i][j][k]+float32(pol))
-				
 
 			}
 		}

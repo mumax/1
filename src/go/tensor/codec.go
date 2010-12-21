@@ -7,34 +7,33 @@
 package tensor
 
 import (
-  "io"
+	"io"
 )
-  
-type Codec interface{
-  Encode(out io.Writer, t Interface, metadata map[string]string)
-  Decode(in io.Reader) (*T, map[string]string)
+
+type Codec interface {
+	Encode(out io.Writer, t Interface, metadata map[string]string)
+	Decode(in io.Reader) (*T, map[string]string)
 }
 
-type TensorCodec struct{
-  format uint
+type TensorCodec struct {
+	format uint
 }
 
-func (c *TensorCodec) Init(){
-  
+func (c *TensorCodec) Init() {
+
 }
 
-func NewTensorCodec() *TensorCodec{
-  c := new(TensorCodec)
-  c.Init()
-  return c
+func NewTensorCodec() *TensorCodec {
+	c := new(TensorCodec)
+	c.Init()
+	return c
 }
 
 func (c *TensorCodec) Encode(out io.Writer, t Interface, metadata map[string]string) {
-  WriteMetaTensorBinary(out, t, metadata)
+	WriteMetaTensorBinary(out, t, metadata)
 }
 
 func (c *TensorCodec) Decode(in io.Reader) (tensor *T, metadata map[string]string) {
-  tensor, metadata = ReadMeta(in)
-  return
+	tensor, metadata = ReadMeta(in)
+	return
 }
-

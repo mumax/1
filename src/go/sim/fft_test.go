@@ -27,7 +27,7 @@ func TestFFTPadded(t *testing.T) {
 
 	for _, size := range fft_test_sizes {
 
-		paddedsize := padSize(size, []int{0,0,0})
+		paddedsize := padSize(size, []int{0, 0, 0})
 
 		fft := NewFFTPadded(backend, size, paddedsize)
 		fftP := NewFFT(backend, paddedsize) // with manual padding

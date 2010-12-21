@@ -72,7 +72,7 @@ func DrawTensor3(t *tensor.T3) *NRGBA {
 	h, w := t.Size()[1], t.Size()[2]
 	img := NewNRGBA(w, h)
 	arr := t.Array()
-  min, max := tensor.MinMax(t)
+	min, max := tensor.MinMax(t)
 	for i := 0; i < h; i++ {
 		for j := 0; j < w; j++ {
 			var x float32 = 0.
