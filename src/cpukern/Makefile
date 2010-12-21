@@ -5,17 +5,18 @@ CFLAGS+=-I../../lib/fftw/include/
 
 OFILES=\
 	cpu_properties.o\
-	cpu_mem0.o\
-	cpu_linalg0.o\
-	cpu_normalize0.o\
-	cpu_torque0.o\
-	cpu_anal0.o\
-	cpu_kernmul0.o\
-	cpu_zeropad0.o\
+	cpu_mem.o\
+	cpu_linalg.o\
+	cpu_normalize.o\
+	cpu_torque.o\
+	cpu_anal.o\
+	cpu_kernmul.o\
+	cpu_zeropad.o\
 	cpu_transpose.o\
-	cpu_init0.o\
-	cpu_reduction0.o\
-	cpu_fft0.o\
+	cpu_init.o\
+	cpu_reduction.o\
+	cpu_fft2.o\
+	thread_functions.o\
 ### change to cpu_fft1.o when ready 
 
 all: libcpukern.so
@@ -30,6 +31,8 @@ libcpukern.a:	$(OFILES)
 # 	ln -sf $(CURDIR)/libcpukern.a $(CURDIR)/../../lib
 
 
+thread_functions.o:  thread_functions.h thread_functions.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) thread_functions.cpp
 cpu_mem0.o:  cpu_mem.h cpu_mem0.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_mem0.cpp
 
@@ -57,8 +60,11 @@ cpu_transpose0.o:  cpu_transpose.h cpu_transpose0.cpp
 cpu_fft0.o:  cpu_fft.h cpu_fft0.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_fft0.cpp
 
-cpu_fft10.o:  cpu_fft1.h cpu_fft10.cpp
-	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_fft10.cpp
+cpu_fft2.o:  cpu_fft.h cpu_fft2.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_fft2.cpp
+
+cpu_fft1.o:  cpu_fft1.h cpu_fft1.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_fft1.cpp
 
 cpu_init0.o:  cpu_init.h cpu_init0.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_init0.cpp
@@ -105,6 +111,9 @@ cpu_init.o:  cpu_init.h cpu_init.cpp
 cpu_reduction.o:  cpu_reduction.h cpu_reduction.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_reduction.cpp
 
+
+thread_functions.o:  thread_functions.h thread_functions.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) thread_functions.cpp
 
 test:
 
