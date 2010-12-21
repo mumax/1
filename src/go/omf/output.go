@@ -110,8 +110,11 @@ func writeDataBinary4(out io.Writer, tens tensor.Interface) {
 	hdr(out, "Begin", "Data "+format)
 
   var bytes []byte
-  
+
+  // OOMMF requires this number to be first to check the format
   var controlnumber float32 = 1234567.0
+  // Wicked conversion form float32 [4]byte in big-endian
+  // encoding/binary is too slow
   bytes = (*[4]byte)(unsafe.Pointer(&controlnumber))[:]
   bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0]
   out.Write(bytes)
