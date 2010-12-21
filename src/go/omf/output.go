@@ -24,7 +24,6 @@ func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
 
 
 	tens, multiplier, valueunit := f.GetData()
-	data := (tensor.ToT4(tens)).Array()
 	vecsize := tens.Size()
   if len(vecsize) != 4 {
     panic("rank should be 4")
@@ -35,7 +34,7 @@ func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
   gridsize := vecsize[1:]
 	cellsize, meshunit := f.GetMesh()
 
-	format := "text"
+	
 
 	hdr(out, "OOMMF", "rectangular mesh v1.0")
 	hdr(out, "Segment count", "1")
@@ -72,7 +71,19 @@ func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
 
 	hdr(out, "End", "Header")
 
-	hdr(out, "Begin", "Data "+format)
+
+	
+	hdr(out, "End", "Segment")
+
+}
+
+func writeDataText(out io.Writer, tens tensor.Interface){
+  data := (tensor.ToT4(tens)).Array()
+  vecsize := tens.Size()
+  gridsize := vecsize[1:]
+  
+  format := "Text"
+  hdr(out, "Begin", "Data "+format)
 
   // Here we loop over X,Y,Z, not Z,Y,X, because
   // internal in C-order == external in Fortran-order
@@ -89,9 +100,7 @@ func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
     fmt.Fprint(out, "\n")
   }
 
-	hdr(out, "End", "Data "+format)
-	hdr(out, "End", "Segment")
-
+  hdr(out, "End", "Data "+format)
 }
 
 // Writes a header key/value pair to out:
