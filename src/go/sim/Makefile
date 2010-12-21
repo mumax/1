@@ -58,7 +58,7 @@ CGO_CFLAGS+=-I../../../lib/fftw/include/ -I/usr/local/cuda/include/
 
 
 # When installing, these libraries must be present (at least symlinked) in the current directory
-CGO_LDFLAGS+=-L../../../lib libgpukern.so libcpukern.so
+CGO_LDFLAGS+=-L../../../lib -L/usr/local/cuda/lib64  -L/usr/local/cuda/lib libgpukern.so libcpukern.so
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a $(PKGDIR)/cgo_$(TARG).so 
 	
