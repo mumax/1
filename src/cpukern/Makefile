@@ -5,17 +5,17 @@ CFLAGS+=-I../../lib/fftw/include/
 
 OFILES=\
 	cpu_properties.o\
-	cpu_mem.o\
-	cpu_linalg.o\
-	cpu_normalize.o\
-	cpu_torque.o\
-	cpu_anal.o\
-	cpu_kernmul.o\
-	cpu_zeropad.o\
+	cpu_mem0.o\
+	cpu_linalg0.o\
+	cpu_normalize0.o\
+	cpu_torque0.o\
+	cpu_anal0.o\
+	cpu_kernmul0.o\
+	cpu_zeropad0.o\
 	cpu_transpose.o\
-	cpu_init.o\
-	cpu_reduction.o\
-	cpu_fft.o\
+	cpu_init0.o\
+	cpu_reduction0.o\
+	cpu_fft0.o\
 ### change to cpu_fft1.o when ready 
 
 all: libcpukern.so
@@ -28,6 +28,43 @@ libcpukern.so: $(OFILES)
 libcpukern.a:	$(OFILES)
 	ar rcs libcpukern.a $(OFILES) $(FFTWLIBS)
 # 	ln -sf $(CURDIR)/libcpukern.a $(CURDIR)/../../lib
+
+
+cpu_mem0.o:  cpu_mem.h cpu_mem0.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_mem0.cpp
+
+cpu_linalg0.o:  cpu_linalg.h cpu_linalg0.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_linalg0.cpp
+
+cpu_normalize0.o:  cpu_normalize.h cpu_normalize0.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_normalize0.cpp
+
+cpu_torque0.o:  cpu_torque.h cpu_torque0.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_torque0.cpp
+
+cpu_anal0.o:  cpu_anal.h cpu_anal0.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_anal0.cpp
+
+cpu_kernmul0.o:  cpu_kernmul.h cpu_kernmul0.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_kernmul0.cpp
+
+cpu_zeropad0.o:  cpu_zeropad.h cpu_zeropad0.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_zeropad0.cpp
+
+cpu_transpose0.o:  cpu_transpose.h cpu_transpose0.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_transpose0.cpp
+
+cpu_fft0.o:  cpu_fft.h cpu_fft0.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_fft0.cpp
+
+cpu_fft10.o:  cpu_fft1.h cpu_fft10.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_fft10.cpp
+
+cpu_init0.o:  cpu_init.h cpu_init0.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_init0.cpp
+
+cpu_reduction0.o:  cpu_reduction.h cpu_reduction0.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_reduction0.cpp
 
 cpu_properties.o:  cpu_properties.h cpu_properties.cpp                                                
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_properties.cpp
@@ -67,6 +104,7 @@ cpu_init.o:  cpu_init.h cpu_init.cpp
 
 cpu_reduction.o:  cpu_reduction.h cpu_reduction.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_reduction.cpp
+
 
 test:
 
