@@ -21,7 +21,7 @@ autosave  m png 50E-12
 #run 1e-9
 
 anisuniaxial  0 0 1
-k1  -5000e3
+k1  -500e3
 run 1e-9
 
 k1 500e3
