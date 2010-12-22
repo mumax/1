@@ -15,7 +15,7 @@ partsize        300e-9  300e-9  20E-9
 vortex 1 1
 
 autosave  table ascii 0.0000050e-12
-autosave  m png 50E-12
+autosave  m png 0.00000000050E-12
 
 
 #run 1e-9
