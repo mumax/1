@@ -100,6 +100,11 @@ func (mat *Material) UnitEnergy() float32 {
 	return mat.aExch * mat.UnitLength()
 }
 
+// The internal unit of energy density, expressed in J/m^3.
+func (mat *Material) UnitEnergyDensity() float32 {
+  return mat.UnitEnergy() / mat.UnitVolume()
+}
+
 
 // The internal unit of electrical current, expressed in A
 func (mat *Material) UnitCurrent() float32 {
