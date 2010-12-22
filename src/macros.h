@@ -5,6 +5,58 @@
 #endif
 
 
+
+
+
+#define NONE 0
+
+// Anisotropy types ***************
+  /// Possible value for anisType. Means uniaxial anisotropy.
+#define ANIS_UNIAXIAL 1
+  /// Possible value for anisType. Means cubic anisotropy.
+#define ANIS_CUBIC 2
+  /// Possible value for anisType. Means shape anisotropy.
+#define ANIS_EDGE 3
+// ********************************
+
+
+// Solver types *******************
+    /// Possible value for solverType. Simple Euler method
+  #define SOLVER_EULER 1
+    /// Possible value for solverType. 2nd order Heun method
+  #define SOLVER_HEUN 2
+    /// Possible value for solverType. 4th order Runge-Kutta
+  #define SOLVER_RK4 4
+    /// Possible value for solverType. 5th order Dormand-Prince with adaptive step size
+  #define SOLVER_DP45 45
+    /// Possible value for solverType. Ben Van de Wiele's forward semi-analytical solver
+  #define SOLVER_ANAL_FW 128
+    /// Possible value for solverType. Ben Van de Wiele's predictor/corrector semi-analytical solver
+  #define SOLVER_ANAL_PC 256
+// ********************************
+
+
+// Exchange types *****************
+  /// 6-neighbour exchange (2D and 3D geometry).
+#define EXCH_6NGBR 6
+// ********************************
+
+
+// Kernel types *******************
+#define KERNEL_DIPOLE 1
+  /// Quantities only dependent on Y and Z coordinate, invariance in X direction. Includes exchange
+#define KERNEL_MICROMAG2D 2
+
+  /// Classical 3D micromagnetic kernel. Can also be used for 2D simulations (1 cell in X). Includes exchange.
+#define KERNEL_MICROMAG3D 3
+// *********************************
+
+
+
+
+
+
+
 #ifndef PI
 #define PI 3.14159265f
 #endif
