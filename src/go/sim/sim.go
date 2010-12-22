@@ -86,6 +86,7 @@ type Sim struct {
 
 	AppliedField            // returns the externally applied in function of time
 	hextSI       [3]float32 // stores the externally applied field returned by AppliedField, in SI UNITS
+	hextInt      []float32  // stores the externally applied field in internal units
 
 	Solver            // Does the time stepping, can be euler, heun, ...
 	time      float64 // The total time (internal units)
@@ -152,6 +153,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	os.Chdir(workdir)
 	sim.outputDir(Filename(outputdir))
 	sim.metadata = make(map[string]string)
+	sim.hextInt = make([]float32, 3)
 	sim.initWriters()
 	sim.invalidate() //just to make sure we will init()
 	return sim

@@ -22,6 +22,9 @@ type Material struct {
 	alpha   float32 // Damping parameter
 	xi      float32 // Spin-transfer torque: degree of non-adiabaticity
 	spinPol float32 // Spin-transfer torque: spin-polarization of the electrical current (0-100%)
+	anisType int
+	anisK []float32
+	anisAxes []float32
 }
 
 
@@ -38,7 +41,11 @@ func (s *Sim) InitMaterial() {
 	s.muB = 9.2740091523E-24
 	s.e = 1.60217646E-19
 	s.spinPol = DEFAULT_SPIN_POLARIZATION
-
+	// even when not used, these arrays should be allocated:
+  // they may be passed to C even when they are ignored there
+  s.anisK = make([]float32, 1)
+  s.anisAxes = make([]float32, 1)
+  
 	if s.input.msat == 0. {
 		s.Errorln("Saturation magnetization should first be set. E.g. msat 800E3")
 		os.Exit(-6)

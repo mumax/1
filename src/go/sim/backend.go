@@ -135,6 +135,9 @@ func (dev *Backend) AddConstant(a *DevTensor, cnst float32) {
 // 	dev.normalize(m.data, N)
 // }
 
+func (dev *Backend) AddLocalFields(m, h *DevTensor, hext []float32, anisType int, anisK, anisAxes []float32){
+  dev.addLocalFields(m.data, h.data, hext, anisType, anisK, anisAxes, m.length/3)
+}
 
 
 func (b Backend) OverrideStride(stride int) {

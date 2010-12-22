@@ -12,7 +12,26 @@ __global__ void _gpu_add_local_fields_uniaxial(float* mx, float* my, float* mz,
                                               float hext_x, float hext_y, float hext_z,
                                               float U0, float U1, float U2,
                                               int N){
+  int i = threadindex;
 
+  if(i<N){
+    hx [i] += hext_x;
+    hy [i] += hext_y;
+    hz [i] += hext_z;
+  }
+}
+
+
+__global__ void _gpu_add_external_field(float* hx, float* hy, float* hz,
+                                        float hext_x, float hext_y, float hext_z,
+                                        int N){
+  int i = threadindex;
+
+  if(i<N){
+    hx [i] += hext_x;
+    hy [i] += hext_y;
+    hz [i] += hext_z;
+  }
 }
 
 
@@ -40,6 +59,9 @@ void gpu_add_local_fields (float* m, float* h, int N, float* Hext, int anisType,
 
   switch (anisType){
     default: abort();
+    case ANIS_NONE:
+       _gpu_add_external_field<<<gridsize, blocksize>>>(hx, hy, hz,  Hext[X], Hext[Y], Hext[Z],  N);
+       break;
     case ANIS_UNIAXIAL:
       U0 = sqrt(2.0 * anisK[0]) * anisAxes[0];
       U1 = sqrt(2.0 * anisK[0]) * anisAxes[1];
