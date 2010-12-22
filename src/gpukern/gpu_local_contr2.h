@@ -10,8 +10,8 @@
  * @author Ben Van de Wiele
  *
  */
-#ifndef GPU_LOCAL_CONTR_H
-#define GPU_LOCAL_CONTR_H
+#ifndef gpu_local_contr2_h
+#define gpu_local_contr2_h
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,12 +19,12 @@ extern "C" {
 /**
  * list of parameter data arrays required for computations on gpu
  */
-typedef struct{
-
-  float *anisK;     ///> anisotropy constants
-  float *anisAxes;  ///> float array defining the 
-  
-}dev_par;
+// typedef struct{
+// 
+//   float *anisK;     ///> anisotropy constants
+//   float *anisAxes;  ///> float array defining the 
+//   
+// }dev_par;
 
 
 /**
@@ -35,25 +35,26 @@ void gpu_add_local_contr (float *m,         ///> magnetization
                           int Ntot,         ///> total number of FD cells
                           float *Hext,      ///> uniform external field
                           int anisType,     ///> anisotropy type
-                          dev_par *p_dev    ///> list of parameter data required for computations on gpu
+                          float *anisK      ///> array containing the anisotropy constant(s): uniaxial K_u; cubic K_1 K_2
+                          float *anisAxes   ///> uniaxial: 1 axis, cubic: 2
                           );
 
 
 /**
  * Initializes the parameters on gpu required for local field computations
  */
-dev_par* init_par_on_dev(int anisType,      ///> anisotropy type
-                         float *anisK,      ///> array containing the anisotropy constant(s): uniaxial K_u; cubic K_1 K_2.
-                         float *defAxes     ///> 3 float array: anisotropy axis (uniaxial anisotropy) or euler angles -in radiants- defining the cubic uniaxial axes (cubic anisotropy)
-                         );
+// dev_par* init_par_on_dev(int anisType,      ///> anisotropy type
+//                          float *anisK,      ///> array containing the anisotropy constant(s): uniaxial K_u; cubic K_1 K_2.
+//                          float *defAxes     ///> 3 float array: anisotropy axis (uniaxial anisotropy) or euler angles -in radiants- defining the cubic uniaxial axes (cubic anisotropy)
+//                          );
 
 
 /**
  * Frees the parameters on gpu required for local field computations
  */
-void destroy_par_on_dev(dev_par *p_dev,     ///> list of parameter data required for computations on gpu
-                        int anisType        ///> anisotropy type
-                        );
+// void destroy_par_on_dev(dev_par *p_dev,     ///> list of parameter data required for computations on gpu
+//                         int anisType        ///> anisotropy type
+//                         );
 
 
 

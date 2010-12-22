@@ -8,6 +8,34 @@ extern "C" {
 #endif
 
 
+
+
+void gpu_add_local_contr (float *m, float *h, int N, float *Hext, int anisType, float *anisK, float *anisAxes){
+
+
+  float* mx = &(m[0*N]);
+  float* my = &(m[1*N]);
+  float* mz = &(m[2*N]);
+
+  float* hx = &(h[0*N]);
+  float* hy = &(h[1*N]);
+  float* hz = &(h[2*N]);
+  
+  dim3 gridsize, blocksize;
+  make1dconf(Ntot, &gridsize, &blocksize);
+
+  switch (ansiType){
+    default: abort();
+    case ANIS_UNIAXIAL:
+      _gpu_add_local_contr_uniaxial<<<gridsize, blocksize>>>(mx, my, mz,
+                                                             hx, hy, hz,
+                                                             Hext[X], Hext[Y], Hext[Z],
+                                                             anisK[0], , N);
+      break;
+  }
+}
+
+  /*                        
 __global__ void _gpu_add_local_contr(float* mx, float* my, float* mz,
                                      float* hx, float* hy, float* hz,
                                      float Hax, float Hay, float Haz,
@@ -130,7 +158,7 @@ void destroy_par_on_dev(dev_par *p_dev, int anisType){
   free (p_dev);
   
   return;
-}
+}*/
 
 
 #ifdef __cplusplus
