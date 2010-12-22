@@ -24,7 +24,7 @@ func (s *Sim) K1(k1 float32){
 // K1 still needs to be set separately
 // ux,uy,uz is the anisotropy direction,
 // it does not need to be normalized
-func (s *Sim) AnisUniaxial(ux, uy, uz float32){
+func (s *Sim) AnisUniaxial(uz, uy, ux float32){
   s.anisType = ANIS_UNIAXIAL
   norm := sqrt32(ux*ux + uy*uy + uz*uz)
   if norm == 0.{
