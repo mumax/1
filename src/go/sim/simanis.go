@@ -14,6 +14,8 @@ import "math"
 */
 
 func (s *Sim) K1(k1 float32){
+  // hack: move to sim.input
+  s.InitMaterial()
   s.anisK[0] = k1 / s.UnitEnergyDensity()
   // does not invalidate
 }

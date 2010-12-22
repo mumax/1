@@ -4,6 +4,8 @@ aexch       1.3E-11
 alpha       1
 
 
+dt 1e-12
+
 # geometry
 gridsize        128   128  1
 partsize        300e-9  300e-9  20E-9
@@ -12,16 +14,19 @@ partsize        300e-9  300e-9  20E-9
 # initial magnetization
 vortex 1 1
 
-autosave  table ascii 50e-12
+autosave  table ascii 0.0000050e-12
 autosave  m png 50E-12
 
 
-run 5e-9
+#run 0.5e-9
 
-anisuniaxial  0 0 1
-k1  -500e3
+
+#staticfield 0 0 100e-3
+#anisuniaxial  0 0 1
+#k1  500e3
 run 10e-9
 
-k1  500e3
-run 20e-9
+#staticfield 0 0 -100e-3
+#k1  500e3
+#run 1e-9
 

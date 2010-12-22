@@ -91,3 +91,6 @@ Default rk23 error per step sometimes too small: timestep becomes 1e-17 ps for r
 
  [0026]
 setting the solver type causes nil pointer dereference
+
+ [0027]
+setting a fixed-step solver causes nilpointer
