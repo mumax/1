@@ -65,6 +65,20 @@ func (s *Translated) Inside(x, y, z float32) bool {
 }
 
 
+// type Array struct{
+//   original geom
+//   nx, ny int
+//   dx, dy float32
+// }
+// 
+// func (a *Array) Inside(x, y, z float32){
+//   for i:=0; i<nx; i++{
+//     for j:=0; j<ny; j++{
+//       
+//     }
+//   }
+// }
+
 // Ellipsoid with semi-axes rx, ry, rz.
 // Becomes a cylinder when an axis is infinte.
 type Ellipsoid struct {
