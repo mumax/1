@@ -15,9 +15,12 @@ __global__ void _gpu_add_local_fields_uniaxial(float* mx, float* my, float* mz,
   int i = threadindex;
 
   if(i<N){
-    hx [i] += hext_x;
-    hy [i] += hext_y;
-    hz [i] += hext_z;
+    float mu = mx[i] * U0 + my[i] * U1 + mz[i] * U2;
+
+    hx[i] += hext_x + mu * U0;
+    hy[i] += hext_y + mu * U1;
+    hz[i] += hext_z + mu * U2;
+    
   }
 }
 
