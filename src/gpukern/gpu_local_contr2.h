@@ -7,7 +7,7 @@
  *
  *    @todo thermal field, magnetoelastic field
  *
- * @author Ben Van de Wiele
+ * @author Arne Vansteenkiste, Ben Van de Wiele
  *
  */
 #ifndef gpu_local_contr2_h
@@ -30,14 +30,15 @@ extern "C" {
 /**
  * Adds the local contributions to the effective field.
  */
-void gpu_add_local_contr (float *m,         ///> magnetization
-                          float *h,         ///> effective field
-                          int Ntot,         ///> total number of FD cells
-                          float *Hext,      ///> uniform external field
-                          int anisType,     ///> anisotropy type
-                          float *anisK      ///> array containing the anisotropy constant(s): uniaxial K_u; cubic K_1 K_2
-                          float *anisAxes   ///> uniaxial: 1 axis, cubic: 2
-                          );
+void gpu_add_local_fields (float* m, float* h, int N, float* Hext, int anisType, float* anisK, float* anisAxes);
+// void gpu_add_local_contr (float *m,         ///> magnetization
+//                           float *h,         ///> effective field
+//                           int Ntot,         ///> total number of FD cells
+//                           float *Hext,      ///> uniform external field
+//                           int anisType,     ///> anisotropy type
+//                           float *anisK      ///> array containing the anisotropy constant(s): uniaxial K_u; cubic K_1 K_2
+//                           float *anisAxes   ///> uniaxial: 1 axis, cubic: 2
+//                           );
 
 
 /**

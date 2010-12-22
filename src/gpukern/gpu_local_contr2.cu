@@ -1,4 +1,4 @@
-#include "gpu_local_contr.h"
+#include "gpu_local_contr2.h"
 #include "gpu_mem.h"
 #include "gpu_conf.h"
 #include "../macros.h"
@@ -7,10 +7,16 @@
 extern "C" {
 #endif
 
+__global__ void _gpu_add_local_fields_uniaxial(float* mx, float* my, float* mz,
+                                              float* hx, float* hy, float* hz,
+                                              float hext_x, float hext_y, float hext_z,
+                                              float U0, float U1, float U2,
+                                              int N){
+
+}
 
 
-
-void gpu_add_local_contr (float *m, float *h, int N, float *Hext, int anisType, float *anisK, float *anisAxes){
+void gpu_add_local_fields (float* m, float* h, int N, float* Hext, int anisType, float* anisK, float* anisAxes){
 
 
   float* mx = &(m[0*N]);
@@ -20,17 +26,28 @@ void gpu_add_local_contr (float *m, float *h, int N, float *Hext, int anisType, 
   float* hx = &(h[0*N]);
   float* hy = &(h[1*N]);
   float* hz = &(h[2*N]);
+
+  /*
+    Uniaxial anisotropy:
+    H_anis = ( 2K_1 / (mu0 Ms) )  ( m . u ) u
+    U := sqrt( 2K_1 / (mu0 Ms) )
+    H_anis = (m . U) U
+  */
+  float U0, U1, U2;
   
   dim3 gridsize, blocksize;
-  make1dconf(Ntot, &gridsize, &blocksize);
+  make1dconf(N, &gridsize, &blocksize);
 
-  switch (ansiType){
+  switch (anisType){
     default: abort();
     case ANIS_UNIAXIAL:
-      _gpu_add_local_contr_uniaxial<<<gridsize, blocksize>>>(mx, my, mz,
+      U0 = sqrt(2.0 * anisK[0]) * anisAxes[0];
+      U1 = sqrt(2.0 * anisK[0]) * anisAxes[1];
+      U2 = sqrt(2.0 * anisK[0]) * anisAxes[2];
+      _gpu_add_local_fields_uniaxial<<<gridsize, blocksize>>>(mx, my, mz,
                                                              hx, hy, hz,
                                                              Hext[X], Hext[Y], Hext[Z],
-                                                             anisK[0], , N);
+                                                             U0, U1, U2, N);
       break;
   }
 }
