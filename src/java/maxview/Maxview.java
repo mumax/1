@@ -45,6 +45,7 @@ public class Maxview {
 
 
       Brush cone = Factory.cone(0.4, 32, 1);
+      
       cone.rotate(0, -Math.PI/2);
       cone.rotate(-Math.PI/2, 0);
 
@@ -52,10 +53,12 @@ public class Maxview {
       mx /= r;
       my /= r;
       mz /= r;
-      double theta = Math.atan2(mx, my);
-      double phi = Math.acos(mz);
+      double theta = Math.atan2(my, mx);
+      double phi = -Math.asin(mz);
 
-      //cone.rotate(theta, phi);
+      cone.rotate(phi, 0);
+      cone.rotate(0, theta);
+
       cone.setFillColor(Color.RED);
       cone.translate(-x, y, z);
       root.add(cone);
