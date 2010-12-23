@@ -59,8 +59,7 @@ public class Maxview {
       cone.rotate(phi, 0);
       cone.rotateZ(theta);
 
-      cone.setFillColor(Color.RED);
-      cone.setLineColor(Color.RED);
+      cone.setFillColor(ColorMap3D.map(x, y, z));
       cone.translate(-x, y, z);
       root.add(cone);
 

@@ -14,20 +14,21 @@
  *  GNU General Public License for more details (licence.txt).
  */
 
+// Modified for maxview, 2010, Arne Vansteenkiste
 
-package x;
+// package x;
 
-import amu.geom.Vector;
 import java.awt.Color;
 import static java.lang.Math.*;
 
-public class ColorMap3D extends ColorMap{
+public class ColorMap3D{
 
-    public Color get(Vector m){
-        double invnorm = 1.0/m.norm();
-        double x = invnorm * m.x;
-        double y = invnorm * m.y;
-        double z = invnorm * m.z;
+    public static Color map(double x, double y, double z){
+        double norm = sqrt(x * x + y * y + z * z);
+        double invnorm = 1.0/norm;
+         x = invnorm * x;
+         y = invnorm * y;
+         z = invnorm * z;
         double h = atan2(y,x)/2.0/Math.PI;
         double s = 1.0 - abs(z);
         double b = z > 0.0? 1.0: 1.0+z;
