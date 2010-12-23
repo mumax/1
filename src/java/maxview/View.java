@@ -248,7 +248,7 @@ public final class View extends JPanel{
 	private int downX, downY;
 	
 	//Hoe gevoelig kijken met de muis is.
-	public double mouseSensitivity = 0.002;
+	public double mouseSensitivity = 0.01;
 	
 	final class PortMouseListener implements MouseListener{
 		public void mousePressed(MouseEvent e){
@@ -267,8 +267,10 @@ public final class View extends JPanel{
 		public void mouseDragged(MouseEvent e){
 			int upX = e.getX();
 			int upY = e.getY();
-			rotateCamera((upX-downX)*mouseSensitivity, 
-						 -(upY-downY)*mouseSensitivity);
+      
+			double dphi = (upX-downX)*mouseSensitivity;
+			double dtheta =  -(upY-downY)*mouseSensitivity;
+      setBordDirection(bordphi + dphi, bordtheta + dtheta);
 			downX = upX;
 			downY = upY;
 			repaint();
