@@ -57,7 +57,7 @@ public class Maxview {
       double phi = -Math.asin(mz);
 
       cone.rotate(phi, 0);
-      cone.rotate(0, theta);
+      cone.rotateZ(theta);
 
       cone.setFillColor(Color.RED);
       cone.translate(-x, y, z);

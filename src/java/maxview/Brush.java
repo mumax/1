@@ -47,12 +47,25 @@ public abstract class Brush implements Serializable{
     rotateVertexArray(getVertices(), theta, phi);
   }
 
+  public void rotateZ(double theta){
+    Vertex[] v = getVertices();
+    for(int i=0; i<v.length; i++){
+      Vertex V = v[i];
+      double x = V.x;
+      double y = V.y;
+
+      x = V.x * cos(theta) + V.y * sin(theta);
+      y = -V.x * sin(theta) + V.y * cos(theta);
+
+      V.x = x;
+      V.y = y;
+    }
+  }
+
 public static void rotateVertexArray(Vertex[] v, double phi, double theta){
 
        for(int i=0; i<v.length; i++){
           Vertex V = v[i];
-
-
           double m11 = cos(phi);
           double m12 = 0;
           double m13 = -sin(phi);
@@ -68,12 +81,10 @@ public static void rotateVertexArray(Vertex[] v, double phi, double theta){
           double xt = m11 * V.x + m12 * V.y + m13 * V.z;
           double yt = (m21 * V.x + m22 * V.y + m23 * V.z);
           double zt = m31 * V.x + m32 * V.y + m33 * V.z;
-
           V.x = xt;
           V.y = yt;
           V.z = zt;
         }
-
     }
 
 
