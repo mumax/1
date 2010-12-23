@@ -43,7 +43,7 @@ public class Maxview {
       double mz = in.nval; tok = in.nextToken();
 
 
-      Brush cone = Factory.cone(0.4, 32, 1);
+      Brush cone = Factory.cone(0.4, 32, 1, 0, 0);
       cone.setFillColor(Color.RED);
       cone.translate(x, y, z);
       root.add(cone);
