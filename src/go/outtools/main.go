@@ -195,6 +195,18 @@ func (m *Main) Draw(infile, outfile string) {
 }
 
 
+func (m *Main) ToMesh(infile string, sub int){
+  a := ToT4(ReadF(infile)).TArray
+  for i:=0; i < len(a[X]); i+= sub{
+    for j:=0; j < len(a[X][i]); j+= sub{
+      for k:=0; k < len(a[X][i][j]); k+= sub{
+        fmt.Println(k, j, i, a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
+      }
+    }
+  }
+}
+
+
 func (m *Main) Print(fname string) {
 	t := ReadF(fname)
 	WriteAscii(os.Stdout, t)
