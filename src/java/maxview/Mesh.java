@@ -30,7 +30,9 @@ public final class Mesh extends Brush{
 		nPolys = polys.length;
 		initPolys2D();
 	}
-	
+
+
+
 	public Mesh(Vertex[] v, int[][] polys, Color fill, Color line){
 		this(v, polys, 
 			 colorArray(fill, polys.length), colorArray(line, polys.length));

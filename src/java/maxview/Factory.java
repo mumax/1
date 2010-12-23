@@ -148,60 +148,60 @@ public final class Factory {
   /**
    Rotated cone
   */
-  public static Mesh cone(double r, int npoints, double height, double theta, double phi){
-        Vertex[] v = new Vertex[npoints + 1 + 1];
-
-        for(int i = 0; i < npoints; i++){
-            double theta_ = (-2*Math.PI/npoints)*i;
-            v[i] = new Vertex(r*Math.cos(theta_), 0, r*Math.sin(theta_));
-        }
-        v[npoints] = new Vertex(0, height, 0); //top
-        v[npoints+1] = new Vertex(0, height/2, 0); //pivot
-        int npoly = npoints + 1;
-        int[][] p = new int[npoly][];
-        for(int i = 0; i < npoints; i++){
-            p[i] = new int[3];
-            for(int j=0; j<4; j++){
-                p[i][0] = i;
-                p[i][1] = (i+1) % npoints;
-                p[i][2] = npoints;
-            }
-        }
-        int bottom = npoly - 1;
-        p[bottom] = new int[npoints];
-
-        for(int i = 0; i < npoints; i++){
-            p[bottom][i] = npoints - 1 - i;
-        }
-
-        for(int i=0; i<v.length; i++){
-          Vertex V = v[i];
-          V.y -= height / 2;
-
-          double m11 = cos(phi);
-          double m12 = 0;
-          double m13 = -sin(phi);
-
-          double m21 = -sin(phi)*sin(theta);
-          double m22 = cos(theta);
-          double m23 = -cos(phi)*sin(theta);
-
-          double m31 = sin(phi)*cos(theta);
-          double m32 = sin(theta);
-          double m33 = cos(phi)*cos(theta);
-
-        double xt = m11 * V.x + m12 * V.y + m13 * V.z;
-        double yt = (m21 * V.x + m22 * V.y + m23 * V.z);
-        double zt = m31 * V.x + m32 * V.y + m33 * V.z;
-
-          V.x = xt;
-          V.y = yt;
-          V.z = zt;
-        }
-        Mesh cone = new Mesh(v, p);
-        return cone;
-    }
-
+//   public static Mesh cone(double r, int npoints, double height, double theta, double phi){
+//         Vertex[] v = new Vertex[npoints + 1 + 1];
+// 
+//         for(int i = 0; i < npoints; i++){
+//             double theta_ = (-2*Math.PI/npoints)*i;
+//             v[i] = new Vertex(r*Math.cos(theta_), 0, r*Math.sin(theta_));
+//         }
+//         v[npoints] = new Vertex(0, height, 0); //top
+//         v[npoints+1] = new Vertex(0, height/2, 0); //pivot
+//         int npoly = npoints + 1;
+//         int[][] p = new int[npoly][];
+//         for(int i = 0; i < npoints; i++){
+//             p[i] = new int[3];
+//             for(int j=0; j<4; j++){
+//                 p[i][0] = i;
+//                 p[i][1] = (i+1) % npoints;
+//                 p[i][2] = npoints;
+//             }
+//         }
+//         int bottom = npoly - 1;
+//         p[bottom] = new int[npoints];
+// 
+//         for(int i = 0; i < npoints; i++){
+//             p[bottom][i] = npoints - 1 - i;
+//         }
+// 
+//         for(int i=0; i<v.length; i++){
+//           Vertex V = v[i];
+//           V.y -= height / 2;
+// 
+//           double m11 = cos(phi);
+//           double m12 = 0;
+//           double m13 = -sin(phi);
+// 
+//           double m21 = -sin(phi)*sin(theta);
+//           double m22 = cos(theta);
+//           double m23 = -cos(phi)*sin(theta);
+// 
+//           double m31 = sin(phi)*cos(theta);
+//           double m32 = sin(theta);
+//           double m33 = cos(phi)*cos(theta);
+// 
+//           double xt = m11 * V.x + m12 * V.y + m13 * V.z;
+//           double yt = (m21 * V.x + m22 * V.y + m23 * V.z);
+//           double zt = m31 * V.x + m32 * V.y + m33 * V.z;
+// 
+//           V.x = xt;
+//           V.y = yt;
+//           V.z = zt;
+//         }
+//         Mesh cone = new Mesh(v, p);
+//         cone.translate(0, -height/2, 0);
+//         return cone;
+//     }
 
 
     /**
