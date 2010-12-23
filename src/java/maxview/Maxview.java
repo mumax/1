@@ -12,13 +12,11 @@ public class Maxview {
 
     public static void main (String args[]) throws IOException{
 
-      readFile(args[0]);
+      
 
      Group root = new Group();
+     readFile(args[0], root);
 
-     Brush cone = Factory.cone(0.5, 32, 1);
-     cone.setFillColor(Color.RED);
-      root.add(cone);
 
     Universe universe = new Universe(Color.WHITE, new Vertex(2, 5, 0), 1);
     View view = new View(universe);
@@ -32,13 +30,25 @@ public class Maxview {
     frame.show();
 	}
 
-  private static void readFile(String file) throws IOException{
+  private static void readFile(String file, Group root) throws IOException{
     StreamTokenizer in = new StreamTokenizer(new InputStreamReader(new FileInputStream(new File(file))));
 
     int tok = in.nextToken();
     while(tok != StreamTokenizer.TT_EOF){
-      System.out.println("" + in.nval);
-      tok = in.nextToken();
+      double x = in.nval; tok = in.nextToken();
+      double y = in.nval; tok = in.nextToken();
+      double z = in.nval; tok = in.nextToken();
+      double mx = in.nval; tok = in.nextToken();
+      double my = in.nval; tok = in.nextToken();
+      double mz = in.nval; tok = in.nextToken();
+
+
+      Brush cone = Factory.cone(0.4, 32, 1);
+      cone.setFillColor(Color.RED);
+      cone.translate(x, y, z);
+      root.add(cone);
+
+      
     }
   }
 }

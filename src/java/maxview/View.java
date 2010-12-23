@@ -47,8 +47,8 @@ public final class View extends JPanel{
         universe = u;
 		setFocusable(true);
 		addKeyListener(new PortKeyListener());
-		//addMouseListener(new PortMouseListener());
-		//addMouseMotionListener(new PortMouseMotionListener());
+		addMouseListener(new PortMouseListener());
+		addMouseMotionListener(new PortMouseMotionListener());
     }
 	
 	public void setAntiAlias(boolean a){
