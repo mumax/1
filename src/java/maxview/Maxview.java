@@ -19,15 +19,15 @@ public class Maxview {
      readFile(args[0], root);
 
 
-    Universe universe = new Universe(Color.WHITE, new Vertex(2, 5, 0), 1);
+    Universe universe = new Universe(Color.WHITE, new Vertex(2, 5, 0), 0.5);
     View view = new View(universe);
-    view.setBord(10, 0, 0.3);
+    view.setBord(20, 0, 0);
     universe.setRoot(root);
 
-    JFrame frame = new JFrame("3D Engine");
+    JFrame frame = new JFrame("Maxview");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setContentPane(view);
-    frame.setSize(400, 300);
+    frame.setSize(800, 800);
     frame.show();
 	}
 
@@ -46,8 +46,18 @@ public class Maxview {
 
       Brush cone = Factory.cone(0.4, 32, 1);
       cone.rotate(0, -Math.PI/2);
+      cone.rotate(-Math.PI/2, 0);
+
+      double r = mx*mx + my*my + mz*mz;
+      mx /= r;
+      my /= r;
+      mz /= r;
+      double theta = Math.atan2(mx, my);
+      double phi = Math.acos(mz);
+
+      //cone.rotate(theta, phi);
       cone.setFillColor(Color.RED);
-      cone.translate(x, y, z);
+      cone.translate(-x, y, z);
       root.add(cone);
 
       
