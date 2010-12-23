@@ -64,22 +64,31 @@ func (s *Translated) Inside(x, y, z float32) bool {
 	return s.original.Inside(x-s.deltaX, y-s.deltaY, z-s.deltaZ)
 }
 
-
-type Array struct{
+type Inverse struct {
   original Geom
-  nz, ny int
-  dz, dy float32
 }
 
-func (a *Array) Inside(x, y, z float32) bool{
-  for i:=0; i<a.ny; i++{
-    for j:=0; j<a.nz; j++{
-      ty := y - (a.dy * (float32(i) -float32(a.ny)/2. + .5) )
-      tz := z - (a.dz * (float32(j) -float32(a.nz)/2. + .5) )
-      if a.original.Inside(x, ty, tz) {return true}
-    }
-  }
-  return false
+func (s *Inverse) Inside(x, y, z float32) bool {
+  return !s.original.Inside(x, y, z)
+}
+
+type Array struct {
+	original Geom
+	nz, ny   int
+	dz, dy   float32
+}
+
+func (a *Array) Inside(x, y, z float32) bool {
+	for i := 0; i < a.ny; i++ {
+		for j := 0; j < a.nz; j++ {
+			ty := y - (a.dy * (float32(i) - float32(a.ny)/2. + .5))
+			tz := z - (a.dz * (float32(j) - float32(a.nz)/2. + .5))
+			if a.original.Inside(x, ty, tz) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // Ellipsoid with semi-axes rx, ry, rz.
@@ -93,6 +102,15 @@ func (s *Ellipsoid) Inside(x, y, z float32) bool {
 	y /= s.ry
 	z /= s.rz
 	return x*x+y*y+z*z <= 1.
+}
+
+type Cuboid Ellipsoid
+
+func (s *Cuboid) Inside(x, y, z float32) bool {
+	x /= s.rx
+	y /= s.ry
+	z /= s.rz
+	return abs32(x) <= 1. && abs32(y) <= 1. && abs32(z) <= 1.
 }
 
 

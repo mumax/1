@@ -68,8 +68,8 @@ func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
 
 	hdr(out, "End", "Header")
 
-  writeDataBinary4(out, tens)
-  
+	writeDataBinary4(out, tens)
+
 	hdr(out, "End", "Segment")
 
 }
@@ -109,17 +109,17 @@ func writeDataBinary4(out io.Writer, tens tensor.Interface) {
 	format := "Binary 4"
 	hdr(out, "Begin", "Data "+format)
 
-  var bytes []byte
+	var bytes []byte
 
-  // OOMMF requires this number to be first to check the format
-  var controlnumber float32 = 1234567.0
-  // Wicked conversion form float32 [4]byte in big-endian
-  // encoding/binary is too slow
-  // Inlined for performance, terabytes of data will pass here...
-  bytes = (*[4]byte)(unsafe.Pointer(&controlnumber))[:]
-  bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0] // swap endianess
-  out.Write(bytes)
-  
+	// OOMMF requires this number to be first to check the format
+	var controlnumber float32 = 1234567.0
+	// Wicked conversion form float32 [4]byte in big-endian
+	// encoding/binary is too slow
+	// Inlined for performance, terabytes of data will pass here...
+	bytes = (*[4]byte)(unsafe.Pointer(&controlnumber))[:]
+	bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0] // swap endianess
+	out.Write(bytes)
+
 	// Here we loop over X,Y,Z, not Z,Y,X, because
 	// internal in C-order == external in Fortran-order
 	for i := 0; i < gridsize[X]; i++ {
@@ -127,9 +127,9 @@ func writeDataBinary4(out io.Writer, tens tensor.Interface) {
 			for k := 0; k < gridsize[Z]; k++ {
 				for c := Z; c >= X; c-- {
 					// dirty conversion from float32 to [4]byte
-          bytes = (*[4]byte)(unsafe.Pointer(&data[c][i][j][k]))[:]
-          bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0]
-          out.Write(bytes)
+					bytes = (*[4]byte)(unsafe.Pointer(&data[c][i][j][k]))[:]
+					bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0]
+					out.Write(bytes)
 				}
 			}
 		}
@@ -140,7 +140,7 @@ func writeDataBinary4(out io.Writer, tens tensor.Interface) {
 
 
 func floats2bytes(floats []float32) []byte {
-// 	l := len(floats)
+	// 	l := len(floats)
 	return (*[4]byte)(unsafe.Pointer(&floats[0]))[:]
 }
 

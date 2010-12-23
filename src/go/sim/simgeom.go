@@ -150,8 +150,13 @@ func (sim *Sim) Cylinder() {
 }
 
 func (sim *Sim) DotArray(r, sep float32, n int) {
-  pitch := 2*r + sep
-  sim.geom = &Array{&Ellipsoid{INF32, r, r}, n, n, pitch, pitch}
+	pitch := 2*r + sep
+	sim.geom = &Array{&Ellipsoid{INF32, r, r}, n, n, pitch, pitch}
+}
+
+func (sim *Sim) SquareHoleArray(r, sep float32, n int) {
+	pitch := 2*r + sep
+	sim.geom = &Inverse{&Array{&Cuboid{INF32, r, r}, n, n, pitch, pitch}}
 }
 
 
