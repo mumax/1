@@ -1,3 +1,9 @@
+/**
+  This file is part of a 3D engine,
+  copyright Arne Vansteenkiste 2006-2010.
+  Use of this source code is governed by the GNU General Public License version 3,
+  as published by the Free Software Foundation.
+*/
 import java.io.Serializable;
 import java.awt.Color;
 
