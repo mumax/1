@@ -138,7 +138,9 @@ public final class Factory {
         for(int i = 0; i < npoints; i++){
             p[bottom][i] = npoints - 1 - i;
         }
-        return new Mesh(v, p);
+        Mesh cone = new Mesh(v, p);
+        cone.translate(0, -height/2, 0);
+        return cone;
     }
     
     
