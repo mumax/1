@@ -60,6 +60,7 @@ public class Maxview {
       cone.rotateZ(theta);
 
       cone.setFillColor(Color.RED);
+      cone.setLineColor(Color.RED);
       cone.translate(-x, y, z);
       root.add(cone);
 

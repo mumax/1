@@ -69,7 +69,8 @@ public final class Mesh extends Brush{
 			int green = fill[p].getGreen();
 			int blue = fill[p].getBlue();
 			double d = universe.getContrast();
-			fill[p] = new Color(light(red, inprod, d), light(green, inprod, d), light(blue, inprod, d), fill[p].getAlpha()); 
+			fill[p] = new Color(light(red, inprod, d), light(green, inprod, d), light(blue, inprod, d), fill[p].getAlpha());
+      line[p] = fill[p]; // hack
 		}
 	}
 	

@@ -162,8 +162,10 @@ public final class View extends JPanel{
 	
 	public void paint(Graphics g1){
 		g = (Graphics2D)g1;
-		if(antialias)
+		if(antialias){
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+      g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+    }
 		else
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 		Dimension d = getSize();
