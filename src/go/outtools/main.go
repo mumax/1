@@ -203,7 +203,7 @@ func (m *Main) ToMesh(infile string, sub int){
   for i:=0; i < imax; i+= sub{
     for j:=0; j < jmax; j+= sub{
       for k:=0; k < kmax; k+= sub{
-        fmt.Printf("%d %d %d %f %f %f\n", k/sub-kmax/2, j/sub-jmax/2, i/sub-imax/2, a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
+        fmt.Printf("%d %d %d %f %f %f\n", k/sub-kmax/(2*sub), j/sub-jmax/(2*sub), i/sub-imax/(2*sub), a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
       }
     }
   }
