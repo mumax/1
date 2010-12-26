@@ -176,22 +176,23 @@ public final class View extends JPanel{
 		
 		transform(universe.getRoot().getVertices());
 		universe.getRoot().paint(this);
+
+      // draw a little square to indicate the position of the light
+// 		g.setColor(crosshair);
+// 		//light tekenen
+// 		transform(universe.light);
+// 		int lx = (int)universe.light.tx;
+// 		int ly = (int)universe.light.ty;
+// 		g.drawRect(lx, ly, 3, 3);
 		
-		g.setColor(crosshair);
-		//light tekenen
-		transform(universe.light);
-		int lx = (int)universe.light.tx;
-		int ly = (int)universe.light.ty;
-		g.drawRect(lx, ly, 3, 3);
-		
-		//oorsprong
-		Vertex origin = new Vertex(0, 0, 0);
-		transform(origin);
-		int ox = (int)origin.tx;
-		int oy = (int)origin.ty;
-		int C = 8;
-		g.drawLine(ox, oy+C,ox, oy-C);
-		g.drawLine(ox+C, oy, ox-C, oy);
+		// draw a little cross to indicate the position of the origin
+// 		Vertex origin = new Vertex(0, 0, 0);
+// 		transform(origin);
+// 		int ox = (int)origin.tx;
+// 		int oy = (int)origin.ty;
+// 		int C = 8;
+// 		g.drawLine(ox, oy+C,ox, oy-C);
+// 		g.drawLine(ox+C, oy, ox-C, oy);
 	} 
 	
 	/*public void update(Graphics g1){

@@ -12,7 +12,7 @@ Convex 3D object. Niet-convexe objecten kunnen gemaakt worden met Group.
  */
 public final class Mesh extends Brush{
 	
-	private Vertex[] vertex;    //Punten van de 3D-figuur.
+    private Vertex[] vertex;    //Punten van de 3D-figuur.
     private int[][] polys;      //Lijsten met nummers van vertices die telkens een zijvlak definieren.
     private Color[] fill;       //Kleur zijvlakken
     private Color[] line;       //lijnkleur zijvlakken
@@ -172,8 +172,8 @@ public final class Mesh extends Brush{
 			boolean inFront = true;
 			for(int i = 0; i < poly2D.npoints; i++){
 				Vertex v = vertex[vertexNum[i]];
-				x[i] = (int) v.tx;
-				y[i] = (int) v.ty;
+				x[i] = (int) (v.tx+.5);
+				y[i] = (int) (v.ty+.5);
 				//voor of achter blikveld?
 				if(v.tz < 0)
 					inFront = false;

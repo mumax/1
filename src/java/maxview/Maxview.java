@@ -19,9 +19,9 @@ public class Maxview {
       readStdin(root);
 
   
-    Universe universe = new Universe(Color.WHITE, new Vertex(2, 5, 0), 0.5);
+    Universe universe = new Universe(Color.WHITE, new Vertex(2, 5, 20), 0.4);
     View view = new View(universe);
-    view.setBord(20, 0, 0);
+    view.setBord(25, 0, 0);
     universe.setRoot(root);
 
     JFrame frame = new JFrame("Maxview");
@@ -46,7 +46,7 @@ public class Maxview {
       double mz = in.nval; tok = in.nextToken();
 
 
-      Brush cone = Factory.cone(0.4, 32, 1);
+      Brush cone = Factory.cone(0.35, 32, 0.8);
       
       cone.rotate(0, -Math.PI/2);
       cone.rotate(-Math.PI/2, 0);
