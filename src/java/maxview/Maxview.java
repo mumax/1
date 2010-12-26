@@ -16,9 +16,9 @@ public class Maxview {
       
 
      Group root = new Group();
-     readFile(args[0], root);
+      readStdin(root);
 
-
+  
     Universe universe = new Universe(Color.WHITE, new Vertex(2, 5, 0), 0.5);
     View view = new View(universe);
     view.setBord(20, 0, 0);
@@ -29,10 +29,12 @@ public class Maxview {
     frame.setContentPane(view);
     frame.setSize(800, 800);
     frame.show();
+
+
 	}
 
-  private static void readFile(String file, Group root) throws IOException{
-    StreamTokenizer in = new StreamTokenizer(new InputStreamReader(new FileInputStream(new File(file))));
+  private static void readStdin(Group root) throws IOException{
+    StreamTokenizer in = new StreamTokenizer(new InputStreamReader(System.in));
 
     int tok = in.nextToken();
     while(tok != StreamTokenizer.TT_EOF){
