@@ -14,8 +14,10 @@ import (
 	"unsafe"
 )
 
-const ()
+const (CONTROL_NUMBER = 1234567.0
+)
 
+// TODO: select between text and binary
 func Encode(out_ io.Writer, f Interface) {
     out := bufio.NewWriter(out_)
     defer out.Flush()
@@ -66,7 +68,7 @@ func Encode(out_ io.Writer, f Interface) {
 
     hdr(out, "End", "Header")
 
-    writeDataText(out, tens)
+    writeDataBinary4(out, tens)
 
     hdr(out, "End", "Segment")
 
@@ -116,7 +118,7 @@ func writeDataBinary4(out io.Writer, tens tensor.Interface) {
 	var bytes []byte
 
 	// OOMMF requires this number to be first to check the format
-	var controlnumber float32 = 1234567.0
+	var controlnumber float32 = CONTROL_NUMBER
 	// Wicked conversion form float32 [4]byte in big-endian
 	// encoding/binary is too slow
 	// Inlined for performance, terabytes of data will pass here...
