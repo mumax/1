@@ -15,6 +15,10 @@ import (
     "fmt"
 )
 
+func (c *OmfCodec) Decode(in_ io.Reader) (t *tensor.T, metadata map[string]string){
+  return Decode(in_)
+}
+
 func Decode(in_ io.Reader) (t *tensor.T, metadata map[string]string){
     in := bufio.NewReader(in_)
     metadata = ReadHeader(in)
