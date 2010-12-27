@@ -13,6 +13,7 @@ import (
     . "strings"
     "bufio"
     "fmt"
+    "strconv"
 )
 
 func (c *OmfCodec) Decode(in_ io.Reader) (t *tensor.T, metadata map[string]string){
@@ -29,9 +30,13 @@ func Decode(in_ io.Reader) (t *tensor.T, metadata map[string]string){
     return
 }
 
+
+// omf.Info represents the header part of an omf file.
 type Info struct{
   Desc map[string]string
+  Size [3]int
 }
+
 
 // INTERNAL: Splits "# key: value" into "key", "value"
 func parseHeaderLine(str string) (key, value string) {
@@ -43,7 +48,10 @@ func parseHeaderLine(str string) (key, value string) {
 
 // INTERNAL: true if line == "# begin_data"
 func isHeaderEnd(str string) bool {
-    return HasPrefix(ToLower(Trim(str, "# ")), "end:data")
+  str = ToLower(Trim(str, "# "))
+  str = Replace(str, " ", "", -1)
+//   fmt.Println(str)
+    return HasPrefix(str, "begin:data")
 }
 
 func ReadHeader(in io.Reader) *Info {
@@ -57,12 +65,22 @@ func ReadHeader(in io.Reader) *Info {
         
         switch ToLower(key){
           default: panic("Unknown key: " + key)
+              // ignored
+          case "oommf", "segment count", "begin", "title", "meshtype", "xbase", "ybase", "zbase", "xstepsize", "ystepsize", "zstepsize", "xmin", "ymin", "zmin", "xmax", "ymax", "zmax", "valuerangeminmag", "valuerangemaxmag", "end":
+          case "xnodes": info.Size[X] = atoi(value)
+          case "ynodes": info.Size[Y] = atoi(value)
+          case "znodes": info.Size[Z] = atoi(value)
+          case "valuemultiplier":
+          case "valueunit":
+          case "meshunit":
+            // desc tags: parse further and add to metadata table
+            // TODO: does not neccesarily contain a ':'
           case "desc": 
             strs := Split(value, ":", 2)
             desc_key := Trim(strs[0], "# ")
             desc_value := Trim(strs[1], "# ")
             desc[desc_key] = desc_value
-          case "oommf", "segment count":
+
         }
         
         line, eof = iotool.ReadLine(in)
@@ -70,3 +88,10 @@ func ReadHeader(in io.Reader) *Info {
     return info
 }
 
+func atoi(a string) int{
+  i, err := strconv.Atoi(a)
+  if err != nil{
+    panic(err)
+  }
+  return i
+}
