@@ -16,24 +16,31 @@ import (
     "strconv"
 )
 
+
 func (c *OmfCodec) Decode(in_ io.Reader) (t *tensor.T4, metadata map[string]string){
   return Decode(in_)
 }
+
 
 func Decode(in_ io.Reader) (t *tensor.T4, metadata map[string]string){
     in := bufio.NewReader(in_)
     info := ReadHeader(in)
     metadata = info.Desc
     
-    switch info.Format{
-      default: panic("Unknown format: " + info.Format)
-      case "text":
-      case "binary":
-    }
-    
     size := []int{3, info.Size[Y], info.Size[Y], info.Size[X]}
     t = tensor.NewT4(size)
     
+    switch info.Format{
+      default: panic("Unknown format: " + info.Format)
+      case "text":
+        readDataText(in, t)
+      case "binary":
+        switch info.DataFormat{
+          default: panic("Unknown format: " + info.Format + " " + info.DataFormat)
+          case "4":
+            readDataBinary(in, t)
+        }
+    }
     return
 }
 
@@ -44,6 +51,15 @@ type Info struct{
   Size [3]int
   Format string // binary or text
   DataFormat string // 4 or 8
+}
+
+
+func readDataText(in io.Reader, t *tensor.T4){
+  
+}
+
+func readDataBinary(in io.Reader, t *tensor.T4){
+  
 }
 
 
@@ -63,6 +79,7 @@ func isHeaderEnd(str string) bool {
     return HasPrefix(str, "begin:data")
 }
 
+// Parses the header part of the omf file
 func ReadHeader(in io.Reader) *Info {
     desc := make(map[string]string)
     info := new(Info)
