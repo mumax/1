@@ -11,7 +11,7 @@ import (
 	"tensor"
 	"iotool"
     . "strings"
-    "bufio"
+//     "bufio"
     "fmt"
     "strconv"
     "os"
@@ -25,7 +25,7 @@ func (c *OmfCodec) Decode(in_ io.Reader) (t *tensor.T4, metadata map[string]stri
 
 
 func Decode(in_ io.Reader) (t *tensor.T4, metadata map[string]string){
-    in := bufio.NewReader(in_)
+    in := in_//in := iotool.NewSafeReader(bufio.NewReader(in_))
     info := ReadHeader(in)
     metadata = info.Desc
     
