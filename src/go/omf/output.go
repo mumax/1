@@ -16,62 +16,66 @@ import (
 
 const ()
 
+func Encode(out_ io.Writer, f Interface) {
+    out := bufio.NewWriter(out_)
+    defer out.Flush()
+
+    tens, multiplier, valueunit := f.GetData()
+    vecsize := tens.Size()
+    if len(vecsize) != 4 {
+        panic("rank should be 4")
+    }
+    if vecsize[0] != 3 {
+        panic("size[0] should be 3")
+    }
+    gridsize := vecsize[1:]
+    cellsize, meshunit := f.GetMesh()
+
+    hdr(out, "OOMMF", "rectangular mesh v1.0")
+    hdr(out, "Segment count", "1")
+    hdr(out, "Begin", "Segment")
+
+    hdr(out, "Begin", "Header")
+
+    hdr(out, "Title", "mumax data") // TODO
+    hdr(out, "meshtype", "rectangular")
+
+    hdr(out, "meshunit", meshunit)
+
+    hdr(out, "xbase", 0)
+    hdr(out, "ybase", 0)
+    hdr(out, "zbase", 0)
+    hdr(out, "xstepsize", cellsize[Z])
+    hdr(out, "ystepsize", cellsize[Y])
+    hdr(out, "zstepsize", cellsize[X])
+    hdr(out, "xmin", 0)
+    hdr(out, "ymin", 0)
+    hdr(out, "zmin", 0)
+    hdr(out, "xmax", cellsize[Z]*float32(gridsize[Z]))
+    hdr(out, "ymax", cellsize[Y]*float32(gridsize[Y]))
+    hdr(out, "zmax", cellsize[X]*float32(gridsize[X]))
+    hdr(out, "xnodes", gridsize[Z])
+    hdr(out, "ynodes", gridsize[Y])
+    hdr(out, "znodes", gridsize[X])
+
+    hdr(out, "ValueRangeMinMag", 1e-08) // not so "optional" as the OOMMF manual suggests...
+    hdr(out, "ValueRangeMaxMag", 1)
+
+    hdr(out, "valueunit", valueunit)
+    hdr(out, "valuemultiplier", multiplier)
+
+    hdr(out, "End", "Header")
+
+    writeDataBinary4(out, tens)
+
+    hdr(out, "End", "Segment")
+
+}
+
 // Encodes the vector field in omf format.
 // The swap from ZYX (internal) to XYZ (external) is made here.
-func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
-	out := bufio.NewWriter(out_)
-	defer out.Flush()
-
-	tens, multiplier, valueunit := f.GetData()
-	vecsize := tens.Size()
-	if len(vecsize) != 4 {
-		panic("rank should be 4")
-	}
-	if vecsize[0] != 3 {
-		panic("size[0] should be 3")
-	}
-	gridsize := vecsize[1:]
-	cellsize, meshunit := f.GetMesh()
-
-	hdr(out, "OOMMF", "rectangular mesh v1.0")
-	hdr(out, "Segment count", "1")
-	hdr(out, "Begin", "Segment")
-
-	hdr(out, "Begin", "Header")
-
-	hdr(out, "Title", "mumax data") // TODO
-	hdr(out, "meshtype", "rectangular")
-
-	hdr(out, "meshunit", meshunit)
-
-	hdr(out, "xbase", 0)
-	hdr(out, "ybase", 0)
-	hdr(out, "zbase", 0)
-	hdr(out, "xstepsize", cellsize[Z])
-	hdr(out, "ystepsize", cellsize[Y])
-	hdr(out, "zstepsize", cellsize[X])
-	hdr(out, "xmin", 0)
-	hdr(out, "ymin", 0)
-	hdr(out, "zmin", 0)
-	hdr(out, "xmax", cellsize[Z]*float32(gridsize[Z]))
-	hdr(out, "ymax", cellsize[Y]*float32(gridsize[Y]))
-	hdr(out, "zmax", cellsize[X]*float32(gridsize[X]))
-	hdr(out, "xnodes", gridsize[Z])
-	hdr(out, "ynodes", gridsize[Y])
-	hdr(out, "znodes", gridsize[X])
-
-	hdr(out, "ValueRangeMinMag", 1e-08) // not so "optional" as the OOMMF manual suggests...
-	hdr(out, "ValueRangeMaxMag", 1)
-
-	hdr(out, "valueunit", valueunit)
-	hdr(out, "valuemultiplier", multiplier)
-
-	hdr(out, "End", "Header")
-
-	writeDataBinary4(out, tens)
-
-	hdr(out, "End", "Segment")
-
+func (c *OmfCodec) Encode(out_ io.Writer, f Interface){
+  Encode(out_, f)
 }
 
 func writeDataText(out io.Writer, tens tensor.Interface) {

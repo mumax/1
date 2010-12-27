@@ -11,8 +11,3 @@ import (
 	"tensor"
 )
 
-
-func (c *OmfCodec) Decode(in io.Reader) (tensor *tensor.T, metadata map[string]string) {
-
-	return
-}
