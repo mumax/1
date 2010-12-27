@@ -36,7 +36,7 @@ func MustOpenWRONLY(filename string) *os.File{
 
 // returns the parent directory of a file
 func Parent(filename string) string{
-  _, dir := path.Split(filename)
+  dir, _ := path.Split(filename)
   if dir == ""{
     dir = "."
   }

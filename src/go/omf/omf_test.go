@@ -3,7 +3,7 @@ package omf
 import (
 	"testing"
 	"tensor"
-	"os"
+	"iotool"
 )
 
 type Test struct{}
@@ -27,5 +27,5 @@ func (t *Test) GetMesh() (cellsize []float32, unit string) {
 func TestIO(test *testing.T) {
 	t := &Test{}
 	codec := NewOmfCodec()
-	codec.Encode(os.Stdout, t)
+	codec.Encode(iotool.MustOpenWRONLY("test.omf"), t)
 }
