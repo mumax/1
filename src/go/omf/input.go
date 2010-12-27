@@ -21,13 +21,17 @@ func (c *OmfCodec) Decode(in_ io.Reader) (t *tensor.T, metadata map[string]strin
 
 func Decode(in_ io.Reader) (t *tensor.T, metadata map[string]string){
     in := bufio.NewReader(in_)
-    metadata = ReadHeader(in)
+    info := ReadHeader(in)
+    metadata = info.Desc
     for k,v := range metadata{
       fmt.Println(k, ":", v)
     }
     return
 }
 
+type Info struct{
+  Desc map[string]string
+}
 
 // INTERNAL: Splits "# key: value" into "key", "value"
 func parseHeaderLine(str string) (key, value string) {
@@ -42,16 +46,27 @@ func isHeaderEnd(str string) bool {
     return HasPrefix(ToLower(Trim(str, "# ")), "end:data")
 }
 
-func ReadHeader(in_ io.Reader) map[string]string {
-    header := make(map[string]string)
-    in := bufio.NewReader(in_)
+func ReadHeader(in io.Reader) *Info {
+    desc := make(map[string]string)
+    info := new(Info)
+    info.Desc = desc
+ 
     line, eof := iotool.ReadLine(in)
     for !eof && !isHeaderEnd(line) {
-        //if line == "" {continue}
         key, value := parseHeaderLine(line)
-        header[key] = value
+        
+        switch ToLower(key){
+          default: panic("Unknown key: " + key)
+          case "desc": 
+            strs := Split(value, ":", 2)
+            desc_key := Trim(strs[0], "# ")
+            desc_value := Trim(strs[1], "# ")
+            desc[desc_key] = desc_value
+          case "oommf", "segment count":
+        }
+        
         line, eof = iotool.ReadLine(in)
     }
-    return header
+    return info
 }
 
