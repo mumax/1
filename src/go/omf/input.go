@@ -78,8 +78,8 @@ func readDataText(in io.Reader, t *tensor.T4){
 
 func readDataBinary4(in io.Reader, t *tensor.T4){
   
-//     size := t.Size()[1:] // without the leading "3"
-//     data := t.Array()
+    size := t.Size()[1:] // without the leading "3"
+    data := t.Array()
     
     var bytes4 [4]byte
     bytes := bytes4[:]
@@ -88,31 +88,33 @@ func readDataBinary4(in io.Reader, t *tensor.T4){
     bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0] // swap endianess
  
     // OOMMF requires this number to be first to check the format
-    var controlnumber float32
+    var controlnumber float32 = 0.
     
     // Wicked conversion form float32 [4]byte in big-endian
     // encoding/binary is too slow
     // Inlined for performance, terabytes of data will pass here...
     controlnumber = *((*float32)(unsafe.Pointer(&bytes4)))
-    
+    fmt.Println("Control number:", controlnumber)
     if controlnumber != CONTROL_NUMBER{
       panic("invalid control number: " + fmt.Sprint(controlnumber))
     }
 
     // Here we loop over X,Y,Z, not Z,Y,X, because
     // internal in C-order == external in Fortran-order
-//     for i := 0; i < size[X]; i++ {
-//         for j := 0; j < size[Y]; j++ {
-//             for k := 0; k < size[Z]; k++ {
-//                 for c := Z; c >= X; c-- {
-// //                     // dirty conversion from float32 to [4]byte
-// //                     bytes = (*[4]byte)(unsafe.Pointer(&data[c][i][j][k]))[:]
-// //                     bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0]
-// //                     out.Write(bytes)
-//                 }
-//             }
-//         }
-//     }
+    for i := 0; i < size[X]; i++ {
+        for j := 0; j < size[Y]; j++ {
+            for k := 0; k < size[Z]; k++ {
+                for c := Z; c >= X; c-- {
+                  n, err := in.Read(bytes) // TODO: check for error, also on output (iotool.MustReader/MustWriter?, have to block until all input is read)
+                  if err != nil || n != 4{
+                    panic(err)
+                  }
+                  bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0] // swap endianess
+                  data[c][i][j][k] = *((*float32)(unsafe.Pointer(&bytes4)))
+                }
+            }
+        }
+    }
     
 }
 
