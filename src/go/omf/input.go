@@ -11,3 +11,7 @@ import (
 	"tensor"
 )
 
+func Decode(in_ io.Reader) (t *tensor.T, metadata map[string]string){
+
+    return
+}
