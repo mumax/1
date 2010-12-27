@@ -9,9 +9,45 @@ package omf
 import (
 	"io"
 	"tensor"
+	"iotool"
+    . "strings"
+    "bufio"
+    "fmt"
 )
 
 func Decode(in_ io.Reader) (t *tensor.T, metadata map[string]string){
-
+    in := bufio.NewReader(in_)
+    metadata = ReadHeader(in)
+    for k,v := range metadata{
+      fmt.Println(k, ":", v)
+    }
     return
 }
+
+
+// INTERNAL: Splits "# key: value" into "key", "value"
+func parseHeaderLine(str string) (key, value string) {
+    strs := Split(str, ":", 2)
+    key = Trim(strs[0], "# ")
+    value = Trim(strs[1], "# ")
+    return
+}
+
+// INTERNAL: true if line == "# begin_data"
+func isHeaderEnd(str string) bool {
+    return HasPrefix(ToLower(Trim(str, "# ")), "begin:data")
+}
+
+func ReadHeader(in_ io.Reader) map[string]string {
+    header := make(map[string]string)
+    in := bufio.NewReader(in_)
+    line, eof := iotool.ReadLine(in)
+    for !eof && !isHeaderEnd(line) {
+        //if line == "" {continue}
+        key, value := parseHeaderLine(line)
+        header[key] = value
+        line, eof = iotool.ReadLine(in)
+    }
+    return header
+}
+
