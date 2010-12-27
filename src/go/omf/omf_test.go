@@ -11,10 +11,10 @@ type Test struct{}
 
 func (t *Test) GetData() (data tensor.Interface, multiplier float32, unit string) {
 	tens := tensor.NewT4([]int{3, 128, 32, 1})
-	for i:= range tens.List(){
-      tens.List()[i] = float32(i+1)
-    }
-    data, multiplier, unit = tens, 800e3, "A/m"
+	for i := range tens.List() {
+		tens.List()[i] = float32(i + 1)
+	}
+	data, multiplier, unit = tens, 800e3, "A/m"
 	return
 }
 
@@ -36,5 +36,7 @@ func TestIO(test *testing.T) {
 	codec.Encode(iotool.MustOpenWRONLY("test.omf"), t)
 	tens, _ := codec.Decode(iotool.MustOpenRDONLY("test.omf"))
 	fmt.Println(tens.Size())
-	if !tensor.Equal(orig, tens) {test.Fail()}
+	if !tensor.Equal(orig, tens) {
+		test.Fail()
+	}
 }

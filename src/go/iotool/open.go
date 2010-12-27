@@ -7,47 +7,47 @@
 package iotool
 
 import (
-//     "io"
-    "os"
-    "path"
+	//     "io"
+	"os"
+	"path"
 )
 
 // Opens a file for read-only.
 // Panics on error.
-func MustOpenRDONLY(filename string) *os.File{
-  file, err := os.Open(filename, os.O_RDONLY, 0777)
-  if err != nil{
-    panic(err)
-  }
-  return file
+func MustOpenRDONLY(filename string) *os.File {
+	file, err := os.Open(filename, os.O_RDONLY, 0777)
+	if err != nil {
+		panic(err)
+	}
+	return file
 }
 
 // Opens a file for write-only.
 // Truncates existing file or creates the file if neccesary.
 // The permission is the same as the parent directory.
-func MustOpenWRONLY(filename string) *os.File{
-  perm := Permission(Parent(filename))
-  file, err := os.Open(filename, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, perm)
-  if err != nil{
-    panic(err)
-  }
-  return file
+func MustOpenWRONLY(filename string) *os.File {
+	perm := Permission(Parent(filename))
+	file, err := os.Open(filename, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, perm)
+	if err != nil {
+		panic(err)
+	}
+	return file
 }
 
 // returns the parent directory of a file
-func Parent(filename string) string{
-  dir, _ := path.Split(filename)
-  if dir == ""{
-    dir = "."
-  }
-  return dir
+func Parent(filename string) string {
+	dir, _ := path.Split(filename)
+	if dir == "" {
+		dir = "."
+	}
+	return dir
 }
 
 // returns the file's permissions
-func Permission(filename string) uint32{
-  stat, err := os.Stat(filename)
-  if err != nil{
-    panic(err)
-  }
-  return stat.Permission()
+func Permission(filename string) uint32 {
+	stat, err := os.Stat(filename)
+	if err != nil {
+		panic(err)
+	}
+	return stat.Permission()
 }

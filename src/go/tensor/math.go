@@ -9,24 +9,30 @@ package tensor
 import ()
 
 // Tests for deep equality (rank, size and data)
-func Equal(a, b Interface) bool{
-  
-  sizeA, sizeB := a.Size(), b.Size()
-  // test for equal rank
-  if len(sizeA) != len(sizeB) {return false}
-  
-  // test for equal size
-  for i,sa := range sizeA{
-    if sa != sizeB[i]{ return false}
-  }
-  
-  // test for equal data
-  dataA, dataB := a.List(), b.List()
-  for i, da := range dataA{
-    if da != dataB[i] {return false}
-  }
-  
-  return true
+func Equal(a, b Interface) bool {
+
+	sizeA, sizeB := a.Size(), b.Size()
+	// test for equal rank
+	if len(sizeA) != len(sizeB) {
+		return false
+	}
+
+	// test for equal size
+	for i, sa := range sizeA {
+		if sa != sizeB[i] {
+			return false
+		}
+	}
+
+	// test for equal data
+	dataA, dataB := a.List(), b.List()
+	for i, da := range dataA {
+		if da != dataB[i] {
+			return false
+		}
+	}
+
+	return true
 }
 
 

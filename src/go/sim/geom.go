@@ -65,11 +65,11 @@ func (s *Translated) Inside(x, y, z float32) bool {
 }
 
 type Inverse struct {
-  original Geom
+	original Geom
 }
 
 func (s *Inverse) Inside(x, y, z float32) bool {
-  return !s.original.Inside(x, y, z)
+	return !s.original.Inside(x, y, z)
 }
 
 type Array struct {
