@@ -66,7 +66,7 @@ func Encode(out_ io.Writer, f Interface) {
 
     hdr(out, "End", "Header")
 
-    writeDataBinary4(out, tens)
+    writeDataText(out, tens)
 
     hdr(out, "End", "Segment")
 

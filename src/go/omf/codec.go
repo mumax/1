@@ -4,6 +4,7 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
+// TODO: wrap all panic strings in a "FormatErr" type, have functions that return an err
 
 /*
   This package implements a tensor.Codec that reads/writes data in

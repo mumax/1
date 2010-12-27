@@ -14,6 +14,7 @@ import (
     "bufio"
     "fmt"
     "strconv"
+    "os"
 )
 
 
@@ -41,6 +42,7 @@ func Decode(in_ io.Reader) (t *tensor.T4, metadata map[string]string){
             readDataBinary(in, t)
         }
     }
+    t.WriteTo(os.Stdout)
     return
 }
 
@@ -55,7 +57,22 @@ type Info struct{
 
 
 func readDataText(in io.Reader, t *tensor.T4){
-  
+    size := t.Size()[1:] // without the leading "3"
+    data := t.Array()
+    // Here we loop over X,Y,Z, not Z,Y,X, because
+    // internal in C-order == external in Fortran-order
+    for i := 0; i < size[X]; i++ {
+        for j := 0; j < size[Y]; j++ {
+            for k := 0; k < size[Z]; k++ {
+                for c := Z; c >= X; c-- {
+                    _, err := fmt.Fscan(in, &data[c][i][j][k])
+                    if err != nil{
+                      panic(err)
+                    }
+                }
+            }
+        }
+    }
 }
 
 func readDataBinary(in io.Reader, t *tensor.T4){
@@ -117,7 +134,8 @@ func ReadHeader(in io.Reader) *Info {
     strs := Split(value, " ", 3)
     if ToLower(key) != "begin" || ToLower(strs[0]) != "data" {panic("Expected: Begin: Data")}
     info.Format = ToLower(strs[1])
-    info.DataFormat = strs[2]
+    if len(strs) >= 3 { // dataformat for text is empty
+      info.DataFormat = strs[2]} 
     return info
 }
 
