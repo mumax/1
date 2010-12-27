@@ -16,17 +16,24 @@ import (
     "strconv"
 )
 
-func (c *OmfCodec) Decode(in_ io.Reader) (t *tensor.T, metadata map[string]string){
+func (c *OmfCodec) Decode(in_ io.Reader) (t *tensor.T4, metadata map[string]string){
   return Decode(in_)
 }
 
-func Decode(in_ io.Reader) (t *tensor.T, metadata map[string]string){
+func Decode(in_ io.Reader) (t *tensor.T4, metadata map[string]string){
     in := bufio.NewReader(in_)
     info := ReadHeader(in)
     metadata = info.Desc
-    for k,v := range metadata{
-      fmt.Println(k, ":", v)
+    
+    switch info.Format{
+      default: panic("Unknown format: " + info.Format)
+      case "text":
+      case "binary":
     }
+    
+    size := []int{3, info.Size[Y], info.Size[Y], info.Size[X]}
+    t = tensor.NewT4(size)
+    
     return
 }
 
@@ -35,6 +42,8 @@ func Decode(in_ io.Reader) (t *tensor.T, metadata map[string]string){
 type Info struct{
   Desc map[string]string
   Size [3]int
+  Format string // binary or text
+  DataFormat string // 4 or 8
 }
 
 
@@ -79,12 +88,19 @@ func ReadHeader(in io.Reader) *Info {
             strs := Split(value, ":", 2)
             desc_key := Trim(strs[0], "# ")
             desc_value := Trim(strs[1], "# ")
+            fmt.Println(desc_key, " : ", desc_value)
             desc[desc_key] = desc_value
-
         }
         
         line, eof = iotool.ReadLine(in)
     }
+    // the remaining line should now be the begin:data clause
+    key, value := parseHeaderLine(line)
+    value = TrimSpace(value)
+    strs := Split(value, " ", 3)
+    if ToLower(key) != "begin" || ToLower(strs[0]) != "data" {panic("Expected: Begin: Data")}
+    info.Format = ToLower(strs[1])
+    info.DataFormat = strs[2]
     return info
 }
 

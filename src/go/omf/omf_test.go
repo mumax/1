@@ -4,6 +4,7 @@ import (
 	"testing"
 	"tensor"
 	"iotool"
+	"fmt"
 )
 
 type Test struct{}
@@ -28,5 +29,6 @@ func TestIO(test *testing.T) {
 	t := &Test{}
 	codec := NewOmfCodec()
 	codec.Encode(iotool.MustOpenWRONLY("test.omf"), t)
-	codec.Decode(iotool.MustOpenRDONLY("test.omf"))
+	tens, _ := codec.Decode(iotool.MustOpenRDONLY("test.omf"))
+	fmt.Println(tens.Size())
 }
