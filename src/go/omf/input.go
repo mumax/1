@@ -29,7 +29,7 @@ func Decode(in_ io.Reader) (t *tensor.T4, metadata map[string]string){
     info := ReadHeader(in)
     metadata = info.Desc
     
-    size := []int{3, info.Size[Y], info.Size[Y], info.Size[X]}
+    size := []int{3, info.Size[Z], info.Size[Y], info.Size[X]}
     t = tensor.NewT4(size)
     
     switch info.Format{
