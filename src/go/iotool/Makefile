@@ -5,6 +5,7 @@ TARG=iotool
 
 GOFILES=\
 	readline.go\
+	open.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 
