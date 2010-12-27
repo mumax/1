@@ -39,7 +39,7 @@ func parseHeaderLine(str string) (key, value string) {
 
 // INTERNAL: true if line == "# begin_data"
 func isHeaderEnd(str string) bool {
-    return HasPrefix(ToLower(Trim(str, "# ")), "begin:data")
+    return HasPrefix(ToLower(Trim(str, "# ")), "end:data")
 }
 
 func ReadHeader(in_ io.Reader) map[string]string {
