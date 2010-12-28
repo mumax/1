@@ -12,9 +12,9 @@ package refsh
 
 import (
 	"flag"
-	"fmt"
-	"os"
-	"strings"
+// 	"fmt"
+// 	"os"
+	. "strings"
 )
 
 
@@ -23,52 +23,83 @@ import (
 // Returns an array of commands and args. command[i] has args args[i].
 // files contains the CLI aruments that do not start with --
 func ParseFlags2() (commands []string, args [][]string, files []string) {
-	ncommands := 0
-	for i := 0; i < flag.NArg(); i++ {
-		if strings.HasPrefix(flag.Arg(i), "--") {
-			ncommands++
-		}
-	}
 
-	commands = make([]string, ncommands)
-	args = make([][]string, ncommands)
+//   ncommands := 0
+// 	nfiles := 0
+// 	for i := 0; i < flag.NArg(); i++ {
+// 		if strings.HasPrefix(flag.Arg(i), "--") {
+// 			ncommands++
+// 		} else {
+// 			nfiles++
+// 		}
+// 	}
 
-	{
-		command := 0
-		i := 0
-		for i < flag.NArg() {
-			//assert(strings.HasPrefix(flag.Arg(i), "--"));
-			if !strings.HasPrefix(flag.Arg(i), "--") {
-				fmt.Println("Expecting a command starting with --")
-				os.Exit(-2)
-			}
-			commands[command] = flag.Arg(i)
-			nargs := 0
-			i++
-			for i < flag.NArg() && !strings.HasPrefix(flag.Arg(i), "--") {
-				nargs++
-				i++
-			}
-			args[command] = make([]string, nargs)
-			command++
-		}
-	}
+// 	commands = make([]string, ncommands)
+// 	args = make([][]string, ncommands)
+// 	files = make([]string, nfiles)
 
-	{
-		command := 0
-		i := 0
-		for i < flag.NArg() {
-			//assert(strings.HasPrefix(flag.Arg(i), "--"));
-			commands[command] = flag.Arg(i)[2:len(flag.Arg(i))]
-			nargs := 0
-			i++
-			for i < flag.NArg() && !strings.HasPrefix(flag.Arg(i), "--") {
-				args[command][nargs] = flag.Arg(i)
-				nargs++
-				i++
-			}
-			command++
-		}
-	}
+  for i:=0; i < flag.NArg() ; i++{
+    if HasPrefix(flag.Arg(i), "--") {
+      
+      cmd, arg := parseFlag2(flag.Arg(i))
+      commands = append(commands, cmd)
+      args = append(args, arg)
+      
+    }else{
+      files = append(files, flag.Arg(i))
+    }
+  }
+  
+// 	{
+// 		command := 0
+// 		file := 0
+// 		i := 0
+// 		for i < flag.NArg() {
+// 			if !strings.HasPrefix(flag.Arg(i), "--") {
+// 				files[file] = flag.Arg(i)
+// 				file++
+// 			} else {
+// 
+//         commands[command] = flag.Arg(i)
+// 				nargs := 0
+// 				i++
+// 				for i < flag.NArg() && !strings.HasPrefix(flag.Arg(i), "--") {
+// 					nargs++
+// 					i++
+// 				}
+// 				args[command] = make([]string, nargs)
+// 				command++
+// 				
+// 			}
+// 		}
+// 	}
+// 
+// 	{
+// 		command := 0
+// 		i := 0
+// 		for i < flag.NArg() {
+// 			//assert(strings.HasPrefix(flag.Arg(i), "--"));
+// 			commands[command] = flag.Arg(i)[2:len(flag.Arg(i))]
+// 			nargs := 0
+// 			i++
+// 			for i < flag.NArg() && !strings.HasPrefix(flag.Arg(i), "--") {
+// 				args[command][nargs] = flag.Arg(i)
+// 				nargs++
+// 				i++
+// 			}
+// 			command++
+// 		}
+// 	}
 	return
+}
+
+// splits "--command="arg1, arg2" into "command", {arg1, arg2}
+func parseFlag2(flag string) (command string, args []string){
+  assert(HasPrefix(flag, "--"))
+  command = flag[2:]
+  return
+}
+
+func assert(test bool){
+  if !test{panic ("Assertion failed")}
 }

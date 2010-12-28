@@ -14,7 +14,8 @@ import (
 func main() {
 	cmd, args, files := refsh.ParseFlags2()
 	for i := range cmd {
-		fmt.Print(cmd[i], " ", args[i])
+		fmt.Print(cmd[i], " ")
+		fmt.Print(args[i])
 	}
 	fmt.Println(files)
 }

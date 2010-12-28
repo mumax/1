@@ -21,7 +21,7 @@ all:
 .PHONY: clean
 clean:
 	gomake clean -C iotool
-	gomake clean -C omftool
+	gomake clean -C omftools
 	gomake clean -C tensor
 	gomake clean -C sim
 	gomake clean -C refsh
