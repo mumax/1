@@ -96,7 +96,16 @@ func ParseFlags2() (commands []string, args [][]string, files []string) {
 // splits "--command="arg1, arg2" into "command", {arg1, arg2}
 func parseFlag2(flag string) (command string, args []string){
   assert(HasPrefix(flag, "--"))
-  command = flag[2:]
+  flag = flag[2:]
+  split := Split(flag, "=", 2)
+  if len(split) != 2{
+    panic("Expected \"=\" :" + flag)
+  }
+  command = split[0]
+  args = Split(split[1], ",", -1)
+  for i := range args{
+    args[i] = TrimSpace(args[i])
+  }
   return
 }
 
