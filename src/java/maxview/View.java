@@ -26,7 +26,7 @@ public final class View extends JPanel{
     private double bordr, bordphi, bordtheta;   //0..inf, 0..2pi, 0..pi/2
 	
 	//Huidige schermafmetingen
-	private int width, height;
+	int width, height;
 	
     //Kleur van de cursor;
     private Color crosshair = new Color(0, 0, 255, 200);
@@ -83,9 +83,9 @@ public final class View extends JPanel{
 		phi = (bphi+ PI) % (2*PI);
 		theta = -btheta;
 		
-		System.out.println("setBord: r=" + r + ", bphi=" + bphi + ", btheta=" + btheta);
-		System.out.println("camx=" + camx + ", camy=" + camy + ", camz=" + camz);
-		System.out.println("theta=" + theta + ", phi=" + phi);
+// 		System.out.println("setBord: r=" + r + ", bphi=" + bphi + ", btheta=" + btheta);
+// 		System.out.println("camx=" + camx + ", camy=" + camy + ", camz=" + camz);
+// 		System.out.println("theta=" + theta + ", phi=" + phi);
 		initMatrix();
 	}
 	
@@ -161,39 +161,29 @@ public final class View extends JPanel{
         v.tz = zt;
     }
 	
-	public void paint(Graphics g1){
-		g = (Graphics2D)g1;
-		if(antialias){
-			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-      g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+   public void paint(Graphics g1, int width, int height){
+        this.width = width; // bit of a hack
+        this.height = height;
+        g = (Graphics2D)g1;
+        if(antialias){
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        }
+        else
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+    
+        g.setColor(universe.getBackground());
+        g.fillRect(0, 0, width, height);
+        
+        transform(universe.getRoot().getVertices());
+        universe.getRoot().paint(this);
     }
-		else
-			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-		Dimension d = getSize();
-		width = d.width;
-		height = d.height;
-		g.setColor(universe.getBackground());
-		g.fillRect(0, 0, width, height);
-		
-		transform(universe.getRoot().getVertices());
-		universe.getRoot().paint(this);
 
-      // draw a little square to indicate the position of the light
-// 		g.setColor(crosshair);
-// 		//light tekenen
-// 		transform(universe.light);
-// 		int lx = (int)universe.light.tx;
-// 		int ly = (int)universe.light.ty;
-// 		g.drawRect(lx, ly, 3, 3);
-		
-		// draw a little cross to indicate the position of the origin
-// 		Vertex origin = new Vertex(0, 0, 0);
-// 		transform(origin);
-// 		int ox = (int)origin.tx;
-// 		int oy = (int)origin.ty;
-// 		int C = 8;
-// 		g.drawLine(ox, oy+C,ox, oy-C);
-// 		g.drawLine(ox+C, oy, ox-C, oy);
+	public void paint(Graphics g1){
+		Dimension d = getSize();
+        width = d.width;
+        height = d.height;
+        paint(g1, width, height);
 	} 
 	
 	/*public void update(Graphics g1){

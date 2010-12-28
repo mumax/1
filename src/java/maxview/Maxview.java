@@ -10,23 +10,71 @@ import java.awt.*;
 import java.io.*;
 import java.lang.Math.*;
 import refsh.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.io.IOException;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import javax.imageio.ImageIO;
 
 public class Maxview {
 
   Group root;
   Universe universe;
   View view;
+  int width, height;
 
   public Maxview(){
     root = new Group();
-    universe = new Universe(Color.WHITE, new Vertex(2, 5, 20), 0.4);
+    universe = new Universe(Color.WHITE, new Vertex(2, 5, 20), 0.8);
     view = new View(universe);
     view.setBord(25, 0, 0);
     universe.setRoot(root);
+    width = height = 512;
   }
 
   public void exit(){
     System.exit(0);
+  }
+
+  public void show(){
+    JFrame frame = new JFrame("Maxview");
+    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    frame.setContentPane(view);
+    frame.setSize(width, height);
+    frame.show();
+  }
+
+  public void save(String filename) throws IOException{
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+        Graphics2D graphics = (Graphics2D)(img.getGraphics());
+        graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        view.paint(graphics, width, height);
+        ImageIO.write(img, "png", new File(filename));
+  }
+
+  /** Puts an arrow at position x,y,z, pointing in direction mx,my,mz */
+  public void vec(double x, double y, double z, double mx, double my, double mz){
+    Brush cone = Factory.cone(0.35, 32, 0.8);
+      
+      cone.rotate(0, -Math.PI/2);
+      cone.rotate(-Math.PI/2, 0);
+
+      double r = mx*mx + my*my + mz*mz;
+      mx /= r;
+      my /= r;
+      mz /= r;
+      double theta = Math.atan2(my, mx);
+      double phi = -Math.asin(mz);
+
+      cone.rotate(phi, 0);
+      cone.rotateZ(theta);
+
+      cone.setFillColor(ColorMap3D.map(mx, my, mz));
+      cone.translate(-x, y, z);
+      root.add(cone);
   }
 
   public static void main (String args[]) throws IOException{
@@ -34,12 +82,6 @@ public class Maxview {
      Maxview maxview = new Maxview();
      Interpreter sh = new Interpreter(maxview.getClass(), maxview);
      new RefSh(sh).interactive();
-    /*
-    JFrame frame = new JFrame("Maxview");
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setContentPane(view);
-    frame.setSize(800, 800);
-    frame.show();*/
   }
 
 //   private static void readStdin(Group root) throws IOException{
@@ -53,28 +95,6 @@ public class Maxview {
 //       double mx = in.nval; tok = in.nextToken();
 //       double my = in.nval; tok = in.nextToken();
 //       double mz = in.nval; tok = in.nextToken();
-// 
-// 
-//       Brush cone = Factory.cone(0.35, 32, 0.8);
-//       
-//       cone.rotate(0, -Math.PI/2);
-//       cone.rotate(-Math.PI/2, 0);
-// 
-//       double r = mx*mx + my*my + mz*mz;
-//       mx /= r;
-//       my /= r;
-//       mz /= r;
-//       double theta = Math.atan2(my, mx);
-//       double phi = -Math.asin(mz);
-// 
-//       cone.rotate(phi, 0);
-//       cone.rotateZ(theta);
-// 
-//       cone.setFillColor(ColorMap3D.map(mx, my, mz));
-//       cone.translate(-x, y, z);
-//       root.add(cone);
-// 
-//       
 //     }
 
 }
