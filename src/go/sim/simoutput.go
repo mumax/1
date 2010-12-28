@@ -256,6 +256,13 @@ func (m *MOmf) Save(s *Sim) {
 	defer out.Close()
 	var file omf.File
 	file.T4 = s.mLocal
+	file.StepSize = s.input.cellSize
+	file.MeshUnit = "m"
+	file.Desc = s.metadata
+	file.ValueMultiplier = s.mSat
+	file.ValueUnit = "A/m"
+	file.Format = "binary"
+	file.DataFormat = "4"
 	omf.Encode(out, file)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }

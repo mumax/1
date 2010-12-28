@@ -44,6 +44,8 @@ func Encode(out_ io.Writer, f File) {
 
 	hdr(out, "Begin", "Header")
 
+  writeDesc(out, f.Desc)
+
 	hdr(out, "Title", "mumax data") // TODO
 	hdr(out, "meshtype", "rectangular")
 
@@ -149,6 +151,11 @@ func writeDataBinary4(out io.Writer, tens tensor.Interface) {
 	hdr(out, "End", "Data "+format)
 }
 
+func writeDesc(out io.Writer, desc map[string]string){
+  for k,v := range desc{
+    hdr(out, "Desc", k + ": " + v)
+  }
+}
 
 func floats2bytes(floats []float32) []byte {
 	// 	l := len(floats)
