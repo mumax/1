@@ -24,7 +24,7 @@ func (r *SafeReader) Read(p []byte) (n int, err os.Error) {
 		panic(err)
 	}
 	if n < len(p) {
-		r.Read(p[n-1:])
+		r.Read(p[n:])
 	}
 	n = len(p)
 	return
