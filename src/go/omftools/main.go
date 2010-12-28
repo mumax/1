@@ -12,7 +12,7 @@ package main
 
 import (
 	"refsh"
-	// 	"fmt"
+		"fmt"
 	"tensor"
 	"omf"
 	"iotool"
@@ -28,7 +28,7 @@ var info *omf.Info
 // The command is executed on each of the files
 func main() {
 	sh := refsh.New()
-
+  sh.AddFunc("print", Print)
 	cmd, args, files := refsh.ParseFlags2()
 	// Each file is read and stored in "data".
 	// Then, all commands are executed on that data.
@@ -40,4 +40,8 @@ func main() {
 			sh.Call(cmd[i], args[i])
 		}
 	}
+}
+
+func Print(str string){
+  fmt.Println(str)
 }
