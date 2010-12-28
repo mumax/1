@@ -10,7 +10,9 @@ import (
 	"strings"
 )
 
-//TODO overloading, abbreviations, ...
+// INTERNAL
+// Resolves a function name
+// TODO overloading, abbreviations, ...
 func (r *Refsh) resolve(funcname string) Caller {
 	funcname = strings.ToLower(funcname) // be case-insensitive
 	for i := range r.funcnames {
