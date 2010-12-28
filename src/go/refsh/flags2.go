@@ -22,39 +22,40 @@ import (
 // files contains the CLI aruments that do not start with --
 func ParseFlags2() (commands []string, args [][]string, files []string) {
 
-  for i:=0; i < flag.NArg() ; i++{
-    if HasPrefix(flag.Arg(i), "--") {
-      
-      cmd, arg := parseFlag2(flag.Arg(i))
-      commands = append(commands, cmd)
-      args = append(args, arg)
-      
-    }else{
-      files = append(files, flag.Arg(i))
-    }
-  }
-  
+	for i := 0; i < flag.NArg(); i++ {
+		if HasPrefix(flag.Arg(i), "--") {
+
+			cmd, arg := parseFlag2(flag.Arg(i))
+			commands = append(commands, cmd)
+			args = append(args, arg)
+
+		} else {
+			files = append(files, flag.Arg(i))
+		}
+	}
+
 	return
 }
 
 
 // splits "--command="arg1, arg2" into "command", {arg1, arg2}
-func parseFlag2(flag string) (command string, args []string){
-  assert(HasPrefix(flag, "--"))
-  flag = flag[2:]
-  split := Split(flag, "=", 2)
-  if len(split) != 2{
-    panic("Expected \"=\" :" + flag)
-  }
-  command = split[0]
-  args = Split(split[1], ",", -1)
-  for i := range args{
-    args[i] = TrimSpace(args[i])
-  }
-  return
+func parseFlag2(flag string) (command string, args []string) {
+	assert(HasPrefix(flag, "--"))
+	flag = flag[2:]
+	split := Split(flag, "=", 2)
+	command = split[0]
+	if len(split) == 2 {
+		args = Split(split[1], ",", -1)
+		for i := range args {
+			args[i] = TrimSpace(args[i])
+		}
+	}
+	return
 }
 
 
-func assert(test bool){
-  if !test{panic ("Assertion failed")}
+func assert(test bool) {
+	if !test {
+		panic("Assertion failed")
+	}
 }

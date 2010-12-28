@@ -4,18 +4,40 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
+// omftools is a general-purpose manipulator for .omf files
+//
+// 
 package main
+
 
 import (
 	"refsh"
-	"fmt"
+	// 	"fmt"
+	"tensor"
+	"omf"
+	"iotool"
 )
 
+
+var data *tensor.T
+var info *omf.Info
+
+// CLI args consist of flagss (starting with --) and files.
+// They are passed like this:
+// --command="arg1, arg2" ... file1 file2 ...
+// The command is executed on each of the files
 func main() {
+	sh := refsh.New()
+
 	cmd, args, files := refsh.ParseFlags2()
-	for i := range cmd {
-		fmt.Print(cmd[i], " ")
-		fmt.Print(args[i])
+	// Each file is read and stored in "data".
+	// Then, all commands are executed on that data.
+	for _, file := range files {
+		t4, _ := omf.Decode(iotool.MustOpenRDONLY(file))
+		data = tensor.ToT(t4)
+
+		for i := range cmd {
+			sh.Call(cmd[i], args[i])
+		}
 	}
-	fmt.Println(files)
 }

@@ -11,7 +11,7 @@ import (
 	"tensor"
 	"iotool"
 	. "strings"
-	    "bufio"
+	"bufio"
 	"fmt"
 	"strconv"
 	"os"
