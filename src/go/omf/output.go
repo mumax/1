@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"tensor"
 	"unsafe"
+	"strings"
 )
 
 const (
@@ -75,7 +76,12 @@ func Encode(out_ io.Writer, f File) {
 
 	hdr(out, "End", "Header")
 
-	writeDataBinary4(out, tens)
+  switch strings.ToLower(f.Format){
+    default: panic("Unknown format: " + f.Format)
+    case "binary": writeDataBinary4(out, tens)
+    case "text": writeDataText(out, tens)
+  }
+	
 
 	hdr(out, "End", "Segment")
 

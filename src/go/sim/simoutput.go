@@ -248,8 +248,7 @@ type MOmf struct {
 }
 
 // INTERNAL
-// TODO: files are not closed?
-// TODO/ also for writeAscii
+// TODO: format: text
 func (m *MOmf) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
 	out := fopen(fname)
