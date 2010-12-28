@@ -14,7 +14,6 @@ import (
 	"bufio"
 	"fmt"
 	"strconv"
-	"os"
 	"unsafe"
 )
 
@@ -45,7 +44,7 @@ func Decode(in_ io.Reader) (t *tensor.T4, metadata map[string]string) {
 			readDataBinary4(in, t)
 		}
 	}
-	t.WriteTo(os.Stdout)
+// 	t.WriteTo(os.Stdout)
 	return
 }
 
@@ -96,7 +95,7 @@ func readDataBinary4(in io.Reader, t *tensor.T4) {
 	// encoding/binary is too slow
 	// Inlined for performance, terabytes of data will pass here...
 	controlnumber = *((*float32)(unsafe.Pointer(&bytes4)))
-	fmt.Println("Control number:", controlnumber)
+// 	fmt.Println("Control number:", controlnumber)
 	if controlnumber != CONTROL_NUMBER {
 		panic("invalid control number: " + fmt.Sprint(controlnumber))
 	}
@@ -133,7 +132,6 @@ func parseHeaderLine(str string) (key, value string) {
 func isHeaderEnd(str string) bool {
 	str = ToLower(Trim(str, "# "))
 	str = Replace(str, " ", "", -1)
-	//   fmt.Println(str)
 	return HasPrefix(str, "begin:data")
 }
 
@@ -167,7 +165,7 @@ func ReadHeader(in io.Reader) *Info {
 			strs := Split(value, ":", 2)
 			desc_key := Trim(strs[0], "# ")
 			desc_value := Trim(strs[1], "# ")
-			fmt.Println(desc_key, " : ", desc_value)
+// 			fmt.Println(desc_key, " : ", desc_value)
 			desc[desc_key] = desc_value
 		}
 
