@@ -51,7 +51,9 @@ func main() {
 func Draw() {
   extension := path.Ext(filename)
   outfile := filename[:len(filename)-len(extension)] + ".png"
-  draw.PNG(iotool.MustOpenWRONLY(outfile), data)
+  out := iotool.MustOpenWRONLY(outfile)
+  defer out.Close()
+  draw.PNG(out, data)
 }
 
 // func Slice(dirstr string, pos int){

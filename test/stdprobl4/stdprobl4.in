@@ -18,7 +18,6 @@ load    	s-state.tensor
 
 
 # run
-autosave	m	png	50E-12
 autosave  m omf 50E-12
 autosave	table	ascii	10E-12
 staticfield 	-24.6E-3     4.3E-3    0  # T
