@@ -254,9 +254,9 @@ func (m *MOmf) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
 	out := fopen(fname)
 	defer out.Close()
-	var codec omf.OmfCodec
-	codec.Init()
-	codec.Encode(out, s)
+	var file omf.File
+	file.T4 = s.mLocal
+	omf.Encode(out, file)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
