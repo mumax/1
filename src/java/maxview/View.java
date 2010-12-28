@@ -17,9 +17,10 @@ public final class View extends JPanel{
     //Het universum dat deze viewport toont.
     private Universe universe;
     
-    //Perspectief parameter: bepaalt hoe klein de dingen er uit zien.
-    private double persp = 1000;
-    
+    // CURRENTLY UNSUSED: Perspectief parameter: bepaalt hoe klein de dingen er uit zien.
+    // private double persp = 1000;
+    private double zoom = 10;
+
     //Camera positie.
     private double camx, camy , camz;
     private double phi, theta;					//0..2pi, -pi/2..pi/2
@@ -156,8 +157,8 @@ public final class View extends JPanel{
         double zt = m31 * x + m32 * y + m33 * z;
         
         //Aanpassen aan scherm + perspectief
-        v.tx = ((xt/zt)*persp) + width/2;
-        v.ty = ((yt/zt)*persp) + height/2;
+        v.tx = (xt*zoom) + width/2;
+        v.ty = (yt*zoom) + height/2;
         v.tz = zt;
     }
 	
