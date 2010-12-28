@@ -97,28 +97,28 @@
 package omf
 
 import (
-	"io"
+// 	"io"
 )
 
 
-type Codec interface {
-	Encode(out io.Writer, f Interface)
-	Decode(in io.Reader) Interface
-}
-
-
-type OmfCodec struct {
-	format uint
-}
-
-func (c *OmfCodec) Init() {
-
-}
-
-func NewOmfCodec() *OmfCodec {
-	c := new(OmfCodec)
-	c.Init()
-	return c
-}
+// type Codec interface {
+// 	Encode(out io.Writer, f Interface)
+// 	Decode(in io.Reader) Interface
+// }
+// 
+// 
+// type OmfCodec struct {
+// 	format uint
+// }
+// 
+// func (c *OmfCodec) Init() {
+// 
+// }
+// 
+// func NewOmfCodec() *OmfCodec {
+// 	c := new(OmfCodec)
+// 	c.Init()
+// 	return c
+// }
 
 // Encode/Decode implemented in output.go/input.go

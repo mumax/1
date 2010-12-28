@@ -18,9 +18,9 @@ import (
 )
 
 
-func (c *OmfCodec) Decode(in_ io.Reader) (t *tensor.T4, metadata map[string]string) {
-	return Decode(in_)
-}
+// func (c *OmfCodec) Decode(in_ io.Reader) (t *tensor.T4, metadata map[string]string) {
+// 	return Decode(in_)
+// }
 
 
 func Decode(in_ io.Reader) (t *tensor.T4, metadata map[string]string) {
@@ -53,8 +53,18 @@ func Decode(in_ io.Reader) (t *tensor.T4, metadata map[string]string) {
 type Info struct {
 	Desc       map[string]string
 	Size       [3]int
+	ValueMultiplier float32
+  ValueUnit string
 	Format     string // binary or text
 	DataFormat string // 4 or 8
+  StepSize  [3]float32
+  MeshUnit  string
+}
+
+
+type File struct{
+  Info
+  *tensor.T4
 }
 
 

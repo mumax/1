@@ -8,14 +8,14 @@
 package omf
 
 import (
-	"tensor"
+// 	"tensor"
 )
 
-type Interface interface {
-	GetData() (data tensor.Interface, multiplier float32, unit string)
-	GetMesh() (cellsize []float32, unit string)
-	GetMetadata() map[string]string
-}
+// type Interface interface {
+// 	GetData() (data tensor.Interface, multiplier float32, unit string)
+// 	GetMesh() (cellsize []float32, unit string)
+// 	GetMetadata() map[string]string
+// }
 
 
 const (

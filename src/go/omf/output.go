@@ -15,15 +15,18 @@ import (
 )
 
 const (
-	CONTROL_NUMBER = 1234567.0
+	CONTROL_NUMBER = 1234567.0 // The omf format requires the first encoded number in the binary data section to be this control number
 )
 
 // TODO: select between text and binary
-func Encode(out_ io.Writer, f Interface) {
+func Encode(out_ io.Writer, f File) {
 	out := bufio.NewWriter(out_)
 	defer out.Flush()
 
-	tens, multiplier, valueunit := f.GetData()
+	tens := f.T4
+	multiplier := f.ValueMultiplier
+	valueunit := f.ValueUnit
+	
 	vecsize := tens.Size()
 	if len(vecsize) != 4 {
 		panic("rank should be 4")
@@ -32,7 +35,8 @@ func Encode(out_ io.Writer, f Interface) {
 		panic("size[0] should be 3")
 	}
 	gridsize := vecsize[1:]
-	cellsize, meshunit := f.GetMesh()
+	cellsize := f.StepSize
+	meshunit := f.MeshUnit
 
 	hdr(out, "OOMMF", "rectangular mesh v1.0")
 	hdr(out, "Segment count", "1")
@@ -77,9 +81,9 @@ func Encode(out_ io.Writer, f Interface) {
 
 // Encodes the vector field in omf format.
 // The swap from ZYX (internal) to XYZ (external) is made here.
-func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
-	Encode(out_, f)
-}
+// func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
+// 	Encode(out_, f)
+// }
 
 func writeDataText(out io.Writer, tens tensor.Interface) {
 	data := (tensor.ToT4(tens)).Array()
