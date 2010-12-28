@@ -19,7 +19,7 @@ import (
 
 
 // Parses the command line flags with the following layout:
-// --command0="arg0 arg1" --command1="arg0" --command2 file1 file2 ...
+// --command0="arg0, arg1" --command1="arg0" --command2 file1 file2 ...
 // Returns an array of commands and args. command[i] has args args[i].
 // files contains the CLI aruments that do not start with --
 func ParseFlags2() (commands []string, args [][]string, files []string) {

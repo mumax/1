@@ -6,6 +6,15 @@
 
 package main
 
-func main(){
+import (
+	"refsh"
+	"fmt"
+)
 
+func main() {
+	cmd, args, files := refsh.ParseFlags2()
+	for i := range cmd {
+		fmt.Print(cmd[i], " ", args[i])
+	}
+	fmt.Println(files)
 }

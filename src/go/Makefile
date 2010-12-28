@@ -15,11 +15,13 @@ all:
 	gomake install -C sim
 
 	gomake -C outtools
+	gomake -C omftools
 	gomake -C main
 
 .PHONY: clean
 clean:
 	gomake clean -C iotool
+	gomake clean -C omftool
 	gomake clean -C tensor
 	gomake clean -C sim
 	gomake clean -C refsh
