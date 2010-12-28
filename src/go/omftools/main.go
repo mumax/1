@@ -11,7 +11,7 @@ package main
 
 import (
 	"refsh"
-// 	"fmt"
+	"fmt"
 	"tensor"
 	"omf"
 	"iotool"
@@ -55,6 +55,27 @@ func Draw() {
   draw.PNG(out, data)
 }
 
+func Draw3D(){
+  outfile := replaceExt(filename, ".png")
+  
+  //cmd, err2 := exec.Run(cmdstr, args, os.Environ(), wd, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
+  a := tensor.ToT4(data).Array()
+  sub := 1
+  imax := len(a[X])
+    jmax := len(a[X][0])
+    kmax := len(a[X][0][0])
+    for i := 0; i < imax; i += sub {
+        for j := 0; j < jmax; j += sub {
+            for k := 0; k < kmax; k += sub {
+                fmt.Printf("vec %d %d %d %f %f %f\n", k/sub-kmax/(2*sub), j/sub-jmax/(2*sub), i/sub-imax/(2*sub), a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
+            }
+        }
+    }
+    fmt.Printf("save %s\n", outfile)
+    fmt.Printf("reset\n")  
+}
+
+// replaces the extension of filename by a new one.
 func replaceExt(filename, newext string) string{
   extension := path.Ext(filename)
   return filename[:len(filename)-len(extension)] + newext
@@ -72,3 +93,9 @@ func replaceExt(filename, newext string) string{
 // 
 //   size := copy(data.Size())
 // }
+
+const(
+  X = 0
+  Y = 1
+  Z = 2
+)

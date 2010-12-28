@@ -41,7 +41,7 @@ echo '$SIMROOT/bin/outtools-bin $@' >> bin/outtools
 chmod u+x bin/outtools
 
 cp $OUTPUT bin/maxview
-echo '$SIMROOT/bin/outtools --tomesh $1 4 | java -jar $SIMROOT/bin/maxview.jar' >> bin/maxview
+echo '$SIMROOT/bin/omftool --draw3D $@ | java -jar $SIMROOT/bin/maxview.jar' >> bin/maxview
 chmod u+x bin/maxview
 
 rm -f $OUTPUT
