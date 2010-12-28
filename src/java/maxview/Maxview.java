@@ -25,6 +25,7 @@ public class Maxview {
   View view;
   int width, height;
 
+
   public Maxview(){
     root = new Group();
     universe = new Universe(Color.WHITE, new Vertex(2, 5, 20), 0.8);
@@ -39,6 +40,7 @@ public class Maxview {
   }
 
   public void show(){
+    updateLight();
     JFrame frame = new JFrame("Maxview");
     frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     frame.setContentPane(view);
@@ -47,12 +49,17 @@ public class Maxview {
   }
 
   public void save(String filename) throws IOException{
+        updateLight();
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D graphics = (Graphics2D)(img.getGraphics());
         graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         view.paint(graphics, width, height);
         ImageIO.write(img, "png", new File(filename));
+  }
+
+  public void updateLight(){
+    root.light(universe);
   }
 
   /** Puts an arrow at position x,y,z, pointing in direction mx,my,mz */

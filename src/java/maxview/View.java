@@ -41,7 +41,7 @@ public final class View extends JPanel{
 	
 	//Anti-alias
 	private boolean antialias = true;
-	
+	private BasicStroke stroke = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
 	
     public View(Universe u){
 		g = (Graphics2D)getGraphics();
@@ -165,6 +165,7 @@ public final class View extends JPanel{
         this.width = width; // bit of a hack
         this.height = height;
         g = (Graphics2D)g1;
+        g.setStroke(stroke);
         if(antialias){
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
