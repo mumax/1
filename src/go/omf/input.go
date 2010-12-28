@@ -44,27 +44,27 @@ func Decode(in_ io.Reader) (t *tensor.T4, metadata map[string]string) {
 			readDataBinary4(in, t)
 		}
 	}
-// 	t.WriteTo(os.Stdout)
+	// 	t.WriteTo(os.Stdout)
 	return
 }
 
 
 // omf.Info represents the header part of an omf file.
 type Info struct {
-	Desc       map[string]string
-	Size       [3]int
+	Desc            map[string]string
+	Size            [3]int
 	ValueMultiplier float32
-  ValueUnit string
-	Format     string // binary or text
-	DataFormat string // 4 or 8
-  StepSize  [3]float32
-  MeshUnit  string
+	ValueUnit       string
+	Format          string // binary or text
+	DataFormat      string // 4 or 8
+	StepSize        [3]float32
+	MeshUnit        string
 }
 
 
-type File struct{
-  Info
-  *tensor.T4
+type File struct {
+	Info
+	*tensor.T4
 }
 
 
@@ -105,7 +105,7 @@ func readDataBinary4(in io.Reader, t *tensor.T4) {
 	// encoding/binary is too slow
 	// Inlined for performance, terabytes of data will pass here...
 	controlnumber = *((*float32)(unsafe.Pointer(&bytes4)))
-// 	fmt.Println("Control number:", controlnumber)
+	// 	fmt.Println("Control number:", controlnumber)
 	if controlnumber != CONTROL_NUMBER {
 		panic("invalid control number: " + fmt.Sprint(controlnumber))
 	}
@@ -175,7 +175,7 @@ func ReadHeader(in io.Reader) *Info {
 			strs := Split(value, ":", 2)
 			desc_key := Trim(strs[0], "# ")
 			desc_value := Trim(strs[1], "# ")
-// 			fmt.Println(desc_key, " : ", desc_value)
+			// 			fmt.Println(desc_key, " : ", desc_value)
 			desc[desc_key] = desc_value
 		}
 

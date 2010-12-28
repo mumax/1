@@ -6,21 +6,25 @@
 
 // omftools is a general-purpose manipulator for .omf files
 //
-// 
 package main
 
 
 import (
 	"refsh"
-		"fmt"
+// 	"fmt"
 	"tensor"
 	"omf"
 	"iotool"
+	"path"
+	"draw"
 )
 
+var (
+	filename string     // the currently opened file
+	data     *tensor.T  // the currently opened data
+	info     *omf.Info
+)
 
-var data *tensor.T
-var info *omf.Info
 
 // CLI args consist of flagss (starting with --) and files.
 // They are passed like this:
@@ -28,12 +32,13 @@ var info *omf.Info
 // The command is executed on each of the files
 func main() {
 	sh := refsh.New()
-  sh.AddFunc("print", Print)
+	sh.AddFunc("draw", Draw)
 	cmd, args, files := refsh.ParseFlags2()
 	// Each file is read and stored in "data".
 	// Then, all commands are executed on that data.
 	for _, file := range files {
 		t4, _ := omf.Decode(iotool.MustOpenRDONLY(file))
+		filename = file
 		data = tensor.ToT(t4)
 
 		for i := range cmd {
@@ -42,6 +47,22 @@ func main() {
 	}
 }
 
-func Print(str string){
-  fmt.Println(str)
+
+func Draw() {
+  extension := path.Ext(filename)
+  outfile := filename[:len(filename)-len(extension)] + ".png"
+  draw.PNG(iotool.MustOpenWRONLY(outfile), data)
 }
+
+// func Slice(dirstr string, pos int){
+//   dirstr = strings.ToUpper(dirstr)
+//   var dir int
+//   switch dirstr{
+//     default: panic("Slice direction should be X, Y or Z")
+//     case "X": dir = 0
+//     case "Y": dir = 1
+//     case "Z": dir = 2
+//   }
+// 
+//   size := copy(data.Size())
+// }

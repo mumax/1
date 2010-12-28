@@ -27,7 +27,7 @@ func Encode(out_ io.Writer, f File) {
 	tens := f.T4
 	multiplier := f.ValueMultiplier
 	valueunit := f.ValueUnit
-	
+
 	vecsize := tens.Size()
 	if len(vecsize) != 4 {
 		panic("rank should be 4")
@@ -45,7 +45,7 @@ func Encode(out_ io.Writer, f File) {
 
 	hdr(out, "Begin", "Header")
 
-  writeDesc(out, f.Desc)
+	writeDesc(out, f.Desc)
 
 	hdr(out, "Title", "mumax data") // TODO
 	hdr(out, "meshtype", "rectangular")
@@ -76,12 +76,14 @@ func Encode(out_ io.Writer, f File) {
 
 	hdr(out, "End", "Header")
 
-  switch strings.ToLower(f.Format){
-    default: panic("Unknown format: " + f.Format)
-    case "binary": writeDataBinary4(out, tens)
-    case "text": writeDataText(out, tens)
-  }
-	
+	switch strings.ToLower(f.Format) {
+	default:
+		panic("Unknown format: " + f.Format)
+	case "binary":
+		writeDataBinary4(out, tens)
+	case "text":
+		writeDataText(out, tens)
+	}
 
 	hdr(out, "End", "Segment")
 
@@ -157,10 +159,10 @@ func writeDataBinary4(out io.Writer, tens tensor.Interface) {
 	hdr(out, "End", "Data "+format)
 }
 
-func writeDesc(out io.Writer, desc map[string]string){
-  for k,v := range desc{
-    hdr(out, "Desc", k + ": " + v)
-  }
+func writeDesc(out io.Writer, desc map[string]string) {
+	for k, v := range desc {
+		hdr(out, "Desc", k+": "+v)
+	}
 }
 
 func floats2bytes(floats []float32) []byte {
