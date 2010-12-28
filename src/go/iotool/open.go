@@ -10,28 +10,29 @@ import (
 	//     "io"
 	"os"
 	"path"
+	"bufio"
 )
 
 // Opens a file for read-only.
 // Panics on error.
-func MustOpenRDONLY(filename string) *os.File {
+func MustOpenRDONLY(filename string) *bufio.Reader {
 	file, err := os.Open(filename, os.O_RDONLY, 0777)
 	if err != nil {
 		panic(err)
 	}
-	return file
+	return bufio.NewReader(file)
 }
 
 // Opens a file for write-only.
 // Truncates existing file or creates the file if neccesary.
 // The permission is the same as the parent directory.
-func MustOpenWRONLY(filename string) *os.File {
+func MustOpenWRONLY(filename string) *bufio.Writer {
 	perm := Permission(Parent(filename))
 	file, err := os.Open(filename, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, perm)
 	if err != nil {
 		panic(err)
 	}
-	return file
+	return bufio.NewWriter(file)
 }
 
 // returns the parent directory of a file
