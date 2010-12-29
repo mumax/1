@@ -81,6 +81,9 @@ public class Maxview {
       my /= r;
       mz /= r;
       double theta = Math.atan2(my, mx);
+      // small rounding errors should not lead to NaN's
+      if (mz > 1.0) { mz = 1.0; }
+      if (mz < -1.0) { mz = -1.0; }
       double phi = -Math.asin(mz);
 
       cone.rotate(phi, 0);
