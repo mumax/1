@@ -85,7 +85,6 @@ public class Maxview {
   }
 
   public static void main (String args[]) throws Exception{
-
      Maxview maxview = new Maxview();
      Interpreter sh = new Interpreter(maxview.getClass(), maxview);
      new RefSh(sh).readstdin();

@@ -18,6 +18,7 @@ import (
 	"path"
 	"draw"
 	"os"
+	"exec"
 )
 
 var (
@@ -68,7 +69,19 @@ func Draw() {
 func Draw3D() {
 	outfile := replaceExt(filename, ".png")
 
-	//cmd, err2 := exec.Run(cmdstr, args, os.Environ(), wd, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
+	wd, err1 := os.Getwd()
+	if err1 != nil {
+		panic(err1)
+	}
+	executable, err0 := exec.LookPath("maxview")
+	if err0 != nil {
+		panic(err0)
+	}
+	cmd, err := exec.Run(executable, []string{}, os.Environ(), wd, exec.Pipe, exec.PassThrough, exec.PassThrough)
+	if err != nil {
+		panic("running maxview: " + err.String())
+	}
+
 	a := tensor.ToT4(data).Array()
 	sub := 1
 	imax := len(a[X])
@@ -77,12 +90,12 @@ func Draw3D() {
 	for i := 0; i < imax; i += sub {
 		for j := 0; j < jmax; j += sub {
 			for k := 0; k < kmax; k += sub {
-				fmt.Printf("vec %d %d %d %f %f %f\n", k/sub-kmax/(2*sub), j/sub-jmax/(2*sub), i/sub-imax/(2*sub), a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
+				fmt.Fprintf(cmd.Stdin, "vec %d %d %d %f %f %f\n", k/sub-kmax/(2*sub), j/sub-jmax/(2*sub), i/sub-imax/(2*sub), a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
 			}
 		}
 	}
-	fmt.Printf("save %s\n", outfile)
-	fmt.Println("exit")
+	fmt.Fprintf(cmd.Stdin, "save %s\n", outfile)
+	fmt.Fprintf(cmd.Stdin, "exit\n")
 }
 
 // replaces the extension of filename by a new one.
