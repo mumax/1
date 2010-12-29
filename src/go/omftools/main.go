@@ -22,7 +22,7 @@ import (
 )
 
 var (
-	filename string    // the currently opened file
+	filename string     // the currently opened file
 	data     *tensor.T4 // the currently opened data
 	info     *omf.Info
 )
@@ -35,7 +35,8 @@ var (
 func main() {
 	sh := refsh.New()
 	sh.AddFunc("draw", Draw)
-	sh.AddFunc("draw3d", Draw3D)
+ sh.AddFunc("draw3d", Draw3D)
+  sh.AddFunc("downsample", Downsample)
 	cmd, args, files := refsh.ParseFlags2()
 
 	// Each file is read and stored in "data".
@@ -49,7 +50,7 @@ func main() {
 	for _, file := range files {
 		t4, _ := omf.Decode(iotool.MustOpenRDONLY(file))
 		filename = file
-		data = t4//tensor.ToT(t4)
+		data = t4 //tensor.ToT(t4)
 
 		for i := range cmd {
 			sh.Call(cmd[i], args[i])
@@ -58,10 +59,50 @@ func main() {
 }
 
 
-// func Downscale(f int){
-//   bigsize := 
-//   scaled := tensor.NewT4()
-// }
+func Downsample(f int) {
+	bigsize := data.Size()
+	smallsize := []int{3, bigsize[1] / f, bigsize[2] / f, bigsize[3] / f}
+	for i := range smallsize {
+		if smallsize[i] < 1 {
+			smallsize[i] = 1
+		}
+	}
+	small := tensor.NewT4(smallsize)
+	A := data.Array()  // big array
+	a := small.Array() // small array
+	for c := range a {
+
+		for i := range a[c] {
+			for j := range a[c][i] {
+				for k := range a[c][i][j] {
+
+					n := 0
+
+					for I := i * f; I < min((i+1)*f, bigsize[1]); I++ {
+						for J := j * f; J < min((j+1)*f, bigsize[2]); J++ {
+							for K := k * f; K < min((k+1)*f, bigsize[3]); K++ {
+								n++
+								a[c][i][j][k] += A[c][I][J][K]
+
+							}
+						}
+					}
+					a[c][i][j][k] /= float32(n)
+				}
+			}
+		}
+	}
+
+	data = small
+	// 	info.Gridsize = ...
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
 
 func Draw() {
 	outfile := replaceExt(filename, ".png")
@@ -102,7 +143,9 @@ func Draw3D() {
 	fmt.Fprintf(cmd.Stdin, "save %s\n", outfile)
 	fmt.Fprintf(cmd.Stdin, "exit\n")
 	_, err3 := cmd.Wait(0)
-	if err3 != nil{panic(err3)}
+	if err3 != nil {
+		panic(err3)
+	}
 }
 
 // replaces the extension of filename by a new one.
