@@ -129,14 +129,13 @@ func Draw3D() {
 	}
 
 	a := tensor.ToT4(data).Array()
-	sub := 1
 	imax := len(a[X])
 	jmax := len(a[X][0])
 	kmax := len(a[X][0][0])
-	for i := 0; i < imax; i += sub {
-		for j := 0; j < jmax; j += sub {
-			for k := 0; k < kmax; k += sub {
-				fmt.Fprintf(cmd.Stdin, "vec %d %d %d %f %f %f\n", k/sub-kmax/(2*sub), j/sub-jmax/(2*sub), i/sub-imax/(2*sub), a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
+	for i := 0; i < imax; i ++ {
+		for j := 0; j < jmax; j ++ {
+			for k := 0; k < kmax; k ++ {
+				fmt.Fprintf(cmd.Stdin, "vec %f %f %f %f %f %f\n", k-kmax/2, j-jmax/2, i-imax/2, a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
 			}
 		}
 	}
