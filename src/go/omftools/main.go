@@ -142,10 +142,10 @@ func Draw3D() {
 	for i := 0; i < imax; i ++ {
 		for j := 0; j < jmax; j ++ {
 			for k := 0; k < kmax; k ++ {
-        x := (k-kmax/2)
-        y := (j-jmax/2)
-        z := (i-imax/2)
-				fmt.Fprintf(cmd.Stdin, "vec %d %d %d %f %f %f\n",x, y, z, a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
+        x := float32(k)-float32(kmax)/2
+        y := float32(j)-float32(jmax)/2
+        z := float32(i)-float32(imax)/2
+				fmt.Fprintf(cmd.Stdin, "vec %f %f %f %f %f %f\n",x, y, z, a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
 			}
 		}
 	}
