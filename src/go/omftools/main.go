@@ -4,7 +4,14 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-// omftools is a general-purpose manipulator for .omf files
+// omftool is a general-purpose manipulator for .omf files.
+// 
+// General usage:
+// omftool --command="arg1,arg2" ... files
+//
+// omftool loads the specified files in a buffer (one at a time),
+// and calls all the commands on that buffer.
+// The (possibley modified) buffer may be saved again.
 //
 package main
 
@@ -16,15 +23,15 @@ import (
 	"omf"
 	"iotool"
 	"path"
-	"draw"
 	"os"
-	"exec"
 )
 
+
+// Stores the currently loaded omf file.
 var (
 	filename string     // the currently opened file
-	data     *tensor.T4 // the currently opened data
-	info     *omf.Info
+	data     *tensor.T4 // the currently opened vector data
+	info     *omf.Info  // 
 )
 
 
@@ -35,8 +42,8 @@ var (
 func main() {
 	sh := refsh.New()
 	sh.AddFunc("draw", Draw)
- sh.AddFunc("draw3d", Draw3D)
-  sh.AddFunc("downsample", Downsample)
+	sh.AddFunc("draw3d", Draw3D)
+	sh.AddFunc("downsample", Downsample)
 	cmd, args, files := refsh.ParseFlags2()
 
 	// Each file is read and stored in "data".
@@ -52,50 +59,17 @@ func main() {
 		filename = file
 		data = t4 //tensor.ToT(t4)
 
+		if len(cmd) == 0 {
+			fmt.Fprintln(os.Stderr, "No commands")
+			os.Exit(-1)
+		}
+
 		for i := range cmd {
 			sh.Call(cmd[i], args[i])
 		}
 	}
 }
 
-
-func Downsample(f int) {
-	bigsize := data.Size()
-	smallsize := []int{3, bigsize[1] / f, bigsize[2] / f, bigsize[3] / f}
-	for i := range smallsize {
-		if smallsize[i] < 1 {
-			smallsize[i] = 1
-		}
-	}
-	small := tensor.NewT4(smallsize)
-	A := data.Array()  // big array
-	a := small.Array() // small array
-	for c := range a {
-
-		for i := range a[c] {
-			for j := range a[c][i] {
-				for k := range a[c][i][j] {
-
-					n := 0
-
-					for I := i * f; I < min((i+1)*f, bigsize[1]); I++ {
-						for J := j * f; J < min((j+1)*f, bigsize[2]); J++ {
-							for K := k * f; K < min((k+1)*f, bigsize[3]); K++ {
-								n++
-								a[c][i][j][k] += A[c][I][J][K]
-
-							}
-						}
-					}
-					a[c][i][j][k] /= float32(n)
-				}
-			}
-		}
-	}
-
-	data = small
-	// 	info.Gridsize = ...
-}
 
 func min(a, b int) int {
 	if a < b {
@@ -105,59 +79,10 @@ func min(a, b int) int {
 }
 
 func max(a, b int) int {
-  if a > b {
-    return a
-  }
-  return b
-}
-
-func Draw() {
-	outfile := replaceExt(filename, ".png")
-	out := iotool.MustOpenWRONLY(outfile)
-	defer out.Close()
-	draw.PNG(out, data)
-}
-
-
-func Draw3D() {
-	outfile := replaceExt(filename, ".png")
-
-	wd, err1 := os.Getwd()
-	if err1 != nil {
-		panic(err1)
+	if a > b {
+		return a
 	}
-	executable, err0 := exec.LookPath("maxview")
-	if err0 != nil {
-		panic(err0)
-	}
-	cmd, err := exec.Run(executable, []string{}, os.Environ(), wd, exec.Pipe, exec.PassThrough, exec.PassThrough)
-	if err != nil {
-		panic("running maxview: " + err.String())
-	}
-
-  zoom := 64 // pixels per cone
-  fmt.Fprintf(cmd.Stdin, "size %d %d \n", zoom*data.Size()[3], zoom*data.Size()[2])
-
-	a := tensor.ToT4(data).Array()
-	imax := len(a[X])
-	jmax := len(a[X][0])
-	kmax := len(a[X][0][0])
-	for i := 0; i < imax; i ++ {
-		for j := 0; j < jmax; j ++ {
-			for k := 0; k < kmax; k ++ {
-        x := float32(k)-float32(kmax)/2 +.5
-        y := float32(j)-float32(jmax)/2 +.5
-        z := float32(i)-float32(imax)/2 +.5
-				fmt.Fprintf(cmd.Stdin, "vec %f %f %f %f %f %f\n",x, y, z, a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
-			}
-		}
-	}
-	fmt.Fprintf(cmd.Stdin, "save %s\n", outfile)
-	fmt.Fprintf(cmd.Stdin, "exit\n")
-	_, err3 := cmd.Wait(0)
-	if err3 != nil {
-		panic(err3)
-	}
+	return b
 }
 
 // replaces the extension of filename by a new one.

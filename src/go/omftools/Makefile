@@ -1,8 +1,8 @@
 include $(GOROOT)/src/Make.inc
 
 main:	*.go
-	$(GC) -I_obj *.go
-	$(LD) -L_obj -o $@ *.$O
+	$(GC)  main.go draw.go resize.go
+	$(LD)  -o $@ *.$O
 	cp -f $(CURDIR)/main ../../../bin/omftool
 
 .PHONY:	clean
