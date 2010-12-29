@@ -25,7 +25,7 @@ public class Maxview {
   Universe universe;
   View view;
   int width, height;
-  
+  int detail;
 
   public Maxview(){
     root = new Group();
@@ -36,10 +36,12 @@ public class Maxview {
     width = height = 512;
   }
 
+
   public void exit(){
     System.exit(0);
   }
 
+  /** Shows an interactive window. */
   public void show(){
     updateLight();
     JFrame frame = new JFrame("Maxview");
@@ -49,6 +51,7 @@ public class Maxview {
     frame.show();
   }
 
+  /** Saves picture as png. */
   public void save(String filename) throws IOException{
         updateLight();
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
@@ -60,13 +63,15 @@ public class Maxview {
 //         System.out.println("saved " + filename);
   }
 
+  
   public void updateLight(){
     root.light(universe);
   }
 
+
   /** Puts an arrow at position x,y,z, pointing in direction mx,my,mz */
   public void vec(double x, double y, double z, double mx, double my, double mz){
-    Brush cone = Factory.cone(0.35, 32, 0.8);
+    Brush cone = Factory.cone(0.35, detail, 0.8);
       
       cone.rotate(0, -Math.PI/2);
       cone.rotate(-Math.PI/2, 0);
@@ -76,6 +81,9 @@ public class Maxview {
       my /= r;
       mz /= r;
       double theta = Math.atan2(my, mx);
+      // small rounding errors should not lead to NaN's
+      if (mz > 1.0) { mz = 1.0; }
+      if (mz < -1.0) { mz = -1.0; }
       double phi = -Math.asin(mz);
 
       cone.rotate(phi, 0);
@@ -91,12 +99,23 @@ public class Maxview {
       if( abs(y)+.5 > view.maxY) { view.maxY = abs(y)+.5; }
   }
 
-  /** Canvas size of output, in pixels */
+
+  /** Set canvas size of output, in pixels */
   public void size(int width, int height){
     this.width = width;
     this.height = height;
   }
 
+  /** Sets the shadow strength (0.0 - 1.0) */
+  public void shadow(double shadow){
+    universe.lighting = shadow;
+  }
+
+  /** Set cone detail (nubmer of vertices) */
+  public void detail(int vertices){
+    this.detail = vertices;
+  }
+  
   public static void main (String args[]) throws Exception{
      Maxview maxview = new Maxview();
      Interpreter sh = new Interpreter(maxview.getClass(), maxview);
