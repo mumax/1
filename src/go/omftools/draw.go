@@ -31,6 +31,7 @@ func Draw() {
 var(
   draw3d_zoom int = 64
   draw3d_detail int = 32
+  draw3d_shadow = 0.8
 )
 
 
@@ -40,6 +41,10 @@ func Draw3D_Size(arrowsize int){
 
 func Draw3D_Detail(vertices int){
   draw3d_detail = vertices
+}
+
+func Draw3D_Shadow(shadow float){
+  draw3d_shadow = shadow
 }
 
 // Renders in 3D, automatically savesin a .png file.
@@ -86,6 +91,7 @@ func draw3D_Commands(stdin io.Writer) {
     zoom := draw3d_zoom // pixels per cone
     fmt.Fprintf(stdin, "size %d %d \n", zoom*data.Size()[3], zoom*data.Size()[2])
     fmt.Fprintf(stdin, "detail %d\n", draw3d_detail)
+    fmt.Fprintf(stdin, "shadow %f\n", draw3d_shadow)
 
     a := tensor.ToT4(data).Array()
     imax := len(a[X])

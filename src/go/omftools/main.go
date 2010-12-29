@@ -45,6 +45,7 @@ func main() {
 	sh.AddFunc("draw3d", Draw3D)
     sh.AddFunc("3d-zoom", Draw3D_Size)
     sh.AddFunc("3d-detail", Draw3D_Detail)
+    sh.AddFunc("3d-shadow", Draw3D_Shadow)
     sh.AddFunc("draw3d-dump", Draw3D_Dump)
 	sh.AddFunc("downsample", Downsample)
 	cmd, args, files := refsh.ParseFlags2()

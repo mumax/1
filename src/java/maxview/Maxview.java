@@ -106,6 +106,11 @@ public class Maxview {
     this.height = height;
   }
 
+  /** Sets the shadow strength (0.0 - 1.0) */
+  public void shadow(double shadow){
+    universe.lighting = 1.0 - shadow;
+  }
+
   /** Set cone detail (nubmer of vertices) */
   public void detail(int vertices){
     this.detail = vertices;
