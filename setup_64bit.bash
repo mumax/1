@@ -45,7 +45,7 @@ echo 'java -jar $SIMROOT/bin/maxview.jar' >> bin/maxview
 chmod u+x bin/maxview
 
 cp $OUTPUT bin/maxview-x
-echo 'omftool $@ --draw3d-dump java -jar $SIMROOT/bin/maxview.jar' >> bin/maxview-x
+echo 'omftool $@ --draw3d-dump | java -jar $SIMROOT/bin/maxview.jar' >> bin/maxview-x
 chmod u+x bin/maxview-x
 
 rm -f $OUTPUT
