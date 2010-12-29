@@ -71,44 +71,6 @@ func main() {
 }
 
 
-func Downsample(f int) {
-	bigsize := data.Size()
-	smallsize := []int{3, bigsize[1] / f, bigsize[2] / f, bigsize[3] / f}
-	for i := range smallsize {
-		if smallsize[i] < 1 {
-			smallsize[i] = 1
-		}
-	}
-	small := tensor.NewT4(smallsize)
-	A := data.Array()  // big array
-	a := small.Array() // small array
-	for c := range a {
-
-		for i := range a[c] {
-			for j := range a[c][i] {
-				for k := range a[c][i][j] {
-
-					n := 0
-
-					for I := i * f; I < min((i+1)*f, bigsize[1]); I++ {
-						for J := j * f; J < min((j+1)*f, bigsize[2]); J++ {
-							for K := k * f; K < min((k+1)*f, bigsize[3]); K++ {
-								n++
-								a[c][i][j][k] += A[c][I][J][K]
-
-							}
-						}
-					}
-					a[c][i][j][k] /= float32(n)
-				}
-			}
-		}
-	}
-
-	data = small
-	// 	info.Gridsize = ...
-}
-
 func min(a, b int) int {
 	if a < b {
 		return a
