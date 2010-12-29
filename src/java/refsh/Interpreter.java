@@ -50,7 +50,9 @@ public final class Interpreter {
 	//______________________________________________________________________________________________
 	
 	public void run(String command) throws SyntaxException, InvocationTargetException, IllegalAccessException, IOException{
-		
+
+        if("".equals(command)){ return; }
+
 		Tokenizer tokenizer = new Tokenizer(new StringReader(command));
 		
 		while(!tokenizer.isEOF()){
