@@ -17,11 +17,12 @@ import (
 	"iotool"
 	"path"
 	"draw"
+	"os"
 )
 
 var (
-	filename string     // the currently opened file
-	data     *tensor.T  // the currently opened data
+	filename string    // the currently opened file
+	data     *tensor.T // the currently opened data
 	info     *omf.Info
 )
 
@@ -33,9 +34,17 @@ var (
 func main() {
 	sh := refsh.New()
 	sh.AddFunc("draw", Draw)
+	sh.AddFunc("draw3d", Draw3D)
 	cmd, args, files := refsh.ParseFlags2()
+
 	// Each file is read and stored in "data".
 	// Then, all commands are executed on that data.
+
+	if len(files) == 0 {
+		fmt.Fprintln(os.Stderr, "No input files")
+		os.Exit(-1)
+	}
+
 	for _, file := range files {
 		t4, _ := omf.Decode(iotool.MustOpenRDONLY(file))
 		filename = file
@@ -49,37 +58,37 @@ func main() {
 
 
 func Draw() {
-  outfile := replaceExt(filename, ".png")
-  out := iotool.MustOpenWRONLY(outfile)
-  defer out.Close()
-  draw.PNG(out, data)
+	outfile := replaceExt(filename, ".png")
+	out := iotool.MustOpenWRONLY(outfile)
+	defer out.Close()
+	draw.PNG(out, data)
 }
 
 
-func Draw3D(){
-  outfile := replaceExt(filename, ".png")
-  
-  //cmd, err2 := exec.Run(cmdstr, args, os.Environ(), wd, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
-  a := tensor.ToT4(data).Array()
-  sub := 1
-  imax := len(a[X])
-    jmax := len(a[X][0])
-    kmax := len(a[X][0][0])
-    for i := 0; i < imax; i += sub {
-        for j := 0; j < jmax; j += sub {
-            for k := 0; k < kmax; k += sub {
-                fmt.Printf("vec %d %d %d %f %f %f\n", k/sub-kmax/(2*sub), j/sub-jmax/(2*sub), i/sub-imax/(2*sub), a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
-            }
-        }
-    }
-    fmt.Printf("save %s\n", outfile)
-    fmt.Printf("exit\n")
+func Draw3D() {
+	outfile := replaceExt(filename, ".png")
+
+	//cmd, err2 := exec.Run(cmdstr, args, os.Environ(), wd, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
+	a := tensor.ToT4(data).Array()
+	sub := 1
+	imax := len(a[X])
+	jmax := len(a[X][0])
+	kmax := len(a[X][0][0])
+	for i := 0; i < imax; i += sub {
+		for j := 0; j < jmax; j += sub {
+			for k := 0; k < kmax; k += sub {
+				fmt.Printf("vec %d %d %d %f %f %f\n", k/sub-kmax/(2*sub), j/sub-jmax/(2*sub), i/sub-imax/(2*sub), a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
+			}
+		}
+	}
+	fmt.Printf("save %s\n", outfile)
+	fmt.Println("exit")
 }
 
 // replaces the extension of filename by a new one.
-func replaceExt(filename, newext string) string{
-  extension := path.Ext(filename)
-  return filename[:len(filename)-len(extension)] + newext
+func replaceExt(filename, newext string) string {
+	extension := path.Ext(filename)
+	return filename[:len(filename)-len(extension)] + newext
 }
 
 // func Slice(dirstr string, pos int){
@@ -95,8 +104,8 @@ func replaceExt(filename, newext string) string{
 //   size := copy(data.Size())
 // }
 
-const(
-  X = 0
-  Y = 1
-  Z = 2
+const (
+	X = 0
+	Y = 1
+	Z = 2
 )

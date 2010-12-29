@@ -21,6 +21,7 @@ import (
 	"io"
 	"strings"
 	"unicode"
+	"fmt"
 )
 
 // Maximum number of functions.
@@ -190,6 +191,8 @@ type Printer interface {
 func (refsh *Refsh) Print(msg ...interface{}) {
 	if refsh.Output != nil {
 		refsh.Output.Print(msg...)
+	} else {
+		fmt.Print(msg...)
 	}
 }
 
@@ -197,6 +200,8 @@ func (refsh *Refsh) Print(msg ...interface{}) {
 func (refsh *Refsh) Println(msg ...interface{}) {
 	if refsh.Output != nil {
 		refsh.Output.Println(msg...)
+	} else {
+		fmt.Println(msg...)
 	}
 }
 
@@ -204,6 +209,8 @@ func (refsh *Refsh) Println(msg ...interface{}) {
 func (refsh *Refsh) Errorln(msg ...interface{}) {
 	if refsh.Output != nil {
 		refsh.Output.Errorln(msg...)
+	} else {
+		fmt.Fprintln(os.Stderr, msg...)
 	}
 }
 
