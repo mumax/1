@@ -1,0 +1,73 @@
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
+package main
+
+// This file implements functions for drawing the magnetization state
+
+import (
+	"os"
+	"iotool"
+	"tensor"
+	"fmt"
+	"draw"
+	"exec"
+)
+
+// Renders in 2D, automatically saves in a .png file.
+func Draw() {
+	outfile := replaceExt(filename, ".png")
+	out := iotool.MustOpenWRONLY(outfile)
+	defer out.Close()
+	draw.PNG(out, data)
+}
+
+// Renders in 3D, automatically savesin a .png file.
+// This function depends on the java program "maxview".
+func Draw3D() {
+	outfile := replaceExt(filename, ".png")
+
+	// Fork a maxview instance 
+	wd, err1 := os.Getwd()
+	if err1 != nil {
+		panic(err1)
+	}
+	executable, err0 := exec.LookPath("maxview")
+	if err0 != nil {
+		panic(err0)
+	}
+	cmd, err := exec.Run(executable, []string{}, os.Environ(), wd, exec.Pipe, exec.PassThrough, exec.PassThrough)
+	if err != nil {
+		panic("running maxview: " + err.String())
+	}
+
+	// Pipe commands to maxview's stdin
+	zoom := 64 // pixels per cone
+	fmt.Fprintf(cmd.Stdin, "size %d %d \n", zoom*data.Size()[3], zoom*data.Size()[2])
+
+	a := tensor.ToT4(data).Array()
+	imax := len(a[X])
+	jmax := len(a[X][0])
+	kmax := len(a[X][0][0])
+	for i := 0; i < imax; i++ {
+		for j := 0; j < jmax; j++ {
+			for k := 0; k < kmax; k++ {
+				x := float32(k) - float32(kmax)/2 + .5
+				y := float32(j) - float32(jmax)/2 + .5
+				z := float32(i) - float32(imax)/2 + .5
+				fmt.Fprintf(cmd.Stdin, "vec %f %f %f %f %f %f\n", x, y, z, a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
+			}
+		}
+	}
+	fmt.Fprintf(cmd.Stdin, "save %s\n", outfile)
+	fmt.Fprintf(cmd.Stdin, "exit\n")
+
+	// Wait for maxview to finish rendering
+	_, err3 := cmd.Wait(0)
+	if err3 != nil {
+		panic(err3)
+	}
+}
