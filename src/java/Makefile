@@ -3,7 +3,7 @@ all:	maxview.jar
 maxview.jar:  refsh.jar maxview/*.java maxview/manifest.mf
 	javac maxview/*.java
 	jar cfm maxview.jar maxview/manifest.mf refsh/*.class maxview/*.class
-	cp maxview.jar ../../../bin
+	cp maxview.jar ../../bin
 
 refsh.jar:	refsh/*.java
 	javac refsh/*.java

@@ -55,6 +55,7 @@ func Draw() {
   draw.PNG(out, data)
 }
 
+
 func Draw3D(){
   outfile := replaceExt(filename, ".png")
   
@@ -72,7 +73,7 @@ func Draw3D(){
         }
     }
     fmt.Printf("save %s\n", outfile)
-    fmt.Printf("reset\n")  
+    fmt.Printf("exit\n")
 }
 
 // replaces the extension of filename by a new one.
