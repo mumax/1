@@ -76,7 +76,7 @@ func Draw3D() {
 // Interactive
 func Draw3D_Dump(){
   draw3D_Commands(os.Stdout)
-  fmt.Fprintf(os.Stdout, "show")
+  fmt.Fprintf(os.Stdout, "show\n")
 }
 
 // INTERNAL
