@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.lang.Math.*;
+import static java.lang.Math.abs;
 import refsh.*;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -24,7 +25,7 @@ public class Maxview {
   Universe universe;
   View view;
   int width, height;
-
+  
 
   public Maxview(){
     root = new Group();
@@ -83,6 +84,11 @@ public class Maxview {
       cone.setFillColor(ColorMap3D.map(mx, my, mz));
       cone.translate(-x, y, z);
       root.add(cone);
+
+      // maximum coordinate for autozoom
+      // (+1) so that the cones of size 1 would fit entirely in the picture
+      if( abs(x)+1 > view.maxX) { view.maxX = abs(x)+1; }
+      if( abs(y)+1 > view.maxY) { view.maxY = abs(y)+1; }
   }
 
   public static void main (String args[]) throws Exception{

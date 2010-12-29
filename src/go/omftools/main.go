@@ -104,6 +104,13 @@ func min(a, b int) int {
 	return b
 }
 
+func max(a, b int) int {
+  if a > b {
+    return a
+  }
+  return b
+}
+
 func Draw() {
 	outfile := replaceExt(filename, ".png")
 	out := iotool.MustOpenWRONLY(outfile)
@@ -135,7 +142,10 @@ func Draw3D() {
 	for i := 0; i < imax; i ++ {
 		for j := 0; j < jmax; j ++ {
 			for k := 0; k < kmax; k ++ {
-				fmt.Fprintf(cmd.Stdin, "vec %f %f %f %f %f %f\n", k-kmax/2, j-jmax/2, i-imax/2, a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
+        x := (k-kmax/2)
+        y := (j-jmax/2)
+        z := (i-imax/2)
+				fmt.Fprintf(cmd.Stdin, "vec %d %d %d %f %f %f\n",x, y, z, a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
 			}
 		}
 	}

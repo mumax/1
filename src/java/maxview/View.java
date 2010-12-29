@@ -19,7 +19,8 @@ public final class View extends JPanel{
     
     // CURRENTLY UNSUSED: Perspectief parameter: bepaalt hoe klein de dingen er uit zien.
     // private double persp = 1000;
-    private double zoom = 10;
+    private double zoom = 1;
+    double maxX, maxY; // maximum absolute value of any vector position (used to autoscale the viewport)
 
     //Camera positie.
     private double camx, camy , camz;
@@ -163,6 +164,12 @@ public final class View extends JPanel{
     }
 	
    public void paint(Graphics g1, int width, int height){
+
+        // adjust the zoom factor so that everything is visible
+        double zoomx = width / (2*maxX);
+        double zoomy = height/ (2*maxY);
+        zoom = Math.min(zoomx, zoomy);
+
         this.width = width; // bit of a hack
         this.height = height;
         g = (Graphics2D)g1;
