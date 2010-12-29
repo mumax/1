@@ -68,6 +68,17 @@ public class RefSh {
 			input = in.readLine();
 		}
 	}
+
+
+  public void readstdin() throws Exception{
+    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    String input = in.readLine();
+
+    while(input != null){
+      interpreter.run(input);
+      input = in.readLine();
+    }
+  }
 	
 	//______________________________________________________________________________________________
 	

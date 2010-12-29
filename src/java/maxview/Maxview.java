@@ -84,11 +84,11 @@ public class Maxview {
       root.add(cone);
   }
 
-  public static void main (String args[]) throws IOException{
+  public static void main (String args[]) throws Exception{
 
      Maxview maxview = new Maxview();
      Interpreter sh = new Interpreter(maxview.getClass(), maxview);
-     new RefSh(sh).interactive();
+     new RefSh(sh).readstdin();
   }
 
 //   private static void readStdin(Group root) throws IOException{
