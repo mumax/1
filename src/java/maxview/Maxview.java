@@ -86,9 +86,15 @@ public class Maxview {
       root.add(cone);
 
       // maximum coordinate for autozoom
-      // (+1) so that the cones of size 1 would fit entirely in the picture
-      if( abs(x)+1 > view.maxX) { view.maxX = abs(x)+1; }
-      if( abs(y)+1 > view.maxY) { view.maxY = abs(y)+1; }
+      // (+.5) so that the cones of size 1 would fit entirely in the picture
+      if( abs(x)+.5 > view.maxX) { view.maxX = abs(x)+.5; }
+      if( abs(y)+.5 > view.maxY) { view.maxY = abs(y)+.5; }
+  }
+
+  /** Canvas size of output, in pixels */
+  public void size(int width, int height){
+    this.width = width;
+    this.height = height;
   }
 
   public static void main (String args[]) throws Exception{

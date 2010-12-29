@@ -135,6 +135,9 @@ func Draw3D() {
 		panic("running maxview: " + err.String())
 	}
 
+  zoom := 64 // pixels per cone
+  fmt.Fprintf(cmd.Stdin, "size %d %d \n", zoom*data.Size()[3], zoom*data.Size()[2])
+
 	a := tensor.ToT4(data).Array()
 	imax := len(a[X])
 	jmax := len(a[X][0])
@@ -142,9 +145,9 @@ func Draw3D() {
 	for i := 0; i < imax; i ++ {
 		for j := 0; j < jmax; j ++ {
 			for k := 0; k < kmax; k ++ {
-        x := float32(k)-float32(kmax)/2
-        y := float32(j)-float32(jmax)/2
-        z := float32(i)-float32(imax)/2
+        x := float32(k)-float32(kmax)/2 +.5
+        y := float32(j)-float32(jmax)/2 +.5
+        z := float32(i)-float32(imax)/2 +.5
 				fmt.Fprintf(cmd.Stdin, "vec %f %f %f %f %f %f\n",x, y, z, a[Z][i][j][k], a[Y][i][j][k], a[X][i][j][k])
 			}
 		}
