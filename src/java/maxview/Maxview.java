@@ -56,6 +56,7 @@ public class Maxview {
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         view.paint(graphics, width, height);
         ImageIO.write(img, "png", new File(filename));
+//         System.out.println("saved " + filename);
   }
 
   public void updateLight(){

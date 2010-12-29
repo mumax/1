@@ -96,6 +96,8 @@ func Draw3D() {
 	}
 	fmt.Fprintf(cmd.Stdin, "save %s\n", outfile)
 	fmt.Fprintf(cmd.Stdin, "exit\n")
+	_, err3 := cmd.Wait(0)
+	if err3 != nil{panic(err3)}
 }
 
 // replaces the extension of filename by a new one.
