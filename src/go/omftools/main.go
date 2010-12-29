@@ -23,7 +23,7 @@ import (
 
 var (
 	filename string    // the currently opened file
-	data     *tensor.T // the currently opened data
+	data     *tensor.T4 // the currently opened data
 	info     *omf.Info
 )
 
@@ -49,7 +49,7 @@ func main() {
 	for _, file := range files {
 		t4, _ := omf.Decode(iotool.MustOpenRDONLY(file))
 		filename = file
-		data = tensor.ToT(t4)
+		data = t4//tensor.ToT(t4)
 
 		for i := range cmd {
 			sh.Call(cmd[i], args[i])
@@ -57,6 +57,11 @@ func main() {
 	}
 }
 
+
+// func Downscale(f int){
+//   bigsize := 
+//   scaled := tensor.NewT4()
+// }
 
 func Draw() {
 	outfile := replaceExt(filename, ".png")
