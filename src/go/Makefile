@@ -10,7 +10,7 @@ all:
 	gomake install -C refsh
 	gomake -C omftools
 
-	cp -f $(GOROOT)/src/libcgo/libcgo.so ../../lib
+# 	cp -f $(GOROOT)/src/libcgo/libcgo.so ../../lib
 	cp -f ../../lib/libcpukern.so sim/
 	cp -f ../../lib/libgpukern.so sim/
 	gomake install -C sim
