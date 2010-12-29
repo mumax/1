@@ -25,6 +25,22 @@ func Draw() {
 	draw.PNG(out, data)
 }
 
+
+// Parameter for draw3d(), passed on to maxview
+var(
+  draw3d_zoom int = 64
+  draw3d_detail int = 32
+)
+
+
+func Draw3D_Size(arrowsize int){
+  draw3d_zoom = arrowsize
+}
+
+func Draw3D_Detail(vertices int){
+  draw3d_detail = vertices
+}
+
 // Renders in 3D, automatically savesin a .png file.
 // This function depends on the java program "maxview".
 func Draw3D() {
@@ -45,8 +61,9 @@ func Draw3D() {
 	}
 
 	// Pipe commands to maxview's stdin
-	zoom := 64 // pixels per cone
+	zoom := draw3d_zoom // pixels per cone
 	fmt.Fprintf(cmd.Stdin, "size %d %d \n", zoom*data.Size()[3], zoom*data.Size()[2])
+    fmt.Fprintf(cmd.Stdin, "detail %d\n", draw3d_detail)
 
 	a := tensor.ToT4(data).Array()
 	imax := len(a[X])

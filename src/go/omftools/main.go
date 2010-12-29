@@ -43,6 +43,8 @@ func main() {
 	sh := refsh.New()
 	sh.AddFunc("draw", Draw)
 	sh.AddFunc("draw3d", Draw3D)
+    sh.AddFunc("draw3d-size", Draw3D_Size)
+    sh.AddFunc("draw3d-detail", Draw3D_Detail)
 	sh.AddFunc("downsample", Downsample)
 	cmd, args, files := refsh.ParseFlags2()
 
