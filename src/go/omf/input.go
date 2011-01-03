@@ -170,11 +170,13 @@ func ReadHeader(in io.Reader) *Info {
 		case "valueunit":
 		case "meshunit":
 			// desc tags: parse further and add to metadata table
-			// TODO: does not neccesarily contain a ':'
 		case "desc":
 			strs := Split(value, ":", 2)
 			desc_key := Trim(strs[0], "# ")
-			desc_value := Trim(strs[1], "# ")
+			// Desc tag does not neccesarily have a key:value layout.
+      // If not, we use an empty value string.
+			desc_value := ""
+			if len(strs) > 1 { desc_value = Trim(strs[1], "# ")}
 			// 			fmt.Println(desc_key, " : ", desc_value)
 			desc[desc_key] = desc_value
 		}
