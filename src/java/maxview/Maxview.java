@@ -94,9 +94,10 @@ public class Maxview {
       root.add(cone);
 
       // maximum coordinate for autozoom
-      // (+.5) so that the cones of size 1 would fit entirely in the picture
-      if( abs(x)+.5 > view.maxX) { view.maxX = abs(x)+.5; }
-      if( abs(y)+.5 > view.maxY) { view.maxY = abs(y)+.5; }
+      // (+BORDER) so that the cones of size 1 would fit entirely in the picture
+      double BORDER = .6;
+      if( abs(x)+BORDER > view.maxX) { view.maxX = abs(x)+BORDER; }
+      if( abs(y)+BORDER > view.maxY) { view.maxY = abs(y)+BORDER; }
   }
 
 
