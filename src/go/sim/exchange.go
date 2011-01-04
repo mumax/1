@@ -41,7 +41,6 @@ func Exch6NgbrKernel(size []int, cellsize []float32) []*tensor.T3 {
 		for dir := X; dir <= Z; dir++ {
 			for side := -1; side <= 1; side += 2 {
 				index := make([]int, 3)
-				i = KernIdx[s][s]
 				index[dir] = wrap(side, size[dir])
 				k[i].Array()[index[X]][index[Y]][index[Z]] = 1. / (cellsize[dir] * cellsize[dir])
 			}
@@ -49,3 +48,28 @@ func Exch6NgbrKernel(size []int, cellsize []float32) []*tensor.T3 {
 	}
 	return k
 }
+
+
+
+// func Exch26NgbrKernel(size []int, cellsize []float32) []*tensor.T3 {
+//   k := make([]*tensor.T3, 6)
+//   for i := range k {
+//     k[i] = tensor.NewT3(size)
+//   }
+// 
+//   hx := cellsize[X] * cellsize[X]
+//   hy := cellsize[Y] * cellsize[Y]
+//   hz := cellsize[Z] * cellsize[Z]
+// 
+//   for s := 0; s < 3; s++ { // source index Ksdxyz
+//     i := KernIdx[s][s]
+// 
+//     k[i].Array()[0][0][0] =
+// 
+//     index[dir] = wrap(side, size[dir])
+//     k[i].Array()[x][y][z] = 1. / (cellsize[dir] * cellsize[dir])
+//   }
+// 
+// 
+// return k
+// }
