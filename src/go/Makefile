@@ -9,6 +9,7 @@ all:
 	gomake install -C draw
 	gomake install -C refsh
 	gomake -C omftools
+	gomake -C template
 
 # 	cp -f $(GOROOT)/src/libcgo/libcgo.so ../../lib
 	cp -f ../../lib/libcpukern.so sim/
@@ -21,6 +22,7 @@ all:
 clean:
 	gomake clean -C iotool
 	gomake clean -C omftools
+	gomake clean -C template
 	gomake clean -C tensor
 	gomake clean -C sim
 	gomake clean -C refsh
