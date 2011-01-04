@@ -57,15 +57,15 @@ func Exch26NgbrKernel(size []int, cellsize []float32) []*tensor.T3 {
     k[i] = tensor.NewT3(size)
   }
 
-  hx := cellsize[X] * cellsize[X]
-  hy := cellsize[Y] * cellsize[Y]
-  hz := cellsize[Z] * cellsize[Z]
+  hx := 18. * cellsize[X] * cellsize[X]
+  hy := 18. * cellsize[Y] * cellsize[Y]
+  hz := 18. * cellsize[Z] * cellsize[Z]
 
   for s := 0; s < 3; s++ { // source index Ksdxyz
     i := KernIdx[s][s]
     arr := k[i].Array()
 
-    arr[wrap( 0, size[X])][wrap( 0, size[Y])][wrap( 0, size[Z])] = 0 // TODO !
+    arr[wrap( 0, size[X])][wrap( 0, size[Y])][wrap( 0, size[Z])] = -32./hx -32./hy -32./hz
     
     arr[wrap( 1, size[X])][wrap( 0, size[Y])][wrap( 0, size[Z])] = 16./hx -  8./hy -  8./hz
     arr[wrap(-1, size[X])][wrap( 0, size[Y])][wrap( 0, size[Z])] = 16./hx -  8./hy -  8./hz
