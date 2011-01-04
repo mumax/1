@@ -22,6 +22,7 @@ const (
 	DEFAULT_MAXERROR          = 1e-5
 	DEFAULT_DEMAG_ACCURACY    = 8
 	DEFAULT_SPIN_POLARIZATION = 1
+	DEFAULT_EXCH_TYPE = 26
 )
 
 // Sim has an "input" member of type "Input".
@@ -80,6 +81,7 @@ type Sim struct {
 
 	Conv             // Convolution plan for the magnetostatic field
 	wisdomdir string // Absolute path of the kernel wisdom root directory
+	exchType  int    // exchange scheme: 6 or 26 neighbors
 
 	Material // Stores material parameters and manages the internal units
 	Mesh     // Stores the size of the simulation grid
@@ -143,6 +145,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
 	sim.input.solvertype = DEFAULT_SOLVERTYPE
 	sim.maxError = DEFAULT_MAXERROR
+	sim.exchType = DEFAULT_EXCH_TYPE
 	// We run the simulation with working directory = directory of input file
 	// This is neccesary, e.g., when a sim deamon is run from a directory other
 	// than the directory of the input file and files with relative paths are
@@ -299,7 +302,13 @@ func (s *Sim) initConv() {
 	s.Println("Calculating kernel (may take a moment)") // --- In fact, it takes 3 moments, one in each direction.
 	// lookupKernel first searches the wisdom directory and only calculates the kernel when it's not cached yet.
 	demag := s.LookupKernel(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy, s.periodic[:])
-	exch := Exch26NgbrKernel(s.paddedsize, s.cellSize[0:])
+  var exch []*tensor.T3
+	switch s.exchType{
+    default: panic(InputErr("Illegal exchange type: " + fmt.Sprint(s.exchType) + ". Options are: 6, 26"))
+    case 6: exch = Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
+    case 26: exch = Exch26NgbrKernel(s.paddedsize, s.cellSize[0:])
+  }
+
 	// Add Exchange kernel to demag kernel
 	for i := range demag {
 		D := demag[i].List()
