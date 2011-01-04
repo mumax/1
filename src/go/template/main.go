@@ -113,15 +113,15 @@ func Range(start, stop, step string) []string{
   min, max, delta := Atof(start), Atof(stop), Atof(step)
 
   for i:=min; i<max; i+=delta{
-    rnge = append(rnge, fmt.Sprint(i))
+    rnge = append(rnge, fmt.Sprint(float(i)))
   }
 
   return rnge
 }
 
 
-func Atof(a string) float{
-  f, err := strconv.Atof(a)
+func Atof(a string) float64{
+  f, err := strconv.Atof64(a)
   if err != nil{
     Error("Parsing " + a + ": " + err.String())
   }
