@@ -13,6 +13,7 @@ import (
 	"iotool"
 	"os"
 	"strings"
+	"strconv"
 )
 
 
@@ -21,17 +22,25 @@ func main() {
 		Error("No input files.")
 	}
 
-	file := flag.Arg(flag.NArg() - 1)
-	bytes, err := ioutil.ReadFile(file)
+	file := flag.Arg(flag.NArg() - 1)   // last flag is the template filename...
+	bytes, err := ioutil.ReadFile(file) // ...read it fully
 	content := string(bytes)
-
 	if err != nil {
 		panic(err)
 	}
 
+	// list of "documents" that will be output,
+	// {key}'s will gradually be replaced by their values:
+	// for value by which a key is being replaced,
+	// a new document is appended to the list.
+	// E.g. key=val1,val2 appends 2 documents with key
+	// replaced by val1 and val2, respectively.
+	// the original document is then replaced by nil.
 	docs := []*Document{&Document{content, file}}
 
 	for f := 0; f < flag.NArg()-1; f++ {
+
+		// Split the flag in a key/value pair
 		flag := flag.Arg(f)
 		split := strings.Split(flag, "=", 2)
 		if len(split) != 2 {
@@ -39,28 +48,84 @@ func main() {
 		}
 		key, val := split[0], split[1]
 
+		// Generate a sequence of values,
+		// depending on whether the value has a comma- or colon-separted layout
+		values := GenerateValues(val)
+
 		len_docs := len(docs) // no need to iterate over those that will be added by this loop
 		for d := 0; d < len_docs; d++ {
 			doc := docs[d]
 			if doc != nil {
 				docs[d] = nil
-				docs = append(docs, doc.Replace(key, val))
+				for _,v := range values {
+					docs = append(docs, doc.Replace(key, v))
+				}
 			}
 		}
 	}
 
 	for _, d := range docs {
 		if d != nil {
-      if strings.Contains(d.content, "{"){
-        Error("Not all {key}'s were specified.")
-        // TODO: it might be nice to show which ones...
-      }
+			if strings.Contains(d.content, "{") {
+				Error("Not all {key}'s were specified.")
+				// TODO: it might be nice to show which ones...
+			}
 			out := iotool.MustOpenWRONLY(d.name + ".in")
 			defer out.Close()
 			out.Write([]byte(d.content))
 		}
 	}
 
+}
+
+// Generate a sequence of values,
+// depending on whether the value has a comma- or colon-separted layout.
+// E.g.:
+// 1,2,3 -> {1, 2, 3}
+// 1:5 -> {1, 2, 3, 4}
+// 0:10:2 -> {0, 2, 4, 6, 8}
+func GenerateValues(flag string) []string{
+  
+  // comma separated list
+  if strings.Contains(flag, ","){
+    values := strings.Split(flag, ",", -1)
+    return values
+  }
+
+  // range statement
+  if strings.Contains(flag, ":"){
+    steps := strings.Split(flag, ":", -1)
+    switch len(steps){
+      default: Error("Sytax error: expecting \"start:stop\" or \"start:stop:step\" :", flag)
+      case 2: return Range(steps[0], steps[1], "1")
+      case 3: return Range(steps[0], steps[1], steps[2])
+    }
+  }
+
+  // just one value
+  return []string{flag}
+}
+
+
+func Range(start, stop, step string) []string{
+  rnge := []string{}
+
+  min, max, delta := Atof(start), Atof(stop), Atof(step)
+
+  for i:=min; i<max; i+=delta{
+    rnge = append(rnge, fmt.Sprint(i))
+  }
+
+  return rnge
+}
+
+
+func Atof(a string) float{
+  f, err := strconv.Atof(a)
+  if err != nil{
+    Error("Parsing " + a + ": " + err.String())
+  }
+  return f
 }
 
 
