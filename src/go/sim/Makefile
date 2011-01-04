@@ -34,6 +34,7 @@ GOFILES=\
 	edge.go\
 	geom.go\
 	simmaterial.go\
+	simanis.go\
 	simoutput.go\
 	simrun.go\
 	simsolver.go\

@@ -11,12 +11,16 @@
 #define NONE 0
 
 // Anisotropy types ***************
-  /// Possible value for anisType. Means uniaxial anisotropy.
+/// Possible value for anisType. Means no anisotropy
+#define ANIS_NONE     0
+/// Possible value for anisType. Means uniaxial anisotropy.
 #define ANIS_UNIAXIAL 1
-  /// Possible value for anisType. Means cubic anisotropy.
-#define ANIS_CUBIC 2
-  /// Possible value for anisType. Means shape anisotropy.
-#define ANIS_EDGE 3
+/// Possible value for anisType. Means cubic anisotropy.
+#define ANIS_CUBIC    2
+
+// does not belong here: should be able to combine edge anis with crystal anis.
+// Possible value for anisType. Means shape anisotropy.
+// #define ANIS_EDGE     3
 // ********************************
 
 
