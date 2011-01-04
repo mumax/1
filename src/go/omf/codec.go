@@ -4,6 +4,7 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
+// TODO: wrap all panic strings in a "FormatErr" type, have functions that return an err
 
 /*
   This package implements a tensor.Codec that reads/writes data in
@@ -96,28 +97,28 @@
 package omf
 
 import (
-	"io"
+// 	"io"
 )
 
 
-type Codec interface {
-	Encode(out io.Writer, f Interface)
-	Decode(in io.Reader) Interface
-}
-
-
-type OmfCodec struct {
-	format uint
-}
-
-func (c *OmfCodec) Init() {
-
-}
-
-func NewOmfCodec() *OmfCodec {
-	c := new(OmfCodec)
-	c.Init()
-	return c
-}
+// type Codec interface {
+// 	Encode(out io.Writer, f Interface)
+// 	Decode(in io.Reader) Interface
+// }
+// 
+// 
+// type OmfCodec struct {
+// 	format uint
+// }
+// 
+// func (c *OmfCodec) Init() {
+// 
+// }
+// 
+// func NewOmfCodec() *OmfCodec {
+// 	c := new(OmfCodec)
+// 	c.Init()
+// 	return c
+// }
 
 // Encode/Decode implemented in output.go/input.go

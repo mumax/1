@@ -17,7 +17,9 @@ func (s *Sim) K1(k1 float32){
   // hack: move to sim.input
   s.InitMaterial()
   s.anisK[0] = k1 / s.UnitEnergyDensity()
+  s.Println("Anisotropy k1 = ", s.anisK[0], " Msat")
   // does not invalidate
+  
 }
 
 // Sets a uniaxial anisotropy

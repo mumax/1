@@ -3,7 +3,7 @@ msat	414e3
 aexch	1.05e-11
 
 alpha		2
-maxerror	1e-4
+maxerror	1e-3
 
 gridsize	512	32	32
 partsize	1000e-9	60e-9	60e-9
@@ -16,10 +16,10 @@ uniform		1	0	0
 
 run		1e-9
 
-save		m	binary
+save		m	png
 
-autosave	m	binary	10e-12
-autosave	table	ascii	10e-12
+autosave	m	omf	10e-12
+autosave	table	ascii	0.0000000010e-12
 
 alpha		0.1
 staticfield	-200e-3	0	0	

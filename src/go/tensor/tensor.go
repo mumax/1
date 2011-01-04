@@ -6,7 +6,9 @@
 
 package tensor
 
-import ()
+import (
+	"fmt"
+)
 
 
 type Interface interface {
@@ -53,7 +55,7 @@ type T4 struct {
 
 func (t *T4) Init(size []int) {
 	if len(size) != 4 {
-		panic("Illegal argument")
+		panic("Illegal argument: " + fmt.Sprint(size))
 	}
 	t.TSize = size
 	t.TList, t.TArray = Array4D(size[0], size[1], size[2], size[3])

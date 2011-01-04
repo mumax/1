@@ -16,7 +16,7 @@ vortex  1 1
 # excite
 alpha		    2
 autosave	  table	ascii	 50E-12
-autosave	  m	png	250E-12
+autosave	  m	omf	250E-12
 staticfield	15e-3 0 0
 run         10E-9
 save		    m 	binary

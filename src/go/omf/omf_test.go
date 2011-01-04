@@ -3,13 +3,18 @@ package omf
 import (
 	"testing"
 	"tensor"
-	"os"
+	"iotool"
+	"fmt"
 )
 
 type Test struct{}
 
 func (t *Test) GetData() (data tensor.Interface, multiplier float32, unit string) {
-	data, multiplier, unit = tensor.NewT4([]int{3, 128, 32, 1}), 800e3, "A/m"
+	tens := tensor.NewT4([]int{3, 128, 32, 1})
+	for i := range tens.List() {
+		tens.List()[i] = float32(i + 1)
+	}
+	data, multiplier, unit = tens, 800e3, "A/m"
 	return
 }
 
@@ -26,6 +31,12 @@ func (t *Test) GetMesh() (cellsize []float32, unit string) {
 
 func TestIO(test *testing.T) {
 	t := &Test{}
+	orig, _, _ := t.GetData()
 	codec := NewOmfCodec()
-	codec.Encode(os.Stdout, t)
+	codec.Encode(iotool.MustOpenWRONLY("test.omf"), t)
+	tens, _ := codec.Decode(iotool.MustOpenRDONLY("test.omf"))
+	fmt.Println(tens.Size())
+	if !tensor.Equal(orig, tens) {
+		test.Fail()
+	}
 }

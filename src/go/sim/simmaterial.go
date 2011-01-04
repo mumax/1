@@ -15,6 +15,12 @@ func (s *Sim) AExch(a float32) {
 	s.invalidate()
 }
 
+// Sets the exchange type (number of neighbors for the laplacian evaluation)
+func (s *Sim) ExchangeType(neighbors int) {
+	s.exchType = neighbors
+	s.invalidate()
+}
+
 // Sets the saturation magnetization, defined in A/m
 func (s *Sim) MSat(ms float32) {
 	s.input.msat = ms

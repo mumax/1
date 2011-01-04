@@ -1,4 +1,4 @@
-all: gpukern.so cpukern.so tensor.so gopkgs
+all: gpukern.so cpukern.so tensor.so gopkgs javapkgs
 
 gpukern.so: gpukern/*.cu
 	make -C gpukern
@@ -12,6 +12,9 @@ tensor.so: tensor/*.cpp
 gopkgs:
 	make -C go
 
+javapkgs:
+	make -C java
+
 test:   all
 	make test -C gpukern
 	make test -C cpukern
@@ -24,3 +27,4 @@ clean:
 	make clean -C gpukern
 	make clean -C cpukern
 	make clean -C go
+	make clean -C java

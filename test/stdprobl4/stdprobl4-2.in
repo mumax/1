@@ -1,0 +1,26 @@
+# Micromagnetic standard problem 4 - 2
+
+metadata:  	description standard_problem_4_2
+
+# material
+msat       	800E3   
+aexch      	1.3E-11     
+alpha      	0.02
+
+
+# geometry 
+gridsize       	128 	32 	1    
+partsize   	500E-9  125E-9  3E-9
+demagaccuracy	10
+
+# initial magnetization
+load    	s-state.tensor
+
+
+# run
+autosave  m omf 10E-12
+autosave	table	ascii	10E-12
+staticfield 	-35.5E-3     -6.3E-3    0  # T
+run          	1E-9                      # s
+
+savebenchmark benchmark.txt

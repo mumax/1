@@ -248,15 +248,21 @@ type MOmf struct {
 }
 
 // INTERNAL
-// TODO: files are not closed?
-// TODO/ also for writeAscii
+// TODO: format: text
 func (m *MOmf) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
 	out := fopen(fname)
 	defer out.Close()
-	var codec omf.OmfCodec
-	codec.Init()
-	codec.Encode(out, s)
+	var file omf.File
+	file.T4 = s.mLocal
+	file.StepSize = s.input.cellSize
+	file.MeshUnit = "m"
+	file.Desc = s.metadata
+	file.ValueMultiplier = s.mSat
+	file.ValueUnit = "A/m"
+	file.Format = "binary"
+	file.DataFormat = "4"
+	omf.Encode(out, file)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 

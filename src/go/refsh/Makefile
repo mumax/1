@@ -10,6 +10,7 @@ GOFILES=\
 	parse.go\
 	readline.go\
 	flags.go\
+	flags2.go\
 	
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 
