@@ -7,10 +7,42 @@
 package main
 
 import (
+  "fmt"
   "flag"
+  "io/ioutil"
+  "os"
 )
 
 
 func main() {
+  if flag.NArg() == 0{
+    fmt.Fprintln(os.Stderr, "No input files.")
+    fmt.Fprintln(os.Stderr, USAGE)
+    os.Exit(-1)
+  }
   
+  file := flag.Arg(flag.NArg()-1)
+  bytes, err := ioutil.ReadFile(file)
+  content := string(bytes)
+  
+  if err != nil{
+    panic(err)
+  }
+  
+//   for i:=0; i<flag.NArg()-1; i++{
+// 
+//   }
+
+  fmt.Println(content)
 }
+
+const USAGE = `
+Usage: template file should contain {key} statements, where "key" can be replaced by any identifier.
+
+template key=value1,value2,... file.in  Creates files where {key} is replaced by each of the values.
+template key=start:stop file.in         Replaces key by all integers between start and stop (exclusive).
+template key=start:stop:step file.in    As above but with a step different from 1.
+template key1=... key2=...              Multiple keys may be specified.
+
+Output files are given automaticially generated names.
+`
