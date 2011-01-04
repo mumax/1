@@ -26,7 +26,7 @@ import (
 
 // Maximum number of functions.
 // TODO use a vector to make this unlimited.
-const CAPACITY = 100
+const CAPACITY = 200
 
 
 // Makes a new Refsh
