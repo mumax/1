@@ -138,5 +138,5 @@ func defaultWisdomDir() string {
 		fmt.Fprintln(os.Stdout, err)
 		return "" // don't use wisdom
 	}
-	return wd + "/kernelwisdom"
+	return wd + "/wisdom"
 }
