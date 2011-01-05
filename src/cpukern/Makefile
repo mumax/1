@@ -15,10 +15,9 @@ OFILES=\
 	cpu_transpose.o\
 	cpu_init.o\
 	cpu_reduction.o\
-	cpu_fft2.o\
+	cpu_fft0.o\
 	cpu_local_contr.o\
 	thread_functions.o\
-### change to cpu_fft1.o when ready 
 
 all: libcpukern.so
 
