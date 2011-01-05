@@ -135,11 +135,10 @@ func New(outputdir string, backend *Backend) *Sim {
 }
 
 
-
 func NewSim(outputdir string, backend *Backend) *Sim {
 	sim := new(Sim)
 	sim.Backend = backend
-	sim.Backend.init(*threads, parseDeviceOptions())
+	sim.Backend.init(*threads, parseDeviceOptions()) //TODO: should not use global variable threads here
 	sim.starttime = time.Seconds()
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
@@ -164,16 +163,18 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 }
 
 
-const(
-  FFTW_PATIENT_FLAG = 1 << iota
+const (
+	FFTW_PATIENT_FLAG = 1 << iota
 )
 
 // makes the device options flag based on the CLI flags
 // this flag is the bitwise OR of flags like FFTW_PATIENT, ...
-func parseDeviceOptions() int{
-  flags := 0
-  if *patient { flags |=  FFTW_PATIENT_FLAG }
-  return flags
+func parseDeviceOptions() int {
+	flags := 0
+	if *patient {
+		flags |= FFTW_PATIENT_FLAG
+	}
+	return flags
 }
 
 // When a parmeter is changed, the simulation state is invalidated until it gets (re-)initialized by init().
@@ -329,7 +330,7 @@ func (s *Sim) initConv() {
 
 	// Add Exchange kernel to demag kernel
 	for i := range demag {
-		D := demag[i].List()  // POSSIBLE CRASH POINT
+		D := demag[i].List() // POSSIBLE CRASH POINT
 		E := exch[i].List()
 		for j := range D {
 			D[j] += E[j]

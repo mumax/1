@@ -57,7 +57,7 @@ func main() {
 			doc := docs[d]
 			if doc != nil {
 				docs[d] = nil
-				for _,v := range values {
+				for _, v := range values {
 					docs = append(docs, doc.Replace(key, v))
 				}
 			}
@@ -84,48 +84,51 @@ func main() {
 // 1,2,3 -> {1, 2, 3}
 // 1:5 -> {1, 2, 3, 4}
 // 0:10:2 -> {0, 2, 4, 6, 8}
-func GenerateValues(flag string) []string{
-  
-  // comma separated list
-  if strings.Contains(flag, ","){
-    values := strings.Split(flag, ",", -1)
-    return values
-  }
+func GenerateValues(flag string) []string {
 
-  // range statement
-  if strings.Contains(flag, ":"){
-    steps := strings.Split(flag, ":", -1)
-    switch len(steps){
-      default: Error("Sytax error: expecting \"start:stop\" or \"start:stop:step\" :", flag)
-      case 2: return Range(steps[0], steps[1], "1")
-      case 3: return Range(steps[0], steps[1], steps[2])
-    }
-  }
+	// comma separated list
+	if strings.Contains(flag, ",") {
+		values := strings.Split(flag, ",", -1)
+		return values
+	}
 
-  // just one value
-  return []string{flag}
+	// range statement
+	if strings.Contains(flag, ":") {
+		steps := strings.Split(flag, ":", -1)
+		switch len(steps) {
+		default:
+			Error("Sytax error: expecting \"start:stop\" or \"start:stop:step\" :", flag)
+		case 2:
+			return Range(steps[0], steps[1], "1")
+		case 3:
+			return Range(steps[0], steps[1], steps[2])
+		}
+	}
+
+	// just one value
+	return []string{flag}
 }
 
 
-func Range(start, stop, step string) []string{
-  rnge := []string{}
+func Range(start, stop, step string) []string {
+	rnge := []string{}
 
-  min, max, delta := Atof(start), Atof(stop), Atof(step)
+	min, max, delta := Atof(start), Atof(stop), Atof(step)
 
-  for i:=min; i<max; i+=delta{
-    rnge = append(rnge, fmt.Sprint(float(i)))
-  }
+	for i := min; i < max; i += delta {
+		rnge = append(rnge, fmt.Sprint(float(i)))
+	}
 
-  return rnge
+	return rnge
 }
 
 
-func Atof(a string) float64{
-  f, err := strconv.Atof64(a)
-  if err != nil{
-    Error("Parsing " + a + ": " + err.String())
-  }
-  return f
+func Atof(a string) float64 {
+	f, err := strconv.Atof64(a)
+	if err != nil {
+		Error("Parsing " + a + ": " + err.String())
+	}
+	return f
 }
 
 

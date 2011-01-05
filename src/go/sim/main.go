@@ -26,6 +26,8 @@ import (
 	"time"
 )
 
+// WARNING: most flags added here will need to be passed on to a deamon's child process
+// after adding a flag, edit daemon.go accordingly!
 var (
 	silent    *bool   = flag.Bool("silent", false, "Do not show simulation output on the screen, only save to output.log")
 	daemon    *bool   = flag.Bool("daemon", false, "Watch directories for new input files and run them automatically.")
@@ -158,9 +160,9 @@ func main_master() {
 }
 
 
-func (s *Sim) PrintInfo(){
-  s.Println("Running on " + s.Backend.String())
-  s.Println("Max threads: ", s.maxthreads())
+func (s *Sim) PrintInfo() {
+	s.Println("Running on " + s.Backend.String())
+	s.Println("Max threads: ", s.maxthreads())
 }
 
 

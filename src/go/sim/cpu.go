@@ -32,12 +32,12 @@ type Cpu struct {
 	// intentionally empty, but the methods implement sim.Device
 }
 
-func (d Cpu) maxthreads() int{
-  return int(C.cpu_maxthreads())
+func (d Cpu) maxthreads() int {
+	return int(C.cpu_maxthreads())
 }
 
 func (d Cpu) init(threads, options int) {
-  C.cpu_init(C.int(threads), C.int(options))
+	C.cpu_init(C.int(threads), C.int(options))
 }
 
 func (d Cpu) setDevice(devid int) {
@@ -101,8 +101,8 @@ func (d Cpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []f
 	panic(Bug("spin torque not implemented on CPU"))
 }
 
-func (d Cpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int){
-   C.cpu_add_local_fields((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
+func (d Cpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int) {
+	C.cpu_add_local_fields((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
 }
 
 func (d Cpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {

@@ -13,39 +13,39 @@ import "math"
   Input methods for anisotropy
 */
 
-func (s *Sim) K1(k1 float32){
-  // hack: move to sim.input
-  s.InitMaterial()
-  s.anisK[0] = k1 / s.UnitEnergyDensity()
-  s.Println("Anisotropy k1 = ", s.anisK[0], " Msat")
-  // does not invalidate
-  
+func (s *Sim) K1(k1 float32) {
+	// hack: move to sim.input
+	s.InitMaterial()
+	s.anisK[0] = k1 / s.UnitEnergyDensity()
+	s.Println("Anisotropy k1 = ", s.anisK[0], " Msat")
+	// does not invalidate
+
 }
 
 // Sets a uniaxial anisotropy
 // K1 still needs to be set separately
 // ux,uy,uz is the anisotropy direction,
 // it does not need to be normalized
-func (s *Sim) AnisUniaxial(uz, uy, ux float32){
-  s.anisType = ANIS_UNIAXIAL
-  norm := sqrt32(ux*ux + uy*uy + uz*uz)
-  if norm == 0.{
-    panic(InputErr("Anisotropy axis should not be 0"))
-  }
-  ux /= norm
-  uy /= norm
-  uz /= norm
-  
-  s.anisAxes = []float32{ux, uy, uz}
-  // does not invalidate
+func (s *Sim) AnisUniaxial(uz, uy, ux float32) {
+	s.anisType = ANIS_UNIAXIAL
+	norm := sqrt32(ux*ux + uy*uy + uz*uz)
+	if norm == 0. {
+		panic(InputErr("Anisotropy axis should not be 0"))
+	}
+	ux /= norm
+	uy /= norm
+	uz /= norm
+
+	s.anisAxes = []float32{ux, uy, uz}
+	// does not invalidate
 }
 
-const(
-  ANIS_NONE = 0
-  ANIS_UNIAXIAL = 1
-  ANIS_CUBIC = 2
+const (
+	ANIS_NONE     = 0
+	ANIS_UNIAXIAL = 1
+	ANIS_CUBIC    = 2
 )
 
-func sqrt32(x float32) float32{
-  return float32(math.Sqrt(float64(x)))
+func sqrt32(x float32) float32 {
+	return float32(math.Sqrt(float64(x)))
 }

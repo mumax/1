@@ -13,17 +13,17 @@ import (
 )
 
 type Material struct {
-	aExch   float32 // Exchange constant in J/m
-	mSat    float32 // Saturation magnetization in A/m
-	mu0     float32 // mu0 in N/A^2
-	gamma0  float32 // Gyromagnetic ratio in m/As
-	muB     float32 // Bohr magneton in Am^2
-	e       float32 // Electron charge in As
-	alpha   float32 // Damping parameter
-	xi      float32 // Spin-transfer torque: degree of non-adiabaticity
-	spinPol float32 // Spin-transfer torque: spin-polarization of the electrical current (0-100%)
+	aExch    float32 // Exchange constant in J/m
+	mSat     float32 // Saturation magnetization in A/m
+	mu0      float32 // mu0 in N/A^2
+	gamma0   float32 // Gyromagnetic ratio in m/As
+	muB      float32 // Bohr magneton in Am^2
+	e        float32 // Electron charge in As
+	alpha    float32 // Damping parameter
+	xi       float32 // Spin-transfer torque: degree of non-adiabaticity
+	spinPol  float32 // Spin-transfer torque: spin-polarization of the electrical current (0-100%)
 	anisType int
-	anisK []float32
+	anisK    []float32
 	anisAxes []float32
 }
 
@@ -42,10 +42,10 @@ func (s *Sim) InitMaterial() {
 	s.e = 1.60217646E-19
 	s.spinPol = DEFAULT_SPIN_POLARIZATION
 	// even when not used, these arrays should be allocated:
-  // they may be passed to C even when they are ignored there
-  s.anisK = make([]float32, 1)
-  s.anisAxes = make([]float32, 1)
-  
+	// they may be passed to C even when they are ignored there
+	s.anisK = make([]float32, 1)
+	s.anisAxes = make([]float32, 1)
+
 	if s.input.msat == 0. {
 		s.Errorln("Saturation magnetization should first be set. E.g. msat 800E3")
 		os.Exit(-6)
@@ -102,7 +102,7 @@ func (mat *Material) UnitEnergy() float32 {
 
 // The internal unit of energy density, expressed in J/m^3.
 func (mat *Material) UnitEnergyDensity() float32 {
-  return mat.UnitEnergy() / mat.UnitVolume()
+	return mat.UnitEnergy() / mat.UnitVolume()
 }
 
 

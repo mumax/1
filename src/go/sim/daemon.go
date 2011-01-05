@@ -136,7 +136,9 @@ func passthrough_cli_args(args *vector.StringVector) {
 	(*args).Push(fmt.Sprint("-verbosity=", *verbosity))
 	(*args).Push(fmt.Sprint("-gpu=", *gpuid))
 	(*args).Push(fmt.Sprint("-cpu=", *cpu))
-	(*args).Push(fmt.Sprint("-updatedisp=", *updatedb))
+	(*args).Push(fmt.Sprint("-threads=", *threads))
+	(*args).Push(fmt.Sprint("-patient=", *patient))
+	(*args).Push(fmt.Sprint("-wisdom=", *wisdir))
 }
 
 

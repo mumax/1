@@ -40,20 +40,20 @@ import ()
  */
 type Device interface {
 
-  // Returns the maximum number of threads on this device
-  // CPU will return the number of processors,
-  // GPU will return the maximum number of threads per block
-  // init() does not need to be called before this function,
-  // but may rather use it.
-  maxthreads() int
-  
-  // Initiate the device.
-  // threads sets the number of threads:
-  // this is the number of hardware threads for CPU
-  // or the number of threads per block for GPU
-  // Options is currently not used but here to allow
-  // additional fine-tuning in the future.
-  init(threads, options int)
+	// Returns the maximum number of threads on this device
+	// CPU will return the number of processors,
+	// GPU will return the maximum number of threads per block
+	// init() does not need to be called before this function,
+	// but may rather use it.
+	maxthreads() int
+
+	// Initiate the device.
+	// threads sets the number of threads:
+	// this is the number of hardware threads for CPU
+	// or the number of threads per block for GPU
+	// Options is currently not used but here to allow
+	// additional fine-tuning in the future.
+	init(threads, options int)
 
 	// selects a device when more than one is present
 	// (typically used for multiple GPU's, not useful for CPU)

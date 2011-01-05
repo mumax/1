@@ -6,7 +6,4 @@
 
 package draw
 
-import (
-
-)
-
+import ()
