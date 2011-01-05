@@ -32,8 +32,8 @@ type Cpu struct {
 	// intentionally empty, but the methods implement sim.Device
 }
 
-func (d Cpu) init() {
-	C.cpu_init()
+func (d Cpu) init(threads, options int) {
+  C.cpu_init(C.int(threads), C.int(options))
 }
 
 func (d Cpu) setDevice(devid int) {

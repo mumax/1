@@ -14,7 +14,9 @@ extern "C" {
 /**
  * Does the necessary initialization before the GPU backend can be used
  */
-void gpu_init();
+void gpu_init(int threads,  ///< number of threads per block, 0 means autoset
+              int options   ///< currently not used
+              );
 
 /**
  * Selects a GPU when more than one is present

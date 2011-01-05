@@ -39,7 +39,14 @@ import ()
  * Backend thanks to embedding.
  */
 type Device interface {
-	init()
+
+  // Initiate the device.
+  // threads sets the number of threads:
+  // this is the number of hardware threads for CPU
+  // or the number of threads per block for GPU
+  // Options is currently not used but here to allow
+  // additional fine-tuning in the future.
+  init(threads, options int)
 
 	// selects a device when more than one is present
 	// (typically used for multiple GPU's, not useful for CPU)

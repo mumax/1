@@ -14,7 +14,9 @@ extern "C" {
 /**
  * Does the necessary initialization before the CPU backend can be used
  */
-void cpu_init();
+void cpu_init(int threads,      ///< number of threads to use, 0 means autodect the number of CPUs
+              int options       ///< currently not used
+              );
 
 #ifdef __cplusplus
 }

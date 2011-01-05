@@ -30,8 +30,8 @@ type Gpu struct {
 	// intentionally empty, but the methods implement sim.Device
 }
 
-func (d Gpu) init() {
-	C.gpu_init()
+func (d Gpu) init(threads, options int) {
+	C.gpu_init(C.int(threads), C.int(options))
 }
 
 func (d Gpu) setDevice(devid int) {

@@ -8,13 +8,25 @@
 extern "C" {
 #endif
 
-void cpu_init(){
-  // set up multi-threaded fftw
-    fftwf_init_threads();
-    fftwf_plan_with_nthreads(get_nprocs_conf()); // automatically determines the available number of CPU's
+void cpu_init(int threads,      ///< number of threads to use, 0 means autodect the number of CPUs
+              int options       ///< currently not used
+              ){
+  
+    if (threads <= 0){ // automatically use maximum number of threads
+      threads = get_nprocs_conf();
+    }
+  
+    if( threads > 1){
+      // set up multi-threaded fftw
+      fftwf_init_threads();
+      fftwf_plan_with_nthreads(threads);
+    }
 
-    init_Threads(4);
-      omp_set_num_threads(1);
+    // set up openMP
+    omp_set_num_threads(threads);
+
+    // set up Ben
+    init_Threads(threads);
 }
 
 
