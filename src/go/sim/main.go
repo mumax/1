@@ -106,6 +106,7 @@ func main_master() {
 
 		sim := NewSim(outfile, backend)
 		defer sim.out.Close()
+		sim.PrintInfo()
 
 		sim.wisdomdir = *wisdir
 
@@ -155,6 +156,14 @@ func main_master() {
 	}
 }
 
+
+func (s *Sim) PrintInfo(){
+  s.Println("Running on " + s.Backend.String())
+  s.Println("Max threads: ", s.maxthreads())
+}
+
+
+// TODO: move to iotool
 // Removes a filename extension.
 // I.e., the part after the dot, if present.
 func RemoveExtension(str string) string {

@@ -44,7 +44,7 @@ void check1dconf(int gridsize, int blocksize){
 int _gpu_max_threads_per_block = 0;
 
 int gpu_maxthreads(){
-  if(_gpu_max_threads_per_block == 0){
+  if(_gpu_max_threads_per_block <= 0){
     cudaDeviceProp* prop = (cudaDeviceProp*)gpu_getproperties();
     _gpu_max_threads_per_block = prop->maxThreadsPerBlock;
   }
