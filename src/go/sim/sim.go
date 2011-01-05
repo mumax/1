@@ -134,11 +134,12 @@ func New(outputdir string, backend *Backend) *Sim {
 	return NewSim(outputdir, backend)
 }
 
+const OPTIONS = 0 // device init options, currently not used.
 
 func NewSim(outputdir string, backend *Backend) *Sim {
 	sim := new(Sim)
 	sim.Backend = backend
-	sim.Backend.init()
+	sim.Backend.init(*threads, OPTIONS)
 	sim.starttime = time.Seconds()
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
