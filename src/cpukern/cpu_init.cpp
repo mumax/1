@@ -8,8 +8,12 @@
 extern "C" {
 #endif
 
+int fftw_strategy = FFTW_MEASURE;
+#define PATIENT_FLAG 1
+
+
 void cpu_init(int threads,      ///< number of threads to use, 0 means autodect the number of CPUs
-              int options       ///< currently not used
+              int options       ///< bitwise OR of flags: PATIENT, ...
               ){
   
     if (threads <= 0){ // automatically use maximum number of threads
@@ -27,6 +31,11 @@ void cpu_init(int threads,      ///< number of threads to use, 0 means autodect 
 
     // set up Ben
     init_Threads(threads);
+
+    // set up options
+    if (options & PATIENT_FLAG){
+      fftw_strategy = FFTW_PATIENT;
+    }
 }
 
 int _cpu_maxthreads = 0;

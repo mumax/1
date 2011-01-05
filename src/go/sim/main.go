@@ -34,6 +34,7 @@ var (
 	verbosity *int    = flag.Int("verbosity", 2, "Control the debug verbosity (0 - 3)")
 	gpuid     *int    = flag.Int("gpu", 0, "Select a GPU when more than one is present. Default GPU = 0") //TODO: also for master
 	cpu       *bool   = flag.Bool("cpu", false, "Run on the CPU instead of GPU.")
+	patient   *bool   = flag.Bool("patient", false, "on the CPU, use FFTW_PATIENT planning: slower initialization but faster running.")
 	threads   *int    = flag.Int("threads", 0, "Set the number of threads for the selected device (GPU or CPU). \"0\" means automatically set.")
 	updatedb  *int    = flag.Int("updatedisp", 100, "Update the terminal output every x milliseconds")
 	wisdir    *string = flag.String("wisdom", defaultWisdomDir(), "Absolute directory to store cached kernels. \"\" disables caching")

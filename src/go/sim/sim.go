@@ -134,12 +134,12 @@ func New(outputdir string, backend *Backend) *Sim {
 	return NewSim(outputdir, backend)
 }
 
-const OPTIONS = 0 // device init options, currently not used.
+
 
 func NewSim(outputdir string, backend *Backend) *Sim {
 	sim := new(Sim)
 	sim.Backend = backend
-	sim.Backend.init(*threads, OPTIONS)
+	sim.Backend.init(*threads, parseDeviceOptions())
 	sim.starttime = time.Seconds()
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
@@ -163,6 +163,18 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	return sim
 }
 
+
+const(
+  FFTW_PATIENT_FLAG = 1 << iota
+)
+
+// makes the device options flag based on the CLI flags
+// this flag is the bitwise OR of flags like FFTW_PATIENT, ...
+func parseDeviceOptions() int{
+  flags := 0
+  if *patient { flags |=  FFTW_PATIENT_FLAG }
+  return flags
+}
 
 // When a parmeter is changed, the simulation state is invalidated until it gets (re-)initialized by init().
 func (s *Sim) invalidate() {
