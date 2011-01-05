@@ -32,6 +32,10 @@ type Cpu struct {
 	// intentionally empty, but the methods implement sim.Device
 }
 
+func (d Cpu) maxthreads() int{
+  return int(C.cpu_maxthreads())
+}
+
 func (d Cpu) init(threads, options int) {
   C.cpu_init(C.int(threads), C.int(options))
 }

@@ -30,6 +30,10 @@ type Gpu struct {
 	// intentionally empty, but the methods implement sim.Device
 }
 
+func (d Gpu) maxthreads() int{
+  return int(C.gpu_maxthreads())
+}
+
 func (d Gpu) init(threads, options int) {
 	C.gpu_init(C.int(threads), C.int(options))
 }

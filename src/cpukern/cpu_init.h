@@ -18,6 +18,8 @@ void cpu_init(int threads,      ///< number of threads to use, 0 means autodect 
               int options       ///< currently not used
               );
 
+int cpu_maxthreads();
+
 #ifdef __cplusplus
 }
 #endif

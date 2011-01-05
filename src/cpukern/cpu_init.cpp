@@ -13,7 +13,7 @@ void cpu_init(int threads,      ///< number of threads to use, 0 means autodect 
               ){
   
     if (threads <= 0){ // automatically use maximum number of threads
-      threads = get_nprocs_conf();
+      threads = cpu_maxthreads();
     }
   
     if( threads > 1){
@@ -29,6 +29,22 @@ void cpu_init(int threads,      ///< number of threads to use, 0 means autodect 
     init_Threads(threads);
 }
 
+int _cpu_maxthreads = 0;
+
+void cpu_setmaxthreads(int max){
+  if(max <= 0){
+    _cpu_maxthreads = get_nprocs_conf();
+  } else {
+    _cpu_maxthreads = max;
+  }
+}
+
+int cpu_maxthreads(){
+  if (_cpu_maxthreads == 0){
+    _cpu_maxthreads = get_nprocs_conf();
+  }
+  return _cpu_maxthreads;
+}
 
 #ifdef __cplusplus
 }
