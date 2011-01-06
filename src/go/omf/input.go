@@ -22,34 +22,47 @@ import (
 // 	return Decode(in_)
 // }
 
+func FRead(filename string) (info *Info, data *tensor.T4) {
+	in := iotool.MustOpenRDONLY(filename)
+	info, data = Read(in)
+	return
+}
 
-func Decode(in_ io.Reader) (t *tensor.T4, metadata map[string]string) {
+func Read(in_ io.Reader) (info *Info, data *tensor.T4) {
 	in := iotool.NewSafeReader(bufio.NewReader(in_))
-	info := ReadHeader(in)
-	metadata = info.Desc
+	info = ReadHeader(in)
 
 	size := []int{3, info.Size[Z], info.Size[Y], info.Size[X]}
-	t = tensor.NewT4(size)
+	data = tensor.NewT4(size)
 
 	switch info.Format {
 	default:
 		panic("Unknown format: " + info.Format)
 	case "text":
-		readDataText(in, t)
+		readDataText(in, data)
 	case "binary":
 		switch info.DataFormat {
 		default:
 			panic("Unknown format: " + info.Format + " " + info.DataFormat)
 		case "4":
-			readDataBinary4(in, t)
+			readDataBinary4(in, data)
 		}
 	}
-	// 	t.WriteTo(os.Stdout)
+	return
+}
+
+
+func Decode(in io.Reader) (t *tensor.T4, metadata map[string]string) {
+	info, data := Read(in)
+	t = data
+	metadata = info.Desc
 	return
 }
 
 
 // omf.Info represents the header part of an omf file.
+// TODO: add Err to return error status
+// Perhaps CheckErr() func
 type Info struct {
 	Desc            map[string]string
 	Size            [3]int
