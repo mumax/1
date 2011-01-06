@@ -4,6 +4,16 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
+// Maxtest is a tool for automated testing of mumax simulation output.
+// It is mainly intended to run large batches of simulations and detect regressions.
+//
+// A directory is scanned for .out subdirectories and corresponding .ref
+// directories with reference output. If the .ref does not exist, then it
+// is assumed that the test is run for the first time: the .out is copied
+// to the .ref which will from now serve as reference data.
+// All files in the .ref and .out with known formats (.omf,...) are read
+// and compared. They should have equal contents within a small error margin.
+// 
 package main
 
 import (
@@ -31,6 +41,8 @@ func main() {
 			if contains(fileinfo, ref) {
 				compareDir(outdir, refdir)
 			} else {
+					// TODO: if the .ref exists but not the .out, then something is wrong
+					// perhaps it should be reported.
 				copydir(outdir, refdir)
 			}
 		}
