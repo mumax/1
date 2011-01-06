@@ -10,6 +10,7 @@ all:
 	gomake install -C refsh
 	gomake -C omftools
 	gomake -C template
+	gomake -C maxtest
 
 # 	cp -f $(GOROOT)/src/libcgo/libcgo.so ../../lib
 	cp -f ../../lib/libcpukern.so sim/
@@ -26,7 +27,7 @@ clean:
 	gomake clean -C tensor
 	gomake clean -C sim
 	gomake clean -C refsh
-
+	gomake clean -C maxtest
 	gomake clean -C outtools
 	gomake clean -C tensor-main
 	gomake clean -C config-main
@@ -36,7 +37,6 @@ clean:
 	rm -f $(GOROOT)/pkg/$(GOOS)_$(GOARCH)/sim.a
 	rm -f $(GOROOT)/pkg/$(GOOS)_$(GOARCH)/cgo_sim.so
 	
-
 
 test:	all
 	gomake test -C tensor2
