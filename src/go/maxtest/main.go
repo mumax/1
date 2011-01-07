@@ -24,35 +24,46 @@ import (
 	"fmt"
 	"omf"
 	. "tensor"
+	"flag"
 )
 
 
 func main() {
-	dir := "."
-	fileinfo, err := ioutil.ReadDir(dir)
-	if err != nil {
-		panic(err)
+	flag.Parse()
+	args := flag.Args()
+	if len(args) == 0 { // no arguments: scan current directory
+		args = []string{"."}
 	}
 
-	for _, info := range fileinfo {
-		out := info.Name
-		outdir := dir + "/" + out
-		if info.IsDirectory() && HasSuffix(out, ".out") {
-			ref := out[:len(out)-len(".out")] + ".ref"
-			refdir := dir + "/" + ref
-			if contains(fileinfo, ref) {
-				compareDir(outdir, refdir)
-			} else {
-				// TODO: if the .ref exists but not the .out, then something is wrong
-				// perhaps it should be reported.
-				copydir(outdir, refdir)
+	status := NewStatus()
+	for _, dir := range args {
+		fileinfo, err := ioutil.ReadDir(dir)
+		if err != nil {
+			panic(err)
+		}
+
+		for _, info := range fileinfo {
+			out := info.Name
+			outdir := dir + "/" + out
+			if info.IsDirectory() && HasSuffix(out, ".out") {
+				ref := out[:len(out)-len(".out")] + ".ref"
+				refdir := dir + "/" + ref
+				if contains(fileinfo, ref) {
+					status.Combine(compareDir(outdir, refdir))
+				} else {
+					// TODO: if the .ref exists but not the .out, then something is wrong
+					// perhaps it should be reported.
+					copydir(outdir, refdir)
+				}
 			}
 		}
 	}
+	fmt.Println("\nTOTAL: ", status)
+
 }
 
 
-func compareDir(out, ref string) {
+func compareDir(out, ref string) *Status {
 	fmt.Print(out, ":")
 
 	fileinfo, err := ioutil.ReadDir(ref)
@@ -66,6 +77,7 @@ func compareDir(out, ref string) {
 		status.Combine(compareFile(outfile, reffile))
 	}
 	fmt.Println(status)
+	return status
 }
 
 
@@ -131,7 +143,7 @@ func (s *Status) Combine(s2 *Status) {
 	s.FatalError = s.FatalError || s2.FatalError
 }
 
-func (s *Status) String() string{
+func (s *Status) String() string {
 	return fmt.Sprintf("%d files, maxerror = %f", s.Filecount, s.MaxError)
 }
 
