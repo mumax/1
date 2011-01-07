@@ -3,8 +3,8 @@ msat        800E3
 aexch       1.3E-11
 alpha       1
 
-
-dt 1e-12
+solvertype rk2
+dt 1e-13
 
 # geometry
 gridsize        128   128  1
@@ -14,16 +14,16 @@ partsize        300e-9  300e-9  20E-9
 # initial magnetization
 vortex 1 1
 
-autosave  table ascii 0.0000050e-12
-autosave  m png 0.00000000050E-12
+autosave  table ascii 1e-12
+autosave  m png 10e-12
 
 
-#run 1e-9
+#run 0.1e-9
 
-anisuniaxial  0 0 1
-k1  -500e3
-run 1e-9
+#anisuniaxial  0 0 1
+#k1  -500e3
+run 0.2e-9
 
-k1 500e3
-run 1e-9
+#k1 500e3
+run 0.2e-9
 
