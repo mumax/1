@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"omf"
 	. "tensor"
+	"path"
 	"flag"
 )
 
@@ -60,7 +61,9 @@ func main() {
 		}
 	}
 	fmt.Println("\nTOTAL: ", status)
-
+	if !status.Ok(){
+		os.Exit(-1)
+	}
 }
 
 
@@ -88,6 +91,7 @@ func compareDir(out, ref string) (status *Status) {
 		outfile := out + "/" + info.Name
 		status.Combine(compareFile(outfile, reffile))
 	}
+
 	fmt.Println(status)
 	return
 }
@@ -110,6 +114,9 @@ func compareFile(out, ref string) (status *Status) {
 		status = skip(out, ref)
 	case HasSuffix(out, ".omf"):
 		status = compareOmf(out, ref)
+	case path.Base(out) == "running":	// if file "running" is present, the simulation has crashed.
+		status = NewStatus()
+		status.FatalError = true
 	}
 	return
 }
