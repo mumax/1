@@ -22,6 +22,8 @@ import (
 	"os"
 	"exec"
 	"fmt"
+	"omf"
+	. "tensor"
 )
 
 
@@ -34,15 +36,15 @@ func main() {
 
 	for _, info := range fileinfo {
 		out := info.Name
-		outdir := out + info.Name
+		outdir := dir + "/" + out
 		if info.IsDirectory() && HasSuffix(out, ".out") {
 			ref := out[:len(out)-len(".out")] + ".ref"
 			refdir := dir + "/" + ref
 			if contains(fileinfo, ref) {
 				compareDir(outdir, refdir)
 			} else {
-					// TODO: if the .ref exists but not the .out, then something is wrong
-					// perhaps it should be reported.
+				// TODO: if the .ref exists but not the .out, then something is wrong
+				// perhaps it should be reported.
 				copydir(outdir, refdir)
 			}
 		}
@@ -51,17 +53,19 @@ func main() {
 
 
 func compareDir(out, ref string) {
-	fmt.Println(out, ":")
+	fmt.Print(out, ":")
 
 	fileinfo, err := ioutil.ReadDir(ref)
 	if err != nil {
 		panic(err)
 	}
+	status := NewStatus()
 	for _, info := range fileinfo {
 		reffile := ref + "/" + info.Name
 		outfile := out + "/" + info.Name
-		compareFile(outfile, reffile)
+		status.Combine(compareFile(outfile, reffile))
 	}
+	fmt.Println(status)
 }
 
 
@@ -82,13 +86,55 @@ func skip(out, ref string) *Status {
 }
 
 func compareOmf(out, ref string) *Status {
-	return NewStatus() //TODO
+	_, dataA := omf.FRead(out)
+	_, dataB := omf.FRead(ref)
+	s := NewStatus()
+	s.Filecount = 1
+	if !EqualSize(dataA.Size(), dataB.Size()) {
+		s.FatalError = true
+		return s
+	}
+	a := dataA.List()
+	b := dataB.List()
+	for i := range a {
+		err := abs32(a[i] - b[i])
+		if err > s.MaxError {
+			s.MaxError = err
+		}
+	}
+	return s
+}
+
+func abs32(a float32) float32 {
+	if a > 0 {
+		return a
+	}
+	return -a
+}
+
+func max32(a, b float32) float32 {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 type Status struct {
-	Filecount int
-	MaxError  float32
+	Filecount  int
+	MaxError   float32
+	FatalError bool
 }
+
+func (s *Status) Combine(s2 *Status) {
+	s.Filecount += s2.Filecount
+	s.MaxError = max32(s.MaxError, s2.MaxError)
+	s.FatalError = s.FatalError || s2.FatalError
+}
+
+func (s *Status) String() string{
+	return fmt.Sprintf("%d files, maxerror = %f", s.Filecount, s.MaxError)
+}
+
 
 func NewStatus() *Status {
 	s := new(Status)
