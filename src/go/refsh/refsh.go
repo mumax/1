@@ -40,12 +40,12 @@ func (r *Refsh) AddFunc(funcname string, function interface{}) {
 		panic("Aldready defined: " + funcname)
 	}
 
-// 	r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
-// 	r.funcnames[len(r.funcnames)-1] = funcname
+	// 	r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
+	// 	r.funcnames[len(r.funcnames)-1] = funcname
 	r.funcnames = append(r.funcnames, funcname)
-// 	r.funcs = r.funcs[0 : len(r.funcs)+1]
-// 	r.funcs[len(r.funcs)-1] = (*FuncWrapper)(f.(*FuncValue))
-  r.funcs = append(r.funcs, (*FuncWrapper)(f.(*FuncValue)))
+	// 	r.funcs = r.funcs[0 : len(r.funcs)+1]
+	// 	r.funcs[len(r.funcs)-1] = (*FuncWrapper)(f.(*FuncValue))
+	r.funcs = append(r.funcs, (*FuncWrapper)(f.(*FuncValue)))
 }
 
 
@@ -68,10 +68,10 @@ func (r *Refsh) AddMethod(funcname string, reciever interface{}, methodname stri
 		panic("Method does not exist: " + methodname)
 	}
 
-// 	r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
-// 	r.funcnames[len(r.funcnames)-1] = funcname
-	  r.funcnames = append(r.funcnames, funcname)
-// 	r.funcs = r.funcs[0 : len(r.funcs)+1]
+	// 	r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
+	// 	r.funcnames[len(r.funcnames)-1] = funcname
+	r.funcnames = append(r.funcnames, funcname)
+	// 	r.funcs = r.funcs[0 : len(r.funcs)+1]
 
 	r.funcs = append(r.funcs, &MethodWrapper{NewValue(reciever), f})
 }

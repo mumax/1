@@ -316,7 +316,7 @@ func (s *Sim) initConv() {
 
 	// Add Exchange kernel to demag kernel
 	for i := range demag {
-		D := demag[i].List()  // POSSIBLE CRASH POINT
+		D := demag[i].List() // POSSIBLE CRASH POINT
 		E := exch[i].List()
 		for j := range D {
 			D[j] += E[j]

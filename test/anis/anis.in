@@ -18,12 +18,12 @@ autosave  table ascii 1e-12
 autosave  m png 10e-12
 
 
-#run 0.1e-9
+run 0.1e-9
 
-#anisuniaxial  0 0 1
-#k1  -500e3
+anisuniaxial  0 0 1
+k1  -500e3
 run 0.2e-9
 
-#k1 500e3
+k1 500e3
 run 0.2e-9
 

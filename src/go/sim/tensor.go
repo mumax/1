@@ -150,5 +150,5 @@ func CopyUnpad(source, dest *DevTensor) {
 
 
 func (t *DevTensor) String() string {
-	return fmt.Sprintf("%#v", t) 
+	return fmt.Sprintf("%#v", t)
 }

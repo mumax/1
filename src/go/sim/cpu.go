@@ -97,8 +97,8 @@ func (d Cpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []f
 	panic(Bug("spin torque not implemented on CPU"))
 }
 
-func (d Cpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int){
-  panic("unimplemented")
+func (d Cpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int) {
+	panic("unimplemented")
 }
 
 func (d Cpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {

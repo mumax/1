@@ -7,33 +7,33 @@
 package main
 
 import (
-  "fmt"
-  "flag"
-  "io/ioutil"
-  "os"
+	"fmt"
+	"flag"
+	"io/ioutil"
+	"os"
 )
 
 
 func main() {
-  if flag.NArg() == 0{
-    fmt.Fprintln(os.Stderr, "No input files.")
-    fmt.Fprintln(os.Stderr, USAGE)
-    os.Exit(-1)
-  }
-  
-  file := flag.Arg(flag.NArg()-1)
-  bytes, err := ioutil.ReadFile(file)
-  content := string(bytes)
-  
-  if err != nil{
-    panic(err)
-  }
-  
-//   for i:=0; i<flag.NArg()-1; i++{
-// 
-//   }
+	if flag.NArg() == 0 {
+		fmt.Fprintln(os.Stderr, "No input files.")
+		fmt.Fprintln(os.Stderr, USAGE)
+		os.Exit(-1)
+	}
 
-  fmt.Println(content)
+	file := flag.Arg(flag.NArg() - 1)
+	bytes, err := ioutil.ReadFile(file)
+	content := string(bytes)
+
+	if err != nil {
+		panic(err)
+	}
+
+	//   for i:=0; i<flag.NArg()-1; i++{
+	// 
+	//   }
+
+	fmt.Println(content)
 }
 
 const USAGE = `

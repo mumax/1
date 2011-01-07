@@ -174,9 +174,11 @@ func ReadHeader(in io.Reader) *Info {
 			strs := Split(value, ":", 2)
 			desc_key := Trim(strs[0], "# ")
 			// Desc tag does not neccesarily have a key:value layout.
-      // If not, we use an empty value string.
+			// If not, we use an empty value string.
 			desc_value := ""
-			if len(strs) > 1 { desc_value = Trim(strs[1], "# ")}
+			if len(strs) > 1 {
+				desc_value = Trim(strs[1], "# ")
+			}
 			// 			fmt.Println(desc_key, " : ", desc_value)
 			desc[desc_key] = desc_value
 		}
