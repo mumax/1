@@ -48,12 +48,13 @@ GOFILES=\
 	adaptive_euler.go\
 	adaptive_heun.go\
 	main.go\
-        daemon.go\
+	daemon.go\
 	stdout.go\
 	simmetadata.go\
 	resample.go\
 	error.go\
 	wisdom.go\
+	help.go\
 
 CGO_CFLAGS+=-I../../../lib/fftw/include/ -I/usr/local/cuda/include/
 

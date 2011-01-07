@@ -6,16 +6,10 @@
 
 package sim
 
-// TODO: ALL OF THIS CODE SHOULD BE MOVED INTO THE sim PACKAGE
 
 // TODO automatic backend selection
-
-// TODO read magnetization + scale
 // TODO Time-dependent quantities
 
-// TODO Nice output / table
-// TODO draw output immediately
-// TODO movie output
 
 import (
 	"flag"
@@ -29,6 +23,8 @@ import (
 // WARNING: most flags added here will need to be passed on to a deamon's child process
 // after adding a flag, edit daemon.go accordingly!
 var (
+	help	  *bool   = flag.Bool("help", false, "Print a help message and exit.")
+	example	  *string = flag.String("example", "", "Create an example input file")
 	silent    *bool   = flag.Bool("silent", false, "Do not show simulation output on the screen, only save to output.log")
 	daemon    *bool   = flag.Bool("daemon", false, "Watch directories for new input files and run them automatically.")
 	watch     *int    = flag.Int("watch", 60, "With -daemon, re-check for new input files every N seconds. -watch=0 disables watching, program exits when no new input files are left.")
@@ -52,6 +48,17 @@ func Main() {
 	defer fmt.Print(RESET + SHOWCURSOR) // make sure the cursor does not stay hidden if we crash
 
 	flag.Parse()
+
+	if *help{
+		Help()
+		os.Exit(0)
+	}
+
+	if *example != ""{
+		Example(*example)
+		os.Exit(0)
+	}
+
 	Verbosity = *verbosity
 	if *daemon {
 		DAEMON_WATCHTIME = *watch
@@ -78,7 +85,7 @@ func main_master() {
 	runtime.LockOSThread()
 
 	if flag.NArg() == 0 {
-		fmt.Fprintln(os.Stderr, "No input files.")
+		NoInputFiles()
 		os.Exit(-1)
 	}
 
