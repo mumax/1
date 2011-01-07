@@ -27,6 +27,7 @@ import (
 	"flag"
 )
 
+var maxerror *float = flag.Float("maxerror", 0, "Maximum difference with refernce solution.")
 
 func main() {
 	flag.Parse()
@@ -63,33 +64,54 @@ func main() {
 }
 
 
-func compareDir(out, ref string) *Status {
-	fmt.Print(out, ":")
+func compareDir(out, ref string) (status *Status) {
+
+	// Should any error occur then the testing program must not crash.
+	// We consider this an failure of the unit test instead.
+	defer func() {
+		err := recover()
+		if err != nil {
+			status = NewStatus()
+			status.FatalError = true
+		}
+	}()
+
+	fmt.Print(out, ":\t")
 
 	fileinfo, err := ioutil.ReadDir(ref)
 	if err != nil {
 		panic(err)
 	}
-	status := NewStatus()
+	status = NewStatus()
 	for _, info := range fileinfo {
 		reffile := ref + "/" + info.Name
 		outfile := out + "/" + info.Name
 		status.Combine(compareFile(outfile, reffile))
 	}
 	fmt.Println(status)
-	return status
+	return
 }
 
 
-func compareFile(out, ref string) *Status {
+func compareFile(out, ref string) (status *Status) {
+
+	// Should any error occur then the testing program must not crash.
+	// We consider this an failure of the unit test instead.
+	defer func() {
+		err := recover()
+		if err != nil {
+			status = NewStatus()
+			status.FatalError = true
+		}
+	}()
+
 	switch {
 	default:
-		return skip(out, ref)
+		status = skip(out, ref)
 	case HasSuffix(out, ".omf"):
-		return compareOmf(out, ref)
+		status = compareOmf(out, ref)
 	}
-	panic("Bug")
-	return nil
+	return
 }
 
 
@@ -144,13 +166,21 @@ func (s *Status) Combine(s2 *Status) {
 }
 
 func (s *Status) String() string {
-	return fmt.Sprintf("%d files, maxerror = %f", s.Filecount, s.MaxError)
+	ok := "[ ok ]"
+	if !s.Ok(){
+		ok = "[FAIL]"
+	}
+	return fmt.Sprintf("Files:%d\t error:%f \t%s", s.Filecount, s.MaxError, ok)
 }
 
 
 func NewStatus() *Status {
 	s := new(Status)
 	return s
+}
+
+func (s *Status) Ok() bool{
+	return !s.FatalError && s.MaxError <= float32(*maxerror)
 }
 
 
