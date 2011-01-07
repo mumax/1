@@ -16,7 +16,6 @@ import (
 	"fmt"
 	"os"
 	"refsh"
-	"runtime"
 	"time"
 )
 
@@ -75,14 +74,6 @@ func Main() {
 
 // when running in the normal "master" mode, i.e. given an input file to process locally
 func main_master() {
-
-	// a CUDA context is linked to a thread, and a context created in
-	// one thread can not be accessed by another one. Therefore, we
-	// have to lock the current goroutine to its current thread.
-	// Otherwise it may be mapped to another thread by the go runtime,
-	// making CUDA crash.
-	Debugvv("Locked OS thread")
-	runtime.LockOSThread()
 
 	if flag.NArg() == 0 {
 		NoInputFiles()

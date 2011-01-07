@@ -11,7 +11,7 @@ package sim
 */
 import "C"
 import "unsafe"
-
+import "runtime"
 
 // This single file intefaces all the relevant CUDA func(d Gpu) tions with go
 // It only wraps the func(d Gpu) tions, higher level constructs and assetions
@@ -35,6 +35,15 @@ func (d Gpu) maxthreads() int {
 }
 
 func (d Gpu) init(threads, options int) {
+
+	// a CUDA context is linked to a thread, and a context created in
+	// one thread can not be accessed by another one. Therefore, we
+	// have to lock the current goroutine to its current thread.
+	// Otherwise it may be mapped to another thread by the go runtime,
+	// making CUDA crash.
+	Debugvv("Locked OS thread")
+	runtime.LockOSThread()
+
 	C.gpu_init(C.int(threads), C.int(options))
 }
 
