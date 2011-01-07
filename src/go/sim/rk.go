@@ -215,6 +215,7 @@ func (rk *RK) init(sim *Sim, order int) {
 
 	rk.stages = order
 	rk.Sim = sim
+	rk.Backend = sim.Backend	// TODO: The pointers to backend are starting to get messy and ambiguous. Perhaps make it static? 
 
 	rk.a = make([][]float32, order)
 	for i := range rk.a {
@@ -321,7 +322,9 @@ func (rk *RK) Step() {
 
 	//Highest-order solution (m)
 	//TODO: not 100% efficient, too many adds
+//	fmt.Println("m", m)
 	for i := range k {
+	//	fmt.Println("k ", i, " ", k[i])
 		if rk.b[i] != 0. {
 			rk.MAdd(m, rk.b[i]*h, k[i])
 		}
