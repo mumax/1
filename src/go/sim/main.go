@@ -23,7 +23,7 @@ import (
 // after adding a flag, edit daemon.go accordingly!
 var (
 	help	  *bool   = flag.Bool("help", false, "Print a help message and exit.")
-	example	  *string = flag.String("example", "", "Create an example input file")
+	example	  *string = flag.String("example", "", "Create an example input file. E.g.: -example=file.in")
 	silent    *bool   = flag.Bool("silent", false, "Do not show simulation output on the screen, only save to output.log")
 	daemon    *bool   = flag.Bool("daemon", false, "Watch directories for new input files and run them automatically.")
 	watch     *int    = flag.Int("watch", 60, "With -daemon, re-check for new input files every N seconds. -watch=0 disables watching, program exits when no new input files are left.")
