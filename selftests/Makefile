@@ -1,11 +1,11 @@
 test:	gpu cpu
 
 gpu:	clean templates
-	mumax -silent -daemon -watch=0
+	mumax  -daemon -watch=0
 	maxtest
 
 cpu:	clean templates
-	mumax -cpu -silent -daemon -watch=0
+	mumax -cpu  -daemon -watch=0
 	maxtest
 
 clean:
