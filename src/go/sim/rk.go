@@ -43,7 +43,7 @@ type RK struct {
 
 	stages         int
 	fsal           bool // First Same as Last?
-	fsal_initiated bool
+	fsal_initiated bool // 
 	errororder     float64 // the order of the less acurate solution used for the error estimate
 
 	a  [][]float32

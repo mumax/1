@@ -109,6 +109,7 @@ func compareFile(out, ref string) (status *Status) {
 		}
 	}()
 
+	// Compare the contents of files depending on their extension.
 	switch {
 	default:
 		status = skip(out, ref)
@@ -121,9 +122,17 @@ func compareFile(out, ref string) (status *Status) {
 	return
 }
 
-
-func skip(out, ref string) *Status {
-	return NewStatus() //empty: file skiped
+// Skip checking the contents becuase the file type is unknown.
+// However, the file should at least exist in the directory being tested.
+func skip(out, ref string) (status *Status) {
+	status = NewStatus()
+	status.Filecount = 1
+	_, err := os.Stat(out)
+	if err != nil{
+		fmt.Fprintln(os.Stderr, err)	
+		status.FatalError = true
+	}
+	return
 }
 
 func compareOmf(out, ref string) *Status {
