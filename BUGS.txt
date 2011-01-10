@@ -89,7 +89,7 @@ Default rk23 error per step sometimes too small: timestep becomes 1e-17 ps for r
 [0025]
  average m also averages over cells with zero msat, so the saturated state does not have m=1. Perhaps calculate the correction factor ("volume of nonzero cells") once? and multiply only when data is saved? It should also be state in the manual
 
- [0026] FIXED
+[0026] FIXED
 setting the solver type causes nil pointer dereference
 
 [0027] FIXED
@@ -97,3 +97,10 @@ setting a fixed-step solver causes nilpointer
 
 [0028]
 sim.RemoveExtension crashes on no extension
+
+[0029]
+anisotropy can crash rk23 rk4, but seems to depend on whether or not datatable is saved (?)
+It does not seem to cause bad time steps, just a NaN field. Even on CPU (?)
+
+[0030]
+fixed step solvers do not work with only maxdm set, still need to set an initial dt. Also, it does not always get overriden by maxDm

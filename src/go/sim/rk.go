@@ -325,6 +325,7 @@ func (rk *RK) Step() {
 				if dm > rk.maxDm {
 					rk.dt = rk.maxDm / maxTorque
 				}
+				checkdt(rk.dt)
 
 			}
 		}
@@ -375,6 +376,7 @@ func (rk *RK) Step() {
 		}
 
 		rk.dt = rk.dt * factor
+		checkdt(rk.dt)
 	}
 	//todo: undo bad steps
 
@@ -382,6 +384,12 @@ func (rk *RK) Step() {
 	rk.Normalize(m)
 }
 
+// debug
+func checkdt(dt float32) {
+	if math.IsNaN(float64(dt)) {
+		panic("dt = NaN")
+	}
+}
 
 func (rk *RK) String() (str string) {
 	defer func() { recover(); return }()

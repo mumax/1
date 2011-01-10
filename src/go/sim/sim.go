@@ -133,12 +133,10 @@ type Sim struct {
 	LastrunSimtimePerSecond float64
 
 	//Anisotropy
-	anisType int		// TODO: move to input!!
+	anisType int // TODO: move to input!!
 	anisK    []float32
 	anisAxes []float32
-
 }
-
 
 
 func New(outputdir string, backend *Backend) *Sim {

@@ -14,5 +14,5 @@ clean:
 templates:
 	template solver=rk1,rk2,rk3,rk4 prob4fixdt
 	template solver=rk12,rk23,rkdp,rkck prob4
-	template dt=1e-17,1e-12,1e-10 mindm=1e-3 maxdm=1e-1 minmaxdm
+	template dt=0,1e-17,1e-12,1e-10 mindm=1e-3 maxdm=1e-1 minmaxdm
 	template re-init
