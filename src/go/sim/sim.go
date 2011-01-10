@@ -323,6 +323,9 @@ func (s *Sim) initConv() {
 	s.Println("Calculating kernel (may take a moment)") // --- In fact, it takes 3 moments, one in each direction.
 	// lookupKernel first searches the wisdom directory and only calculates the kernel when it's not cached yet.
 	demag := s.LookupKernel(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy, s.periodic[:])
+
+	//	fmt.Println(demag)
+
 	var exch []*tensor.T3
 	switch s.exchType {
 	default:
@@ -335,10 +338,12 @@ func (s *Sim) initConv() {
 
 	// Add Exchange kernel to demag kernel
 	for i := range demag {
-		D := demag[i].List() // POSSIBLE CRASH POINT
-		E := exch[i].List()
-		for j := range D {
-			D[j] += E[j]
+		if demag[i] != nil { // Unused components are nil
+			D := demag[i].List()
+			E := exch[i].List()
+			for j := range D {
+				D[j] += E[j]
+			}
 		}
 	}
 	s.Conv = *NewConv(s.Backend, s.size[0:], demag)

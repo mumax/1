@@ -14,9 +14,9 @@ partsize   	500E-9  125E-9  3E-9
 uniform 1 1 0
 
 # run
-autosave  table	ascii 10e-12
+autosave  table	ascii 0.00000010e-12
 autosave  m omf 10E-12
-run          	0.2e-9                  
+run          	.1e-9                  
 
-msat		799e3
-run 0.2e-9
+invalidate
+run .1e-9

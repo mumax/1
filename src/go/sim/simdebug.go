@@ -10,6 +10,6 @@ package sim
 
 
 // Invalidates the simuation state
-func (s *Sim) Invalidate(){
+func (s *Sim) Invalidate() {
 	s.invalidate()
 }
