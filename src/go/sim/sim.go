@@ -133,7 +133,7 @@ type Sim struct {
 	LastrunSimtimePerSecond float64
 
 	//Anisotropy
-	anisType int
+	anisType int		// TODO: move to input!!
 	anisK    []float32
 	anisAxes []float32
 

@@ -3,8 +3,8 @@ msat        800E3
 aexch       1.3E-11
 alpha       1
 
-#solvertype rk2
-#dt 1e-13
+solvertype rk2
+dt 1e-13
 
 # geometry
 gridsize        128   128  1
@@ -18,12 +18,14 @@ autosave  table ascii 1e-12
 autosave  m png 10e-12
 
 
-run 0.01e-9
+#run .1e-9
 
+#dt	1e-17
 anisuniaxial  0 0 1
-k1  -500e3
-run 0.01e-9
+k1  -0.500e3
+run .1e-9
 
-k1 500e3
-run 0.01e-9
+#dt 1e-17
+k1 0.500e3
+#run .1e-9
 
