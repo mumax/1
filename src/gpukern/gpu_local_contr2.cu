@@ -1,6 +1,7 @@
 #include "gpu_local_contr2.h"
 #include "gpu_mem.h"
 #include "gpu_conf.h"
+#include "gpu_safe.h"
 #include "../macros.h"
 
 #ifdef __cplusplus
@@ -72,6 +73,7 @@ void gpu_add_local_fields (float* m, float* h, int N, float* Hext, int anisType,
                                                              2*anisK[0],  anisAxes[0], anisAxes[1], anisAxes[2], N);
       break;
   }
+  gpu_sync();
 }
 
   /*                        
