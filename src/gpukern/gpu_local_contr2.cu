@@ -10,16 +10,16 @@ extern "C" {
 __global__ void _gpu_add_local_fields_uniaxial(float* mx, float* my, float* mz,
                                               float* hx, float* hy, float* hz,
                                               float hext_x, float hext_y, float hext_z,
-                                              float U0, float U1, float U2,
+                                              float k_x2, float U0, float U1, float U2,
                                               int N){
   int i = threadindex;
 
   if(i<N){
     float mu = mx[i] * U0 + my[i] * U1 + mz[i] * U2;
 
-    hx[i] += hext_x + mu * U0;
-    hy[i] += hext_y + mu * U1;
-    hz[i] += hext_z + mu * U2;
+    hx[i] += hext_x + k_x2 * mu * U0;
+    hy[i] += hext_y + k_x2 * mu * U1;
+    hz[i] += hext_z + k_x2 * mu * U2;
     
   }
 }
@@ -55,7 +55,6 @@ void gpu_add_local_fields (float* m, float* h, int N, float* Hext, int anisType,
     U := sqrt( 2K_1 / (mu0 Ms) )
     H_anis = (m . U) U
   */
-  float U0, U1, U2;
   
   dim3 gridsize, blocksize;
   make1dconf(N, &gridsize, &blocksize);
@@ -66,14 +65,11 @@ void gpu_add_local_fields (float* m, float* h, int N, float* Hext, int anisType,
        _gpu_add_external_field<<<gridsize, blocksize>>>(hx, hy, hz,  Hext[X], Hext[Y], Hext[Z],  N);
        break;
     case ANIS_UNIAXIAL:
-      U0 = sqrt(2.0 * anisK[0]) * anisAxes[0];
-      U1 = sqrt(2.0 * anisK[0]) * anisAxes[1];
-      U2 = sqrt(2.0 * anisK[0]) * anisAxes[2];
-	  //printf("anis: K, u, U: %f  %f,%f,%f %f,%f,%f \n", anisK[0],anisAxes[0],anisAxes[1],anisAxes[2], U0, U1, U2);
+	  //printf("anis: K, u,: %f  %f,%f,%f  \n", anisK[0],anisAxes[0],anisAxes[1],anisAxes[2]);
       _gpu_add_local_fields_uniaxial<<<gridsize, blocksize>>>(mx, my, mz,
                                                              hx, hy, hz,
                                                              Hext[X], Hext[Y], Hext[Z],
-                                                             U0, U1, U2, N);
+                                                             2*anisK[0],  anisAxes[0], anisAxes[1], anisAxes[2], N);
       break;
   }
 }
