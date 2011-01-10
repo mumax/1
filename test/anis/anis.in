@@ -3,8 +3,8 @@ msat        800E3
 aexch       1.3E-11
 alpha       1
 
-#solvertype rk2
-#dt 1e-13
+solvertype rk2
+dt 1e-13
 
 # geometry
 gridsize        128   128  1
