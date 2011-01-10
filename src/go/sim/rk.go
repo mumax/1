@@ -42,8 +42,8 @@ type RK struct {
 	*Sim
 
 	stages         int
-	fsal           bool // First Same as Last?
-	fsal_initiated bool // 
+	fsal           bool    // First Same as Last?
+	fsal_initiated bool    // 
 	errororder     float64 // the order of the less acurate solution used for the error estimate
 
 	a  [][]float32
@@ -293,20 +293,20 @@ func (rk *RK) Step() {
 		//FSAL
 		if rk.fsal && i == 0 && rk.fsal_initiated {
 			TensorCopyOn(k[order-1], k[0])
-			continue
-		}
+		} else {
 
-		rk.time = time0 + float64(c[i]*h)
-		TensorCopyOn(m, m1)
-		for j := 0; j < order; j++ {
-			if a[i][j] != 0. {
-				rk.MAdd(m1, h*a[i][j], k[j])
+			rk.time = time0 + float64(c[i]*h)
+			TensorCopyOn(m, m1)
+			for j := 0; j < order; j++ {
+				if a[i][j] != 0. {
+					rk.MAdd(m1, h*a[i][j], k[j])
+				}
 			}
-		}
 
-		rk.calcHeff(m1, k[i])
-		rk.Torque(m1, k[i])
-		rk.fsal_initiated = true
+			rk.calcHeff(m1, k[i])
+			rk.Torque(m1, k[i])
+			rk.fsal_initiated = true
+		}
 	}
 
 	//Lowest-order solution for error estimate, if applicable

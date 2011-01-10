@@ -61,7 +61,7 @@ func main() {
 		}
 	}
 	fmt.Println("\nTOTAL: ", status)
-	if !status.Ok(){
+	if !status.Ok() {
 		os.Exit(-1)
 	}
 }
@@ -115,7 +115,7 @@ func compareFile(out, ref string) (status *Status) {
 		status = skip(out, ref)
 	case HasSuffix(out, ".omf"):
 		status = compareOmf(out, ref)
-	case path.Base(out) == "running":	// if file "running" is present, the simulation has crashed.
+	case path.Base(out) == "running": // if file "running" is present, the simulation has crashed.
 		status = NewStatus()
 		status.FatalError = true
 	}
@@ -128,8 +128,8 @@ func skip(out, ref string) (status *Status) {
 	status = NewStatus()
 	status.Filecount = 1
 	_, err := os.Stat(out)
-	if err != nil{
-		fmt.Fprintln(os.Stderr, err)	
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		status.FatalError = true
 	}
 	return
@@ -183,7 +183,7 @@ func (s *Status) Combine(s2 *Status) {
 
 func (s *Status) String() string {
 	ok := "[ ok ]"
-	if !s.Ok(){
+	if !s.Ok() {
 		ok = "[FAIL]"
 	}
 	return fmt.Sprintf("Files:%d\t error:%f \t%s", s.Filecount, s.MaxError, ok)
@@ -195,7 +195,7 @@ func NewStatus() *Status {
 	return s
 }
 
-func (s *Status) Ok() bool{
+func (s *Status) Ok() bool {
 	return !s.FatalError && s.MaxError <= float32(*maxerror)
 }
 

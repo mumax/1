@@ -6,7 +6,7 @@
 
 package sim
 
-import(
+import (
 	"flag"
 	"fmt"
 	"os"
@@ -15,11 +15,11 @@ import(
 
 // Display help message and generate example input file
 
-func Help(){
+func Help() {
 	flag.PrintDefaults()
 }
 
-func NoInputFiles(){
+func NoInputFiles() {
 	helpmsg := `No input files. Usage: mumax file.in
 Type mumax -example=file.in to create an example input file.
 mumax -help will print more command line options.
@@ -27,15 +27,14 @@ mumax -help will print more command line options.
 	fmt.Fprintln(os.Stderr, helpmsg)
 }
 
-func Example(file string){
+func Example(file string) {
 	out := iotool.MustOpenWRONLY(file)
 	defer out.Close()
 	out.Write([]byte(EXAMPLE))
 	fmt.Println("Created example input file: ", file)
 }
 
-const EXAMPLE = 
-`
+const EXAMPLE = `
 # MuMax example file
 #
 # The contents of an input file are case-insensitive.
@@ -158,4 +157,3 @@ staticfield 	-24.6E-3     4.3E-3    0
 run          	1E-9             
 
 `
-
