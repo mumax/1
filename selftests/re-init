@@ -1,0 +1,22 @@
+# Often re-initialize the simulation state
+
+# material
+msat       	800E3   
+aexch      	1.3E-11     
+alpha      	1	
+
+
+# geometry 
+gridsize       	128 	32 	1    
+partsize   	500E-9  125E-9  3E-9
+
+# initial magnetization
+uniform 1 1 0
+
+# run
+autosave  table	ascii 10e-12
+autosave  m omf 10E-12
+run          	0.2e-9                  
+
+msat		799e3
+run 0.2e-9

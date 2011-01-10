@@ -55,6 +55,7 @@ GOFILES=\
 	error.go\
 	wisdom.go\
 	help.go\
+	simdebug.go\
 
 CGO_CFLAGS+=-I../../../lib/fftw/include/ -I/usr/local/cuda/include/
 
