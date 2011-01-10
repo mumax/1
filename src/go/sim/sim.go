@@ -353,7 +353,7 @@ func (s *Sim) initSolver() {
 		s.dt = s.targetDt
 	} else {
 		s.dt = DEFAULT_DT_INTERNAL
-		s.Println("Using defautl initial dt: ", s.dt * s.UnitTime(), " s")
+		s.Println("Using defautl initial dt: ", s.dt*s.UnitTime(), " s")
 	}
 	s.Solver = NewSolver(s.input.solvertype, s)
 	//s.Println(s.Solver.String())
@@ -371,7 +371,7 @@ func (s *Sim) init() {
 	// so they need to be set up first
 	s.InitMaterial() // sets gamma, mu0
 
-		// (2) Size must be set before memory allocation
+	// (2) Size must be set before memory allocation
 	s.initSize()
 
 	s.initCellSize()

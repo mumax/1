@@ -330,10 +330,8 @@ func (rk *RK) Step() {
 		}
 	}
 
-
-
 	rk.time = time0 + float64(rk.dt) // THIS IS THE DT OF THIS LAST STEP
-							// IT WILL NOW BE UDPATED
+	// IT WILL NOW BE UDPATED FOR THE NEXT STEP
 
 	//Lowest-order solution for error estimate, if applicable
 	//from now, m1 = lower-order solution
