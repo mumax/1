@@ -313,13 +313,18 @@ func (rk *RK) Step() {
 			// dt has not actually been used yet. This is the
 			// last chance to estimate whether the time step is too large
 			// and possibly reduce it
-			if i==0 && rk.maxDm != 0.{
+			if i == 0 && rk.maxDm != 0. {
 				assert(c[i] == 0)
 				maxTorque := rk.Reduce(k[0])
-				if rk.dt * maxTorque > rk.maxDm{
-//					fmt.Println("*")
+				dm := rk.dt * maxTorque
+				if dm < rk.minDm {
+					rk.dt = rk.minDm / maxTorque
+				}
+				// maxDm has priority over minDm (better safe than sorry)
+				if dm > rk.maxDm {
 					rk.dt = rk.maxDm / maxTorque
 				}
+
 			}
 		}
 	}

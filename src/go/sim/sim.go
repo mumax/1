@@ -23,6 +23,7 @@ const (
 	DEFAULT_DEMAG_ACCURACY    = 8
 	DEFAULT_SPIN_POLARIZATION = 1
 	DEFAULT_EXCH_TYPE         = 6
+	DEFAULT_MIN_DM            = 1e-4
 )
 
 // Sim has an "input" member of type "Input".
@@ -94,6 +95,7 @@ type Sim struct {
 	time      float64 // The total time (internal units)
 	dt        float32 // The time step (internal units). May be updated by adaptive-step solvers
 	maxDm     float32 // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
+	minDm     float32 // The minimum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
 	maxError  float32 // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
 	stepError float32 // The actual error estimate of the last step. Not all solvers update this value.
 	steps     int     // The total number of steps taken so far
@@ -146,6 +148,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
 	sim.input.solvertype = DEFAULT_SOLVERTYPE
 	sim.maxError = DEFAULT_MAXERROR
+	sim.minDm = DEFAULT_MIN_DM
 	sim.exchType = DEFAULT_EXCH_TYPE
 	// We run the simulation with working directory = directory of input file
 	// This is neccesary, e.g., when a sim deamon is run from a directory other

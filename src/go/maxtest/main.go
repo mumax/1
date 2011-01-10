@@ -150,10 +150,10 @@ func compareOmf(out, ref string) *Status {
 	b := dataB.List()
 	for i := range a {
 		s.MaxError += sqr(a[i] - b[i])
-//		err := abs32(a[i] - b[i])
-//		if err > s.MaxError {
-//			s.MaxError = err
-//		}
+		//		err := abs32(a[i] - b[i])
+		//		if err > s.MaxError {
+		//			s.MaxError = err
+		//		}
 	}
 	s.MaxError = sqrt(s.MaxError / float32(len(a)))
 	return s
@@ -174,13 +174,12 @@ func max32(a, b float32) float32 {
 }
 
 
-
-func sqrt(a float32) float32{
+func sqrt(a float32) float32 {
 	return float32(math.Sqrt(float64(a)))
-} 
+}
 
-func sqr(a float32) float32{
-	return a*a
+func sqr(a float32) float32 {
+	return a * a
 }
 
 type Status struct {
