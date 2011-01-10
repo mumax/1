@@ -131,7 +131,14 @@ type Sim struct {
 
 	LastrunStepsPerSecond   float64
 	LastrunSimtimePerSecond float64
+
+	//Anisotropy
+	anisType int
+	anisK    []float32
+	anisAxes []float32
+
 }
+
 
 
 func New(outputdir string, backend *Backend) *Sim {
@@ -163,8 +170,11 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.metadata = make(map[string]string)
 	sim.hextInt = make([]float32, 3)
 	sim.initWriters()
+	sim.anisK = []float32{0.} // even when not used these must be allocated
+	sim.anisAxes = []float32{0.}
 	sim.invalidate() //just to make sure we will init()
 	return sim
+
 }
 
 

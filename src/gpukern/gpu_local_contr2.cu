@@ -69,6 +69,7 @@ void gpu_add_local_fields (float* m, float* h, int N, float* Hext, int anisType,
       U0 = sqrt(2.0 * anisK[0]) * anisAxes[0];
       U1 = sqrt(2.0 * anisK[0]) * anisAxes[1];
       U2 = sqrt(2.0 * anisK[0]) * anisAxes[2];
+	  printf("anis: K, u, U: %f  %f,%f,%f %f,%f,%f \n", anisK[0],anisAxes[0],anisAxes[1],anisAxes[2], U0, U1, U2);
       _gpu_add_local_fields_uniaxial<<<gridsize, blocksize>>>(mx, my, mz,
                                                              hx, hy, hz,
                                                              Hext[X], Hext[Y], Hext[Z],
