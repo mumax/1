@@ -3,6 +3,7 @@
 metadata:  	description standard_problem_4
 solvertype:	{solver}	
 dt		0.1e-12
+maxdm		0.001
 # material
 msat       	800E3   
 aexch      	1.3E-11     

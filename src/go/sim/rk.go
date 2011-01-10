@@ -292,6 +292,8 @@ func (rk *RK) Step() {
 
 		//FSAL
 		if rk.fsal && i == 0 && rk.fsal_initiated {
+			//FSAL: First step of this stage
+			//is the same as the last step of the previous stage.
 			TensorCopyOn(k[order-1], k[0])
 		} else {
 
@@ -306,6 +308,19 @@ func (rk *RK) Step() {
 			rk.calcHeff(m1, k[i])
 			rk.Torque(m1, k[i])
 			rk.fsal_initiated = true
+
+			// After having calculated the first torque (k[0]),
+			// dt has not actually been used yet. This is the
+			// last chance to estimate whether the time step is too large
+			// and possibly reduce it
+			if i==0 && rk.maxDm != 0.{
+				assert(c[i] == 0)
+				maxTorque := rk.Reduce(k[0])
+				if rk.dt * maxTorque > rk.maxDm{
+//					fmt.Println("*")
+					rk.dt = rk.maxDm / maxTorque
+				}
+			}
 		}
 	}
 
@@ -332,7 +347,7 @@ func (rk *RK) Step() {
 
 	//calculate error if applicable
 	if rk.b2 != nil {
-		rk.MAdd(m1, -1, m) // make difference between high- and low-order solution
+		rk.MAdd(m1, -1, m) // make difference between high- and low-order solution TODO: should be difference between k's
 		error := rk.Reduce(m1)
 		rk.stepError = error
 

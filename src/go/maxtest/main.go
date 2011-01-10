@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"omf"
 	. "tensor"
+	"math"
 	"path"
 	"flag"
 )
@@ -135,6 +136,7 @@ func skip(out, ref string) (status *Status) {
 	return
 }
 
+// compare omf files and report the rms error
 func compareOmf(out, ref string) *Status {
 	_, dataA := omf.FRead(out)
 	_, dataB := omf.FRead(ref)
@@ -147,11 +149,13 @@ func compareOmf(out, ref string) *Status {
 	a := dataA.List()
 	b := dataB.List()
 	for i := range a {
-		err := abs32(a[i] - b[i])
-		if err > s.MaxError {
-			s.MaxError = err
-		}
+		s.MaxError += sqr(a[i] - b[i])
+//		err := abs32(a[i] - b[i])
+//		if err > s.MaxError {
+//			s.MaxError = err
+//		}
 	}
+	s.MaxError = sqrt(s.MaxError / float32(len(a)))
 	return s
 }
 
@@ -167,6 +171,16 @@ func max32(a, b float32) float32 {
 		return a
 	}
 	return b
+}
+
+
+
+func sqrt(a float32) float32{
+	return float32(math.Sqrt(float64(a)))
+} 
+
+func sqr(a float32) float32{
+	return a*a
 }
 
 type Status struct {
