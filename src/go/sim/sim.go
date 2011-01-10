@@ -23,7 +23,8 @@ const (
 	DEFAULT_DEMAG_ACCURACY    = 8
 	DEFAULT_SPIN_POLARIZATION = 1
 	DEFAULT_EXCH_TYPE         = 6
-	DEFAULT_MIN_DM            = 1e-4
+	DEFAULT_MIN_DM            = 0
+	DEFAULT_DT_INTERNAL       = 1e-5
 )
 
 // Sim has an "input" member of type "Input".
@@ -96,6 +97,7 @@ type Sim struct {
 	dt        float32 // The time step (internal units). May be updated by adaptive-step solvers
 	maxDm     float32 // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
 	minDm     float32 // The minimum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
+	targetDt  float32 // Preferred time step for fixed dt solvers. May be overriden when delta m would violate minDm, maxDm
 	maxError  float32 // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
 	stepError float32 // The actual error estimate of the last step. Not all solvers update this value.
 	steps     int     // The total number of steps taken so far
@@ -345,7 +347,14 @@ func (s *Sim) initConv() {
 
 func (s *Sim) initSolver() {
 	s.Println("Initializing solver: ", s.input.solvertype)
-	s.dt = s.input.dt / s.UnitTime()
+	// init dt
+	s.targetDt = s.input.dt / s.UnitTime()
+	if s.targetDt != 0. {
+		s.dt = s.targetDt
+	} else {
+		s.dt = DEFAULT_DT_INTERNAL
+		s.Println("Using defautl initial dt: ", s.dt * s.UnitTime(), " s")
+	}
 	s.Solver = NewSolver(s.input.solvertype, s)
 	//s.Println(s.Solver.String())
 }
@@ -362,7 +371,7 @@ func (s *Sim) init() {
 	// so they need to be set up first
 	s.InitMaterial() // sets gamma, mu0
 
-	// (2) Size must be set before memory allocation
+		// (2) Size must be set before memory allocation
 	s.initSize()
 
 	s.initCellSize()

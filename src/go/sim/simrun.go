@@ -46,7 +46,7 @@ func (s *Sim) Run(time float64) {
 		// step
 		s.Step()
 		s.steps++
-		s.time += float64(s.dt)
+		//s.time += float64(s.dt) THIS IS NOW DONE BY THE SOLVER TO AVOID ADDING AN ADAPTED DT
 		s.mUpToDate = false
 
 		if math.IsNaN(s.time) || math.IsInf(s.time, 0) {
