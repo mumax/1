@@ -12,6 +12,7 @@ clean:
 	rm -rf *.out
 
 templates:
-	template solver=rk1,rk2,rk12,rk23 prob4
+	template solver=rk1,rk2,rk3,rk4 prob4fixdt
+	template solver=rk12,rk23,rkdp,rkck prob4
 
 
