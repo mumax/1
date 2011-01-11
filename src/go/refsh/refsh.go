@@ -66,17 +66,6 @@ func (r *Refsh) AddMethod(funcname string, reciever interface{}, methodname stri
 	r.funcs = append(r.funcs, &MethodWrapper{NewValue(reciever), f})
 }
 
-// like AddMethod but with a Help string
-func (r *Refsh) AddMethodHelp(funcname string, reciever interface{}, methodname string, help string) {
-	r.AddMethod(funcname, reciever, methodname)
-	r.help[funcname] = help
-}
-
-func (r *Refsh) AddFuncHelp(funcname string, reciever interface{}, help string) {
-	r.AddFunc(funcname, reciever)
-	r.help[funcname] = help
-}
-
 // Adds all the public Methods of the reciever,
 // giving them a lower-case command name
 func (r *Refsh) AddAllMethods(reciever interface{}) {
