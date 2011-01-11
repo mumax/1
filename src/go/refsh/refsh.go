@@ -66,6 +66,16 @@ func (r *Refsh) AddMethod(funcname string, reciever interface{}, methodname stri
 	r.funcs = append(r.funcs, &MethodWrapper{NewValue(reciever), f})
 }
 
+// like AddMethod but with a Help string
+func (r *Refsh) AddMethodHelp(funcname string, reciever interface{}, methodname string, help string) {
+	r.AddMethod(funcname, reciever, methodname)
+	r.help[funcname] = help
+}
+
+func (r *Refsh) AddFuncHelp(funcname string, reciever interface{}, help string) {
+	r.AddFunc(funcname, reciever)
+	r.help[funcname] = help
+}
 
 // Adds all the public Methods of the reciever,
 // giving them a lower-case command name
@@ -164,7 +174,7 @@ func (refsh *Refsh) Call(fname string, argv []string) []interface{} {
 type Refsh struct {
 	funcnames    []string // known function or method names (we do not use a map to not exclude the possibility of overloading)
 	funcs        []Caller // functions/methods corresponding to funcnames
-	help         []string // help strings corresponding to funcnames
+	help         map[string]string // help strings corresponding to funcnames
 	CrashOnError bool     // crash the program on a syntax error or just report it (e.g. for interactive mode)
 	CallCount    int      //counts number of commands executed
 	Output       Printer  //Used to print output, may be nil
