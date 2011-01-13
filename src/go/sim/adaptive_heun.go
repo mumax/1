@@ -51,6 +51,8 @@ func (s *AdaptiveHeun) Step() {
 	s.Add(m, t)
 	s.Normalize(m) // heun solution
 
+	s.time += float64(s.dt)
+
 	if s.maxError != 0. {
 		s.MAdd(m1est, -1, m) // difference between heun and euler
 		error := s.Reduce(m1est)
