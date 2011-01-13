@@ -69,10 +69,7 @@ func updateDashboard(sim *Sim) {
 	eraseln()
 
 	// Conditions
-	//B := sim.UnitField()
-	fmt.Printf(
-		BOLD+"B:    "+RESET+"(%.3e, %.3e, %.3e)T",
-		sim.hextSI[Z], sim.hextSI[Y], sim.hextSI[X])
+	fmt.Printf( BOLD+"torque:    "+RESET+"%.5e", sim.torque)
 	erase()
 	fmt.Println()
 

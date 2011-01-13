@@ -92,9 +92,11 @@ type Sim struct {
 	hextSI       [3]float32 // stores the externally applied field returned by AppliedField, in SI UNITS
 	hextInt      []float32  // stores the externally applied field in internal units
 
+	relaxer   *Relax
 	Solver            // Does the time stepping, can be euler, heun, ...
 	time      float64 // The total time (internal units)
 	dt        float32 // The time step (internal units). May be updated by adaptive-step solvers
+	torque	float32 // Buffer for the maximum torque. May or may not be updated by solvers. Used for output.
 	maxDm     float32 // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
 	minDm     float32 // The minimum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
 	targetDt  float32 // Preferred time step for fixed dt solvers. May be overriden when delta m would violate minDm, maxDm

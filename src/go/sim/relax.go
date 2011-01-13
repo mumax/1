@@ -36,50 +36,47 @@ const (
 	DEFAULT_MAX_TORQUE = 1e-5
 )
 
-func (r *Relax) Relax() {
+// One relaxation step.
+// sets sim.torque to the maximum torque so the driver can decide whether or not to stop.
+func (r *Relax) RelaxStep()  {
 
 	m := r.sim.mDev
 	m1est := r.m1est
 	h := r.sim.hDev
-	dt := float32(RELAX_START_DT)
 	sim := r.sim
-	maxError := float32(1e-2)
-	maxTorque := float32(DEFAULT_MAX_TORQUE)
-	torque := float32(9999)
+	maxError := float32(1e-4)
 
-	for torque > maxTorque {
-		sim.calcHeff(m, h)
-		torque = r.Reduce(h)
-		sim.DeltaM(m, h, dt)
-		TensorCopyOn(h, r.t0)
-		TensorCopyOn(m, m1est)
-		sim.Add(m1est, r.t0)
-		sim.Normalize(m1est) // Euler estimate
+	sim.calcHeff(m, h)
+	sim.DeltaM(m, h, r.sim.dt)
+	sim.torque = r.Reduce(h) / r.sim.dt // torque = delta M / delta t
+	TensorCopyOn(h, r.t0)
+	TensorCopyOn(m, m1est)
+	sim.Add(m1est, r.t0)
+	sim.Normalize(m1est) // Euler estimate
 
-		sim.calcHeff(m1est, h)
-		sim.DeltaM(m1est, h, dt)
-		tm1est := h
-		t := tm1est
-		sim.LinearCombination(t, r.t0, 0.5, 0.5)
-		sim.Add(m, t)
-		sim.Normalize(m) // Heun solution
+	sim.calcHeff(m1est, h)
+	sim.DeltaM(m1est, h, r.sim.dt)
+	tm1est := h
+	t := tm1est
+	sim.LinearCombination(t, r.t0, 0.5, 0.5)
+	sim.Add(m, t)
+	sim.Normalize(m) // Heun solution
 
-		// Error estimate
-		sim.MAdd(m1est, -1, m) // difference between Heun and Euler
-		error := r.Reduce(m1est)
+	// Error estimate
+	sim.MAdd(m1est, -1, m) // difference between Heun and Euler
+	error := r.Reduce(m1est)
 
-		// calculate new step
-		factor := maxError / error
-		// do not increase by time step by more than 100%
-		if factor > 2. {
-			factor = 2.
-		}
-		// do not decrease to less than 1%
-		if factor < 0.01 {
-			factor = 0.01
-		}
-
-		dt *= factor
+	// calculate new step
+	factor := maxError / error
+	// do not increase by time step by more than 100%
+	if factor > 2. {
+		factor = 2.
+	}
+	// do not decrease to less than 1%
+	if factor < 0.01 {
+		factor = 0.01
 	}
 
+	sim.time += float64(sim.dt) // TODO: remove when output per step can be saved?
+	sim.dt *= factor
 }

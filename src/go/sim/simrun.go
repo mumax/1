@@ -14,24 +14,6 @@ import (
 
 // This file implements the methods for time stepping
 
-// re-initialize benchmark data
-func (s *Sim) start_benchmark(){
-	s.lastrunSteps = s.steps
-	s.lastrunWalltime = clock.Nanoseconds()
-	s.lastrunSimtime = s.time
-}
-
-
-// update benchmark data
-func (s *Sim) stop_benchmark(){
-	runtime := float64(clock.Nanoseconds()-s.lastrunWalltime) / 1e9 // time of last run in seconds
-	runsteps := s.steps - s.lastrunSteps
-	simtime := (s.time - s.lastrunSimtime) * float64(s.UnitTime())
-	s.LastrunStepsPerSecond = float64(runsteps) / runtime
-	s.LastrunSimtimePerSecond = simtime / runtime
-}
-
-
 // Run the simulation for a certain duration, specified in seconds
 func (s *Sim) Run(time float64) {
 	s.init()
@@ -60,7 +42,6 @@ func (s *Sim) Run(time float64) {
 		// step
 		s.Step()
 		s.steps++
-		//s.time += float64(s.dt) THIS IS NOW DONE BY THE SOLVER TO AVOID ADDING AN ADAPTED DT
 		s.mUpToDate = false
 
 		if math.IsNaN(s.time) || math.IsInf(s.time, 0) {
@@ -71,6 +52,62 @@ func (s *Sim) Run(time float64) {
 	s.stop_benchmark()
 	//does not invalidate
 }
+
+
+func (s *Sim) Relax(maxtorque float32) {
+	s.init()
+	s.Println("Relaxing until torque < ", maxtorque)
+	if s.relaxer == nil {
+		s.relaxer = NewRelax(s)
+	}
+	s.dt = RELAX_START_DT
+	s.relaxer.MaxTorque(maxtorque)
+	s.torque = maxtorque * 1000
+
+	for s.torque >= maxtorque {
+		// step
+		s.relaxer.RelaxStep()
+		//fmt.Println(s.torque)
+		s.steps++
+		s.mUpToDate = false
+
+		updateDashboard(s)
+		if math.IsNaN(s.time) || math.IsInf(s.time, 0) {
+			panic("Time step = " + fmt.Sprint(s.dt))
+		}
+
+		// save output if so scheduled
+		for _, out := range s.outschedule {
+			if out.NeedSave(float32(s.time) * s.UnitTime()) { // output entries want SI units
+				// assure the local copy of m is up to date and increment the autosave counter if necessary
+				s.assureMUpToDate()
+				// save
+				out.Save(s)
+				// TODO here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
+			}
+		}
+
+
+	}
+}
+
+// re-initialize benchmark data
+func (s *Sim) start_benchmark() {
+	s.lastrunSteps = s.steps
+	s.lastrunWalltime = clock.Nanoseconds()
+	s.lastrunSimtime = s.time
+}
+
+
+// update benchmark data
+func (s *Sim) stop_benchmark() {
+	runtime := float64(clock.Nanoseconds()-s.lastrunWalltime) / 1e9 // time of last run in seconds
+	runsteps := s.steps - s.lastrunSteps
+	simtime := (s.time - s.lastrunSimtime) * float64(s.UnitTime())
+	s.LastrunStepsPerSecond = float64(runsteps) / runtime
+	s.LastrunSimtimePerSecond = simtime / runtime
+}
+
 
 // INTERNAL
 // Assures the local copy of m is up to date with that on the device
