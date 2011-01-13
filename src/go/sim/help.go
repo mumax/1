@@ -118,6 +118,12 @@ uniform 1 0 0
 # setmrange x0 y0 z0 x1 y1 z1 mx my mz  # manually set the magnetization in the specified x-y-z range (of cell indices) to mx, my, mz
 #                                       # e.g.: setmrange 5 12 23 7 13 25 1. 0. 0.
 
+# (3.1) Relax Magnetization
+# _________________________
+
+relax 1e-4	# relax until the residual torque is < 1e-4
+
+
 # (4) Schedule output
 # ___________________
 
