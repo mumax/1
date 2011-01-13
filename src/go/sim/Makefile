@@ -22,6 +22,7 @@ GOFILES=\
 	rk.go\
 	semianal.go\
 	kernel.go\
+	relax.go\
 	demag.go\
 	exchange.go\
 	material.go\

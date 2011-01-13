@@ -14,6 +14,24 @@ import (
 
 // This file implements the methods for time stepping
 
+// re-initialize benchmark data
+func (s *Sim) start_benchmark(){
+	s.lastrunSteps = s.steps
+	s.lastrunWalltime = clock.Nanoseconds()
+	s.lastrunSimtime = s.time
+}
+
+
+// update benchmark data
+func (s *Sim) stop_benchmark(){
+	runtime := float64(clock.Nanoseconds()-s.lastrunWalltime) / 1e9 // time of last run in seconds
+	runsteps := s.steps - s.lastrunSteps
+	simtime := (s.time - s.lastrunSimtime) * float64(s.UnitTime())
+	s.LastrunStepsPerSecond = float64(runsteps) / runtime
+	s.LastrunSimtimePerSecond = simtime / runtime
+}
+
+
 // Run the simulation for a certain duration, specified in seconds
 func (s *Sim) Run(time float64) {
 	s.init()
@@ -23,17 +41,13 @@ func (s *Sim) Run(time float64) {
 	s.Normalize(s.mDev)
 	s.mUpToDate = false
 
-	// re-initialize benchmark data
-	s.lastrunSteps = s.steps
-	s.lastrunWalltime = clock.Nanoseconds()
-	s.lastrunSimtime = s.time
-
+	s.start_benchmark()
 	for s.time < stop {
 
 		// save output if so scheduled
 		for _, out := range s.outschedule {
 			if out.NeedSave(float32(s.time) * s.UnitTime()) { // output entries want SI units
-				// assure the local copy of m is up to date and increment the autosave counter if neccesary
+				// assure the local copy of m is up to date and increment the autosave counter if necessary
 				s.assureMUpToDate()
 				// save
 				out.Save(s)
@@ -54,13 +68,7 @@ func (s *Sim) Run(time float64) {
 		}
 	}
 
-	// update benchmark data
-	runtime := float64(clock.Nanoseconds()-s.lastrunWalltime) / 1e9 // time of last run in seconds
-	runsteps := s.steps - s.lastrunSteps
-	simtime := (s.time - s.lastrunSimtime) * float64(s.UnitTime())
-	s.LastrunStepsPerSecond = float64(runsteps) / runtime
-	s.LastrunSimtimePerSecond = simtime / runtime
-
+	s.stop_benchmark()
 	//does not invalidate
 }
 
