@@ -17,7 +17,7 @@ k1				500		# in J/m^3, sign determines hard/easy axis.
 # (2) Geometry
 # ____________
 
-gridsize       	512 	  256 	    1    
+gridsize       	512 	  256 	    4    
 partsize   	    2000e-9   1000e-9   20e-9
 
 

@@ -17,7 +17,7 @@ k1				500		# in J/m^3, sign determines hard/easy axis.
 # (2) Geometry
 # ____________
 
-gridsize       	512 	  256 	    1    
+gridsize       	512 	  256 	    4    
 partsize   	    2000e-9   1000e-9   20e-9
 
 
@@ -42,6 +42,6 @@ autosave  table ascii 100E-12  # tabular output will be saved every 10ps in asci
 # A more user-friendly "relax" function is under development.
 
 alpha   2
-hysteresis 		0 0 0		 0  50e-3 0 		50		1e-3
-hysteresis 	    0  50e-3	 0	 -50e-3 0 	 	100		1e-3
-hysteresis 	    0 -50e-3 0 	 50e-3 0 	 	100		1e-3
+hysteresis 		0   0    0	 0  50e-3 0 		50		1e-3
+hysteresis 	    0  50e-3 0	 0 -50e-3 0 	 	100		1e-3
+hysteresis 	    0 -50e-3 0 	 0  50e-3 0 	 	100		1e-3
