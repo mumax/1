@@ -69,7 +69,7 @@ func updateDashboard(sim *Sim) {
 	eraseln()
 
 	// Conditions
-	fmt.Printf( BOLD+"torque:    "+RESET+"%.5e", sim.torque)
+	fmt.Printf(BOLD+"torque:    "+RESET+"%.5e", sim.torque)
 	erase()
 	fmt.Println()
 

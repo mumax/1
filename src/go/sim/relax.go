@@ -38,7 +38,7 @@ const (
 
 // One relaxation step.
 // sets sim.torque to the maximum torque so the driver can decide whether or not to stop.
-func (r *Relax) RelaxStep()  {
+func (r *Relax) RelaxStep() {
 
 	m := r.sim.mDev
 	m1est := r.m1est
