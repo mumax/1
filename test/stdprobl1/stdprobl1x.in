@@ -42,4 +42,6 @@ autosave  table ascii 100E-12  # tabular output will be saved every 10ps in asci
 # A more user-friendly "relax" function is under development.
 
 alpha   2
-hysteresis 		0 0 0		100e-3 0 0 		100		1e-3
+hysteresis 		0 0 0		 50e-3 0 0 		50		1e-3
+hysteresis 		50e-3 0 0	-50e-3 0 0	 	100		1e-3
+hysteresis 	   -50e-3 0 0	 50e-3 0 0	 	100		1e-3

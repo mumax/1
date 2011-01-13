@@ -150,6 +150,7 @@ func (s *Sim) calcHeff(m, h *DevTensor) {
 	} else {
 		s.hextSI = [3]float32{0., 0., 0.}
 	}
+
 	B := s.UnitField()
 	s.hextInt[0] = s.hextSI[0] / B
 	s.hextInt[1] = s.hextSI[1] / B
