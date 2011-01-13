@@ -22,6 +22,6 @@ func (s *Sim) Hysteresis(bz0, by0, bx0, bz1, by1, bx1 float32, steps int, maxtor
 		s.StaticField(bz, by, bx)
 		s.Relax(maxtorque)
 		s.Save("m", "omf")
-		s.Save("table", "ascii")
+		//s.Save("table", "ascii") // Does not work correctly for the moment: files gets overwritten, not appended.
 	}
 }
