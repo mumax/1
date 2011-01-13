@@ -60,7 +60,9 @@ aexch      	1.3E-11
 # Damping coefficient
 alpha      	0.02
 
-
+# Anisotropy type, axes and constant(s)
+# anisuniaxial	0 0 1	# axis = Z
+# k1			-50e3	# in J/m^3, sign determines hard/easy axis.
 
 # (2) Geometry
 # ____________
@@ -120,7 +122,7 @@ uniform 1 0 0
 # ___________________
 
 autosave  m     png   50E-12  # magnetization will be saved every 50 ps in PNG format
-autosave  m     omf   50e-12  # magnetization will be saved every 50 ps in OOMMF's .omf format 
+autosave  m     omf   50e-12  # magnetization will be saved every 50 ps in OOMMFs .omf format 
 autosave  table ascii 10E-12  # tabular output will be saved every 10ps in ascii text format
 
 
@@ -143,7 +145,6 @@ alpha   0.02
 staticfield 	-24.6E-3     4.3E-3    0 
 
 # Apply electrical current:
-# Note: This is not yet implemented on the CPU, works only on the GPU
 
 # xi                  0.05        # Degree of non-adiabaticity
 # spinpolarization    0.8         # Degree of spin-polarization
