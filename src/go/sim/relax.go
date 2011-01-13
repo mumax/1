@@ -77,6 +77,6 @@ func (r *Relax) RelaxStep()  {
 		factor = 0.01
 	}
 
-	sim.time += float64(sim.dt) // TODO: remove when output per step can be saved?
+	//sim.time += float64(sim.dt) // TODO: remove when output per step can be saved?
 	sim.dt *= factor
 }

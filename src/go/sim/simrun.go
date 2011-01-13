@@ -76,17 +76,16 @@ func (s *Sim) Relax(maxtorque float32) {
 			panic("Time step = " + fmt.Sprint(s.dt))
 		}
 
-		// save output if so scheduled
-		for _, out := range s.outschedule {
-			if out.NeedSave(float32(s.time) * s.UnitTime()) { // output entries want SI units
-				// assure the local copy of m is up to date and increment the autosave counter if necessary
-				s.assureMUpToDate()
-				// save
-				out.Save(s)
-				// TODO here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
-			}
-		}
-
+//		// save output if so scheduled
+//		for _, out := range s.outschedule {
+//			if out.NeedSave(float32(s.time) * s.UnitTime()) { // output entries want SI units
+//				// assure the local copy of m is up to date and increment the autosave counter if necessary
+//				s.assureMUpToDate()
+//				// save
+//				out.Save(s)
+//				// TODO here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
+//			}
+//		}
 
 	}
 }
