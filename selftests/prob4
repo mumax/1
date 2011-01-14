@@ -1,6 +1,6 @@
 # Micromagnetic standard problem 4
 
-metadata:  	description standard_problem_4
+desc:  	description standard_problem_4
 solvertype:	{solver}	
 dt		0.1e-12
 maxdm		0.001

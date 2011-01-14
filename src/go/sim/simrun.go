@@ -119,5 +119,7 @@ func (s *Sim) assureOutputUpToDate() {
 		s.autosaveIdx++
 		s.mUpToDate = true
 	}
-	s.metadata["time"] = fmt.Sprint(s.time * float64(s.UnitTime()))
+	s.desc["time"] = s.time * float64(s.UnitTime())
+	s.desc["Bx"] = s.hextSI[Z]
+
 }

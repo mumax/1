@@ -115,7 +115,7 @@ type Sim struct {
 	silent    bool              // Do not print anything to os.Stdout when silent == true, only to log file
 	outputdir string            // Where to save output files.
 	out       *os.File          // Output log file
-	metadata  map[string]string // Metadata to be added to headers of saved tensors
+	desc  map[string]interface{} // Metadata to be added to headers of saved tensors
 	starttime int64             // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
 
 	// Geometry
@@ -167,7 +167,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	fmt.Println("chdir ", workdir)
 	os.Chdir(workdir)
 	sim.outputDir(Filename(outputdir))
-	sim.metadata = make(map[string]string)
+	sim.desc = make(map[string]interface{})
 	sim.hextInt = make([]float32, 3)
 	sim.initWriters()
 	sim.anisK = []float32{0.} // even when not used these must be allocated

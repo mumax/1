@@ -9,7 +9,7 @@ package sim
 import (
 	"tensor"
 	"os"
-	"fmt"
+	//"fmt"
 	"math"
 )
 
@@ -49,9 +49,9 @@ func (s *Sim) CellSize(z, y, x float32) {
 	s.input.cellSize[X] = x
 	s.input.cellSize[Y] = y
 	s.input.cellSize[Z] = z
-	s.metadata["cellsize0"] = fmt.Sprint(x)
-	s.metadata["cellsize1"] = fmt.Sprint(y)
-	s.metadata["cellsize2"] = fmt.Sprint(z)
+//	s.metadata["cellsize0"] = fmt.Sprint(x)
+//	s.metadata["cellsize1"] = fmt.Sprint(y)
+//	s.metadata["cellsize2"] = fmt.Sprint(z)
 	s.input.cellSizeSet = true
 	s.updateSizes()
 	s.invalidate()
@@ -65,9 +65,9 @@ func (s *Sim) PartSize(z, y, x float32) {
 	s.input.partSize[X] = x
 	s.input.partSize[Y] = y
 	s.input.partSize[Z] = z
-	s.metadata["partsize0"] = fmt.Sprint(x)
-	s.metadata["partsize1"] = fmt.Sprint(y)
-	s.metadata["partsize2"] = fmt.Sprint(z)
+//	s.metadata["partsize0"] = fmt.Sprint(x)
+//	s.metadata["partsize1"] = fmt.Sprint(y)
+//	s.metadata["partsize2"] = fmt.Sprint(z)
 	s.input.partSizeSet = true
 	s.updateSizes()
 	s.invalidate()

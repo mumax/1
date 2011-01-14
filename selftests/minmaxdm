@@ -1,6 +1,6 @@
 # tests mindm/maxdm/dt for a fixed step solver (rk3)
 
-metadata:  	description standard_problem_4
+desc:  	description standard_problem_4
 solvertype:	rk3	
 dt		{dt}
 maxdm		{maxdm}
