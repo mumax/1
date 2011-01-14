@@ -110,7 +110,7 @@ func writeDataText(out io.Writer, tens tensor.Interface) {
 	gridsize := vecsize[1:]
 
 	format := "Text"
-	hdr(out, "Begin", "Data ", format)
+	hdr(out, "Begin", "Data "+format)
 
 	// Here we loop over X,Y,Z, not Z,Y,X, because
 	// internal in C-order == external in Fortran-order
@@ -137,7 +137,7 @@ func writeDataBinary4(out io.Writer, tens tensor.Interface) {
 	gridsize := vecsize[1:]
 
 	format := "Binary 4"
-	hdr(out, "Begin", "Data ",format)
+	hdr(out, "Begin", "Data "+format)
 
 	var bytes []byte
 
