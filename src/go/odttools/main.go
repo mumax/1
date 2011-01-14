@@ -4,14 +4,11 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-// omftool is a general-purpose manipulator for .omf files.
+// odttool is a general-purpose manipulator for .odt files.
 // 
 // General usage:
-// omftool --command="arg1,arg2" ... files
+// odttool --command="arg1,arg2" ... infile outfile
 //
-// omftool loads the specified files in a buffer (one at a time),
-// and calls all the commands on that buffer.
-// The (possibley modified) buffer may be saved again.
 //
 package main
 
@@ -31,7 +28,7 @@ import (
 var (
 	filename string     // the currently opened file
 	data     *tensor.T4 // the currently opened vector data
-	info     map[string]interface{}
+	info     *omf.Info  // 
 )
 
 
@@ -48,7 +45,6 @@ func main() {
 	sh.AddFunc("3d-shadow", Draw3D_Shadow)
 	sh.AddFunc("draw3d-dump", Draw3D_Dump)
 	sh.AddFunc("downsample", Downsample)
-	sh.AddFunc("toodt", ToODT)
 	cmd, args, files := refsh.ParseFlags2()
 
 	// Each file is read and stored in "data".
@@ -60,8 +56,9 @@ func main() {
 	}
 
 	for _, file := range files {
-		data, info = omf.Decode(iotool.MustOpenRDONLY(file))
+		t4, _ := omf.Decode(iotool.MustOpenRDONLY(file))
 		filename = file
+		data = t4 //tensor.ToT(t4)
 
 		if len(cmd) == 0 {
 			fmt.Fprintln(os.Stderr, "No commands")
@@ -72,14 +69,8 @@ func main() {
 			sh.Call(cmd[i], args[i])
 		}
 	}
-	cleanup()
 }
 
-func cleanup(){
-	if odt != nil{
-		odt.Close()
-	}
-}
 
 func min(a, b int) int {
 	if a < b {

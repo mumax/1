@@ -124,4 +124,6 @@ func (s *Sim) assureOutputUpToDate() {
 	s.desc["By"] = s.hextSI[Y]
 	s.desc["Bz"] = s.hextSI[X]
 	s.desc["torque"] = s.torque
+	s.desc["id"] = s.autosaveIdx
+	s.desc["iteration"] = s.steps
 }

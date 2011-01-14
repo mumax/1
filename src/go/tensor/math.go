@@ -50,3 +50,25 @@ func MinMax(t Interface) (min, max float32) {
 	}
 	return
 }
+
+// Average of all elements
+func Average(t Interface) float32{
+	l := t.List()
+	sum:=float64(0)
+	for _, val := range l {
+		sum += float64(val)
+	}
+	return float32(sum/float64(len(l)))
+}
+
+
+// Returns a component
+func Component(t Interface, comp int) *T{
+	c := new(T)
+	c.TSize = t.Size()[1:]
+	length := Prod(c.TSize)
+	start := comp*length
+	stop := (comp+1)*length
+	c.TList = t.List()[start:stop]
+	return c
+}
