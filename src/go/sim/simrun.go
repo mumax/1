@@ -30,7 +30,7 @@ func (s *Sim) Run(time float64) {
 		for _, out := range s.outschedule {
 			if out.NeedSave(float32(s.time) * s.UnitTime()) { // output entries want SI units
 				// assure the local copy of m is up to date and increment the autosave counter if necessary
-				s.assureMUpToDate()
+				s.assureOutputUpToDate()
 				// save
 				out.Save(s)
 				// TODO here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
@@ -111,7 +111,7 @@ func (s *Sim) stop_benchmark() {
 // INTERNAL
 // Assures the local copy of m is up to date with that on the device
 // If necessary, it will be copied from the device and autosaveIdx will be incremented
-func (s *Sim) assureMUpToDate() {
+func (s *Sim) assureOutputUpToDate() {
 	s.init()
 	if !s.mUpToDate {
 		// 		Debugvv("Copying m from device to local memory")

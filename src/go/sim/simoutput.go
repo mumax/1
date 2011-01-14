@@ -53,7 +53,7 @@ func (s *Sim) Autosave(what, format string, interval float32) {
 func (s *Sim) Save(what, format string) {
 	s.init() // We must init() so m gets Normalized etc...
 	output := resolve(what, format)
-	s.assureMUpToDate()
+	s.assureOutputUpToDate()
 	output.Save(s)
 }
 
