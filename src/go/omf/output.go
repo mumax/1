@@ -21,12 +21,11 @@ const (
 )
 
 // Like encode but accepts a file name 
-func FEncode(filename string, f File){
+func FEncode(filename string, f File) {
 	out := iotool.MustOpenWRONLY(filename)
 	defer out.Close()
 	Encode(out, f)
 }
-
 
 
 func Encode(out_ io.Writer, f File) {
@@ -170,7 +169,7 @@ func writeDataBinary4(out io.Writer, tens tensor.Interface) {
 
 func writeDesc(out io.Writer, desc map[string]interface{}) {
 	for k, v := range desc {
-		hdr(out, "Desc", k,": ",v)
+		hdr(out, "Desc", k, ": ", v)
 	}
 }
 

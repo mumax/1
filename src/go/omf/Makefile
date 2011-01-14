@@ -8,6 +8,7 @@ GOFILES=\
 	codec.go\
 	input.go\
 	output.go\
+	odt.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 
