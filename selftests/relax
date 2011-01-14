@@ -13,5 +13,5 @@ partsize   	500E-9  125E-9  3E-9
 uniform 	1 1 0
 
 # run
-relax 1e-3
+relax 1e-4
 save m omf
