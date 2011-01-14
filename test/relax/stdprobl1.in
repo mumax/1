@@ -1,0 +1,47 @@
+# (1) Material parameters
+# _______________________
+
+# Saturation magnetization in A/m
+msat       	800E3
+
+# Exchange constant in J/m
+aexch      	1.3E-11
+
+# Damping coefficient
+alpha      	1
+
+# Anisotropy type, axes and constant(s)
+anisuniaxial	1 0 0	# axis = Z
+k1				500		# in J/m^3, sign determines hard/easy axis.
+
+# (2) Geometry
+# ____________
+
+gridsize       	256 	  128 	    1    
+partsize   	    1000e-9   500e-9   40e-9
+
+
+# (3) Initial magnetization
+# _________________________
+
+vortex    1	1
+addnoise	0.2
+
+# (4) Schedule output
+# ___________________
+
+autosave  m     png   50E-12  # magnetization will be saved every 50 ps in PNG format
+autosave  m     omf   50e-12  # magnetization will be saved every 50 ps in OOMMFs .omf format 
+autosave  table ascii 50E-12  # tabular output will be saved every 10ps in ascii text format
+
+
+# (5) Relax
+# _______
+
+# To relax the magnetization, set a high alpha temporarily and run for a while.
+
+alpha   2
+relax	1e-4
+save	m png
+
+hysteresis 0 0 0     100e-3 0 0 	100		1e-3

@@ -1,13 +1,12 @@
 # Micromagnetic standard problem 4
 # but 3D version
 
-solvertype:  	heun
-maxerror:       1E-5             
 
 # material
 msat:       	800E3       # A/m
 aexch:      	1.3E-11     # J/m
 alpha:      	0.02
+exchangetype: 26
 
 # geometry 
 gridsize:       128 32 2

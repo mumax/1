@@ -16,8 +16,8 @@ OFILES=\
 	cpu_init.o\
 	cpu_reduction.o\
 	cpu_fft2.o\
+	cpu_local_contr.o\
 	thread_functions.o\
-### change to cpu_fft1.o when ready 
 
 all: libcpukern.so
 
@@ -111,6 +111,8 @@ cpu_init.o:  cpu_init.h cpu_init.cpp
 cpu_reduction.o:  cpu_reduction.h cpu_reduction.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_reduction.cpp
 
+cpu_local_contr.o:  cpu_local_contr.h cpu_local_contr.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_local_contr.cpp
 
 thread_functions.o:  thread_functions.h thread_functions.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) thread_functions.cpp

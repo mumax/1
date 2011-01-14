@@ -11,7 +11,7 @@ package sim
 */
 import "C"
 import "unsafe"
-
+import "runtime"
 
 // This single file intefaces all the relevant CUDA func(d Gpu) tions with go
 // It only wraps the func(d Gpu) tions, higher level constructs and assetions
@@ -30,8 +30,21 @@ type Gpu struct {
 	// intentionally empty, but the methods implement sim.Device
 }
 
-func (d Gpu) init() {
-	C.gpu_init()
+func (d Gpu) maxthreads() int {
+	return int(C.gpu_maxthreads())
+}
+
+func (d Gpu) init(threads, options int) {
+
+	// a CUDA context is linked to a thread, and a context created in
+	// one thread can not be accessed by another one. Therefore, we
+	// have to lock the current goroutine to its current thread.
+	// Otherwise it may be mapped to another thread by the go runtime,
+	// making CUDA crash.
+	Debugvv("Locked OS thread")
+	runtime.LockOSThread()
+
+	C.gpu_init(C.int(threads), C.int(options))
 }
 
 func (d Gpu) setDevice(devid int) {
@@ -95,6 +108,10 @@ func (d Gpu) deltaM(m, h uintptr, alpha, dtGilbert float32, N int) {
 
 func (d Gpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, dtGilb float32, size []int) {
 	C.gpu_spintorque_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha), C.float(beta), C.float(epsillon), (*C.float)(unsafe.Pointer(&u[0])), C.float(dtGilb), C.int(size[0]), C.int(size[1]), C.int(size[2]))
+}
+
+func (d Gpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int) {
+	C.gpu_add_local_fields((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
 }
 
 func (d Gpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {

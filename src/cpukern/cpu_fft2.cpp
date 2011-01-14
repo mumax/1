@@ -11,6 +11,8 @@
 extern "C" {
 #endif
 
+extern int fftw_strategy;
+
 /**
  * @internal 
  * Creates a new FFT plan for transforming the magnetization. 
@@ -65,11 +67,11 @@ void init_cpu_plans(cpuFFT3dPlan *plan){
 
   plan->FFT_FW_dim3 =
     fftwf_plan_many_dft_r2c (1, &FFTdimz1, plan->size[1], array, NULL, 1, FFTdimz2,
-      carray, NULL, 1, FFTdimz2/2, FFTW_MEASURE);
+      carray, NULL, 1, FFTdimz2/2, fftw_strategy);
 
   plan->FFT_FW_dim2 =
     fftwf_plan_many_dft (1, &FFTdimy, FFTdimz2/2, carray, NULL, FFTdimz2/2, 1,
-      carray, NULL, FFTdimz2/2, 1, 1, FFTW_MEASURE);
+      carray, NULL, FFTdimz2/2, 1, 1, fftw_strategy);
       
   if (FFTdimx>1){
     plan->FFT_FW_dim1 = (fftwf_plan *) calloc(Nthreads, sizeof(fftwf_plan));
@@ -77,23 +79,23 @@ void init_cpu_plans(cpuFFT3dPlan *plan){
       plan->FFT_FW_dim1[cnt] =
         fftwf_plan_many_dft (1, &FFTdimx, N_temp1[cnt],
           &carray[plan->N_FFT_dimyz[cnt]], NULL, FFTdimyz/2, 1,
-          &carray[plan->N_FFT_dimyz[cnt]], NULL, FFTdimyz/2, 1, 1, FFTW_MEASURE);
+          &carray[plan->N_FFT_dimyz[cnt]], NULL, FFTdimyz/2, 1, 1, fftw_strategy);
 
     plan->FFT_BW_dim1 = (fftwf_plan *) calloc(Nthreads, sizeof(fftwf_plan));
     for (int cnt=0; cnt<Nthreads; cnt++)
       plan->FFT_BW_dim1[cnt] =
         fftwf_plan_many_dft (1, &FFTdimx, N_temp1[cnt],
           &carray[plan->N_FFT_dimyz[cnt]], NULL, FFTdimyz/2, 1,
-          &carray[plan->N_FFT_dimyz[cnt]], NULL, FFTdimyz/2, 1, -1, FFTW_MEASURE);
+          &carray[plan->N_FFT_dimyz[cnt]], NULL, FFTdimyz/2, 1, -1, fftw_strategy);
   }
   
   plan->FFT_BW_dim2 =
     fftwf_plan_many_dft (1, &FFTdimy, FFTdimz2/2, carray, NULL, FFTdimz2/2, 1,
-      carray, NULL, FFTdimz2/2, 1, -1, FFTW_MEASURE);
+      carray, NULL, FFTdimz2/2, 1, -1, fftw_strategy);
 
   plan->FFT_BW_dim3 =
     fftwf_plan_many_dft_c2r (1, &FFTdimz1, plan->size[1], carray, NULL, 1, FFTdimz2/2,
-      array, NULL, 1, FFTdimz2, FFTW_MEASURE);
+      array, NULL, 1, FFTdimz2, fftw_strategy);
 
   fftwisdom = fopen("fftw_wisdom","w");
   fftwf_export_wisdom_to_file(fftwisdom);

@@ -12,17 +12,31 @@ import (
 	"fmt"
 	"tensor"
 	"unsafe"
+	"strings"
+	"iotool"
 )
 
-const ()
+const (
+	CONTROL_NUMBER = 1234567.0 // The omf format requires the first encoded number in the binary data section to be this control number
+)
 
-// Encodes the vector field in omf format.
-// The swap from ZYX (internal) to XYZ (external) is made here.
-func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
+// Like encode but accepts a file name 
+func FEncode(filename string, f File){
+	out := iotool.MustOpenWRONLY(filename)
+	defer out.Close()
+	Encode(out, f)
+}
+
+
+
+func Encode(out_ io.Writer, f File) {
 	out := bufio.NewWriter(out_)
 	defer out.Flush()
 
-	tens, multiplier, valueunit := f.GetData()
+	tens := f.T4
+	multiplier := f.ValueMultiplier
+	valueunit := f.ValueUnit
+
 	vecsize := tens.Size()
 	if len(vecsize) != 4 {
 		panic("rank should be 4")
@@ -31,13 +45,16 @@ func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
 		panic("size[0] should be 3")
 	}
 	gridsize := vecsize[1:]
-	cellsize, meshunit := f.GetMesh()
+	cellsize := f.StepSize
+	meshunit := f.MeshUnit
 
 	hdr(out, "OOMMF", "rectangular mesh v1.0")
 	hdr(out, "Segment count", "1")
 	hdr(out, "Begin", "Segment")
 
 	hdr(out, "Begin", "Header")
+
+	writeDesc(out, f.Desc)
 
 	hdr(out, "Title", "mumax data") // TODO
 	hdr(out, "meshtype", "rectangular")
@@ -68,11 +85,24 @@ func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
 
 	hdr(out, "End", "Header")
 
-  writeDataBinary4(out, tens)
-  
+	switch strings.ToLower(f.Format) {
+	default:
+		panic("Unknown format: " + f.Format)
+	case "binary":
+		writeDataBinary4(out, tens)
+	case "text":
+		writeDataText(out, tens)
+	}
+
 	hdr(out, "End", "Segment")
 
 }
+
+// Encodes the vector field in omf format.
+// The swap from ZYX (internal) to XYZ (external) is made here.
+// func (c *OmfCodec) Encode(out_ io.Writer, f Interface) {
+// 	Encode(out_, f)
+// }
 
 func writeDataText(out io.Writer, tens tensor.Interface) {
 	data := (tensor.ToT4(tens)).Array()
@@ -109,17 +139,17 @@ func writeDataBinary4(out io.Writer, tens tensor.Interface) {
 	format := "Binary 4"
 	hdr(out, "Begin", "Data "+format)
 
-  var bytes []byte
+	var bytes []byte
 
-  // OOMMF requires this number to be first to check the format
-  var controlnumber float32 = 1234567.0
-  // Wicked conversion form float32 [4]byte in big-endian
-  // encoding/binary is too slow
-  // Inlined for performance, terabytes of data will pass here...
-  bytes = (*[4]byte)(unsafe.Pointer(&controlnumber))[:]
-  bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0] // swap endianess
-  out.Write(bytes)
-  
+	// OOMMF requires this number to be first to check the format
+	var controlnumber float32 = CONTROL_NUMBER
+	// Wicked conversion form float32 [4]byte in big-endian
+	// encoding/binary is too slow
+	// Inlined for performance, terabytes of data will pass here...
+	bytes = (*[4]byte)(unsafe.Pointer(&controlnumber))[:]
+	bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0] // swap endianess
+	out.Write(bytes)
+
 	// Here we loop over X,Y,Z, not Z,Y,X, because
 	// internal in C-order == external in Fortran-order
 	for i := 0; i < gridsize[X]; i++ {
@@ -127,9 +157,9 @@ func writeDataBinary4(out io.Writer, tens tensor.Interface) {
 			for k := 0; k < gridsize[Z]; k++ {
 				for c := Z; c >= X; c-- {
 					// dirty conversion from float32 to [4]byte
-          bytes = (*[4]byte)(unsafe.Pointer(&data[c][i][j][k]))[:]
-          bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0]
-          out.Write(bytes)
+					bytes = (*[4]byte)(unsafe.Pointer(&data[c][i][j][k]))[:]
+					bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0]
+					out.Write(bytes)
 				}
 			}
 		}
@@ -138,15 +168,21 @@ func writeDataBinary4(out io.Writer, tens tensor.Interface) {
 	hdr(out, "End", "Data "+format)
 }
 
+func writeDesc(out io.Writer, desc map[string]interface{}) {
+	for k, v := range desc {
+		hdr(out, "Desc", k,": ",v)
+	}
+}
 
 func floats2bytes(floats []float32) []byte {
-// 	l := len(floats)
+	// 	l := len(floats)
 	return (*[4]byte)(unsafe.Pointer(&floats[0]))[:]
 }
 
 
 // Writes a header key/value pair to out:
 // # Key: Value
-func hdr(out io.Writer, key string, value interface{}) {
-	fmt.Fprintf(out, "# %v: %v\n", key, value)
+func hdr(out io.Writer, key string, value ...interface{}) {
+	fmt.Fprint(out, "# ", key, ": ")
+	fmt.Fprintln(out, value...)
 }

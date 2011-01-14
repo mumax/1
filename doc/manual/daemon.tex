@@ -10,13 +10,13 @@ This lets the program search the listed directories for input files which will b
 Note that when a directory \file{XXX.out} exists, the corresponding \file{XXX.in} file will not be run. Thus, when you want to re-run a simulation (e.g., after you have edited the input file), you need to remove the 
 \file{.out} directory.
 
-The actual simulations are run as child processes of the simulate daemon, so if a simulation happens to crash (e.g. because it tries to use more than the available amount of video memory), the daemon stays alive and will simply start the next simulation. All command line arguments except \cmd{-daemon} and \cmd{-watch} are passed through to the child process.
+The actual simulations are run as child processes of the \prog daemon, so if a simulation happens to crash (e.g. because it tries to use more than the available amount of video memory), the daemon stays alive and will simply start the next simulation. All command line arguments except \cmd{-daemon} and \cmd{-watch} are passed through to the child process.
 
 Running in daemon mode provides a way to sequentially run a large batch of simulations or to distribute simulations on a cluster or cloud --- as described in the examples below.
 
 \subsection{Example: batch execution}
 
-As a first example of the simulate deamon we illustrate how to run a batch of simulations on your local machine.
+As a first example of the \mumax deamon we illustrate how to run a batch of simulations on your local machine.
 
 First, prepare all your input files in a local directory, e.g. \file{/home/me/sims}. The input files should end with ``\file{.in}''. Then run
 
@@ -26,9 +26,9 @@ This will run al the simulations and exit when done. Due to \cmd{-watch=0}, the 
 
 This simple example is not very different from sequentially running the simulations directly from bash, as could be done with the command:
 
-\shell{for i in *.in; do simulate \$i; done}
+\shell{for i in *.in; do \mumax \$i; done}
 
-In this exammple the only difference is that with the simulate daemon you can still add additional files while the simulations are running. Below we show more advanced examples that would be rather hard to code in bash.
+In this exammple the only difference is that with the \mumax daemon you can still add additional files while the simulations are running. Below we show more advanced examples that would be rather hard to code in bash.
 
 \subsection{Simulating on a cluster}
 

@@ -10,6 +10,8 @@
 extern "C" {
 #endif
 
+extern int fftw_strategy;
+
 ///@todo cleanup
 
 /**
@@ -48,8 +50,8 @@ cpuFFT3dPlan* new_cpuFFT3dPlan_padded(int* size, int* paddedSize, float* source,
 //   FILE* infile = fopen()
 //   fftw_status status = fftw_import_wisdom_from_file(infile);
   
-  plan->fwPlan = fftwf_plan_dft_r2c_3d(paddedSize[X], paddedSize[Y], paddedSize[Z], source, (complex_t*)dest, FFTW_MEASURE); // replace by FFTW_PATIENT for super-duper performance
-  plan->bwPlan = fftwf_plan_dft_c2r_3d(paddedSize[X], paddedSize[Y], paddedSize[Z], (complex_t*)source, dest, FFTW_MEASURE);
+  plan->fwPlan = fftwf_plan_dft_r2c_3d(paddedSize[X], paddedSize[Y], paddedSize[Z], source, (complex_t*)dest, fftw_strategy); // replace by FFTW_PATIENT for super-duper performance
+  plan->bwPlan = fftwf_plan_dft_c2r_3d(paddedSize[X], paddedSize[Y], paddedSize[Z], (complex_t*)source, dest, fftw_strategy);
   
 //   fftw_export_wisdom_to_file(FILE outfile);
   

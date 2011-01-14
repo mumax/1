@@ -49,6 +49,7 @@ func (this *AdaptiveEuler) Step() {
 
 	this.MAdd(m, this.dt, torque)
 	this.Normalize(m)
+	this.time += float64(this.dt)
 }
 
 func (this *AdaptiveEuler) String() string {

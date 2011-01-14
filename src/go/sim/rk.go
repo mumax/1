@@ -42,8 +42,8 @@ type RK struct {
 	*Sim
 
 	stages         int
-	fsal           bool // First Same as Last?
-	fsal_initiated bool
+	fsal           bool    // First Same as Last?
+	fsal_initiated bool    // 
 	errororder     float64 // the order of the less acurate solution used for the error estimate
 
 	a  [][]float32
@@ -215,7 +215,8 @@ func (rk *RK) init(sim *Sim, order int) {
 
 	rk.stages = order
 	rk.Sim = sim
-
+	rk.Backend = sim.Backend // TODO: The pointers to backend are starting to get messy and ambiguous. Perhaps make it static? 
+	rk.Reductor.InitMaxAbs(rk.Sim.Backend, prod(rk.size4D[0:]))
 	rk.a = make([][]float32, order)
 	for i := range rk.a {
 		rk.a[i] = make([]float32, order)
@@ -240,7 +241,6 @@ func (rk *RK) init(sim *Sim, order int) {
 
 func (rk *RK) initAdaptive(errororder float64) {
 	rk.b2 = make([]float32, rk.stages)
-	rk.Reductor.InitMaxAbs(rk.Sim.Backend, prod(rk.size4D[0:]))
 	rk.errororder = errororder
 }
 
@@ -276,37 +276,63 @@ func (rk *RK) Step() {
 	order := rk.stages
 	k := rk.k
 	time0 := rk.time
-	h := rk.dt
 	c := rk.c
 	m := rk.mDev
 	m1 := rk.m0
 	a := rk.a
 
-	if rk.dt == 0. {
-		rk.dt = 1e-5 // program units, should really be small enough
-		rk.Println("Using default initial dt: ", rk.dt)
-	}
+	//	if rk.dt == 0. {
+	//		rk.dt = 1e-5 // program units, should really be small enough
+	//		rk.Println("Using default initial dt: ", rk.dt)
+	//	}
 
 	for i := 0; i < order; i++ {
 
 		//FSAL
 		if rk.fsal && i == 0 && rk.fsal_initiated {
+			//FSAL: First step of this stage
+			//is the same as the last step of the previous stage.
 			TensorCopyOn(k[order-1], k[0])
-			continue
-		}
+		} else {
 
-		rk.time = time0 + float64(c[i]*h)
-		TensorCopyOn(m, m1)
-		for j := 0; j < order; j++ {
-			if a[i][j] != 0. {
-				rk.MAdd(m1, h*a[i][j], k[j])
+			rk.time = time0 + float64(c[i]*rk.dt)
+			TensorCopyOn(m, m1)
+			for j := 0; j < order; j++ {
+				if a[i][j] != 0. {
+					rk.MAdd(m1, rk.dt*a[i][j], k[j])
+				}
+			}
+
+			rk.calcHeff(m1, k[i])
+			rk.Torque(m1, k[i])
+			rk.fsal_initiated = true
+
+			// After having calculated the first torque (k[0]),
+			// dt has not actually been used yet. This is the
+			// last chance to estimate whether the time step is too large
+			// and possibly reduce it
+			if i == 0 && (rk.minDm != 0. || rk.maxDm != 0.) {
+				if rk.b2 == nil { // means no step control based on error estimate
+					rk.dt = rk.targetDt
+				}
+				assert(c[i] == 0)
+				maxTorque := rk.Reduce(k[0])
+				dm := rk.dt * maxTorque
+				if dm < rk.minDm {
+					rk.dt = rk.minDm / maxTorque
+				}
+				// maxDm has priority over minDm (better safe than sorry)
+				if dm > rk.maxDm {
+					rk.dt = rk.maxDm / maxTorque
+				}
+				checkdt(rk.dt)
+
 			}
 		}
-
-		rk.calcHeff(m1, k[i])
-		rk.Torque(m1, k[i])
-		rk.fsal_initiated = true
 	}
+
+	rk.time = time0 + float64(rk.dt) // THIS IS THE DT OF THIS LAST STEP
+	// IT WILL NOW BE UDPATED FOR THE NEXT STEP
 
 	//Lowest-order solution for error estimate, if applicable
 	//from now, m1 = lower-order solution
@@ -314,22 +340,24 @@ func (rk *RK) Step() {
 		TensorCopyOn(m, m1)
 		for i := range k {
 			if rk.b2[i] != 0. {
-				rk.MAdd(m1, rk.b2[i]*h, k[i])
+				rk.MAdd(m1, rk.b2[i]*rk.dt, k[i])
 			}
 		}
 	}
 
 	//Highest-order solution (m)
 	//TODO: not 100% efficient, too many adds
+	//	fmt.Println("m", m)
 	for i := range k {
+		//	fmt.Println("k ", i, " ", k[i])
 		if rk.b[i] != 0. {
-			rk.MAdd(m, rk.b[i]*h, k[i])
+			rk.MAdd(m, rk.b[i]*rk.dt, k[i])
 		}
 	}
 
-	//calculate error if applicable
+	//calculate error and adapt step size if applicable
 	if rk.b2 != nil {
-		rk.MAdd(m1, -1, m) // make difference between high- and low-order solution
+		rk.MAdd(m1, -1, m) // make difference between high- and low-order solution TODO: should be difference between k's
 		error := rk.Reduce(m1)
 		rk.stepError = error
 
@@ -348,14 +376,20 @@ func (rk *RK) Step() {
 		}
 
 		rk.dt = rk.dt * factor
+		checkdt(rk.dt)
 	}
-
 	//todo: undo bad steps
 
-	rk.time = time0 // will be incremented by simrun.go
+	//rk.time = time0 // will be incremented by simrun.go
 	rk.Normalize(m)
 }
 
+// debug
+func checkdt(dt float32) {
+	if math.IsNaN(float64(dt)) {
+		panic("dt = NaN")
+	}
+}
 
 func (rk *RK) String() (str string) {
 	defer func() { recover(); return }()

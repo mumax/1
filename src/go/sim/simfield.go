@@ -22,7 +22,7 @@ import (
 // Apply a static field defined in Tesla
 func (s *Sim) StaticField(hz, hy, hx float32) {
 	s.AppliedField = &staticField{[3]float32{hx, hy, hz}} // pass it on in tesla so that it stays independent of other problem parameters
-	s.Println("Applied field: static, (", hx, ", ", hy, ", ", hz, ") T")
+	s.Println("Applied field: static, (", hz, ", ", hy, ", ", hx, ") T")
 }
 
 type staticField struct {
@@ -143,14 +143,20 @@ func (s *Sim) calcHeff(m, h *DevTensor) {
 
 	// (2) Add the externally applied field
 
-	hComp := h.comp
+	//hComp := h.comp
 
 	if s.AppliedField != nil {
 		s.hextSI = s.GetAppliedField(s.time * float64(s.UnitTime()))
-		for i := range hComp {
-			s.AddConstant(hComp[i], s.hextSI[i]/s.UnitField())
-		}
+	} else {
+		s.hextSI = [3]float32{0., 0., 0.}
 	}
+
+	B := s.UnitField()
+	s.hextInt[0] = s.hextSI[0] / B
+	s.hextInt[1] = s.hextSI[1] / B
+	s.hextInt[2] = s.hextSI[2] / B
+
+	s.AddLocalFields(m, h, s.hextInt, s.anisType, s.anisK, s.anisAxes)
 
 	// (3) Add the edge-correction field
 	if s.edgeCorr != 0 {

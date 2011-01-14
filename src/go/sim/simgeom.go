@@ -9,7 +9,7 @@ package sim
 import (
 	"tensor"
 	"os"
-	"fmt"
+	//"fmt"
 	"math"
 )
 
@@ -49,9 +49,9 @@ func (s *Sim) CellSize(z, y, x float32) {
 	s.input.cellSize[X] = x
 	s.input.cellSize[Y] = y
 	s.input.cellSize[Z] = z
-	s.metadata["cellsize0"] = fmt.Sprint(x)
-	s.metadata["cellsize1"] = fmt.Sprint(y)
-	s.metadata["cellsize2"] = fmt.Sprint(z)
+//	s.metadata["cellsize0"] = fmt.Sprint(x)
+//	s.metadata["cellsize1"] = fmt.Sprint(y)
+//	s.metadata["cellsize2"] = fmt.Sprint(z)
 	s.input.cellSizeSet = true
 	s.updateSizes()
 	s.invalidate()
@@ -65,9 +65,9 @@ func (s *Sim) PartSize(z, y, x float32) {
 	s.input.partSize[X] = x
 	s.input.partSize[Y] = y
 	s.input.partSize[Z] = z
-	s.metadata["partsize0"] = fmt.Sprint(x)
-	s.metadata["partsize1"] = fmt.Sprint(y)
-	s.metadata["partsize2"] = fmt.Sprint(z)
+//	s.metadata["partsize0"] = fmt.Sprint(x)
+//	s.metadata["partsize1"] = fmt.Sprint(y)
+//	s.metadata["partsize2"] = fmt.Sprint(z)
 	s.input.partSizeSet = true
 	s.updateSizes()
 	s.invalidate()
@@ -139,12 +139,24 @@ func (sim *Sim) LoadMSat(file string) {
 	sim.invalidate()
 }
 
+var INF32 float32 = float32(math.Inf(1))
+
 // Sets up the normMap for a (possibly ellipsoidal) cylinder geometry along Z.
 // Does not take into account the aspect ratio of the cells.
 func (sim *Sim) Cylinder() {
 	sim.initSize()
-	sim.geom = &Ellipsoid{float32(math.Inf(1)), sim.input.partSize[Y] / 2., sim.input.partSize[Z] / 2.}
+	sim.geom = &Ellipsoid{INF32, sim.input.partSize[Y] / 2., sim.input.partSize[Z] / 2.}
 	sim.invalidate()
+}
+
+func (sim *Sim) DotArray(r, sep float32, n int) {
+	pitch := 2*r + sep
+	sim.geom = &Array{&Ellipsoid{INF32, r, r}, n, n, pitch, pitch}
+}
+
+func (sim *Sim) SquareHoleArray(r, sep float32, n int) {
+	pitch := 2*r + sep
+	sim.geom = &Inverse{&Array{&Cuboid{INF32, r, r}, n, n, pitch, pitch}}
 }
 
 

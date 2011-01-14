@@ -60,6 +60,11 @@ func (s *Sim) LookupKernel(size []int, cellsize []float32, accuracy int, periodi
 		s.storeKernel(kernel, kerndir)
 	}
 
+	assert(kernel != nil)
+	assert(len(kernel) == 6)
+	for _, ki := range kernel {
+		assert(ki != nil)
+	}
 	return
 }
 
@@ -138,5 +143,5 @@ func defaultWisdomDir() string {
 		fmt.Fprintln(os.Stdout, err)
 		return "" // don't use wisdom
 	}
-	return wd + "/kernelwisdom"
+	return wd + "/wisdom"
 }

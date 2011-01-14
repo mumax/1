@@ -35,4 +35,5 @@ func (this *Euler) Step() {
 
 	this.Add(m, deltaM)
 	this.Normalize(m)
+	this.time += float64(this.dt)
 }

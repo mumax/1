@@ -1,6 +1,6 @@
 # Micromagnetic standard problem 4
 
-metadata:  	description standard_problem_4
+desc:  	description standard_problem_4
 
 # material
 msat       	800E3   
@@ -14,12 +14,16 @@ partsize   	500E-9  125E-9  3E-9
 demagaccuracy	10
 
 # initial magnetization
-load    	s-state.tensor
+#loadm    	s-state.omf
+uniform	1 1 0
+alpha 2
+relax 1e-4
+alpha 0.02
+save m omf
 
 
 # run
-autosave	m	png	50E-12
-autosave  m omf 50E-12
+autosave  m omf 10E-12
 autosave	table	ascii	10E-12
 staticfield 	-24.6E-3     4.3E-3    0  # T
 run          	1E-9                      # s

@@ -6,9 +6,7 @@
 
 package sim
 
-import (
-	"fmt"
-)
+import ()
 
 
 type Reductor struct {
@@ -92,7 +90,11 @@ func (r *Reductor) init(b *Backend, N int) {
 	assert(b != nil)
 	r.Backend = b
 
-	r.threads = 128 //TODO use device default
+	r.threads = b.maxthreads() / 2 // does not work up to maxthreads
+	if r.threads == 0 {            // for cpu and 1 thread, this becomes 0
+		r.threads = 1
+	}
+
 	for N <= r.threads {
 		r.threads /= 2
 	}
@@ -115,23 +117,23 @@ func divUp(x, y int) int {
 // When there are only a few numbers left, it becomes more efficient
 // to reduce them on the CPU (we need a copy from the device anyway,
 // so why not copy a few numbers).
-func local_reduce(operation int, data []float32) float32 {
-	fmt.Println(data)
-	result := float32(0.)
-	switch operation {
-	default:
-		panic("bug")
-	case ADD:
-		for i := range data {
-			result += data[i]
-		}
-	case MAX:
-		result = data[0]
-		for i := range data {
-			if result < data[i] {
-				result = data[i]
-			}
-		}
-	}
-	return result
-}
+// func local_reduce(operation int, data []float32) float32 {
+// 	fmt.Println(data)
+// 	result := float32(0.)
+// 	switch operation {
+// 	default:
+// 		panic("bug")
+// 	case ADD:
+// 		for i := range data {
+// 			result += data[i]
+// 		}
+// 	case MAX:
+// 		result = data[0]
+// 		for i := range data {
+// 			if result < data[i] {
+// 				result = data[i]
+// 			}
+// 		}
+// 	}
+// 	return result
+// }

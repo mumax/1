@@ -9,6 +9,7 @@ package sim
 import (
 	"tensor"
 	"unsafe"
+	//"fmt"
 )
 
 /**
@@ -100,7 +101,11 @@ func (dev *Backend) Add(a, b *DevTensor) {
 // a[i] += cnst * b[i]
 func (dev *Backend) MAdd(a *DevTensor, cnst float32, b *DevTensor) {
 	assert(tensor.EqualSize(a.size, b.size))
-	dev.madd(a.data, cnst, b.data, tensor.Prod(a.Size()))
+	//fmt.Println("madd ", a, b)
+	//adata := a.data
+	//bdata := b.data
+	//asize :=  tensor.Prod(a.Size())
+	dev.madd(a.data, cnst, b.data, a.length)
 }
 
 // a[i] += b[i] * c[i]
@@ -135,6 +140,12 @@ func (dev *Backend) AddConstant(a *DevTensor, cnst float32) {
 // 	dev.normalize(m.data, N)
 // }
 
+func (dev *Backend) AddLocalFields(m, h *DevTensor, hext []float32, anisType int, anisK, anisAxes []float32) {
+	assert(m.length == h.length)
+	assert(len(m.size) == 4)
+	//fmt.Printf("hext:%v, anistype:%v, anisK:%v, anisAxes:%v\n", hext, anisType, anisK, anisAxes)
+	dev.addLocalFields(m.data, h.data, hext, anisType, anisK, anisAxes, m.length/3)
+}
 
 
 func (b Backend) OverrideStride(stride int) {

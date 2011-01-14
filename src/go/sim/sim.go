@@ -22,6 +22,9 @@ const (
 	DEFAULT_MAXERROR          = 1e-5
 	DEFAULT_DEMAG_ACCURACY    = 8
 	DEFAULT_SPIN_POLARIZATION = 1
+	DEFAULT_EXCH_TYPE         = 6
+	DEFAULT_MIN_DM            = 0
+	DEFAULT_DT_INTERNAL       = 1e-5
 )
 
 // Sim has an "input" member of type "Input".
@@ -80,17 +83,23 @@ type Sim struct {
 
 	Conv             // Convolution plan for the magnetostatic field
 	wisdomdir string // Absolute path of the kernel wisdom root directory
+	exchType  int    // exchange scheme: 6 or 26 neighbors
 
 	Material // Stores material parameters and manages the internal units
 	Mesh     // Stores the size of the simulation grid
 
 	AppliedField            // returns the externally applied in function of time
 	hextSI       [3]float32 // stores the externally applied field returned by AppliedField, in SI UNITS
+	hextInt      []float32  // stores the externally applied field in internal units
 
+	relaxer   *Relax
 	Solver            // Does the time stepping, can be euler, heun, ...
 	time      float64 // The total time (internal units)
 	dt        float32 // The time step (internal units). May be updated by adaptive-step solvers
+	torque    float32 // Buffer for the maximum torque. May or may not be updated by solvers. Used for output.
 	maxDm     float32 // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
+	minDm     float32 // The minimum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
+	targetDt  float32 // Preferred time step for fixed dt solvers. May be overriden when delta m would violate minDm, maxDm
 	maxError  float32 // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
 	stepError float32 // The actual error estimate of the last step. Not all solvers update this value.
 	steps     int     // The total number of steps taken so far
@@ -106,7 +115,7 @@ type Sim struct {
 	silent    bool              // Do not print anything to os.Stdout when silent == true, only to log file
 	outputdir string            // Where to save output files.
 	out       *os.File          // Output log file
-	metadata  map[string]string // Metadata to be added to headers of saved tensors
+	desc  map[string]interface{} // Metadata to be added to headers of saved tensors
 	starttime int64             // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
 
 	// Geometry
@@ -124,6 +133,11 @@ type Sim struct {
 
 	LastrunStepsPerSecond   float64
 	LastrunSimtimePerSecond float64
+
+	//Anisotropy
+	anisType int // TODO: move to input!!
+	anisK    []float32
+	anisAxes []float32
 }
 
 
@@ -135,7 +149,7 @@ func New(outputdir string, backend *Backend) *Sim {
 func NewSim(outputdir string, backend *Backend) *Sim {
 	sim := new(Sim)
 	sim.Backend = backend
-	sim.Backend.init()
+	sim.Backend.init(*threads, parseDeviceOptions()) //TODO: should not use global variable threads here
 	sim.starttime = time.Seconds()
 	sim.outschedule = make([]Output, 50)[0:0]
 	sim.mUpToDate = false
@@ -143,6 +157,8 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
 	sim.input.solvertype = DEFAULT_SOLVERTYPE
 	sim.maxError = DEFAULT_MAXERROR
+	sim.minDm = DEFAULT_MIN_DM
+	sim.exchType = DEFAULT_EXCH_TYPE
 	// We run the simulation with working directory = directory of input file
 	// This is neccesary, e.g., when a sim deamon is run from a directory other
 	// than the directory of the input file and files with relative paths are
@@ -151,12 +167,30 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	fmt.Println("chdir ", workdir)
 	os.Chdir(workdir)
 	sim.outputDir(Filename(outputdir))
-	sim.metadata = make(map[string]string)
+	sim.desc = make(map[string]interface{})
+	sim.hextInt = make([]float32, 3)
 	sim.initWriters()
+	sim.anisK = []float32{0.} // even when not used these must be allocated
+	sim.anisAxes = []float32{0.}
 	sim.invalidate() //just to make sure we will init()
 	return sim
+
 }
 
+
+const (
+	FFTW_PATIENT_FLAG = 1 << iota
+)
+
+// makes the device options flag based on the CLI flags
+// this flag is the bitwise OR of flags like FFTW_PATIENT, ...
+func parseDeviceOptions() int {
+	flags := 0
+	if *patient {
+		flags |= FFTW_PATIENT_FLAG
+	}
+	return flags
+}
 
 // When a parmeter is changed, the simulation state is invalidated until it gets (re-)initialized by init().
 func (s *Sim) invalidate() {
@@ -299,13 +333,27 @@ func (s *Sim) initConv() {
 	s.Println("Calculating kernel (may take a moment)") // --- In fact, it takes 3 moments, one in each direction.
 	// lookupKernel first searches the wisdom directory and only calculates the kernel when it's not cached yet.
 	demag := s.LookupKernel(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy, s.periodic[:])
-	exch := Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
+
+	//	fmt.Println(demag)
+
+	var exch []*tensor.T3
+	switch s.exchType {
+	default:
+		panic(InputErr("Illegal exchange type: " + fmt.Sprint(s.exchType) + ". Options are: 6, 26"))
+	case 6:
+		exch = Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
+	case 26:
+		exch = Exch26NgbrKernel(s.paddedsize, s.cellSize[0:])
+	}
+
 	// Add Exchange kernel to demag kernel
 	for i := range demag {
-		D := demag[i].List()
-		E := exch[i].List()
-		for j := range D {
-			D[j] += E[j]
+		if demag[i] != nil { // Unused components are nil
+			D := demag[i].List()
+			E := exch[i].List()
+			for j := range D {
+				D[j] += E[j]
+			}
 		}
 	}
 	s.Conv = *NewConv(s.Backend, s.size[0:], demag)
@@ -314,7 +362,14 @@ func (s *Sim) initConv() {
 
 func (s *Sim) initSolver() {
 	s.Println("Initializing solver: ", s.input.solvertype)
-	s.dt = s.input.dt / s.UnitTime()
+	// init dt
+	s.targetDt = s.input.dt / s.UnitTime()
+	if s.targetDt != 0. {
+		s.dt = s.targetDt
+	} else {
+		s.dt = DEFAULT_DT_INTERNAL
+		s.Println("Using defautl initial dt: ", s.dt*s.UnitTime(), " s")
+	}
 	s.Solver = NewSolver(s.input.solvertype, s)
 	//s.Println(s.Solver.String())
 }

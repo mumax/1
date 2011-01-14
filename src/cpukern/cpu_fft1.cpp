@@ -9,6 +9,7 @@
 extern "C" {
 #endif
 
+extern int fftw_strategy;
 
 /**
  * @internal 
@@ -31,28 +32,28 @@ void init_cpu_plans(cpuFFT3dPlan *plan){
   
   plans->FFT_FW_dim3 =
     fftwf_plan_many_dft_r2c (1, &FFTdimz1, dimy, array, NULL, 1, FFTdimz2,
-      carray, NULL, 1, FFTdimz2/2, FFTW_ESTIMATE);
+      carray, NULL, 1, FFTdimz2/2, fftw_strategy);
 
   plans->FFT_FW_dim2 =
     fftwf_plan_many_dft (1, &FFTdimy, FFTdimz2/2, carray, NULL, FFTdimz2/2, 1,
-      carray, NULL, FFTdimz2/2, 1, 1, FFTW_ESTIMATE);
+      carray, NULL, FFTdimz2/2, 1, 1, fftw_strategy);
 
   if (FFTdimx>1){
     plans->FFT_FW_dim1 =
       fftwf_plan_many_dft (1, &FFTdimx, FFTdimyz/2, carray, NULL, FFTdimyz/2, 1,
-        carray, NULL, FFTdimyz/2, 1, 1, FFTW_ESTIMATE);
+        carray, NULL, FFTdimyz/2, 1, 1, fftw_strategy);
     plans->FFT_BW_dim1 =
       fftwf_plan_many_dft (1, &FFTdimx, FFTdimyz/2, carray, NULL, FFTdimyz/2, 1,
-        carray, NULL, FFTdimyz/2, 1, -1, FFTW_ESTIMATE);
+        carray, NULL, FFTdimyz/2, 1, -1, fftw_strategy);
   }
 
   plans->FFT_BW_dim2 =
     fftwf_plan_many_dft (1, &FFTdimy, FFTdimz2/2, carray, NULL, FFTdimz2/2, 1,
-      carray, NULL, FFTdimz2/2, 1, -1, FFTW_ESTIMATE);
+      carray, NULL, FFTdimz2/2, 1, -1, fftw_strategy);
 
   plans->FFT_BW_dim3 =
     fftwf_plan_many_dft_c2r (1, &FFTdimz1, dimy, carray, NULL, 1, FFTdimz2/2,
-      array, NULL, 1, FFTdimz2, FFTW_ESTIMATE);
+      array, NULL, 1, FFTdimz2, fftw_strategy);
       
   free (array);
 

@@ -41,11 +41,63 @@ func Exch6NgbrKernel(size []int, cellsize []float32) []*tensor.T3 {
 		for dir := X; dir <= Z; dir++ {
 			for side := -1; side <= 1; side += 2 {
 				index := make([]int, 3)
-				i = KernIdx[s][s]
 				index[dir] = wrap(side, size[dir])
 				k[i].Array()[index[X]][index[Y]][index[Z]] = 1. / (cellsize[dir] * cellsize[dir])
 			}
 		}
 	}
+	return k
+}
+
+
+func Exch26NgbrKernel(size []int, cellsize []float32) []*tensor.T3 {
+	k := make([]*tensor.T3, 6)
+	for i := range k {
+		k[i] = tensor.NewT3(size)
+	}
+
+	hx := 18. * cellsize[X] * cellsize[X]
+	hy := 18. * cellsize[Y] * cellsize[Y]
+	hz := 18. * cellsize[Z] * cellsize[Z]
+
+	for s := 0; s < 3; s++ { // source index Ksdxyz
+		i := KernIdx[s][s]
+		arr := k[i].Array()
+
+		arr[wrap(0, size[X])][wrap(0, size[Y])][wrap(0, size[Z])] = -32./hx - 32./hy - 32./hz
+
+		arr[wrap(1, size[X])][wrap(0, size[Y])][wrap(0, size[Z])] = 16./hx - 8./hy - 8./hz
+		arr[wrap(-1, size[X])][wrap(0, size[Y])][wrap(0, size[Z])] = 16./hx - 8./hy - 8./hz
+		arr[wrap(0, size[X])][wrap(1, size[Y])][wrap(0, size[Z])] = -8./hx + 16./hy - 8./hz
+		arr[wrap(0, size[X])][wrap(-1, size[Y])][wrap(0, size[Z])] = -8./hx + 16./hy - 8./hz
+		arr[wrap(0, size[X])][wrap(0, size[Y])][wrap(1, size[Z])] = -8./hx - 8./hy + 16./hz
+		arr[wrap(0, size[X])][wrap(0, size[Y])][wrap(-1, size[Z])] = -8./hx - 8./hy + 16./hz
+
+		arr[wrap(1, size[X])][wrap(1, size[Y])][wrap(0, size[Z])] = 4./hx + 4./hy - 2./hz
+		arr[wrap(1, size[X])][wrap(-1, size[Y])][wrap(0, size[Z])] = 4./hx + 4./hy - 2./hz
+		arr[wrap(-1, size[X])][wrap(1, size[Y])][wrap(0, size[Z])] = 4./hx + 4./hy - 2./hz
+		arr[wrap(-1, size[X])][wrap(-1, size[Y])][wrap(0, size[Z])] = 4./hx + 4./hy - 2./hz
+
+		arr[wrap(1, size[X])][wrap(0, size[Y])][wrap(1, size[Z])] = 4./hx - 2./hy + 4./hz
+		arr[wrap(1, size[X])][wrap(0, size[Y])][wrap(-1, size[Z])] = 4./hx - 2./hy + 4./hz
+		arr[wrap(-1, size[X])][wrap(0, size[Y])][wrap(1, size[Z])] = 4./hx - 2./hy + 4./hz
+		arr[wrap(-1, size[X])][wrap(0, size[Y])][wrap(-1, size[Z])] = 4./hx - 2./hy + 4./hz
+
+		arr[wrap(0, size[X])][wrap(1, size[Y])][wrap(1, size[Z])] = -2./hx + 4./hy + 4./hz
+		arr[wrap(0, size[X])][wrap(1, size[Y])][wrap(-1, size[Z])] = -2./hx + 4./hy + 4./hz
+		arr[wrap(0, size[X])][wrap(-1, size[Y])][wrap(1, size[Z])] = -2./hx + 4./hy + 4./hz
+		arr[wrap(0, size[X])][wrap(-1, size[Y])][wrap(-1, size[Z])] = -2./hx + 4./hy + 4./hz
+
+		arr[wrap(1, size[X])][wrap(1, size[Y])][wrap(1, size[Z])] = 1./hx + 1./hy + 1./hz
+		arr[wrap(1, size[X])][wrap(1, size[Y])][wrap(-1, size[Z])] = 1./hx + 1./hy + 1./hz
+		arr[wrap(1, size[X])][wrap(-1, size[Y])][wrap(1, size[Z])] = 1./hx + 1./hy + 1./hz
+		arr[wrap(1, size[X])][wrap(-1, size[Y])][wrap(-1, size[Z])] = 1./hx + 1./hy + 1./hz
+		arr[wrap(-1, size[X])][wrap(1, size[Y])][wrap(1, size[Z])] = 1./hx + 1./hy + 1./hz
+		arr[wrap(-1, size[X])][wrap(1, size[Y])][wrap(-1, size[Z])] = 1./hx + 1./hy + 1./hz
+		arr[wrap(-1, size[X])][wrap(-1, size[Y])][wrap(1, size[Z])] = 1./hx + 1./hy + 1./hz
+		arr[wrap(-1, size[X])][wrap(-1, size[Y])][wrap(-1, size[Z])] = 1./hx + 1./hy + 1./hz
+
+	}
+
 	return k
 }

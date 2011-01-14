@@ -39,7 +39,21 @@ import ()
  * Backend thanks to embedding.
  */
 type Device interface {
-	init()
+
+	// Returns the maximum number of threads on this device
+	// CPU will return the number of processors,
+	// GPU will return the maximum number of threads per block
+	// init() does not need to be called before this function,
+	// but may rather use it.
+	maxthreads() int
+
+	// Initiate the device.
+	// threads sets the number of threads:
+	// this is the number of hardware threads for CPU
+	// or the number of threads per block for GPU
+	// Options is currently not used but here to allow
+	// additional fine-tuning in the future.
+	init(threads, options int)
 
 	// selects a device when more than one is present
 	// (typically used for multiple GPU's, not useful for CPU)
@@ -97,6 +111,8 @@ type Device interface {
 	// u = current density / (2*cell size)
 	// here be dragons
 	spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, dtGilb float32, size []int)
+
+	addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int)
 
 	// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
 	// TODO: get rid of? decide the stride by yourself instead of globally storing it?

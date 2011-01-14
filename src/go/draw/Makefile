@@ -5,6 +5,7 @@ TARG=draw
 
 GOFILES=\
 	draw.go\
+	draw3d.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 
