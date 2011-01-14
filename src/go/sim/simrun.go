@@ -121,5 +121,7 @@ func (s *Sim) assureOutputUpToDate() {
 	}
 	s.desc["time"] = s.time * float64(s.UnitTime())
 	s.desc["Bx"] = s.hextSI[Z]
-
+	s.desc["By"] = s.hextSI[Y]
+	s.desc["Bz"] = s.hextSI[X]
+	s.desc["torque"] = s.torque
 }

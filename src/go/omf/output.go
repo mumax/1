@@ -183,5 +183,6 @@ func floats2bytes(floats []float32) []byte {
 // Writes a header key/value pair to out:
 // # Key: Value
 func hdr(out io.Writer, key string, value ...interface{}) {
-	fmt.Fprintln(out, "# ", key, ": ", value)
+	fmt.Fprint(out, "# ", key, ": ")
+	fmt.Fprintln(out, value...)
 }
