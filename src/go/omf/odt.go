@@ -71,7 +71,7 @@ func (t *TabWriter) Print(v ...interface{}) {
 
 
 func (t *TabWriter) Close() {
-	fmt.Fprintln(t.tabout, "# TabWriter End")
+	fmt.Fprintln(t.tabout, "# Table End")
 	t.tabout.Flush()
 	t.bufout.Flush()
 	if closer := t.out.(io.Closer); closer != nil {
