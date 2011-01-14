@@ -11,6 +11,7 @@ import (
 	"tensor"
 	"time"
 	"fmt"
+	"omf"
 	"os"
 	"rand"
 	"bufio"
@@ -106,17 +107,18 @@ type Sim struct {
 
 	outschedule []Output // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
 	autosaveIdx int      // Unique identifier of output state. Updated each time output is saved.
+	tabwriter	*omf.TabWriter // Writes the odt data table. Is defined here so the sim can close it.
 	devsum      Reductor // Reduces mx, my, mz (SUM) on the device, used to output the avarage magnetization
 	devmaxabs   Reductor // Reduces the torque (maxabs) on the device, used to output max dm/dt
 	devmin      Reductor
 	devmax      Reductor
 	//  preciseStep  bool              // Should we cut the time step to save the output at the precise moment specified?
 
-	silent    bool              // Do not print anything to os.Stdout when silent == true, only to log file
-	outputdir string            // Where to save output files.
-	out       *os.File          // Output log file
-	desc  map[string]interface{} // Metadata to be added to headers of saved tensors
-	starttime int64             // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
+	silent    bool                   // Do not print anything to os.Stdout when silent == true, only to log file
+	outputdir string                 // Where to save output files.
+	out       *os.File               // Output log file
+	desc      map[string]interface{} // Metadata to be added to headers of saved tensors
+	starttime int64                  // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
 
 	// Geometry
 	periodic  [3]int       // Periodic boundary conditions? 0=no, >0=yes
@@ -174,7 +176,6 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.anisAxes = []float32{0.}
 	sim.invalidate() //just to make sure we will init()
 	return sim
-
 }
 
 
@@ -449,4 +450,14 @@ func (sim *Sim) SaveBenchmark(filename string) {
 	}
 	fmt.Fprint(out2, sim.size[Z], "\t", sim.size[Y], "\t", sim.size[X], "\t", sim.size[X]*sim.size[Y]*sim.size[Z], "\t")
 	fmt.Fprintln(out2, sim.LastrunStepsPerSecond, "\t", sim.LastrunSimtimePerSecond, "\t# ", sim.input.solvertype, "\t", sim.Backend.String())
+}
+
+
+// Closes open output streams before terminating
+// TODO: rename running to finished should be done here
+func (sim *Sim) Close(){
+	sim.out.Close()
+	if sim.tabwriter != nil{
+		sim.tabwriter.Close()
+	}
 }

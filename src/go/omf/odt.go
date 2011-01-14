@@ -9,7 +9,7 @@ package omf
 
 // This file implements output in OOMMF's .odt table format
 // example:
-// table := omf.NewTable(io_writer)
+// table := omf.NewTabWriter(io_writer)
 // table.AddColumn("Mx", "A/m")
 // table.Print(0.95)
 // table.Close()
@@ -23,7 +23,7 @@ import (
 )
 
 
-type Table struct {
+type TabWriter struct {
 	out       io.Writer
 	bufout    *bufio.Writer
 	tabout    *tabwriter.Writer
@@ -36,8 +36,8 @@ type Table struct {
 }
 
 
-func NewTable(out io.Writer) *Table {
-	t := new(Table)
+func NewTabWriter(out io.Writer) *TabWriter {
+	t := new(TabWriter)
 	t.out = out
 	t.bufout = bufio.NewWriter(t.out)
 	t.columns = []string{}
@@ -46,16 +46,16 @@ func NewTable(out io.Writer) *Table {
 }
 
 
-func (t *Table) AddColumn(colname, unit string) {
+func (t *TabWriter) AddColumn(colname, unit string) {
 	if t.initiated {
-		panic("Can not add column when omf.Table is already open")
+		panic("Can not add column when omf.TabWriter is already open")
 	}
 	t.columns = append(t.columns, colname)
 	t.units = append(t.units, unit)
 }
 
 
-func (t *Table) Print(v ...interface{}) {
+func (t *TabWriter) Print(v ...interface{}) {
 	if !t.initiated {
 		t.open()
 	}
@@ -70,8 +70,8 @@ func (t *Table) Print(v ...interface{}) {
 }
 
 
-func (t *Table) Close() {
-	fmt.Fprintln(t.tabout, "# Table End")
+func (t *TabWriter) Close() {
+	fmt.Fprintln(t.tabout, "# TabWriter End")
 	t.tabout.Flush()
 	t.bufout.Flush()
 	if closer := t.out.(io.Closer); closer != nil {
@@ -81,11 +81,11 @@ func (t *Table) Close() {
 
 const COL_WIDTH = 20
 
-func (t *Table) open() {
+func (t *TabWriter) open() {
 	t.tabout = tabwriter.NewWriter(t.bufout, COL_WIDTH, 4, 0, ' ', 0)
 	out := t.tabout
 	fmt.Fprintln(out, "# ODT 1.0")
-	fmt.Fprintln(out, "# Table Start")
+	fmt.Fprintln(out, "# TabWriter Start")
 	fmt.Fprintln(out, "# Title: ", t.Title)
 
 	fmt.Fprint(out, "# Units:")

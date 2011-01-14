@@ -17,7 +17,6 @@ import (
 	"fmt"
 	"tensor"
 	"os"
-	"tabwriter"
 	"draw"
 	"iotool"
 	"omf"
@@ -99,26 +98,26 @@ func resolve(what, format string) Output {
 		switch format {
 		default:
 			panic("unknown format " + format + ". options are: binary, ascii, png")
-//		case "binary":
-//			return &MBinary{&Periodic{0., 0.}}
-//		case "ascii":
-//			return &MAscii{&Periodic{0., 0.}}
+			//		case "binary":
+			//			return &MBinary{&Periodic{0., 0.}}
+			//		case "ascii":
+			//			return &MAscii{&Periodic{0., 0.}}
 		case "png":
 			return &MPng{&Periodic{0., 0.}}
 		case "omf":
 			return &MOmf{&Periodic{0., 0.}}
 		}
-//	case "torque":
-//		switch format {
-//		default:
-//			panic("unknown format " + format + ". options are: binary, ascii, png")
-//		case "binary":
-//			return &TorqueBinary{&Periodic{0., 0.}}
-//		}
+		//	case "torque":
+		//		switch format {
+		//		default:
+		//			panic("unknown format " + format + ". options are: binary, ascii, png")
+		//		case "binary":
+		//			return &TorqueBinary{&Periodic{0., 0.}}
+		//		}
 
 	case "table":
 		//format gets ignored for now
-		return &Table{&Periodic{0., 0.}, nil}
+		return &Table{&Periodic{0., 0.}}
 	}
 
 	panic("bug")
@@ -158,30 +157,22 @@ const FILENAME_FORMAT = "%08d"
 
 type Table struct {
 	*Periodic
-	out *tabwriter.Writer
 }
 
-// table output settings
-const (
-	TABLE_HEADER = "# time (s)\t mx\t my\t mz\t Bx(T)\t By(T)\t Bz(T)\tmaxTorqueX\tmaxTorqueY\tmaxTorqueZ\tminMz\tmaxMz\tdt(s)\terror\tid"
-	COL_WIDTH    = 15
-)
-
 func (t *Table) Save(s *Sim) {
-	if t.out == nil {
-		fname := s.outputdir + "/" + "datatable.txt"
-		out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT|os.O_TRUNC, 0666)
-		// todo: out is not closed
-		if err != nil {
-			panic(err)
-		}
-		t.out = tabwriter.NewWriter(out, COL_WIDTH, 4, 0, ' ', 0)
-		s.Println("Opened data table file")
-		fmt.Fprintln(t.out, TABLE_HEADER)
+	if s.tabwriter == nil {
+		fname := s.outputdir + "/" + "datatable.odt"
+		out := iotool.MustOpenWRONLY(fname)
+		s.tabwriter = omf.NewTabWriter(out)
+		s.tabwriter.AddColumn("Time", "s")
+		s.tabwriter.AddColumn("Mx/Ms", "")
+		s.tabwriter.AddColumn("My/Ms", "")
+		s.tabwriter.AddColumn("Mz/Ms", "")
+		s.tabwriter.AddColumn("Bx", "T")
+		s.tabwriter.AddColumn("By", "T")
+		s.tabwriter.AddColumn("Bz", "T")
+		s.tabwriter.AddColumn("Iteration", "")
 	}
-
-	//                                                                      IMPORTANT: this is one of the places where X,Y,Z get swapped
-	//                                                                      what is (X,Y,Z) internally becomes (Z,Y,X) for the user!
 
 	// calculate reduced quantities
 	m := [3]float32{}
@@ -191,18 +182,13 @@ func (t *Table) Save(s *Sim) {
 		m[i] = s.devsum.Reduce(s.mDev.comp[i]) / float32(N)
 		torque[i] = abs32(s.devmaxabs.Reduce(s.hDev.comp[i]) / s.dt)
 	}
-	minMz, maxMz := s.devmin.Reduce(s.mDev.comp[X]), s.devmax.Reduce(s.mDev.comp[X])
+	//minMz, maxMz := s.devmin.Reduce(s.mDev.comp[X]), s.devmax.Reduce(s.mDev.comp[X])
 
-	// 	B := s.UnitField()
-	fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float32(s.time)*s.UnitTime(), m[Z], m[Y], m[X])
-	fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", s.hextSI[Z], s.hextSI[Y], s.hextSI[X])
-	fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", torque[Z], torque[Y], torque[X])
-	fmt.Fprintf(t.out, "% .6e\t% .6e\t", minMz, maxMz)
-	fmt.Fprintf(t.out, "%.5g\t", s.dt*s.UnitTime())
-	fmt.Fprintf(t.out, "%.4g\t", s.stepError)
-	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
-	fmt.Fprintln(t.out)
-	t.out.Flush()
+	s.tabwriter.Print(float32(s.time) * s.UnitTime())
+	s.tabwriter.Print(m[Z], m[Y], m[X])
+	s.tabwriter.Print(s.hextSI[Z], s.hextSI[Y], s.hextSI[X])
+
+	s.tabwriter.Print(s.autosaveIdx)
 	t.sinceoutput = float32(s.time) * s.UnitTime()
 }
 

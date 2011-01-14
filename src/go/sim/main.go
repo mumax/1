@@ -106,7 +106,7 @@ func main_master() {
 		}
 
 		sim := NewSim(outfile, backend)
-		defer sim.out.Close()
+		defer sim.Close()
 		sim.PrintInfo()
 
 		sim.wisdomdir = *wisdir
