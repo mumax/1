@@ -171,7 +171,7 @@ func (t *Table) Save(s *Sim) {
 		s.tabwriter.AddColumn("Bx", "T")
 		s.tabwriter.AddColumn("By", "T")
 		s.tabwriter.AddColumn("Bz", "T")
-		s.tabwriter.AddColumn("Iteration", "")
+		s.tabwriter.AddColumn("id", "")
 	}
 
 	// calculate reduced quantities
