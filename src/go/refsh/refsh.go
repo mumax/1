@@ -39,12 +39,7 @@ func (r *Refsh) AddFunc(funcname string, function interface{}) {
 	if r.resolve(funcname) != nil {
 		panic("Aldready defined: " + funcname)
 	}
-
-	// 	r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
-	// 	r.funcnames[len(r.funcnames)-1] = funcname
 	r.funcnames = append(r.funcnames, funcname)
-	// 	r.funcs = r.funcs[0 : len(r.funcs)+1]
-	// 	r.funcs[len(r.funcs)-1] = (*FuncWrapper)(f.(*FuncValue))
 	r.funcs = append(r.funcs, (*FuncWrapper)(f.(*FuncValue)))
 }
 
@@ -67,15 +62,9 @@ func (r *Refsh) AddMethod(funcname string, reciever interface{}, methodname stri
 	if f == nil {
 		panic("Method does not exist: " + methodname)
 	}
-
-	// 	r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
-	// 	r.funcnames[len(r.funcnames)-1] = funcname
 	r.funcnames = append(r.funcnames, funcname)
-	// 	r.funcs = r.funcs[0 : len(r.funcs)+1]
-
 	r.funcs = append(r.funcs, &MethodWrapper{NewValue(reciever), f})
 }
-
 
 // Adds all the public Methods of the reciever,
 // giving them a lower-case command name
@@ -172,11 +161,12 @@ func (refsh *Refsh) Call(fname string, argv []string) []interface{} {
 }
 
 type Refsh struct {
-	funcnames    []string
-	funcs        []Caller
-	CrashOnError bool
-	CallCount    int     //counts number of commands executed
-	Output       Printer //Used to print output, may be nil
+	funcnames    []string // known function or method names (we do not use a map to not exclude the possibility of overloading)
+	funcs        []Caller // functions/methods corresponding to funcnames
+	help         map[string]string // help strings corresponding to funcnames
+	CrashOnError bool     // crash the program on a syntax error or just report it (e.g. for interactive mode)
+	CallCount    int      //counts number of commands executed
+	Output       Printer  //Used to print output, may be nil
 }
 
 

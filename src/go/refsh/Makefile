@@ -11,6 +11,7 @@ GOFILES=\
 	readline.go\
 	flags.go\
 	flags2.go\
+	help.go\
 	
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 
