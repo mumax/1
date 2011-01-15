@@ -105,11 +105,11 @@ type Sim struct {
 	stepError float32 // The actual error estimate of the last step. Not all solvers update this value.
 	steps     int     // The total number of steps taken so far
 
-	outschedule []Output // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
-	autosaveIdx int      // Unique identifier of output state. Updated each time output is saved.
-	tabwriter	*omf.TabWriter // Writes the odt data table. Is defined here so the sim can close it.
-	devsum      Reductor // Reduces mx, my, mz (SUM) on the device, used to output the avarage magnetization
-	devmaxabs   Reductor // Reduces the torque (maxabs) on the device, used to output max dm/dt
+	outschedule []Output       // List of things to output. Used by simoutput.go. TODO make this a Vector, clean up
+	autosaveIdx int            // Unique identifier of output state. Updated each time output is saved.
+	tabwriter   *omf.TabWriter // Writes the odt data table. Is defined here so the sim can close it.
+	devsum      Reductor       // Reduces mx, my, mz (SUM) on the device, used to output the avarage magnetization
+	devmaxabs   Reductor       // Reduces the torque (maxabs) on the device, used to output max dm/dt
 	devmin      Reductor
 	devmax      Reductor
 	//  preciseStep  bool              // Should we cut the time step to save the output at the precise moment specified?
@@ -455,9 +455,9 @@ func (sim *Sim) SaveBenchmark(filename string) {
 
 // Closes open output streams before terminating
 // TODO: rename running to finished should be done here
-func (sim *Sim) Close(){
+func (sim *Sim) Close() {
 	sim.out.Close()
-	if sim.tabwriter != nil{
+	if sim.tabwriter != nil {
 		sim.tabwriter.Close()
 	}
 }

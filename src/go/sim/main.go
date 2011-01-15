@@ -22,8 +22,9 @@ import (
 // WARNING: most flags added here will need to be passed on to a deamon's child process
 // after adding a flag, edit daemon.go accordingly!
 var (
-	help      *bool   = flag.Bool("help", false, "Print a help message and exit.")
-	example   *string = flag.String("example", "", "Create an example input file. E.g.: -example=file.in")
+	help    *bool   = flag.Bool("help", false, "Print a help message and exit.")
+	example *string = flag.String("example", "", "Create an example input file. E.g.: -example=file.in")
+	stdin	  *bool	  = flag.Bool("stdin", false, "Read input from stdin instead of file. Specify a dummy input file name to determine the output directory name.")
 	silent    *bool   = flag.Bool("silent", false, "Do not show simulation output on the screen, only save to output.log")
 	daemon    *bool   = flag.Bool("daemon", false, "Watch directories for new input files and run them automatically.")
 	watch     *int    = flag.Int("watch", 60, "With -daemon, re-check for new input files every N seconds. -watch=0 disables watching, program exits when no new input files are left.")
@@ -85,10 +86,16 @@ func main_master() {
 	// Process all input files
 	for i := 0; i < flag.NArg(); i++ {
 		infile := flag.Arg(i)
-		in, err := os.Open(infile, os.O_RDONLY, 0666)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(-2)
+		var in *os.File
+		var err os.Error
+		if *stdin{
+			in = os.Stdin
+		} else {
+			in, err = os.Open(infile, os.O_RDONLY, 0666)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(-2)
+			}
 		}
 		defer in.Close()
 
