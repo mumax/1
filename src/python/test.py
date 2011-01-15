@@ -1,3 +1,5 @@
-import mumax
+from mumax import *
 
-mumax.do("hellow world")
+init("test.out")
+do("msat 800e3")
+
