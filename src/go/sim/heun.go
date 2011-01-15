@@ -44,6 +44,7 @@ func (s *Heun) Step() {
 	s.Add(m, t)
 
 	s.Normalize(m)
+	s.time += float64(s.dt)
 }
 
 

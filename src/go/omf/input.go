@@ -52,7 +52,7 @@ func Read(in_ io.Reader) (info *Info, data *tensor.T4) {
 }
 
 
-func Decode(in io.Reader) (t *tensor.T4, metadata map[string]string) {
+func Decode(in io.Reader) (t *tensor.T4, metadata map[string]interface{}) {
 	info, data := Read(in)
 	t = data
 	metadata = info.Desc
@@ -64,7 +64,7 @@ func Decode(in io.Reader) (t *tensor.T4, metadata map[string]string) {
 // TODO: add Err to return error status
 // Perhaps CheckErr() func
 type Info struct {
-	Desc            map[string]string
+	Desc            map[string]interface{}
 	Size            [3]int
 	ValueMultiplier float32
 	ValueUnit       string
@@ -160,7 +160,7 @@ func isHeaderEnd(str string) bool {
 
 // Parses the header part of the omf file
 func ReadHeader(in io.Reader) *Info {
-	desc := make(map[string]string)
+	desc := make(map[string]interface{})
 	info := new(Info)
 	info.Desc = desc
 

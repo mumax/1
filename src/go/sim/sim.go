@@ -92,9 +92,11 @@ type Sim struct {
 	hextSI       [3]float32 // stores the externally applied field returned by AppliedField, in SI UNITS
 	hextInt      []float32  // stores the externally applied field in internal units
 
+	relaxer   *Relax
 	Solver            // Does the time stepping, can be euler, heun, ...
 	time      float64 // The total time (internal units)
 	dt        float32 // The time step (internal units). May be updated by adaptive-step solvers
+	torque    float32 // Buffer for the maximum torque. May or may not be updated by solvers. Used for output.
 	maxDm     float32 // The maximum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
 	minDm     float32 // The minimum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
 	targetDt  float32 // Preferred time step for fixed dt solvers. May be overriden when delta m would violate minDm, maxDm
@@ -113,7 +115,7 @@ type Sim struct {
 	silent    bool              // Do not print anything to os.Stdout when silent == true, only to log file
 	outputdir string            // Where to save output files.
 	out       *os.File          // Output log file
-	metadata  map[string]string // Metadata to be added to headers of saved tensors
+	desc  map[string]interface{} // Metadata to be added to headers of saved tensors
 	starttime int64             // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
 
 	// Geometry
@@ -165,7 +167,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	fmt.Println("chdir ", workdir)
 	os.Chdir(workdir)
 	sim.outputDir(Filename(outputdir))
-	sim.metadata = make(map[string]string)
+	sim.desc = make(map[string]interface{})
 	sim.hextInt = make([]float32, 3)
 	sim.initWriters()
 	sim.anisK = []float32{0.} // even when not used these must be allocated

@@ -1,6 +1,6 @@
 # Micromagnetic standard problem 4
 
-metadata:  	description standard_problem_4
+desc:  	description standard_problem_4
 solvertype:	{solver}	
 dt		0.1e-12
 # material
@@ -15,7 +15,7 @@ partsize   	500E-9  125E-9  3E-9
 demagaccuracy	10
 
 # initial magnetization
-load 	s-state.tensor
+loadm 	s-state.omf
 
 # run
 autosave  table	ascii 10e-12

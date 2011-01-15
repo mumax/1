@@ -21,7 +21,7 @@ func main() {
 
 
 const WELCOME = `
-  MuMax 0.4.1534
+  MuMax 0.4.1747
   (c) Arne Vansteenkiste & Ben Van de Wiele,
       DyNaMat/EELAB UGent
   This version is meant for internal testing purposes only,

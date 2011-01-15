@@ -13,13 +13,22 @@ import (
 	"tensor"
 	"unsafe"
 	"strings"
+	"iotool"
 )
 
 const (
 	CONTROL_NUMBER = 1234567.0 // The omf format requires the first encoded number in the binary data section to be this control number
 )
 
-// TODO: select between text and binary
+// Like encode but accepts a file name 
+func FEncode(filename string, f File){
+	out := iotool.MustOpenWRONLY(filename)
+	defer out.Close()
+	Encode(out, f)
+}
+
+
+
 func Encode(out_ io.Writer, f File) {
 	out := bufio.NewWriter(out_)
 	defer out.Flush()
@@ -159,9 +168,9 @@ func writeDataBinary4(out io.Writer, tens tensor.Interface) {
 	hdr(out, "End", "Data "+format)
 }
 
-func writeDesc(out io.Writer, desc map[string]string) {
+func writeDesc(out io.Writer, desc map[string]interface{}) {
 	for k, v := range desc {
-		hdr(out, "Desc", k+": "+v)
+		hdr(out, "Desc", k,": ",v)
 	}
 }
 
@@ -173,6 +182,7 @@ func floats2bytes(floats []float32) []byte {
 
 // Writes a header key/value pair to out:
 // # Key: Value
-func hdr(out io.Writer, key string, value interface{}) {
-	fmt.Fprintf(out, "# %v: %v\n", key, value)
+func hdr(out io.Writer, key string, value ...interface{}) {
+	fmt.Fprint(out, "# ", key, ": ")
+	fmt.Fprintln(out, value...)
 }

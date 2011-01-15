@@ -59,9 +59,9 @@ func (s *Sim) InitMaterial() {
 		s.Warn("Damping parameter alpha =  ", s.alpha)
 	}
 
-	s.metadata["msat"] = fmt.Sprint(s.mSat)
-	s.metadata["aexch"] = fmt.Sprint(s.aExch)
-	s.metadata["alpha"] = fmt.Sprint(s.alpha)
+	s.desc["msat"] = fmt.Sprint(s.mSat)
+	s.desc["aexch"] = fmt.Sprint(s.aExch)
+	s.desc["alpha"] = fmt.Sprint(s.alpha)
 }
 
 

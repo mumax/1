@@ -22,6 +22,7 @@ GOFILES=\
 	rk.go\
 	semianal.go\
 	kernel.go\
+	relax.go\
 	demag.go\
 	exchange.go\
 	material.go\
@@ -56,6 +57,7 @@ GOFILES=\
 	wisdom.go\
 	help.go\
 	simdebug.go\
+	simhysteresis.go\
 
 CGO_CFLAGS+=-I../../../lib/fftw/include/ -I/usr/local/cuda/include/
 

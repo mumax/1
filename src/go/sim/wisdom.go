@@ -60,25 +60,27 @@ func (s *Sim) LookupKernel(size []int, cellsize []float32, accuracy int, periodi
 		s.storeKernel(kernel, kerndir)
 	}
 
-	assert(kernel != nil)
-	assert(len(kernel) == 6)
-	for _, ki := range kernel {
-		assert(ki != nil)
-	}
+//	assert(kernel != nil)
+//	assert(len(kernel) == 6)
+//	for _, ki := range kernel {
+//		assert(ki != nil)
+//	}
 	return
 }
 
 
 // INTERNAL: Loads kerndir/k**.tensor
 func (s *Sim) loadKernComp(kerndir string, component int) *tensor.T3 {
-	file := kerndir + "/k" + KernString[component] + ".tensor"
-	in, err := os.Open(file, os.O_RDONLY, 0666)
-	defer in.Close()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		panic(err)
-	}
-	return tensor.ToT3(tensor.Read(in))
+	file := kerndir + "/k" + KernString[component] + ".omf"
+//	in, err := os.Open(file, os.O_RDONLY, 0666)
+//	defer in.Close()
+//	if err != nil {
+//		fmt.Fprintln(os.Stderr, err)
+//		panic(err)
+//	}
+//	return tensor.ToT3(tensor.Read(in))
+	t, _ := omf.FRead(file)
+	return tensor.ToT3(t)
 }
 
 

@@ -15,6 +15,6 @@ package sim
 // I.e., to tell you (or an analysis script)
 // the value of a parameter that is otherwise unclear.
 // E.g.: # initial_state: magnetzation_up
-func (s *Sim) Metadata(key, value string) {
-	s.metadata[key] = value
+func (s *Sim) Desc(key, value string) {
+	s.desc[key] = value
 }

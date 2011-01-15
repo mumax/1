@@ -19,6 +19,7 @@ import (
 	"os"
 	"tabwriter"
 	"draw"
+	"iotool"
 	"omf"
 )
 
@@ -53,7 +54,7 @@ func (s *Sim) Autosave(what, format string, interval float32) {
 func (s *Sim) Save(what, format string) {
 	s.init() // We must init() so m gets Normalized etc...
 	output := resolve(what, format)
-	s.assureMUpToDate()
+	s.assureOutputUpToDate()
 	output.Save(s)
 }
 
@@ -98,22 +99,22 @@ func resolve(what, format string) Output {
 		switch format {
 		default:
 			panic("unknown format " + format + ". options are: binary, ascii, png")
-		case "binary":
-			return &MBinary{&Periodic{0., 0.}}
-		case "ascii":
-			return &MAscii{&Periodic{0., 0.}}
+//		case "binary":
+//			return &MBinary{&Periodic{0., 0.}}
+//		case "ascii":
+//			return &MAscii{&Periodic{0., 0.}}
 		case "png":
 			return &MPng{&Periodic{0., 0.}}
 		case "omf":
 			return &MOmf{&Periodic{0., 0.}}
 		}
-	case "torque":
-		switch format {
-		default:
-			panic("unknown format " + format + ". options are: binary, ascii, png")
-		case "binary":
-			return &TorqueBinary{&Periodic{0., 0.}}
-		}
+//	case "torque":
+//		switch format {
+//		default:
+//			panic("unknown format " + format + ". options are: binary, ascii, png")
+//		case "binary":
+//			return &TorqueBinary{&Periodic{0., 0.}}
+//		}
 
 	case "table":
 		//format gets ignored for now
@@ -127,33 +128,33 @@ func resolve(what, format string) Output {
 //__________________________________________ ascii
 
 // Opens a file for writing 
-func fopen(filename string) *os.File {
-	file, err := os.Open(filename, os.O_WRONLY|os.O_CREAT, 0666)
-	if err != nil {
-		panic(err)
-	}
-	return file
-}
+//func fopen(filename string) *os.File {
+//	file, err := os.Open(filename, os.O_WRONLY|os.O_CREAT, 0666)
+//	if err != nil {
+//		panic(err)
+//	}
+//	return file
+//}
 
 
 // TODO: it would be nice to have a separate date sturcture for the format and one for the data.
 // with a better input file parser we could allow any tensor to be stored:
 // save average(component(m, z)) jpg
 // INTERNAL
-type MAscii struct {
-	*Periodic
-}
+//type MAscii struct {
+//	*Periodic
+//}
 
 const FILENAME_FORMAT = "%08d"
 
 // INTERNAL
-func (m *MAscii) Save(s *Sim) {
-	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
-	file := fopen(fname)
-	defer file.Close()
-	tensor.WriteMetaTensorAscii(file, s.mLocal, s.metadata)
-	m.sinceoutput = float32(s.time) * s.UnitTime()
-}
+//func (m *MAscii) Save(s *Sim) {
+//	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
+//	file := fopen(fname)
+//	defer file.Close()
+//	tensor.WriteMetaTensorAscii(file, s.mLocal, s.desc)
+//	m.sinceoutput = float32(s.time) * s.UnitTime()
+//}
 
 type Table struct {
 	*Periodic
@@ -227,20 +228,20 @@ func m_average(m *tensor.T4) (mx, my, mz float32) {
 //_________________________________________ binary
 
 // INTERNAL
-type MBinary struct {
-	*Periodic
-}
-
+//type MBinary struct {
+//	*Periodic
+//}
+//
 // INTERNAL
 // TODO: files are not closed?
 // TODO/ also for writeAscii
-func (m *MBinary) Save(s *Sim) {
-	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
-	out := fopen(fname)
-	defer out.Close()
-	tensor.WriteMetaTensorBinary(out, s.mLocal, s.metadata)
-	m.sinceoutput = float32(s.time) * s.UnitTime()
-}
+//func (m *MBinary) Save(s *Sim) {
+//	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
+//	out := fopen(fname)
+//	defer out.Close()
+//	tensor.WriteMetaTensorBinary(out, s.mLocal, s.desc)
+//	m.sinceoutput = float32(s.time) * s.UnitTime()
+//}
 
 
 type MOmf struct {
@@ -251,18 +252,16 @@ type MOmf struct {
 // TODO: format: text
 func (m *MOmf) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
-	out := fopen(fname)
-	defer out.Close()
 	var file omf.File
 	file.T4 = s.mLocal
 	file.StepSize = s.input.cellSize
 	file.MeshUnit = "m"
-	file.Desc = s.metadata
+	file.Desc = s.desc
 	file.ValueMultiplier = s.mSat
 	file.ValueUnit = "A/m"
 	file.Format = "binary"
 	file.DataFormat = "4"
-	omf.Encode(out, file)
+	omf.FEncode(fname, file)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
@@ -273,14 +272,14 @@ type TorqueBinary struct {
 }
 
 // TODO: quick and dirty for the moment
-func (m *TorqueBinary) Save(s *Sim) {
-	fname := s.outputdir + "/" + "torque" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
-	out := fopen(fname)
-	defer out.Close()
-	TensorCopyFrom(s.hDev, s.hLocal) //!
-	tensor.WriteMetaTensorBinary(out, s.hLocal, s.metadata)
-	m.sinceoutput = float32(s.time) * s.UnitTime()
-}
+//func (m *TorqueBinary) Save(s *Sim) {
+//	fname := s.outputdir + "/" + "torque" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
+//	out := fopen(fname)
+//	defer out.Close()
+//	TensorCopyFrom(s.hDev, s.hLocal) //!
+//	tensor.WriteMetaTensorBinary(out, s.hLocal, s.desc)
+//	m.sinceoutput = float32(s.time) * s.UnitTime()
+//}
 
 
 //_________________________________________ png
@@ -293,25 +292,25 @@ type MPng struct {
 // INTERNAL
 func (m *MPng) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".png"
-	out := fopen(fname)
-	// 	defer out.Flush()
+	out := iotool.MustOpenWRONLY(fname)
+	defer out.Close()
 	draw.PNG(out, s.mLocal)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
 // To implement omf.Interface:
 // TODO: generalize
-func (s *Sim) GetData() (data tensor.Interface, multiplier float32, unit string) {
-	return s.mLocal, s.input.msat, "A/m"
-}
-
-func (s *Sim) GetMesh() (cellsize []float32, unit string) {
-	return s.input.cellSize[:], "m"
-}
-
-func (s *Sim) GetMetadata() map[string]string {
-	return s.metadata
-}
+//func (s *Sim) GetData() (data tensor.Interface, multiplier float32, unit string) {
+//	return s.mLocal, s.input.msat, "A/m"
+//}
+//
+//func (s *Sim) GetMesh() (cellsize []float32, unit string) {
+//	return s.input.cellSize[:], "m"
+//}
+//
+//func (s *Sim) GetMetadata() map[string]string {
+//	return s.metadata
+//}
 
 
 //INTERNAL
