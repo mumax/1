@@ -8,7 +8,8 @@ def init(outfile):
 
 def do(command):
 	global process
-	process.stdin.write(command)
+	process.stdin.write(command + "\n")
 
-
+def msat(m):
+	do("msat " + str(m))
 
