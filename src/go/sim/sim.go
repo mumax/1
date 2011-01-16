@@ -214,7 +214,7 @@ func (s *Sim) initSize() {
 	for i := range s.size {
 		s.size[i] = s.input.size[i]
 		if !(s.size[i] > 0) {
-			s.Errorln("The size should be set first. E.g.: size 4 32 32")
+			s.Errorln("The gridsize should be set first. E.g.: gridsize 32 32 4")
 			os.Exit(-6)
 		}
 		s.size4D[i+1] = s.size[i]
