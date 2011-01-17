@@ -108,7 +108,7 @@ func daemon_startsim(file string) {
 
 	cmdstr := os.Getenv("SIMROOT") + "/" + SIMCOMMAND
 
-	args := vector.StringVector([]string{"simulate"}) // aparently argument 1, not argument 0 is the first real argument, we pass "simulate" as a dummy argument (probably program name)
+	args := vector.StringVector([]string{SIMCOMMAND}) // aparently argument 1, not argument 0 is the first real argument, we pass "mumax" as a dummy argument (the program name)
 	passthrough_cli_args(&args)
 	args.Push(file)
 
@@ -126,6 +126,19 @@ func daemon_startsim(file string) {
 	}
 }
 
+func subprocess(command string, args []string) (cmd *exec.Cmd, err os.Error){
+	allargs := []string{command}	// argument 1, not argument 0 is the first real argument, argument 0 is the program name
+	allargs = append(allargs, args...)
+
+	wd, errwd := os.Getwd()
+	if errwd != nil {
+		err = errwd
+		return
+	}
+
+	cmd, err = exec.Run(command, allargs, os.Environ(), wd, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
+	return
+}
 
 // Adds the relevant command line flags to the args list,
 // to be passed through to the child simulation process.
