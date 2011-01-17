@@ -15,6 +15,7 @@ all:
 # 	cp -f $(GOROOT)/src/libcgo/libcgo.so ../../lib
 	cp -f ../../lib/libcpukern.so sim/
 	cp -f ../../lib/libgpukern.so sim/
+	gomake -C sim
 	gomake install -C sim
 	gomake -C outtools
 	gomake -C main

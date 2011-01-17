@@ -15,8 +15,10 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"exec"
 	"refsh"
 	"time"
+	"io"
 )
 
 // WARNING: most flags added here will need to be passed on to a deamon's child process
@@ -25,6 +27,7 @@ var (
 	help      *bool   = flag.Bool("help", false, "Print a help message and exit.")
 	example   *string = flag.String("example", "", "Create an example input file. E.g.: -example=file.in")
 	stdin     *bool   = flag.Bool("stdin", false, "Read input from stdin instead of file. Specify a dummy input file name to determine the output directory name.")
+	slave	  *bool   = flag.Bool("slave", false, "When as child of another process")
 	silent    *bool   = flag.Bool("silent", false, "Do not show simulation output on the screen, only save to output.log")
 	daemon    *bool   = flag.Bool("daemon", false, "Watch directories for new input files and run them automatically.")
 	watch     *int    = flag.Int("watch", 60, "With -daemon, re-check for new input files every N seconds. -watch=0 disables watching, program exits when no new input files are left.")
@@ -66,29 +69,55 @@ func Main() {
 		return
 	}
 
-	// 	if *server {
-	// 		main_slave()
-	// 	} else {
-	main_master()
-	// 	}
+	if *slave{
+		main_slave()
+		return
+	}
+
+	main_wrapper()
 }
 
+// Start a mumax/python/... slave subprocess and tee its output
 func main_wrapper() {
 
-//	if flag.NArg() == 0 {
-//		NoInputFiles()
-//		os.Exit(-1)
-//	}
-//
-//	// Process all input files
-//	for i := 0; i < flag.NArg(); i++ {
-//		infile := flag.Arg(i)
-//		subprocess()
-//	}
+	if flag.NArg() == 0 {
+		NoInputFiles()
+		os.Exit(-1)
+	}
+	// Process all input files
+	for i := 0; i < flag.NArg(); i++ {
+		infile := flag.Arg(i)
+		args := passthrough_cli_args()
+		args = append(args, "--slave", infile)
+		cmd, err := subprocess(os.Getenv(SIMROOT)+"/"+SIMCOMMAND, args, exec.DevNull, exec.Pipe, exec.Pipe)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(-7)
+		} else {
+			fmt.Println("Child process PID ", cmd.Pid)
+			go passtroughStdout(cmd.Stdout)
+			_, errwait := cmd.Wait(0) // Wait for exit
+			if errwait != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(-8)
+			}
+		}
+	}
 }
 
-// when running in the normal "master" mode, i.e. given an input file to process locally
-func main_master() {
+func passtroughStdout(in io.Reader){
+	buf := [512]byte{}[:]
+	for{
+		n, err := in.Read(buf)
+		if err != nil{
+			return
+		}
+		os.Stdout.Write(buf[:n])
+	}
+}
+
+// Do the actual work, do not start sub-processes
+func main_slave() {
 
 	if flag.NArg() == 0 {
 		NoInputFiles()
