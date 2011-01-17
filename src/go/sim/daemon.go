@@ -35,6 +35,7 @@ const (
 var DAEMON_STARTTIME int64 = time.Nanoseconds()
 
 func DaemonMain() {
+	DAEMON_WATCHTIME = *watch
 	sleeping := false
 	fmt.Println(DAEMON_PREFIX, "Input files should end with .in and the corresponding .out directory should not yet exist.", DAEMON_SUFFIX)
 	if *walltime > 0 {

@@ -7,17 +7,13 @@
 package sim
 
 
-// TODO automatic backend selection
-// TODO Time-dependent quantities
-
+// main() parses the CLI flags and determines what to do:
+// print help, run mumax in master, slave or daemon mode. 
 
 import (
 	"flag"
 	"fmt"
 	"os"
-	"exec"
-	"refsh"
-	"time"
 	"io"
 )
 
@@ -27,7 +23,7 @@ var (
 	help      *bool   = flag.Bool("help", false, "Print a help message and exit.")
 	example   *string = flag.String("example", "", "Create an example input file. E.g.: -example=file.in")
 	stdin     *bool   = flag.Bool("stdin", false, "Read input from stdin instead of file. Specify a dummy input file name to determine the output directory name.")
-	slave	  *bool   = flag.Bool("slave", false, "When as child of another process")
+	slave     *bool   = flag.Bool("slave", false, "When as child of another process")
 	silent    *bool   = flag.Bool("silent", false, "Do not show simulation output on the screen, only save to output.log")
 	daemon    *bool   = flag.Bool("daemon", false, "Watch directories for new input files and run them automatically.")
 	watch     *int    = flag.Int("watch", 60, "With -daemon, re-check for new input files every N seconds. -watch=0 disables watching, program exits when no new input files are left.")
@@ -64,146 +60,27 @@ func Main() {
 
 	Verbosity = *verbosity
 	if *daemon {
-		DAEMON_WATCHTIME = *watch
 		DaemonMain()
 		return
 	}
 
-	if *slave{
+	if *slave {
 		main_slave()
 		return
 	}
 
-	main_wrapper()
+	main_master()
 }
 
-// Start a mumax/python/... slave subprocess and tee its output
-func main_wrapper() {
 
-	if flag.NArg() == 0 {
-		NoInputFiles()
-		os.Exit(-1)
-	}
-	// Process all input files
-	for i := 0; i < flag.NArg(); i++ {
-		infile := flag.Arg(i)
-		args := passthrough_cli_args()
-		args = append(args, "--slave", infile)
-		cmd, err := subprocess(os.Getenv(SIMROOT)+"/"+SIMCOMMAND, args, exec.DevNull, exec.Pipe, exec.Pipe)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(-7)
-		} else {
-			fmt.Println("Child process PID ", cmd.Pid)
-			go passtroughStdout(cmd.Stdout)
-			_, errwait := cmd.Wait(0) // Wait for exit
-			if errwait != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(-8)
-			}
-		}
-	}
-}
-
-func passtroughStdout(in io.Reader){
+func passtroughStdout(in io.Reader) {
 	buf := [512]byte{}[:]
-	for{
+	for {
 		n, err := in.Read(buf)
-		if err != nil{
+		if err != nil {
 			return
 		}
 		os.Stdout.Write(buf[:n])
-	}
-}
-
-// Do the actual work, do not start sub-processes
-func main_slave() {
-
-	if flag.NArg() == 0 {
-		NoInputFiles()
-		os.Exit(-1)
-	}
-
-	UpdateDashboardEvery = int64(*updatedb * 1000 * 1000)
-
-	// Process all input files
-	for i := 0; i < flag.NArg(); i++ {
-		infile := flag.Arg(i)
-		var in *os.File
-		var err os.Error
-		if *stdin {
-			in = os.Stdin
-		} else {
-			in, err = os.Open(infile, os.O_RDONLY, 0666)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(-2)
-			}
-		}
-		defer in.Close()
-
-		//TODO it would be safer to abort when the output dir is not empty
-		outfile := RemoveExtension(infile) + ".out"
-
-		// Set the device
-		var backend *Backend
-		if *cpu {
-			backend = CPU
-
-		} else {
-			backend = GPU
-			backend.SetDevice(*gpuid)
-		}
-
-		sim := NewSim(outfile, backend)
-		defer sim.Close()
-		sim.PrintInfo()
-
-		sim.wisdomdir = *wisdir
-
-		// file "running" indicates the simulation is running
-		running := sim.outputdir + "/running"
-		runningfile, err := os.Open(running, os.O_WRONLY|os.O_CREATE, 0666)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
-		fmt.Fprintln(runningfile, "This simulation was started on:\n", time.LocalTime(), "\nThis file is renamed to \"finished\" when the simulation is ready.")
-		runningfile.Close()
-
-		sim.silent = *silent
-		refsh := refsh.New()
-		refsh.CrashOnError = true
-		refsh.AddAllMethods(sim)
-		refsh.Output = sim
-		refsh.Exec(in)
-
-		// We're done
-		err2 := os.Rename(running, sim.outputdir+"/finished")
-		if err2 != nil {
-			fmt.Fprintln(os.Stderr, err2)
-		}
-
-		// Idiot-proof error reports
-		if refsh.CallCount == 0 {
-			sim.Errorln("Input file contains no commands.")
-		}
-		if !sim.BeenValid {
-			sim.Errorln("Input file does not contain any commands to make the simulation run. Use, e.g., \"run\".")
-		}
-		// The next two lines cause a nil pointer panic when the simulation is not fully initialized
-		if sim.BeenValid && Verbosity > 1 {
-			down()
-			down()
-			down()
-			down()
-			down()
-
-			//sim.TimerPrintDetail()
-			//sim.PrintTimer(os.Stdout)
-		}
-
-		// TODO need to free sim
-
 	}
 }
 
