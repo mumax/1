@@ -74,20 +74,16 @@ func Main() {
 }
 
 func main_wrapper() {
-//
+
 //	if flag.NArg() == 0 {
 //		NoInputFiles()
 //		os.Exit(-1)
 //	}
 //
-//	UpdateDashboardEvery = int64(*updatedb * 1000 * 1000)
-//
 //	// Process all input files
 //	for i := 0; i < flag.NArg(); i++ {
 //		infile := flag.Arg(i)
-//
-//		//TODO it would be safer to abort when the output dir is not empty
-//		outfile := RemoveExtension(infile) + ".out"
+//		subprocess()
 //	}
 }
 
