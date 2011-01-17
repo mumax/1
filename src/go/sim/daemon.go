@@ -101,19 +101,19 @@ func daemon_startsim(file string) {
 		return
 	}
 
-	wd, err3 := os.Getwd()
-	if err3 != nil {
-		panic(err3)
-	}
+//	wd, err3 := os.Getwd()
+//	if err3 != nil {
+//		panic(err3)
+//	}
 
 	cmdstr := os.Getenv("SIMROOT") + "/" + SIMCOMMAND
 
-	args := vector.StringVector([]string{SIMCOMMAND}) // aparently argument 1, not argument 0 is the first real argument, we pass "mumax" as a dummy argument (the program name)
+	args := vector.StringVector([]string{}) 
 	passthrough_cli_args(&args)
 	args.Push(file)
 
 	fmt.Println(DAEMON_PREFIX, "exec ", cmdstr, []string(args), DAEMON_SUFFIX)
-	cmd, err2 := exec.Run(cmdstr, args, os.Environ(), wd, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
+	cmd, err2 := subprocess(cmdstr, args, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
 	if err2 != nil {
 		fmt.Fprintln(os.Stderr, err2)
 	} else {
@@ -126,7 +126,10 @@ func daemon_startsim(file string) {
 	}
 }
 
-func subprocess(command string, args []string) (cmd *exec.Cmd, err os.Error){
+
+// Wrapper for exec.Run.
+// Uses the current working directory and environment.
+func subprocess(command string, args []string, stdin, stdout, stderr int) (cmd *exec.Cmd, err os.Error){
 	allargs := []string{command}	// argument 1, not argument 0 is the first real argument, argument 0 is the program name
 	allargs = append(allargs, args...)
 
@@ -136,7 +139,7 @@ func subprocess(command string, args []string) (cmd *exec.Cmd, err os.Error){
 		return
 	}
 
-	cmd, err = exec.Run(command, allargs, os.Environ(), wd, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
+	cmd, err = exec.Run(command, allargs, os.Environ(), wd, stdin, stdout, stderr)
 	return
 }
 

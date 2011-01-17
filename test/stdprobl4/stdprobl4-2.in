@@ -1,6 +1,6 @@
 # Micromagnetic standard problem 4 - 2
 
-metadata:  	description standard_problem_4_2
+desc:  	description standard_problem_4_2
 
 # material
 msat       	800E3   
