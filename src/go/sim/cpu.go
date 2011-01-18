@@ -115,8 +115,8 @@ func (d Cpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []
 // 	}
 // }
 
-func (d Cpu) semianalStep(min, mout, h uintptr, dt, alpha float32, N int){
-  C.cpu_anal_fw_step((C.float)(dt), (C.float)(alpha), (C.int)(N), (*C.float)(unsafe.Pointer(min)), (*C.float)(unsafe.Pointer(mout)), (*C.float)(unsafe.Pointer(h)))
+func (d Cpu) semianalStep(min, mout, h uintptr, dt, alpha float32, N int) {
+	C.cpu_anal_fw_step((C.float)(dt), (C.float)(alpha), (C.int)(N), (*C.float)(unsafe.Pointer(min)), (*C.float)(unsafe.Pointer(mout)), (*C.float)(unsafe.Pointer(h)))
 }
 
 //___________________________________________________________________________________________________ Kernel multiplication

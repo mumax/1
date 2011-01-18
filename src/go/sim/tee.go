@@ -25,4 +25,3 @@ func Pipe(in io.Reader, out io.Writer) {
 		os.Stdout.Write(buf[:n])
 	}
 }
-

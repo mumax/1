@@ -74,7 +74,6 @@ func Main() {
 }
 
 
-
 func PrintInfo() {
 	//	fmt.Println("Running on " + s.Backend.String())
 	//	fmt.Println("Max threads: ", s.maxthreads())

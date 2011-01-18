@@ -37,15 +37,17 @@ const WELCOME = `
 var known_extensions []string = []string{".in", ".py"}
 
 // returns true if the extension (e.g. ".in") is recognized
-func is_known_extension(ext string)bool{
-	for _,e := range known_extensions{
-		if e == ext{return true}
+func is_known_extension(ext string) bool {
+	for _, e := range known_extensions {
+		if e == ext {
+			return true
+		}
 	}
 	return false
 }
 
 // returns true if the filename (e.g. "file.in") has a recognized extension
-func has_known_extension(filename string) bool{
+func has_known_extension(filename string) bool {
 	return is_known_extension(path.Ext(filename))
 }
 
@@ -87,7 +89,7 @@ func main_raw_input(infile string) {
 	cmd, err := subprocess(os.Getenv(SIMROOT)+"/"+SIMCOMMAND, args, exec.DevNull, exec.Pipe, exec.Pipe)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		os.Exit(-7)
+		os.Exit(ERR_SUBPROCESS)
 	} else {
 		if !*silent {
 			fmt.Println("Child process PID ", cmd.Pid)
@@ -97,12 +99,22 @@ func main_raw_input(infile string) {
 		_, errwait := cmd.Wait(0) // Wait for exit
 		if errwait != nil {
 			fmt.Fprintln(os.Stderr, err)
-			os.Exit(-8)
+			os.Exit(ERR_SUBPROCESS)
 		}
 	}
 }
 
 // Main for python ".py" input files
 func main_python(infile string) {
-	panic("python?")
+
+	py_args := []string{}
+	py_bin, errlook := exec.LookPath("python")
+	Check(errlook, ERR_SUBPROCESS)
+	python, errpy := subprocess(py_bin, py_args, exec.Pipe, exec.Pipe, exec.Pipe)
+	Check(errpy, ERR_SUBPROCESS)
+	go Pipe(python.Stdout, os.Stdout) // TODO: logging etc
+	go Pipe(python.Stderr, os.Stderr)
+	go Pipe(os.Stdin, python.Stdin)
+	_, errwait := python.Wait(0) // Wait for exit
+	Check(errwait, ERR_SUBPROCESS)
 }
