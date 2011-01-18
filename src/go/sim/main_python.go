@@ -36,10 +36,18 @@ func main_python(infile string) {
 	Check(errmu, ERR_SUBPROCESS)
 	fmt.Println("mumax slave PID ", mumax.Pid)
 
-	// Plumbing
+	// 2-way communication between python and mumax
+	// Python's stdout -> mumax's  stdin
+	// Mumax's  stdout -> python's stdin
 	go Pipe(python.Stdout, mumax.Stdin)
 	go Pipe(mumax.Stdout, python.Stdin)
 
+	// Wait for python and mumax to finish.
+	// Wait asynchronously so "... has finished" output
+	// has a good chance to come in the correct order.
+	// If we were to wait for python first and then for mumax,
+	// but python hangs and mumax crashes then we would keep
+	// on waiting for python without noting the mumax crash (e.g.).
 	pywait := make(chan int)
 	go func() {
 		_, errwait := python.Wait(0) // Wait for exit
@@ -50,6 +58,5 @@ func main_python(infile string) {
 	_, errwait := mumax.Wait(0)
 	Check(errwait, ERR_SUBPROCESS)
 	fmt.Println("mumax exited")
-
 	<-pywait
 }
