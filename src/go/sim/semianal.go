@@ -6,7 +6,9 @@
 
 package sim
 
-import ()
+import (
+//   "fmt"
+)
 
 
 type SemiAnal1 struct {
@@ -31,22 +33,22 @@ func (s *SemiAnal1) Step() {
   m2 := s.m2
   h1 := s.hDev
   h2 := s.h2
-  
+//   fmt.Println("Step", s.dt, "oiuuigy" )
   if s.steps == 0{
     s.calcHeff(m1, h1)
-    s.semianalStep(m1.data, m2.data, h1.data, s.dt/2.0, s.alpha, m1.length/3)
+    s.SemianalStep(m1, m2, h1, s.dt/2.0, s.alpha)
     s.calcHeff(m2, h2)
-    s.semianalStep(m1.data, m1.data, h2.data, s.dt, s.alpha, m1.length/3)
+    s.SemianalStep(m1, m1, h2, s.dt, s.alpha)
   } else{
     
    s.calcHeff(m2, h2)
     s.calcHeff(m1, h1)
     s.LinearCombination(h1, h2, 0.90, 0.0)
-    s.semianalStep(m2.data, m2.data, h1.data, s.dt, s.alpha, m1.length/3)
+    s.SemianalStep(m2, m2, h1, s.dt, s.alpha)
    s.calcHeff(m1, h1)
     s.calcHeff(m2, h2)
     s.LinearCombination(h2, h1, 0.90, 0.0)
-    s.semianalStep(m1.data, m1.data, h2.data, s.dt, s.alpha, m1.length/3)
+    s.SemianalStep(m1, m1, h2, s.dt, s.alpha)
   
   }
 
@@ -99,38 +101,38 @@ func (s *SemiAnal2) Step() {
   
   if s.steps == 0{
     s.calcHeff(m1, h1)
-    s.semianalStep(m1.data, m2.data, h1.data, s.dt/2.0, s.alpha, m1.length/3)
+    s.SemianalStep(m1, m2, h1, s.dt/2.0, s.alpha)
     s.calcHeff(m2, s.hDev)
-    s.semianalStep(m1.data, m1.data, h1.data, s.dt, s.alpha, m1.length/3)
+    s.SemianalStep(m1, m1, h1, s.dt, s.alpha)
   } else{
 
     s.calcHeff(m1, h1)
-    s.semianalStep(m2.data, m3.data, h1.data, s.dt, s.alpha, m1.length/3)
+    s.SemianalStep(m2, m3, h1, s.dt, s.alpha)
     s.LinearCombination(m3, m2, 0.5, 0.5)
     s.calcHeff(m3, h1)
-    s.semianalStep(m2.data, m2.data, h1.data, s.dt, s.alpha, m1.length/3)
+    s.SemianalStep(m2, m2, h1, s.dt, s.alpha)
 
     s.calcHeff(m2, h1)
-    s.semianalStep(m1.data, m3.data, h1.data, s.dt, s.alpha, m1.length/3)
+    s.SemianalStep(m1, m3, h1, s.dt, s.alpha)
     s.LinearCombination(m3, m1, 0.5, 0.5)
     s.calcHeff(m3, h1)
-    s.semianalStep(m1.data, m1.data, h1.data, s.dt, s.alpha, m1.length/3)
+    s.SemianalStep(m1, m1, h1, s.dt, s.alpha)
 
     
     
 //     s.calcHeff(m1, h1)
-//     s.semianalStep(m2.data, m3.data, h1.data, s.dt, s.alpha, m1.length/3)
+//     s.SemianalStep(m2, m3, h1, s.dt, s.alpha)
 //     s.calcHeff(m2, h2)
 //     s.calcHeff(m3, h3)
 //     s.LinearCombination(h3, h2, 0.5, 0.5)
-//     s.semianalStep(m2.data, m2.data, h3.data, s.dt, s.alpha, m1.length/3)
+//     s.SemianalStep(m2, m2, h3, s.dt, s.alpha)
 // 
 //     s.calcHeff(m2, h2)
-//     s.semianalStep(m1.data, m3.data, h2.data, s.dt, s.alpha, m1.length/3)
+//     s.SemianalStep(m1, m3, h2, s.dt, s.alpha)
 //     s.calcHeff(m1, h1)
 //     s.calcHeff(m3, h3)
 //     s.LinearCombination(h3, h1, 0.5, 0.5)
-//     s.semianalStep(m1.data, m1.data, h3.data, s.dt, s.alpha, m1.length/3)
+//     s.SemianalStep(m1, m1, h3, s.dt, s.alpha)
 
 
 
@@ -140,10 +142,10 @@ func (s *SemiAnal2) Step() {
   
 
 //   s.calcHeff(m1, s.hDev)
-//   s.semianalStep(m1.data, m2.data, s.hDev.data, s.dt, s.alpha, m1.length/3)
+//   s.SemianalStep(m1, m2, s.hDev, s.dt, s.alpha)
 //   s.calcHeff(m2, h2)
 //   s.LinearCombination(s.hDev, h2, 0.5, 0.5)
-//   s.semianalStep(m1.data, m1.data, s.hDev.data, s.dt, s.alpha, m1.length/3)
+//   s.SemianalStep(m1, m1, s.hDev, s.dt, s.alpha)
 
 
   if (s.steps%100 == 0){
@@ -173,7 +175,7 @@ func (s *SemiAnal2) Step() {
 //   m := s.mDev
 //   h := s.hDev
 //   s.calcHeff(m, h)
-//   s.semianalStep(m.data, m.data, h.data, s.dt, s.alpha, m.length/3)
+//   s.SemianalStep(m, m, h, s.dt, s.alpha, m.length/3)
 // 
 //   
 //   if (s.steps%100 == 0){
@@ -215,35 +217,35 @@ func (s *SemiAnal2) Step() {
   if s.steps == 0{
       //set up m2
     s.calcHeff(m1, h1)
-    s.semianalStep(m1.data, m2.data, h1.data, s.dt/2.0, s.alpha, m1.length/3)
+    s.SemianalStep(m1, m2, h1, s.dt/2.0, s.alpha)
       //predictor m1
     s.calcHeff(m2, h2)
-    s.semianalStep(m1.data, m3.data, h2.data, s.dt, s.alpha, m1.length/3)
+    s.SemianalStep(m1, m3, h2, s.dt, s.alpha)
       //corrector m1
     s.calcHeff(m3, h3)
     s.LinearCombination(h1, h3, 0.5, 0.5)    // h1 = 0.25*h1 + 0.5*h2 + 0.25*h3
     s.LinearCombination(h1, h2, 0.5, 0.5)
-    s.semianalStep(m1.data, m1.data, h1.data, s.dt, s.alpha, m1.length/3)
+    s.SemianalStep(m1, m1, h1, s.dt, s.alpha)
 
   } else{
     
       //predictor m2
     s.calcHeff(m1, h1)
-    s.semianalStep(m2.data, m3.data, h1.data, s.dt, s.alpha, m1.length/3)
+    s.SemianalStep(m2, m3, h1, s.dt, s.alpha)
       //corrector m2
     s.calcHeff(m3, h3)
     s.LinearCombination(h2, h3, 0.5, 0.5)    // h2 = 0.25*h2 + 0.5*h1 + 0.25*h3
     s.LinearCombination(h2, h1, 0.5, 0.5)
-    s.semianalStep(m2.data, m2.data, h2.data, s.dt, s.alpha, m1.length/3)
+    s.SemianalStep(m2, m2, h2, s.dt, s.alpha)
 
       //predictor m1
     s.calcHeff(m2, h2)
-    s.semianalStep(m1.data, m3.data, h2.data, s.dt, s.alpha, m1.length/3)
+    s.SemianalStep(m1, m3, h2, s.dt, s.alpha)
       //corrector m1
     s.calcHeff(m3, h3)
     s.LinearCombination(h1, h3, 0.5, 0.5)    // h1 = 0.25*h1 + 0.5*h2 + 0.25*h3
     s.LinearCombination(h1, h2, 0.5, 0.5)
-    s.semianalStep(m1.data, m1.data, h1.data, s.dt, s.alpha, m1.length/3)
+    s.SemianalStep(m1, m1, h1, s.dt, s.alpha)
 
   }
   
@@ -282,32 +284,32 @@ func (s *SemiAnal2) Step() {
 //   if s.steps == 0{
 //       //set up m2
 //     s.calcHeff(m1, h1)
-//     s.semianalStep(m1.data, m2.data, h1.data, s.dt/2.0, s.alpha, m1.length/3)
+//     s.SemianalStep(m1, m2, h1, s.dt/2.0, s.alpha)
 //       //predictor m1
 //     s.calcHeff(m2, h2)
-//     s.semianalStep(m1.data, m_pred.data, h2.data, s.dt, s.alpha, m1.length/3)
+//     s.SemianalStep(m1, m_pred, h2, s.dt, s.alpha)
 //       //corrector m1
 //     s.calcHeff(m_pred, h2)
 //     s.LinearCombination(h2, h1, 0.5, 0.5)
-//     s.semianalStep(m1.data, m1.data, h2.data, s.dt, s.alpha, m1.length/3)
+//     s.SemianalStep(m1, m1, h2, s.dt, s.alpha)
 // 
 //   } else{
 //     
 //       //predictor m2
 //     s.calcHeff(m1, h1)
-//     s.semianalStep(m2.data, m_pred.data, h1.data, s.dt, s.alpha, m1.length/3)
+//     s.SemianalStep(m2, m_pred, h1, s.dt, s.alpha)
 //       //corrector m2
 //     s.calcHeff(m_pred, h1)
 //     s.LinearCombination(h1, h2, 0.5, 0.5)
-//     s.semianalStep(m2.data, m2.data, h1.data, s.dt, s.alpha, m1.length/3)
+//     s.SemianalStep(m2, m2, h1, s.dt, s.alpha)
 // 
 //       //predictor m1
 //     s.calcHeff(m2, h2)
-//     s.semianalStep(m1.data, m_pred.data, h2.data, s.dt, s.alpha, m1.length/3)
+//     s.SemianalStep(m1, m_pred, h2, s.dt, s.alpha)
 //       //corrector m1
 //     s.calcHeff(m_pred, h2)
 //     s.LinearCombination(h2, h1, 0.5, 0.5)
-//     s.semianalStep(m1.data, m1.data, h2.data, s.dt, s.alpha, m1.length/3)
+//     s.SemianalStep(m1, m1, h2, s.dt, s.alpha)
 // 
 //   }
 //   

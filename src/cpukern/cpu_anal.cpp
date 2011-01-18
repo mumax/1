@@ -13,21 +13,24 @@ extern "C" {
 
 ///@internal kernel
 typedef struct{
-  float *m, *h;
+  float *min, *mout, *h;
   float dt, alpha;
   int N;
-} cpu_anal_fw_step_unsafe_arg;
+} cpu_anal_fw_step_arg;
 
-void cpu_anal_fw_step_unsafe_t(int id){
+void cpu_anal_fw_step_t(int id){
   
-  cpu_anal_fw_step_unsafe_arg *arg = (cpu_anal_fw_step_unsafe_arg *) func_arg;
+  cpu_anal_fw_step_arg *arg = (cpu_anal_fw_step_arg *) func_arg;
 
-  float *mx = arg->m + 0*arg->N;
-  float *my = arg->m + 1*arg->N;
-  float *mz = arg->m + 2*arg->N;
+  float *mx = arg->min + 0*arg->N;
+  float *my = arg->min + 1*arg->N;
+  float *mz = arg->min + 2*arg->N;
   float *hx = arg->h + 0*arg->N;
   float *hy = arg->h + 1*arg->N;
   float *hz = arg->h + 2*arg->N;
+  float *moutx = arg->mout + 0*arg->N;
+  float *mouty = arg->mout + 1*arg->N;
+  float *moutz = arg->mout + 2*arg->N;
 
   float hxy_r, hxyz_r;
   float rot0, rot1, rot2, rot3, rot4, rot5, rot6, rot8;
@@ -37,6 +40,10 @@ void cpu_anal_fw_step_unsafe_t(int id){
 
   for(int i=start; i<stop; i++){
 
+    
+/*    hx[i] += mx[i];
+    hy[i] += my[i];
+    hz[i] += mz[i];*/
     if (mx[i]==0.0f && my[i]==0.0f && mz[i]==0.0f)
       return;
 
@@ -58,6 +65,9 @@ void cpu_anal_fw_step_unsafe_t(int id){
       float temp = hx[i]*hx[i] + hy[i]*hy[i];
       hxy_r = 1.0f/sqrt(temp);
       hxyz_r = 1.0f/sqrt(temp + hz[i]*hz[i]);
+//      printf("h_ampl = %e\n", 1.0/hxyz_r);
+//       if (i == 100)
+//         printf("h = %e, %e, %e\t m = %e, %e, %e\n", hx[i], hy[i], hz[i], mx[i], my[i], mz[i]);
 
       rot0 = hx[i]*hxyz_r;
       rot1 = - hy[i]*hxy_r;
@@ -77,29 +87,30 @@ void cpu_anal_fw_step_unsafe_t(int id){
     float at = arg->dt / (1+arg->alpha*arg->alpha);
     float act = arg->alpha*at;
 
+//     printf("%e, %e\n", -at/hxyz_r, act/hxyz_r);
+    hxyz_r = hxyz_r;
     float ex, sn, cs, denom;
     ex = exp(act/hxyz_r);
-    sn = sinf(at/hxyz_r);
-    cs = cosf(at/hxyz_r);
+    sn = sinf(-at/hxyz_r);
+    cs = cosf(-at/hxyz_r);
     denom = ex*(1.0f+mx_rot) + (1.0f-mx_rot)/ex;
 
     float mx_rotnw = (ex*(1.0f+mx_rot) - (1.0f-mx_rot)/ex)/denom;
     float my_rotnw = 2.0f*(my_rot*cs - mz_rot*sn)/denom;
     float mz_rotnw = 2.0f*(my_rot*sn + mz_rot*cs)/denom;
 
-    mx[i] = mx_rotnw*rot0 + my_rotnw*rot1 + mz_rotnw*rot2;
-    my[i] = mx_rotnw*rot3 + my_rotnw*rot4 + mz_rotnw*rot5;
-    mz[i] = mx_rotnw*rot6 + mz_rotnw*rot8;
+    moutx[i] = mx_rotnw*rot0 + my_rotnw*rot1 + mz_rotnw*rot2;
+    mouty[i] = mx_rotnw*rot3 + my_rotnw*rot4 + mz_rotnw*rot5;
+    moutz[i] = mx_rotnw*rot6 + mz_rotnw*rot8;
   }
   return;
 }
 
-void cpu_anal_fw_step(float* m, float* h, float dt, float alpha, int N){
+void cpu_anal_fw_step(float dt, float alpha, int N, float *min, float *mout, float *h){
 
-    printf("\n\n\n\n\n we ar in cpu_anal_fw_step_unsafe\n\n\n\n\n ");
-
-  cpu_anal_fw_step_unsafe_arg args;
-  args.m = m;
+  cpu_anal_fw_step_arg args;
+  args.min = min;
+  args.mout = mout;
   args.h = h;
   args.dt = dt;
   args.alpha = alpha;
@@ -107,7 +118,7 @@ void cpu_anal_fw_step(float* m, float* h, float dt, float alpha, int N){
 
   func_arg = (void *) (&args);
 
-  thread_Wrapper(cpu_anal_fw_step_unsafe_t);
+  thread_Wrapper(cpu_anal_fw_step_t);
 
   return;
 }

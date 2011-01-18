@@ -124,7 +124,7 @@ func (d Gpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []
 // }
 
 func (d Gpu) semianalStep(min, mout, h uintptr, dt, alpha float32, N int){
-  C.gpu_anal_fw_step((C.float)(dt), (C.float)(alpha), (C.int)(N), (*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)))
+  C.gpu_anal_fw_step((C.float)(dt), (C.float)(alpha), (C.int)(N), (*C.float)(unsafe.Pointer(min)), (*C.float)(unsafe.Pointer(mout)), (*C.float)(unsafe.Pointer(h)))
 }
 
 

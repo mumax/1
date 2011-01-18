@@ -148,6 +148,12 @@ func (dev *Backend) AddLocalFields(m, h *DevTensor, hext []float32, anisType int
 }
 
 
+func (dev *Backend) SemianalStep(min, mout, h *DevTensor, dt, alpha float32){
+  assert(min.length == h.length)
+  assert(min.length == mout.length)
+  dev.semianalStep(min.data, mout.data, h.data, dt, alpha, min.length/3)
+}
+
 func (b Backend) OverrideStride(stride int) {
 	panic("OverrideStride is currently not compatible with the used FFT, it should always be 1")
 	Debugvv("Backend.OverrideStride(", stride, ")")
