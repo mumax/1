@@ -19,6 +19,7 @@ func Help() {
 	flag.PrintDefaults()
 }
 
+// Error message for no input files 
 func NoInputFiles() {
 	helpmsg := `No input files. Usage: mumax file.in
 Type mumax -example=file.in to create an example input file.
@@ -27,11 +28,18 @@ mumax -help will print more command line options.
 	fmt.Fprintln(os.Stderr, helpmsg)
 }
 
+// Creates an example file
 func Example(file string) {
 	out := iotool.MustOpenWRONLY(file)
 	defer out.Close()
 	out.Write([]byte(EXAMPLE))
 	fmt.Println("Created example input file: ", file)
+}
+
+// Error message for unknown input file extension
+func UnknownFileFormat(extension string) {
+	fmt.Fprintln(os.Stderr, "Unknown file format: ", extension)
+	fmt.Fprintln(os.Stderr, "Recognized extensions: ", known_extensions)
 }
 
 const EXAMPLE = `

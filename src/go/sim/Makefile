@@ -49,6 +49,8 @@ GOFILES=\
 	adaptive_euler.go\
 	adaptive_heun.go\
 	main.go\
+	main_master.go\
+	main_slave.go\
 	daemon.go\
 	stdout.go\
 	simmetadata.go\

@@ -15,3 +15,13 @@ type IOErr string
 
 // An unexpected error occured which sould be reported
 type Bug string
+
+
+// Exit error code
+const (
+	ERR_INPUT               = 1
+	ERR_IO                  = 2
+	ERR_UNKNOWN_FILE_FORMAT = 3
+
+	ERR_BUG = 255
+)
