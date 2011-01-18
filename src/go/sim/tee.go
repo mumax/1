@@ -11,18 +11,23 @@ package sim
 import (
 	"io"
 	"os"
+	"fmt"
 )
 
 // Reads from in and passes data through to out.
 // Typically ran inside a separate goroutine.
-// TODO: close out when in is closed
 func Pipe(in io.Reader, out io.Writer) {
 	buf := [512]byte{}[:]
 	for {
 		n, err := in.Read(buf)
 		if err != nil {
+			//fmt.Fprintln(os.Stderr, "Pipe: ", err) //debug
+			if closer := out.(io.Closer); closer != nil {
+				closer.Close()
+			}
 			return
 		}
-		os.Stdout.Write(buf[:n])
+		//fmt.Fprintln(os.Stderr, "Pipe: ", string(buf[:n])) //debug
+		out.Write(buf[:n])
 	}
 }

@@ -1,6 +1,6 @@
 package sim
 
-import(
+import (
 	"os"
 	"fmt"
 )
@@ -22,8 +22,8 @@ type IOErr string
 type Bug string
 
 
-func Check(err os.Error, code int){
-	if err != nil{
+func Check(err os.Error, code int) {
+	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(code)
 	}

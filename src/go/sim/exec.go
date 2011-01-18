@@ -34,12 +34,16 @@ func subprocess(command string, args []string, stdin, stdout, stderr int) (cmd *
 // The command is looked up in the PATH.
 // Output is passed through to stdout/stderr.
 // Typically used for simple system commands: rm, mkfifo, cp, ... 
-func syscommand(command string, args []string) (err os.Error){
+func syscommand(command string, args []string) (err os.Error) {
 	command, err = exec.LookPath(command)
-	if err != nil{return}
+	if err != nil {
+		return
+	}
 	cmd, err2 := subprocess(command, args, exec.DevNull, exec.PassThrough, exec.PassThrough)
 	err = err2
-	if err != nil{return}
+	if err != nil {
+		return
+	}
 	_, err = cmd.Wait(0)
 	return
 }

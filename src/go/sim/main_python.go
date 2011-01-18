@@ -6,9 +6,9 @@
 
 package sim
 
-import(
+import (
 	"exec"
-//	"iotool"
+	//	"iotool"
 	"fmt"
 	"os"
 )
@@ -16,23 +16,40 @@ import(
 // Main for python ".py" input files
 func main_python(infile string) {
 
+	// Create output dir
 	outdir := RemoveExtension(infile) + ".out"
-	os.Mkdir(outdir, 0777)//TODO: permission?
+	os.Mkdir(outdir, 0777) //TODO: permission?
 
-	py_args := []string{}
+	// Start python subprocess
+	py_args := []string{infile}
 	py_bin, errlook := exec.LookPath("python")
 	Check(errlook, ERR_SUBPROCESS)
 	fmt.Println("starting ", py_bin)
-	python, errpy := subprocess(py_bin, py_args, exec.Pipe, exec.Pipe, exec.Pipe)
+	python, errpy := subprocess(py_bin, py_args, exec.Pipe, exec.Pipe, exec.PassThrough)
 	Check(errpy, ERR_SUBPROCESS)
 	fmt.Println("python PID: ", python.Pid)
-	go Pipe(python.Stdout, os.Stdout) // TODO: logging etc
-	go Pipe(python.Stderr, os.Stderr)
-	
 
-	fmt.Fprintln(python.Stdin, "print(1+1)\n")
-	python.Stdin.Close()
+	// Start mumax --slave subprocess
+	mu_args := passthrough_cli_args()
+	mu_args = append(mu_args, "--slave", "--stdin", RemoveExtension(infile))
+	mumax, errmu := subprocess(os.Getenv(SIMROOT)+"/"+SIMCOMMAND, mu_args, exec.Pipe, exec.Pipe, exec.PassThrough)
+	Check(errmu, ERR_SUBPROCESS)
+	fmt.Println("mumax slave PID ", mumax.Pid)
 
-	_, errwait := python.Wait(0) // Wait for exit
+	// Plumbing
+	go Pipe(python.Stdout, mumax.Stdin)
+	go Pipe(mumax.Stdout, python.Stdin)
+
+	pywait := make(chan int)
+	go func() {
+		_, errwait := python.Wait(0) // Wait for exit
+		Check(errwait, ERR_SUBPROCESS)
+		fmt.Println("python exited")
+		pywait <- 1
+	}()
+	_, errwait := mumax.Wait(0)
 	Check(errwait, ERR_SUBPROCESS)
+	fmt.Println("mumax exited")
+
+	<-pywait
 }

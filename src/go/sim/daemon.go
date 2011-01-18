@@ -129,7 +129,6 @@ func daemon_startsim(file string) {
 }
 
 
-
 // Puts the relevant command line flags into the args list,
 // to be passed through to the child simulation process.
 func passthrough_cli_args() (args []string) {
