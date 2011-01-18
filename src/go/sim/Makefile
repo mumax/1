@@ -54,6 +54,7 @@ GOFILES=\
 	daemon.go\
 	stdout.go\
 	tee.go\
+	exec.go\
 	simmetadata.go\
 	resample.go\
 	error.go\

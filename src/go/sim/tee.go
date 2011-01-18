@@ -15,6 +15,7 @@ import (
 
 // Reads from in and passes data through to out.
 // Typically ran inside a separate goroutine.
+// TODO: close out when in is closed
 func Pipe(in io.Reader, out io.Writer) {
 	buf := [512]byte{}[:]
 	for {

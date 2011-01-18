@@ -129,21 +129,6 @@ func daemon_startsim(file string) {
 }
 
 
-// Wrapper for exec.Run.
-// Uses the current working directory and environment.
-func subprocess(command string, args []string, stdin, stdout, stderr int) (cmd *exec.Cmd, err os.Error) {
-	allargs := []string{command} // argument 1, not argument 0 is the first real argument, argument 0 is the program name
-	allargs = append(allargs, args...)
-
-	wd, errwd := os.Getwd()
-	if errwd != nil {
-		err = errwd
-		return
-	}
-
-	cmd, err = exec.Run(command, allargs, os.Environ(), wd, stdin, stdout, stderr)
-	return
-}
 
 // Puts the relevant command line flags into the args list,
 // to be passed through to the child simulation process.
