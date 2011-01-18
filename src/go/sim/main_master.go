@@ -49,6 +49,7 @@ func has_known_extension(filename string) bool{
 	return is_known_extension(path.Ext(filename))
 }
 
+
 // Start a mumax/python/... slave subprocess and tee its output
 func main_master() {
 
@@ -91,7 +92,8 @@ func main_raw_input(infile string) {
 		if !*silent {
 			fmt.Println("Child process PID ", cmd.Pid)
 		}
-		go passtroughStdout(cmd.Stdout)
+		go Pipe(cmd.Stdout, os.Stdout) // TODO: logging etc
+		go Pipe(cmd.Stderr, os.Stderr)
 		_, errwait := cmd.Wait(0) // Wait for exit
 		if errwait != nil {
 			fmt.Fprintln(os.Stderr, err)

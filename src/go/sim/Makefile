@@ -53,6 +53,7 @@ GOFILES=\
 	main_slave.go\
 	daemon.go\
 	stdout.go\
+	tee.go\
 	simmetadata.go\
 	resample.go\
 	error.go\

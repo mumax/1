@@ -1,7 +1,7 @@
 # Micromagnetic standard problem 4
 from mumax import *
 
-init("probl4.out")
+init("probl4.in")
 desc("description", "standard_problem_4")
 
 # material

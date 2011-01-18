@@ -15,7 +15,6 @@ import (
 	"fmt"
 	"os"
 	"runtime"
-	"io"
 )
 
 // WARNING: most flags added here will need to be passed on to a deamon's child process
@@ -73,19 +72,6 @@ func Main() {
 	main_master()
 }
 
-
-// Reads from in and passes data through to stdout.
-// Beginning of a Tee.
-func passtroughStdout(in io.Reader) {
-	buf := [512]byte{}[:]
-	for {
-		n, err := in.Read(buf)
-		if err != nil {
-			return
-		}
-		os.Stdout.Write(buf[:n])
-	}
-}
 
 
 func PrintInfo() {
