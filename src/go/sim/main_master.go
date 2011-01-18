@@ -33,7 +33,21 @@ const WELCOME = `
   
 `
 
-var known_extensions []string = []string{"in", "py"}
+// Recognized input file extensions
+var known_extensions []string = []string{".in", ".py"}
+
+// returns true if the extension (e.g. ".in") is recognized
+func is_known_extension(ext string)bool{
+	for _,e := range known_extensions{
+		if e == ext{return true}
+	}
+	return false
+}
+
+// returns true if the filename (e.g. "file.in") has a recognized extension
+func has_known_extension(filename string) bool{
+	return is_known_extension(path.Ext(filename))
+}
 
 // Start a mumax/python/... slave subprocess and tee its output
 func main_master() {
@@ -56,9 +70,9 @@ func main_master() {
 		default:
 			UnknownFileFormat(extension)
 			os.Exit(ERR_UNKNOWN_FILE_FORMAT)
-		case "in":
+		case ".in":
 			main_raw_input(infile)
-		case "py":
+		case ".py":
 			main_python(infile)
 		}
 	}
