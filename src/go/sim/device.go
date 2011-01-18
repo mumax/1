@@ -144,7 +144,7 @@ type Device interface {
 	//____________________________________________________________________ specialized (used in only one place)
 
 	// N: number of vectors 
-	semianalStep(m, h uintptr, dt, alpha float32, order, N int)
+	semianalStep(min, mout, h uintptr, dt, alpha float32, N int)
 
 	// Extract only the real parts form in interleaved complex array
 	// 	extractReal(complex, real uintptr, NReal int)

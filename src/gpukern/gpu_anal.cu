@@ -78,8 +78,6 @@ __global__ void _gpu_anal_fw_step (float *minx, float *miny, float *minz,
 
 void gpu_anal_fw_step(float dt, float alpha, int N, float *m_in, float *m_out, float *h){
 
-  printf("\n\n\n\n\n we are in gpu_anal_fw_step\n\n\n\n\n ");
-
   dim3 gridSize, blockSize;
   make1dconf(N, &gridSize, &blockSize);
   

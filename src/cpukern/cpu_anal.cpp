@@ -94,7 +94,7 @@ void cpu_anal_fw_step_unsafe_t(int id){
   return;
 }
 
-void cpu_anal_fw_step_unsafe(float* m, float* h, float dt, float alpha, int N){
+void cpu_anal_fw_step(float* m, float* h, float dt, float alpha, int N){
 
     printf("\n\n\n\n\n we ar in cpu_anal_fw_step_unsafe\n\n\n\n\n ");
 

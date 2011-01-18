@@ -115,6 +115,10 @@ func (d Cpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {
 	}
 }
 
+func (d Cpu) semianalStep(min, mout, h uintptr, dt, alpha float32, N int){
+  C.cpu_anal_fw_step((C.float)(dt), (C.float)(alpha), (C.int)(N), (*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)))
+}
+
 //___________________________________________________________________________________________________ Kernel multiplication
 
 

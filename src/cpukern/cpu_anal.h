@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-void cpu_anal_fw_step_unsafe(float* m, float* h, float dt, float alpha, int N);
+void cpu_anal_fw_step(float* m, float* h, float dt, float alpha, int N);
 
 #ifdef __cplusplus
 }
