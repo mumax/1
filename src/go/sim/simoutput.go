@@ -17,7 +17,9 @@ import (
 	"fmt"
 	"tensor"
 	"os"
-	"tabwriter"
+	"draw"
+	"iotool"
+	"omf"
 )
 
 
@@ -51,7 +53,7 @@ func (s *Sim) Autosave(what, format string, interval float32) {
 func (s *Sim) Save(what, format string) {
 	s.init() // We must init() so m gets Normalized etc...
 	output := resolve(what, format)
-	s.assureMUpToDate()
+	s.assureOutputUpToDate()
 	output.Save(s)
 }
 
@@ -91,21 +93,31 @@ func (p *Periodic) SetInterval(interval float32) {
 func resolve(what, format string) Output {
 	switch what {
 	default:
-		panic("unknown output quantity " + what + ". options are: m, table")
+		panic("unknown output quantity " + what + ". options are: m, torque, table")
 	case "m":
 		switch format {
 		default:
 			panic("unknown format " + format + ". options are: binary, ascii, png")
-		case "binary":
-			return &MBinary{&Periodic{0., 0.}}
-		case "ascii":
-			return &MAscii{&Periodic{0., 0.}}
+			//		case "binary":
+			//			return &MBinary{&Periodic{0., 0.}}
+			//		case "ascii":
+			//			return &MAscii{&Periodic{0., 0.}}
 		case "png":
 			return &MPng{&Periodic{0., 0.}}
+		case "omf":
+			return &MOmf{&Periodic{0., 0.}}
 		}
+		//	case "torque":
+		//		switch format {
+		//		default:
+		//			panic("unknown format " + format + ". options are: binary, ascii, png")
+		//		case "binary":
+		//			return &TorqueBinary{&Periodic{0., 0.}}
+		//		}
+
 	case "table":
 		//format gets ignored for now
-		return &Table{&Periodic{0., 0.}, nil}
+		return &Table{&Periodic{0., 0.}}
 	}
 
 	panic("bug")
@@ -115,60 +127,52 @@ func resolve(what, format string) Output {
 //__________________________________________ ascii
 
 // Opens a file for writing 
-func fopen(filename string) *os.File {
-	file, err := os.Open(filename, os.O_WRONLY|os.O_CREAT, 0666)
-	if err != nil {
-		panic(err)
-	}
-	return file
-}
+//func fopen(filename string) *os.File {
+//	file, err := os.Open(filename, os.O_WRONLY|os.O_CREAT, 0666)
+//	if err != nil {
+//		panic(err)
+//	}
+//	return file
+//}
 
 
 // TODO: it would be nice to have a separate date sturcture for the format and one for the data.
 // with a better input file parser we could allow any tensor to be stored:
 // save average(component(m, z)) jpg
 // INTERNAL
-type MAscii struct {
-	*Periodic
-}
+//type MAscii struct {
+//	*Periodic
+//}
 
 const FILENAME_FORMAT = "%08d"
 
 // INTERNAL
-func (m *MAscii) Save(s *Sim) {
-	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
-	file := fopen(fname)
-	defer file.Close()
-	tensor.WriteMetaTensorAscii(file, s.mLocal, s.metadata)
-	m.sinceoutput = float32(s.time) * s.UnitTime()
-}
+//func (m *MAscii) Save(s *Sim) {
+//	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
+//	file := fopen(fname)
+//	defer file.Close()
+//	tensor.WriteMetaTensorAscii(file, s.mLocal, s.desc)
+//	m.sinceoutput = float32(s.time) * s.UnitTime()
+//}
 
 type Table struct {
 	*Periodic
-	out *tabwriter.Writer
 }
 
-// table output settings
-const (
-	TABLE_HEADER = "# time (s)\t mx\t my\t mz\t Bx(T)\t By(T)\t Bz(T)\tmaxTorqueX\tmaxTorqueY\tmaxTorqueZ\tminMz\tmaxMz\tdt(s)\terror\tid"
-	COL_WIDTH    = 15
-)
-
 func (t *Table) Save(s *Sim) {
-	if t.out == nil {
-		fname := s.outputdir + "/" + "datatable.txt"
-		out, err := os.Open(fname, os.O_WRONLY|os.O_CREAT|os.O_TRUNC, 0666)
-		// todo: out is not closed
-		if err != nil {
-			panic(err)
-		}
-		t.out = tabwriter.NewWriter(out, COL_WIDTH, 4, 0, ' ', 0)
-		s.Println("Opened data table file")
-		fmt.Fprintln(t.out, TABLE_HEADER)
+	if s.tabwriter == nil {
+		fname := s.outputdir + "/" + "datatable.odt"
+		out := iotool.MustOpenWRONLY(fname)
+		s.tabwriter = omf.NewTabWriter(out)
+		s.tabwriter.AddColumn("Time", "s")
+		s.tabwriter.AddColumn("Mx/Ms", "")
+		s.tabwriter.AddColumn("My/Ms", "")
+		s.tabwriter.AddColumn("Mz/Ms", "")
+		s.tabwriter.AddColumn("Bx", "T")
+		s.tabwriter.AddColumn("By", "T")
+		s.tabwriter.AddColumn("Bz", "T")
+		s.tabwriter.AddColumn("id", "")
 	}
-
-	//                                                                      IMPORTANT: this is one of the places where X,Y,Z get swapped
-	//                                                                      what is (X,Y,Z) internally becomes (Z,Y,X) for the user!
 
 	// calculate reduced quantities
 	m := [3]float32{}
@@ -176,20 +180,15 @@ func (t *Table) Save(s *Sim) {
 	N := Len(s.size3D)
 	for i := range m {
 		m[i] = s.devsum.Reduce(s.mDev.comp[i]) / float32(N)
-		torque[i] = abs32(s.devmaxabs.Reduce(s.h.comp[i]) / s.dt)
+		torque[i] = abs32(s.devmaxabs.Reduce(s.hDev.comp[i]) / s.dt)
 	}
-	minMz, maxMz := s.devmin.Reduce(s.mDev.comp[X]), s.devmax.Reduce(s.mDev.comp[X])
+	//minMz, maxMz := s.devmin.Reduce(s.mDev.comp[X]), s.devmax.Reduce(s.mDev.comp[X])
 
-	// 	B := s.UnitField()
-	fmt.Fprintf(t.out, "%e\t% f\t% f\t% f\t", float32(s.time)*s.UnitTime(), m[Z], m[Y], m[X])
-	fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", s.hextSI[Z], s.hextSI[Y], s.hextSI[X])
-	fmt.Fprintf(t.out, "% .6e\t% .6e\t% .6e\t", torque[Z], torque[Y], torque[X])
-	fmt.Fprintf(t.out, "% .6e\t% .6e\t", minMz, maxMz)
-	fmt.Fprintf(t.out, "%.5g\t", s.dt*s.UnitTime())
-	fmt.Fprintf(t.out, "%.4g\t", s.stepError)
-	fmt.Fprintf(t.out, FILENAME_FORMAT, s.autosaveIdx)
-	fmt.Fprintln(t.out)
-	t.out.Flush()
+	s.tabwriter.Print(float32(s.time) * s.UnitTime())
+	s.tabwriter.Print(m[Z], m[Y], m[X])
+	s.tabwriter.Print(s.hextSI[Z], s.hextSI[Y], s.hextSI[X])
+
+	s.tabwriter.Print(s.autosaveIdx)
 	t.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
@@ -215,20 +214,58 @@ func m_average(m *tensor.T4) (mx, my, mz float32) {
 //_________________________________________ binary
 
 // INTERNAL
-type MBinary struct {
+//type MBinary struct {
+//	*Periodic
+//}
+//
+// INTERNAL
+// TODO: files are not closed?
+// TODO/ also for writeAscii
+//func (m *MBinary) Save(s *Sim) {
+//	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
+//	out := fopen(fname)
+//	defer out.Close()
+//	tensor.WriteMetaTensorBinary(out, s.mLocal, s.desc)
+//	m.sinceoutput = float32(s.time) * s.UnitTime()
+//}
+
+
+type MOmf struct {
 	*Periodic
 }
 
 // INTERNAL
-// TODO: files are not closed?
-// TODO/ also for writeAscii
-func (m *MBinary) Save(s *Sim) {
-	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
-	out := fopen(fname)
-	defer out.Close()
-	tensor.WriteMetaTensorBinary(out, s.mLocal, s.metadata)
+// TODO: format: text
+func (m *MOmf) Save(s *Sim) {
+	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
+	var file omf.File
+	file.T4 = s.mLocal
+	file.StepSize = s.input.cellSize
+	file.MeshUnit = "m"
+	file.Desc = s.desc
+	file.ValueMultiplier = s.mSat
+	file.ValueUnit = "A/m"
+	file.Format = "binary"
+	file.DataFormat = "4"
+	omf.FEncode(fname, file)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
+
+
+// INTERNAL
+type TorqueBinary struct {
+	*Periodic
+}
+
+// TODO: quick and dirty for the moment
+//func (m *TorqueBinary) Save(s *Sim) {
+//	fname := s.outputdir + "/" + "torque" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
+//	out := fopen(fname)
+//	defer out.Close()
+//	TensorCopyFrom(s.hDev, s.hLocal) //!
+//	tensor.WriteMetaTensorBinary(out, s.hLocal, s.desc)
+//	m.sinceoutput = float32(s.time) * s.UnitTime()
+//}
 
 
 //_________________________________________ png
@@ -241,11 +278,25 @@ type MPng struct {
 // INTERNAL
 func (m *MPng) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".png"
-	out := fopen(fname)
-	// 	defer out.Flush()
-	PNG(out, s.mLocal)
+	out := iotool.MustOpenWRONLY(fname)
+	defer out.Close()
+	draw.PNG(out, s.mLocal)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
+
+// To implement omf.Interface:
+// TODO: generalize
+//func (s *Sim) GetData() (data tensor.Interface, multiplier float32, unit string) {
+//	return s.mLocal, s.input.msat, "A/m"
+//}
+//
+//func (s *Sim) GetMesh() (cellsize []float32, unit string) {
+//	return s.input.cellSize[:], "m"
+//}
+//
+//func (s *Sim) GetMetadata() map[string]string {
+//	return s.metadata
+//}
 
 
 //INTERNAL

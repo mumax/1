@@ -13,7 +13,6 @@ import (
 	"strings"
 	"time"
 	"exec"
-	"container/vector"
 	"io/ioutil"
 )
 
@@ -27,12 +26,16 @@ const (
 )
 
 // shell command to start child simulation processes
-const SIMCOMMAND = "bin/simulate"
+const (
+	SIMCOMMAND = "bin/mumax"
+	SIMROOT    = "SIMROOT"
+)
 
 // start time
 var DAEMON_STARTTIME int64 = time.Nanoseconds()
 
 func DaemonMain() {
+	DAEMON_WATCHTIME = *watch
 	sleeping := false
 	fmt.Println(DAEMON_PREFIX, "Input files should end with .in and the corresponding .out directory should not yet exist.", DAEMON_SUFFIX)
 	if *walltime > 0 {
@@ -101,19 +104,18 @@ func daemon_startsim(file string) {
 		return
 	}
 
-	wd, err3 := os.Getwd()
-	if err3 != nil {
-		panic(err3)
-	}
+	//	wd, err3 := os.Getwd()
+	//	if err3 != nil {
+	//		panic(err3)
+	//	}
 
-	cmdstr := os.Getenv("SIMROOT") + "/" + SIMCOMMAND
+	cmdstr := os.Getenv(SIMROOT) + "/" + SIMCOMMAND
 
-	args := vector.StringVector([]string{"simulate"}) // aparently argument 1, not argument 0 is the first real argument, we pass "simulate" as a dummy argument (probably program name)
-	passthrough_cli_args(&args)
-	args.Push(file)
+	args := passthrough_cli_args()
+	args = append(args, file)
 
 	fmt.Println(DAEMON_PREFIX, "exec ", cmdstr, []string(args), DAEMON_SUFFIX)
-	cmd, err2 := exec.Run(cmdstr, args, os.Environ(), wd, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
+	cmd, err2 := subprocess(cmdstr, args, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
 	if err2 != nil {
 		fmt.Fprintln(os.Stderr, err2)
 	} else {
@@ -127,16 +129,33 @@ func daemon_startsim(file string) {
 }
 
 
-// Adds the relevant command line flags to the args list,
+// Wrapper for exec.Run.
+// Uses the current working directory and environment.
+func subprocess(command string, args []string, stdin, stdout, stderr int) (cmd *exec.Cmd, err os.Error) {
+	allargs := []string{command} // argument 1, not argument 0 is the first real argument, argument 0 is the program name
+	allargs = append(allargs, args...)
+
+	wd, errwd := os.Getwd()
+	if errwd != nil {
+		err = errwd
+		return
+	}
+
+	cmd, err = exec.Run(command, allargs, os.Environ(), wd, stdin, stdout, stderr)
+	return
+}
+
+// Puts the relevant command line flags into the args list,
 // to be passed through to the child simulation process.
-// Note: need to pass the address of the slice, otherwise
-// we will append to a copy, not affecting the original.
-func passthrough_cli_args(args *vector.StringVector) {
-	(*args).Push(fmt.Sprint("-silent=", *silent))
-	(*args).Push(fmt.Sprint("-verbosity=", *verbosity))
-	(*args).Push(fmt.Sprint("-gpu=", *gpuid))
-	(*args).Push(fmt.Sprint("-cpu=", *cpu))
-	(*args).Push(fmt.Sprint("-updatedisp=", *updatedb))
+func passthrough_cli_args() (args []string) {
+	args = append(args, fmt.Sprint("-silent=", *silent))
+	args = append(args, fmt.Sprint("-verbosity=", *verbosity))
+	args = append(args, fmt.Sprint("-gpu=", *gpuid))
+	args = append(args, fmt.Sprint("-cpu=", *cpu))
+	args = append(args, fmt.Sprint("-threads=", *threads))
+	args = append(args, fmt.Sprint("-patient=", *patient))
+	args = append(args, fmt.Sprint("-wisdom=", *wisdir))
+	return
 }
 
 

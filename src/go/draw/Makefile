@@ -1,10 +1,16 @@
 include $(GOROOT)/src/Make.inc
+PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 
-main:	*.go
-	$(GC) -I_obj *.go
-	$(LD) -L_obj -o $@ *.$O
-	ln -sf $(CURDIR)/main ../../../bin/draw
+TARG=draw
 
-.PHONY:	clean
-clean:
-	rm -f  main *.a *.$O
+GOFILES=\
+	draw.go\
+	draw3d.go\
+
+CLEANFILES+=$(PKGDIR)/$(TARG).a
+
+include $(GOROOT)/src/Make.pkg
+
+%: install %.go
+	$(GC) $*.go
+	$(LD) -o $@ $*.$O

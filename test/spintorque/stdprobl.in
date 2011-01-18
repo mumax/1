@@ -18,7 +18,7 @@ currentdensity:   1e12 0 0
 xi:               0.05
 spinpolarization: 1
 
-autosave m     png   100e-12
+autosave m     omf   100e-12
 autosave table ascii 20e-12
 run 10e-9
 save m binary

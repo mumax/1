@@ -21,16 +21,17 @@ OFILES=\
  	gpu_anal.o\
 	gpu_spintorque.o\
 	gpu_anis.o\
+	gpu_local_contr2.o\
 
-all: libgpukern.so libgpukern.a
+all: libgpukern.so
 
 libgpukern.so: $(OFILES)
 	$(NVCC) -shared $(NVCCFLAGS) $(OFILES) $(CUDALIBS) $(L) -o libgpukern.so
-	ln -sf $(CURDIR)/libgpukern.so $(CURDIR)/../../lib
+	cp -f $(CURDIR)/libgpukern.so $(CURDIR)/../../lib
 
 libgpukern.a:	$(OFILES)
 	ar rcs libgpukern.a $(OFILES)
-	ln -sf $(CURDIR)/libgpukern.a $(CURDIR)/../../lib
+# 	ln -sf $(CURDIR)/libgpukern.a $(CURDIR)/../../lib
 
 timer.o:  timer.h timer.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) timer.cpp
@@ -103,6 +104,9 @@ gpu_anal.o:	gpu_anal.h gpu_anal.cu
 
 gpu_anis.o:  gpu_anis.h gpu_anis.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_anis.cu
+
+gpu_local_contr2.o:  gpu_local_contr2.h gpu_local_contr2.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_local_contr2.cu
 
 test:	all transpose_test zeropad_test reduction_test fft_test spintorque_test
 

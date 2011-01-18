@@ -6,6 +6,10 @@
 
 package refsh
 
+
+// This file implements parsing of function arguments to values
+
+
 import (
 	. "reflect"
 	"fmt"
@@ -15,6 +19,9 @@ import (
 	"math"
 )
 
+
+// INTERNAL
+// Parses the argument list "argv" to values suited for the function named by "fname".
 func (refsh *Refsh) parseArgs(fname string, argv []string) []Value {
 	function := refsh.resolve(fname)
 	nargs := function.NumIn()
@@ -31,6 +38,9 @@ func (refsh *Refsh) parseArgs(fname string, argv []string) []Value {
 	return args
 }
 
+
+// INTERNAL
+// Parses a string representation of a given type to a value
 // TODO: we need to return Value, err
 func parseArg(arg string, argtype Type) Value {
 	switch argtype.Name() {
@@ -51,7 +61,7 @@ func parseArg(arg string, argtype Type) Value {
 	return NewValue(666)
 }
 
-
+// INTERNAL
 func parseInt(str string) int {
 	i, err := strconv.Atoi(str)
 	if err != nil {
@@ -61,6 +71,7 @@ func parseInt(str string) int {
 	return i
 }
 
+// INTERNAL
 func parseFloat(str string) float {
 	if str == "inf" {
 		return float(math.Inf(1))
@@ -76,6 +87,7 @@ func parseFloat(str string) float {
 	return i
 }
 
+// INTERNAL
 func parseFloat64(str string) float64 {
 	if str == "inf" {
 		return math.Inf(1)
@@ -91,6 +103,7 @@ func parseFloat64(str string) float64 {
 	return i
 }
 
+// INTERNAL
 func parseFloat32(str string) float32 {
 	if str == "inf" {
 		return float32(math.Inf(1))

@@ -12,8 +12,7 @@ package sim
 
 import (
 	"rand"
-	"os"
-	"tensor"
+	"omf"
 )
 
 
@@ -83,22 +82,13 @@ func (s *Sim) Vortex(circulation, polarization int) {
 }
 
 func (s *Sim) LoadM(file string) {
-	s.Load(file)
-}
-
-// DEPRECATED: use LoadM
-func (s *Sim) Load(file string) {
 	s.initMLocal()
 	s.Println("Loading ", file)
-	in, err := os.Open(file, os.O_RDONLY, 0666)
-	defer in.Close()
-	if err != nil {
-		panic(err)
-	}
-	s.mLocal = tensor.ToT4(tensor.Read(in))
+	_, s.mLocal = omf.FRead(file) // omf.Info is discarded for now, could be used for scaling.
 	//TODO this should not invalidate the entire sim
 	s.invalidate()
 }
+
 
 // Adds noise with the specified amplitude
 // to the magnetization state.

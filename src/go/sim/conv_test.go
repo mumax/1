@@ -16,7 +16,7 @@ func TestConv(t *testing.T) {
 
 	size4D := []int{3, 2, 8, 8}
 	size := size4D[1:]
-	kernelSize := padSize(size)
+	kernelSize := padSize(size, []int{0, 0, 0})
 
 	kernel := ZeroKernel6(kernelSize)
 	kernel[XX].Array()[0][0][0] = 1.

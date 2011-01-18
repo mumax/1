@@ -22,6 +22,7 @@ GOFILES=\
 	rk.go\
 	semianal.go\
 	kernel.go\
+	relax.go\
 	demag.go\
 	exchange.go\
 	material.go\
@@ -34,10 +35,10 @@ GOFILES=\
 	edge.go\
 	geom.go\
 	simmaterial.go\
+	simanis.go\
 	simoutput.go\
 	simrun.go\
 	simsolver.go\
-	draw.go\
 	remotedevice.go\
 	simserver.go\
 	timer.go\
@@ -48,15 +49,24 @@ GOFILES=\
 	adaptive_euler.go\
 	adaptive_heun.go\
 	main.go\
-        daemon.go\
+	main_master.go\
+	main_slave.go\
+	daemon.go\
 	stdout.go\
+	tee.go\
 	simmetadata.go\
 	resample.go\
 	error.go\
 	wisdom.go\
-	
+	help.go\
+	simdebug.go\
+	simhysteresis.go\
 
-CGO_LDFLAGS+=$(CURDIR)/../../../lib/libgpukern.so $(CURDIR)/../../../lib/libcpukern.so
+CGO_CFLAGS+=-I../../../lib/fftw/include/ -I/usr/local/cuda/include/
+
+
+# When installing, these libraries must be present (at least symlinked) in the current directory
+CGO_LDFLAGS+=-L../../../lib -L/usr/local/cuda/lib  -L/usr/local/cuda/lib64 libgpukern.so libcpukern.so
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a $(PKGDIR)/cgo_$(TARG).so 
 	

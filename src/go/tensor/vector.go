@@ -25,7 +25,7 @@ func (v *Vector) Size() []int {
 }
 
 func (v *Vector) List() []float32 {
-	return v.Component[:]
+	return v.Component[0:]
 }
 
 /** Vector-specific */

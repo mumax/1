@@ -19,15 +19,25 @@ import (
 
 // Utility to read from a file instead of io.Reader
 func ReadF(filename string) *T {
+	t, _ := ReadMetaF(filename)
+	return t
+}
+
+func ReadMetaF(filename string) (*T, map[string]string) {
 	in, err := os.Open(filename, os.O_RDONLY, 0666)
 	defer in.Close()
 	if err != nil {
 		panic(err)
 	}
-	return Read(in)
+	return ReadMeta(in)
 }
 
 func Read(in_ io.Reader) *T {
+	t, _ := ReadMeta(in_)
+	return t
+}
+
+func ReadMeta(in_ io.Reader) (*T, map[string]string) {
 	in := bufio.NewReader(in_)
 	metadata := ReadHeader(in)
 	size := metaGetSize(metadata)
@@ -38,7 +48,7 @@ func Read(in_ io.Reader) *T {
 	} else {
 		ReadDataAscii(in, t)
 	}
-	return t
+	return t, metadata
 }
 
 // Reads data from the reader to the
@@ -96,7 +106,7 @@ func ReadHeader(in_ io.Reader) map[string]string {
 	in := bufio.NewReader(in_)
 	line, eof := iotool.ReadLine(in)
 	for !eof && !isHeaderEnd(line) {
-    //if line == "" {continue}
+		//if line == "" {continue}
 		key, value := parseHeaderLine(line)
 		header[key] = value
 		line, eof = iotool.ReadLine(in)

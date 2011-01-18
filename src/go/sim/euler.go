@@ -26,7 +26,7 @@ func (this *Euler) String() string {
 
 
 func (this *Euler) Step() {
-	m, h := this.mDev, this.h
+	m, h := this.mDev, this.hDev
 
 	// 	this.Normalize(this.m)
 	this.calcHeff(m, h)
@@ -35,4 +35,5 @@ func (this *Euler) Step() {
 
 	this.Add(m, deltaM)
 	this.Normalize(m)
+	this.time += float64(this.dt)
 }

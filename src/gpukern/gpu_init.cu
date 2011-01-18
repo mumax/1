@@ -1,4 +1,5 @@
 #include "gpu_init.h"
+#include "gpu_conf.h"
 #include "gpu_safe.h"
 #include <stdio.h>
 
@@ -6,9 +7,11 @@
 extern "C" {
 #endif
 
-/// Doesn't do much for the moment, but here for uniformity with CPU, where init() _is_ neccesary (to initialize FFTW)
-void gpu_init(){
-  
+/// Not much setup is needed here, only the number of threads per block is optionally set
+void gpu_init(int threads,  ///< number of threads per block, 0 means autoset
+              int options   ///< currently not used
+              ){
+  gpu_setmaxthreads(threads);
 }
 
 void gpu_set_device(int devid){

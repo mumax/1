@@ -34,7 +34,7 @@ func NewAdaptiveEuler(s *Sim) *AdaptiveEuler {
 }
 
 func (this *AdaptiveEuler) Step() {
-	m, h := this.mDev, this.h
+	m, h := this.mDev, this.hDev
 
 	// 	this.Normalize(this.m)
 	this.calcHeff(m, h)
@@ -49,6 +49,7 @@ func (this *AdaptiveEuler) Step() {
 
 	this.MAdd(m, this.dt, torque)
 	this.Normalize(m)
+	this.time += float64(this.dt)
 }
 
 func (this *AdaptiveEuler) String() string {

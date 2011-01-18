@@ -10,7 +10,7 @@ import "strings"
 
 type Solver interface {
 	Step()
-// 	String() string
+	// 	String() string
 }
 
 func NewSolver(solvertype string, sim *Sim) Solver {
@@ -42,6 +42,8 @@ func NewSolver(solvertype string, sim *Sim) Solver {
 		return NewAdaptiveHeun(sim)
 	case "semianal1":
 		return NewSemiAnal1(sim)
+  case "semianal2":
+    return NewSemiAnal2(sim)
 	}
 	panic("bug")
 	return nil // never reached

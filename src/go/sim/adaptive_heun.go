@@ -36,23 +36,25 @@ func (s *AdaptiveHeun) Step() {
 	m := s.mDev
 	m1est := s.m1est
 
-	s.calcHeff(m, s.h)
-	s.DeltaM(m, s.h, s.dt)
-	TensorCopyOn(s.h, s.t0)
+	s.calcHeff(m, s.hDev)
+	s.DeltaM(m, s.hDev, s.dt)
+	TensorCopyOn(s.hDev, s.t0)
 	TensorCopyOn(m, m1est)
 	s.Add(m1est, s.t0)
-	s.Normalize(m1est) // euler estimate
+	s.Normalize(m1est) // Euler estimate
 
-	s.calcHeff(s.m1est, s.h)
-	s.DeltaM(s.m1est, s.h, s.dt)
-	tm1est := s.h
+	s.calcHeff(s.m1est, s.hDev)
+	s.DeltaM(s.m1est, s.hDev, s.dt)
+	tm1est := s.hDev
 	t := tm1est
 	s.LinearCombination(t, s.t0, 0.5, 0.5)
 	s.Add(m, t)
-	s.Normalize(m) // heun solution
+	s.Normalize(m) // Heun solution
+
+	s.time += float64(s.dt)
 
 	if s.maxError != 0. {
-		s.MAdd(m1est, -1, m) // difference between heun and euler
+		s.MAdd(m1est, -1, m) // difference between Heun and Euler
 		error := s.Reduce(m1est)
 		s.stepError = error
 		// TODO if error is too large, undo the step

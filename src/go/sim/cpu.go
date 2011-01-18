@@ -7,7 +7,7 @@
 package sim
 
 /*
-#include "cpukern.h"
+#include "../../cpukern/cpukern.h"
 */
 import "C"
 import "unsafe"
@@ -32,8 +32,12 @@ type Cpu struct {
 	// intentionally empty, but the methods implement sim.Device
 }
 
-func (d Cpu) init() {
-	C.cpu_init()
+func (d Cpu) maxthreads() int {
+	return int(C.cpu_maxthreads())
+}
+
+func (d Cpu) init(threads, options int) {
+	C.cpu_init(C.int(threads), C.int(options))
 }
 
 func (d Cpu) setDevice(devid int) {
@@ -97,14 +101,22 @@ func (d Cpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []f
 	panic(Bug("spin torque not implemented on CPU"))
 }
 
-func (d Cpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {
-	switch order {
-	default:
-		panic(fmt.Sprintf("Unknown semianal order:", order))
-	case 0:
-		panic("unimplemented")
-		//C.cpu_anal_fw_step_unsafe((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(dt), C.float(alpha), C.int(N))
-	}
+func (d Cpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int) {
+	C.cpu_add_local_fields((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
+}
+
+// func (d Cpu) semianalStep(min, mout, h uintptr, dt, alpha float32, N int) {
+// 	switch order {
+// 	default:
+// 		panic(fmt.Sprintf("Unknown semianal order:", order))
+// 	case 0:
+// 		panic("unimplemented")
+// 		//C.cpu_anal_fw_step_unsafe((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(dt), C.float(alpha), C.int(N))
+// 	}
+// }
+
+func (d Cpu) semianalStep(min, mout, h uintptr, dt, alpha float32, N int){
+  C.cpu_anal_fw_step((C.float)(dt), (C.float)(alpha), (C.int)(N), (*C.float)(unsafe.Pointer(min)), (*C.float)(unsafe.Pointer(mout)), (*C.float)(unsafe.Pointer(h)))
 }
 
 //___________________________________________________________________________________________________ Kernel multiplication
@@ -283,5 +295,4 @@ func (d Cpu) String() string {
 
 func (d Cpu) TimerPrintDetail() {
 	//C.timer_printdetail()
-	fmt.Println("meh...")
 }

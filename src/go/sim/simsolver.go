@@ -29,6 +29,14 @@ func (s *Sim) MaxDm(deltaM float32) {
 	s.maxDm = deltaM
 }
 
+// Set the minimum "delta m" the solver can take.
+// 0 means not used.
+// Some solvers ignore this value
+func (s *Sim) MinDm(deltaM float32) {
+	s.minDm = deltaM
+}
+
+
 // Set the maximum "delta m" the solver can take.
 // 0 means not used.
 // Some solvers ignore this value

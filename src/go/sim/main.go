@@ -6,27 +6,24 @@
 
 package sim
 
-// TODO: ALL OF THIS CODE SHOULD BE MOVED INTO THE sim PACKAGE
 
-// TODO automatic backend selection
-
-// TODO read magnetization + scale
-// TODO Time-dependent quantities
-
-// TODO Nice output / table
-// TODO draw output immediately
-// TODO movie output
+// main() parses the CLI flags and determines what to do:
+// print help, run mumax in master, slave or daemon mode. 
 
 import (
 	"flag"
 	"fmt"
 	"os"
-	"refsh"
 	"runtime"
-	"time"
 )
 
+// WARNING: most flags added here will need to be passed on to a deamon's child process
+// after adding a flag, edit daemon.go accordingly!
 var (
+	help      *bool   = flag.Bool("help", false, "Print a help message and exit.")
+	example   *string = flag.String("example", "", "Create an example input file. E.g.: -example=file.in")
+	stdin     *bool   = flag.Bool("stdin", false, "Read input from stdin instead of file. Specify a dummy input file name to determine the output directory name.")
+	slave     *bool   = flag.Bool("slave", false, "When as child of another process")
 	silent    *bool   = flag.Bool("silent", false, "Do not show simulation output on the screen, only save to output.log")
 	daemon    *bool   = flag.Bool("daemon", false, "Watch directories for new input files and run them automatically.")
 	watch     *int    = flag.Int("watch", 60, "With -daemon, re-check for new input files every N seconds. -watch=0 disables watching, program exits when no new input files are left.")
@@ -34,6 +31,8 @@ var (
 	verbosity *int    = flag.Int("verbosity", 2, "Control the debug verbosity (0 - 3)")
 	gpuid     *int    = flag.Int("gpu", 0, "Select a GPU when more than one is present. Default GPU = 0") //TODO: also for master
 	cpu       *bool   = flag.Bool("cpu", false, "Run on the CPU instead of GPU.")
+	patient   *bool   = flag.Bool("patient", false, "on the CPU, use FFTW_PATIENT planning: slower initialization but faster running.")
+	threads   *int    = flag.Int("threads", 0, "Set the number of threads for the selected device (GPU or CPU). \"0\" means automatically set.")
 	updatedb  *int    = flag.Int("updatedisp", 100, "Update the terminal output every x milliseconds")
 	wisdir    *string = flag.String("wisdom", defaultWisdomDir(), "Absolute directory to store cached kernels. \"\" disables caching")
 	// 	dryrun    *bool   = flag.Bool("dryrun", false, "Go quickly through the simulation sequence without calculating anything. Useful for debugging") // todo implement
@@ -48,115 +47,47 @@ func Main() {
 	defer fmt.Print(RESET + SHOWCURSOR) // make sure the cursor does not stay hidden if we crash
 
 	flag.Parse()
+
+	if *help {
+		Help()
+		os.Exit(0)
+	}
+
+	if *example != "" {
+		Example(*example)
+		os.Exit(0)
+	}
+
 	Verbosity = *verbosity
 	if *daemon {
-		DAEMON_WATCHTIME = *watch
 		DaemonMain()
 		return
 	}
 
-	// 	if *server {
-	// 		main_slave()
-	// 	} else {
+	if *slave {
+		main_slave()
+		return
+	}
+
 	main_master()
-	// 	}
 }
 
-// when running in the normal "master" mode, i.e. given an input file to process locally
-func main_master() {
 
-	// a CUDA context is linked to a thread, and a context created in
-	// one thread can not be accessed by another one. Therefore, we
-	// have to lock the current goroutine to its current thread.
-	// Otherwise it may be mapped to another thread by the go runtime,
-	// making CUDA crash.
-	Debugvv("Locked OS thread")
-	runtime.LockOSThread()
 
-	if flag.NArg() == 0 {
-		fmt.Fprintln(os.Stderr, "No input files.")
-		os.Exit(-1)
-	}
-
-	UpdateDashboardEvery = int64(*updatedb * 1000 * 1000)
-
-	// Process all input files
-	for i := 0; i < flag.NArg(); i++ {
-		infile := flag.Arg(i)
-		in, err := os.Open(infile, os.O_RDONLY, 0666)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(-2)
-		}
-		defer in.Close()
-
-		//TODO it would be safer to abort when the output dir is not empty
-		outfile := RemoveExtension(infile) + ".out"
-
-		// Set the device
-		var backend *Backend
-		if *cpu {
-			backend = CPU
-
-		} else {
-			backend = GPU
-			backend.SetDevice(*gpuid)
-		}
-
-		sim := NewSim(outfile, backend)
-		defer sim.out.Close()
-
-		sim.wisdomdir = *wisdir
-
-		// file "running" indicates the simulation is running
-		running := sim.outputdir + "/running"
-		runningfile, err := os.Open(running, os.O_WRONLY|os.O_CREATE, 0666)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
-		fmt.Fprintln(runningfile, "This simulation was started on:\n", time.LocalTime(), "\nThis file is renamed to \"finished\" when the simulation is ready.")
-		runningfile.Close()
-
-		sim.silent = *silent
-		refsh := refsh.New()
-		refsh.CrashOnError = true
-		refsh.AddAllMethods(sim)
-		refsh.Output = sim
-		refsh.Exec(in)
-
-		// We're done
-		err2 := os.Rename(running, sim.outputdir+"/finished")
-		if err2 != nil {
-			fmt.Fprintln(os.Stderr, err2)
-		}
-
-		// Idiot-proof error reports
-		if refsh.CallCount == 0 {
-			sim.Errorln("Input file contains no commands.")
-		}
-		if !sim.BeenValid {
-			sim.Errorln("Input file does not contain any commands to make the simulation run. Use, e.g., \"run\".")
-		}
-		// The next two lines cause a nil pointer panic when the simulation is not fully initialized
-		if sim.BeenValid && Verbosity > 1 {
-			down()
-			down()
-			down()
-			down()
-			down()
-
-			sim.TimerPrintDetail()
-			sim.PrintTimer(os.Stdout)
-		}
-
-		// TODO need to free sim
-
-	}
+func PrintInfo() {
+	//	fmt.Println("Running on " + s.Backend.String())
+	//	fmt.Println("Max threads: ", s.maxthreads())
+	fmt.Println("Go version: ", runtime.Version())
 }
 
+
+// TODO: move to iotool
 // Removes a filename extension.
 // I.e., the part after the dot, if present.
+// use path.Ext()
+// does not work if there is no extension!
 func RemoveExtension(str string) string {
+
 	dotpos := len(str) - 1
 	for dotpos >= 0 && str[dotpos] != '.' {
 		dotpos--

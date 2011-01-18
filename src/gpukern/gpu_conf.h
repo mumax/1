@@ -16,6 +16,8 @@ extern "C" {
 /// Returns the maximum number of threads per block for this GPU
 int gpu_maxthreads();
 
+/// Overrides the maximum number of threads per block. max=0 means autoset.
+void gpu_setmaxthreads(int max);
 
 /**
  * Macro for 1D index "i" in a CUDA kernel.

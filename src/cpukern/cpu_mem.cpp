@@ -1,5 +1,6 @@
 #include "cpu_mem.h"
 #include "../macros.h"
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,18 +22,16 @@ void free_cpu_array(float* array){
   free(array);
 }
 
-
 void cpu_zero(float* data, int nElements){
-  for(int i=0; i<nElements; i++){
-    data[i] = 0;
-  }
+
+  memset(data, 0, nElements*sizeof(float));
+  return;
 }
 
 void cpu_memcpy(float* source, float* dest, int nElements){
-  assert(nElements > 0);
-  for(int i=0; i<nElements; i++){
-    dest[i] = source[i];
-  }
+
+  memcpy(dest, source, nElements*sizeof(float));
+  return;
 }
 
 
@@ -63,16 +62,6 @@ void cpu_override_stride(int nFloats){
   _cpu_stride_float_cache = nFloats;
 }
 
-// int cpu_pad_to_stride(int nFloats){
-//   assert(nFloats > 0);
-//   int stride = cpu_stride_float();
-//   int cpulen = ((nFloats-1)/stride + 1) * stride;
-//   
-//   assert(cpulen % stride == 0);
-//   assert(cpulen > 0);
-//   assert(cpulen >= nFloats);
-//   return cpulen;
-// }
 
 #ifdef __cplusplus
 }

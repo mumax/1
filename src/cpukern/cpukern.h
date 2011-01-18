@@ -22,3 +22,4 @@
 #include "cpu_anal.h"
 #include "cpu_init.h"
 #include "cpu_reduction.h"
+#include "cpu_local_contr.h"

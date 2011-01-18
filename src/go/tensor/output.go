@@ -39,6 +39,16 @@ var ENDIANESS = binary.LittleEndian
 //   Write(out, t)
 // }
 
+
+func WriteF(filename string, t Interface) {
+	out, err := os.Open(filename, os.O_WRONLY|os.O_CREATE, 0777)
+	defer out.Close()
+	if err != nil {
+		panic(err)
+	}
+	WriteAscii(out, t)
+}
+
 // Writes in the default format (binary)
 func Write(out_ io.Writer, t Interface) {
 	WriteAscii(out_, t)

@@ -39,6 +39,17 @@ void gpu_anal_pc_mean_h(float *h1,    ///< first effective field array
                         );
 
 
+void gpu_anal_fw_step_spin_torque(float *m_in,      ///< input magnetization
+                                  float *m_out,     ///< output magnetization
+                                  float *h,         ///< effecitive field (without torque)
+                                  float alpha,      ///< damping constant
+                                  float beta,       ///< b(1+alpha*xi)
+                                  float epsilon,    ///< b(1+alpha*xi)
+                                  float *u,         ///< 0.5 * U_spintorque / cellsize[i]
+                                  float dt_gilb,    ///< dt * gilbert factor
+                                  int *size         ///< simulation size [Nx, Ny, Nz]
+                                  );                 
+                        
 #ifdef __cplusplus
 }
 #endif

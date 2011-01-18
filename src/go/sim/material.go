@@ -38,6 +38,10 @@ func (s *Sim) InitMaterial() {
 	s.muB = 9.2740091523E-24
 	s.e = 1.60217646E-19
 	s.spinPol = DEFAULT_SPIN_POLARIZATION
+	// even when not used, these arrays should be allocated:
+	// they may be passed to C even when they are ignored there
+	//s.anisK = make([]float32, 1)
+	//s.anisAxes = make([]float32, 1)
 
 	if s.input.msat == 0. {
 		s.Errorln("Saturation magnetization should first be set. E.g. msat 800E3")
@@ -55,9 +59,9 @@ func (s *Sim) InitMaterial() {
 		s.Warn("Damping parameter alpha =  ", s.alpha)
 	}
 
-	s.metadata["msat"] = fmt.Sprint(s.mSat)
-	s.metadata["aexch"] = fmt.Sprint(s.aExch)
-	s.metadata["alpha"] = fmt.Sprint(s.alpha)
+	s.desc["msat"] = fmt.Sprint(s.mSat)
+	s.desc["aexch"] = fmt.Sprint(s.aExch)
+	s.desc["alpha"] = fmt.Sprint(s.alpha)
 }
 
 
@@ -91,6 +95,11 @@ func (mat *Material) UnitField() float32 {
 // The internal unit of energy, expressed in J.
 func (mat *Material) UnitEnergy() float32 {
 	return mat.aExch * mat.UnitLength()
+}
+
+// The internal unit of energy density, expressed in J/m^3.
+func (mat *Material) UnitEnergyDensity() float32 {
+	return mat.UnitEnergy() / mat.UnitVolume()
 }
 
 
