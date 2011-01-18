@@ -20,7 +20,6 @@ import (
 	"flag"
 	"os"
 	"exec"
-	"iotool"
 	"path"
 	"fmt"
 )
@@ -103,27 +102,4 @@ func main_raw_input(infile string) {
 			os.Exit(ERR_SUBPROCESS)
 		}
 	}
-}
-
-// Main for python ".py" input files
-func main_python(infile string) {
-
-	outdir := RemoveExtension(infile) + ".out"
-	fname_to_py := outdir + "/" + ".fifo-to-python.py"
-	syscommand("mkfifo", []string{fname_to_py})
-    fifo_to_py := iotool.MustOpenWRONLY(fname_to_py)
-
-
-	py_args := []string{fname_to_py}
-	py_bin, errlook := exec.LookPath("python")
-	Check(errlook, ERR_SUBPROCESS)
-	python, errpy := subprocess(py_bin, py_args, exec.DevNull, exec.Pipe, exec.Pipe)
-	Check(errpy, ERR_SUBPROCESS)
-	go Pipe(python.Stdout, os.Stdout) // TODO: logging etc
-	go Pipe(python.Stderr, os.Stderr)
-
-	fmt.Fprintln(fifo_to_py, "print(1+1)\n")
-
-	_, errwait := python.Wait(0) // Wait for exit
-	Check(errwait, ERR_SUBPROCESS)
 }
