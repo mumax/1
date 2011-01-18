@@ -20,6 +20,7 @@ import (
 	"flag"
 	"os"
 	"exec"
+	"path"
 	"fmt"
 )
 
@@ -31,11 +32,15 @@ const WELCOME = `
   please contact the authors if you like to distribute this program.
   
 `
+
+var known_extensions []string = []string{"in", "py"}
+
 // Start a mumax/python/... slave subprocess and tee its output
 func main_master() {
 
 	if !*silent {
 		fmt.Println(WELCOME)
+		PrintInfo()
 	}
 
 	if flag.NArg() == 0 {
@@ -46,20 +51,42 @@ func main_master() {
 	// Process all input files
 	for i := 0; i < flag.NArg(); i++ {
 		infile := flag.Arg(i)
-		args := passthrough_cli_args()
-		args = append(args, "--slave", infile)
-		cmd, err := subprocess(os.Getenv(SIMROOT)+"/"+SIMCOMMAND, args, exec.DevNull, exec.Pipe, exec.Pipe)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(-7)
-		} else {
-			fmt.Println("Child process PID ", cmd.Pid)
-			go passtroughStdout(cmd.Stdout)
-			_, errwait := cmd.Wait(0) // Wait for exit
-			if errwait != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(-8)
-			}
+		extension := path.Ext(infile)
+		switch extension {
+		default:
+			UnknownFileFormat(extension)
+			os.Exit(ERR_UNKNOWN_FILE_FORMAT)
+		case "in":
+			main_raw_input(infile)
+		case "py":
+			main_python(infile)
 		}
 	}
+}
+
+// Main for raw input ".in" files
+func main_raw_input(infile string) {
+
+	args := passthrough_cli_args()
+	args = append(args, "--slave", infile)
+	cmd, err := subprocess(os.Getenv(SIMROOT)+"/"+SIMCOMMAND, args, exec.DevNull, exec.Pipe, exec.Pipe)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(-7)
+	} else {
+		if !*silent {
+			fmt.Println("Child process PID ", cmd.Pid)
+		}
+		go passtroughStdout(cmd.Stdout)
+		_, errwait := cmd.Wait(0) // Wait for exit
+		if errwait != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(-8)
+		}
+	}
+}
+
+// Main for python ".py" input files
+func main_python(infile string) {
+	panic("python?")
 }

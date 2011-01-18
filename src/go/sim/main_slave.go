@@ -61,7 +61,6 @@ func main_slave() {
 
 		sim := NewSim(outfile, backend)
 		defer sim.Close()
-		sim.PrintInfo()
 
 		sim.wisdomdir = *wisdir
 

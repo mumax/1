@@ -14,6 +14,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime"
 	"io"
 )
 
@@ -73,6 +74,8 @@ func Main() {
 }
 
 
+// Reads from in and passes data through to stdout.
+// Beginning of a Tee.
 func passtroughStdout(in io.Reader) {
 	buf := [512]byte{}[:]
 	for {
@@ -85,16 +88,20 @@ func passtroughStdout(in io.Reader) {
 }
 
 
-func (s *Sim) PrintInfo() {
-	s.Println("Running on " + s.Backend.String())
-	s.Println("Max threads: ", s.maxthreads())
+func PrintInfo() {
+	//	fmt.Println("Running on " + s.Backend.String())
+	//	fmt.Println("Max threads: ", s.maxthreads())
+	fmt.Println("Go version: ", runtime.Version())
 }
 
 
 // TODO: move to iotool
 // Removes a filename extension.
 // I.e., the part after the dot, if present.
+// use path.Ext()
+// does not work if there is no extension!
 func RemoveExtension(str string) string {
+
 	dotpos := len(str) - 1
 	for dotpos >= 0 && str[dotpos] != '.' {
 		dotpos--
