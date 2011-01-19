@@ -68,13 +68,13 @@ func (r *Relax) RelaxStep() {
 
 	// calculate new step
 	factor := maxError / error
-	// do not increase by time step by more than 100%
-	if factor > 2. {
-		factor = 2.
+	// do not increase too much
+	if factor > 1.2 {
+		factor = 1.2
 	}
-	// do not decrease to less than 1%
-	if factor < 0.01 {
-		factor = 0.01
+	// do not decrease too much
+	if factor < 0.8 {
+		factor = 0.8
 	}
 
 	//sim.time += float64(sim.dt) // TODO: remove when output per step can be saved?

@@ -9,7 +9,10 @@ partsize:  100e-9 100e-9 10e-9
 gridsize:  64     64	 1
 
 #relax
-loadm    relaxed.tensor
+alpha   2
+vortex	1 1
+relax	1e-4
+save	m	omf
 
 
 #run
@@ -18,7 +21,6 @@ currentdensity:   1e12 0 0
 xi:               0.05
 spinpolarization: 1
 
-autosave m     omf   100e-12
-autosave table ascii 20e-12
+autosave m     omf   10e-12
+autosave table ascii 10e-12
 run 10e-9
-save m binary
