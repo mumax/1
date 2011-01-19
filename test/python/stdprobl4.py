@@ -1,4 +1,5 @@
 # Micromagnetic standard problem 4
+from mumax import *
 
 desc("description", "standard_problem_4")
 

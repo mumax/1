@@ -14,8 +14,11 @@ import (
 )
 
 // Wrapper for exec.Run.
+// Automatically looks up the executable in the PATH
 // Uses the current working directory and environment.
 func subprocess(command string, args []string, stdin, stdout, stderr int) (cmd *exec.Cmd, err os.Error) {
+	command, err = exec.LookPath(command)
+	if err != nil {return}
 	allargs := []string{command} // argument 1, not argument 0 is the first real argument, argument 0 is the program name
 	allargs = append(allargs, args...)
 
