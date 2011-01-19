@@ -25,7 +25,7 @@ save("m", "omf")
 
 # run
 autosave("m", "omf", 10e-12)
-want_png = 1
+want_png = 0
 if want_png:
 	autosave("m", "png", 10e-12)
 
