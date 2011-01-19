@@ -5,6 +5,12 @@
 #  Note that you are welcome to modify this code under the condition that you do not remove any 
 #  copyright notices and prominently state that you modified it, giving a relevant date.
 
+from sys import stdin
+
+# INTERNAL
+def wait():
+	while 1:
+		stdin.readlines()
 
 # INTERNAL. Shorthand for running a command with one argument
 def do1(command, arg):
@@ -74,7 +80,7 @@ def save(what, format):
 
 # Periodic auto-save
 def autosave(what, format, periodicity):
-	do3("save", what, format, periodicity)
+	do3("autosave", what, format, periodicity)
 
 
 # Excitation

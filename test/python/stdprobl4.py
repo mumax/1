@@ -15,7 +15,6 @@ partsize(500e-9, 125e-9, 3e-9)
 #demagaccuracy(10)
 
 # initial magnetization
-#loadm    	s-state.omf
 uniform(1, 1, 0)
 alpha(2)
 relax(1e-4)
@@ -30,3 +29,4 @@ staticfield(-24.6e-3, 4.3e-3, 0)
 run(1e-9)
 
 savebenchmark("benchmark.txt")
+#wait()
