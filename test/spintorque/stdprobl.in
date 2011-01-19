@@ -6,7 +6,8 @@ aexch:  13e-12
 msat:   8e5
 
 partsize:  100e-9 100e-9 10e-9
-gridsize:  64     64	 1
+gridsize:  64     64	 4
+demagaccuracy	10
 
 #relax
 alpha   2

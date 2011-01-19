@@ -75,6 +75,26 @@ type Info struct {
 }
 
 
+// Safe way to get Desc values: panics when key not present
+func(i *Info) DescGet(key string)interface{}{
+	value, ok := i.Desc[key]
+	if !ok{
+		panic("Key not found in Desc: " + key)
+	}
+	return value
+}
+
+// Safe way to get a float from Desc
+func(i *Info) DescGetFloat(key string) float{
+	value := i.DescGet(key)
+	fl, err := strconv.Atof(value.(string))
+	if err != nil{
+		panic("Could not parse " + key + " to float: " + err.String())
+	}
+	return fl
+}
+
+
 type File struct {
 	Info
 	*tensor.T4

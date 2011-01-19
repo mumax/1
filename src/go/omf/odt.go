@@ -85,7 +85,7 @@ func (t *TabWriter) open() {
 	t.tabout = tabwriter.NewWriter(t.bufout, COL_WIDTH, 4, 0, ' ', 0)
 	out := t.tabout
 	fmt.Fprintln(out, "# ODT 1.0")
-	fmt.Fprintln(out, "# TabWriter Start")
+	fmt.Fprintln(out, "# Table Start")
 	fmt.Fprintln(out, "# Title: ", t.Title)
 
 	fmt.Fprint(out, "# Units:")
