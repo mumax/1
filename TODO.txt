@@ -68,4 +68,4 @@ TODO (Arne)
 * do not use os.Exit() but sim.Exit() which removes running file -> replace by "crashed" or something
 * when sim daemon is killed it should clean up its unfinished output dir
 * when sim daemon child process crashes, it should either clean up (but not run it again) or rename the status file to crashed
-* compatibility with OOMMF ovf format so people can use existing tools.
+* add libgomp.so.1 to lib/

@@ -15,16 +15,9 @@ partsize   	500E-9  125E-9  3E-9
 demagaccuracy	16
 
 # initial magnetization
-#loadm    	s-state.omf
-uniform	1 1 0
-alpha 2
+loadm    	s-state.omf
 relax 1e-4
-save m omf
-run 1e-9
-save m omf
-dt 1e-15
 alpha 0.02
-save m omf
 
 
 # run
