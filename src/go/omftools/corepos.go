@@ -10,6 +10,7 @@ package main
 import(
 	"omf"
 	"iotool"
+	"fmt"
 )
 
 var coreodt *omf.TabWriter
@@ -30,26 +31,26 @@ func CorePos(fname string, pol float32) {
 			for k := 1; k < len(mz[i][j])-1; k++ {
 				if pol*mz[i][j][k] > max {
 					max = pol * mz[i][j][k]
-					maxX, maxY, maxZ = j, k, i
+					maxX, maxY, maxZ = i,j,k
 				}
 			}
 		}
 	}
-
+	fmt.Println(maxZ)
 	// then interpolate around the top
-	corex := float32(maxX) + interpolate_maxpos(max, -1., pol*mz[maxZ][maxX-1][maxY], 1., pol*mz[maxZ][maxX+1][maxY])
-	corey := float32(maxY) + interpolate_maxpos(max, -1., pol*mz[maxZ][maxX][maxY-1], 1., pol*mz[maxZ][maxX][maxY+1])
+	corex := float32(maxX) //+ interpolate_maxpos(max, -1., pol*mz[maxZ][maxX-1][maxY], 1., pol*mz[maxZ][maxX+1][maxY])
+	corey := float32(maxY) //+ interpolate_maxpos(max, -1., pol*mz[maxZ][maxX][maxY-1], 1., pol*mz[maxZ][maxX][maxY+1])
 
 	// and express in length units
-	cellsizex := info.StepSize[0]
-	cellsizey := info.StepSize[0]
-	cellsizex /= float32(len(mz[0]))
-	cellsizey /= float32(len(mz[0][0]))
-	corex *= float32(cellsizex)
-	corey *= float32(cellsizey)
+//	cellsizex := info.StepSize[0]
+//	cellsizey := info.StepSize[0]
+//	cellsizex /= float32(len(mz[0]))
+//	cellsizey /= float32(len(mz[0][0]))
+//	corex *= float32(cellsizex)
+//	corey *= float32(cellsizey)
 
 	// oops, turns out we were transposed all the time
-	corex, corey = corey, corex
+	//corex, corey = corey, corex
 
 	time := info.DescGetFloat("time")
 	coreodt.Print(time)

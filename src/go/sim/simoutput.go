@@ -189,6 +189,7 @@ func (t *Table) Save(s *Sim) {
 	s.tabwriter.Print(s.hextSI[Z], s.hextSI[Y], s.hextSI[X])
 
 	s.tabwriter.Print(s.autosaveIdx)
+	s.tabwriter.Flush() // It's handy to have the output stored intermediately
 	t.sinceoutput = float32(s.time) * s.UnitTime()
 }
 
