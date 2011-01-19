@@ -79,6 +79,9 @@ func cleanup(){
 	if odt != nil{
 		odt.Close()
 	}
+	if coreodt != nil{
+		coreodt.Close()
+	}
 }
 
 func min(a, b int) int {

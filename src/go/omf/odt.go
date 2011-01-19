@@ -69,11 +69,14 @@ func (t *TabWriter) Print(v ...interface{}) {
 	}
 }
 
+func (t *TabWriter) Flush(){
+	t.tabout.Flush()
+	t.bufout.Flush()
+}
 
 func (t *TabWriter) Close() {
 	fmt.Fprintln(t.tabout, "# Table End")
-	t.tabout.Flush()
-	t.bufout.Flush()
+	t.Flush()
 	if closer := t.out.(io.Closer); closer != nil {
 		closer.Close()
 	}
