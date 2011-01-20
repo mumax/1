@@ -6,13 +6,14 @@ aexch:  13e-12
 msat:   8e5
 
 partsize:  100e-9 100e-9 10e-9
-gridsize:  64     64	 4
+gridsize:  128 128 8
 demagaccuracy	10
 
 #relax
 alpha   2
 vortex	1 1
-relax	1e-4
+relax	1e-2
+run     10e-9
 save	m	omf
 
 
