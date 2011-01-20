@@ -1,6 +1,6 @@
 # Spintorque standard problem
 
-maxerror 1e-5
+maxerror 1e-2
 
 aexch:  13e-12
 msat:   8e5
@@ -12,7 +12,6 @@ demagaccuracy	10
 #relax
 alpha   2
 vortex	1 1
-relax	1e-2
 run     10e-9
 save	m	omf
 
