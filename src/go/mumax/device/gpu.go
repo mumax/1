@@ -14,18 +14,14 @@ import "C"
 import "unsafe"
 import "runtime"
 
-// This single file intefaces all the relevant CUDA func(d Gpu) tions with go
-// It only wraps the func(d Gpu) tions, higher level constructs and assetions
-// are in separate files like fft.go, ...
-//
-// NOTE cgo does not seem to like many cgofiles, so I put everything together here.
-//
+// This single file intefaces all the relevant CUDA C functions with go.
+// It only wraps the (unsafe) C functions, higher level (safe) versions
+// are implemented in device.go.
 
 import (
 	"fmt"
 )
 
-var GPU *Backend = NewBackend(&Gpu{})
 
 type Gpu struct {
 	// intentionally empty, but the methods implement sim.Device
@@ -48,6 +44,8 @@ func (d Gpu) init(threads, options int) {
 	C.gpu_init(C.int(threads), C.int(options))
 }
 
+// Selects a GPU by number if more than one is present.
+// (Counting starts from 0, which is the default GPU)
 func (d Gpu) setDevice(devid int) {
 	C.gpu_set_device(C.int(devid))
 }
