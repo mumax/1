@@ -108,6 +108,14 @@ def autosave(what, format, periodicity):
 def staticfield(bx, by, bz):
 	do3("staticfield", bx, by, bz)
 
+# Apply an RF field
+def rffield(bx, by, bz, freq):
+	do("rffield", [bx, by, bz, freq])
+
+# Apply a sawtooth field
+def sawtoothfield(bx, by, bz, freq):
+	do("sawtoothfield", [bx, by, bz, freq])
+
 # Run
 
 # Relaxes the magnetization up to the specified maximum residual torque

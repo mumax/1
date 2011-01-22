@@ -5,7 +5,7 @@ desc("description", "standard_problem_4")
 # material
 msat(800e3)   
 aexch(1.3e-11)     
-alpha(0.02)
+alpha(2)
 
 
 # geometry 
@@ -24,10 +24,10 @@ for i in range(0, nx):
 		setmcell(i, j, 0, 1, 0, 0)
 
 # run
-autosave("m", "binary", 10e-12)
-autosave("m", "text", 9-12)
-autosave("m", "png", 9-12)
+autosave("m", "binary", 100e-12)
 autosave("table", "ascii", 10e-12)
-run(1e-9)
+rffield(1, 1, 1, 1e9)
+sawtoothfield(1e-3, 0, 0, 1000e6)
+run(10e-9)
 
 savebenchmark("benchmark.txt")

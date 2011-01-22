@@ -21,7 +21,7 @@ import (
 
 // Apply a static field defined in Tesla
 func (s *Sim) StaticField(hz, hy, hx float32) {
-	s.AppliedField = &staticField{[3]float32{hx, hy, hz}} // pass it on in tesla so that it stays independent of other problem parameters
+	s.AppliedField = &staticField{[3]float32{hx, hy, hz}} // pass it on in Tesla so that it stays independent of other problem parameters
 	s.Println("Applied field: static, (", hz, ", ", hy, ", ", hx, ") T")
 }
 
@@ -76,6 +76,20 @@ func (field *rfField) GetAppliedField(time float64) [3]float32 {
 	return [3]float32{field.b[X] * sin, field.b[Y] * sin, field.b[Z] * sin}
 }
 
+
+func (s *Sim) SawtoothField(hz, hy, hx float32, freq float64) {
+	var st sawtooth
+	st = sawtooth(rfField{[3]float32{hx, hy, hz}, freq})
+	s.AppliedField = &st 
+	s.Println("Applied field: sawtooth, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz")
+}
+
+type sawtooth rfField
+
+func (field *sawtooth) GetAppliedField(time float64) [3]float32 {
+	sin := float32(Asin(Sin(field.freq * 2 * Pi * time)))
+	return [3]float32{field.b[X] * sin, field.b[Y] * sin, field.b[Z] * sin}
+}
 
 // Apply a rotating field
 func (s *Sim) RotatingField(hz, hy, hx float32, freq float64, phaseX, phaseY, phaseZ float64) {
