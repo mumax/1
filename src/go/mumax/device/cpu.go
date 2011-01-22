@@ -5,7 +5,7 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-package mumax
+package device
 
 /*
 #include "../../../cpukern/cpukern.h"
@@ -24,10 +24,8 @@ import "unsafe"
 
 import (
 	"fmt"
-	"os"
+	"mumax"
 )
-
-var CPU *Backend = NewBackend(&Cpu{})
 
 type Cpu struct {
 	// intentionally empty, but the methods implement sim.Device
@@ -41,9 +39,9 @@ func (d Cpu) init(threads, options int) {
 	C.cpu_init(C.int(threads), C.int(options))
 }
 
-func (d Cpu) setDevice(devid int) {
-	fmt.Fprintln(os.Stderr, "setDevice(", devid, ") has no effect on CPU")
-}
+//func (d Cpu) setDevice(devid int) {
+//	fmt.Fprintln(os.Stderr, "setDevice(", devid, ") has no effect on CPU")
+//}
 
 func (d Cpu) add(a, b uintptr, N int) {
 	C.cpu_add((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.int(N))
@@ -54,12 +52,12 @@ func (d Cpu) madd(a uintptr, cnst float32, b uintptr, N int) {
 }
 
 func (d Cpu) madd2(a, b, c uintptr, N int) {
-	panic(Bug("unimplemented"))
+	panic(mumax.Bug("unimplemented"))
 	//C.cpu_madd2((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), (*C.float)(unsafe.Pointer(c)), C.int(N))
 }
 
 func (c Cpu) addLinAnis(hx, hy, hz, mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, N int) {
-	panic(Bug("unimplemented"))
+	panic(mumax.Bug("unimplemented"))
 }
 
 func (d Cpu) linearCombination(a, b uintptr, weightA, weightB float32, N int) {
@@ -99,7 +97,7 @@ func (d Cpu) deltaM(m, h uintptr, alpha, dtGilbert float32, N int) {
 
 func (d Cpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, dtGilb float32, size []int) {
 	//C.cpu_spintorque_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha),  C.float(beta),  C.float(epsillon), (*C.float)(unsafe.Pointer(&u[0])), C.float(dtGilb), C.int(size[0]), C.int(size[1]), C.int(size[2]))
-	panic(Bug("spin torque not implemented on CPU"))
+	panic(mumax.Bug("spin torque not implemented on CPU"))
 }
 
 func (d Cpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int) {
@@ -148,8 +146,6 @@ func (d Cpu) kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, kernelt
 
 }
 
-//___________________________________________________________________________________________________ Copy-pad
-
 
 func (d Cpu) copyPadded(source, dest uintptr, sourceSize, destSize []int, direction int) {
 	switch direction {
@@ -165,8 +161,6 @@ func (d Cpu) copyPadded(source, dest uintptr, sourceSize, destSize []int, direct
 			C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
 	}
 }
-
-//___________________________________________________________________________________________________ FFT
 
 
 // unsafe creation of C fftPlan INPLACE
@@ -215,11 +209,11 @@ func (d Cpu) fft(plan uintptr, in, out uintptr, direction int) {
 // Allocates an array of float32s on the CPU.
 // By convention, GPU arrays are represented by an uintptr,
 // while host arrays are *float32's.
-func (d Cpu) newArray(components, nFloats int) uintptr {
+func (d Cpu) newArray(components, nFloats int) []uintptr {
 	list := uintptr(unsafe.Pointer(C.new_cpu_array(C.int(components * nFloats))))
 	array := make([]uintptr, components)
 	for i := range array {
-		array[i] = d.arrayOffset(list, i*nFloats)
+		array[i] = arrayOffset(list, i*nFloats)
 	}
 	return array
 }

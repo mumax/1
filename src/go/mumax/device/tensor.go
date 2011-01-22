@@ -59,8 +59,6 @@ func NewTensor(size []int) *Tensor {
 }
 
 
-
-
 // Frees the underlying storage.
 // It is safe to double-free.
 func (t *Tensor) Free() {
@@ -71,7 +69,7 @@ func (t *Tensor) Free() {
 }
 
 // Free() method as function so it can be passed to	runtime.SetFinalizer
-func Free(t *Tensor){
+func Free(t *Tensor) {
 	t.Free()
 }
 
@@ -133,7 +131,7 @@ func CopyOn(source, dest *Tensor) {
 // TODO Copy() with type switch for auto On/To/From
 func CopyTo(source tensor.Interface, dest *Tensor) {
 	assertEqual(source.Size(), dest.size)
-	device.memcpy(uintptr(unsafe.Pointer(&(source.List()[0]))), dest.data,CPY_TO, dest.length)
+	device.memcpy(uintptr(unsafe.Pointer(&(source.List()[0]))), dest.data, CPY_TO, dest.length)
 }
 
 // copies a tensor from the device

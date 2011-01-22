@@ -5,7 +5,7 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-package mumax
+package device
 
 /*
 #include "../../../gpukern/gpukern.h"
@@ -32,21 +32,19 @@ func (d Gpu) maxthreads() int {
 }
 
 func (d Gpu) init(threads, options int) {
-
-	// a CUDA context is linked to a thread, and a context created in
-	// one thread can not be accessed by another one. Therefore, we
-	// have to lock the current goroutine to its current thread.
-	// Otherwise it may be mapped to another thread by the go runtime,
-	// making CUDA crash.
-	Debugvv("Locked OS thread")
-	runtime.LockOSThread()
-
 	C.gpu_init(C.int(threads), C.int(options))
 }
 
 // Selects a GPU by number if more than one is present.
 // (Counting starts from 0, which is the default GPU)
 func (d Gpu) setDevice(devid int) {
+	// a CUDA context is linked to a thread, and a context created in
+	// one thread can not be accessed by another one. Therefore, we
+	// have to lock the current goroutine to its current thread.
+	// Otherwise it may be mapped to another thread by the go runtime,
+	// making CUDA crash.
+	// Debugvv("Locked OS thread")
+	runtime.LockOSThread()
 	C.gpu_set_device(C.int(devid))
 }
 
@@ -191,7 +189,7 @@ func (d Gpu) newArray(components, nFloats int) []uintptr {
 	list := uintptr(unsafe.Pointer(C.new_gpu_array(C.int(components * nFloats))))
 	array := make([]uintptr, components)
 	for i := range array {
-		array[i] = d.arrayOffset(list, i*nFloats)
+		array[i] = arrayOffset(list, i*nFloats)
 	}
 	return array
 }
@@ -207,9 +205,6 @@ func (d Gpu) memcpy(source, dest uintptr, nFloats, direction int) {
 // The size (in bytes) of a C float (not a go float!)
 const SIZEOF_CFLOAT = 4
 
-func (d Gpu) arrayOffset(array uintptr, index int) uintptr {
-	return uintptr(array + uintptr(SIZEOF_CFLOAT*index)) // uintptr(unsafe.Pointer(C.gpu_array_offset((*C.float)(unsafe.Pointer(array)), C.int(index))))
-}
 
 func (d Gpu) Stride() int {
 	return int(C.gpu_stride_float())

@@ -43,13 +43,19 @@ func UseGpu(gpu_id, threads, options int) {
 	if device != nil {
 		panic(mumax.Bug("device allready set"))
 	} else {
-		gpu := Gpu{}
-		gpu.setDevice(gpu_id)
-		gpu.init(threads, options)
-		device = gpu
+		useGpu(gpu_id, threads, options)
 	}
 }
 
+// INTERNAL
+// Allows to switch devices during runtime.
+// Intended for debugging
+func useGpu(gpu_id, threads, options int) {
+	gpu := Gpu{}
+	gpu.setDevice(gpu_id)
+	gpu.init(threads, options)
+	device = gpu
+}
 
 // Copies a number of float32s from host to GPU
 func memcpyTo(source *float32, dest uintptr, nFloats int) {
@@ -64,6 +70,11 @@ func memcpyFrom(source uintptr, dest *float32, nFloats int) {
 // Copies a number of float32s from GPU to GPU
 func memcpyOn(source, dest uintptr, nFloats int) {
 	device.memcpy(source, dest, nFloats, CPY_ON)
+}
+
+
+func arrayOffset(array uintptr, index int) uintptr {
+	return uintptr(array + uintptr(SIZEOF_CFLOAT*index)) 
 }
 
 // Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
