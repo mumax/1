@@ -1,15 +1,8 @@
-include $(GOROOT)/src/Make.inc
-PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
+all:
+	gomake -C common
+	gomake -C device
 
-TARG=mumax
+clean:
+	gomake clean -C common
+	gomake clean -C device
 
-GOFILES=\
-	error.go\
-
-CLEANFILES+=$(PKGDIR)/$(TARG).a
-
-include $(GOROOT)/src/Make.pkg
-
-%: install %.go
-	$(GC) $*.go
-	$(LD) -o $@ $*.$O

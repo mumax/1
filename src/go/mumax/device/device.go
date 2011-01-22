@@ -52,7 +52,10 @@ func memcpyOn(source, dest uintptr, nFloats int) {
 	device.memcpy(source, dest, nFloats, CPY_ON)
 }
 
+// Size, in bytes, of a C single-precision float
+const SIZEOF_CFLOAT = 4
 
+// Go equivalent of &array[index] (for a float array).
 func arrayOffset(array uintptr, index int) uintptr {
 	return uintptr(array + uintptr(SIZEOF_CFLOAT*index)) 
 }
