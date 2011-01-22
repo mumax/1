@@ -87,7 +87,7 @@ func (s *Sim) SawtoothField(hz, hy, hx float32, freq float64) {
 type sawtooth rfField
 
 func (field *sawtooth) GetAppliedField(time float64) [3]float32 {
-	sin := float32(Asin(Sin(field.freq * 2 * Pi * time)))
+	sin := float32(Asin(Sin(field.freq * 2 * Pi * time))/(Pi/2))
 	return [3]float32{field.b[X] * sin, field.b[Y] * sin, field.b[Z] * sin}
 }
 
