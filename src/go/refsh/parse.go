@@ -48,6 +48,8 @@ func parseArg(arg string, argtype Type) Value {
 		panic(fmt.Sprint("Do not know how to parse ", argtype))
 	case "int":
 		return NewValue(parseInt(arg))
+	case "int64":
+		return NewValue(parseInt64(arg))
 	case "float":
 		return NewValue(parseFloat(arg))
 	case "float32":
@@ -66,6 +68,16 @@ func parseInt(str string) int {
 	i, err := strconv.Atoi(str)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Could not parse to int:", str)
+		os.Exit(-3)
+	}
+	return i
+}
+
+// INTERNAL
+func parseInt64(str string) int64 {
+	i, err := strconv.Atoi64(str)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Could not parse to int64:", str)
 		os.Exit(-3)
 	}
 	return i

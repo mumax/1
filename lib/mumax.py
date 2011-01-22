@@ -13,6 +13,10 @@ def wait():
 		stdin.readlines()
 
 # INTERNAL. Shorthand for running a command with one argument
+def do0(command):
+	print(command)
+
+# INTERNAL. Shorthand for running a command with one argument
 def do1(command, arg):
 	print(command + " " + str(arg))
 
@@ -71,6 +75,13 @@ def loadm(filename):
 def uniform(mx, my, mz):
 	do3("uniform", mx, my, mz)
 
+# Sets the magnetization to a random state
+def setrandom():
+	do0("setrandom")
+
+# Sets the random number seed
+def seed(s):
+	do1("seed", s)
 
 # Output
 

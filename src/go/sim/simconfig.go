@@ -113,6 +113,8 @@ func (s *Sim) SetRandom(){
 	s.invalidate()
 }
 
+
+// Sets the random seed
 func (s *Sim) Seed(seed int64){
 	rand.Seed(seed)
 }
