@@ -103,5 +103,20 @@ func (s *Sim) AddNoise(amplitude float32) {
 	s.invalidate()
 }
 
+// Sets the initial magnetization random
+func (s *Sim) SetRandom(){
+	s.initMLocal()
+	list := s.mLocal.List()
+	for i := range list {
+		list[i] = float32(rand.Float()-0.5)
+	}
+	s.invalidate()
+}
+
+func (s *Sim) Seed(seed int64){
+	rand.Seed(seed)
+}
+
+
 // TODO: we are in trouble here if we have automatic transpose of the geometry for performance
 // X needs to be the out-of-plane direction
