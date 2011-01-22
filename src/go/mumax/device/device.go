@@ -18,10 +18,17 @@ package device
 
 
 import (
-	"mumax"
-	"unsafe"
+	. "mumax/common"
 )
 
+
+func Use(dev Interface){
+	if device != nil{
+		panic(Bug("device.Use(): device already set."))
+	}else{
+		device = dev
+	}
+}
 
 // INTERNAL:
 // Global variable that points to the abstracted device.
@@ -36,21 +43,20 @@ import (
 var device Interface
 
 
-
 // Copies a number of float32s from host to GPU
-func memcpyTo(source *float32, dest uintptr, nFloats int) {
-	device.memcpy(uintptr(unsafe.Pointer(source)), dest, nFloats, CPY_TO)
-}
-
-// Copies a number of float32s from GPU to host
-func memcpyFrom(source uintptr, dest *float32, nFloats int) {
-	device.memcpy(source, uintptr(unsafe.Pointer(dest)), nFloats, CPY_FROM)
-}
-
-// Copies a number of float32s from GPU to GPU
-func memcpyOn(source, dest uintptr, nFloats int) {
-	device.memcpy(source, dest, nFloats, CPY_ON)
-}
+//func memcpyTo(source *float32, dest uintptr, nFloats int) {
+//	device.memcpy(uintptr(unsafe.Pointer(source)), dest, nFloats, CPY_TO)
+//}
+//
+//// Copies a number of float32s from GPU to host
+//func memcpyFrom(source uintptr, dest *float32, nFloats int) {
+//	device.memcpy(source, uintptr(unsafe.Pointer(dest)), nFloats, CPY_FROM)
+//}
+//
+//// Copies a number of float32s from GPU to GPU
+//func memcpyOn(source, dest uintptr, nFloats int) {
+//	device.memcpy(source, dest, nFloats, CPY_ON)
+//}
 
 // Size, in bytes, of a C single-precision float
 const SIZEOF_CFLOAT = 4
@@ -73,20 +79,20 @@ func CopyUnpad(source, dest *Tensor) {
 
 // a[i] += b[i]
 func Add(a, b *Tensor) {
-	assertEqual(a.size, b.size)
+	AssertEqual(a.size, b.size)
 	device.add(a.data, b.data, a.length)
 }
 
 // a[i] += cnst * b[i]
 func MAdd(a *Tensor, cnst float32, b *Tensor) {
-	assertEqual(a.size, b.size)
+	AssertEqual(a.size, b.size)
 	device.madd(a.data, cnst, b.data, a.length)
 }
 
 // a[i] += b[i] * c[i]
 func MAdd2(a, b, c *Tensor) {
-	assertEqual(a.size, b.size)
-	assertEqual(b.size, c.size)
+	AssertEqual(a.size, b.size)
+	AssertEqual(b.size, c.size)
 	device.madd2(a.data, b.data, c.data, a.length)
 }
 
@@ -100,7 +106,7 @@ func AddLinAnis(h, m *Tensor, K []*Tensor) {
 
 // a[i]  = weightA * a[i] + weightB * b[i]
 func LinearCombination(a, b *Tensor, weightA, weightB float32) {
-	assertEqualSize(a.size, b.size)
+	AssertEqual(a.size, b.size)
 	device.linearCombination(a.data, b.data, weightA, weightB, a.length)
 }
 
@@ -110,23 +116,23 @@ func AddConstant(a *Tensor, cnst float32) {
 }
 
 func AddLocalFields(m, h *Tensor, hext []float32, anisType int, anisK, anisAxes []float32) {
-	assert(m.length == h.length)
-	assert(len(m.size) == 4)
+	Assert(m.length == h.length)
+	Assert(len(m.size) == 4)
 	//fmt.Printf("hext:%v, anistype:%v, anisK:%v, anisAxes:%v\n", hext, anisType, anisK, anisAxes)
 	device.addLocalFields(m.data, h.data, hext, anisType, anisK, anisAxes, m.length/3)
 }
 
 
 func SemianalStep(min, mout, h *Tensor, dt, alpha float32) {
-	assert(min.length == h.length)
-	assert(min.length == mout.length)
+	Assert(min.length == h.length)
+	Assert(min.length == mout.length)
 	device.semianalStep(min.data, mout.data, h.data, dt, alpha, min.length/3)
 }
 
 //func OverrideStride(stride int) {
 //	panic("OverrideStride is currently not compatible with the used FFT, it should always be 1")
 //	Debugvv("Backend.OverrideStride(", stride, ")")
-//	assert(stride > 0 || stride == -1)
+//	Assert(stride > 0 || stride == -1)
 //	b.overrideStride(stride)
 //}
 
@@ -140,7 +146,6 @@ func SemianalStep(min, mout, h *Tensor, dt, alpha float32) {
 //	device.fft(plan, in, out, FFT_INVERSE)
 //}
 
-//________________________________________________________________________ derived methods
 
 
 // Takes an array size and returns the smallest multiple of Stride() where the array size fits in
@@ -148,27 +153,10 @@ func SemianalStep(min, mout, h *Tensor, dt, alpha float32) {
 //	stride := b.Stride()
 //	gpulen := ((nFloats-1)/stride + 1) * stride
 //
-//	assert(gpulen%stride == 0)
-//	assert(gpulen > 0)
-//	assert(gpulen >= nFloats)
+//	Assert(gpulen%stride == 0)
+//	Assert(gpulen > 0)
+//	Assert(gpulen >= nFloats)
 //	return gpulen
 //}
 
 
-// Panics if test is false
-func assert(test bool) {
-	if !test {
-		panic(mumax.Bug("Assertion failed."))
-	}
-}
-
-func assertEqual(a, b []int) {
-	if len(a) != len(b) {
-		panic(mumax.Bug("Assertion failed."))
-	}
-	for i, a_i := range a {
-		if a_i != b[i] {
-			panic(mumax.Bug("Assertion failed."))
-		}
-	}
-}

@@ -7,6 +7,7 @@
 package device
 
 import (
+	. "mumax/common"
 	"tensor"
 	"fmt"
 	"runtime"
@@ -32,7 +33,7 @@ type Tensor struct {
 // E.g.: NewVector([]int{3, 32, 32, 32}) for a 3-vector field
 // NewVector(6, ...) for a symmetric tensor field.
 func NewTensor(size []int) *Tensor {
-	assert(len(size) == 4)
+	Assert(len(size) == 4)
 	t := new(Tensor)
 	t.size = t.size4[:]
 	copy(size, t.size)
@@ -97,7 +98,7 @@ func (t *Tensor) Size() []int {
 
 
 // func (t *Tensor) Component(comp int) *Tensor {
-// 	assert(comp >= 0 && comp < t.size[0])
+// 	Assert(comp >= 0 && comp < t.size[0])
 // 	size := t.size[1:]
 // 	data := t.arrayOffset(t.data, comp*Len(size))
 // 	return &Tensor{t.Backend, size, data}
@@ -113,30 +114,30 @@ func Len(size []int) int {
 }
 
 
-func assertEqualSize(sizeA, sizeB []int) {
-	assert(len(sizeA) == len(sizeB))
+func AssertEqualSize(sizeA, sizeB []int) {
+	Assert(len(sizeA) == len(sizeB))
 	for i := range sizeA {
-		assert(sizeA[i] == sizeB[i])
+		Assert(sizeA[i] == sizeB[i])
 	}
 }
 
 
 // copies between two Tensors on the device
 func CopyOn(source, dest *Tensor) {
-	assertEqual(source.size, dest.size)
+	AssertEqual(source.size, dest.size)
 	device.memcpy(source.data, dest.data, CPY_ON, source.length)
 }
 
 // copies a tensor to the device
 // TODO Copy() with type switch for auto On/To/From
 func CopyTo(source tensor.Interface, dest *Tensor) {
-	assertEqual(source.Size(), dest.size)
+	AssertEqual(source.Size(), dest.size)
 	device.memcpy(uintptr(unsafe.Pointer(&(source.List()[0]))), dest.data, CPY_TO, dest.length)
 }
 
 // copies a tensor from the device
 func CopyFrom(source *Tensor, dest tensor.Interface) {
-	assertEqual(source.Size(), dest.Size())
+	AssertEqual(source.Size(), dest.Size())
 	device.memcpy(source.data, uintptr(unsafe.Pointer(&(dest.List()[0]))), CPY_FROM, source.length)
 }
 

@@ -4,6 +4,7 @@ PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 TARG=mumax/common
 
 GOFILES=\
+	assert.go\
 	error.go\
 	constants.go\
 
