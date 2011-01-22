@@ -29,10 +29,10 @@ func Use(gpu_id, threads, options int) {
 	if device != nil {
 		panic(mumax.Bug("device allready set"))
 	} else {
-	gpu := Gpu{}
-	gpu.setDevice(gpu_id)
-	gpu.init(threads, options)
-	device.Use(gpu)
+		gpu := Gpu{}
+		gpu.setDevice(gpu_id)
+		gpu.init(threads, options)
+		device.Use(gpu)
 	}
 }
 

@@ -16,7 +16,7 @@ import (
 var odt *omf.TabWriter
 
 // Generates a .odt datatable form .omf files.
-func ToODT(filename string){
+func ToODT(filename string) {
 	init_odt(filename)
 	odt.Print(info.DescGet("Time"))
 
@@ -31,8 +31,8 @@ func ToODT(filename string){
 	odt.Print(info.DescGet("id"))
 }
 
-func init_odt(filename string){
-	if odt == nil{
+func init_odt(filename string) {
+	if odt == nil {
 		out := iotool.MustOpenWRONLY(filename)
 		odt = omf.NewTabWriter(out)
 		odt.AddColumn("Time", "s")

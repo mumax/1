@@ -69,7 +69,7 @@ func (t *TabWriter) Print(v ...interface{}) {
 	}
 }
 
-func (t *TabWriter) Flush(){
+func (t *TabWriter) Flush() {
 	t.tabout.Flush()
 	t.bufout.Flush()
 }

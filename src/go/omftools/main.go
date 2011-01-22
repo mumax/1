@@ -75,11 +75,11 @@ func main() {
 	cleanup()
 }
 
-func cleanup(){
-	if odt != nil{
+func cleanup() {
+	if odt != nil {
 		odt.Close()
 	}
-	if coreodt != nil{
+	if coreodt != nil {
 		coreodt.Close()
 	}
 }

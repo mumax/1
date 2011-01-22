@@ -7,7 +7,7 @@
 
 package main
 
-import(
+import (
 	"omf"
 	"iotool"
 	"fmt"
@@ -31,7 +31,7 @@ func CorePos(fname string, pol float32) {
 			for k := 1; k < len(mz[i][j])-1; k++ {
 				if pol*mz[i][j][k] > max {
 					max = pol * mz[i][j][k]
-					maxX, maxY, maxZ = i,j,k
+					maxX, maxY, maxZ = i, j, k
 				}
 			}
 		}
@@ -42,12 +42,12 @@ func CorePos(fname string, pol float32) {
 	corey := float32(maxY) //+ interpolate_maxpos(max, -1., pol*mz[maxZ][maxX][maxY-1], 1., pol*mz[maxZ][maxX][maxY+1])
 
 	// and express in length units
-//	cellsizex := info.StepSize[0]
-//	cellsizey := info.StepSize[0]
-//	cellsizex /= float32(len(mz[0]))
-//	cellsizey /= float32(len(mz[0][0]))
-//	corex *= float32(cellsizex)
-//	corey *= float32(cellsizey)
+	//	cellsizex := info.StepSize[0]
+	//	cellsizey := info.StepSize[0]
+	//	cellsizex /= float32(len(mz[0]))
+	//	cellsizey /= float32(len(mz[0][0]))
+	//	corex *= float32(cellsizex)
+	//	corey *= float32(cellsizey)
 
 	// oops, turns out we were transposed all the time
 	//corex, corey = corey, corex
@@ -61,14 +61,14 @@ func CorePos(fname string, pol float32) {
 
 }
 
-func init_odt_corepos(filename string){
-	if coreodt == nil{
+func init_odt_corepos(filename string) {
+	if coreodt == nil {
 		out := iotool.MustOpenWRONLY(filename)
 		coreodt = omf.NewTabWriter(out)
 		coreodt.AddColumn("Time", "s")
 		coreodt.AddColumn("CoreX", "m")
 		coreodt.AddColumn("CoreY", "m")
-	//	odt.AddColumn("id", "")
+		//	odt.AddColumn("id", "")
 	}
 }
 

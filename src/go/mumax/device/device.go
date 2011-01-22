@@ -22,10 +22,10 @@ import (
 )
 
 
-func Use(dev Interface){
-	if device != nil{
+func Use(dev Interface) {
+	if device != nil {
 		panic(Bug("device.Use(): device already set."))
-	}else{
+	} else {
 		device = dev
 	}
 }
@@ -63,7 +63,7 @@ const SIZEOF_CFLOAT = 4
 
 // Go equivalent of &array[index] (for a float array).
 func arrayOffset(array uintptr, index int) uintptr {
-	return uintptr(array + uintptr(SIZEOF_CFLOAT*index)) 
+	return uintptr(array + uintptr(SIZEOF_CFLOAT*index))
 }
 
 // Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
@@ -147,7 +147,6 @@ func SemianalStep(min, mout, h *Tensor, dt, alpha float32) {
 //}
 
 
-
 // Takes an array size and returns the smallest multiple of Stride() where the array size fits in
 //func (b  PadToStride(nFloats int) int {
 //	stride := b.Stride()
@@ -158,5 +157,3 @@ func SemianalStep(min, mout, h *Tensor, dt, alpha float32) {
 //	Assert(gpulen >= nFloats)
 //	return gpulen
 //}
-
-
