@@ -5,7 +5,7 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-package sim
+package mumax
 
 /*
 #include "../../../gpukern/gpukern.h"
@@ -187,8 +187,13 @@ func (d Gpu) fft(plan uintptr, in, out uintptr, direction int) {
 }
 
 
-func (d Gpu) newArray(nFloats int) uintptr {
-	return uintptr(unsafe.Pointer(C.new_gpu_array(C.int(nFloats))))
+func (d Gpu) newArray(components, nFloats int) []uintptr {
+	list := uintptr(unsafe.Pointer(C.new_gpu_array(C.int(components * nFloats))))
+	array := make([]uintptr, components)
+	for i := range array {
+		array[i] = d.arrayOffset(list, i*nFloats)
+	}
+	return array
 }
 
 func (d Gpu) freeArray(ptr uintptr) {

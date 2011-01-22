@@ -5,15 +5,14 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-package sim
+package device
 
 
 import ()
 
 
 type MultiGpu struct {
-	gpuid []int // IDs of the GPUs in the multi-GPU pool
-
+	gpuid    []int                 // IDs of the GPUs in the multi-GPU pool
 	curraddr uintptr               // counter for making unique fake adresses in the multi-GPU memory space
 	mmap     map[uintptr][]uintptr // maps each fake address of the multi-GPU memory space to adresses on each of the sub-devices
 	msize    map[uintptr]int       // stores the length (in number of floats) of the alloctad storage of fake multi-GPU addresses
@@ -36,9 +35,9 @@ func (d *MultiGpu) NDev() int {
 // 	C.gpu_init()
 // }
 // 
-func (d *MultiGpu) setDevice(devid int) {
-	panic(Bug("MultiGpu.setDevice() is illegal"))
-}
+//func (d *MultiGpu) setDevice(devid int) {
+//	panic(Bug("MultiGpu.setDevice() is illegal"))
+//}
 // 
 // 
 // func (d *MultiGpu) add(a, b uintptr, N int) {
@@ -133,26 +132,26 @@ func (d *MultiGpu) setDevice(devid int) {
 // 
 //
 
-func (d *MultiGpu) newArray(nFloats int) uintptr {
-	d.curraddr++
-	fakeaddr := d.curraddr
-
-	d.mmap[fakeaddr] = make([]uintptr, d.NDev())
-	d.msize[fakeaddr] = nFloats
-
-	subaddr := d.mmap[fakeaddr]
-	assert(nFloats%d.NDev() == 0)
-	subsize := nFloats / d.NDev()
-	for i := range subaddr {
-		subaddr[i] = func() uintptr {
-			//runtime.LockOSThread()
-			GPU.setDevice(d.gpuid[i])
-			return GPU.newArray(subsize)
-		}()
-	}
-
-	return fakeaddr
-}
+//func (d *MultiGpu) newArray(nFloats int) uintptr {
+//	d.curraddr++
+//	fakeaddr := d.curraddr
+//
+//	d.mmap[fakeaddr] = make([]uintptr, d.NDev())
+//	d.msize[fakeaddr] = nFloats
+//
+//	subaddr := d.mmap[fakeaddr]
+//	assert(nFloats%d.NDev() == 0)
+//	subsize := nFloats / d.NDev()
+//	for i := range subaddr {
+//		subaddr[i] = func() uintptr {
+//			//runtime.LockOSThread()
+//			GPU.setDevice(d.gpuid[i])
+//			return GPU.newArray(subsize)
+//		}()
+//	}
+//
+//	return fakeaddr
+//}
 
 // func (d *MultiGpu) freeArray(ptr uintptr) {
 // 	C.free_gpu_array((*C.float)(unsafe.Pointer(ptr)))

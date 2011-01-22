@@ -5,7 +5,7 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-package sim
+package mumax
 
 /*
 #include "../../../cpukern/cpukern.h"
@@ -215,8 +215,13 @@ func (d Cpu) fft(plan uintptr, in, out uintptr, direction int) {
 // Allocates an array of float32s on the CPU.
 // By convention, GPU arrays are represented by an uintptr,
 // while host arrays are *float32's.
-func (d Cpu) newArray(nFloats int) uintptr {
-	return uintptr(unsafe.Pointer(C.new_cpu_array(C.int(nFloats))))
+func (d Cpu) newArray(components, nFloats int) uintptr {
+	list := uintptr(unsafe.Pointer(C.new_cpu_array(C.int(components * nFloats))))
+	array := make([]uintptr, components)
+	for i := range array {
+		array[i] = d.arrayOffset(list, i*nFloats)
+	}
+	return array
 }
 
 func (d Cpu) freeArray(ptr uintptr) {

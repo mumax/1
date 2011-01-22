@@ -9,37 +9,30 @@ package device
 
 import ()
 
-/**
- * The Device interface makes an abstraction from a library with
- * basic simulation functions for a specific computing device
- * like a GPU or CPU (or possibly even a cluster).
- *
- * The interface specifies quite a number of simulation primitives
- * like fft's, deltaM(), memory allocation... where all higher-level
- * simulation functions can be derived from.
- *
- * Gpu is the primary implementation of the Device interface:
- * eachs of its functions calls a corresponding C function that does
- * the actual work with CUDA.
- *
- * The GPU implementation can be easily translated to a CPU alternative
- * by just putting the CUDA kernels inside (openMP) for-loops instead of
- * kernel launches. This straightforward translation is wrapped in
- * Cpu
- *
- * The first layer of higher-level functions is provided by the Backend
- * struct, which embeds a Device. Backend does not need to know whether
- * it uses a gpu.Device or cpu.Device, and so the code for both is
- * identical from this point on.
- *
- * By convention, the methods in the Device interface are unsafe
- * and therefore package private. They have safe, public wrappers
- * derived methods in Backend. This allows the safety checks to
- * be implemented only once in Backend and not for each Device.
- * The few methods that are already safe are accessible through
- * Backend thanks to embedding.
- */
-type Device interface {
+// The device.Interface makes an abstraction from a library with
+// basic simulation functions for a specific computing device
+// like a GPU or CPU (or possibly even a cluster).
+//
+// The interface specifies quite a number of simulation primitives
+// like fft's, deltaM(), memory allocation... where all higher-level
+// simulation functions can be derived from.
+//
+// Gpu is the primary implementation of the Device interface:
+// eachs of its functions calls a corresponding C function that does
+// the actual work with CUDA.
+//
+// The GPU implementation can be easily translated to a CPU alternative
+// by just putting the CUDA kernels inside (openMP) for-loops instead of
+// kernel launches. This straightforward translation is wrapped in
+// Cpu
+//
+// The first layer of higher-level functions is implemented in device.go
+//
+// By convention, the methods in the Device interface are unsafe
+// and therefore package private. They have safe, public wrappers
+// derived methods device.go. This allows the safety checks to
+// be implemented only once and not for each Device.
+type Interface interface {
 
 	// Returns the maximum number of threads on this device
 	// CPU will return the number of processors,
@@ -55,10 +48,6 @@ type Device interface {
 	// Options is currently not used but here to allow
 	// additional fine-tuning in the future.
 	init(threads, options int)
-
-	// selects a device when more than one is present
-	// (typically used for multiple GPU's, not useful for CPU)
-	setDevice(devid int)
 
 	//____________________________________________________________________ general purpose (use Backend safe wrappers)
 
@@ -123,11 +112,17 @@ type Device interface {
 
 	copyPadded(source, dest uintptr, sourceSize, destSize []int, direction int)
 
-	// Allocates an array of float32s on the Device.
-	// By convention, Device arrays are represented by an uintptr,
-	// while host arrays are *float32's.
+	// Allocates a float array of size components*nFloats on the Device.
+	// uintptrs to each component are returned. 
+	// Nevertheless the underlying storage is contiguous.
+	//
 	// Does not need to be initialized with zeros
-	newArray(nFloats int) uintptr
+	//
+	// By convention, Device arrays are represented by a uintptr,
+	// while host arrays are []float32's.
+	// 
+	// "components" is needed for a multi-GPU array. See multigpu.go
+	newArray(components, nFloats int) []uintptr
 
 	// Frees device memory allocated by newArray
 	freeArray(ptr uintptr)
@@ -137,7 +132,7 @@ type Device interface {
 
 	// Offset the array pointer by "index" float32s, useful for taking sub-arrays
 	// TODO: on a multi-device this will not work
-	arrayOffset(array uintptr, index int) uintptr
+	//arrayOffset(array uintptr, index int) uintptr
 
 	// Overwrite n float32s with zeros
 	zero(data uintptr, nFloats int)
@@ -147,38 +142,21 @@ type Device interface {
 	// N: number of vectors 
 	semianalStep(min, mout, h uintptr, dt, alpha float32, N int)
 
-	// Extract only the real parts form in interleaved complex array
-	// 	extractReal(complex, real uintptr, NReal int)
-
-	// Automatically selects between kernelmul3/4/6
-	kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, kerntype, nRealNumbers int)
-
 	// In-place kernel multiplication (m gets overwritten by h).
-	// The kernel is symmetric so only 6 of the 9 components need to be passed (xx, yy, zz, yz, xz, xy).
-	// The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
-	// This is the typical situation for a 3D micromagnetic problem
-	// kernelMul6(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, nRealNumbers int)
-
-	// In-place kernel multiplication (m gets overwritten by h).
-	// The kernel is symmetric and contains no mixing between x and (y, z),
-	// so only 4 of the 9 components need to be passed (xx, yy, zz, yz).
-	// The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
-	// This is the typical situation for a finite 2D micromagnetic problem
-	// TODO
-	// kernelMul4(mx, my, mz, kxx, kyy, kzz, kyz uintptr, nRealNumbers int)
-
-	// In-place kernel multiplication (m gets overwritten by h).
-	// The kernel is symmetric and contains no x contributions.
-	// so only 3 of the 9 components need to be passed (yy, zz, yz).
-	// The kernel is also purely real, so the imaginary parts do not have to be stored (TODO)
-	// This is the typical situation for a infinitely thick 2D micromagnetic problem,
-	// which has no demag effects in the out-of-plane direction
-	// TODO
-	// kernelMul3(my, mz, kyy, kzz, kyz uintptr, nRealNumbers int)
+	// The kernel is symmetric so at most 6 of the 9 components need to be passed (xx, yy, zz, yz, xz, xy).
+	// Even less components may be needed when some are zero. 
+	// The number of non-zero components defines "kerneltype" 
+	// 3D   micromagnetic problem: kerneltype = 6 
+	// 2D   micromagnetic problem: kerneltype = 4 (only 4 of the 9 components need to be passed: xx, yy, zz, yz).
+	// 2.5D micromagnetic problem: kerneltype = 3 (only 3 of the 9 components need to be passed: yy, zz, yz).
+	// (this is the typical situation for a infinitely thick 2D micromagnetic problem,
+	// which has no demag effects in the out-of-plane direction)
+	kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, kerneltype, nRealNumbers int)
 
 	// unsafe creation of C fftPlan
 	newFFTPlan(dataSize, logicSize []int) uintptr
 
+	// execute the fft
 	fft(plan uintptr, in, out uintptr, direction int)
 
 	freeFFTPlan(plan uintptr)
@@ -186,16 +164,16 @@ type Device interface {
 	//______________________________________________________________________________ already safe
 
 	// The GPU stride in number of float32s (!)
-	Stride() int
+	// Stride() int
 
 	// Bytes allocated on the device
-	UsedMem() uint64
+	// UsedMem() uint64
 
 	// Print the GPU properties to stdout
 	// TODO: return string
-	PrintProperties()
+	// PrintProperties()
 
-	TimerPrintDetail()
+	// TimerPrintDetail()
 
 	String() string
 }
