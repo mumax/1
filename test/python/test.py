@@ -24,8 +24,9 @@ for i in range(0, nx):
 		setmcell(i, j, 0, 1, 0, 0)
 
 # run
-autosave("m", "omf", 10e-12)
-autosave("m", "png", 10e-12)
+autosave("m", "binary", 10e-12)
+autosave("m", "text", 9-12)
+autosave("m", "png", 9-12)
 autosave("table", "ascii", 10e-12)
 run(1e-9)
 

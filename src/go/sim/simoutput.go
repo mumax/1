@@ -93,19 +93,21 @@ func (p *Periodic) SetInterval(interval float32) {
 func resolve(what, format string) Output {
 	switch what {
 	default:
-		panic("unknown output quantity " + what + ". options are: m, torque, table")
+		panic("unknown output quantity " + what + ". options are: m, table")
 	case "m":
 		switch format {
 		default:
-			panic("unknown format " + format + ". options are: binary, ascii, png")
+			panic("unknown format " + format + ". options are: binary (=binary4,omf), text (=ascii), png")
 			//		case "binary":
 			//			return &MBinary{&Periodic{0., 0.}}
 			//		case "ascii":
 			//			return &MAscii{&Periodic{0., 0.}}
 		case "png":
 			return &MPng{&Periodic{0., 0.}}
-		case "omf":
-			return &MOmf{&Periodic{0., 0.}}
+		case "binary", "binary4", "omf":
+			return &MOmf{&Periodic{0., 0.}, "binary"}
+		case "text", "ascii":
+			return &MOmf{&Periodic{0., 0.}, "text"}
 		}
 		//	case "torque":
 		//		switch format {
@@ -233,6 +235,7 @@ func m_average(m *tensor.T4) (mx, my, mz float32) {
 
 type MOmf struct {
 	*Periodic
+	format string
 }
 
 // INTERNAL
@@ -246,7 +249,7 @@ func (m *MOmf) Save(s *Sim) {
 	file.Desc = s.desc
 	file.ValueMultiplier = s.mSat
 	file.ValueUnit = "A/m"
-	file.Format = "binary"
+	file.Format = m.format
 	file.DataFormat = "4"
 	omf.FEncode(fname, file)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
