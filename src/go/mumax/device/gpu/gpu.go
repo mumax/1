@@ -22,6 +22,20 @@ import (
 	"fmt"
 )
 
+// gpu.Use() initializes the device to use GPU number "gpu_id",
+// with maximum "threads" threads per thread block.
+// The options flag is currently not used. 
+func Use(gpu_id, threads, options int) {
+	if device != nil {
+		panic(mumax.Bug("device allready set"))
+	} else {
+	gpu := Gpu{}
+	gpu.setDevice(gpu_id)
+	gpu.init(threads, options)
+	device.Use(gpu)
+	}
+}
+
 
 type Gpu struct {
 	// intentionally empty, but the methods implement sim.Device

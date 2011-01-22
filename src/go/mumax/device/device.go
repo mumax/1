@@ -36,26 +36,6 @@ import (
 var device Interface
 
 
-// Initializes the device to use GPU number "gpu_id",
-// with maximum "threads" threads per thread block.
-// The options flag is currently not used. 
-func UseGpu(gpu_id, threads, options int) {
-	if device != nil {
-		panic(mumax.Bug("device allready set"))
-	} else {
-		useGpu(gpu_id, threads, options)
-	}
-}
-
-// INTERNAL
-// Allows to switch devices during runtime.
-// Intended for debugging
-func useGpu(gpu_id, threads, options int) {
-	gpu := Gpu{}
-	gpu.setDevice(gpu_id)
-	gpu.init(threads, options)
-	device = gpu
-}
 
 // Copies a number of float32s from host to GPU
 func memcpyTo(source *float32, dest uintptr, nFloats int) {

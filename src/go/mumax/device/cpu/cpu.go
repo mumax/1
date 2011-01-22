@@ -8,23 +8,17 @@
 package device
 
 /*
-#include "../../../cpukern/cpukern.h"
+#include "../../../../cpukern/cpukern.h"
 */
 import "C"
 import "unsafe"
+import "device"
 
-/**
- * This single file interfaces all the relevant FFTW/cpu functions with go
- * It only wraps the functions, higher level constructs and assetions
- * are in separate files like fft.go, ...
- *
- * @note cgo does not seem to like many cgofiles, so I put everything together here.
- * @author Arne Vansteenkiste
- */
 
 import (
 	"fmt"
 	"mumax"
+	"device"
 )
 
 type Cpu struct {
@@ -151,11 +145,11 @@ func (d Cpu) copyPadded(source, dest uintptr, sourceSize, destSize []int, direct
 	switch direction {
 	default:
 		panic(fmt.Sprintf("Unknown padding direction:", direction))
-	case CPY_PAD:
+	case device.CPY_PAD:
 		C.cpu_copy_pad((*C.float)(unsafe.Pointer(source)), (*C.float)(unsafe.Pointer(dest)),
 			C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
 			C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
-	case CPY_UNPAD:
+	case device.CPY_UNPAD:
 		C.cpu_copy_unpad((*C.float)(unsafe.Pointer(source)), (*C.float)(unsafe.Pointer(dest)),
 			C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
 			C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
