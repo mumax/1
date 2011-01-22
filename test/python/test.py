@@ -1,4 +1,3 @@
-# Micromagnetic standard problem 4
 from mumax import *
 
 desc("description", "standard_problem_4")
@@ -13,12 +12,16 @@ alpha(0.02)
 nx = 128
 ny = 32
 gridsize(nx, ny, 1)    
-partsize(500e-9, 125e-9, 3e-9)
+
+sizex = 500e-9
+sizey = 125e-9
+sizez = 3e-9
+partsize(sizex, sizey, sizez)
 
 # initial magnetization
-seed(1)
-setrandom()
-
+for i in range(0, nx):
+	for j in range(0, ny):
+		setmcell(i, j, 0, 1, 0, 0)
 
 # run
 autosave("m", "omf", 10e-12)

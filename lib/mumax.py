@@ -30,8 +30,8 @@ def do3(command, arg1, arg2, arg3):
 
 # INTERNAL. Shorthand for running a command with arguments
 def do(command, args):
-	for i in args:
-		command += " " + str(args[i])
+	for a in args:
+		command += " " + str(a)
 	print(command)
 		
 
@@ -74,6 +74,14 @@ def loadm(filename):
 # Sets the magnetization to the uniform state (mx, my, mz)
 def uniform(mx, my, mz):
 	do3("uniform", mx, my, mz)
+
+# Sets the magnetization in cell with index i,j,k to (mx, my, mz)
+def setmcell(i, j, k, mx, my, mz):
+	do("setmcell", [i, j, k, mx, my, mz])
+
+# Sets the magnetization in cell position x, y, z (in meters) to (mx, my, mz)
+def setm(x, y, z, mx, my, mz):
+	do("setmcell", [x, y, z, mx, my, mz])
 
 # Sets the magnetization to a random state
 def setrandom():

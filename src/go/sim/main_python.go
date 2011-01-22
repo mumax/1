@@ -31,7 +31,7 @@ func main_python(infile string) {
 
 	// Start mumax --slave subprocess
 	mu_args := passthrough_cli_args()
-	mu_args = append(mu_args, "--slave", "--stdin",  RemoveExtension(infile))
+	mu_args = append(mu_args, "--slave", "--stdin", RemoveExtension(infile))
 	mumax, errmu := subprocess(os.Getenv(SIMROOT)+"/"+SIMCOMMAND, mu_args, exec.Pipe, exec.PassThrough, exec.PassThrough)
 	Check(errmu, ERR_SUBPROCESS)
 	fmt.Println("mumax slave PID ", mumax.Pid)
@@ -40,7 +40,7 @@ func main_python(infile string) {
 	// Python's stdout -> mumax's  stdin
 	// Mumax's  stdout -> python's stdin
 	go Pipe(python.Stdout, mumax.Stdin)
-//	go Pipe(mumax.Stdout, python.Stdin)
+	//	go Pipe(mumax.Stdout, python.Stdin)
 
 	// Wait for python and mumax to finish.
 	// Wait asynchronously so "... has finished" output
