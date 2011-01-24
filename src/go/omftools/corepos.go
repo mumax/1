@@ -52,7 +52,7 @@ func CorePos(fname string, pol float32) {
 	// oops, turns out we were transposed all the time
 	//corex, corey = corey, corex
 
-	time := info.DescGetFloat("time")
+	time := info.DescGetFloat32("time")
 	coreodt.Print(time)
 	coreodt.Print(corex)
 	coreodt.Print(corey)

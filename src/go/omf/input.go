@@ -85,11 +85,11 @@ func (i *Info) DescGet(key string) interface{} {
 }
 
 // Safe way to get a float from Desc
-func (i *Info) DescGetFloat(key string) float {
+func (i *Info) DescGetFloat32(key string) float32 {
 	value := i.DescGet(key)
-	fl, err := strconv.Atof(value.(string))
+	fl, err := strconv.Atof32(value.(string))
 	if err != nil {
-		panic("Could not parse " + key + " to float: " + err.String())
+		panic("Could not parse " + key + " to float32: " + err.String())
 	}
 	return fl
 }

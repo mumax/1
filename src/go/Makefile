@@ -15,7 +15,7 @@ all:
 	cp -f ../../lib/libgpukern.so sim/
 	gomake -C sim
 	gomake install -C sim
-	gomake -C outtools
+#gomake -C outtools
 	gomake -C main
 
 .PHONY: clean

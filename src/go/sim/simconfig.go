@@ -107,7 +107,7 @@ func (s *Sim) AddNoise(amplitude float32) {
 	amplitude *= 2
 	list := s.mLocal.List()
 	for i := range list {
-		list[i] += amplitude * float32(rand.Float()-0.5)
+		list[i] += amplitude * float32(rand.Float32()-0.5)
 	}
 	s.invalidate()
 }
@@ -117,7 +117,7 @@ func (s *Sim) SetRandom() {
 	s.initMLocal()
 	list := s.mLocal.List()
 	for i := range list {
-		list[i] = float32(rand.Float() - 0.5)
+		list[i] = float32(rand.Float32() - 0.5)
 	}
 	s.invalidate()
 }

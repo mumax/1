@@ -171,6 +171,10 @@ alpha   0.02
 
 staticfield 	-24.6E-3     4.3E-3    0 
 
+# rffield 1e-3 0 0 500e6	# apply a sinusoidal RF field of 1mT along X with a 500MHz frequency
+# sawtoothfield 1e-3 0 0 100e6	# apply a sawtooth RF field of 1mT along X with a 100MHz frequency (can be used for hysteresis sweeps)
+# pulsedfield 0 1e-3 0 1e-9 1e-12 # apply a pulse of 1mT along Y with 1ns duration, 1ps rise- and fall times (linear edge, 0-100%).
+
 # Apply electrical current:
 
 # xi                  0.05        # Degree of non-adiabaticity
