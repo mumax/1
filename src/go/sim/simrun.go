@@ -57,17 +57,13 @@ func (s *Sim) Run(time float64) {
 func (s *Sim) Relax(maxtorque float32) {
 	s.init()
 	s.Println("Relaxing until torque < ", maxtorque)
-	if s.relaxer == nil {
-		s.relaxer = NewRelax(s)
-	}
 	s.dt = RELAX_START_DT
-	s.relaxer.MaxTorque(maxtorque)
+	//s.relaxer.MaxTorque(maxtorque)
 	s.torque = maxtorque * 1000
 
 	for s.torque >= maxtorque {
 		// step
-		s.relaxer.RelaxStep()
-		//fmt.Println(s.torque)
+		s.Step()
 		s.steps++
 		s.mUpToDate = false
 
@@ -75,17 +71,6 @@ func (s *Sim) Relax(maxtorque float32) {
 		if math.IsNaN(s.time) || math.IsInf(s.time, 0) {
 			panic("Time step = " + fmt.Sprint(s.dt))
 		}
-
-		//		// save output if so scheduled
-		//		for _, out := range s.outschedule {
-		//			if out.NeedSave(float32(s.time) * s.UnitTime()) { // output entries want SI units
-		//				// assure the local copy of m is up to date and increment the autosave counter if necessary
-		//				s.assureMUpToDate()
-		//				// save
-		//				out.Save(s)
-		//				// TODO here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
-		//			}
-		//		}
 
 	}
 }

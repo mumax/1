@@ -124,7 +124,7 @@ func (s *Sim) SetRandom() {
 
 
 // Sets the random seed
-func (s *Sim) Seed(seed int64) {
+func (s *Sim) RandomSeed(seed int64) {
 	rand.Seed(seed)
 }
 

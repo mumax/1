@@ -96,7 +96,7 @@ type Sim struct {
 	hextSI       [3]float32 // stores the externally applied field returned by AppliedField, in SI UNITS
 	hextInt      []float32  // stores the externally applied field in internal units
 
-	relaxer   *Relax
+	//relaxer   *Relax
 	Solver            // Does the time stepping, can be euler, heun, ...
 	time      float64 // The total time (internal units)
 	dt        float32 // The time step (internal units). May be updated by adaptive-step solvers
