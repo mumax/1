@@ -160,7 +160,7 @@ autosave  table ascii 10E-12  # tabular output will be saved every 10ps in OOMMF
 # To relax the magnetization, set a high alpha temporarily and run for a while.
 
 alpha   2
-relax 1e-4	# relax until the residual torque is < 1e-4. A high damping should be set first.
+relax 1e-2	# relax until the residual torque is < 1e-4. A high damping should be set first.
 alpha   0.02
 
 
