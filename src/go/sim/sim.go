@@ -42,6 +42,8 @@ const (
 // sim.input.dt to make clear it is not necessarily the
 // same as sim.dt (which is in internal units)
 //
+// TODO: at least for mumax 1.x we need an even more strict
+// separation between user input and the rest of the program state.
 type Input struct {
 	aexch          float32    // Exchange constant in SI units (J/m)
 	msat           float32    // Saturation magnetization in SI units (A/m)
@@ -53,6 +55,7 @@ type Input struct {
 	partSizeSet    bool
 	demag_accuracy int
 	dt             float32
+	maxDt, minDt   float32
 	solvertype     string
 	j              [3]float32 // current density in A/m^2
 }

@@ -102,6 +102,32 @@ def autosave(what, format, periodicity):
 	do3("autosave", what, format, periodicity)
 
 
+# Solver
+
+# Sets the solver type. E.g.: rk32, rk4, semianal...
+def solvertype(solver):
+	do1("solvertype", solver)
+
+# Sets the maximum tolerable estimated error per solver step
+def maxerror(error):
+	do1("maxerror", error)
+
+# Sets the maximum time step 
+def maxdt(dt):
+	do1("maxdt", dt)
+
+# Sets the minimum time step 
+def mindt(dt):
+	do1("mindt", dt)
+
+# Sets the maximum magnetization step 
+def maxdm(dm):
+	do1("maxdm", dm)
+
+# Sets the minimum magnetization step 
+def mindm(dm):
+	do1("mindm", dm)
+
 # Excitation
 
 # Apply a static field

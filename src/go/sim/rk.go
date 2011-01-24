@@ -317,13 +317,23 @@ func (rk *RK) Step() {
 				}
 				assert(c[i] == 0)
 				maxTorque := rk.Reduce(k[0])
+				rk.torque = maxTorque // save centrally so it can be output
 				dm := rk.dt * maxTorque
+				// Do not make the magnetization step smaller than minDm
 				if dm < rk.minDm {
 					rk.dt = rk.minDm / maxTorque
 				}
+				// Do not make the time step smaller than minDt
+				if rk.input.minDt != 0. && rk.dt*rk.UnitTime() < rk.input.minDt {
+					rk.dt = rk.input.minDt / rk.UnitTime()
+				}
 				// maxDm has priority over minDm (better safe than sorry)
-				if dm > rk.maxDm {
+				if rk.maxDm != 0 && dm > rk.maxDm {
 					rk.dt = rk.maxDm / maxTorque
+				}
+				// maxDt has priority over minDt (better safe than sorry)
+				if rk.input.maxDt != 0. && rk.dt*rk.UnitTime() > rk.input.maxDt {
+					rk.dt = rk.input.maxDt / rk.UnitTime()
 				}
 				checkdt(rk.dt)
 
