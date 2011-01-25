@@ -5,10 +5,11 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
+// This package provides some simple functions and constants
+// used by all other mumax packages.
 package common
 
-// Central definition of common constants.
-
+// This file provides a central definition of common constants.
 
 // direction flag for memcpy()
 const (
