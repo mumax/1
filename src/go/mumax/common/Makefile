@@ -7,6 +7,7 @@ GOFILES=\
 	assert.go\
 	error.go\
 	constants.go\
+	misc.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 

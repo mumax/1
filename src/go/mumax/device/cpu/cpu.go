@@ -12,13 +12,10 @@ package device
 */
 import "C"
 import "unsafe"
-import "device"
-
 
 import (
+	. "mumax/common"
 	"fmt"
-	"mumax"
-	"device"
 )
 
 type Cpu struct {
@@ -46,12 +43,12 @@ func (d Cpu) madd(a uintptr, cnst float32, b uintptr, N int) {
 }
 
 func (d Cpu) madd2(a, b, c uintptr, N int) {
-	panic(mumax.Bug("unimplemented"))
+	panic(Bug("unimplemented"))
 	//C.cpu_madd2((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), (*C.float)(unsafe.Pointer(c)), C.int(N))
 }
 
 func (c Cpu) addLinAnis(hx, hy, hz, mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, N int) {
-	panic(mumax.Bug("unimplemented"))
+	panic(Bug("unimplemented"))
 }
 
 func (d Cpu) linearCombination(a, b uintptr, weightA, weightB float32, N int) {
@@ -91,7 +88,7 @@ func (d Cpu) deltaM(m, h uintptr, alpha, dtGilbert float32, N int) {
 
 func (d Cpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, dtGilb float32, size []int) {
 	//C.cpu_spintorque_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha),  C.float(beta),  C.float(epsillon), (*C.float)(unsafe.Pointer(&u[0])), C.float(dtGilb), C.int(size[0]), C.int(size[1]), C.int(size[2]))
-	panic(mumax.Bug("spin torque not implemented on CPU"))
+	panic(Bug("spin torque not implemented on CPU"))
 }
 
 func (d Cpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int) {
@@ -145,11 +142,11 @@ func (d Cpu) copyPadded(source, dest uintptr, sourceSize, destSize []int, direct
 	switch direction {
 	default:
 		panic(fmt.Sprintf("Unknown padding direction:", direction))
-	case device.CPY_PAD:
+	case CPY_PAD:
 		C.cpu_copy_pad((*C.float)(unsafe.Pointer(source)), (*C.float)(unsafe.Pointer(dest)),
 			C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
 			C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
-	case device.CPY_UNPAD:
+	case CPY_UNPAD:
 		C.cpu_copy_unpad((*C.float)(unsafe.Pointer(source)), (*C.float)(unsafe.Pointer(dest)),
 			C.int(sourceSize[0]), C.int(sourceSize[1]), C.int(sourceSize[2]),
 			C.int(destSize[0]), C.int(destSize[1]), C.int(destSize[2]))
@@ -207,7 +204,7 @@ func (d Cpu) newArray(components, nFloats int) []uintptr {
 	list := uintptr(unsafe.Pointer(C.new_cpu_array(C.int(components * nFloats))))
 	array := make([]uintptr, components)
 	for i := range array {
-		array[i] = arrayOffset(list, i*nFloats)
+		array[i] = ArrayOffset(list, i*nFloats)
 	}
 	return array
 }
@@ -244,9 +241,6 @@ func (d Cpu) memcpy(source, dest uintptr, nFloats, direction int) {
 // 	C.cpu_array_set((*C.float)(array), C.int(index), C.float(value))
 // }
 
-func (d Cpu) arrayOffset(array uintptr, index int) uintptr {
-	return uintptr(array + uintptr(SIZEOF_CFLOAT*index)) //return uintptr(unsafe.Pointer(C.cpu_array_offset((*C.float)(unsafe.Pointer(array)), C.int(index))))
-}
 
 //___________________________________________________________________________________________________ GPU Stride
 

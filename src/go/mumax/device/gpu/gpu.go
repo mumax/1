@@ -19,21 +19,18 @@ import "runtime"
 // are implemented in device.go.
 
 import (
+	. "mumax/common"
 	"fmt"
 )
 
-// gpu.Use() initializes the device to use GPU number "gpu_id",
+// Initializes the GPU to use device number "gpu_id",
 // with maximum "threads" threads per thread block.
 // The options flag is currently not used. 
-func Use(gpu_id, threads, options int) {
-	if device != nil {
-		panic(mumax.Bug("device allready set"))
-	} else {
-		gpu := Gpu{}
-		gpu.setDevice(gpu_id)
-		gpu.init(threads, options)
-		device.Use(gpu)
-	}
+func Init(gpu_id, threads, options int) Gpu {
+	gpu := Gpu{}
+	gpu.setDevice(gpu_id)
+	gpu.init(threads, options)
+	return gpu
 }
 
 
@@ -203,7 +200,7 @@ func (d Gpu) newArray(components, nFloats int) []uintptr {
 	list := uintptr(unsafe.Pointer(C.new_gpu_array(C.int(components * nFloats))))
 	array := make([]uintptr, components)
 	for i := range array {
-		array[i] = arrayOffset(list, i*nFloats)
+		array[i] = ArrayOffset(list, i*nFloats)
 	}
 	return array
 }
@@ -215,9 +212,6 @@ func (d Gpu) freeArray(ptr uintptr) {
 func (d Gpu) memcpy(source, dest uintptr, nFloats, direction int) {
 	C.memcpy_gpu_dir((*C.float)(unsafe.Pointer(source)), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats), C.int(direction))
 }
-
-// The size (in bytes) of a C float (not a go float!)
-const SIZEOF_CFLOAT = 4
 
 
 func (d Gpu) Stride() int {
