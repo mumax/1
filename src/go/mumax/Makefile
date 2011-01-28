@@ -38,3 +38,5 @@ clean:
 	gomake clean -C device/cpu
 	gomake clean -C device/gpu
 
+test:
+	export LD_LIBARY_PATH=$$LD_LIBARY_PATH:../../../lib; gomake test -C device; 

@@ -36,13 +36,14 @@ func NewTensor(size []int) *Tensor {
 	Assert(len(size) == 4)
 	t := new(Tensor)
 	t.size = t.size4[:]
-	copy(size, t.size)
+	copy(t.size, size) // dest, source
 	t.length = Len(size)
 	complen := Len(size[1:])
-	comp_ptrs := device.newArray(size[0], complen)
+	fmt.Println(size[0], complen)
+	comp_ptrs := device.NewArray(size[0], complen)
 
 	t.data = comp_ptrs[0]
-	ZeroTensor(t)
+	t.Zero()
 
 	//initialize component list
 	t.comp = make([]*Tensor, size[0])
@@ -50,7 +51,8 @@ func NewTensor(size []int) *Tensor {
 	for i := range t.comp {
 		t.comp[i] = new(Tensor)
 		t.comp[i].size = t.comp[i].size4[:]
-		copy(compsize, t.comp[i].size)
+		copy(t.comp[i].size, compsize)// dest, source
+
 		t.comp[i].length = complen
 		t.comp[i].data = comp_ptrs[i]
 	}
@@ -64,7 +66,7 @@ func NewTensor(size []int) *Tensor {
 // It is safe to double-free.
 func (t *Tensor) Free() {
 	if t.data != 0 {
-		device.freeArray(t.data)
+		device.FreeArray(t.data)
 		t.data = 0
 	}
 }
@@ -125,25 +127,26 @@ func AssertEqualSize(sizeA, sizeB []int) {
 // copies between two Tensors on the device
 func CopyOn(source, dest *Tensor) {
 	AssertEqual(source.size, dest.size)
-	device.memcpy(source.data, dest.data, CPY_ON, source.length)
+	device.Memcpy(source.data, dest.data, CPY_ON, source.length)
 }
 
 // copies a tensor to the device
 // TODO Copy() with type switch for auto On/To/From
 func CopyTo(source tensor.Interface, dest *Tensor) {
 	AssertEqual(source.Size(), dest.size)
-	device.memcpy(uintptr(unsafe.Pointer(&(source.List()[0]))), dest.data, CPY_TO, dest.length)
+	device.Memcpy(uintptr(unsafe.Pointer(&(source.List()[0]))), dest.data, CPY_TO, dest.length)
 }
 
 // copies a tensor from the device
 func CopyFrom(source *Tensor, dest tensor.Interface) {
 	AssertEqual(source.Size(), dest.Size())
-	device.memcpy(source.data, uintptr(unsafe.Pointer(&(dest.List()[0]))), CPY_FROM, source.length)
+	device.Memcpy(source.data, uintptr(unsafe.Pointer(&(dest.List()[0]))), CPY_FROM, source.length)
 }
 
 
-func ZeroTensor(t *Tensor) {
-	device.zero(t.data, t.length)
+// Sets all elements to zero
+func (t *Tensor) Zero(){
+	device.Zero(t.data, t.length)
 }
 
 

@@ -30,6 +30,7 @@ func Use(dev Interface) {
 	}
 }
 
+
 // INTERNAL:
 // Global variable that points to the abstracted device.
 // 
@@ -43,6 +44,19 @@ func Use(dev Interface) {
 var device Interface
 
 
+
+
+	// Copies nFloats to, on or from the device, depending on the direction flag (1, 2 or 3)
+	//func Memcpy(source, dest uintptr, nFloats, direction int){
+	//	device.Memcpy
+	//}
+
+	// Offset the array pointer by "index" float32s, useful for taking sub-arrays
+	// TODO: on a multi-device this will not work
+	//arrayOffset(array uintptr, index int) uintptr
+
+	// Overwrite n float32s with zeros
+	func Zero(data uintptr, nFloats int)
 // Copies a number of float32s from host to GPU
 //func memcpyTo(source *float32, dest uintptr, nFloats int) {
 //	device.memcpy(uintptr(unsafe.Pointer(source)), dest, nFloats, CPY_TO)
@@ -61,66 +75,66 @@ var device Interface
 
 // Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
 func CopyPad(source, dest *Tensor) {
-	device.copyPadded(source.data, dest.data, source.size, dest.size, CPY_PAD)
+	device.CopyPadded(source.data, dest.data, source.size, dest.size, CPY_PAD)
 }
 
 //Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
 func CopyUnpad(source, dest *Tensor) {
-	device.copyPadded(source.data, dest.data, source.size, dest.size, CPY_UNPAD)
+	device.CopyPadded(source.data, dest.data, source.size, dest.size, CPY_UNPAD)
 }
 
 
 // a[i] += b[i]
 func Add(a, b *Tensor) {
 	AssertEqual(a.size, b.size)
-	device.add(a.data, b.data, a.length)
+	device.Add(a.data, b.data, a.length)
 }
 
 // a[i] += cnst * b[i]
 func MAdd(a *Tensor, cnst float32, b *Tensor) {
 	AssertEqual(a.size, b.size)
-	device.madd(a.data, cnst, b.data, a.length)
+	device.Madd(a.data, cnst, b.data, a.length)
 }
 
 // a[i] += b[i] * c[i]
 func MAdd2(a, b, c *Tensor) {
 	AssertEqual(a.size, b.size)
 	AssertEqual(b.size, c.size)
-	device.madd2(a.data, b.data, c.data, a.length)
+	device.Madd2(a.data, b.data, c.data, a.length)
 }
 
-func AddLinAnis(h, m *Tensor, K []*Tensor) {
-	device.addLinAnis(h.comp[X].data, h.comp[Y].data, h.comp[Z].data,
-		m.comp[X].data, m.comp[Y].data, m.comp[Z].data,
-		K[XX].data, K[YY].data, K[ZZ].data,
-		K[YZ].data, K[XZ].data, K[XY].data,
-		h.length)
-}
+//func AddLinAnis(h, m *Tensor, K []*Tensor) {
+//	device.addLinAnis(h.comp[X].data, h.comp[Y].data, h.comp[Z].data,
+//		m.comp[X].data, m.comp[Y].data, m.comp[Z].data,
+//		K[XX].data, K[YY].data, K[ZZ].data,
+//		K[YZ].data, K[XZ].data, K[XY].data,
+//		h.length)
+//}
 
 // a[i]  = weightA * a[i] + weightB * b[i]
 func LinearCombination(a, b *Tensor, weightA, weightB float32) {
 	AssertEqual(a.size, b.size)
-	device.linearCombination(a.data, b.data, weightA, weightB, a.length)
+	device.LinearCombination(a.data, b.data, weightA, weightB, a.length)
 }
 
 // a[i] += cnst
 func AddConstant(a *Tensor, cnst float32) {
-	device.addConstant(a.data, cnst, a.length)
+	device.AddConstant(a.data, cnst, a.length)
 }
 
-func AddLocalFields(m, h *Tensor, hext []float32, anisType int, anisK, anisAxes []float32) {
-	Assert(m.length == h.length)
-	Assert(len(m.size) == 4)
-	//fmt.Printf("hext:%v, anistype:%v, anisK:%v, anisAxes:%v\n", hext, anisType, anisK, anisAxes)
-	device.addLocalFields(m.data, h.data, hext, anisType, anisK, anisAxes, m.length/3)
-}
+//func AddLocalFields(m, h *Tensor, hext []float32, anisType int, anisK, anisAxes []float32) {
+//	Assert(m.length == h.length)
+//	Assert(len(m.size) == 4)
+//	//fmt.Printf("hext:%v, anistype:%v, anisK:%v, anisAxes:%v\n", hext, anisType, anisK, anisAxes)
+//	device.addLocalFields(m.data, h.data, hext, anisType, anisK, anisAxes, m.length/3)
+//}
 
 
-func SemianalStep(min, mout, h *Tensor, dt, alpha float32) {
-	Assert(min.length == h.length)
-	Assert(min.length == mout.length)
-	device.semianalStep(min.data, mout.data, h.data, dt, alpha, min.length/3)
-}
+//func SemianalStep(min, mout, h *Tensor, dt, alpha float32) {
+//	Assert(min.length == h.length)
+//	Assert(min.length == mout.length)
+//	device.semianalStep(min.data, mout.data, h.data, dt, alpha, min.length/3)
+//}
 
 //func OverrideStride(stride int) {
 //	panic("OverrideStride is currently not compatible with the used FFT, it should always be 1")
