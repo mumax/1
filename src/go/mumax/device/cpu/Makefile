@@ -10,7 +10,7 @@ CGOFILES=\
 GOFILES=\
 
 
-CGO_CFLAGS+=-I../../../../lib/fftw/include/
+CGO_CFLAGS+=-I../../../../../lib/fftw/include/
 
 # When installing, these libraries must be present (at least symlinked) in the current directory
 CGO_LDFLAGS+=libcpukern.so

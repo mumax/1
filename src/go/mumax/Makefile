@@ -16,15 +16,20 @@ $(PKGDIR)/mumax/device.a:	_common device/*.go
 	gomake -C device
 	gomake install -C device
 	
-_common: $(PKGDIR)/mumax/common.a
+_common: $(PKGDIR)/mumax/common.a $(PKGDIR)/mumax/tensor.a
 
 $(PKGDIR)/mumax/common.a: common/*.go
 	gomake -C common
 	gomake install -C common
 
+$(PKGDIR)/mumax/tensor.a: tensor/*.go
+	gomake -C tensor
+	gomake install -C tensor
+
 	
 clean:
 	gomake clean -C common
+	gomake clean -C tensor
 	gomake clean -C device
 	gomake clean -C device/cpu
 	gomake clean -C device/gpu

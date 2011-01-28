@@ -1,7 +1,7 @@
 include $(GOROOT)/src/Make.inc
 PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 
-TARG=tensor
+TARG=mumax/tensor
 
 GOFILES=\
 	tensor.go\
