@@ -8,7 +8,6 @@ package device
 
 import (
 	. "mumax/common"
-	"tensor"
 	"fmt"
 	"runtime"
 	"unsafe"
