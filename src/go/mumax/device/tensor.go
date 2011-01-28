@@ -39,7 +39,6 @@ func NewTensor(size []int) *Tensor {
 	copy(t.size, size) // dest, source
 	t.length = Len(size)
 	complen := Len(size[1:])
-	fmt.Println(size[0], complen)
 	comp_ptrs := device.NewArray(size[0], complen)
 
 	t.data = comp_ptrs[0]
@@ -127,20 +126,20 @@ func AssertEqualSize(sizeA, sizeB []int) {
 // copies between two Tensors on the device
 func CopyOn(source, dest *Tensor) {
 	AssertEqual(source.size, dest.size)
-	device.Memcpy(source.data, dest.data, CPY_ON, source.length)
+	device.Memcpy(source.data, dest.data, source.length, CPY_ON)
 }
 
 // copies a tensor to the device
 // TODO Copy() with type switch for auto On/To/From
 func CopyTo(source tensor.Interface, dest *Tensor) {
 	AssertEqual(source.Size(), dest.size)
-	device.Memcpy(uintptr(unsafe.Pointer(&(source.List()[0]))), dest.data, CPY_TO, dest.length)
+	device.Memcpy(uintptr(unsafe.Pointer(&(source.List()[0]))), dest.data, dest.length, CPY_TO)
 }
 
 // copies a tensor from the device
 func CopyFrom(source *Tensor, dest tensor.Interface) {
 	AssertEqual(source.Size(), dest.Size())
-	device.Memcpy(source.data, uintptr(unsafe.Pointer(&(dest.List()[0]))), CPY_FROM, source.length)
+	device.Memcpy(source.data, uintptr(unsafe.Pointer(&(dest.List()[0]))), source.length, CPY_FROM)
 }
 
 
