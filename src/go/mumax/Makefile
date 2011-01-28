@@ -39,4 +39,4 @@ clean:
 	gomake clean -C device/gpu
 
 test:
-	export LD_LIBARY_PATH=$$LD_LIBARY_PATH:../../../lib; gomake test -C device; 
+	gomake test -C device 
