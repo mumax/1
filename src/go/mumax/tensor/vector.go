@@ -1,3 +1,4 @@
+//  This file is part of MuMax, a high-performance micromagnetic simulator.
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -6,87 +7,81 @@
 
 package tensor
 
+// This file implements a 3-component vector that implements tensor.Interface.
+
 import (
 	. "math"
 )
 
-type Vector struct {
-	Component [3]float32
-}
-
-/** Implements Tensor interface. */
-
-func (v *Vector) Get(index []int) float32 {
-	return v.Component[index[0]]
-}
+// A 3-component vector that implements tensor.Interface
+type Vector [3]float32
 
 func (v *Vector) Size() []int {
 	return []int{3}
 }
 
 func (v *Vector) List() []float32 {
-	return v.Component[0:]
+	return v[0:]
 }
 
-/** Vector-specific */
 
 func NewVector() *Vector {
-	return &Vector{[3]float32{0., 0., 0.}}
+	return new(Vector)
 }
 
 func UnitVector(direction int) *Vector {
 	v := NewVector()
-	v.Component[direction] = 1.
+	v[direction] = 1.
 	return v
 }
 
 func (v *Vector) Set(x, y, z float32) {
-	v.Component[0] = x
-	v.Component[1] = y
-	v.Component[2] = z
+	v[0] = x
+	v[1] = y
+	v[2] = z
 }
 
 func (v *Vector) SetTo(other *Vector) {
-	v.Component[0] = other.Component[0]
-	v.Component[1] = other.Component[1]
-	v.Component[2] = other.Component[2]
+	v[0] = other[0]
+	v[1] = other[1]
+	v[2] = other[2]
 }
 
 func (a *Vector) Dot(b *Vector) float32 {
-	return a.Component[0]*b.Component[0] + a.Component[1]*b.Component[1] + a.Component[2]*b.Component[2]
+	return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
 }
 
 func (v *Vector) Norm() float32 {
-	return float32(Sqrt(float64(v.Component[0]*v.Component[0] + v.Component[1]*v.Component[1] + v.Component[2]*v.Component[2])))
+	return float32(Sqrt(float64(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])))
 }
 
 func (v *Vector) Normalize() {
 	invnorm := 1. / v.Norm()
-	v.Component[0] *= invnorm
-	v.Component[1] *= invnorm
-	v.Component[2] *= invnorm
+	v[0] *= invnorm
+	v[1] *= invnorm
+	v[2] *= invnorm
 }
 
 func (v *Vector) Scale(r float32) {
-	v.Component[0] *= r
-	v.Component[1] *= r
-	v.Component[2] *= r
+	v[0] *= r
+	v[1] *= r
+	v[2] *= r
 }
 
 func (v *Vector) Divide(r float32) {
-	v.Component[0] /= r
-	v.Component[1] /= r
-	v.Component[2] /= r
+	v[0] /= r
+	v[1] /= r
+	v[2] /= r
 }
 
 func (v *Vector) Sub(other *Vector) {
-	v.Component[0] -= other.Component[0]
-	v.Component[1] -= other.Component[1]
-	v.Component[2] -= other.Component[2]
+	v[0] -= other[0]
+	v[1] -= other[1]
+	v[2] -= other[2]
 }
 
 func (v *Vector) Add(other *Vector) {
-	v.Component[0] += other.Component[0]
-	v.Component[1] += other.Component[1]
-	v.Component[2] += other.Component[2]
+	v[0] += other[0]
+	v[1] += other[1]
+	v[2] += other[2]
 }

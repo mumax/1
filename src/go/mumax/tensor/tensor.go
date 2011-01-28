@@ -6,17 +6,14 @@
 
 package tensor
 
+// This file provides various implementations of tensor.Interface
+
 import (
 	"fmt"
 )
 
 
-type Interface interface {
-	Size() []int
-	List() []float32
-}
-
-
+// A tensor.T represents an arbitrary-rank tensor.
 type T struct {
 	TSize []int
 	TList []float32
@@ -34,6 +31,7 @@ func (t *T) Init(size []int) {
 	t.TList = make([]float32, Prod(size))
 }
 
+// Converts a tensor.Interface to a tensor.T
 func ToT(t Interface) *T {
 	return &T{t.Size(), t.List()}
 }
@@ -48,9 +46,10 @@ func (t *T) List() []float32 {
 }
 
 
+// A rank 4 tensor.
 type T4 struct {
-	T
-	TArray [][][][]float32
+	T                      // The underlying arbitrary-rank tensor
+	TArray [][][][]float32 // The data list represented as an array, for convenience.
 }
 
 func (t *T4) Init(size []int) {
@@ -71,14 +70,16 @@ func (t *T4) Array() [][][][]float32 {
 	return t.TArray
 }
 
+// Converts a tensor.Interface to a tensor.T
 func ToT4(t Interface) *T4 {
 	return &T4{*ToT(t), Slice4D(t.List(), t.Size())}
 }
 
 
+// A rank 3 tensor.
 type T3 struct {
-	T
-	TArray [][][]float32
+	T                    // The underlying arbitrary-rank tensor
+	TArray [][][]float32 // The data list represented as an array, for convenience.
 }
 
 func (t *T3) Init(size []int) {
@@ -104,6 +105,7 @@ func ToT3(t Interface) *T3 {
 }
 
 
+// Returns size[0] * size[1] * ... * size[N]
 func Prod(size []int) int {
 	prod := 1
 	for _, s := range size {
@@ -112,10 +114,13 @@ func Prod(size []int) int {
 	return prod
 }
 
+// The total number of elements.
 func Len(t Interface) int {
 	return Prod(t.Size())
 }
 
+// Returns the rank of the tensor
+// (number of indices).
 func Rank(t Interface) int {
 	return len(t.Size())
 }

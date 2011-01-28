@@ -5,14 +5,11 @@ TARG=tensor
 
 GOFILES=\
 	tensor.go\
+	interface.go\
 	arrayslice.go\
 	iterator.go\
-	util.go\
 	vector.go\
-	input.go\
-	output.go\
 	math.go\
-	legacyio.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 

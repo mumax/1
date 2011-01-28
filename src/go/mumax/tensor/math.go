@@ -1,3 +1,4 @@
+//  This file is part of MuMax, a high-performance micromagnetic simulator.
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -5,6 +6,8 @@
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
 package tensor
+
+// This file implements basic mathematical functions on tensors.
 
 import ()
 

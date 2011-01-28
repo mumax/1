@@ -1,3 +1,4 @@
+//  This file is part of MuMax, a high-performance micromagnetic simulator.
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -6,21 +7,21 @@
 
 package tensor
 
+// This file implements functions to construct multi-dimensional
+// arrays that are backed by a single contiguous list.
+// We can thus access the same data as a 1D list or a multi-dimensional
+// array. As a bonus, all the data is stored in one contiguous memory
+// block, so caching works well. 
+
 import ()
 
 
 // Allocates a 2D array, as well as the contiguous 1D array backing it.
 func Array2D(size0, size1 int) ([]float32, [][]float32) {
-	if !(size0 > 0 && size1 > 0) {
-		panic("Array size must be > 0")
-	}
-
 	// First make the slice and then the list. When the memory is not fragmented,
 	// they are probably allocated in a good order for the cache.
 	sliced := make([][]float32, size0)
 	list := make([]float32, size0*size1)
-	//   CheckAlignment(list)
-
 	for i := 0; i < size0; i++ {
 		sliced[i] = list[i*size1 : (i+1)*size1]
 	}
@@ -29,16 +30,11 @@ func Array2D(size0, size1 int) ([]float32, [][]float32) {
 
 // Allocates a 3D array, as well as the contiguous 1D array backing it.
 func Array3D(size0, size1, size2 int) ([]float32, [][][]float32) {
-
-	// First make the slice and then the list. When the memory is not fragmented,
-	// they are probably allocated in a good order for the cache.
 	sliced := make([][][]float32, size0)
 	for i := range sliced {
 		sliced[i] = make([][]float32, size1)
 	}
 	list := make([]float32, size0*size1*size2)
-	//   CheckAlignment(list)
-
 	for i := range sliced {
 		for j := range sliced[i] {
 			sliced[i][j] = list[(i*size1+j)*size2+0 : (i*size1+j)*size2+size2]
@@ -65,9 +61,6 @@ func Slice3D(list []float32, size []int) [][][]float32 {
 
 // Allocates a 4D array, as well as the contiguous 1D array backing it.
 func Array4D(size0, size1, size2, size3 int) ([]float32, [][][][]float32) {
-
-	// First make the slice and then the list. When the memory is not fragmented,
-	// they are probably allocated in a good order for the cache.
 	sliced := make([][][][]float32, size0)
 	for i := range sliced {
 		sliced[i] = make([][][]float32, size1)
@@ -78,8 +71,6 @@ func Array4D(size0, size1, size2, size3 int) ([]float32, [][][][]float32) {
 		}
 	}
 	list := make([]float32, size0*size1*size2*size3)
-	//   CheckAlignment(list)
-
 	for i := range sliced {
 		for j := range sliced[i] {
 			for k := range sliced[i][j] {
@@ -90,7 +81,7 @@ func Array4D(size0, size1, size2, size3 int) ([]float32, [][][][]float32) {
 	return list, sliced
 }
 
-//
+// Like Array4D(), but uses an existing contiguous list instead of freshly allocating one.
 func Slice4D(list []float32, size []int) [][][][]float32 {
 
 	sliced := make([][][][]float32, size[0])
@@ -114,11 +105,8 @@ func Slice4D(list []float32, size []int) [][][][]float32 {
 }
 
 
-// Allocates a 4D array, as well as the contiguous 1D array backing it.
+// Allocates a 5D array, as well as the contiguous 1D array backing it.
 func Array5D(size0, size1, size2, size3, size4 int) ([]float32, [][][][][]float32) {
-
-	// First make the slice and then the list. When the memory is not fragmented,
-	// they are probably allocated in a good order for the cache.
 	sliced := make([][][][][]float32, size0)
 	for i := range sliced {
 		sliced[i] = make([][][][]float32, size1)
@@ -136,8 +124,6 @@ func Array5D(size0, size1, size2, size3, size4 int) ([]float32, [][][][][]float3
 		}
 	}
 	list := make([]float32, size0*size1*size2*size3*size4)
-	//   CheckAlignment(list)
-
 	for i := range sliced {
 		for j := range sliced[i] {
 			for k := range sliced[i][j] {

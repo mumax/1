@@ -1,3 +1,4 @@
+//  This file is part of MuMax, a high-performance micromagnetic simulator.
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -9,8 +10,7 @@ package tensor
 
 // An iterator for tensors.
 //
-// Handy to access a tensor when the rank is not known and the tensor is
-// not necessarily a StoredTensor (so there is no .List() ).
+// Handy to access a tensor when the rank is not known.
 // Iterator.Next() iterates to the next element, in row-major oder.
 //
 // Typical usage:

@@ -7,7 +7,7 @@ msat       	800E3
 aexch      	1.3E-11     
 alpha      	0.02
 
-maxerror 1e-3
+maxerror 1e-4
 
 # geometry 
 gridsize       	256 	64 	1    

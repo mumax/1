@@ -271,6 +271,9 @@ func newRK(sim *Sim, order int) *RK {
 // 	return rk
 // }
 
+// On a bad time step (error too big), 
+// do not re-try the step more than this number of times.
+const MAX_STEP_TRIALS = 10
 
 func (rk *RK) Step() {
 
@@ -289,7 +292,12 @@ func (rk *RK) Step() {
 
 	TensorCopyOn(m, rk.mbackup)
 	goodstep := false
-	for !goodstep {
+	trials := 0
+	// Try to take a step with the current dt.
+	// If the step fails (error too big),
+	// then cut dt and try again (at most MAX_STEP_TRIALS times) 
+	for !goodstep && trials < MAX_STEP_TRIALS{
+		trials++
 		for i := 0; i < order; i++ {
 
 			//FSAL
