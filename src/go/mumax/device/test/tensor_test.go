@@ -10,13 +10,14 @@ package test
 import (
 	"testing"
 	"mumax/tensor"
+	"mumax/device"
 )
 
 
 
 
 func TestCopy(test *testing.T){
-	UseTestDevice()
+	InitDevice()
 
 	size := []int{3, 4, 32, 64}
 	loc := tensor.NewT4(size)
