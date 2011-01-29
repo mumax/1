@@ -1,12 +1,10 @@
 include $(GOROOT)/src/Make.inc
 PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 
-TARG=mumax/device
+TARG=mumax/device/test
 
 GOFILES=\
-	device.go\
-	interface.go\
-	tensor.go\
+	testing.go\
 	
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 
