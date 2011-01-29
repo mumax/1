@@ -22,11 +22,11 @@ import (
 )
 
 
-func Use(dev Interface) {
-	if device != nil {
+func Use(device Interface) {
+	if dev != nil {
 		panic(Bug("device.Use(): device already set."))
 	} else {
-		device = dev
+		dev = device
 	}
 }
 
@@ -41,7 +41,7 @@ func Use(dev Interface) {
 // gave initialization difficulties. So one global device
 // seems more suited. If desired, a local device.Interface
 // variable can still be used to represent a different device. 
-var device Interface
+var dev Interface
 
 
 // Copies nFloats to, on or from the device, depending on the direction flag (1, 2 or 3)
@@ -73,36 +73,36 @@ func Zero(data uintptr, nFloats int)
 
 // Copies from a smaller to a larger tensor, not touching the additional space in the destination (typically filled with zero padding)
 func CopyPad(source, dest *Tensor) {
-	device.CopyPadded(source.data, dest.data, source.size, dest.size, CPY_PAD)
+	dev.CopyPadded(source.data, dest.data, source.size, dest.size, CPY_PAD)
 }
 
 //Copies from a larger to a smaller tensor, not reading the additional data in the source (typically filled with zero padding or spoiled data)
 func CopyUnpad(source, dest *Tensor) {
-	device.CopyPadded(source.data, dest.data, source.size, dest.size, CPY_UNPAD)
+	dev.CopyPadded(source.data, dest.data, source.size, dest.size, CPY_UNPAD)
 }
 
 
 // a[i] += b[i]
 func Add(a, b *Tensor) {
 	AssertEqual(a.size, b.size)
-	device.Add(a.data, b.data, a.length)
+	dev.Add(a.data, b.data, a.length)
 }
 
 // a[i] += cnst * b[i]
 func MAdd(a *Tensor, cnst float32, b *Tensor) {
 	AssertEqual(a.size, b.size)
-	device.Madd(a.data, cnst, b.data, a.length)
+	dev.Madd(a.data, cnst, b.data, a.length)
 }
 
 // a[i] += b[i] * c[i]
 func MAdd2(a, b, c *Tensor) {
 	AssertEqual(a.size, b.size)
 	AssertEqual(b.size, c.size)
-	device.Madd2(a.data, b.data, c.data, a.length)
+	dev.Madd2(a.data, b.data, c.data, a.length)
 }
 
 //func AddLinAnis(h, m *Tensor, K []*Tensor) {
-//	device.addLinAnis(h.comp[X].data, h.comp[Y].data, h.comp[Z].data,
+//	dev.addLinAnis(h.comp[X].data, h.comp[Y].data, h.comp[Z].data,
 //		m.comp[X].data, m.comp[Y].data, m.comp[Z].data,
 //		K[XX].data, K[YY].data, K[ZZ].data,
 //		K[YZ].data, K[XZ].data, K[XY].data,
@@ -112,12 +112,12 @@ func MAdd2(a, b, c *Tensor) {
 // a[i]  = weightA * a[i] + weightB * b[i]
 func LinearCombination(a, b *Tensor, weightA, weightB float32) {
 	AssertEqual(a.size, b.size)
-	device.LinearCombination(a.data, b.data, weightA, weightB, a.length)
+	dev.LinearCombination(a.data, b.data, weightA, weightB, a.length)
 }
 
 // a[i] += cnst
 func AddConstant(a *Tensor, cnst float32) {
-	device.AddConstant(a.data, cnst, a.length)
+	dev.AddConstant(a.data, cnst, a.length)
 }
 
 //func AddLocalFields(m, h *Tensor, hext []float32, anisType int, anisK, anisAxes []float32) {

@@ -1,3 +1,4 @@
+//  This file is part of MuMax, a high-performance micromagnetic simulator.
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -39,7 +40,7 @@ func NewTensor(size []int) *Tensor {
 	copy(t.size, size) // dest, source
 	t.length = Len(size)
 	complen := Len(size[1:])
-	comp_ptrs := device.NewArray(size[0], complen)
+	comp_ptrs := dev.NewArray(size[0], complen)
 
 	t.data = comp_ptrs[0]
 	t.Zero()
@@ -65,7 +66,7 @@ func NewTensor(size []int) *Tensor {
 // It is safe to double-free.
 func (t *Tensor) Free() {
 	if t.data != 0 {
-		device.FreeArray(t.data)
+		dev.FreeArray(t.data)
 		t.data = 0
 	}
 }
@@ -126,26 +127,26 @@ func AssertEqualSize(sizeA, sizeB []int) {
 // copies between two Tensors on the device
 func CopyOn(source, dest *Tensor) {
 	AssertEqual(source.size, dest.size)
-	device.Memcpy(source.data, dest.data, source.length, CPY_ON)
+	dev.Memcpy(source.data, dest.data, source.length, CPY_ON)
 }
 
 // copies a tensor to the device
 // TODO Copy() with type switch for auto On/To/From
 func CopyTo(source tensor.Interface, dest *Tensor) {
 	AssertEqual(source.Size(), dest.size)
-	device.Memcpy(uintptr(unsafe.Pointer(&(source.List()[0]))), dest.data, dest.length, CPY_TO)
+	dev.Memcpy(uintptr(unsafe.Pointer(&(source.List()[0]))), dest.data, dest.length, CPY_TO)
 }
 
 // copies a tensor from the device
 func CopyFrom(source *Tensor, dest tensor.Interface) {
 	AssertEqual(source.Size(), dest.Size())
-	device.Memcpy(source.data, uintptr(unsafe.Pointer(&(dest.List()[0]))), source.length, CPY_FROM)
+	dev.Memcpy(source.data, uintptr(unsafe.Pointer(&(dest.List()[0]))), source.length, CPY_FROM)
 }
 
 
 // Sets all elements to zero
 func (t *Tensor) Zero() {
-	device.Zero(t.data, t.length)
+	dev.Zero(t.data, t.length)
 }
 
 
