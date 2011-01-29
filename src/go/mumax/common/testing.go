@@ -10,7 +10,6 @@ package common
 // To be included as the first line of every TestXXX() func.
 // Reads /tmp/mumax_test_device and sets the device according
 // to its contents ("cpu", "gpu", "multigpu", ...)
-func SetTestDevice(){
+func SetTestDevice() {
 
 }
-

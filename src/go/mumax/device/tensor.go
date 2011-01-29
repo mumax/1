@@ -50,7 +50,7 @@ func NewTensor(size []int) *Tensor {
 	for i := range t.comp {
 		t.comp[i] = new(Tensor)
 		t.comp[i].size = t.comp[i].size4[:]
-		copy(t.comp[i].size, compsize)// dest, source
+		copy(t.comp[i].size, compsize) // dest, source
 
 		t.comp[i].length = complen
 		t.comp[i].data = comp_ptrs[i]
@@ -144,7 +144,7 @@ func CopyFrom(source *Tensor, dest tensor.Interface) {
 
 
 // Sets all elements to zero
-func (t *Tensor) Zero(){
+func (t *Tensor) Zero() {
 	device.Zero(t.data, t.length)
 }
 

@@ -44,19 +44,17 @@ func Use(dev Interface) {
 var device Interface
 
 
+// Copies nFloats to, on or from the device, depending on the direction flag (1, 2 or 3)
+//func Memcpy(source, dest uintptr, nFloats, direction int){
+//	device.Memcpy
+//}
 
+// Offset the array pointer by "index" float32s, useful for taking sub-arrays
+// TODO: on a multi-device this will not work
+//arrayOffset(array uintptr, index int) uintptr
 
-	// Copies nFloats to, on or from the device, depending on the direction flag (1, 2 or 3)
-	//func Memcpy(source, dest uintptr, nFloats, direction int){
-	//	device.Memcpy
-	//}
-
-	// Offset the array pointer by "index" float32s, useful for taking sub-arrays
-	// TODO: on a multi-device this will not work
-	//arrayOffset(array uintptr, index int) uintptr
-
-	// Overwrite n float32s with zeros
-	func Zero(data uintptr, nFloats int)
+// Overwrite n float32s with zeros
+func Zero(data uintptr, nFloats int)
 // Copies a number of float32s from host to GPU
 //func memcpyTo(source *float32, dest uintptr, nFloats int) {
 //	device.memcpy(uintptr(unsafe.Pointer(source)), dest, nFloats, CPY_TO)

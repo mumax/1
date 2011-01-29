@@ -34,7 +34,6 @@ import ()
 // be implemented only once and not for each Device.
 type Interface interface {
 
-
 	// Allocates a float array of size components*nFloats on the Device.
 	// uintptrs to each component are returned. 
 	// Nevertheless the underlying storage is contiguous.
@@ -77,7 +76,6 @@ type Interface interface {
 	// additional fine-tuning in the future.
 	//init(threads, options int)
 
-
 	// adds b to a. N = length of a = length of b
 	Add(a, b uintptr, N int)
 
@@ -116,7 +114,6 @@ type Interface interface {
 
 	// Landau-Lifschitz delta M: overwrites h with torque(m, h) * dtGilbert. N = length of one component
 	LLDeltaM(m, h uintptr, alpha, dtGilbert float32, N int)
-
 
 	// Landau-Lifschitz + Berger spin torque delta M:
 	// overwrites h with torque(m, h) * dtGilbert, inculding spin-transfer torque terms. size = of one component

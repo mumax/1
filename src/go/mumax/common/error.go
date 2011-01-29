@@ -27,21 +27,21 @@ import (
 // The input file contains illegal input
 type InputErr string
 
-func (e InputErr) String() string{
+func (e InputErr) String() string {
 	return string(e)
 }
 
 // A file could not be read/written
 type IOErr string
 
-func (e IOErr) String() string{
+func (e IOErr) String() string {
 	return string(e)
 }
 
 // An unexpected error occurred which should be reported
 type Bug string
 
-func (e Bug) String() string{
+func (e Bug) String() string {
 	return string(e)
 }
 

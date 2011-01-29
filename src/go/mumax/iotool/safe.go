@@ -7,21 +7,22 @@
 package iotool
 
 import (
+	. "mumax/common"
 	"io"
 	"os"
 )
 
 // Blocks until all requested bytes are read.
-// Never returns an error but panics instead
-type SafeReader struct {
+// Never returns an error but panics instead.
+type BlockingReader struct {
 	In io.Reader
 }
 
 
-func (r *SafeReader) Read(p []byte) (n int, err os.Error) {
+func (r *BlockingReader) Read(p []byte) (n int, err os.Error) {
 	n, err = r.In.Read(p)
 	if err != nil {
-		panic(err)
+		panic(IOErr(err.String()))
 	}
 	if n < len(p) {
 		r.Read(p[n:])
@@ -31,6 +32,6 @@ func (r *SafeReader) Read(p []byte) (n int, err os.Error) {
 }
 
 
-func NewSafeReader(in io.Reader) *SafeReader {
-	return &SafeReader{in}
+func NewBlockingReader(in io.Reader) *BlockingReader {
+	return &BlockingReader{in}
 }

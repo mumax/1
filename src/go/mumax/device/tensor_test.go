@@ -14,10 +14,10 @@ import (
 )
 
 
-
-
-func TestCopy(test *testing.T){
-	if device == nil { Use(gpu.Init(0, gpu.MaxThreads(), 0))}
+func TestCopy(test *testing.T) {
+	if device == nil {
+		Use(gpu.Init(0, gpu.MaxThreads(), 0))
+	}
 
 	size := []int{3, 4, 32, 64}
 	loc := tensor.NewT4(size)

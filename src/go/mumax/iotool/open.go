@@ -4,15 +4,20 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
+// This package provides some convenience I/O functions.
 package iotool
+
 
 // This file implements convenience functions for opening files.
 // Errors are wrapped in mumax IOErr's and cause a panic.
+
+
 import (
 	. "mumax/common"
 	"os"
 	"path"
 )
+
 
 // Opens a file for read-only.
 // Panics on error.
@@ -23,6 +28,7 @@ func MustOpenRDONLY(filename string) *os.File {
 	}
 	return file
 }
+
 
 // Opens a file for write-only.
 // Truncates existing file or creates the file if neccesary.
@@ -41,6 +47,7 @@ func MustOpenWRONLY(filename string) *os.File {
 // Permission flag for rw-rw-rw
 const MASK_NO_EXEC = 0666
 
+
 // returns the parent directory of a file
 func Parent(filename string) string {
 	dir, _ := path.Split(filename)
@@ -49,6 +56,7 @@ func Parent(filename string) string {
 	}
 	return dir
 }
+
 
 // returns the file's permissions
 func Permission(filename string) uint32 {

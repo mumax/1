@@ -14,4 +14,3 @@ const SIZEOF_CFLOAT = 4
 func ArrayOffset(array uintptr, index int) uintptr {
 	return uintptr(array + uintptr(SIZEOF_CFLOAT*index))
 }
-
