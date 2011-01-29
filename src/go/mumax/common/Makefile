@@ -10,7 +10,6 @@ GOFILES=\
 	io.go\
 	blockingreader.go\
 	misc.go\
-	testing.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 

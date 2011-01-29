@@ -5,8 +5,13 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-package common
+package device
 
+import(
+	. "mumax/common"
+	"io/ioutil"
+	"strings"
+)
 
 // For testing purposes only:
 // file where we save "cpu", "gpu", ... defining
@@ -17,7 +22,16 @@ const TEST_DEVICE_FILE = "/tmp/mumax_test_device"
 // To be included as the first line of every TestXXX() func.
 // Reads /tmp/mumax_test_device and sets the device according
 // to its contents ("cpu", "gpu", "multigpu", ...)
-func SetTestDevice() {
-	in := MustOpenRDONLY(TEST_DEVICE_FILE)
-	
+func UseTest() {
+	bytes, err := ioutil.ReadFile(TEST_DEVICE_FILE)
+	dev := strings.ToLower(string(bytes))
+	CheckErr(err, ERR_IO)
+	switch{
+		default:	panic(InputErr(TEST_DEVICE_FILE + ": " + dev))
+		case strings.HasPrefix(dev, "cpu"):
+		case strings.HasPrefix(dev, "gpu"):
+		case strings.HasPrefix(dev, "multigpu"):
+	}
 }
+
+

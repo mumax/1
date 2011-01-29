@@ -7,6 +7,7 @@ GOFILES=\
 	device.go\
 	interface.go\
 	tensor.go\
+	testing.go\
 	
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 
