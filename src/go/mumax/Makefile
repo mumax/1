@@ -42,14 +42,16 @@ clean:
 	gomake clean -C device/cpu
 	gomake clean -C device/gpu
 
-$(PKGDIR)/mumax/device/test.a: _common device/test/*.go
-	cp -f ../../../lib/libcpukern.so device/test
-	gomake -C device/test
-	gomake install -C device/test
+test: cputest gputest
 
-test: $(PKGDIR)/mumax/device/test.a
-	gomake test -C device/test
+cputest: 
+	echo cpu > /tmp/mumax_test_device
+	gomake test -C device
 
-bench: $(PKGDIR)/mumax/device/test.a
-	gomake bench -C device/test
+gputest:
+	echo gpu > /tmp/mumax_test_device
+	gomake test -C device
+
+bench: 
+	gomake bench -C device
 

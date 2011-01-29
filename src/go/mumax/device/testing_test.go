@@ -5,11 +5,11 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-package test
+package device
 
 import(
 	. "mumax/common"
-	"mumax/device"
+//	"mumax/device/cpu"
 	"io/ioutil"
 	"strings"
 )
@@ -30,7 +30,7 @@ func InitDevice() {
 	switch{
 		default:	panic(InputErr(TEST_DEVICE_FILE + ": " + dev))
 		case strings.HasPrefix(dev, "cpu"):
-			device.Use(cpu.Init(cpu.MaxThreads(), 0))
+			Use(nil)//cpu.Init(cpu.MaxThreads(), 0))
 		case strings.HasPrefix(dev, "gpu"):
 		case strings.HasPrefix(dev, "multigpu"):
 	}
