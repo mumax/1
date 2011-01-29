@@ -1,14 +1,11 @@
 include $(GOROOT)/src/Make.inc
 PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 
-TARG=mumax/common
+TARG=mumax/iotool
 
 GOFILES=\
-	assert.go\
-	error.go\
-	constants.go\
-	misc.go\
-	testing.go\
+	open.go\
+	safe.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 

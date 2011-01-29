@@ -19,23 +19,35 @@ import (
 
 // We define different error types so a recover() after
 // panic() can determine (with a type assertion)
-// what kind of error happenend. 
-// Only a Bug error causes a bugreport and stackdump,
+// what kind of error happened. 
+// Only a Bug error causes a bug report and stack dump,
 // other errors are the user's fault and do not trigger
-// a stackdump.
+// a stack dump.
 
 // The input file contains illegal input
 type InputErr string
 
+func (e InputErr) String() string{
+	return string(e)
+}
+
 // A file could not be read/written
 type IOErr string
 
-// An unexpected error occured which sould be reported
+func (e IOErr) String() string{
+	return string(e)
+}
+
+// An unexpected error occurred which should be reported
 type Bug string
+
+func (e Bug) String() string{
+	return string(e)
+}
 
 // Exits with the exit code if the error is not nil.
 // TODO: rename CheckErr
-func Check(err os.Error, code int) {
+func CheckErr(err os.Error, code int) {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(code)
