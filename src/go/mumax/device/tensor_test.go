@@ -9,7 +9,6 @@ package device
 
 import (
 	"testing"
-	"mumax/device/gpu"
 	"mumax/tensor"
 )
 
@@ -17,7 +16,7 @@ import (
 
 
 func TestCopy(test *testing.T){
-	if device == nil { Use(gpu.Init(0, gpu.MaxThreads(), 0))}
+	UseTestDevice()
 
 	size := []int{3, 4, 32, 64}
 	loc := tensor.NewT4(size)

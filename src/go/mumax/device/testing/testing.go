@@ -9,6 +9,7 @@ package device
 
 import(
 	. "mumax/common"
+	"mumax/device/cpu"
 	"io/ioutil"
 	"strings"
 )
@@ -22,13 +23,14 @@ const TEST_DEVICE_FILE = "/tmp/mumax_test_device"
 // To be included as the first line of every TestXXX() func.
 // Reads /tmp/mumax_test_device and sets the device according
 // to its contents ("cpu", "gpu", "multigpu", ...)
-func UseTest() {
+func UseTestDevice() {
 	bytes, err := ioutil.ReadFile(TEST_DEVICE_FILE)
 	dev := strings.ToLower(string(bytes))
 	CheckErr(err, ERR_IO)
 	switch{
 		default:	panic(InputErr(TEST_DEVICE_FILE + ": " + dev))
 		case strings.HasPrefix(dev, "cpu"):
+			Use(cpu.Init(cpu.MaxThreads(), 0))
 		case strings.HasPrefix(dev, "gpu"):
 		case strings.HasPrefix(dev, "multigpu"):
 	}
