@@ -8,6 +8,7 @@
 package device
 
 import (
+	. "mumax/common"
 	"testing"
 	"mumax/device/gpu"
 	"mumax/tensor"
