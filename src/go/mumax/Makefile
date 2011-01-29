@@ -26,7 +26,6 @@ $(PKGDIR)/mumax/device.a: _common device/*.go
 	
 _common: $(PKGDIR)/mumax/common.a\
 	 $(PKGDIR)/mumax/tensor.a\
-	 $(PKGDIR)/mumax/iotool.a\
 
 $(PKGDIR)/mumax/common.a: common/*.go
 	gomake -C common
@@ -36,15 +35,9 @@ $(PKGDIR)/mumax/tensor.a: tensor/*.go
 	gomake -C tensor
 	gomake install -C tensor
 
-$(PKGDIR)/mumax/iotool.a: iotool/*.go
-	gomake -C iotool
-	gomake install -C iotool
-
-	
 clean:
 	gomake clean -C common
 	gomake clean -C tensor
-	gomake clean -C iotool
 	gomake clean -C device
 	gomake clean -C device/cpu
 	gomake clean -C device/gpu

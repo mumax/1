@@ -7,6 +7,8 @@ GOFILES=\
 	assert.go\
 	error.go\
 	constants.go\
+	io.go\
+	blockingreader.go\
 	misc.go\
 	testing.go\
 

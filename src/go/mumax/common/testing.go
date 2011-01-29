@@ -7,9 +7,6 @@
 
 package common
 
-import(
-	"mumax/iotool"
-)
 
 // For testing purposes only:
 // file where we save "cpu", "gpu", ... defining
@@ -21,6 +18,6 @@ const TEST_DEVICE_FILE = "/tmp/mumax_test_device"
 // Reads /tmp/mumax_test_device and sets the device according
 // to its contents ("cpu", "gpu", "multigpu", ...)
 func SetTestDevice() {
-	in := iotool.MustOpenRDOnly(TEST_DEVICE_FILE)
+	in := MustOpenRDONLY(TEST_DEVICE_FILE)
 	
 }

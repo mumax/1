@@ -4,8 +4,7 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-// This package provides some convenience I/O functions.
-package iotool
+package common
 
 
 // This file implements convenience functions for opening files.
@@ -13,7 +12,6 @@ package iotool
 
 
 import (
-	. "mumax/common"
 	"os"
 	"path"
 )
