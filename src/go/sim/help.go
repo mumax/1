@@ -70,7 +70,7 @@ alpha      	0.02
 
 # Anisotropy type, axes and constant(s)
 # anisuniaxial	0 0 1	# axis = Z
-# k1			-50e3	# in J/m^3, sign determines hard/easy axis.
+# k1			-50e3	# in J/m^3, positive sign: easy axis, negative sign: hard axis
 
 # (2) Geometry
 # ____________

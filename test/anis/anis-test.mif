@@ -1,7 +1,7 @@
 # MIF 1.1
 ms:800E3
 a:13E-12
-k1:-500
+k1:0
 damp coef:1
 anisotropy type:uniaxial
 anisotropy init:constant
