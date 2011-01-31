@@ -125,7 +125,7 @@ func NewRK3(sim *Sim) *RK {
 // which can be used to implement adaptive step size.
 func NewRK23(sim *Sim) *RK {
 	rk := newRK(sim, 4)
-	rk.fsal = true
+	//rk.fsal = true
 	rk.c = []float32{0., 1. / 2., 3. / 4., 1.}
 	rk.a = [][]float32{
 		{0., 0., 0., 0.},
@@ -305,6 +305,7 @@ func (rk *RK) Step() {
 				//FSAL: First step of this stage
 				//is the same as the last step of the previous stage.
 				TensorCopyOn(k[order-1], k[0])
+				// TODO: NEED TO REDUCE MAXTORQUE HERE, UPDATE DT, ...
 			} else {
 
 				rk.time = time0 + float64(c[i]*rk.dt)
@@ -323,13 +324,19 @@ func (rk *RK) Step() {
 				// dt has not actually been used yet. This is the
 				// last chance to estimate whether the time step is too large
 				// and possibly reduce it
+
+				// TODO:
+				// HERE BE DRAGONS:
+				// not entered if fsal!
+				// control flow needs to be re-arranged!
+
 				if i == 0 {//&& (rk.minDm != 0. || rk.maxDm != 0.) { // TORQUE MUST ALWAYS BE UPDATED
 					if rk.b2 == nil { // means no step control based on error estimate
 						rk.dt = rk.targetDt
 					}
 					assert(c[i] == 0)
 					maxTorque := rk.Reduce(k[0])
-					rk.torque = maxTorque // save centrally so it can be output
+					rk.Sim.torque = maxTorque // save centrally so it can be output
 					dm := rk.dt * maxTorque
 					// Do not make the magnetization step smaller than minDm
 					if dm < rk.minDm {
