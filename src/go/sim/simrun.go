@@ -55,6 +55,7 @@ func (s *Sim) Run(time float64) {
 
 
 func (s *Sim) Relax(maxtorque float32) {
+	panic(Bug("Relax function is temporarily disabled due to occasional crashes."))
 	s.init()
 	s.Println("Relaxing until torque < ", maxtorque)
 	s.dt = RELAX_START_DT
