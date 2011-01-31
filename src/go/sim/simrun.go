@@ -55,11 +55,9 @@ func (s *Sim) Run(time float64) {
 
 
 func (s *Sim) Relax(maxtorque float32) {
-	panic(Bug("Relax function is temporarily disabled due to occasional crashes."))
 	s.init()
 	s.Println("Relaxing until torque < ", maxtorque)
 	s.dt = RELAX_START_DT
-	//s.relaxer.MaxTorque(maxtorque)
 	s.torque = maxtorque * 1000
 
 	for s.torque >= maxtorque {
@@ -69,10 +67,6 @@ func (s *Sim) Relax(maxtorque float32) {
 		s.mUpToDate = false
 
 		updateDashboard(s)
-		if math.IsNaN(s.time) || math.IsInf(s.time, 0) {
-			panic("Time step = " + fmt.Sprint(s.dt))
-		}
-
 	}
 }
 

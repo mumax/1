@@ -323,7 +323,7 @@ func (rk *RK) Step() {
 				// dt has not actually been used yet. This is the
 				// last chance to estimate whether the time step is too large
 				// and possibly reduce it
-				if i == 0 && (rk.minDm != 0. || rk.maxDm != 0.) {
+				if i == 0 {//&& (rk.minDm != 0. || rk.maxDm != 0.) { // TORQUE MUST ALWAYS BE UPDATED
 					if rk.b2 == nil { // means no step control based on error estimate
 						rk.dt = rk.targetDt
 					}
@@ -336,7 +336,7 @@ func (rk *RK) Step() {
 						rk.dt = rk.minDm / maxTorque
 					}
 					// Do not make the time step smaller than minDt
-					if rk.input.minDt != 0. && rk.dt*rk.UnitTime() < rk.input.minDt {
+					if rk.dt*rk.UnitTime() < rk.input.minDt {
 						rk.dt = rk.input.minDt / rk.UnitTime()
 					}
 					// maxDm has priority over minDm (better safe than sorry)
