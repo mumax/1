@@ -1,3 +1,10 @@
 \section{What \mumax solves}
 
 LLG: Gilbert factor $1/(1+\alpha^2)$ is \emph{not} included in OOMMF, but included in \mumax. So at high damping there can be discrepancies.
+
+Uniaxial anisotropy:
+\begin{equation}
+	\vec{H}_\mathrm{anis} = \frac{K_1}{\mu_0 M_s} (\vec{m} \cdot \vec{u}) \vec{u}
+\end{equation}
+
+This definition of $K_1$ corresponds to OOMMF. $K_1 > 0$: easy axis, $K_1 < 0$: hard axis.
