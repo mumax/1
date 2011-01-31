@@ -52,9 +52,8 @@ void gpu_add_local_fields (float* m, float* h, int N, float* Hext, int anisType,
 
   /*
     Uniaxial anisotropy:
-    H_anis = ( 2K_1 / (mu0 Ms) )  ( m . u ) u
-    U := sqrt( 2K_1 / (mu0 Ms) )
-    H_anis = (m . U) U
+    H_anis = ( K_1 / (mu0 Ms) )  ( m . u ) u
+	u = axis, normalized
   */
   
   dim3 gridsize, blocksize;
@@ -70,7 +69,7 @@ void gpu_add_local_fields (float* m, float* h, int N, float* Hext, int anisType,
       _gpu_add_local_fields_uniaxial<<<gridsize, blocksize>>>(mx, my, mz,
                                                              hx, hy, hz,
                                                              Hext[X], Hext[Y], Hext[Z],
-                                                             2*anisK[0],  anisAxes[0], anisAxes[1], anisAxes[2], N);
+                                                             anisK[0],  anisAxes[0], anisAxes[1], anisAxes[2], N);
       break;
   }
   gpu_sync();
