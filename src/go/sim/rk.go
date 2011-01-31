@@ -125,7 +125,7 @@ func NewRK3(sim *Sim) *RK {
 // which can be used to implement adaptive step size.
 func NewRK23(sim *Sim) *RK {
 	rk := newRK(sim, 4)
-	//rk.fsal = true
+	//rk.fsal = true //TODO: re-enable (also RKDP!)
 	rk.c = []float32{0., 1. / 2., 3. / 4., 1.}
 	rk.a = [][]float32{
 		{0., 0., 0., 0.},
@@ -329,6 +329,7 @@ func (rk *RK) Step() {
 				// HERE BE DRAGONS:
 				// not entered if fsal!
 				// control flow needs to be re-arranged!
+				// FSAL currently disabled.
 
 				if i == 0 {//&& (rk.minDm != 0. || rk.maxDm != 0.) { // TORQUE MUST ALWAYS BE UPDATED
 					if rk.b2 == nil { // means no step control based on error estimate
