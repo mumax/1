@@ -25,7 +25,7 @@ import (
 )
 
 const WELCOME = `
-  MuMax 0.4.1839
+  MuMax 0.4.1874
   (c) Arne Vansteenkiste & Ben Van de Wiele,
       DyNaMat/EELAB UGent
   This version is meant for internal testing purposes only,
