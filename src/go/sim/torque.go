@@ -9,6 +9,23 @@ import (
 // This file contains functions to calculate the torque (dm/dt)
 // and DeltaM
 
+// NOTE ON THE THE GILBERT FACTOR 1/(1+ALPHA**2)
+// This comment appars in the OOMMF source code:
+//
+//---------------------------------------------------------------------
+//   LLG (Landau-Lifschitz-Gilbert):
+//
+//     dm/dt = (-GyRatio.Ms)(mxh)-(DampCoef.GyRatio.Ms)(mx(mxh))
+//
+// (This is really the Landau-Lifschitz formulation.  Divide the
+// RHS by (1+DampCoef^2) for the Landau-Lifschitz-Gilbert formulation.)
+// This program actually solves RHS=(-1/DampCoef)(mxh)-mx(mxh).
+// The routine Grid2D::GetTimeStep() does the conversion from StepSize
+// to actual time step in seconds, via
+//             time_step = StepSize/(DampCoef.GyRatio.Ms)
+// See also PRECESSION_RATIO below.
+//---------------------------------------------------------------------
+
 
 // Calculates torque * dt, overwrites h with the result
 // Automatically uses the Spintorque version when necessary

@@ -1,8 +1,8 @@
 # MIF 1.1
 ms:800E3
 a:13E-12
-k1:0
-damp coef:1
+k1:-500
+damp coef:0.25
 anisotropy type:uniaxial
 anisotropy init:constant
 anisotropy dir1:1 0 0
@@ -21,5 +21,5 @@ data table output format:%.15g
 randomizer seed:0
 converge mxh value:1.0E-5
 randomizer seed:0
-field range: 0 0 0       0 0 0 			0 -time 1E-9
-field range: 0 1e-3 0    0 1e-3 0   	 0 -time 1E-9
+field range: 0 0 0       0 0 0 			0 -time 2E-9
+field range: 0 1e-3 0    0 1e-3 0   	 0 -time 2E-9
