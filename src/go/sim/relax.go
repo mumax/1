@@ -8,7 +8,8 @@ package sim
 
 import ()
 
-
+// OBSOLETE
+// TODO: REMOVE
 type Relax struct {
 	sim *Sim
 	Reductor

@@ -63,7 +63,7 @@ func (s *Sim) Relax() {
 
 	backup_maxdt := s.input.maxDt
 	if s.input.maxDt == 0{
-		s.input.maxDt = 0.1 * s.UnitTime()
+		s.input.maxDt = 0.02 * s.UnitTime()
 		s.Println("Using default max dt: ", s.input.maxDt)
 	}
 
