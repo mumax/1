@@ -22,7 +22,7 @@ func (s *Sim) Hysteresis(bz0, by0, bx0, bz1, by1, bx1 float32, steps int) {
 		s.StaticField(bz, by, bx)
 		s.Relax()
 		s.Save("m", "omf")
-		s.Save("table", "ascii") // Does not work correctly for the moment: file gets overwritten, not appended.
+		s.Save("table", "ascii") 
 	}
 }
 
