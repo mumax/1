@@ -125,7 +125,7 @@ func NewRK3(sim *Sim) *RK {
 // which can be used to implement adaptive step size.
 func NewRK23(sim *Sim) *RK {
 	rk := newRK(sim, 4)
-	//rk.fsal = true //TODO: re-enable (also RKDP!)
+	rk.fsal = true 
 	rk.c = []float32{0., 1. / 2., 3. / 4., 1.}
 	rk.a = [][]float32{
 		{0., 0., 0., 0.},
@@ -195,6 +195,7 @@ func NewRKCK(sim *Sim) *RK {
 // but it's like that on wikipedia.
 func NewRKDP(sim *Sim) *RK {
 	rk := newRK(sim, 7)
+	rk.fsal = true
 	rk.c = []float32{0., 1. / 5., 3. / 10., 4. / 5., 8. / 9., 1., 1.}
 	rk.a = [][]float32{
 		{0., 0., 0., 0., 0., 0., 0.},
@@ -296,18 +297,16 @@ func (rk *RK) Step() {
 	// Try to take a step with the current dt.
 	// If the step fails (error too big),
 	// then cut dt and try again (at most MAX_STEP_TRIALS times) 
-	for !goodstep && trials < MAX_STEP_TRIALS{
+	for !goodstep && trials < MAX_STEP_TRIALS {
 		trials++
 		for i := 0; i < order; i++ {
 
-			//FSAL
+			// Calculate torque
 			if rk.fsal && i == 0 && rk.fsal_initiated {
 				//FSAL: First step of this stage
 				//is the same as the last step of the previous stage.
 				TensorCopyOn(k[order-1], k[0])
-				// TODO: NEED TO REDUCE MAXTORQUE HERE, UPDATE DT, ...
 			} else {
-
 				rk.time = time0 + float64(c[i]*rk.dt)
 				TensorCopyOn(m, m1)
 				for j := 0; j < order; j++ {
@@ -315,49 +314,40 @@ func (rk *RK) Step() {
 						rk.MAdd(m1, rk.dt*a[i][j], k[j])
 					}
 				}
-
 				rk.calcHeff(m1, k[i])
 				rk.Torque(m1, k[i])
 				rk.fsal_initiated = true
+			}
 
 				// After having calculated the first torque (k[0]),
 				// dt has not actually been used yet. This is the
 				// last chance to estimate whether the time step is too large
 				// and possibly reduce it
-
-				// TODO:
-				// HERE BE DRAGONS:
-				// not entered if fsal!
-				// control flow needs to be re-arranged!
-				// FSAL currently disabled.
-
-				if i == 0 {//&& (rk.minDm != 0. || rk.maxDm != 0.) { // TORQUE MUST ALWAYS BE UPDATED
-					if rk.b2 == nil { // means no step control based on error estimate
-						rk.dt = rk.targetDt
-					}
-					assert(c[i] == 0)
-					maxTorque := rk.Reduce(k[0])
-					rk.Sim.torque = maxTorque // save centrally so it can be output
-					dm := rk.dt * maxTorque
-					// Do not make the magnetization step smaller than minDm
-					if dm < rk.minDm {
-						rk.dt = rk.minDm / maxTorque
-					}
-					// Do not make the time step smaller than minDt
-					if rk.dt*rk.UnitTime() < rk.input.minDt {
-						rk.dt = rk.input.minDt / rk.UnitTime()
-					}
-					// maxDm has priority over minDm (better safe than sorry)
-					if rk.maxDm != 0 && dm > rk.maxDm {
-						rk.dt = rk.maxDm / maxTorque
-					}
-					// maxDt has priority over minDt (better safe than sorry)
-					if rk.input.maxDt != 0. && rk.dt*rk.UnitTime() > rk.input.maxDt {
-						rk.dt = rk.input.maxDt / rk.UnitTime()
-					}
-					checkdt(rk.dt)
-
+			if i == 0 {
+				if rk.b2 == nil { // means no step control based on error estimate
+					rk.dt = rk.targetDt
 				}
+				assert(c[i] == 0)
+				maxTorque := rk.Reduce(k[0])
+				rk.Sim.torque = maxTorque // save centrally so it can be output
+				dm := rk.dt * maxTorque
+				// Do not make the magnetization step smaller than minDm
+				if dm < rk.minDm {
+					rk.dt = rk.minDm / maxTorque
+				}
+				// Do not make the time step smaller than minDt
+				if rk.dt*rk.UnitTime() < rk.input.minDt {
+					rk.dt = rk.input.minDt / rk.UnitTime()
+				}
+				// maxDm has priority over minDm (better safe than sorry)
+				if rk.maxDm != 0 && dm > rk.maxDm {
+					rk.dt = rk.maxDm / maxTorque
+				}
+				// maxDt has priority over minDt (better safe than sorry)
+				if rk.input.maxDt != 0. && rk.dt*rk.UnitTime() > rk.input.maxDt {
+					rk.dt = rk.input.maxDt / rk.UnitTime()
+				}
+				checkdt(rk.dt)
 			}
 		}
 
