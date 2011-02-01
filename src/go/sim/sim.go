@@ -25,7 +25,8 @@ const (
 	DEFAULT_SPIN_POLARIZATION = 1
 	DEFAULT_EXCH_TYPE         = 6
 	DEFAULT_MIN_DM            = 0
-	DEFAULT_DT_INTERNAL       = 1e-5
+	DEFAULT_DT_INTERNAL       = 1e-4
+	DEFAULT_RELAX_MAX_TORQUE  = 1e-4
 )
 
 // Sim has an "input" member of type "Input".

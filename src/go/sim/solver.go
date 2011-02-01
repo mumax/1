@@ -19,16 +19,19 @@ func NewSolver(solvertype string, sim *Sim) Solver {
 	default:
 		panic("Unknown solver type: " + solvertype + ". Options are: rk1, rk2, rk12, rk3, rk23, rk4, rk45, rksemianal1")
 	case "rk1":
+		panic("Broken")
 		return NewRK1(sim)
 	case "rk2":
 		return NewRK2(sim)
 	case "rk12":
 		return NewRK12(sim)
 	case "rk3":
+		panic("Broken")
 		return NewRK3(sim)
 	case "rk23":
 		return NewRK23(sim)
 	case "rk4":
+		panic("Broken")
 		return NewRK4(sim)
 	case "rk45", "rkdp":
 		return NewRKDP(sim)

@@ -13,15 +13,20 @@ import (
 // Scans the field from (bz0, by0, bx0) to (bz1, by1, bx1) in a number of steps.
 // After each field step, the magnetization is saved.
 // TODO: output control should be more fine-grained
-func (s *Sim) Hysteresis(bz0, by0, bx0, bz1, by1, bx1 float32, steps int, maxtorque float32) {
+func (s *Sim) Hysteresis(bz0, by0, bx0, bz1, by1, bx1 float32, steps int) {
 	fmt.Fprintf(s.out, "Hysteresis scan from (%f, %f, %f)T to (%f, %f, %f)T in %v steps\n", bx0, by0, bz0, bx1, by1, bz1, steps)
 	for i := 0; i <= steps; i++ {
 		bx := bx0 + (bx1-bx0)*float32(i)/float32(steps)
 		by := by0 + (by1-by0)*float32(i)/float32(steps)
 		bz := bz0 + (bz1-bz0)*float32(i)/float32(steps)
 		s.StaticField(bz, by, bx)
-		s.Relax(maxtorque)
+		s.Relax()
 		s.Save("m", "omf")
-		//s.Save("table", "ascii") // Does not work correctly for the moment: files gets overwritten, not appended.
+		s.Save("table", "ascii") // Does not work correctly for the moment: file gets overwritten, not appended.
 	}
 }
+
+func (s *Sim) RelaxMaxTorque(max float32){
+	maxtorque = max
+}
+

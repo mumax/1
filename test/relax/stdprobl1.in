@@ -41,7 +41,8 @@ autosave  table ascii 50E-12  # tabular output will be saved every 10ps in ascii
 # To relax the magnetization, set a high alpha temporarily and run for a while.
 
 alpha   2
-relax	1e-4
+maxerror 1e-5
+relax	
 save	m png
 
-hysteresis 0 0 0     100e-3 0 0 	100		1e-3
+hysteresis 0 0 0     100e-3 0 0 	100		

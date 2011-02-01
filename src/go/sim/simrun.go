@@ -53,12 +53,19 @@ func (s *Sim) Run(time float64) {
 	//does not invalidate
 }
 
+var maxtorque float32 = DEFAULT_RELAX_MAX_TORQUE
 
-func (s *Sim) Relax(maxtorque float32) {
+func (s *Sim) Relax() {
 	s.init()
 	s.Println("Relaxing until torque < ", maxtorque)
 	s.dt = RELAX_START_DT
 	s.torque = maxtorque * 1000
+
+	backup_maxdt := s.input.maxDt
+	if s.input.maxDt == 0{
+		s.input.maxDt = 0.1 * s.UnitTime()
+		s.Println("Using default max dt: ", s.input.maxDt)
+	}
 
 	for s.torque >= maxtorque {
 		// step
@@ -68,6 +75,7 @@ func (s *Sim) Relax(maxtorque float32) {
 
 		updateDashboard(s)
 	}
+	s.input.maxDt = backup_maxdt
 }
 
 // re-initialize benchmark data

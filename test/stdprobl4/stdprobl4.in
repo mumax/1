@@ -7,12 +7,12 @@ msat       	800E3
 aexch      	1.3E-11     
 alpha      	0.02
 
-solvertype rkck
-maxerror 1e-4
-#mindt 10e-15
-#maxdt 1e-12
-#mindm 1e-3
-#maxdm 0.25
+solvertype rk23
+maxerror 1e-3
+mindt 10e-15
+maxdt 1e-12
+mindm 1e-3
+maxdm 0.25
 
 # geometry 
 gridsize       	256 	64 	1    
