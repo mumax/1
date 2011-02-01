@@ -74,7 +74,7 @@ func updateDashboard(sim *Sim) {
 	fmt.Println()
 
 	// performance
-	fmt.Print("steps/s: ", RESET, stepsPerS, BOLD, " sim/real time: ", RESET, realTime)
+	fmt.Printf("steps/s: %f simulated/s time: %f", float32(stepsPerS), float32(realTime))
 	erase()
 	fmt.Println()
 

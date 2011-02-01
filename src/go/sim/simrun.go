@@ -66,13 +66,14 @@ func (s *Sim) Relax() {
 		s.input.maxDt = 0.02 * s.UnitTime()
 		s.Println("Using default max dt: ", s.input.maxDt)
 	}
-
+	
+	backup_time := s.time
 	for s.torque >= maxtorque {
 		// step
 		s.Step()
+		s.time = backup_time// HACK: during relax we want the time to stand still
 		s.steps++
 		s.mUpToDate = false
-
 		updateDashboard(s)
 	}
 	s.input.maxDt = backup_maxdt
