@@ -50,6 +50,15 @@ def alpha(a):
 	do1("alpha", a)
 
 
+# Sets the anisotropy constant K1
+def k1(k):
+	do1("k1", k)
+
+# Defines the uniaxial anisotropy axis.
+def anisuniaxial(ux, uy, uz):
+	do3("anisuniaxial", ux, uy, uz)
+
+
 # Geometry
 
 # Sets the number of FD cells
@@ -74,6 +83,14 @@ def loadm(filename):
 # Sets the magnetization to the uniform state (mx, my, mz)
 def uniform(mx, my, mz):
 	do3("uniform", mx, my, mz)
+
+# Adds random noise to the magnetization
+def addnoise(amplitude):
+	do1("addnoise", amplitude)
+
+# Sets the magnetization to a vortex state
+def vortex(circulation, polarization):
+	do2("vortex", circulation, polarization)
 
 # Sets the magnetization in cell with index i,j,k to (mx, my, mz)
 def setmcell(i, j, k, mx, my, mz):
@@ -145,8 +162,8 @@ def sawtoothfield(bx, by, bz, freq):
 # Run
 
 # Relaxes the magnetization up to the specified maximum residual torque
-def relax(torque):
-	do1("relax", torque)
+def relax():
+	do0("relax")
 
 # Runs for the time specified in seconds
 def run(time):
