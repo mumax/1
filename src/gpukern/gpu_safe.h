@@ -23,7 +23,7 @@ extern "C" {
  * gpu_safe( cudaMalloc(...) );
  * @endcode
  */
-#define gpu_safe(s) { if(s != cudaSuccess) { fprintf(stderr, "received CUDA error: %s\n", cudaGetErrorString((cudaError_t)s)); assert(s == 0);}}
+#define gpu_safe(s) { if(s != cudaSuccess) { fprintf(stderr, "received CUDA error: %s\n", cudaGetErrorString((cudaError_t)s)); assert(s == cudaSuccess); abort();}}
 
 /**
  * Safe wrapper around cudaThreadSynchronize(), aborts on error.
@@ -42,7 +42,7 @@ char* cufftGetErrorString(cufftResult s);
  * gpu_safefft( cudafft_exec(...) );
  * @endcode
  */
-#define gpu_safefft(s) { if(s != CUFFT_SUCCESS) { fprintf(stderr, "received CUFFT error: %s\n", cufftGetErrorString((cufftResult)s)); assert(s == 0);}}
+#define gpu_safefft(s) { if(s != CUFFT_SUCCESS) { fprintf(stderr, "received CUFFT error: %s\n", cufftGetErrorString((cufftResult)s)); assert(s == CUFFT_SUCCESS); abort();}}
 
 #define gpu_syncfft() gpu_safefft(cudaThreadSynchronize())
 
