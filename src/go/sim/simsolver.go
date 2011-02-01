@@ -22,6 +22,21 @@ func (s *Sim) Dt(t float32) {
 	s.invalidate()
 }
 
+
+// Set the solver maximum time step, defined in seconds
+func (s *Sim) MaxDt(dt float32) {
+	s.input.maxDt = dt
+	//s.invalidate()
+}
+
+
+// Set the solver maximum time step, defined in seconds
+func (s *Sim) MinDt(dt float32) {
+	s.input.minDt = dt
+	//s.invalidate()
+}
+
+
 // Set the maximum "delta m" the solver can take.
 // 0 means not used.
 // Some solvers ignore this value

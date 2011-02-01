@@ -29,7 +29,7 @@ import (
 	"flag"
 )
 
-var maxerror *float = flag.Float("maxerror", 0, "Maximum difference with refernce solution.")
+var maxerror *float64 = flag.Float64("maxerror", 0, "Maximum difference with refernce solution.")
 
 func main() {
 	flag.Parse()

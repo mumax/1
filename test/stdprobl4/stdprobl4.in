@@ -7,25 +7,25 @@ msat       	800E3
 aexch      	1.3E-11     
 alpha      	0.02
 
+solvertype rk23
+maxerror 1e-3
+mindt 10e-15
+maxdt 1e-12
+mindm 1e-3
+maxdm 0.25
 
 # geometry 
-gridsize       	128 	32 	1    
+gridsize       	256 	64 	1    
 partsize   	500E-9  125E-9  3E-9
-demagaccuracy	10
+demagaccuracy	16
 
 # initial magnetization
-#loadm    	s-state.omf
-uniform	1 1 0
-alpha 2
-relax 1e-4
-alpha 0.02
-save m omf
-
+loadm    	s-state.omf
 
 # run
-autosave  m omf 10E-12
-autosave	table	ascii	10E-12
+autosave  m png 10e-12
+autosave	table	ascii	5e-12
 staticfield 	-24.6E-3     4.3E-3    0  # T
-run          	1E-9                      # s
+run          	1e-9                      # s
 
 savebenchmark benchmark.txt

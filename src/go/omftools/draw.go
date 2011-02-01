@@ -31,7 +31,7 @@ func Draw() {
 var (
 	draw3d_zoom   int = 64
 	draw3d_detail int = 32
-	draw3d_shadow = 0.8
+	draw3d_shadow float32 = 0.8
 )
 
 
@@ -43,7 +43,7 @@ func Draw3D_Detail(vertices int) {
 	draw3d_detail = vertices
 }
 
-func Draw3D_Shadow(shadow float) {
+func Draw3D_Shadow(shadow float32) {
 	draw3d_shadow = shadow
 }
 

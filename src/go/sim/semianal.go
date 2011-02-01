@@ -12,152 +12,137 @@ import (
 
 
 type SemiAnal1 struct {
-  *Sim
-  m2 *DevTensor
-  h2 *DevTensor
-  Reductor
+	*Sim
+	m2 *DevTensor
+	h2 *DevTensor
+	Reductor
 }
 
 func NewSemiAnal1(sim *Sim) *SemiAnal1 {
-  this := new(SemiAnal1)
-  this.Sim = sim
-  this.m2 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
-  this.h2 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
-//  this.Reductor.InitMaxVector(sim.Backend, sim.size[X]*sim.size[Y]*sim.size[Z])
-  this.Reductor.InitMaxAbs(sim.Backend, prod(sim.size4D[0:]))
-  return this
+	this := new(SemiAnal1)
+	this.Sim = sim
+	this.m2 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
+	this.h2 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
+	//  this.Reductor.InitMaxVector(sim.Backend, sim.size[X]*sim.size[Y]*sim.size[Z])
+	this.Reductor.InitMaxAbs(sim.Backend, prod(sim.size4D[0:]))
+	return this
 }
 
 func (s *SemiAnal1) Step() {
-  m1 := s.mDev
-  m2 := s.m2
-  h1 := s.hDev
-  h2 := s.h2
-//   fmt.Println("Step", s.dt, "oiuuigy" )
-  if s.steps == 0{
-    s.calcHeff(m1, h1)
-    s.SemianalStep(m1, m2, h1, s.dt/2.0, s.alpha)
-    s.calcHeff(m2, h2)
-    s.SemianalStep(m1, m1, h2, s.dt, s.alpha)
-  } else{
-    
-   s.calcHeff(m2, h2)
-    s.calcHeff(m1, h1)
-    s.LinearCombination(h1, h2, 0.90, 0.0)
-    s.SemianalStep(m2, m2, h1, s.dt, s.alpha)
-   s.calcHeff(m1, h1)
-    s.calcHeff(m2, h2)
-    s.LinearCombination(h2, h1, 0.90, 0.0)
-    s.SemianalStep(m1, m1, h2, s.dt, s.alpha)
-  
-  }
+	m1 := s.mDev
+	m2 := s.m2
+	h1 := s.hDev
+	h2 := s.h2
+	//   fmt.Println("Step", s.dt, "oiuuigy" )
+	if s.steps == 0 {
+		s.calcHeff(m1, h1)
+		s.SemianalStep(m1, m2, h1, s.dt/2.0, s.alpha)
+		s.calcHeff(m2, h2)
+		s.SemianalStep(m1, m1, h2, s.dt, s.alpha)
+	} else {
 
+		s.calcHeff(m2, h2)
+		s.calcHeff(m1, h1)
+		s.LinearCombination(h1, h2, 0.90, 0.0)
+		s.SemianalStep(m2, m2, h1, s.dt, s.alpha)
+		s.calcHeff(m1, h1)
+		s.calcHeff(m2, h2)
+		s.LinearCombination(h2, h1, 0.90, 0.0)
+		s.SemianalStep(m1, m1, h2, s.dt, s.alpha)
 
-  if (s.steps%100 == 0){
-    s.Normalize(m1)
-    s.Normalize(m2)
-  }
+	}
+
+	if s.steps%100 == 0 {
+		s.Normalize(m1)
+		s.Normalize(m2)
+	}
 }
-
 
 
 func (this *SemiAnal1) String() string {
-  return "Semianlytical 1"
+	return "Semianlytical 1"
 }
-
-
-
 
 
 // predictor corrector *************************************************************
 type SemiAnal2 struct {
-  *Sim
-  m2 *DevTensor
-//   h2 *DevTensor
-  m3 *DevTensor
-//   h3 *DevTensor
-  Reductor
+	*Sim
+	m2 *DevTensor
+	//   h2 *DevTensor
+	m3 *DevTensor
+	//   h3 *DevTensor
+	Reductor
 }
 
 func NewSemiAnal2(sim *Sim) *SemiAnal2 {
-  this := new(SemiAnal2)
-  this.Sim = sim
-  this.m2 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
-//   this.h2 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
-  this.m3 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
-//   this.h3 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
-//  this.Reductor.InitMaxVector(sim.Backend, sim.size[X]*sim.size[Y]*sim.size[Z])
-  this.Reductor.InitMaxAbs(sim.Backend, prod(sim.size4D[0:]))
-  return this
+	this := new(SemiAnal2)
+	this.Sim = sim
+	this.m2 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
+	//   this.h2 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
+	this.m3 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
+	//   this.h3 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
+	//  this.Reductor.InitMaxVector(sim.Backend, sim.size[X]*sim.size[Y]*sim.size[Z])
+	this.Reductor.InitMaxAbs(sim.Backend, prod(sim.size4D[0:]))
+	return this
 }
 
 func (s *SemiAnal2) Step() {
-  m1 := s.mDev
-  h1 := s.hDev
-  m2 := s.m2
-//   h2 := s.h2
-  m3 := s.m3
-//   h3 := s.h3
-  
-  if s.steps == 0{
-    s.calcHeff(m1, h1)
-    s.SemianalStep(m1, m2, h1, s.dt/2.0, s.alpha)
-    s.calcHeff(m2, s.hDev)
-    s.SemianalStep(m1, m1, h1, s.dt, s.alpha)
-  } else{
+	m1 := s.mDev
+	h1 := s.hDev
+	m2 := s.m2
+	//   h2 := s.h2
+	m3 := s.m3
+	//   h3 := s.h3
 
-    s.calcHeff(m1, h1)
-    s.SemianalStep(m2, m3, h1, s.dt, s.alpha)
-    s.LinearCombination(m3, m2, 0.5, 0.5)
-    s.calcHeff(m3, h1)
-    s.SemianalStep(m2, m2, h1, s.dt, s.alpha)
+	if s.steps == 0 {
+		s.calcHeff(m1, h1)
+		s.SemianalStep(m1, m2, h1, s.dt/2.0, s.alpha)
+		s.calcHeff(m2, s.hDev)
+		s.SemianalStep(m1, m1, h1, s.dt, s.alpha)
+	} else {
 
-    s.calcHeff(m2, h1)
-    s.SemianalStep(m1, m3, h1, s.dt, s.alpha)
-    s.LinearCombination(m3, m1, 0.5, 0.5)
-    s.calcHeff(m3, h1)
-    s.SemianalStep(m1, m1, h1, s.dt, s.alpha)
+		s.calcHeff(m1, h1)
+		s.SemianalStep(m2, m3, h1, s.dt, s.alpha)
+		s.LinearCombination(m3, m2, 0.5, 0.5)
+		s.calcHeff(m3, h1)
+		s.SemianalStep(m2, m2, h1, s.dt, s.alpha)
 
-    
-    
-//     s.calcHeff(m1, h1)
-//     s.SemianalStep(m2, m3, h1, s.dt, s.alpha)
-//     s.calcHeff(m2, h2)
-//     s.calcHeff(m3, h3)
-//     s.LinearCombination(h3, h2, 0.5, 0.5)
-//     s.SemianalStep(m2, m2, h3, s.dt, s.alpha)
-// 
-//     s.calcHeff(m2, h2)
-//     s.SemianalStep(m1, m3, h2, s.dt, s.alpha)
-//     s.calcHeff(m1, h1)
-//     s.calcHeff(m3, h3)
-//     s.LinearCombination(h3, h1, 0.5, 0.5)
-//     s.SemianalStep(m1, m1, h3, s.dt, s.alpha)
+		s.calcHeff(m2, h1)
+		s.SemianalStep(m1, m3, h1, s.dt, s.alpha)
+		s.LinearCombination(m3, m1, 0.5, 0.5)
+		s.calcHeff(m3, h1)
+		s.SemianalStep(m1, m1, h1, s.dt, s.alpha)
+
+		//     s.calcHeff(m1, h1)
+		//     s.SemianalStep(m2, m3, h1, s.dt, s.alpha)
+		//     s.calcHeff(m2, h2)
+		//     s.calcHeff(m3, h3)
+		//     s.LinearCombination(h3, h2, 0.5, 0.5)
+		//     s.SemianalStep(m2, m2, h3, s.dt, s.alpha)
+		// 
+		//     s.calcHeff(m2, h2)
+		//     s.SemianalStep(m1, m3, h2, s.dt, s.alpha)
+		//     s.calcHeff(m1, h1)
+		//     s.calcHeff(m3, h3)
+		//     s.LinearCombination(h3, h1, 0.5, 0.5)
+		//     s.SemianalStep(m1, m1, h3, s.dt, s.alpha)
 
 
+	}
+
+	//   s.calcHeff(m1, s.hDev)
+	//   s.SemianalStep(m1, m2, s.hDev, s.dt, s.alpha)
+	//   s.calcHeff(m2, h2)
+	//   s.LinearCombination(s.hDev, h2, 0.5, 0.5)
+	//   s.SemianalStep(m1, m1, s.hDev, s.dt, s.alpha)
 
 
-  }
-  
-  
-
-//   s.calcHeff(m1, s.hDev)
-//   s.SemianalStep(m1, m2, s.hDev, s.dt, s.alpha)
-//   s.calcHeff(m2, h2)
-//   s.LinearCombination(s.hDev, h2, 0.5, 0.5)
-//   s.SemianalStep(m1, m1, s.hDev, s.dt, s.alpha)
-
-
-  if (s.steps%100 == 0){
-    s.Normalize(m1)
-    s.Normalize(m2)
-  }
+	if s.steps%100 == 0 {
+		s.Normalize(m1)
+		s.Normalize(m2)
+	}
 }
 //*****************************************************************************
-
-
-
-
 
 
 // anal FW ********************************************************************
@@ -213,7 +198,7 @@ func (s *SemiAnal2) Step() {
   h1 := s.hDev
   h2 := s.h2
   h3 := s.h3
-  
+
   if s.steps == 0{
       //set up m2
     s.calcHeff(m1, h1)
@@ -228,7 +213,7 @@ func (s *SemiAnal2) Step() {
     s.SemianalStep(m1, m1, h1, s.dt, s.alpha)
 
   } else{
-    
+
       //predictor m2
     s.calcHeff(m1, h1)
     s.SemianalStep(m2, m3, h1, s.dt, s.alpha)
@@ -248,14 +233,13 @@ func (s *SemiAnal2) Step() {
     s.SemianalStep(m1, m1, h1, s.dt, s.alpha)
 
   }
-  
+
   if (s.steps%100 == 0){
     s.Normalize(m1)
     s.Normalize(m2)
   }
-  
-}*/
 
+}*/
 
 
 // type SemiAnal2 struct {
@@ -323,7 +307,5 @@ func (s *SemiAnal2) Step() {
 
 
 func (this *SemiAnal2) String() string {
-  return "Semianlytical 2"
+	return "Semianlytical 2"
 }
-
-  

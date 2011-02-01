@@ -20,6 +20,6 @@ func (r *Refsh) AddFuncHelp(funcname string, reciever interface{}, help string) 
 	r.help[funcname] = help
 }
 
-func PrintHelp(){
+func PrintHelp() {
 
 }

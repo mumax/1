@@ -20,12 +20,13 @@ import (
 
 const (
 	DEFAULT_SOLVERTYPE        = "rk23"
-	DEFAULT_MAXERROR          = 1e-5
+	DEFAULT_MAXERROR          = 1e-4
 	DEFAULT_DEMAG_ACCURACY    = 8
 	DEFAULT_SPIN_POLARIZATION = 1
 	DEFAULT_EXCH_TYPE         = 6
 	DEFAULT_MIN_DM            = 0
-	DEFAULT_DT_INTERNAL       = 1e-5
+	DEFAULT_DT_INTERNAL       = 1e-4
+	DEFAULT_RELAX_MAX_TORQUE  = 1e-3
 )
 
 // Sim has an "input" member of type "Input".
@@ -42,6 +43,8 @@ const (
 // sim.input.dt to make clear it is not necessarily the
 // same as sim.dt (which is in internal units)
 //
+// TODO: at least for mumax 1.x we need an even more strict
+// separation between user input and the rest of the program state.
 type Input struct {
 	aexch          float32    // Exchange constant in SI units (J/m)
 	msat           float32    // Saturation magnetization in SI units (A/m)
@@ -53,6 +56,7 @@ type Input struct {
 	partSizeSet    bool
 	demag_accuracy int
 	dt             float32
+	maxDt, minDt   float32
 	solvertype     string
 	j              [3]float32 // current density in A/m^2
 }
@@ -93,7 +97,7 @@ type Sim struct {
 	hextSI       [3]float32 // stores the externally applied field returned by AppliedField, in SI UNITS
 	hextInt      []float32  // stores the externally applied field in internal units
 
-	relaxer   *Relax
+	//relaxer   *Relax
 	Solver            // Does the time stepping, can be euler, heun, ...
 	time      float64 // The total time (internal units)
 	dt        float32 // The time step (internal units). May be updated by adaptive-step solvers
@@ -369,7 +373,7 @@ func (s *Sim) initSolver() {
 		s.dt = s.targetDt
 	} else {
 		s.dt = DEFAULT_DT_INTERNAL
-		s.Println("Using defautl initial dt: ", s.dt*s.UnitTime(), " s")
+		s.Println("Using default initial dt: ", s.dt*s.UnitTime(), " s")
 	}
 	s.Solver = NewSolver(s.input.solvertype, s)
 	//s.Println(s.Solver.String())

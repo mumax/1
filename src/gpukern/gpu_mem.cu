@@ -107,6 +107,7 @@ void memcpy_gpu_dir(float* source, float* dest, int nElements, int direction){
       memcpy_from_gpu(source,  dest, nElements);
   }
   else{
+	fprintf(stderr, "illegal memcpy direction: %d\n", direction);
     abort();
   }
 }

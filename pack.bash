@@ -17,6 +17,7 @@ cp -r lib $OUT
 
 mkdir $OUT/examples
 cp -r examples/*.in $OUT/examples
+cp -r examples/*.py $OUT/examples
 
 
 tar cv $OUT | gzip > mumax.tar.gz

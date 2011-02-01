@@ -14,6 +14,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path"
 	"runtime"
 )
 
@@ -73,7 +74,6 @@ func Main() {
 }
 
 
-
 func PrintInfo() {
 	//	fmt.Println("Running on " + s.Backend.String())
 	//	fmt.Println("Max threads: ", s.maxthreads())
@@ -84,55 +84,31 @@ func PrintInfo() {
 // TODO: move to iotool
 // Removes a filename extension.
 // I.e., the part after the dot, if present.
-// use path.Ext()
-// does not work if there is no extension!
 func RemoveExtension(str string) string {
-
-	dotpos := len(str) - 1
-	for dotpos >= 0 && str[dotpos] != '.' {
-		dotpos--
-	}
-	return str[0:dotpos]
+	ext := path.Ext(str)
+	return str[:len(str)-len(ext)]
 }
 
 // Removes a filename path.
 // I.e., the part before the last /, if present.
+// TODO: remove
 func RemovePath(str string) string {
-	slashpos := len(str) - 1
-	for slashpos >= 0 && str[slashpos] != '/' {
-		slashpos--
-	}
-	return str[slashpos+1:]
-}
-
-// Returns the parent directory of a file.
-// I.e., the part after the /, if present, is removed.
-// If there is no explicit path, "." is returned.
-func ParentDir(str string) string {
-	slashpos := len(str) - 1
-	for slashpos >= 0 && str[slashpos] != '/' {
-		slashpos--
-	}
-	if slashpos <= 0 {
-		return "."
-	}
-	//else
-	return str[0:slashpos]
+	return path.Base(str)
 }
 
 // Complementary function of parentDir
 // Removes the path in front of the file name.
 // I.e., the part before the last /, if present, is removed.
 func Filename(str string) string {
-	slashpos := len(str) - 1
-	for slashpos >= 0 && str[slashpos] != '/' {
-		slashpos--
-	}
-	if slashpos <= 0 {
-		return str
-	}
-	//else
-	return str[slashpos+1:]
+	return path.Base(str)
+}
+
+// Returns the parent directory of a file.
+// I.e., the part after the /, if present, is removed.
+// If there is no explicit path, "." is returned.
+func ParentDir(str string) string {
+	base := path.Base(str)
+	return str[:len(str)-len(base)]
 }
 
 

@@ -70,7 +70,7 @@ alpha      	0.02
 
 # Anisotropy type, axes and constant(s)
 # anisuniaxial	0 0 1	# axis = Z
-# k1			-50e3	# in J/m^3, sign determines hard/easy axis.
+# k1			-50e3	# in J/m^3, positive sign: easy axis, negative sign: hard axis
 
 # (2) Geometry
 # ____________
@@ -117,6 +117,9 @@ partsize   	    500E-9  125E-9  3E-9
 
 uniform 1 0 0
 
+# randomseed 1
+# setrandom # sets the magnetization to a random state
+#
 # vortex    circ pol  # sets a vortex state with given circulation and polarization, e.g.: vortex 1 -1
 #
 # Finally, an existing magnetization can be changed as follows:
@@ -125,38 +128,52 @@ uniform 1 0 0
 #                     # e.g.: addnoise 0.01
 # setmrange x0 y0 z0 x1 y1 z1 mx my mz  # manually set the magnetization in the specified x-y-z range (of cell indices) to mx, my, mz
 #                                       # e.g.: setmrange 5 12 23 7 13 25 1. 0. 0.
-
-# (3.1) Relax Magnetization
-# _________________________
-
-relax 1e-4	# relax until the residual torque is < 1e-4
+#
+# setmcell i j k mx my mz # sets the magnetization of cell i j k to mx,my,mz (handy in a python loop, e.g.)
+#
 
 
 # (4) Schedule output
 # ___________________
 
 autosave  m     png   50E-12  # magnetization will be saved every 50 ps in PNG format
-autosave  m     omf   50e-12  # magnetization will be saved every 50 ps in OOMMFs .omf format 
-autosave  table ascii 10E-12  # tabular output will be saved every 10ps in ascii text format
+autosave  m     text   50e-12  # magnetization will be saved every 50 ps in OOMMFs .omf format 
+#autosave  m     binary   50e-12  # magnetization will be saved every 50 ps in OOMMFs .omf format 
+autosave  table ascii 10E-12  # tabular output will be saved every 10ps in OOMMFs .odt format
 
 
-# (5) Relax
+# (5) Configure solver
+# _______
+
+# All of this is optional:
+# solvertype rk23		# chooses the type of solver. Options: rk1, rk12, rk2, rk23, rk3, rk4, rk45
+# maxerror 1e-5		# maximum estimated error per step. The real error will be smaller.
+# maxdt	1e-12	      # maximum time step in seconds
+# mindt  1e-15			# minimum time step in seconds
+# maxdm	0.1		   # maximum magnetization change per time step
+# mindm	1e-3		   # minimum magnetization change per time step
+
+
+# (6) Relax
 # _______
 
 # To relax the magnetization, set a high alpha temporarily and run for a while.
-# A more user-friendly "relax" function is under development.
 
 alpha   2
-run     5e-9    # runs the simulation for 5ns
+relax 1e-2	# relax until the residual torque is < 1e-4. A high damping should be set first.
 alpha   0.02
 
 
-# (6) Excite
+# (7) Excite
 # __________
 
 # Apply a static magnetic field, expressed in tesla:
 
 staticfield 	-24.6E-3     4.3E-3    0 
+
+# rffield 1e-3 0 0 500e6	# apply a sinusoidal RF field of 1mT along X with a 500MHz frequency
+# sawtoothfield 1e-3 0 0 100e6	# apply a sawtooth RF field of 1mT along X with a 100MHz frequency (can be used for hysteresis sweeps)
+# pulsedfield 0 1e-3 0 1e-9 1e-12 # apply a pulse of 1mT along Y with 1ns duration, 1ps rise- and fall times (linear edge, 0-100%).
 
 # Apply electrical current:
 
@@ -164,7 +181,7 @@ staticfield 	-24.6E-3     4.3E-3    0
 # spinpolarization    0.8         # Degree of spin-polarization
 # currentdensity      1e12 0 0    # Curent density in A/m^2
 
-# (7) Run
+# (8) Run
 # ______
 
 # Run for a specified amount of time, in seconds:
