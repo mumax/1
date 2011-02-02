@@ -3,7 +3,6 @@
 #include "cpu_zeropad.h"
 #include "../macros.h"
 #include <stdlib.h>
-#include "cpu_fft2.h"
 
 
 
@@ -104,7 +103,7 @@ void init_cpu_plans(cpuFFT3dPlan *plan){
   return;
 }
 
-cpuFFT3dPlan *new_cpuFFT3dPlan_inplace(int* size, int* paddedSize){
+cpuFFT3dPlan *new_cpuFFT3dPlan(int* size, int* paddedSize){
 
   assert(paddedSize[0] > 0);
   assert(paddedSize[1] > 1);
@@ -150,11 +149,7 @@ void delete_cpuFFT3dPlan (cpuFFT3dPlan *plan){
   
   return;
 }
-// void delete_cpuFFT3dPlan (cpuFFT3dPlan *plan){
-//   
-//   
-//   return;
-// }
+
 
 typedef struct{
   

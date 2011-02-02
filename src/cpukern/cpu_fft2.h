@@ -41,9 +41,9 @@ typedef struct{
 /**
  * Initializes an FFT plan (forward and inverse) with possible zero padding, multithreaded
  */
-cpuFFT3dPlan* new_cpuFFT3dPlan_inplace (int* size,           ///> logical size of the (real) input data
-                                        int* paddedSize      ///< size after zero-padding. @note zero-padding is conditional and not necessarily performed in each direction. Therefore, "paddedSize" is not necessarily twice "size".
-                                        );
+cpuFFT3dPlan* new_cpuFFT3dPlan (int* size,           ///> logical size of the (real) input data
+                                int* paddedSize      ///< size after zero-padding. @note zero-padding is conditional and not necessarily performed in each direction. Therefore, "paddedSize" is not necessarily twice "size".
+                               );
 
 /**
  *Frees a cpuFFT3dPlan
