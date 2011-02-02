@@ -65,7 +65,7 @@ func (t *Timer) Stop() {
 
 func (t *Timer) PrintTimer(out io.Writer) {
 	for tag, s := range t.clocks {
-		fmt.Fprintln(out, tag, ":", float(s.total)/1000000000, "s", "(", float64(s.total)/float64(1000000*int64(s.invocations)), "ms/invocation)")
+		fmt.Fprintln(out, tag, ":", float32(s.total)/1000000000, "s", "(", float64(s.total)/float64(1000000*int64(s.invocations)), "ms/invocation)")
 	}
 }
 

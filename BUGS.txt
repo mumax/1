@@ -104,3 +104,6 @@ It does not seem to cause bad time steps, just a NaN field. Even on CPU (?)
 
 [0030]
 fixed step solvers do not work with only maxdm set, still need to set an initial dt. Also, it does not always get overriden by maxDm
+
+[0031]
+autosave PNG broken, saves noise.

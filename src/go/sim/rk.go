@@ -9,7 +9,7 @@ package sim
 // This file implements a plethora of Runge-Kutta methods
 // Coefficients and descriptions are taken from wikipedia.
 //
-// TODO: undo bad steps, NaN's are also bad steps
+// TODO: NaN's are also bad steps
 //
 // TODO: for the error estimate, do not make the difference
 // between m_est and m_accurate, but between k_est and k_accurate.
@@ -53,9 +53,9 @@ type RK struct {
 	k  []*DevTensor //
 	// 	kdata []uintptr    //contiguous array of data pointers from k (kdata[i] = k[i].data), passable to C
 
-	m0 *DevTensor // buffer to backup the starting magnetization
-
-	Reductor // maxabs for error estimate 
+	m0       *DevTensor // buffer to backup the starting magnetization
+	mbackup  *DevTensor // backup to undo bad steps TODO: can some other bufer be re-used for this?
+	Reductor            // maxabs for error estimate 
 }
 
 
@@ -237,6 +237,7 @@ func (rk *RK) init(sim *Sim, order int) {
 	}
 
 	rk.m0 = NewTensor(sim.Backend, sim.mDev.size)
+	rk.mbackup = NewTensor(sim.Backend, sim.mDev.size)
 }
 
 func (rk *RK) initAdaptive(errororder float64) {
@@ -270,6 +271,9 @@ func newRK(sim *Sim, order int) *RK {
 // 	return rk
 // }
 
+// On a bad time step (error too big), 
+// do not re-try the step more than this number of times.
+const MAX_STEP_TRIALS = 10
 
 func (rk *RK) Step() {
 
@@ -286,99 +290,125 @@ func (rk *RK) Step() {
 	//		rk.Println("Using default initial dt: ", rk.dt)
 	//	}
 
-	for i := 0; i < order; i++ {
+	TensorCopyOn(m, rk.mbackup)
+	goodstep := false
+	trials := 0
+	// Try to take a step with the current dt.
+	// If the step fails (error too big),
+	// then cut dt and try again (at most MAX_STEP_TRIALS times) 
+	for !goodstep && trials < MAX_STEP_TRIALS{
+		trials++
+		for i := 0; i < order; i++ {
 
-		//FSAL
-		if rk.fsal && i == 0 && rk.fsal_initiated {
-			//FSAL: First step of this stage
-			//is the same as the last step of the previous stage.
-			TensorCopyOn(k[order-1], k[0])
-		} else {
+			//FSAL
+			if rk.fsal && i == 0 && rk.fsal_initiated {
+				//FSAL: First step of this stage
+				//is the same as the last step of the previous stage.
+				TensorCopyOn(k[order-1], k[0])
+			} else {
 
-			rk.time = time0 + float64(c[i]*rk.dt)
+				rk.time = time0 + float64(c[i]*rk.dt)
+				TensorCopyOn(m, m1)
+				for j := 0; j < order; j++ {
+					if a[i][j] != 0. {
+						rk.MAdd(m1, rk.dt*a[i][j], k[j])
+					}
+				}
+
+				rk.calcHeff(m1, k[i])
+				rk.Torque(m1, k[i])
+				rk.fsal_initiated = true
+
+				// After having calculated the first torque (k[0]),
+				// dt has not actually been used yet. This is the
+				// last chance to estimate whether the time step is too large
+				// and possibly reduce it
+				if i == 0 {//&& (rk.minDm != 0. || rk.maxDm != 0.) { // TORQUE MUST ALWAYS BE UPDATED
+					if rk.b2 == nil { // means no step control based on error estimate
+						rk.dt = rk.targetDt
+					}
+					assert(c[i] == 0)
+					maxTorque := rk.Reduce(k[0])
+					rk.torque = maxTorque // save centrally so it can be output
+					dm := rk.dt * maxTorque
+					// Do not make the magnetization step smaller than minDm
+					if dm < rk.minDm {
+						rk.dt = rk.minDm / maxTorque
+					}
+					// Do not make the time step smaller than minDt
+					if rk.dt*rk.UnitTime() < rk.input.minDt {
+						rk.dt = rk.input.minDt / rk.UnitTime()
+					}
+					// maxDm has priority over minDm (better safe than sorry)
+					if rk.maxDm != 0 && dm > rk.maxDm {
+						rk.dt = rk.maxDm / maxTorque
+					}
+					// maxDt has priority over minDt (better safe than sorry)
+					if rk.input.maxDt != 0. && rk.dt*rk.UnitTime() > rk.input.maxDt {
+						rk.dt = rk.input.maxDt / rk.UnitTime()
+					}
+					checkdt(rk.dt)
+
+				}
+			}
+		}
+
+		rk.time = time0 + float64(rk.dt) // THIS IS THE DT OF THIS LAST STEP
+		// IT WILL NOW BE UDPATED FOR THE NEXT STEP
+
+		//Lowest-order solution for error estimate, if applicable
+		//from now, m1 = lower-order solution
+		if rk.b2 != nil {
 			TensorCopyOn(m, m1)
-			for j := 0; j < order; j++ {
-				if a[i][j] != 0. {
-					rk.MAdd(m1, rk.dt*a[i][j], k[j])
+			for i := range k {
+				if rk.b2[i] != 0. {
+					rk.MAdd(m1, rk.b2[i]*rk.dt, k[i])
 				}
-			}
-
-			rk.calcHeff(m1, k[i])
-			rk.Torque(m1, k[i])
-			rk.fsal_initiated = true
-
-			// After having calculated the first torque (k[0]),
-			// dt has not actually been used yet. This is the
-			// last chance to estimate whether the time step is too large
-			// and possibly reduce it
-			if i == 0 && (rk.minDm != 0. || rk.maxDm != 0.) {
-				if rk.b2 == nil { // means no step control based on error estimate
-					rk.dt = rk.targetDt
-				}
-				assert(c[i] == 0)
-				maxTorque := rk.Reduce(k[0])
-				dm := rk.dt * maxTorque
-				if dm < rk.minDm {
-					rk.dt = rk.minDm / maxTorque
-				}
-				// maxDm has priority over minDm (better safe than sorry)
-				if dm > rk.maxDm {
-					rk.dt = rk.maxDm / maxTorque
-				}
-				checkdt(rk.dt)
-
 			}
 		}
-	}
 
-	rk.time = time0 + float64(rk.dt) // THIS IS THE DT OF THIS LAST STEP
-	// IT WILL NOW BE UDPATED FOR THE NEXT STEP
-
-	//Lowest-order solution for error estimate, if applicable
-	//from now, m1 = lower-order solution
-	if rk.b2 != nil {
-		TensorCopyOn(m, m1)
+		//Highest-order solution (m)
+		//TODO: not 100% efficient, too many adds
+		//	fmt.Println("m", m)
 		for i := range k {
-			if rk.b2[i] != 0. {
-				rk.MAdd(m1, rk.b2[i]*rk.dt, k[i])
+			//	fmt.Println("k ", i, " ", k[i])
+			if rk.b[i] != 0. {
+				rk.MAdd(m, rk.b[i]*rk.dt, k[i])
+			}
+		}
+
+		//calculate error and adapt step size if applicable
+		if rk.b2 != nil {
+			rk.MAdd(m1, -1, m) // make difference between high- and low-order solution TODO: should be difference between k's
+			error := rk.Reduce(m1)
+			rk.stepError = error
+
+			// calculate new step
+			assert(rk.maxError != 0.)
+			//TODO: what is the pre-factor of the error estimate?
+			factor := float32(math.Pow(float64(rk.maxError/error), 1./rk.errororder))
+
+			// do not increase by time step by more than 100%
+			if factor > 2. {
+				factor = 2.
+			}
+			// do not decrease to less than 1%
+			if factor < 0.01 {
+				factor = 0.01
+			}
+
+			rk.dt = rk.dt * factor
+			checkdt(rk.dt)
+			//undo bad steps
+			if error > 2*rk.maxError {
+				TensorCopyOn(rk.mbackup, m)
+				goodstep = false
+				//fmt.Println("bad step")
+			} else {
+				goodstep = true
 			}
 		}
 	}
-
-	//Highest-order solution (m)
-	//TODO: not 100% efficient, too many adds
-	//	fmt.Println("m", m)
-	for i := range k {
-		//	fmt.Println("k ", i, " ", k[i])
-		if rk.b[i] != 0. {
-			rk.MAdd(m, rk.b[i]*rk.dt, k[i])
-		}
-	}
-
-	//calculate error and adapt step size if applicable
-	if rk.b2 != nil {
-		rk.MAdd(m1, -1, m) // make difference between high- and low-order solution TODO: should be difference between k's
-		error := rk.Reduce(m1)
-		rk.stepError = error
-
-		// calculate new step
-		assert(rk.maxError != 0.)
-		//TODO: what is the pre-factor of the error estimate?
-		factor := float32(math.Pow(float64(rk.maxError/error), 1./rk.errororder))
-
-		// do not increase by time step by more than 100%
-		if factor > 2. {
-			factor = 2.
-		}
-		// do not decrease to less than 1%
-		if factor < 0.01 {
-			factor = 0.01
-		}
-
-		rk.dt = rk.dt * factor
-		checkdt(rk.dt)
-	}
-	//todo: undo bad steps
 
 	//rk.time = time0 // will be incremented by simrun.go
 	rk.Normalize(m)

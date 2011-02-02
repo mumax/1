@@ -51,9 +51,11 @@ GOFILES=\
 	main.go\
 	main_master.go\
 	main_slave.go\
+	main_python.go\
 	daemon.go\
 	stdout.go\
 	tee.go\
+	exec.go\
 	simmetadata.go\
 	resample.go\
 	error.go\

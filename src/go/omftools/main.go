@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"tensor"
 	"omf"
-	"iotool"
 	"path"
 	"os"
 )
@@ -31,7 +30,7 @@ import (
 var (
 	filename string     // the currently opened file
 	data     *tensor.T4 // the currently opened vector data
-	info     map[string]interface{}
+	info     *omf.Info
 )
 
 
@@ -49,6 +48,7 @@ func main() {
 	sh.AddFunc("draw3d-dump", Draw3D_Dump)
 	sh.AddFunc("downsample", Downsample)
 	sh.AddFunc("toodt", ToODT)
+	sh.AddFunc("corepos", CorePos)
 	cmd, args, files := refsh.ParseFlags2()
 
 	// Each file is read and stored in "data".
@@ -60,7 +60,7 @@ func main() {
 	}
 
 	for _, file := range files {
-		data, info = omf.Decode(iotool.MustOpenRDONLY(file))
+		info, data = omf.FRead(file)
 		filename = file
 
 		if len(cmd) == 0 {
@@ -75,9 +75,12 @@ func main() {
 	cleanup()
 }
 
-func cleanup(){
-	if odt != nil{
+func cleanup() {
+	if odt != nil {
 		odt.Close()
+	}
+	if coreodt != nil {
+		coreodt.Close()
 	}
 }
 

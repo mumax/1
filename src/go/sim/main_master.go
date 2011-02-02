@@ -25,7 +25,7 @@ import (
 )
 
 const WELCOME = `
-  MuMax 0.4.1747
+  MuMax 0.4.1874
   (c) Arne Vansteenkiste & Ben Van de Wiele,
       DyNaMat/EELAB UGent
   This version is meant for internal testing purposes only,
@@ -37,15 +37,17 @@ const WELCOME = `
 var known_extensions []string = []string{".in", ".py"}
 
 // returns true if the extension (e.g. ".in") is recognized
-func is_known_extension(ext string)bool{
-	for _,e := range known_extensions{
-		if e == ext{return true}
+func is_known_extension(ext string) bool {
+	for _, e := range known_extensions {
+		if e == ext {
+			return true
+		}
 	}
 	return false
 }
 
 // returns true if the filename (e.g. "file.in") has a recognized extension
-func has_known_extension(filename string) bool{
+func has_known_extension(filename string) bool {
 	return is_known_extension(path.Ext(filename))
 }
 
@@ -87,7 +89,7 @@ func main_raw_input(infile string) {
 	cmd, err := subprocess(os.Getenv(SIMROOT)+"/"+SIMCOMMAND, args, exec.DevNull, exec.Pipe, exec.Pipe)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		os.Exit(-7)
+		os.Exit(ERR_SUBPROCESS)
 	} else {
 		if !*silent {
 			fmt.Println("Child process PID ", cmd.Pid)
@@ -97,12 +99,7 @@ func main_raw_input(infile string) {
 		_, errwait := cmd.Wait(0) // Wait for exit
 		if errwait != nil {
 			fmt.Fprintln(os.Stderr, err)
-			os.Exit(-8)
+			os.Exit(ERR_SUBPROCESS)
 		}
 	}
-}
-
-// Main for python ".py" input files
-func main_python(infile string) {
-	panic("python?")
 }

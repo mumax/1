@@ -16,24 +16,23 @@ import (
 var odt *omf.TabWriter
 
 // Generates a .odt datatable form .omf files.
-func ToODT(filename string){
+func ToODT(filename string) {
 	init_odt(filename)
-	odt.Print(info["time"])
+	odt.Print(info.DescGet("Time"))
 
 	mx := tensor.Average(tensor.Component(data, 0))
 	my := tensor.Average(tensor.Component(data, 1))
 	mz := tensor.Average(tensor.Component(data, 2))
 	odt.Print(mx, my, mz)
 
-	odt.Print(info["Bx"])
-	odt.Print(info["By"])
-	odt.Print(info["Bz"])
-
-	odt.Print(info["id"])
+	odt.Print(info.DescGet("Bx"))
+	odt.Print(info.DescGet("By"))
+	odt.Print(info.DescGet("Bz"))
+	odt.Print(info.DescGet("id"))
 }
 
-func init_odt(filename string){
-	if odt == nil{
+func init_odt(filename string) {
+	if odt == nil {
 		out := iotool.MustOpenWRONLY(filename)
 		odt = omf.NewTabWriter(out)
 		odt.AddColumn("Time", "s")

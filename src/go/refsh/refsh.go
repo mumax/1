@@ -161,12 +161,12 @@ func (refsh *Refsh) Call(fname string, argv []string) []interface{} {
 }
 
 type Refsh struct {
-	funcnames    []string // known function or method names (we do not use a map to not exclude the possibility of overloading)
-	funcs        []Caller // functions/methods corresponding to funcnames
+	funcnames    []string          // known function or method names (we do not use a map to not exclude the possibility of overloading)
+	funcs        []Caller          // functions/methods corresponding to funcnames
 	help         map[string]string // help strings corresponding to funcnames
-	CrashOnError bool     // crash the program on a syntax error or just report it (e.g. for interactive mode)
-	CallCount    int      //counts number of commands executed
-	Output       Printer  //Used to print output, may be nil
+	CrashOnError bool              // crash the program on a syntax error or just report it (e.g. for interactive mode)
+	CallCount    int               //counts number of commands executed
+	Output       Printer           //Used to print output, may be nil
 }
 
 

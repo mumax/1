@@ -116,7 +116,7 @@ func Range(start, stop, step string) []string {
 	min, max, delta := Atof(start), Atof(stop), Atof(step)
 
 	for i := min; i < max; i += delta {
-		rnge = append(rnge, fmt.Sprint(float(i)))
+		rnge = append(rnge, fmt.Sprint(float32(i)))
 	}
 
 	return rnge

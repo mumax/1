@@ -30,14 +30,23 @@ func (sim *Sim) SetMRange(z1, y1, x1, z2, y2, x2 int, mz, my, mx float32) {
 	}
 }
 
-// Sets the magnetization of cell (x,y,z) to (mx, my, mz)
-func (s *Sim) SetM(z, y, x int, mz, my, mx float32) {
+// Sets the magnetization of cell with integer index (x,y,z) to (mx, my, mz)
+func (s *Sim) SetMCell(z, y, x int, mz, my, mx float32) {
 	s.initMLocal()
 	a := s.mLocal.Array()
 	a[X][x][y][z] = mx
 	a[Y][x][y][z] = my
 	a[Z][x][y][z] = mz
 	s.invalidate() // todo: we do not need to invalidate everything here!
+}
+
+
+func (s *Sim) SetM(z, y, x float32, mz, my, mx float32) {
+	s.initSize()
+	i := int((x/s.input.cellSize[X])*float32(s.input.size[X]) - (s.input.partSize[X] / 2.) + 0.5)
+	j := int((y/s.input.cellSize[Y])*float32(s.input.size[Y]) - (s.input.partSize[Y] / 2.) + 0.5)
+	k := int((z/s.input.cellSize[Z])*float32(s.input.size[Z]) - (s.input.partSize[Z] / 2.) + 0.5)
+	s.SetMCell(i, j, k, mx, my, mz)
 }
 
 // Make the magnetization uniform.
@@ -98,10 +107,27 @@ func (s *Sim) AddNoise(amplitude float32) {
 	amplitude *= 2
 	list := s.mLocal.List()
 	for i := range list {
-		list[i] += amplitude * float32(rand.Float()-0.5)
+		list[i] += amplitude * float32(rand.Float32()-0.5)
 	}
 	s.invalidate()
 }
+
+// Sets the initial magnetization random
+func (s *Sim) SetRandom() {
+	s.initMLocal()
+	list := s.mLocal.List()
+	for i := range list {
+		list[i] = float32(rand.Float32() - 0.5)
+	}
+	s.invalidate()
+}
+
+
+// Sets the random seed
+func (s *Sim) RandomSeed(seed int64) {
+	rand.Seed(seed)
+}
+
 
 // TODO: we are in trouble here if we have automatic transpose of the geometry for performance
 // X needs to be the out-of-plane direction

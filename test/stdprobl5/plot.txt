@@ -1,1 +1,0 @@
-plot "output/datatable.txt" using 1:2 with lines title "mx";

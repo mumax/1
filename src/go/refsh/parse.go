@@ -48,8 +48,10 @@ func parseArg(arg string, argtype Type) Value {
 		panic(fmt.Sprint("Do not know how to parse ", argtype))
 	case "int":
 		return NewValue(parseInt(arg))
-	case "float":
-		return NewValue(parseFloat(arg))
+	case "int64":
+		return NewValue(parseInt64(arg))
+//	case "float":
+//		return NewValue(parseFloat(arg))
 	case "float32":
 		return NewValue(parseFloat32(arg))
 	case "float64":
@@ -72,20 +74,30 @@ func parseInt(str string) int {
 }
 
 // INTERNAL
-func parseFloat(str string) float {
-	if str == "inf" {
-		return float(math.Inf(1))
-	}
-	if str == "-inf" {
-		return float(math.Inf(-1))
-	}
-	i, err := strconv.Atof(strings.ToLower(str))
+func parseInt64(str string) int64 {
+	i, err := strconv.Atoi64(str)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Could not parse to float:", str)
+		fmt.Fprintln(os.Stderr, "Could not parse to int64:", str)
 		os.Exit(-3)
 	}
 	return i
 }
+
+// INTERNAL
+//func parseFloat(str string) float {
+//	if str == "inf" {
+//		return float(math.Inf(1))
+//	}
+//	if str == "-inf" {
+//		return float(math.Inf(-1))
+//	}
+//	i, err := strconv.Atof(strings.ToLower(str))
+//	if err != nil {
+//		fmt.Fprintln(os.Stderr, "Could not parse to float:", str)
+//		os.Exit(-3)
+//	}
+//	return i
+//}
 
 // INTERNAL
 func parseFloat64(str string) float64 {
