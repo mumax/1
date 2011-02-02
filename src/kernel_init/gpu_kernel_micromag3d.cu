@@ -1,14 +1,12 @@
 #include "tensor.h"
 #include "gputil.h"
-#include "param.h"
-//#include "gpufft2.h"
 #include "gpu_fft6.h"
 #include "gpu_fftbig.h"
 #include "assert.h"
 #include "timer.h"
 #include <stdio.h>
 #include "gpu_conf.h"
-#include "gpu_micromag3d_kernel.h"
+#include "gpu_kernel_micromag3d.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,11 +15,11 @@ extern "C" {
 #define BLOCKSIZE 16
 
 
-tensor *gpu_micromag3d_kernel(param* p){
+// tensor *gpu_micromag3d_kernel(int *kernelSize, float *cellsize, int exchType, int *exchInConv, int *repetition){
+void gpu_kernel_micromag3d(int *kernelSize, float *cellsize, int exchType, int *exchInConv, int *repetition){
   
   // check input + allocate tensor on device ______________________________________________________
-    check_param(p);
-    int kernelStorageN = p->kernelSize[X] * p->kernelSize[Y] * (p->kernelSize[Z]+2);
+    int kernelStorageN = kernelSize[X] * kernelSize[Y] * (kernelSize[Z]+2);
 
     tensor *dev_kernel;
     if (p->size[X]==1)
@@ -34,21 +32,22 @@ tensor *gpu_micromag3d_kernel(param* p){
   // initialization Gauss quadrature points for integrations + copy to gpu ________________________
     float *dev_qd_W_10 = new_gpu_array(10);
     float *dev_qd_P_10 = new_gpu_array(3*10);
-    initialize_Gauss_quadrature_on_gpu_micromag3d(dev_qd_W_10, dev_qd_P_10, p->cellSize);
+    initialize_Gauss_quadrature_on_gpu_micromag3d(dev_qd_W_10, dev_qd_P_10, cellSize);
   // ______________________________________________________________________________________________
   
   
   // Plan initialization of FFTs and initialization of the kernel _________________________________
-    gpuFFT3dPlan* kernel_plan = new_gpuFFT3dPlan_padded(p->kernelSize, p->kernelSize);
-    gpu_init_and_FFT_Greens_kernel_elements_micromag3d(dev_kernel->list, p->kernelSize, p->exchType, p->exchInConv, p->cellSize, p->demagPeriodic, dev_qd_P_10, dev_qd_W_10, kernel_plan);
+    gpuFFT3dPlan* kernel_plan = new_gpuFFT3dPlan_padded(kernelSize, kernelSize);
+    gpu_init_and_FFT_Greens_kernel_elements_micromag3d(dev_kernel->list, kernelSize, exchType, exchInConv, cellSize, repetition, dev_qd_P_10, dev_qd_W_10, kernel_plan);
   // ______________________________________________________________________________________________ 
   
   delete_FFT3dPlan(kernel_plan);
   cudaFree (dev_qd_W_10);
   cudaFree (dev_qd_P_10);
 
- // write_tensor(tensor* t, FILE* out);
-  return (dev_kernel);
+  write_tensor(tensor* t, FILE* out);
+  return;
+//  return (dev_kernel);   ///> moet de kernel hier gefreed worden?
 }
 
 
@@ -183,7 +182,7 @@ __device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, int Nkernel_Y
                     (1.0f/ __powf(r2,1.5f) - 3.0f* (i*FD_cell_size_X) * (i*FD_cell_size_X) * __powf(r2,-2.5f));
         }
       }
-      result *= -1.0f/4.0f/3.14159265f;
+      result *= -1.0f/4.0f/3.14159265f*dim_inverse;
 
       if (exchType==EXCH_6NGBR && exchInConv_X==1){
         if (a== 0 && b== 0 && c== 0 && Nkernel_X==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y + 2.0f/FD_cell_size_Z/FD_cell_size_Z;
@@ -228,7 +227,7 @@ __device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, int Nkernel_Y
                     (- 3.0f* (i*FD_cell_size_X) * (j*FD_cell_size_Y) * __powf(r2,-2.5f));
         }
       }
-      result *= -1.0f/4.0f/3.14159265f;
+      result *= -1.0f/4.0f/3.14159265f*dim_inverse;
     }
   // ______________________________________________________________________________________________
 
@@ -262,7 +261,7 @@ __device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, int Nkernel_Y
                     (- 3.0f* (i*FD_cell_size_X) * (k*FD_cell_size_Y) * __powf(r2,-2.5f));
         }
       }
-      result *= -1.0f/4.0f/3.14159265f;
+      result *= -1.0f/4.0f/3.14159265f*dim_inverse;
     }
   // ______________________________________________________________________________________________
 
@@ -296,7 +295,7 @@ __device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, int Nkernel_Y
                     (1.0f/ __powf(r2,1.5f) - 3.0f* (j*FD_cell_size_Y) * (j*FD_cell_size_Y) * __powf(r2,-2.5f));
         }
       }
-      result *= -1.0f/4.0f/3.14159265f;
+      result *= -1.0f/4.0f/3.14159265f*dim_inverse;
 
       if (exchType==EXCH_6NGBR && exchInConv_Y==1){
         if (a== 0 && b== 0 && c== 0 && Nkernel_X==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y + 2.0f/FD_cell_size_Z/FD_cell_size_Z;
@@ -308,6 +307,7 @@ __device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, int Nkernel_Y
         if (a== 0 && b== 0 && c== 1)  result += 1.0f/FD_cell_size_Z/FD_cell_size_Z;
         if (a== 0 && b== 0 && c==-1)  result += 1.0f/FD_cell_size_Z/FD_cell_size_Z;
       }
+      
     }
 // ______________________________________________________________________________________________
 
@@ -341,7 +341,7 @@ __device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, int Nkernel_Y
                     ( - 3.0f* (j*FD_cell_size_Y) * (k*FD_cell_size_Z) * __powf(r2,-2.5f));
         }
       }
-      result *= -1.0f/4.0f/3.14159265f;
+      result *= -1.0f/4.0f/3.14159265f*dim_inverse;
     }
   // ______________________________________________________________________________________________
 
@@ -375,7 +375,7 @@ __device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, int Nkernel_Y
                     (1.0f/ __powf(r2,1.5f) - 3.0f* (k*FD_cell_size_Z) * (k*FD_cell_size_Z) * __powf(r2,-2.5f));
         }
       }
-      result *= -1.0f/4.0f/3.14159265f;
+      result *= -1.0f/4.0f/3.14159265f*dim_inverse;
 
       if (exchType==EXCH_6NGBR && exchInConv_Z==1){
         if (a== 0 && b== 0 && c== 0 && Nkernel_X==1)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y + 2.0f/FD_cell_size_Z/FD_cell_size_Z;
@@ -390,7 +390,7 @@ __device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, int Nkernel_Y
     }
   // ______________________________________________________________________________________________
   
-  return( result*dim_inverse );       //correct for scaling factor in FFTs
+  return( result );       //correct for scaling factor in FFTs
 }
 
 __global__ void _gpu_extract_real_parts_micromag3d(float *dev_kernel_array, float *dev_temp, int N){
@@ -464,70 +464,3 @@ void get_Quad_Points_micromag3d(float *gaussQP, float *stdGaussQP, int qOrder, d
 }
 #endif
 
-
-
-// remove the following if code contains no errors for sure.
-
-//   float *host_temp = (float *)calloc(kernelStorageN, sizeof(float));      // temp array on host for storage of each component in real + i*complex format in serie (only for debugging purposes)
-//   float *host_temp2 = (float *)calloc(kernelStorageN/2, sizeof(float));   // temp array on host for storage of only the real components
-// 
-//   int testco1 = 0;
-//   int testco2 = 0;
-//   int testrang = 0;
-//   for (int i=0; i<testco1; i++)
-//     for (int j=i; j<testco2; j++)
-//       testrang ++;
-//   fprintf(stderr, "test co: %d, %d, testrang: %d\n\n", testco1, testco2, testrang);
-// 
-//   gpu_zero(dev_temp, kernelStorageN);
-//   gpu_sync();
-// //  _gpu_init_Greens_kernel_elements<<<gridsize1, blocksize1>>>(dev_temp, Nkernel[X], Nkernel[Y], Nkernel[Z], testco1, testco2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], cst, repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
-//   _gpu_init_Greens_kernel_elements_micromag3d<<<gridsize1, blocksize1>>>(dev_temp, kernelSize[X], kernelSize[Y], kernelSize[Z], kernelStorageSize[Z], exchInConv[X], exchInConv[Y], exchInConv[Z], testco1, testco2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
-//   gpu_sync();
-// 
-//   memcpy_from_gpu(dev_temp, host_temp, kernelStorageN);
-//   gpu_sync();
-//   fprintf(stderr, "\nkernel elements (untransformed), co: %d, %d:\n", testco1, testco2);
-//   for (int i=0; i<kernelStorageSize[X]; i++){
-//     for (int j=0; j<kernelStorageSize[Y]; j++){
-//       for (int k=0; k<kernelStorageSize[Z]; k++){
-//         fprintf(stderr, "%e ", host_temp[i*kernelStorageSize[Y]*kernelStorageSize[Z] + j*kernelStorageSize[Z] + k]);
-//       }
-//       fprintf(stderr, "\n");
-//     }
-//     fprintf(stderr, "\n");
-//   }
-//   
-// 
-//   gpuFFT3dPlan_forward(kernel_plan, FFT_input, FFT_output); 
-//   gpu_sync();
-//   
-//   memcpy_from_gpu(dev_temp, host_temp, kernelStorageN);
-//   gpu_sync();
-//   fprintf(stderr, "\nkernel elements (transformed), co: %d, %d:\n", testco1, testco2);
-//   for (int i=0; i<kernelStorageSize[X]; i++){
-//     for (int j=0; j<kernelStorageSize[Y]; j++){
-//       for (int k=0; k<kernelStorageSize[Z]; k++){
-//         fprintf(stderr, "%e ", host_temp[i*kernelStorageSize[Y]*kernelStorageSize[Z] + j*kernelStorageSize[Z] + k]);
-//       }
-//       fprintf(stderr, "\n");
-//     }
-//     fprintf(stderr, "\n");
-//   }
-// 
-//   _gpu_extract_real_parts_micromag3d<<<gridsize2, blocksize2>>>(&dev_kernel->list[testrang*kernelStorageN/2], dev_temp);
-//   gpu_sync();
-//   fprintf(stderr, "\nkernel elements (transformed, real parts), co: %d, %d:\n", testco1, testco2);
-//   memcpy_from_gpu(&dev_kernel->list[testrang*kernelStorageN/2], host_temp2, kernelStorageN/2);
-//   gpu_sync();
-// 
-//   for (int i=0; i<kernelStorageSize[X]; i++){
-//     for (int j=0; j<kernelStorageSize[Y]; j++){
-//       for (int k=0; k<kernelStorageSize[Z]/2; k++){
-//         fprintf(stderr, "%e ", host_temp2[i*kernelStorageSize[Y]*kernelStorageSize[Z]/2 + j*kernelStorageSize[Z]/2 + k]);
-//       }
-//       fprintf(stderr, "\n");
-//     }
-//     fprintf(stderr, "\n");
-//   }
-// 

@@ -57,6 +57,8 @@ func (s *SemiAnal1) Step() {
     s.Normalize(m1)
     s.Normalize(m2)
   }
+  
+  s.time += float64(s.dt)
 }
 
 
