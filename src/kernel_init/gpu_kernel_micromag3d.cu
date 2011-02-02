@@ -45,9 +45,10 @@ void gpu_kernel_micromag3d(int *kernelSize, float *cellsize, int exchType, int *
   cudaFree (dev_qd_W_10);
   cudaFree (dev_qd_P_10);
 
-  write_tensor(tensor* t, FILE* out);
+  write_tensor(dev_kernel, stdout);
+
   return;
-//  return (dev_kernel);   ///> moet de kernel hier gefreed worden?
+
 }
 
 

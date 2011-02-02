@@ -41,7 +41,17 @@ void gpu_kernelmul3(float *fftMy, float *fftMz,
                     int nRealNumbers
                     );
 
-
+void gpu_kernelmul_biot_savart3D(float* fftJx, float* fftJy, float* fftJz,
+                                 float* fftKx, float* fftKy, float* fftKz,
+                                 int nRealNumbers);
+                                 
+void gpu_kernelmul_biot_savart3DNx1(float* fftJx, float* fftJy, float* fftJz,
+                                    float* fftKy, float* fftKz,
+                                    int nRealNumbers);
+                                    
+void gpu_kernelmul_biot_savart2D(float* fftJx,  float* fftJy,  float* fftJz,
+                                 float* fftKy, float* fftKz,
+                                 int nRealNumbers);
 #ifdef __cplusplus
 }
 #endif

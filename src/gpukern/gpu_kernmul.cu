@@ -250,7 +250,7 @@ void gpu_kernelmul_biot_savart3D(float* fftJx, float* fftJy, float* fftJz,
 // |Hz|   | Ky  0   0 |   |Jz|
 
 __global__ void _gpu_kernelmul_biot_savart3D_Nx1(float* fftJx, float* fftJy, float* fftJz,
-                                                 float* fftKy, float* fftKz
+                                                 float* fftKy, float* fftKz,
                                                  int N){
   int i = threadindex;
   int e = 2 * i;

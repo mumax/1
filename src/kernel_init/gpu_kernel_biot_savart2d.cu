@@ -7,7 +7,7 @@
 #include "timer.h"
 #include <stdio.h>
 #include "gpu_conf.h"
-#include "gpu_micromag2d_kernel.h"
+#include "gpu_kernel_biot_savart2d.h"
 
 #ifdef __cplusplus
 extern "C" {

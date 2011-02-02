@@ -227,7 +227,7 @@ typedef struct{
 
 void cpu_kernelmul_biot_savart3D_t(int id){
 
-  cpu_kernelmul_biot_savart3D_arg *arg = (cpu_kernelmul_biot_savart_3D_arg *) func_arg;
+  cpu_kernelmul_biot_savart3D_arg *arg = (cpu_kernelmul_biot_savart3D_arg *) func_arg;
   
   int start, stop;
   init_start_stop (&start, &stop, id, arg->nRealNumbers/2);
@@ -297,7 +297,7 @@ typedef struct{
 
 void cpu_kernelmul_biot_savart3D_Nx1_t(int id){
 
-  cpu_kernelmul_biot_savart3D_Nx1_arg *arg = (cpu_kernelmul_biot_savart_3D_Nx1_arg *) func_arg;
+  cpu_kernelmul_biot_savart3D_Nx1_arg *arg = (cpu_kernelmul_biot_savart3D_Nx1_arg *) func_arg;
   
   int start, stop;
   init_start_stop (&start, &stop, id, arg->nRealNumbers/2);
@@ -365,7 +365,7 @@ typedef struct{
 
 void cpu_kernelmul_biot_savart2D_t(int id){
 
-  cpu_kernelmul_biot_savart2D_arg *arg = (cpu_kernelmul_biot_savart_2D_arg *) func_arg;
+  cpu_kernelmul_biot_savart2D_arg *arg = (cpu_kernelmul_biot_savart2D_arg *) func_arg;
   
   int start, stop;
   init_start_stop (&start, &stop, id, arg->nRealNumbers/2);
