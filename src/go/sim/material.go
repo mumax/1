@@ -72,6 +72,14 @@ func (s *Sim) InitMaterial() {
 //  ENERGY = A * LENGTH
 
 // The internal unit of length, expressed in meters.
+// NOTE: We use the exchange length here, but we could
+// have omitted the factor 2. The implication of including
+// the factor 2 here is, e.g.:
+//  * The factor 2 in the exchange field formulation has to be dropped
+//  * The factor 2 in the uniaxial anisotropy formulation has to be dropped
+//  * ...
+// This makes no difference in the end but should be noted.
+//  
 func (mat *Material) UnitLength() float32 {
 	assert(mat.Valid())
 	return float32(Sqrt(2. * float64(mat.aExch/(mat.mu0*mat.mSat*mat.mSat))))
