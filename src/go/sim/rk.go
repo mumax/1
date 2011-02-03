@@ -340,8 +340,8 @@ func (rk *RK) Step() {
 					rk.dt = rk.input.minDt / rk.UnitTime()
 				}
 				// maxDm has priority over minDm (better safe than sorry)
-				if rk.maxDm != 0 && dm > rk.maxDm {
-					rk.dt = rk.maxDm / maxTorque
+				if rk.input.maxDm != 0 && dm > rk.input.maxDm {
+					rk.dt = rk.input.maxDm / maxTorque
 				}
 				// maxDt has priority over minDt (better safe than sorry)
 				if rk.input.maxDt != 0. && rk.dt*rk.UnitTime() > rk.input.maxDt {
