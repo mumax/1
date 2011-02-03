@@ -53,14 +53,14 @@ func (s *AdaptiveHeun) Step() {
 
 	s.time += float64(s.dt)
 
-	if s.maxError != 0. {
+	if s.input.maxError != 0. {
 		s.MAdd(m1est, -1, m) // difference between Heun and Euler
 		error := s.Reduce(m1est)
 		s.stepError = error
 		// TODO if error is too large, undo the step
 
 		// calculate new step
-		factor := s.maxError / error
+		factor := s.input.maxError / error
 		// do not increase by time step by more than 100%
 		if factor > 2. {
 			factor = 2.

@@ -382,9 +382,9 @@ func (rk *RK) Step() {
 			rk.stepError = error
 
 			// calculate new step
-			assert(rk.maxError != 0.)
+			assert(rk.input.maxError != 0.)
 			//TODO: what is the pre-factor of the error estimate?
-			factor := float32(math.Pow(float64(rk.maxError/error), 1./rk.errororder))
+			factor := float32(math.Pow(float64(rk.input.maxError/error), 1./rk.errororder))
 
 			// do not increase by time step by more than 100%
 			if factor > 2. {
@@ -398,7 +398,7 @@ func (rk *RK) Step() {
 			rk.dt = rk.dt * factor
 			checkdt(rk.dt)
 			//undo bad steps
-			if error > 2*rk.maxError {
+			if error > 2*rk.input.maxError {
 				TensorCopyOn(rk.mbackup, m)
 				goodstep = false
 				//fmt.Println("bad step")

@@ -60,6 +60,7 @@ type Input struct {
 	solvertype     string
 	j              [3]float32 // current density in A/m^2
 	exchType  int    // exchange scheme: 6 or 26 neighbors
+	maxError  float32 // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
 }
 
 
@@ -104,7 +105,6 @@ type Sim struct {
 	torque    float32 // Buffer for the maximum torque. May or may not be updated by solvers. Used for output.
 	
 	//targetDt  float32 // Preferred time step for fixed dt solvers. May be overriden when delta m would violate minDm, maxDm
-	maxError  float32 // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
 	stepError float32 // The actual error estimate of the last step. Not all solvers update this value.
 	steps     int     // The total number of steps taken so far
 
@@ -161,7 +161,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.input.demag_accuracy = DEFAULT_DEMAG_ACCURACY
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
 	sim.input.solvertype = DEFAULT_SOLVERTYPE
-	sim.maxError = DEFAULT_MAXERROR
+	sim.input.maxError = DEFAULT_MAXERROR
 	//sim.minDm = DEFAULT_MIN_DM
 	sim.input.exchType = DEFAULT_EXCH_TYPE
 	// We run the simulation with working directory = directory of input file

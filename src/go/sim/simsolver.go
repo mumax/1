@@ -56,5 +56,5 @@ func (s *Sim) MinDm(deltaM float32) {
 // 0 means not used.
 // Some solvers ignore this value
 func (s *Sim) MaxError(errorPerStep float32) {
-	s.maxError = errorPerStep
+	s.input.maxError = errorPerStep
 }
