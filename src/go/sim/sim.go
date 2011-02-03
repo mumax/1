@@ -59,6 +59,7 @@ type Input struct {
 	maxDm, minDm   float32 // The min/max magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
 	solvertype     string
 	j              [3]float32 // current density in A/m^2
+	exchType  int    // exchange scheme: 6 or 26 neighbors
 }
 
 
@@ -88,7 +89,6 @@ type Sim struct {
 
 	Conv             // Convolution plan for the magnetostatic field
 	wisdomdir string // Absolute path of the kernel wisdom root directory
-	exchType  int    // exchange scheme: 6 or 26 neighbors
 
 	Material // Stores material parameters and manages the internal units
 	Mesh     // Stores the size of the simulation grid
@@ -163,7 +163,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.input.solvertype = DEFAULT_SOLVERTYPE
 	sim.maxError = DEFAULT_MAXERROR
 	//sim.minDm = DEFAULT_MIN_DM
-	sim.exchType = DEFAULT_EXCH_TYPE
+	sim.input.exchType = DEFAULT_EXCH_TYPE
 	// We run the simulation with working directory = directory of input file
 	// This is neccesary, e.g., when a sim deamon is run from a directory other
 	// than the directory of the input file and files with relative paths are
@@ -341,9 +341,9 @@ func (s *Sim) initConv() {
 	//	fmt.Println(demag)
 
 	var exch []*tensor.T3
-	switch s.exchType {
+	switch s.input.exchType {
 	default:
-		panic(InputErr("Illegal exchange type: " + fmt.Sprint(s.exchType) + ". Options are: 6, 26"))
+		panic(InputErr("Illegal exchange type: " + fmt.Sprint(s.input.exchType) + ". Options are: 6, 26"))
 	case 6:
 		exch = Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
 	case 26:
