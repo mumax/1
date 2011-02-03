@@ -28,6 +28,7 @@ GOFILES=\
 	material.go\
 	util.go\
 	sim.go\
+	init.go\
 	simconfig.go\
 	simfield.go\
 	simspintorque.go\

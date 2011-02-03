@@ -8,7 +8,6 @@ package sim
 
 import (
 	. "math"
-	"fmt"
 	"os"
 )
 
@@ -37,11 +36,6 @@ func (s *Sim) InitMaterial() {
 	s.gamma0 = 2.211E5
 	s.muB = 9.2740091523E-24
 	s.e = 1.60217646E-19
-	s.spinPol = DEFAULT_SPIN_POLARIZATION
-	// even when not used, these arrays should be allocated:
-	// they may be passed to C even when they are ignored there
-	//s.anisK = make([]float32, 1)
-	//s.anisAxes = make([]float32, 1)
 
 	if s.input.msat == 0. {
 		s.Errorln("Saturation magnetization should first be set. E.g. msat 800E3")
@@ -59,9 +53,9 @@ func (s *Sim) InitMaterial() {
 		s.Warn("Damping parameter alpha =  ", s.alpha)
 	}
 
-	s.desc["msat"] = fmt.Sprint(s.mSat)
-	s.desc["aexch"] = fmt.Sprint(s.aExch)
-	s.desc["alpha"] = fmt.Sprint(s.alpha)
+	s.desc["msat"] =  s.mSat
+	s.desc["aexch"] = s.aExch
+	s.desc["alpha"] = s.alpha
 }
 
 
