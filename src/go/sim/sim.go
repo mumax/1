@@ -284,9 +284,9 @@ func (s *Sim) initMLocal() {
 		s.mLocal = tensor.NewT4(s.size4D[0:])
 	}
 
-	if s.hLocal == nil {
+	//if s.hLocal == nil {
 		s.hLocal = tensor.NewT4(s.size4D[0:])
-	}
+	//}
 
 	if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
 		s.Println("Resampling magnetization from ", s.mLocal.Size(), " to ", Size4D(s.input.size[0:]))

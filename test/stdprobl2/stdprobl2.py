@@ -18,7 +18,7 @@ uniform(1, 1, 0)
 for i in range(10,20):
 	d=i*lex
 	partsize(5*d, d, 0.1*d)
-	relax()
+	run(0.1e-9)
 	save("m", "omf")
 	save("table", "ascii")
 
