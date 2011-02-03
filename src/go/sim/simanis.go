@@ -14,7 +14,7 @@ import "math"
 */
 
 func (s *Sim) K1(k1 float32) {
-	s.input.anisKSI[0] = k1 
+	s.input.anisKSI[0] = k1
 }
 
 // Sets a uniaxial anisotropy

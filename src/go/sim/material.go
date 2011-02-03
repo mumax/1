@@ -30,7 +30,6 @@ type Material struct {
 // }
 
 
-
 //  Units:
 //  FIELD = Ms
 //  LENGTH = sqrt(2.0*A/(mu0*Ms*Ms))

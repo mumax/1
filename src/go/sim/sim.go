@@ -58,14 +58,14 @@ type Input struct {
 	maxDm, minDm   float32 // The min/max magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
 	solvertype     string
 	j              [3]float32 // current density in A/m^2
-	exchType  int    // exchange scheme: 6 or 26 neighbors
-	maxError  float32 // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
-	periodic  [3]int       // Periodic boundary conditions? 0=no, >0=yes
-	geom      Geom         // Shape of the magnet (has Inside(x,y,z) func)
-	edgeCorr  int          // 0: no edge correction, >0: 2^edgecorr cell subsampling for edge corrections
-	anisType int // Anisotropy type
-	anisKSI    []float32 // Anisotropy constant(s), as many as needed
-	anisAxes []float32// Anisotopy axes: ux,uy,uz for uniaxial, u1x,u1y,u1z,u2x,u2y,u2z for cubic
+	exchType       int        // exchange scheme: 6 or 26 neighbors
+	maxError       float32    // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
+	periodic       [3]int     // Periodic boundary conditions? 0=no, >0=yes
+	geom           Geom       // Shape of the magnet (has Inside(x,y,z) func)
+	edgeCorr       int        // 0: no edge correction, >0: 2^edgecorr cell subsampling for edge corrections
+	anisType       int        // Anisotropy type
+	anisKSI        []float32  // Anisotropy constant(s), as many as needed
+	anisAxes       []float32  // Anisotopy axes: ux,uy,uz for uniaxial, u1x,u1y,u1z,u2x,u2y,u2z for cubic
 }
 
 
@@ -91,7 +91,7 @@ type Sim struct {
 	hDev           *DevTensor // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
 	mLocal, hLocal *tensor.T4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
 	//mLocalLock     sync.RWMutex
-	mUpToDate      bool // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
+	mUpToDate bool // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
 
 	Conv             // Convolution plan for the magnetostatic field
 	wisdomdir string // Absolute path of the kernel wisdom root directory
@@ -104,11 +104,11 @@ type Sim struct {
 	hextInt      []float32  // stores the externally applied field in internal units
 
 	//relaxer   *Relax
-	Solver            // Does the time stepping, can be euler, heun, ...
-	time      float64 // The total time (internal units)
-	dt        float32 // The time step (internal units). May be updated by adaptive-step solvers
-	torque    float32 // Buffer for the maximum torque. May or may not be updated by solvers. Used for output.
-	
+	Solver         // Does the time stepping, can be euler, heun, ...
+	time   float64 // The total time (internal units)
+	dt     float32 // The time step (internal units). May be updated by adaptive-step solvers
+	torque float32 // Buffer for the maximum torque. May or may not be updated by solvers. Used for output.
+
 	//targetDt  float32 // Preferred time step for fixed dt solvers. May be overriden when delta m would violate minDm, maxDm
 	stepError float32 // The actual error estimate of the last step. Not all solvers update this value.
 	steps     int     // The total number of steps taken so far
@@ -134,13 +134,13 @@ type Sim struct {
 	edgeKern  []*DevTensor // Per-cell self-kernel used for edge corrections (could also store some anisotropy types)
 
 	// Benchmark info
-	lastrunSteps    int
-	lastrunWalltime int64
-	lastrunSimtime  float64
+	lastrunSteps            int
+	lastrunWalltime         int64
+	lastrunSimtime          float64
 	LastrunStepsPerSecond   float64
 	LastrunSimtimePerSecond float64
 
-	anisKInt    []float32 // Anisotropy constant(s), as many as needed, internal units
+	anisKInt []float32 // Anisotropy constant(s), as many as needed, internal units
 }
 
 

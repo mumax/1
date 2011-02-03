@@ -7,13 +7,13 @@
 
 package sim
 
-import(
+import (
 	"os"
 	"math"
 	"fmt"
 	"tensor"
 	"rand"
-	)
+)
 
 // When a parameter is changed, the simulation state is invalidated until it gets (re-)initialized by init().
 func (s *Sim) invalidate() {
@@ -32,7 +32,9 @@ func (s *Sim) IsValid() bool {
 
 // (Re-)initialize the simulation tree, necessary before running.
 func (s *Sim) init() {
-	if s.IsValid(){return}
+	if s.IsValid() {
+		return
+	}
 	s.Println("Initializing simulation state")
 
 	// Material parameters control the units so they need to be set up first
@@ -50,7 +52,9 @@ func (s *Sim) init() {
 	s.checkInitialM()
 
 	// copy to GPU and normalize on the GPU, according to the normmap.
+	s.Println("Copy m from local to device")
 	TensorCopyTo(s.mLocal, s.mDev)
+
 	// 	s.Normalize(s.mDev) // mysteriously crashes
 	// then copy back to local so we can see the normalized initial state.
 	// (so m0000000.tensor is normalized)
@@ -59,12 +63,11 @@ func (s *Sim) init() {
 	// (4) Calculate kernel & set up convolution
 	s.initConv()
 
+	// Edge corrections
 	s.initGeom()
 
 	// (5) Time stepping
 	s.initSolver()
-
-	s.printMem()
 
 	s.valid = true // we can start the real work now
 	s.BeenValid = true
@@ -94,14 +97,14 @@ func (s *Sim) initMaterial() {
 		s.Warn("Damping parameter alpha =  ", s.alpha)
 	}
 
-	if len(s.anisKInt) < len(s.input.anisKSI){
+	if len(s.anisKInt) < len(s.input.anisKSI) {
 		s.anisKInt = make([]float32, len(s.input.anisKSI))
 	}
-	for i := range s.input.anisKSI{
-		s.anisKInt[i] = s.input.anisKSI[i] /  s.UnitEnergyDensity()
+	for i := range s.input.anisKSI {
+		s.anisKInt[i] = s.input.anisKSI[i] / s.UnitEnergyDensity()
 	}
-	
-	s.desc["msat"] =  s.mSat
+
+	s.desc["msat"] = s.mSat
 	s.desc["aexch"] = s.aExch
 	s.desc["alpha"] = s.alpha
 }
@@ -138,28 +141,26 @@ func (s *Sim) initCellSize() {
 
 func (s *Sim) initDevMem() {
 	// Free previous memory only if it has the wrong size
-	//  if s.mDev != nil && !tensor.EqualSize(s.mDev.Size(), s.size4D[0:]) {
-	//    // TODO: free
-	//    s.mDev = nil
-	//    s.h = nil
-	//  }
+	 if s.mDev != nil && !tensor.EqualSize(s.mDev.Size(), s.size4D[0:]) {
+		s.Println("Freeing unused device memory")
+		s.mDev.Free()
+		s.hDev.Free()
+	    s.mDev = nil
+	    s.hDev = nil
+	 }
 
-	//  if s.mDev == nil {
-	s.Println("Allocating device memory " + fmt.Sprint(s.size4D))
-	s.mDev = NewTensor(s.Backend, s.size4D[0:])
-	s.hDev = NewTensor(s.Backend, s.size4D[0:])
-	s.printMem()
-	// 	s.mComp, s.hComp = [3]*DevTensor{}, [3]*DevTensor{}
-	// 	for i := range s.mComp {
-	// 		s.mComp[i] = s.mDev.Component(i)
-	// 		s.hComp[i] = s.h.Component(i)
-	// 	}
+	if s.mDev == nil {
+		s.Println("Allocating device memory " + fmt.Sprint(s.size4D))
+		s.mDev = NewTensor(s.Backend, s.size4D[0:])
+		s.hDev = NewTensor(s.Backend, s.size4D[0:])
+	}
 
 	s.initReductors()
 }
 
 
 func (s *Sim) initReductors() {
+	//TODO: free the previous ones, preferentially in reductor.Init()
 	N := Len(s.size3D)
 	s.devsum.InitSum(s.Backend, N)
 	s.devmaxabs.InitMaxAbs(s.Backend, N)
@@ -173,13 +174,15 @@ func (s *Sim) initMLocal() {
 	if s.mLocal == nil {
 		s.Println("Allocating local memory " + fmt.Sprint(s.size4D))
 		s.mLocal = tensor.NewT4(s.size4D[0:])
-	}else{
-	if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
-		s.Println("Resampling magnetization from ", s.mLocal.Size(), " to ", Size4D(s.input.size[0:]))
-		s.mLocal = resample4(s.mLocal, Size4D(s.input.size[0:]))
-	}}
+		s.hLocal = tensor.NewT4(s.size4D[0:])
+	} else {
+		if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
+			s.Println("Resampling magnetization from ", s.mLocal.Size(), " to ", Size4D(s.input.size[0:]))
+			s.mLocal = resample4(s.mLocal, Size4D(s.input.size[0:]))
+			s.hLocal = tensor.NewT4(s.size4D[0:])
+		}
+	}
 
-	s.hLocal = tensor.NewT4(s.size4D[0:])
 }
 
 
@@ -253,15 +256,13 @@ func (s *Sim) initConv() {
 
 
 func (s *Sim) initSolver() {
+	if s.Solver == nil{ // TODO: FOR DEBUG ONLY, SHOULD CHECK IF TYPE/SIZE IS STILL UP TO DATE
 	s.Println("Initializing solver: ", s.input.solvertype)
-	// init dt
 	s.dt = s.input.dt / s.UnitTime()
 	if s.dt == 0. {
 		s.dt = DEFAULT_DT_INTERNAL
 		s.Println("Using default initial dt: ", s.dt*s.UnitTime(), " s")
 	}
 	s.Solver = NewSolver(s.input.solvertype, s)
-	//s.Println(s.Solver.String())
+	}
 }
-
-
