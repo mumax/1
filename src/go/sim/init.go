@@ -32,6 +32,7 @@ func (s *Sim) IsValid() bool {
 
 // (Re-)initialize the simulation tree, necessary before running.
 func (s *Sim) init() {
+	if s.IsValid(){return}
 	s.Println("Initializing simulation state")
 
 	// Material parameters control the units so they need to be set up first
@@ -97,7 +98,7 @@ func (s *Sim) initMaterial() {
 		s.anisKInt = make([]float32, len(s.input.anisKSI))
 	}
 	for i := range s.input.anisKSI{
-		s.anisKInt[i] = s.input.anisKSI[i] / 
+		s.anisKInt[i] = s.input.anisKSI[i] /  s.UnitEnergyDensity()
 	}
 	
 	s.desc["msat"] =  s.mSat
