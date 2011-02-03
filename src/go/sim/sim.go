@@ -64,6 +64,9 @@ type Input struct {
 	periodic  [3]int       // Periodic boundary conditions? 0=no, >0=yes
 	geom      Geom         // Shape of the magnet (has Inside(x,y,z) func)
 	edgeCorr  int          // 0: no edge correction, >0: 2^edgecorr cell subsampling for edge corrections
+	anisType int // Anisotropy type
+	anisK    []float32 // Anisotropy constant(s), as many as needed
+	anisAxes []float32// Anisotopy axes: ux,uy,uz for uniaxial, u1x,u1y,u1z,u2x,u2y,u2z for cubic
 }
 
 
@@ -139,10 +142,6 @@ type Sim struct {
 	LastrunStepsPerSecond   float64
 	LastrunSimtimePerSecond float64
 
-	//Anisotropy
-	anisType int // TODO: move to input!!
-	anisK    []float32
-	anisAxes []float32
 }
 
 
@@ -175,8 +174,8 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.desc = make(map[string]interface{})
 	sim.hextInt = make([]float32, 3)
 	sim.initWriters()
-	sim.anisK = []float32{0.} // even when not used these must be allocated
-	sim.anisAxes = []float32{0.}
+	sim.input.anisK = []float32{0.} // even when not used these must be allocated
+	sim.input.anisAxes = []float32{0.}
 	sim.invalidate() //just to make sure we will init()
 	return sim
 }
