@@ -325,7 +325,7 @@ func (rk *RK) Step() {
 			// and possibly reduce it
 			if i == 0 {
 				if rk.b2 == nil { // means no step control based on error estimate
-					rk.dt = rk.targetDt
+					rk.dt = rk.input.dt
 				}
 				assert(c[i] == 0)
 				maxTorque := rk.Reduce(k[0])

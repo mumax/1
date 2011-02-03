@@ -103,7 +103,7 @@ type Sim struct {
 	dt        float32 // The time step (internal units). May be updated by adaptive-step solvers
 	torque    float32 // Buffer for the maximum torque. May or may not be updated by solvers. Used for output.
 	
-	targetDt  float32 // Preferred time step for fixed dt solvers. May be overriden when delta m would violate minDm, maxDm
+	//targetDt  float32 // Preferred time step for fixed dt solvers. May be overriden when delta m would violate minDm, maxDm
 	maxError  float32 // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
 	stepError float32 // The actual error estimate of the last step. Not all solvers update this value.
 	steps     int     // The total number of steps taken so far
@@ -367,10 +367,8 @@ func (s *Sim) initConv() {
 func (s *Sim) initSolver() {
 	s.Println("Initializing solver: ", s.input.solvertype)
 	// init dt
-	s.targetDt = s.input.dt / s.UnitTime()
-	if s.targetDt != 0. {
-		s.dt = s.targetDt
-	} else {
+	s.dt = s.input.dt / s.UnitTime()
+	if s.dt == 0. {
 		s.dt = DEFAULT_DT_INTERNAL
 		s.Println("Using default initial dt: ", s.dt*s.UnitTime(), " s")
 	}
