@@ -15,7 +15,6 @@ import (
 	"os"
 	"rand"
 	"bufio"
-	"sync"
 )
 
 const (
@@ -84,7 +83,7 @@ type Sim struct {
 	size3D         []int      //simulation grid size (without 3 as first element)
 	hDev           *DevTensor // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
 	mLocal, hLocal *tensor.T4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
-	mLocalLock     sync.RWMutex
+	//mLocalLock     sync.RWMutex
 	mUpToDate      bool // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
 
 	Conv             // Convolution plan for the magnetostatic field
@@ -104,7 +103,6 @@ type Sim struct {
 	dt        float32 // The time step (internal units). May be updated by adaptive-step solvers
 	torque    float32 // Buffer for the maximum torque. May or may not be updated by solvers. Used for output.
 	
-	minDm     float32 // The minimum magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
 	targetDt  float32 // Preferred time step for fixed dt solvers. May be overriden when delta m would violate minDm, maxDm
 	maxError  float32 // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
 	stepError float32 // The actual error estimate of the last step. Not all solvers update this value.
@@ -164,7 +162,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.autosaveIdx = -1 // so we will start at 0 after the first increment
 	sim.input.solvertype = DEFAULT_SOLVERTYPE
 	sim.maxError = DEFAULT_MAXERROR
-	sim.minDm = DEFAULT_MIN_DM
+	//sim.minDm = DEFAULT_MIN_DM
 	sim.exchType = DEFAULT_EXCH_TYPE
 	// We run the simulation with working directory = directory of input file
 	// This is neccesary, e.g., when a sim deamon is run from a directory other

@@ -332,8 +332,8 @@ func (rk *RK) Step() {
 				rk.Sim.torque = maxTorque // save centrally so it can be output
 				dm := rk.dt * maxTorque
 				// Do not make the magnetization step smaller than minDm
-				if dm < rk.minDm {
-					rk.dt = rk.minDm / maxTorque
+				if dm < rk.input.minDm {
+					rk.dt = rk.input.minDm / maxTorque
 				}
 				// Do not make the time step smaller than minDt
 				if rk.dt*rk.UnitTime() < rk.input.minDt {
