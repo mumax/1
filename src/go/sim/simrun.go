@@ -50,6 +50,8 @@ func (s *Sim) Run(time float64) {
 	}
 
 	s.stop_benchmark()
+	s.updateMLocal() // Even if no output was saved, mLocal should be up to date for a possible next relax()
+	s.assureOutputUpToDate()
 	//does not invalidate
 }
 
@@ -60,6 +62,8 @@ func (s *Sim) Relax() {
 	s.Println("Relaxing until torque < ", maxtorque)
 	s.dt = RELAX_START_DT
 	s.torque = maxtorque * 1000
+	s.Normalize(s.mDev)
+	s.mUpToDate = false
 
 	backup_maxdt := s.input.maxDt
 	if s.input.maxDt == 0 {
@@ -77,6 +81,8 @@ func (s *Sim) Relax() {
 		updateDashboard(s)
 	}
 	s.input.maxDt = backup_maxdt
+	s.updateMLocal() // Even if no output was saved, mLocal should be up to date for a possible next relax()
+	s.assureOutputUpToDate()
 }
 
 // re-initialize benchmark data
@@ -115,4 +121,10 @@ func (s *Sim) assureOutputUpToDate() {
 	s.desc["torque"] = s.torque
 	s.desc["id"] = s.autosaveIdx
 	s.desc["iteration"] = s.steps
+}
+
+// Copies mDev to mLocal.
+// Necessary after each run(), relax(), ...
+func (s *Sim) updateMLocal(){
+		TensorCopyFrom(s.mDev, s.mLocal)
 }
