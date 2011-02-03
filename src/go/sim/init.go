@@ -9,6 +9,7 @@ package sim
 
 import(
 	"os"
+	"math"
 	"fmt"
 	"tensor"
 	"rand"
@@ -31,24 +32,17 @@ func (s *Sim) IsValid() bool {
 
 // (Re-)initialize the simulation tree, necessary before running.
 func (s *Sim) init() {
-	//if s.IsValid() {
-	//	return //no work to do
-	//}
 	s.Println("Initializing simulation state")
 
-	// (1) Material parameters control the units,
-	// so they need to be set up first
-	s.InitMaterial()
+	// Material parameters control the units so they need to be set up first
+	s.initMaterial()
 
-	// (2) Size must be set before memory allocation
-	s.initSize()
-
+	// Size must be set before memory allocation
+	s.initGridSize()
 	s.initCellSize()
 
-	// (3) Allocate memory, but only if needed
+	// Allocate memory, but only if needed
 	s.initDevMem()
-
-	// allocate local storage for m
 	s.initMLocal()
 
 	// check if m has been initialized
@@ -74,8 +68,45 @@ func (s *Sim) init() {
 	s.valid = true // we can start the real work now
 	s.BeenValid = true
 }
-func (s *Sim) initSize() {
 
+
+func (s *Sim) initMaterial() {
+	s.Println("Initializing material parameters")
+	s.mu0 = 4.0E-7 * math.Pi
+	s.gamma0 = 2.211E5
+	s.muB = 9.2740091523E-24
+	s.e = 1.60217646E-19
+
+	if s.input.msat == 0. {
+		s.Errorln("Saturation magnetization should first be set. E.g. msat 800E3")
+		os.Exit(-6)
+	}
+	s.mSat = s.input.msat
+
+	if s.input.aexch == 0. {
+		s.Errorln("Exchange constant should first be set. E.g. aexch 12E-13")
+		os.Exit(-6)
+	}
+	s.aExch = s.input.aexch
+
+	if s.alpha <= 0. {
+		s.Warn("Damping parameter alpha =  ", s.alpha)
+	}
+
+	if len(s.anisKInt) < len(s.input.anisKSI){
+		s.anisKInt = make([]float32, len(s.input.anisKSI))
+	}
+	for i := range s.input.anisKSI{
+		s.anisKInt[i] = s.input.anisKSI[i] / 
+	}
+	
+	s.desc["msat"] =  s.mSat
+	s.desc["aexch"] = s.aExch
+	s.desc["alpha"] = s.alpha
+}
+
+
+func (s *Sim) initGridSize() {
 	s.size4D[0] = 3 // 3-component vectors
 	for i := range s.size {
 		s.size[i] = s.input.size[i]
@@ -85,9 +116,10 @@ func (s *Sim) initSize() {
 		}
 		s.size4D[i+1] = s.size[i]
 	}
-	// 	s.Println("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
-
 	s.size3D = s.size4D[1:]
+	if s.size[Z] == 1 {
+		panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
+	}
 }
 
 
@@ -99,9 +131,6 @@ func (s *Sim) initCellSize() {
 			s.Errorln("The cell size should be set first. E.g. cellsize 1E-9 1E-9 1E-9")
 			os.Exit(-6)
 		}
-	}
-	if s.size[Z] == 1 {
-		panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
 	}
 }
 
@@ -139,22 +168,17 @@ func (s *Sim) initReductors() {
 
 
 func (s *Sim) initMLocal() {
-	s.initSize()
+	s.initGridSize()
 	if s.mLocal == nil {
-		s.Println("Simulation size ", s.size, " = ", s.size[0]*s.size[1]*s.size[2], " cells")
 		s.Println("Allocating local memory " + fmt.Sprint(s.size4D))
 		s.mLocal = tensor.NewT4(s.size4D[0:])
-	}
-
-	//if s.hLocal == nil {
-		s.hLocal = tensor.NewT4(s.size4D[0:])
-	//}
-
+	}else{
 	if !tensor.EqualSize(s.mLocal.Size(), Size4D(s.input.size[0:])) {
 		s.Println("Resampling magnetization from ", s.mLocal.Size(), " to ", Size4D(s.input.size[0:]))
 		s.mLocal = resample4(s.mLocal, Size4D(s.input.size[0:]))
-	}
-	// 	normalize(s.mLocal.Array())
+	}}
+
+	s.hLocal = tensor.NewT4(s.size4D[0:])
 }
 
 

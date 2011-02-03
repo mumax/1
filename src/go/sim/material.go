@@ -8,7 +8,6 @@ package sim
 
 import (
 	. "math"
-	"os"
 )
 
 type Material struct {
@@ -30,33 +29,6 @@ type Material struct {
 // 	return mat
 // }
 
-func (s *Sim) InitMaterial() {
-	s.Println("Initializing material parameters")
-	s.mu0 = 4.0E-7 * Pi
-	s.gamma0 = 2.211E5
-	s.muB = 9.2740091523E-24
-	s.e = 1.60217646E-19
-
-	if s.input.msat == 0. {
-		s.Errorln("Saturation magnetization should first be set. E.g. msat 800E3")
-		os.Exit(-6)
-	}
-	s.mSat = s.input.msat
-
-	if s.input.aexch == 0. {
-		s.Errorln("Exchange constant should first be set. E.g. aexch 12E-13")
-		os.Exit(-6)
-	}
-	s.aExch = s.input.aexch
-
-	if s.alpha <= 0. {
-		s.Warn("Damping parameter alpha =  ", s.alpha)
-	}
-
-	s.desc["msat"] =  s.mSat
-	s.desc["aexch"] = s.aExch
-	s.desc["alpha"] = s.alpha
-}
 
 
 //  Units:

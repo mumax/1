@@ -171,7 +171,7 @@ func (s *Sim) calcHeff(m, h *DevTensor) {
 	s.hextInt[2] = s.hextSI[2] / B
 
 	// TODO: only if needed
-	s.AddLocalFields(m, h, s.hextInt, s.input.anisType, s.input.anisK, s.input.anisAxes)
+	s.AddLocalFields(m, h, s.hextInt, s.input.anisType, s.anisKInt, s.input.anisAxes)
 
 
 	// (3) Add the edge-correction field

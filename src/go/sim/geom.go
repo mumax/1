@@ -165,7 +165,7 @@ func (im *Mask) Inside(x, y, z float32) bool {
 
 
 func (sim *Sim) Mask(image string) {
-	sim.initSize()
+	sim.initGridSize()
 	sim.input.geom = NewMask(image, sim.input.partSize[Y], sim.input.partSize[Z])
 }
 
