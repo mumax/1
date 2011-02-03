@@ -22,7 +22,7 @@ func NewSemiAnal1(sim *Sim) *SemiAnal1 {
 	this := new(SemiAnal1)
 	this.Sim = sim
 	this.m2 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
-// 	this.h2 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
+	// 	this.h2 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
 	//  this.Reductor.InitMaxVector(sim.Backend, sim.size[X]*sim.size[Y]*sim.size[Z])
 	this.Reductor.InitMaxAbs(sim.Backend, prod(sim.size4D[0:]))
 	return this
@@ -32,7 +32,7 @@ func (s *SemiAnal1) Step() {
 	m1 := s.mDev
 	m2 := s.m2
 	h := s.hDev
-// 	h2 := s.h2
+	// 	h2 := s.h2
 	//   fmt.Println("Step", s.dt, "oiuuigy" )
 	if s.steps == 0 {
 		s.calcHeff(m1, h)
@@ -40,15 +40,15 @@ func (s *SemiAnal1) Step() {
 		s.calcHeff(m2, h)
 		s.SemianalStep(m1, m1, h, s.dt, s.alpha)
 		s.Torque(m2, h)
-    s.torque = s.Reduce(h)
-  } else {
+		s.torque = s.Reduce(h)
+	} else {
 
 		s.calcHeff(m1, h)
 		s.SemianalStep(m2, m2, h, s.dt, s.alpha)
 		s.calcHeff(m2, h)
 		s.SemianalStep(m1, m1, h, s.dt, s.alpha)
-    s.Torque(m2, h)
-    s.torque = s.Reduce(h)
+		s.Torque(m2, h)
+		s.torque = s.Reduce(h)
 
 	}
 

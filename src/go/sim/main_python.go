@@ -50,13 +50,21 @@ func main_python(infile string) {
 	// on waiting for python without noting the mumax crash (e.g.).
 	wait := make(chan int)
 	go func() {
-		_, errwait := python.Wait(0) // Wait for exit
+		py_wait, errwait := python.Wait(0) // Wait for exit
 		Check(errwait, ERR_SUBPROCESS)
-		fmt.Println("python exited")
+		status := py_wait.ExitStatus()
+		fmt.Println("python exited with status ", status)
+		if status != 0 {
+			os.Exit(ERR_SUBPROCESS)
+		}
 		wait <- 1
 	}()
-	_, errwait := mumax.Wait(0)
+	mu_wait, errwait := mumax.Wait(0)
 	Check(errwait, ERR_SUBPROCESS)
-	fmt.Println("mumax exited")
+	status := mu_wait.ExitStatus()
+	fmt.Println("mumax child process exited with status ", status)
+	if status != 0 {
+		os.Exit(ERR_SUBPROCESS)
+	}
 	<-wait
 }

@@ -125,7 +125,7 @@ func NewRK3(sim *Sim) *RK {
 // which can be used to implement adaptive step size.
 func NewRK23(sim *Sim) *RK {
 	rk := newRK(sim, 4)
-	rk.fsal = true 
+	rk.fsal = true
 	rk.c = []float32{0., 1. / 2., 3. / 4., 1.}
 	rk.a = [][]float32{
 		{0., 0., 0., 0.},
@@ -319,10 +319,10 @@ func (rk *RK) Step() {
 				rk.fsal_initiated = true
 			}
 
-				// After having calculated the first torque (k[0]),
-				// dt has not actually been used yet. This is the
-				// last chance to estimate whether the time step is too large
-				// and possibly reduce it
+			// After having calculated the first torque (k[0]),
+			// dt has not actually been used yet. This is the
+			// last chance to estimate whether the time step is too large
+			// and possibly reduce it
 			if i == 0 {
 				if rk.b2 == nil { // means no step control based on error estimate
 					rk.dt = rk.targetDt

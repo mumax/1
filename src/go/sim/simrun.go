@@ -62,16 +62,16 @@ func (s *Sim) Relax() {
 	s.torque = maxtorque * 1000
 
 	backup_maxdt := s.input.maxDt
-	if s.input.maxDt == 0{
+	if s.input.maxDt == 0 {
 		s.input.maxDt = 0.02 * s.UnitTime()
 		s.Println("Using default max dt: ", s.input.maxDt)
 	}
-	
+
 	backup_time := s.time
 	for s.torque >= maxtorque {
 		// step
 		s.Step()
-		s.time = backup_time// HACK: during relax we want the time to stand still
+		s.time = backup_time // HACK: during relax we want the time to stand still
 		s.steps++
 		s.mUpToDate = false
 		updateDashboard(s)
