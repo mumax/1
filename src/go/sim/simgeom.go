@@ -75,9 +75,9 @@ func (s *Sim) PartSize(z, y, x float32) {
 
 
 func (s *Sim) Periodic(z, y, x int) {
-	s.periodic[X] = x
-	s.periodic[Y] = y
-	s.periodic[Z] = z
+	s.input.periodic[X] = x
+	s.input.periodic[Y] = y
+	s.input.periodic[Z] = z
 	s.invalidate()
 }
 
@@ -117,7 +117,7 @@ func (s *Sim) updateSizes() {
 // Sets the accuracy of edge corrections.
 // 0 means no correction.
 func (s *Sim) EdgeCorrection(accuracy int) {
-	s.edgeCorr = accuracy
+	s.input.edgeCorr = accuracy
 	s.invalidate()
 }
 
@@ -145,23 +145,23 @@ var INF32 float32 = float32(math.Inf(1))
 // Does not take into account the aspect ratio of the cells.
 func (sim *Sim) Cylinder() {
 	sim.initSize()
-	sim.geom = &Ellipsoid{INF32, sim.input.partSize[Y] / 2., sim.input.partSize[Z] / 2.}
+	sim.input.geom = &Ellipsoid{INF32, sim.input.partSize[Y] / 2., sim.input.partSize[Z] / 2.}
 	sim.invalidate()
 }
 
 func (sim *Sim) DotArray(r, sep float32, n int) {
 	pitch := 2*r + sep
-	sim.geom = &Array{&Ellipsoid{INF32, r, r}, n, n, pitch, pitch}
+	sim.input.geom = &Array{&Ellipsoid{INF32, r, r}, n, n, pitch, pitch}
 }
 
 func (sim *Sim) SquareHoleArray(r, sep float32, n int) {
 	pitch := 2*r + sep
-	sim.geom = &Inverse{&Array{&Cuboid{INF32, r, r}, n, n, pitch, pitch}}
+	sim.input.geom = &Inverse{&Array{&Cuboid{INF32, r, r}, n, n, pitch, pitch}}
 }
 
 
 func (sim *Sim) Ellipsoid(rz, ry, rx float32) {
-	sim.geom = &Ellipsoid{rx, ry, rz}
+	sim.input.geom = &Ellipsoid{rx, ry, rz}
 	sim.invalidate()
 }
 

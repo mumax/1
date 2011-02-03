@@ -61,6 +61,9 @@ type Input struct {
 	j              [3]float32 // current density in A/m^2
 	exchType  int    // exchange scheme: 6 or 26 neighbors
 	maxError  float32 // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
+	periodic  [3]int       // Periodic boundary conditions? 0=no, >0=yes
+	geom      Geom         // Shape of the magnet (has Inside(x,y,z) func)
+	edgeCorr  int          // 0: no edge correction, >0: 2^edgecorr cell subsampling for edge corrections
 }
 
 
@@ -124,11 +127,8 @@ type Sim struct {
 	starttime int64                  // Walltime when the simulation was started, seconds since unix epoch. Used by dashboard.go
 
 	// Geometry
-	periodic  [3]int       // Periodic boundary conditions? 0=no, >0=yes
-	geom      Geom         // Shape of the magnet (has Inside(x,y,z) func)
 	normMap   *DevTensor   // Per-cell magnetization norm. nil means the norm is 1.0 everywhere. Stored on the device
 	normLocal *tensor.T3   // local copy of devNorm
-	edgeCorr  int          // 0: no edge correction, >0: 2^edgecorr cell subsampling for edge corrections
 	edgeKern  []*DevTensor // Per-cell self-kernel used for edge corrections (could also store some anisotropy types)
 
 	// Benchmark info
@@ -332,11 +332,11 @@ func (s *Sim) checkInitialM() {
 
 
 func (s *Sim) initConv() {
-	s.paddedsize = padSize(s.size[:], s.periodic[:])
+	s.paddedsize = padSize(s.size[:], s.input.periodic[:])
 
 	s.Println("Calculating kernel (may take a moment)") // --- In fact, it takes 3 moments, one in each direction.
 	// lookupKernel first searches the wisdom directory and only calculates the kernel when it's not cached yet.
-	demag := s.LookupKernel(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy, s.periodic[:])
+	demag := s.LookupKernel(s.paddedsize, s.cellSize[0:], s.input.demag_accuracy, s.input.periodic[:])
 
 	//	fmt.Println(demag)
 
