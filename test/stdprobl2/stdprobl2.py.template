@@ -12,11 +12,11 @@ partsize(5*d, d, 0.1*d)
 maxcellsize(1.05*lex, 1.05*lex, inf)
 uniform(1, 1, 0)
 
-for i in range(0, 100):
-	staticfield(-i*1e-3, 0, 0)
-	run(100e-12)
+for i in range(0, 1000):
+	staticfield(-i*1e-4, 0, 0)
+	run(10e-12)
 	relax()
-	save("m", "png")
+	#save("m", "png")
 	save("table", "ascii")
 
 
