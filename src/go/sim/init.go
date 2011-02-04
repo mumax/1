@@ -18,7 +18,8 @@ import (
 // When a parameter is changed, the simulation state is invalidated until it gets (re-)initialized by init().
 func (s *Sim) invalidate() {
 	if s.IsValid() {
-		s.Println("Simulation state invalidated")
+		// HACK: since re-initialization is buggy, we do not allow it for the moment.
+		panic(InputErr("This parameter could only be set once."))
 	}
 	s.valid = false
 }
@@ -34,6 +35,7 @@ func (s *Sim) IsValid() bool {
 func (s *Sim) init() {
 	if s.IsValid() {
 		return
+//		panic(InputErr("This parameter could only be set once."))
 	}
 	s.Println("Initializing simulation state")
 

@@ -139,6 +139,7 @@ func passthrough_cli_args() (args []string) {
 	args = append(args, fmt.Sprint("-threads=", *threads))
 	args = append(args, fmt.Sprint("-patient=", *patient))
 	args = append(args, fmt.Sprint("-wisdom=", *wisdir))
+	args = append(args, fmt.Sprint("-updatedisp=", *updatedb))
 	return
 }
 

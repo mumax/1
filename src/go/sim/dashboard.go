@@ -21,7 +21,7 @@ var (
 
 func updateDashboard(sim *Sim) {
 
-	if sim.silent {
+	if *updatedb == 0 || sim.silent {
 		return
 	}
 
