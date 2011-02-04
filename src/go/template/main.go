@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"iotool"
 	"os"
+	"path"
 	"strings"
 	"strconv"
 )
@@ -36,7 +37,10 @@ func main() {
 	// E.g. key=val1,val2 appends 2 documents with key
 	// replaced by val1 and val2, respectively.
 	// the original document is then replaced by nil.
-	docs := []*Document{&Document{content, file}}
+	file = RemoveExtension(file) // remove the last extension (typically ".template")
+	ext := path.Ext(file) // keep the extension before that for later  (typically ".in", ".py", ...)
+	file = RemoveExtension(file)
+	docs := []*Document{&Document{content, file, ext}}
 
 	for f := 0; f < flag.NArg()-1; f++ {
 
@@ -70,7 +74,7 @@ func main() {
 				Error("Not all {key}'s were specified.")
 				// TODO: it might be nice to show which ones...
 			}
-			out := iotool.MustOpenWRONLY(d.name + ".in")
+			out := iotool.MustOpenWRONLY(d.name + d.ext)
 			defer out.Close()
 			out.Write([]byte(d.content))
 		}
@@ -135,6 +139,7 @@ func Atof(a string) float64 {
 type Document struct {
 	content string
 	name    string
+	ext 	string
 }
 
 func (d *Document) Replace(key, val string) *Document {
@@ -144,6 +149,7 @@ func (d *Document) Replace(key, val string) *Document {
 	d2 := new(Document)
 	d2.content = strings.Replace(d.content, "{"+key+"}", val, -1)
 	d2.name = d.name + "_" + key + "=" + val
+	d2.ext = d.ext
 	return d2
 }
 
@@ -153,11 +159,19 @@ func Error(msg ...interface{}) {
 	os.Exit(-1)
 }
 
+// Removes a filename extension.
+// I.e., the part after the dot, if present.
+func RemoveExtension(str string) string {
+	ext := path.Ext(str)
+	return str[:len(str)-len(ext)]
+}
+
 const USAGE = `
 Usage: template file should contain {key} statements, where "key" can be replaced by any identifier.
-template key=value1,value2,... file.in  Creates files where {key} is replaced by each of the values.
-template key=start:stop file.in         Replaces key by all integers between start and stop (exclusive).
-template key=start:stop:step file.in    As above but with a step different from 1.
-template key1=... key2=...              Multiple keys may be specified.
-Output files are given automaticially generated names.
+template key=value1,value2,... file.in.template Creates files where {key} is replaced by each of the values.
+template key=start:stop file.in.template        Replaces key by all integers between start and stop (exclusive).
+template key=start:stop:step file.in.template   As above but with a step different from 1.
+template key1=... key2=...                      Multiple keys may be specified.
+Output files are given automaticially generated names, e.g.:
+"template n=1 file.py.template" yields "file_n=1.py".
 `

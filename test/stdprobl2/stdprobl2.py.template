@@ -7,7 +7,7 @@ aexch(1.3e-11)
 alpha(1)
 
 lex = 5.6858e-9
-d=20*lex
+d={n}*lex
 partsize(5*d, d, 0.1*d)
 maxcellsize(lex, lex, inf)
 uniform(1, 1, 0)

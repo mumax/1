@@ -37,7 +37,7 @@ var DAEMON_STARTTIME int64 = time.Nanoseconds()
 func DaemonMain() {
 	DAEMON_WATCHTIME = *watch
 	sleeping := false
-	fmt.Println(DAEMON_PREFIX, "Input files should end with .in and the corresponding .out directory should not yet exist.", DAEMON_SUFFIX)
+	fmt.Println(DAEMON_PREFIX, "Input files should end with", known_extensions, "and the corresponding .out directory should not yet exist.", DAEMON_SUFFIX)
 	if *walltime > 0 {
 		fmt.Println(DAEMON_PREFIX, "Daemon will exit after ", *walltime, " hours (but running simulations will not be aborted).", DAEMON_SUFFIX)
 	}
@@ -182,7 +182,7 @@ func findInputFile(dir string) string {
 	// First look for input files in the top-level directory...
 	for _, info := range fileinfo {
 		file := dir + "/" + info.Name
-		if strings.HasSuffix(file, ".in") && !contains(fileinfo, RemoveExtension(RemovePath(file))+".out") {
+		if has_known_extension(file) && !contains(fileinfo, RemoveExtension(RemovePath(file))+".out") {
 			return file
 		}
 	}
