@@ -35,7 +35,7 @@ func (s *Sim) IsValid() bool {
 func (s *Sim) init() {
 	if s.IsValid() {
 		return
-//		panic(InputErr("This parameter could only be set once."))
+		//		panic(InputErr("This parameter could only be set once."))
 	}
 	s.Println("Initializing simulation state")
 
@@ -143,13 +143,13 @@ func (s *Sim) initCellSize() {
 
 func (s *Sim) initDevMem() {
 	// Free previous memory only if it has the wrong size
-	 if s.mDev != nil && !tensor.EqualSize(s.mDev.Size(), s.size4D[0:]) {
+	if s.mDev != nil && !tensor.EqualSize(s.mDev.Size(), s.size4D[0:]) {
 		s.Println("Freeing unused device memory")
 		s.mDev.Free()
 		s.hDev.Free()
-	    s.mDev = nil
-	    s.hDev = nil
-	 }
+		s.mDev = nil
+		s.hDev = nil
+	}
 
 	if s.mDev == nil {
 		s.Println("Allocating device memory " + fmt.Sprint(s.size4D))
@@ -258,13 +258,13 @@ func (s *Sim) initConv() {
 
 
 func (s *Sim) initSolver() {
-	if s.Solver == nil{ // TODO: FOR DEBUG ONLY, SHOULD CHECK IF TYPE/SIZE IS STILL UP TO DATE
-	s.Println("Initializing solver: ", s.input.solvertype)
-	s.dt = s.input.dt / s.UnitTime()
-	if s.dt == 0. {
-		s.dt = DEFAULT_DT_INTERNAL
-		s.Println("Using default initial dt: ", s.dt*s.UnitTime(), " s")
-	}
-	s.Solver = NewSolver(s.input.solvertype, s)
+	if s.Solver == nil { // TODO: FOR DEBUG ONLY, SHOULD CHECK IF TYPE/SIZE IS STILL UP TO DATE
+		s.Println("Initializing solver: ", s.input.solvertype)
+		s.dt = s.input.dt / s.UnitTime()
+		if s.dt == 0. {
+			s.dt = DEFAULT_DT_INTERNAL
+			s.Println("Using default initial dt: ", s.dt*s.UnitTime(), " s")
+		}
+		s.Solver = NewSolver(s.input.solvertype, s)
 	}
 }

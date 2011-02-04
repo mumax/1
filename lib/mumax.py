@@ -7,6 +7,8 @@
 
 from sys import stdin
 
+inf = float("inf")
+
 # INTERNAL
 def wait():
 	while 1:
@@ -72,6 +74,10 @@ def partsize(x, y, z):
 # Sets the cell size, in meters
 def cellsize(x, y, z):
 	do3("cellsize", x, y, z)
+
+# Sets the maximum cell size, in meters
+def maxcellsize(x, y, z):
+	do3("maxcellsize", x, y, z)
 
 
 # Initial magnetization

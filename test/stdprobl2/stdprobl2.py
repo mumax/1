@@ -7,20 +7,17 @@ aexch(1.3e-11)
 alpha(1)
 
 lex = 5.6858e-9
-
-gridsize(128, 32, 1)
-uniform(1, 1, 0)
-
-#NOTE: gridsize should not be too small, makes time stepping crash
-#due to exchange in convolution??
-
 d=20*lex
 partsize(5*d, d, 0.1*d)
+maxcellsize(lex, lex, inf)
+uniform(1, 1, 0)
 
 for i in range(0, 100):
-	staticfield(i*1e-3, 0, 0)
+	staticfield(-i*1e-3, 0, 0)
+	run(100e-12)
 	relax()
-	save("m", "omf")
+	save("m", "png")
 	save("table", "ascii")
+
 
 

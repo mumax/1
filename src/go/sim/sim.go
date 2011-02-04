@@ -48,9 +48,11 @@ type Input struct {
 	msat           float32    // Saturation magnetization in SI units (A/m)
 	size           [3]int     // Grid size in number of cells
 	cellSize       [3]float32 // Cell size in SI units (m)
+	maxCellSize    [3]float32 // Maximum cell size in SI units (m)
 	partSize       [3]float32 // Total magnet size in SI units(m), = size * cellSize
 	sizeSet        bool       // Input file may set only 2 of size, cellSize, partSize. The last one being calculated automatically. It is an error to set all 3 of them so we keep track of which is set by the user.
 	cellSizeSet    bool
+	maxCellSizeSet bool
 	partSizeSet    bool
 	demag_accuracy int
 	dt             float32
