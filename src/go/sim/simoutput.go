@@ -180,9 +180,9 @@ func (t *Table) Save(s *Sim) {
 	// calculate reduced quantities
 	m := [3]float32{}
 	torque := [3]float32{}
-	N := Len(s.size3D)
+	//N := Len(s.size3D)
 	for i := range m {
-		m[i] = s.devsum.Reduce(s.mDev.comp[i]) / float32(N)
+		m[i] = s.devsum.Reduce(s.mDev.comp[i]) / s.avgNorm
 		torque[i] = abs32(s.devmaxabs.Reduce(s.hDev.comp[i]) / s.dt)
 	}
 	//minMz, maxMz := s.devmin.Reduce(s.mDev.comp[X]), s.devmax.Reduce(s.mDev.comp[X])

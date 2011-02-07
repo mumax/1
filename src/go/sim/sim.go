@@ -1,3 +1,4 @@
+//  This file is part of MuMax, a high-performance micromagnetic simulator
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -134,6 +135,7 @@ type Sim struct {
 	// Geometry
 	normMap   *DevTensor   // Per-cell magnetization norm. nil means the norm is 1.0 everywhere. Stored on the device
 	normLocal *tensor.T3   // local copy of devNorm
+	avgNorm			float32  // "Total" magnetization norm over the magnet. Divide the sum of all magnetization vectors by this to get the average magnetization correctly, even when the geometry is not square.
 	edgeKern  []*DevTensor // Per-cell self-kernel used for edge corrections (could also store some anisotropy types)
 
 	// Benchmark info
@@ -179,6 +181,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.initWriters()
 	sim.input.anisKSI = []float32{0.} // even when not used these must be allocated
 	sim.input.anisAxes = []float32{0.}
+	sim.avgNorm = 1.
 	sim.invalidate() //just to make sure we will init()
 	return sim
 }

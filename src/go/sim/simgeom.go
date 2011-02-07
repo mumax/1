@@ -184,6 +184,7 @@ func (sim *Sim) LoadMSat(file string) {
 		norm = resample3(norm, sim.normMap.Size())
 	}
 	TensorCopyTo(norm, sim.normMap)
+	sim.updateAvgNorm()
 	//TODO this should not invalidate the entire sim
 	sim.invalidate()
 }

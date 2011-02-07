@@ -11,10 +11,10 @@ alpha      	2
 # geometry 
 gridsize       	128    	32	1
 partsize   	500E-9  125E-9  3E-9  # m
-cylinder 
+ellipsoid 250e-9 62.5e-9 inf 
 
 # initial magnetization
-uniform 0 1 1
+uniform 1 1 1
 
 
 # run

@@ -177,6 +177,19 @@ func (s *Sim) initNormMap() {
 		}
 	}
 	TensorCopyTo(norm, s.normMap)
+	s.updateAvgNorm()
+}
+
+
+// Updates the average magnetization norm
+// Needed to correctly calculate <m> when some cells are missing.
+func (s *Sim) updateAvgNorm(){
+	l := s.normLocal.List()
+	var avg float64
+	for _,n := range l{
+		avg += float64(n)
+	}
+	s.avgNorm =  float32(avg)
 }
 
 
