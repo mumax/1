@@ -40,8 +40,7 @@ GOFILES=\
 	simoutput.go\
 	simrun.go\
 	simsolver.go\
-	remotedevice.go\
-	simserver.go\
+	simget.go\
 	timer.go\
 	dashboard.go\
 	appliedfield.go\

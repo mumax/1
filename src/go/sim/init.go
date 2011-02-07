@@ -127,6 +127,7 @@ func (s *Sim) initGridSize() {
 	if s.size[Z] == 1 {
 		panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
 	}
+	s.avgNorm = float32(tensor.Prod(s.size3D))
 }
 
 

@@ -10,8 +10,8 @@ package sim
 
 import (
 	"io"
-	"os"
-	"fmt"
+//	"os"
+//	"fmt"
 )
 
 // Reads from in and passes data through to out.
@@ -19,18 +19,18 @@ import (
 func Pipe(in io.Reader, out io.Writer) {
 	buf := [4096]byte{}[:]
 	for {
-		fmt.Fprint(os.Stderr, "Pipe waiting for read ") //debug
+		//fmt.Fprint(os.Stderr, "Pipe waiting for read ") //debug
 		n, err := in.Read(buf)
-		fmt.Fprintln(os.Stderr, "OK") //debug
+		//fmt.Fprintln(os.Stderr, "OK") //debug
 		if err != nil {
 			//panic(err)
-			fmt.Fprintln(os.Stderr, "Pipe: ", err) //debug
+			//fmt.Fprintln(os.Stderr, "Pipe: ", err) //debug
 			if closer := out.(io.Closer); closer != nil {
 				closer.Close()
 			}
 			return
 		}
-		fmt.Fprintln(os.Stderr, "Pipe[", string(buf[:n]), "]") //debug
+		//fmt.Fprintln(os.Stderr, "Pipe[", string(buf[:n]), "]") //debug
 		out.Write(buf[:n])
 	}
 }

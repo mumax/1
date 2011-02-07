@@ -173,7 +173,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	// than the directory of the input file and files with relative paths are
 	// read (e.g. "include file", "load file")
 	workdir := ParentDir(outputdir)
-	fmt.Println("chdir ", workdir)
+	//Println("chdir ", workdir)
 	os.Chdir(workdir)
 	sim.outputDir(Filename(outputdir))
 	sim.desc = make(map[string]interface{})
@@ -181,7 +181,6 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.initWriters()
 	sim.input.anisKSI = []float32{0.} // even when not used these must be allocated
 	sim.input.anisAxes = []float32{0.}
-	sim.avgNorm = 1.
 	sim.invalidate() //just to make sure we will init()
 	return sim
 }
