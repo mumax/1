@@ -1,8 +1,5 @@
-# todo: we need to express the depencies between the packages
-LD_LIBRARY_PATH+=.
-include ../../common.mk
-
 all:
+	gomake -C mumax
 	gomake install -C iotool
 	gomake install -C tensor
 	gomake install -C omf

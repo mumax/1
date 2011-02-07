@@ -7,6 +7,7 @@
 package sim
 
 import (
+	"mumax/common"
 	"tensor"
 	"os"
 	//"fmt"
@@ -126,11 +127,15 @@ func (s *Sim) updateSizes() {
 		return
 	}
 
-	// Find a gridsize that is a power of two in each dimension and that is large enough
-	// so that the cell size does not exceed maxCellSize. 
+	// Find a gridsize that is suited for CUFFT and
+	// so that the cell size does not exceed maxCellSize by more than a few %. 
 	if in.maxCellSizeSet && in.partSizeSet {
 		for i := range in.partSize {
-			in.size[i] = findPow2(in.partSize[i] / in.maxCellSize[i])
+			n := int(in.partSize[i] / (in.maxCellSize[i] * (1 + MAX_OVERSIZE)))
+			for !common.IsGoodCUFFTSize(n){
+				n++
+			}
+			in.size[i] = n
 			in.cellSize[i] = in.partSize[i] / float32(in.size[i])
 		}
 		s.Println("Calculated number of cells:", in.size)
@@ -141,6 +146,11 @@ func (s *Sim) updateSizes() {
 
 	// s.invalidate() deferred
 }
+
+// When calculating a suited grid size from a maximum cell size,
+// make cells at most this fraction bigger than the specified maximum.
+// (It's better to make them a few percent bigger than a factor 2 too small, e.g.)
+const MAX_OVERSIZE = 0.05
 
 // Returns the smallest power of two >= n
 func findPow2(n float32) int{
