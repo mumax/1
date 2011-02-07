@@ -16,6 +16,7 @@ uniform(1, 1, 0)
 
 
 field = 0.0
+relax()
 remanence = getmx()
 
 while getmx() > 0:
