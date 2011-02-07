@@ -9,7 +9,7 @@ package sim
 // This file implements the methods for setting
 // spintorque parameters.
 
-import(
+import (
 	. "mumax/common"
 )
 

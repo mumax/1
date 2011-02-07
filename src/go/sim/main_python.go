@@ -9,7 +9,6 @@ package sim
 import (
 	. "mumax/common"
 	"exec"
-	"fmt"
 	"os"
 )
 
@@ -24,23 +23,24 @@ func main_python(infile string) {
 	py_args := []string{infile}
 	py_bin, errlook := exec.LookPath("python")
 	CheckErr(errlook, ERR_SUBPROCESS)
-	fmt.Println("starting ", py_bin, py_args)
+	Println("starting ", py_bin, py_args)
 	python, errpy := subprocess(py_bin, py_args, exec.Pipe, exec.Pipe, exec.PassThrough)
 	CheckErr(errpy, ERR_SUBPROCESS)
-	fmt.Println("python PID: ", python.Pid)
+	Println("python PID: ", python.Pid)
 
 	// Start mumax --slave subprocess
 	mu_args := passthrough_cli_args()
 	mu_args = append(mu_args, "--slave", "--stdin", RemoveExtension(infile))
-	mumax, errmu := subprocess(os.Getenv(SIMROOT)+"/"+SIMCOMMAND, mu_args, exec.Pipe, exec.PassThrough, exec.PassThrough)
+	Println("starting ", "mumax ", mu_args)
+	mumax, errmu := subprocess(os.Getenv(SIMROOT)+"/"+SIMCOMMAND, mu_args, exec.Pipe, exec.Pipe, exec.PassThrough)
 	CheckErr(errmu, ERR_SUBPROCESS)
-	fmt.Println("mumax slave PID ", mumax.Pid)
+	Println("mumax slave PID ", mumax.Pid)
 
 	// 2-way communication between python and mumax
 	// Python's stdout -> mumax's  stdin
 	// Mumax's  stdout -> python's stdin
 	go Pipe(python.Stdout, mumax.Stdin)
-	//	go Pipe(mumax.Stdout, python.Stdin)
+	go Pipe(mumax.Stdout, python.Stdin)
 
 	// Wait for python and mumax to finish.
 	// Wait asynchronously so "... has finished" output
@@ -53,18 +53,24 @@ func main_python(infile string) {
 		py_wait, errwait := python.Wait(0) // Wait for exit
 		CheckErr(errwait, ERR_SUBPROCESS)
 		status := py_wait.ExitStatus()
-		fmt.Println("python exited with status ", status)
+		Println("python exited with status ", status)
 		if status != 0 {
 			os.Exit(ERR_SUBPROCESS)
 		}
 		wait <- 1
 	}()
-	mu_wait, errwait := mumax.Wait(0)
-	CheckErr(errwait, ERR_SUBPROCESS)
-	status := mu_wait.ExitStatus()
-	fmt.Println("mumax child process exited with status ", status)
-	if status != 0 {
-		os.Exit(ERR_SUBPROCESS)
-	}
+
+	go func(){
+		 mu_wait, errwait := mumax.Wait(0)
+		CheckErr(errwait, ERR_SUBPROCESS)
+		status := mu_wait.ExitStatus()
+		Println("mumax child process exited with status ", status)
+		if status != 0 {
+			os.Exit(ERR_SUBPROCESS)
+		}
+		wait <- 1
+	}()
+
+	<-wait
 	<-wait
 }

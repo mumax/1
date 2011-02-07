@@ -7,6 +7,7 @@
 
 from sys import stdin
 from sys import stderr
+from sys import stdout
 
 inf = float("inf")
 
@@ -17,10 +18,13 @@ def recv():
 	stderr.write(data + "\n")
 	return float(data)
 
-# INTERNAL
+# INTERNAL: version of print() that flushes (critical to avoid communication deadlock)
 def myprint(x):
 	stderr.write("py_send: " + str(x) + "\n")
-	print(x)
+	stderr.flush()
+	stdout.write(x)
+	stdout.write("\n")
+	stdout.flush()
 
 # INTERNAL. Shorthand for running a command with one argument
 def send0(command):

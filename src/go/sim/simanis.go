@@ -6,9 +6,9 @@
 
 package sim
 
-import(
+import (
 	. "mumax/common"
- "math"
+	"math"
 )
 
 /*

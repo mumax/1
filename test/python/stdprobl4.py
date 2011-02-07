@@ -30,7 +30,6 @@ autosave("m", "png", 10e-12)
 staticfield(-24.6E-3, 4.3E-3, 0)
 run(0.1e-9)
 
-exit()
 a = getmx()
 
 
