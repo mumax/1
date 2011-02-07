@@ -6,18 +6,22 @@ msat(800e3)
 aexch(1.3e-11)
 alpha(1)
 
+desc("n", {n})
 lex = 5.6858e-9
 d={n}*lex
 partsize(5*d, d, 0.1*d)
 maxcellsize(1.05*lex, 1.05*lex, inf)
 uniform(1, 1, 0)
 
-for i in range(0, 1000):
-	staticfield(-i*1e-4, 0, 0)
+
+field = 0
+
+while getmx() > 0:
+	staticfield(field, 0, 0)
 	run(10e-12)
 	relax()
 	save("m", "png")
 	save("table", "ascii")
+	field -= 1e-3
 
-
-
+save("m", "text")

@@ -15,8 +15,10 @@ inf = float("inf")
 def recv():
 	stderr.write("py_recv: ")
 	data = stdin.readline()
+	while len(data) == 0 or data[0] != "%":	
+		data = stdin.readline()
 	stderr.write(data + "\n")
-	return float(data)
+	return float(data[1:])
 
 # INTERNAL: version of print() that flushes (critical to avoid communication deadlock)
 def myprint(x):
