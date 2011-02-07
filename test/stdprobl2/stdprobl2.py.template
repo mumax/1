@@ -16,7 +16,7 @@ for i in range(0, 1000):
 	staticfield(-i*1e-4, 0, 0)
 	run(10e-12)
 	relax()
-	#save("m", "png")
+	save("m", "png")
 	save("table", "ascii")
 
 

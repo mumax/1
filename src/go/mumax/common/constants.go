@@ -11,6 +11,13 @@ package common
 
 // This file provides a central definition of common constants.
 
+// vector components
+const(
+	X = 0
+	Y = 1
+	Z = 2
+)
+
 // direction flag for memcpy()
 const (
 	CPY_TO   = 1

@@ -29,3 +29,18 @@ func IsGoodCUFFTSize(n int) bool {
 	}
 	return n == 1
 }
+
+// Stricter than IsGoodCUFFTSize():
+// Should be a good CUFFT size and meet alignment
+// requirements.
+func IsGoodGridSize(direction, n int) bool{
+	if !IsGoodCUFFTSize(n){return false}
+	switch direction{
+		default: panic(Bug("Illegal argument"))
+		case Z: return n%16 == 0
+		case Y: return n%8 == 0
+		case X: return n%1 == 0
+	}
+	panic(Bug("Unreachable"))
+	return false
+}

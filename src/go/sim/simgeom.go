@@ -132,7 +132,7 @@ func (s *Sim) updateSizes() {
 	if in.maxCellSizeSet && in.partSizeSet {
 		for i := range in.partSize {
 			n := int(in.partSize[i] / (in.maxCellSize[i] * (1 + MAX_OVERSIZE)))
-			for !common.IsGoodCUFFTSize(n){
+			for !common.IsGoodGridSize(i, n){ // direction-dependent
 				n++
 			}
 			in.size[i] = n
