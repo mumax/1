@@ -13,17 +13,17 @@ inf = float("inf")
 
 # INTERNAL
 def recv():
-	stderr.write("py_recv: ")
+	#stderr.write("py_recv: ") #debug
 	data = stdin.readline()
-	while len(data) == 0 or data[0] != "%":	
+	while len(data) == 0 or data[0] != "%":	# skip lines not starting with the % prefix
 		data = stdin.readline()
-	stderr.write(data + "\n")
+	#stderr.write(data + "\n") #debug
 	return float(data[1:])
 
 # INTERNAL: version of print() that flushes (critical to avoid communication deadlock)
 def myprint(x):
-	stderr.write("py_send: " + str(x) + "\n")
-	stderr.flush()
+	#stderr.write("py_send: " + str(x) + "\n") #debug
+	#stderr.flush()
 	stdout.write(x)
 	stdout.write("\n")
 	stdout.flush()
