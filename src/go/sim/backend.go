@@ -7,6 +7,7 @@
 package sim
 
 import (
+	. "mumax/common"
 	"tensor"
 	"unsafe"
 	//"fmt"

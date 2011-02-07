@@ -18,6 +18,7 @@ package sim
 // FFT layouts and exchange formulations.
 //
 import (
+	. "mumax/common"
 	"fmt"
 	"os"
 	"tensor"

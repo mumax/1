@@ -199,29 +199,29 @@ type Device interface {
 	String() string
 }
 
-// direction flag for memcpy()
-const (
-	CPY_TO   = 1
-	CPY_ON   = 2
-	CPY_FROM = 3
-)
-
-// direction flag for copyPadded()
-const (
-	CPY_PAD   = 1
-	CPY_UNPAD = 2
-)
-
-// direction flag for FFT
-const (
-	FFT_FORWARD = 1
-	FFT_INVERSE = -1
-)
-
-// Reduction operation flags for reduce()
-const (
-	ADD    = 1
-	MAX    = 2
-	MAXABS = 3
-	MIN    = 4
-)
+//// direction flag for memcpy()
+//const (
+//	CPY_TO   = 1
+//	CPY_ON   = 2
+//	CPY_FROM = 3
+//)
+//
+//// direction flag for copyPadded()
+//const (
+//	CPY_PAD   = 1
+//	CPY_UNPAD = 2
+//)
+//
+//// direction flag for FFT
+//const (
+//	FFT_FORWARD = 1
+//	FFT_INVERSE = -1
+//)
+//
+//// Reduction operation flags for reduce()
+//const (
+//	ADD    = 1
+//	MAX    = 2
+//	MAXABS = 3
+//	MIN    = 4
+//)

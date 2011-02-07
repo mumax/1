@@ -14,6 +14,7 @@ package sim
 // TODO scheduling a table twice will wipe the previous content...
 
 import (
+	. "mumax/common"
 	"fmt"
 	"tensor"
 	"os"

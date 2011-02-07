@@ -42,7 +42,7 @@ func updateDashboard(sim *Sim) {
 	//fmt.Print(HIDECURSOR)
 	// Walltime
 	time := time.Seconds() - sim.starttime
-	fmt.Printf(
+	fmt.Fprintf(os.Stderr,
 		BOLD+"running:"+RESET+"%3dd:%02dh:%02dm:%02ds",
 		time/DAY, (time/HOUR)%24, (time/MINUTE)%60, time%60)
 	erase()
@@ -53,7 +53,7 @@ func updateDashboard(sim *Sim) {
 	realTime := sim.UnitTime() * float32(sim.time) / (float32(t) / 1e9)
 
 	// Time stepping
-	fmt.Printf(
+	fmt.Fprintf(os.Stderr,
 		BOLD+"step: "+RESET+"%-11d "+
 			BOLD+"time: "+RESET+"%.4es      "+
 			BOLD+"Δt:   "+RESET+" %.3es",
@@ -69,12 +69,12 @@ func updateDashboard(sim *Sim) {
 	eraseln()
 
 	// Conditions
-	fmt.Printf(BOLD+"torque:    "+RESET+"%.5e", sim.torque)
+	fmt.Fprintf(os.Stderr, BOLD+"torque:    "+RESET+"%.5e", sim.torque)
 	erase()
 	fmt.Println()
 
 	// performance
-	fmt.Printf("steps/s: %f simulated/s: %f", float32(stepsPerS), float32(realTime))
+	fmt.Fprintf(os.Stderr, "steps/s: %f simulated/s: %f", float32(stepsPerS), float32(realTime))
 	erase()
 	fmt.Println()
 
@@ -101,11 +101,11 @@ func eraseln() {
 }
 
 func up() {
-	fmt.Printf(LINEUP)
+	fmt.Fprintf(os.Stderr, LINEUP)
 }
 
 func down() {
-	fmt.Printf(LINEDOWN)
+	fmt.Fprintf(os.Stderr, LINEDOWN)
 }
 
 

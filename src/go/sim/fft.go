@@ -6,6 +6,9 @@
 
 package sim
 
+import(
+	. "mumax/common"
+)	
 
 // 3D real-to-complex / complex-to-real transform. Handles zero-padding efficiently (if applicable)
 type FFT struct {

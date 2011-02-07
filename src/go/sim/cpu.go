@@ -22,6 +22,7 @@ import "unsafe"
  */
 
 import (
+	. "mumax/common"
 	"fmt"
 	"os"
 )

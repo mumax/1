@@ -6,8 +6,10 @@
 
 package sim
 
-import "math"
-
+import(
+	. "mumax/common"
+ "math"
+)
 
 /*
   Input methods for anisotropy

@@ -11,6 +11,7 @@ GOFILES=\
 	blockingreader.go\
 	misc.go\
 	cufftsize.go\
+	print.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 

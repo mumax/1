@@ -11,6 +11,7 @@ package sim
 // vortices, Landau patterns, etc.
 
 import (
+	. "mumax/common"
 	"rand"
 	"omf"
 )

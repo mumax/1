@@ -17,6 +17,7 @@ package sim
 //
 // TODO: master could have have the ability to automatically select between GPU/CPU
 import (
+	. "mumax/common"
 	"flag"
 	"os"
 	"exec"

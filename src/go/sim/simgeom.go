@@ -7,7 +7,7 @@
 package sim
 
 import (
-	"mumax/common"
+	. "mumax/common"
 	"tensor"
 	"os"
 	//"fmt"
@@ -96,10 +96,12 @@ func (s *Sim) updateSizes() {
 
 	// Check if two of the four size options have been set
 	numset := 0
-	for _,set := range []bool{in.sizeSet, in.cellSizeSet, in.partSizeSet, in.maxCellSizeSet}{
-		if set{numset ++}
+	for _, set := range []bool{in.sizeSet, in.cellSizeSet, in.partSizeSet, in.maxCellSizeSet} {
+		if set {
+			numset++
+		}
 	}
-	if numset > 2{
+	if numset > 2 {
 		panic(InputErr("Exactly two of [size, cellsize, partsize, maxcellsize] must be specified"))
 	}
 
@@ -132,7 +134,7 @@ func (s *Sim) updateSizes() {
 	if in.maxCellSizeSet && in.partSizeSet {
 		for i := range in.partSize {
 			n := int(in.partSize[i] / (in.maxCellSize[i] * (1 + MAX_OVERSIZE)))
-			for !common.IsGoodGridSize(i, n){ // direction-dependent
+			for !IsGoodGridSize(i, n) { // direction-dependent
 				n++
 			}
 			in.size[i] = n
@@ -153,12 +155,12 @@ func (s *Sim) updateSizes() {
 const MAX_OVERSIZE = 0.05
 
 // Returns the smallest power of two >= n
-func findPow2(n float32) int{
-	if n < 1.0{
+func findPow2(n float32) int {
+	if n < 1.0 {
 		n = 1.0
 	}
-  return int(math.Pow(2, math.Ceil(math.Log2(float64(n)))))
-	
+	return int(math.Pow(2, math.Ceil(math.Log2(float64(n)))))
+
 }
 
 // Sets the accuracy of edge corrections.

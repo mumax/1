@@ -8,6 +8,7 @@
 package sim
 
 import (
+	. "mumax/common"
 	"os"
 	"math"
 	"fmt"

@@ -9,6 +9,7 @@ package sim
 // The Geom interface describes arbitrary geometries
 
 import (
+	. "mumax/common"
 	. "math"
 	"image/png"
 	"os"

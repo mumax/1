@@ -11,11 +11,11 @@ import (
 	"fmt"
 )
 
-const (
-	X = 0
-	Y = 1
-	Z = 2
-)
+//const (
+//	X = 0
+//	Y = 1
+//	Z = 2
+//)
 
 // A tensor on the calculating device (CPU, GPU),
 // not directly accessible as a go array.

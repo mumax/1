@@ -59,7 +59,6 @@ GOFILES=\
 	exec.go\
 	simmetadata.go\
 	resample.go\
-	error.go\
 	wisdom.go\
 	help.go\
 	simdebug.go\
