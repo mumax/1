@@ -25,66 +25,65 @@ func updateDashboard(sim *Sim) {
 		return
 	}
 
-	// 	fmt.Print(HIDECURSOR)
 
-	T := sim.UnitTime()
-
+	// determine if we should update the display allready
 	nanotime := time.Nanoseconds()
 	if (nanotime - lastDashUpdate) < UpdateDashboardEvery {
 		return // too soon to update display yet
 	}
 	lastDashUpdate = nanotime
-
 	if dashstart == 0 {
 		dashstart = nanotime
 	}
 
-	//fmt.Print(HIDECURSOR)
+
+	if dashboardNeedsUp{up(); erase()}
+	T := sim.UnitTime()
+	fmt.Fprintf(os.Stderr,"step:%-11d t:%.4es Δt:%.3es τ:%.3e\n", sim.steps, float32(sim.time)*T, sim.dt*T, sim.torque)
+
 	// Walltime
-	time := time.Seconds() - sim.starttime
-	fmt.Fprintf(os.Stderr,
-		BOLD+"running:"+RESET+"%3dd:%02dh:%02dm:%02ds",
-		time/DAY, (time/HOUR)%24, (time/MINUTE)%60, time%60)
-	erase()
-	fmt.Println()
+//	time := time.Seconds() - sim.starttime
+//	fmt.Fprintf(os.Stderr,
+//		BOLD+"running:"+RESET+"%3dd:%02dh:%02dm:%02ds",
+//		time/DAY, (time/HOUR)%24, (time/MINUTE)%60, time%60)
+//	erase()
+//	fmt.Println()
+//
+//	t := (nanotime - dashstart) + 1 // add 1ns to avoid dividing by zero
+//	stepsPerS := float64(sim.steps) / (float64(t) / 1e9)
+//	realTime := sim.UnitTime() * float32(sim.time) / (float32(t) / 1e9)
+//
+//	// Time stepping
+//	fmt.Fprintf(os.Stderr,
+//		BOLD+"step: "+RESET+"%-11d "+
+//			BOLD+"time: "+RESET+"%.4es      "+
+//			BOLD+"Δt:   "+RESET+" %.3es",
+//		sim.steps, float32(sim.time)*T, sim.dt*T)
+//	erase()
+//	fmt.Println()
+//
+//	fmt.Print(BOLD+"IO: "+RESET, sim.autosaveIdx)
+//	erase()
+//	fmt.Println()
+//
+//	fmt.Print(BOLD+"GPU mem: "+RESET, sim.UsedMem()/MiB, " MiB")
+//	eraseln()
+//
+//	// Conditions
+//	fmt.Fprintf(os.Stderr, BOLD+"torque:    "+RESET+"%.5e", sim.torque)
+//	erase()
+//	fmt.Println()
+//
+//	// performance
+//	fmt.Fprintf(os.Stderr, "steps/s: %f simulated/s: %f", float32(stepsPerS), float32(realTime))
+//	erase()
+//	fmt.Println()
+	
+	dashboardNeedsUp = true // 
 
-	t := (nanotime - dashstart) + 1 // add 1ns to avoid dividing by zero
-	stepsPerS := float64(sim.steps) / (float64(t) / 1e9)
-	realTime := sim.UnitTime() * float32(sim.time) / (float32(t) / 1e9)
-
-	// Time stepping
-	fmt.Fprintf(os.Stderr,
-		BOLD+"step: "+RESET+"%-11d "+
-			BOLD+"time: "+RESET+"%.4es      "+
-			BOLD+"Δt:   "+RESET+" %.3es",
-		sim.steps, float32(sim.time)*T, sim.dt*T)
-	erase()
-	fmt.Println()
-
-	fmt.Print(BOLD+"IO: "+RESET, sim.autosaveIdx)
-	erase()
-	fmt.Println()
-
-	fmt.Print(BOLD+"GPU mem: "+RESET, sim.UsedMem()/MiB, " MiB")
-	eraseln()
-
-	// Conditions
-	fmt.Fprintf(os.Stderr, BOLD+"torque:    "+RESET+"%.5e", sim.torque)
-	erase()
-	fmt.Println()
-
-	// performance
-	fmt.Fprintf(os.Stderr, "steps/s: %f simulated/s: %f", float32(stepsPerS), float32(realTime))
-	erase()
-	fmt.Println()
-
-	up()
-	up()
-	up()
-	up()
-	up()
-	up()
 }
+
+
 
 func (s *Sim) printMem() {
 	// SEGFAULTS !

@@ -60,7 +60,7 @@ func main_python(infile string) {
 		wait <- 1
 	}()
 
-	go func(){
+	func(){
 		 mu_wait, errwait := mumax.Wait(0)
 		CheckErr(errwait, ERR_SUBPROCESS)
 		status := mu_wait.ExitStatus()
@@ -73,5 +73,6 @@ func main_python(infile string) {
 
 	<-wait
 	<-wait
-	Println("main_python() ready.")
+	Println("main_python() ready.\n ************* \n******************")
+	panic("hi")
 }
