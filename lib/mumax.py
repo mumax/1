@@ -201,6 +201,9 @@ def savebenchmark(file):
 	send1("savebenchmark", file)
 
 
-def getmx():
-	send1("getm", 0)
+# Recieve feedback from mumax
+
+# Retrieves an average magnetization component (0=x, 1=y, 2=z).
+def getm(component):
+	send1("getm", component)
 	return recv()

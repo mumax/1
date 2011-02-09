@@ -34,7 +34,7 @@ var (
 	cpu       *bool   = flag.Bool("cpu", false, "Run on the CPU instead of GPU.")
 	patient   *bool   = flag.Bool("patient", false, "on the CPU, use FFTW_PATIENT planning: slower initialization but faster running.")
 	threads   *int    = flag.Int("threads", 0, "Set the number of threads for the selected device (GPU or CPU). \"0\" means automatically set.")
-	updatedb  *int    = flag.Int("updatedisp", 100, "Update the terminal output every x milliseconds")
+	updatedb  *int    = flag.Int("updatedisp", 0, "Update the terminal output every x milliseconds")
 	wisdir    *string = flag.String("wisdom", defaultWisdomDir(), "Absolute directory to store cached kernels. \"\" disables caching")
 	// 	dryrun    *bool   = flag.Bool("dryrun", false, "Go quickly through the simulation sequence without calculating anything. Useful for debugging") // todo implement
 	//  server    *bool   = flag.Bool("server", false, "Run as a slave node in a cluster")
