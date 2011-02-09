@@ -1,9 +1,9 @@
 all:
 	gomake -C mumax
-	gomake install -C iotool
+	#gomake install -C iotool
 	#gomake install -C tensor
-	gomake install -C omf
-	gomake install -C draw
+	#gomake install -C omf
+	#gomake install -C draw
 	gomake install -C refsh
 	gomake -C omftools
 	gomake -C template

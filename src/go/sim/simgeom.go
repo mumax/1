@@ -8,9 +8,7 @@ package sim
 
 import (
 	. "mumax/common"
-	"tensor"
 	"os"
-	//"fmt"
 	"math"
 )
 
@@ -171,23 +169,23 @@ func (s *Sim) EdgeCorrection(accuracy int) {
 }
 
 
-func (sim *Sim) LoadMSat(file string) {
-	sim.allocNormMap()
-	sim.Println("Loading space-dependent saturation magnetization (norm)", file)
-	in, err := os.Open(file, os.O_RDONLY, 0666)
-	defer in.Close()
-	if err != nil {
-		panic(err)
-	}
-	norm := tensor.ToT3(tensor.Read(in))
-	if !tensor.EqualSize(norm.Size(), sim.normMap.Size()) {
-		norm = resample3(norm, sim.normMap.Size())
-	}
-	TensorCopyTo(norm, sim.normMap)
-	sim.updateAvgNorm()
-	//TODO this should not invalidate the entire sim
-	sim.invalidate()
-}
+//func (sim *Sim) LoadMSat(file string) {
+//	sim.allocNormMap()
+//	sim.Println("Loading space-dependent saturation magnetization (norm)", file)
+//	in, err := os.Open(file, os.O_RDONLY, 0666)
+//	defer in.Close()
+//	if err != nil {
+//		panic(err)
+//	}
+//	norm := tensor.ToT3(tensor.Read(in))
+//	if !tensor.EqualSize(norm.Size(), sim.normMap.Size()) {
+//		norm = resample3(norm, sim.normMap.Size())
+//	}
+//	TensorCopyTo(norm, sim.normMap)
+//	sim.updateAvgNorm()
+//	//TODO this should not invalidate the entire sim
+//	sim.invalidate()
+//}
 
 var INF32 float32 = float32(math.Inf(1))
 

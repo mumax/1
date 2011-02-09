@@ -38,6 +38,20 @@ func Equal(a, b Interface) bool {
 	return true
 }
 
+// Tests if a and b (representing tensor sizes) are equal
+func EqualSize(sizeA, sizeB []int) bool{
+	if len(sizeA) != len(sizeB) {
+		return false
+	}
+
+	// test for equal size
+	for i, sa := range sizeA {
+		if sa != sizeB[i] {
+			return false
+		}
+	}
+	return true
+}
 
 // Finds the extrema.
 func MinMax(t Interface) (min, max float32) {

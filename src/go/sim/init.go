@@ -9,10 +9,10 @@ package sim
 
 import (
 	. "mumax/common"
+	"mumax/tensor"
 	"os"
 	"math"
 	"fmt"
-	"tensor"
 	"rand"
 )
 

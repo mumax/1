@@ -8,8 +8,8 @@ package main
 
 
 import (
-	"omf"
-	"iotool"
+	. "mumax/common"
+	"mumax/omf"
 	"mumax/tensor"
 )
 
@@ -33,7 +33,7 @@ func ToODT(filename string) {
 
 func init_odt(filename string) {
 	if odt == nil {
-		out := iotool.MustOpenWRONLY(filename)
+		out := MustOpenWRONLY(filename)
 		odt = omf.NewTabWriter(out)
 		odt.AddColumn("Time", "s")
 		odt.AddColumn("Mx/Ms", "")

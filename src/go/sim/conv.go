@@ -8,7 +8,7 @@ package sim
 
 import (
 	. "mumax/common"
-	"tensor"
+	"mumax/tensor"
 	"fmt"
 	"os"
 )

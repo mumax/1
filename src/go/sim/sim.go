@@ -10,10 +10,10 @@ package sim
 
 import (
 	. "mumax/common"
-	"tensor"
+	"mumax/tensor"
+	"mumax/omf"
 	"time"
 	"fmt"
-	"omf"
 	"os"
 	"bufio"
 )

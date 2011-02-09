@@ -21,7 +21,7 @@ import (
 	. "mumax/common"
 	"os"
 	"fmt"
-	"tensor"
+	"mumax/tensor"
 )
 
 

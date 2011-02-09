@@ -6,6 +6,7 @@ all: _common\
 	 $(PKGDIR)/mumax/device/cpu.a\
 	 $(PKGDIR)/mumax/device/multigpu.a\
 	 $(PKGDIR)/mumax/omf.a\
+	 $(PKGDIR)/mumax/draw.a\
 
 $(PKGDIR)/mumax/device/gpu.a: _common device/gpu/*.go
 	cp -f ../../../lib/libgpukern.so device/gpu
@@ -29,6 +30,10 @@ $(PKGDIR)/mumax/omf.a: _common omf/*.go
 	gomake -C omf
 	gomake install -C omf
 
+$(PKGDIR)/mumax/draw.a: _common draw/*.go
+	gomake -C draw
+	gomake install -C draw
+
 _common: $(PKGDIR)/mumax/common.a\
 	 $(PKGDIR)/mumax/tensor.a\
 
@@ -46,8 +51,10 @@ clean:
 	gomake clean -C device
 	gomake clean -C device/cpu
 	gomake clean -C device/gpu
+	gomake clean -C omf
+	gomake clean -C draw
 
-test: cputest gputest
+test: cputest gputest tensortest
 
 cputest: 
 	echo cpu > /tmp/mumax_test_device
@@ -56,6 +63,9 @@ cputest:
 gputest:
 	echo gpu > /tmp/mumax_test_device
 	gomake test -C device
+
+tensortest:
+	gomake test -C tensor
 
 bench: 
 	gomake bench -C device

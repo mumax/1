@@ -16,10 +16,9 @@ package sim
 import (
 	. "mumax/common"
 	"fmt"
-	"tensor"
+	"mumax/tensor"
 	"os"
-	"draw"
-	"iotool"
+	"mumax/draw"
 	"omf"
 )
 
@@ -165,7 +164,7 @@ type Table struct {
 func (t *Table) Save(s *Sim) {
 	if s.tabwriter == nil {
 		fname := s.outputdir + "/" + "datatable.odt"
-		out := iotool.MustOpenWRONLY(fname)
+		out := MustOpenWRONLY(fname)
 		s.tabwriter = omf.NewTabWriter(out)
 		s.tabwriter.AddColumn("Time", "s")
 		s.tabwriter.AddColumn("Mx/Ms", "")
@@ -283,7 +282,7 @@ type MPng struct {
 // INTERNAL
 func (m *MPng) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".png"
-	out := iotool.MustOpenWRONLY(fname)
+	out := MustOpenWRONLY(fname)
 	defer out.Close()
 	draw.PNG(out, s.mLocal)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
