@@ -73,4 +73,5 @@ func main_python(infile string) {
 
 	<-wait
 	<-wait
+	Println("main_python() ready.")
 }
