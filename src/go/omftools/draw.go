@@ -11,7 +11,7 @@ package main
 import (
 	"os"
 	"iotool"
-	"tensor"
+	"mumax/tensor"
 	"fmt"
 	"draw"
 	"exec"
@@ -29,8 +29,8 @@ func Draw() {
 
 // Parameter for draw3d(), passed on to maxview
 var (
-	draw3d_zoom   int = 64
-	draw3d_detail int = 32
+	draw3d_zoom   int     = 64
+	draw3d_detail int     = 32
 	draw3d_shadow float32 = 0.8
 )
 

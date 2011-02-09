@@ -10,7 +10,7 @@ package main
 import (
 	"omf"
 	"iotool"
-	"tensor"
+	"mumax/tensor"
 )
 
 var odt *omf.TabWriter

@@ -96,3 +96,5 @@ func Component1(t Interface, comp int) *T {
 	c.TList = t.List()[start:stop]
 	return c
 }
+
+

@@ -31,7 +31,8 @@ package sim
 
 
 import (
-	"tensor"
+	. "mumax/common"
+	"mumax/tensor"
 	. "math"
 )
 
@@ -90,18 +91,6 @@ func padSize(size []int, periodic []int) []int {
 	}
 	return paddedsize
 }
-
-// Maps the 3x3 indices of the symmetric demag kernel (K_ij) onto
-// a length 6 array containing the upper triangular part:
-// (Kxx, Kyy, Kzz, Kyz, Kxz, Kxy)
-const (
-	XX = 0
-	YY = 1
-	ZZ = 2
-	YZ = 3
-	XZ = 4
-	XY = 5
-)
 
 // Maps the 3x3 indices of the symmetric demag kernel (K_ij) onto
 // a length 6 array containing the upper triangular part:

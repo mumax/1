@@ -5,6 +5,7 @@ all: _common\
 	 $(PKGDIR)/mumax/device/gpu.a\
 	 $(PKGDIR)/mumax/device/cpu.a\
 	 $(PKGDIR)/mumax/device/multigpu.a\
+	 $(PKGDIR)/mumax/omf.a\
 
 $(PKGDIR)/mumax/device/gpu.a: _common device/gpu/*.go
 	cp -f ../../../lib/libgpukern.so device/gpu
@@ -24,6 +25,10 @@ $(PKGDIR)/mumax/device.a: _common device/*.go
 	gomake -C device
 	gomake install -C device
 	
+$(PKGDIR)/mumax/omf.a: _common omf/*.go
+	gomake -C omf
+	gomake install -C omf
+
 _common: $(PKGDIR)/mumax/common.a\
 	 $(PKGDIR)/mumax/tensor.a\
 
