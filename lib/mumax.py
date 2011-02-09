@@ -93,6 +93,10 @@ def cellsize(x, y, z):
 def maxcellsize(x, y, z):
 	send3("maxcellsize", x, y, z)
 
+# Make the geometry an ellipsoid with specified semi-axes.
+# Use inf to make it a cyliner along that direction.
+def ellipsoid(rx, ry, rz):
+	send3("ellipsoid", rx, ry, rz)
 
 # Initial magnetization
 
