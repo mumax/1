@@ -28,7 +28,7 @@ save("m", "omf")
 autosave("m", "omf", 10e-12)
 autosave("m", "png", 10e-12)
 staticfield(-24.6E-3, 4.3E-3, 0)
-run(10e-9)
+run(1e-9)
 
 
 
