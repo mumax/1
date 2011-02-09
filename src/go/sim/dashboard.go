@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+// TODO: dashboard may hide python error stat!
+
 var (
 	lastDashUpdate       int64 = 0
 	UpdateDashboardEvery int64 = 25 * 1000 * 1000 // in ns
