@@ -1,9 +1,5 @@
 all:
 	gomake -C mumax
-	#gomake install -C iotool
-	#gomake install -C tensor
-	#gomake install -C omf
-	#gomake install -C draw
 	gomake install -C refsh
 	gomake -C omftools
 	gomake -C template
@@ -17,17 +13,14 @@ all:
 
 .PHONY: clean
 clean:
-	gomake clean -C iotool
 	gomake clean -C omftools
 	gomake clean -C template
-	gomake clean -C tensor
 	gomake clean -C sim
 	gomake clean -C refsh
 	gomake clean -C maxtest
 	gomake clean -C outtools
 	gomake clean -C tensor-main
 	gomake clean -C config-main
-	gomake clean -C draw
 	gomake clean -C main
 
 	rm -f $(GOROOT)/pkg/$(GOOS)_$(GOARCH)/sim.a

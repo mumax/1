@@ -68,14 +68,7 @@ func (s *Sim) LookupKernel(size []int, cellsize []float32, accuracy int, periodi
 // INTERNAL: Loads kerndir/k**.tensor
 func (s *Sim) loadKernComp(kerndir string, component int) *tensor.T3 {
 	file := kerndir + "/k" + KernString[component] + ".tensor"
-	in, err := os.Open(file, os.O_RDONLY, 0666)
-	defer in.Close()
-	CheckErr(err, ERR_IO)
-	//if err != nil {
-	//	fmt.Fprintln(os.Stderr, err)
-	//	panic(err)
-	//}
-	return tensor.ToT3(tensor.Read(in))
+	return tensor.ToT3(tensor.ReadF(file))
 }
 
 
@@ -106,13 +99,7 @@ func (s *Sim) storeKernel(kernel []*tensor.T3, kerndir string) {
 		if s.needKernComp(i) {
 
 			file := kerndir + "/k" + KernString[i] + ".tensor"
-			out, err := os.Open(file, os.O_CREATE|os.O_WRONLY, 0666)
-			defer out.Close()
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				return
-			}
-			tensor.WriteBinary(out, kernel[i])
+			tensor.WriteF(file, kernel[i])
 		}
 	}
 	fmt.Println("storing wisdom OK")

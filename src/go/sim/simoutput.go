@@ -19,7 +19,7 @@ import (
 	"mumax/tensor"
 	"os"
 	"mumax/draw"
-	"omf"
+	"mumax/omf"
 )
 
 
