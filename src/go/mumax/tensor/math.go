@@ -39,7 +39,7 @@ func Equal(a, b Interface) bool {
 }
 
 // Tests if a and b (representing tensor sizes) are equal
-func EqualSize(sizeA, sizeB []int) bool{
+func EqualSize(sizeA, sizeB []int) bool {
 	if len(sizeA) != len(sizeB) {
 		return false
 	}
@@ -102,7 +102,7 @@ func Component(t Interface, comp int) *T {
 func Component1(t Interface, comp int) *T {
 	c := new(T)
 	c.TSize = make([]int, Rank(t))
-	copy (c.TSize, t.Size())
+	copy(c.TSize, t.Size())
 	c.TSize[0] = 1
 	length := Prod(c.TSize)
 	start := comp * length
@@ -110,5 +110,3 @@ func Component1(t Interface, comp int) *T {
 	c.TList = t.List()[start:stop]
 	return c
 }
-
-

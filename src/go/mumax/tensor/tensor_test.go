@@ -11,16 +11,24 @@ import (
 	"testing"
 )
 
-func TestComponent(test *testing.T){
+func TestComponent(test *testing.T) {
 	size4 := []int{3, 4, 5, 6}
 	t := NewT4(size4)
-	for i := range t.TArray{
+	for i := range t.TArray {
 		t.TArray[i][0][0][0] = float32(i)
 	}
 	c := Component(t, 1)
-	if Rank(c) != 3 {test.Fail()}
-	if c.TList[0] != 1 {test.Fail()}
+	if Rank(c) != 3 {
+		test.Fail()
+	}
+	if c.TList[0] != 1 {
+		test.Fail()
+	}
 	c1 := Component1(t, 1)
-	if Rank(c1) != 4 {test.Fail()}
-	if c1.TList[0] != 1 {test.Fail()}
+	if Rank(c1) != 4 {
+		test.Fail()
+	}
+	if c1.TList[0] != 1 {
+		test.Fail()
+	}
 }
