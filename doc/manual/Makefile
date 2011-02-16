@@ -4,7 +4,7 @@ all: manual.bbl
 
 manual.bbl:	*.bib
 	pdflatex -halt-on-error manual.tex
-	bibtex main
+	bibtex manual
 	pdflatex -halt-on-error manual.tex
 
 .PHONY: clean

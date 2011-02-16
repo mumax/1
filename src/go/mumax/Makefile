@@ -1,10 +1,10 @@
 PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 
 all: _common\
-	 $(PKGDIR)/mumax/device.a\
-	 $(PKGDIR)/mumax/device/gpu.a\
-	 $(PKGDIR)/mumax/device/cpu.a\
-	 $(PKGDIR)/mumax/device/multigpu.a\
+#	 $(PKGDIR)/mumax/device.a\
+#	 $(PKGDIR)/mumax/device/gpu.a\
+#	 $(PKGDIR)/mumax/device/cpu.a\
+#	 $(PKGDIR)/mumax/device/multigpu.a\
 
 $(PKGDIR)/mumax/device/gpu.a: _common device/gpu/*.go
 	cp -f ../../../lib/libgpukern.so device/gpu
