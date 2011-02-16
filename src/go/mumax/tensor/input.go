@@ -25,6 +25,14 @@ func ReadF(filename string) *T {
 
 func Read(in_ io.Reader) *T {
 	in := NewBlockingReader(in_) // Do not read incomplete slices
+	size := readHeader(in)
+	t := NewT(size)
+	readData(in, t.TList)
+	return t
+}
+
+
+func readHeader(in *BlockingReader) (size []int){
 	var bytes4 [4]byte
 	bytes := bytes4[:]
 	in.Read(bytes)
@@ -34,19 +42,22 @@ func Read(in_ io.Reader) *T {
 	}
 	in.Read(bytes)
 	rank := BytesToInt(&bytes4)
-	size := make([]int, rank)
+	size = make([]int, rank)
 	for i := range size {
 		in.Read(bytes)
 		size[i] = BytesToInt(&bytes4)
 	}
-	t := NewT(size)
-	for i := range t.TList {
-		in.Read(bytes)
-		t.TList[i] = BytesToFloat(&bytes4)
-	}
-	return t
+	return
 }
 
+func readData(in *BlockingReader, data []float32){
+	var bytes4 [4]byte
+	bytes := bytes4[:]
+	for i := range data {
+		in.Read(bytes)
+		data[i] = BytesToFloat(&bytes4)
+	}
+}
 
 // Converts the raw int data to a slice of 4 bytes
 func BytesToInt(bytes *[4]byte) int {
@@ -58,6 +69,25 @@ func BytesToFloat(bytes *[4]byte) float32 {
 	return *((*float32)(unsafe.Pointer(bytes)))
 }
 
+
+// Reads data from the reader to the
+// (already allocated) tensor.
+func (t *T) ReadFrom(in_ io.Reader) {
+	in := NewBlockingReader(in_) // Do not read incomplete slices
+	size := readHeader(in)
+	Assert(EqualSize(size, t.Size()))
+	readData(in, t.List())
+}
+
+
+// Reads data from the named file to the
+// (already allocated) tensor.
+func (t *T) ReadFromF(filename string){
+	in := MustOpenRDONLY(filename)
+	defer in.Close()
+	buf := bufio.NewReader(in)
+	t.ReadFrom(buf)
+}
 
 // Reads data from the reader to the
 // (already allocated) tensor.

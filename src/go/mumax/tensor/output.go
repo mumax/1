@@ -10,6 +10,7 @@ package tensor
 // Functions to write tensors as binary data. 
 // Intended for fast inter-process communication or data caching,
 // not as a user-friendly format to store simulation output (use mumax/omf for that).
+// Uses the machines endianess.
 
 import (
 	. "mumax/common"
@@ -19,7 +20,7 @@ import (
 )
 
 const (
-	T_MAGIC = 0x2374310A // First 32-bit word of tensor blob. Identifies the format. ASCII for "#t1\n"
+	T_MAGIC = 0x0A317423 // First 32-bit word of tensor blob. Identifies the format. Little-endian ASCII for "#t1\n"
 )
 
 
