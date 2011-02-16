@@ -75,8 +75,8 @@ func main() {
 				// TODO: it might be nice to show which ones...
 			}
 			out := MustOpenWRONLY(d.name + d.ext)
-			defer out.Close()
 			out.Write([]byte(d.content))
+			out.Close() // This should not be a deferred call, otherwise too many files may wind up opened at the same time...
 		}
 	}
 

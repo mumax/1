@@ -184,8 +184,8 @@ def sawtoothfield(bx, by, bz, freq):
 	send("sawtoothfield", [bx, by, bz, freq])
 
 # Apply a rotating RF burst
-def rfburst(b, freq, phase, risetime, duration):
-	send("rfburst", [b, freq, phase, risetime, duration])
+def rotatingburst(b, freq, phase, risetime, duration):
+	send("rotatingburst", [b, freq, phase, risetime, duration])
 
 # Run
 
