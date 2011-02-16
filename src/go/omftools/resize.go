@@ -10,7 +10,7 @@ package main
 // (sliceing, averaging, cropping, etc.)
 
 import (
-	"tensor"
+	"mumax/tensor"
 )
 
 

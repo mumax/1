@@ -19,8 +19,8 @@ package main
 import (
 	"refsh"
 	"fmt"
-	"tensor"
-	"omf"
+	"mumax/tensor"
+	"mumax/omf"
 	"path"
 	"os"
 )
