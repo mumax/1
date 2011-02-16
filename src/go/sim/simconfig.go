@@ -13,7 +13,7 @@ package sim
 import (
 	. "mumax/common"
 	"rand"
-	"omf"
+	"mumax/omf"
 )
 
 
