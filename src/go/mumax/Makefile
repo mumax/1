@@ -69,4 +69,5 @@ tensortest:
 
 bench: 
 	gomake bench -C device
+	gomake bench -C tensor
 

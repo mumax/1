@@ -7,6 +7,11 @@
 
 package tensor
 
+// Functions to read tensors as binary data. 
+// Intended for fast inter-process communication or data caching,
+// not as a user-friendly format to store simulation output (use mumax/omf for that).
+// Uses the machine's endianess.
+
 import (
 	. "mumax/common"
 	"io"
@@ -89,22 +94,3 @@ func (t *T) ReadFromF(filename string){
 	t.ReadFrom(buf)
 }
 
-// Reads data from the reader to the
-// (already allocated) tensor.
-// NOTE: implements io.ReaderFrom
-//func (t *T) ReadFrom(in_ io.Reader) {
-//	in := bufio.NewReader(in_)
-//	metadata := ReadHeader(in)
-//	size := metaGetSize(metadata)
-//	for i, s := range size {
-//		if s != t.TSize[i] {
-//			panic("illegal argument: size mismatch")
-//		}
-//	}
-//	binary := metaGetBool(metadata, H_BINARY)
-//	if binary {
-//		ReadDataBinary(in, t)
-//	} else {
-//		ReadDataAscii(in, t)
-//	}
-//}

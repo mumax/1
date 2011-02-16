@@ -28,7 +28,7 @@ func TestIO(test *testing.T) {
 var t1,t2 *T4
 
 func BenchmarkWrite(bench *testing.B) {
-	size := []int{3, 150, 190, 310}
+	size := []int{3, 350, 190, 310}
 	if t1 == nil {
 		t1 = NewT4(size)
 		bench.SetBytes(4 * int64(Len(t1)))
@@ -37,7 +37,7 @@ func BenchmarkWrite(bench *testing.B) {
 }
 
 func BenchmarkRead(bench *testing.B) {
-	size := []int{3, 150, 190, 310}
+	size := []int{3, 350, 190, 310}
 	if t2 == nil {
 		t2 = NewT4(size)
 		bench.SetBytes(4 * int64(Len(t2)))

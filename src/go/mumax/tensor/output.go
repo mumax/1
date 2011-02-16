@@ -10,7 +10,7 @@ package tensor
 // Functions to write tensors as binary data. 
 // Intended for fast inter-process communication or data caching,
 // not as a user-friendly format to store simulation output (use mumax/omf for that).
-// Uses the machines endianess.
+// Uses the machine's endianess.
 
 import (
 	. "mumax/common"
