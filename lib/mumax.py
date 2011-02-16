@@ -183,6 +183,10 @@ def rffield(bx, by, bz, freq):
 def sawtoothfield(bx, by, bz, freq):
 	send("sawtoothfield", [bx, by, bz, freq])
 
+# Apply a rotating RF burst
+def rfburst(b, freq, phase, risetime, duration):
+	send("rfburst", [b, freq, phase, risetime, duration])
+
 # Run
 
 # Relaxes the magnetization up to the specified maximum residual torque
