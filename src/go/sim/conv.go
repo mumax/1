@@ -7,7 +7,8 @@
 package sim
 
 import (
-	"tensor"
+	. "mumax/common"
+	"mumax/tensor"
 	"fmt"
 	"os"
 )
@@ -62,7 +63,6 @@ func (conv *Conv) Convolve(source, dest *DevTensor) {
 		assert(dest.size[i+1] == s)
 	}
 
-	// initialize mcomp, hcomp, re-using them from conv to avoid repeated allocation
 	mcomp, hcomp := source.comp, dest.comp
 	buffer := conv.buffer
 	kernel := conv.kernel
@@ -70,14 +70,14 @@ func (conv *Conv) Convolve(source, dest *DevTensor) {
 	//Sync
 
 	// Forward FFT
-	conv.Start("fw FFT")
+	//conv.Start("fw FFT")
 	for i := 0; i < 3; i++ {
 		conv.Forward(mcomp[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
 	}
-	conv.Stop()
+	//conv.Stop()
 
 	// Point-wise kernel multiplication in reciprocal space
-	conv.Start("kern mul")
+	//conv.Start("kern mul")
 
 	kernType := conv.KernType()
 
@@ -95,14 +95,14 @@ func (conv *Conv) Convolve(source, dest *DevTensor) {
 			kernel[YZ].data, 0, 0,
 			kernType, Len(buffer[X].size)) // nRealNumbers
 	}
-	conv.Stop()
+	//conv.Stop()
 
 	// Inverse FFT
-	conv.Start("bw FFT")
+	//conv.Start("bw FFT")
 	for i := 0; i < 3; i++ {
 		conv.Inverse(buffer[i], hcomp[i]) // should not be asynchronous unless we have 3 fft's (?)
 	}
-	conv.Stop()
+	//conv.Stop()
 }
 
 // INTERNAL: Loads a convolution kernel.

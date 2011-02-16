@@ -22,6 +22,7 @@ import "unsafe"
  */
 
 import (
+	. "mumax/common"
 	"fmt"
 	"os"
 )
@@ -173,7 +174,7 @@ func (d Cpu) copyPadded(source, dest uintptr, sourceSize, destSize []int, direct
 func (d Cpu) newFFTPlan(dataSize, logicSize []int) uintptr {
 	Csize := (*C.int)(unsafe.Pointer(&dataSize[0]))
 	CpaddedSize := (*C.int)(unsafe.Pointer(&logicSize[0]))
-	return uintptr(unsafe.Pointer(C.new_cpuFFT3dPlan_inplace(Csize, CpaddedSize)))
+	return uintptr(unsafe.Pointer(C.new_cpuFFT3dPlan(Csize, CpaddedSize)))
 }
 
 func (d Cpu) freeFFTPlan(plan uintptr) {

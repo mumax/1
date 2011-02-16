@@ -1,10 +1,70 @@
 \section{What \mumax solves}
 
-LLG: Gilbert factor $1/(1+\alpha^2)$ is \emph{not} included in OOMMF, but included in \mumax. So at high damping there can be discrepancies.
+\subsection{Landau-Lifshitz-Gilbert formulation}
 
-Uniaxial anisotropy:
+\mumax solves the Landau-Lifschitz equation:
+\begin{equation}
+\begin{split}
+\frac{\partial\mathbf{M}(\mathbf{r}, t)}{\partial t} =
+&- \frac{\gamma}{1+\alpha^2}\mathbf{M}(\mathbf{r}, t)\times \mathbf{H}_{eff}(\mathbf{r}, t)\\
+&- \frac{\alpha \gamma}{M_s(1+\alpha^2)}\mathbf{M}(\mathbf{r}, t)\times\left(\mathbf{M}(\mathbf{r}, t)\times\mathbf{H}_{eff}(\mathbf{r}, t)\right).\label{LLequation}
+\end{split}
+\end{equation}
+
+Note that for some reason the Gilbert factor $1/(1+\alpha^2)$ is \emph{not} included in OOMMF. So at high damping there can be discrepancies with OOMMF.
+
+\subsection{Magnetostatic field}
+
+\mumax calculates the magnetostatic field assuming constant magnetization in each cell:
+
+\begin{equation}
+\mathbf{H}_{ms}(\mathbf{r})
+= -\frac{1}{4\pi}\int_V \nabla\nabla\frac{1}{|\mathbf{r}-\mathbf{r}'|}\cdot\mathbf{M}(\mathbf{r}')
+\,\mathrm{d}\mathbf{r}'.
+\label{Hms}
+\end{equation}
+
+This calculation is speed-up by exploiting its convolution structure and using FFTs. The magnetostatic kernel (magnetic field due to a single magnetized cell) is evaluated numerically. Currently, we integrate over the uniformly charged faces of the cell and evaluate the field at the center of the cells.
+
+\section{Exchange}
+
+\mumax uses a linear approximation for the exchange field:
+\begin{equation}
+\mathbf{H}_{exch} = \frac{2A}{\mu_0 M_s}\nabla^2\mathbf{m},\label{Hexch}
+\end{equation}
+The Laplacian is currently implemented as a 6-neighbor approximation:
+
+\begin{equation}
+\begin{split}
+\mathbf{H}_{exch} = \frac{2A}{\mu_0 M_s} (&  \frac{m_x(1, 0, 0) -2m_x(0, 0 ,0) + m_x(-1, 0, 0)}{(\Delta_x)^2} \vec{e_x} +\\&  \frac{m_y(1, 0, 0) -2m_y(0, 0 ,0) + m_y(-1, 0, 0)}{(\Delta_y)^2} \vec{e_y} + \\& \frac{m_z(1, 0, 0) -2m_z(0, 0 ,0) + m_z(-1, 0, 0)}{(\Delta_z)^2} \vec{e_z} )
+\end{split}
+\end{equation}
+
+\section{Anisotropy}
+
+Uniaxial:
 \begin{equation}
 	\vec{H}_\mathrm{anis} = \frac{K_1}{\mu_0 M_s} (\vec{m} \cdot \vec{u}) \vec{u}
 \end{equation}
 
 This definition of $K_1$ corresponds to OOMMF. $K_1 > 0$: easy axis, $K_1 < 0$: hard axis.
+
+\section{Spin-transfer torque}
+
+\mumax incorporates the spin-transfer torque description developed by Berger \cite{Berger1996}, refined by Zhang and Li \cite{Zhang2004}
+\begin{equation}
+\begin{split}
+\frac{\partial \mathbf{M}}{\partial t} = &-\frac{\gamma}{1+ \alpha^2}\mathbf{M}\times \mathbf{H}_{eff} \\
+&- \frac{\alpha\gamma}{M_s(1+\alpha^2)}\mathbf{M}\times(\mathbf{M}\times \mathbf{H}_{eff})\\
+&- \frac{b_j}{M_s^2(1+\alpha^2)}\mathbf{M}\times\left(\mathbf{M}\times (\mathbf{j}\cdot\nabla)\mathbf{M}\right)\\
+&- \frac{b_j}{M_s(1+\alpha^2)}(\xi-\alpha) \mathbf{M}\times (\mathbf{j}\cdot\nabla)\mathbf{M}.\label{STT}
+\end{split}
+\end{equation}
+Here, $\xi$ is the degree of non-adiabicity and $b_j$ is the coupling constant between the current density $\mathbf{j}$ and the magnetization
+\begin{equation}
+b_j = \frac{P \mu_B}{eM_s(1+\xi^2)},
+\end{equation}
+with $P$ the polarization of the current density,  $\mu_B$ the Bohr magneton and $e$ the electron charge.
+
+
+

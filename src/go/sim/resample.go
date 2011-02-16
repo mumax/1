@@ -12,7 +12,7 @@ package sim
 // not have the suited size.
 
 import (
-	"tensor"
+	"mumax/tensor"
 )
 
 // input is assumed vector field

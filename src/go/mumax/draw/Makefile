@@ -1,14 +1,11 @@
 include $(GOROOT)/src/Make.inc
 PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 
-TARG=omf
+TARG=mumax/draw
 
 GOFILES=\
-	field.go\
-	codec.go\
-	input.go\
-	output.go\
-	odt.go\
+	draw.go\
+	draw3d.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 

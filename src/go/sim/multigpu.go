@@ -7,7 +7,9 @@
 package sim
 
 
-import ()
+import (
+	. "mumax/common"
+)
 
 
 type MultiGpu struct {

@@ -41,14 +41,14 @@ func (s *Sim) MinDt(dt float32) {
 // 0 means not used.
 // Some solvers ignore this value
 func (s *Sim) MaxDm(deltaM float32) {
-	s.maxDm = deltaM
+	s.input.maxDm = deltaM
 }
 
 // Set the minimum "delta m" the solver can take.
 // 0 means not used.
 // Some solvers ignore this value
 func (s *Sim) MinDm(deltaM float32) {
-	s.minDm = deltaM
+	s.input.minDm = deltaM
 }
 
 
@@ -56,5 +56,5 @@ func (s *Sim) MinDm(deltaM float32) {
 // 0 means not used.
 // Some solvers ignore this value
 func (s *Sim) MaxError(errorPerStep float32) {
-	s.maxError = errorPerStep
+	s.input.maxError = errorPerStep
 }

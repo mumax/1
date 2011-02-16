@@ -8,8 +8,6 @@ package sim
 
 import (
 	. "math"
-	"fmt"
-	"os"
 )
 
 type Material struct {
@@ -31,39 +29,6 @@ type Material struct {
 // 	return mat
 // }
 
-func (s *Sim) InitMaterial() {
-	s.Println("Initializing material parameters")
-	s.mu0 = 4.0E-7 * Pi
-	s.gamma0 = 2.211E5
-	s.muB = 9.2740091523E-24
-	s.e = 1.60217646E-19
-	s.spinPol = DEFAULT_SPIN_POLARIZATION
-	// even when not used, these arrays should be allocated:
-	// they may be passed to C even when they are ignored there
-	//s.anisK = make([]float32, 1)
-	//s.anisAxes = make([]float32, 1)
-
-	if s.input.msat == 0. {
-		s.Errorln("Saturation magnetization should first be set. E.g. msat 800E3")
-		os.Exit(-6)
-	}
-	s.mSat = s.input.msat
-
-	if s.input.aexch == 0. {
-		s.Errorln("Exchange constant should first be set. E.g. aexch 12E-13")
-		os.Exit(-6)
-	}
-	s.aExch = s.input.aexch
-
-	if s.alpha <= 0. {
-		s.Warn("Damping parameter alpha =  ", s.alpha)
-	}
-
-	s.desc["msat"] = fmt.Sprint(s.mSat)
-	s.desc["aexch"] = fmt.Sprint(s.aExch)
-	s.desc["alpha"] = fmt.Sprint(s.alpha)
-}
-
 
 //  Units:
 //  FIELD = Ms
@@ -72,6 +37,14 @@ func (s *Sim) InitMaterial() {
 //  ENERGY = A * LENGTH
 
 // The internal unit of length, expressed in meters.
+// NOTE: We use the exchange length here, but we could
+// have omitted the factor 2. The implication of including
+// the factor 2 here is, e.g.:
+//  * The factor 2 in the exchange field formulation has to be dropped
+//  * The factor 2 in the uniaxial anisotropy formulation has to be dropped
+//  * ...
+// This makes no difference in the end but should be noted.
+//  
 func (mat *Material) UnitLength() float32 {
 	assert(mat.Valid())
 	return float32(Sqrt(2. * float64(mat.aExch/(mat.mu0*mat.mSat*mat.mSat))))

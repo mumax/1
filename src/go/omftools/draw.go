@@ -9,11 +9,11 @@ package main
 // This file implements functions for drawing the magnetization state
 
 import (
+	. "mumax/common"
+	"mumax/tensor"
+	"mumax/draw"
 	"os"
-	"iotool"
-	"tensor"
 	"fmt"
-	"draw"
 	"exec"
 	"io"
 )
@@ -21,7 +21,7 @@ import (
 // Renders in 2D, automatically saves in a .png file.
 func Draw() {
 	outfile := replaceExt(filename, ".png")
-	out := iotool.MustOpenWRONLY(outfile)
+	out := MustOpenWRONLY(outfile)
 	defer out.Close()
 	draw.PNG(out, data)
 }
@@ -29,8 +29,8 @@ func Draw() {
 
 // Parameter for draw3d(), passed on to maxview
 var (
-	draw3d_zoom   int = 64
-	draw3d_detail int = 32
+	draw3d_zoom   int     = 64
+	draw3d_detail int     = 32
 	draw3d_shadow float32 = 0.8
 )
 

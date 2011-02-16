@@ -17,7 +17,7 @@ func (s *Sim) AExch(a float32) {
 
 // Sets the exchange type (number of neighbors for the laplacian evaluation)
 func (s *Sim) ExchangeType(neighbors int) {
-	s.exchType = neighbors
+	s.input.exchType = neighbors
 	s.invalidate()
 }
 

@@ -47,6 +47,7 @@ tensor *gpu_micromag3d_kernel(param* p){
   cudaFree (dev_qd_W_10);
   cudaFree (dev_qd_P_10);
 
+ // write_tensor(tensor* t, FILE* out);
   return (dev_kernel);
 }
 

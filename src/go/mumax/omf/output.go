@@ -7,13 +7,13 @@
 package omf
 
 import (
+	. "mumax/common"
+	"mumax/tensor"
 	"io"
 	"bufio"
 	"fmt"
-	"tensor"
 	"unsafe"
 	"strings"
-	"iotool"
 )
 
 const (
@@ -22,7 +22,7 @@ const (
 
 // Like encode but accepts a file name 
 func FEncode(filename string, f File) {
-	out := iotool.MustOpenWRONLY(filename)
+	out := MustOpenWRONLY(filename)
 	defer out.Close()
 	Encode(out, f)
 }

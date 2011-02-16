@@ -6,20 +6,17 @@
 
 package sim
 
-import "math"
-
+import (
+	. "mumax/common"
+	"math"
+)
 
 /*
   Input methods for anisotropy
 */
 
 func (s *Sim) K1(k1 float32) {
-	// hack: move to sim.input
-	s.InitMaterial()
-	s.anisK[0] = k1 / s.UnitEnergyDensity()
-	s.Println("Anisotropy k1 = ", s.anisK[0], " Msat")
-	s.invalidate() // for debug
-	// does not invalidate (?)
+	s.input.anisKSI[0] = k1
 }
 
 // Sets a uniaxial anisotropy
@@ -27,7 +24,7 @@ func (s *Sim) K1(k1 float32) {
 // ux,uy,uz is the anisotropy direction,
 // it does not need to be normalized
 func (s *Sim) AnisUniaxial(uz, uy, ux float32) {
-	s.anisType = ANIS_UNIAXIAL
+	s.input.anisType = ANIS_UNIAXIAL
 	norm := sqrt32(ux*ux + uy*uy + uz*uz)
 	if norm == 0. {
 		panic(InputErr("Anisotropy axis should not be 0"))
@@ -36,9 +33,7 @@ func (s *Sim) AnisUniaxial(uz, uy, ux float32) {
 	uy /= norm
 	uz /= norm
 
-	s.anisAxes = []float32{ux, uy, uz}
-	s.invalidate() // debug
-	// does not invalidate (?)
+	s.input.anisAxes = []float32{ux, uy, uz}
 }
 
 const (

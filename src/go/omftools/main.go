@@ -19,8 +19,8 @@ package main
 import (
 	"refsh"
 	"fmt"
-	"tensor"
-	"omf"
+	"mumax/tensor"
+	"mumax/omf"
 	"path"
 	"os"
 )
@@ -49,6 +49,8 @@ func main() {
 	sh.AddFunc("downsample", Downsample)
 	sh.AddFunc("toodt", ToODT)
 	sh.AddFunc("corepos", CorePos)
+	sh.AddFunc("crop2d", Crop2D)
+	sh.AddFunc("size", Size)
 	cmd, args, files := refsh.ParseFlags2()
 
 	// Each file is read and stored in "data".
@@ -117,8 +119,3 @@ func replaceExt(filename, newext string) string {
 //   size := copy(data.Size())
 // }
 
-const (
-	X = 0
-	Y = 1
-	Z = 2
-)

@@ -14,12 +14,12 @@ package sim
 // TODO scheduling a table twice will wipe the previous content...
 
 import (
+	. "mumax/common"
 	"fmt"
-	"tensor"
+	"mumax/tensor"
 	"os"
-	"draw"
-	"iotool"
-	"omf"
+	"mumax/draw"
+	"mumax/omf"
 )
 
 
@@ -164,7 +164,7 @@ type Table struct {
 func (t *Table) Save(s *Sim) {
 	if s.tabwriter == nil {
 		fname := s.outputdir + "/" + "datatable.odt"
-		out := iotool.MustOpenWRONLY(fname)
+		out := MustOpenWRONLY(fname)
 		s.tabwriter = omf.NewTabWriter(out)
 		s.tabwriter.AddColumn("Time", "s")
 		s.tabwriter.AddColumn("Mx/Ms", "")
@@ -179,9 +179,9 @@ func (t *Table) Save(s *Sim) {
 	// calculate reduced quantities
 	m := [3]float32{}
 	torque := [3]float32{}
-	N := Len(s.size3D)
+	//N := Len(s.size3D)
 	for i := range m {
-		m[i] = s.devsum.Reduce(s.mDev.comp[i]) / float32(N)
+		m[i] = s.devsum.Reduce(s.mDev.comp[i]) / s.avgNorm
 		torque[i] = abs32(s.devmaxabs.Reduce(s.hDev.comp[i]) / s.dt)
 	}
 	//minMz, maxMz := s.devmin.Reduce(s.mDev.comp[X]), s.devmax.Reduce(s.mDev.comp[X])
@@ -282,7 +282,7 @@ type MPng struct {
 // INTERNAL
 func (m *MPng) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".png"
-	out := iotool.MustOpenWRONLY(fname)
+	out := MustOpenWRONLY(fname)
 	defer out.Close()
 	draw.PNG(out, s.mLocal)
 	m.sinceoutput = float32(s.time) * s.UnitTime()

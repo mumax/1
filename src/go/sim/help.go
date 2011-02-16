@@ -7,10 +7,10 @@
 package sim
 
 import (
+	. "mumax/common"
 	"flag"
 	"fmt"
 	"os"
-	"iotool"
 )
 
 // Display help message and generate example input file
@@ -30,7 +30,7 @@ mumax -help will print more command line options.
 
 // Creates an example file
 func Example(file string) {
-	out := iotool.MustOpenWRONLY(file)
+	out := MustOpenWRONLY(file)
 	defer out.Close()
 	out.Write([]byte(EXAMPLE))
 	fmt.Println("Created example input file: ", file)

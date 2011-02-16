@@ -4,22 +4,18 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
+package main
 
-package omf
+// This file implements functions for retrieving info like size, descriptions, ...
 
 import (
-// 	"tensor"
+	"fmt"
 )
 
-// type Interface interface {
-// 	GetData() (data tensor.Interface, multiplier float32, unit string)
-// 	GetMesh() (cellsize []float32, unit string)
-// 	GetMetadata() map[string]string
-// }
+func Size() {
 
-
-const (
-	X = 0
-	Y = 1
-	Z = 2
-)
+	for i := range data.Size() {
+		fmt.Print(data.Size()[i], " ")
+		fmt.Println()
+	}
+}
