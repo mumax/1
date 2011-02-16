@@ -94,11 +94,11 @@ func (s *Sim) printMem() {
 }
 
 func erase() {
-	fmt.Fprint(os.Stdout, ERASE)
+	fmt.Fprint(os.Stderr, ERASE)
 }
 
 func eraseln() {
-	fmt.Fprintln(os.Stdout, ERASE)
+	fmt.Fprintln(os.Stderr, ERASE)
 }
 
 func up() {
