@@ -18,8 +18,8 @@ partsize(500e-9, 125e-9, 3e-9)
 
 # initial magnetization
 uniform(1, 1, 0)
-#alpha(2)
-#relax()
+alpha(2)
+relax()
 alpha(0.02)
 save("m", "omf")
 
