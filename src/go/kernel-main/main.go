@@ -14,17 +14,35 @@ import (
 	. "mumax/common"
 	"mumax/tensor"
 	"sim"
-	"os"
-	"fmt"
 	"flag"
 )
 
 
 func main() {
 	flag.Parse()
+	if flag.NArg() != 10{
+		panic(InputErr("Need 10 command-line arguments"))
+	}
 
-	demag := sim.FaceKernel6(size, cellSize, acc)
+	size := []int{0, 0, 0}
+	cellSize := []float32{0, 0, 0}
+	periodic := []int{0, 0, 0}
+
+	size[X] = Atoi(flag.Arg(0))
+	size[Y] = Atoi(flag.Arg(1))
+	size[Z] = Atoi(flag.Arg(2))
+	cellSize[X] = Atof32(flag.Arg(3))
+	cellSize[Y] = Atof32(flag.Arg(4))
+	cellSize[Z] = Atof32(flag.Arg(5))
+	periodic[X] = Atoi(flag.Arg(6))
+	periodic[Y] = Atoi(flag.Arg(7))
+	periodic[Z] = Atoi(flag.Arg(8))
+	// nThreads not used
+
+	demag := sim.FaceKernel6(size, cellSize, acc, periodic)
+
 	tensor.Write(os.Stdout, demag)
+
 }
 
 

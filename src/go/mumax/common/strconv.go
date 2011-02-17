@@ -13,10 +13,20 @@ import(
 
 // Safe wrappers for strconv, panic on illegal input
 
-func Atof(s string) float32 {
+// Safe strconv.Atof32
+func Atof32(s string) float32 {
 	f, err := strconv.Atof32(s)
 	if err != nil {
 		panic(InputErr(err.String()))
 	}
 	return f
+}
+
+// Safe strconv.Atoi
+func Atoi(s string) int {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		panic(InputErr(err.String()))
+	}
+	return i
 }
