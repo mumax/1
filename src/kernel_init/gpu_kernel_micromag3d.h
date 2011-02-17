@@ -5,6 +5,7 @@
  * FFT dimensions of gpufft.cu. The Kernel components are Fourier transformed and only the real 
  * parts are stored on the device. The correction factor 1/(dimensions FFTs) is included.
  * Parameter exchInConv controls if exchange is included in the kernel
+ * The small particle limit is incorporated i.e. everaging of the demag field over the considered FD cell.
  * 
  * @author Ben Van de Wiele
  */
