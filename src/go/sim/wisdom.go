@@ -34,13 +34,13 @@ func (s *Sim) LookupKernel(size []int, cellsize []float32, accuracy int, periodi
 		err := recover()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
-			kernel = FaceKernel6(size, cellsize, accuracy, periodic)
+			kernel = s.CalcDemagKernel(size, cellsize, accuracy, periodic)
 		}
 	}()
 
 	// empty widomdir means we must not use wisdom
 	if s.wisdomdir == "" {
-		kernel = FaceKernel6(size, cellsize, accuracy, periodic)
+		kernel = s.CalcDemagKernel(size, cellsize, accuracy, periodic)
 		return
 	}
 
@@ -57,7 +57,7 @@ func (s *Sim) LookupKernel(size []int, cellsize []float32, accuracy int, periodi
 		Println("wisdom loaded")
 		return
 	} else {
-		kernel = FaceKernel6(size, cellsize, accuracy, periodic)
+		kernel = s.CalcDemagKernel(size, cellsize, accuracy, periodic)
 		s.storeKernel(kernel, kerndir)
 	}
 

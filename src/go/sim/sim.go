@@ -70,6 +70,7 @@ type Input struct {
 	anisType       int        // Anisotropy type
 	anisKSI        []float32  // Anisotropy constant(s), as many as needed
 	anisAxes       []float32  // Anisotopy axes: ux,uy,uz for uniaxial, u1x,u1y,u1z,u2x,u2y,u2z for cubic
+	kernelType     string     // Determines which kernel subprogram to use.
 }
 
 
@@ -181,6 +182,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.initWriters()
 	sim.input.anisKSI = []float32{0.} // even when not used these must be allocated
 	sim.input.anisAxes = []float32{0.}
+	sim.input.kernelType = "mumaxkern-go"
 	sim.invalidate() //just to make sure we will init()
 	return sim
 }

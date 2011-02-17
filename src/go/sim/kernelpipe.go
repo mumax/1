@@ -14,7 +14,24 @@ import (
 	"mumax/tensor"
 	"exec"
 	"os"
+	"fmt"
 )
+
+func (s *Sim) CalcDemagKernel(size []int, cellsize []float32, accuracy int, periodic []int) []*tensor.T3 {
+	nthreads := 1
+	return PipeKernel(s.input.kernelType, []string{ // kerneltype is the command name for now
+		fmt.Sprint(size[X]),
+		fmt.Sprint(size[Y]),
+		fmt.Sprint(size[Z]),
+		fmt.Sprint(cellsize[X]),
+		fmt.Sprint(cellsize[Y]),
+		fmt.Sprint(cellsize[Z]),
+		fmt.Sprint(periodic[X]),
+		fmt.Sprint(periodic[Y]),
+		fmt.Sprint(periodic[Z]),
+		fmt.Sprint(nthreads),
+	})
+}
 
 // Executes a subprocess that calculates a micromagnetic kernel.
 // The subprocess must write 6 rank-3 tensors to stdout:

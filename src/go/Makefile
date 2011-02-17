@@ -8,7 +8,6 @@ all:
 	cp -f ../../lib/libgpukern.so sim/
 	gomake -C sim
 	gomake install -C sim
-#gomake -C outtools
 	gomake -C main
 	gomake -C kernel-main
 
@@ -23,6 +22,7 @@ clean:
 	gomake clean -C tensor-main
 	gomake clean -C config-main
 	gomake clean -C main
+	gomake clean -C kernel-main
 
 	rm -f $(GOROOT)/pkg/$(GOOS)_$(GOARCH)/sim.a
 	rm -f $(GOROOT)/pkg/$(GOOS)_$(GOARCH)/cgo_sim.so
