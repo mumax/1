@@ -15,12 +15,13 @@ import (
 	"mumax/tensor"
 	"sim"
 	"flag"
+	"os"
 )
 
 
 func main() {
 	flag.Parse()
-	if flag.NArg() != 10{
+	if flag.NArg() != 10 {
 		panic(InputErr("Need 10 command-line arguments"))
 	}
 
@@ -39,12 +40,9 @@ func main() {
 	periodic[Z] = Atoi(flag.Arg(8))
 	// nThreads not used
 
-	demag := sim.FaceKernel6(size, cellSize, acc, periodic)
+	demag := sim.FaceKernel6(size, cellSize, 8, periodic)
 
-	tensor.Write(os.Stdout, demag)
-
+	for i := range demag {
+		tensor.Write(os.Stdout, demag[i])
+	}
 }
-
-
-
-

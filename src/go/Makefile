@@ -10,6 +10,7 @@ all:
 	gomake install -C sim
 #gomake -C outtools
 	gomake -C main
+	gomake -C kernel-main
 
 .PHONY: clean
 clean:
