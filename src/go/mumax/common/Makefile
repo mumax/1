@@ -13,6 +13,7 @@ GOFILES=\
 	cufftsize.go\
 	print.go\
 	readline.go\
+	strconv.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 

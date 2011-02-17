@@ -15,17 +15,17 @@ import (
  */
 type Units struct {
 	/** Exchange constant in J/m */
-	AExch float
+	AExch float32
 	/** Saturation magnetization in A/m */
-	MSat float
+	MSat float32
 	/** Mu0 in N/A^2 */
-	Mu0 float
+	Mu0 float32
 	/** Gyromagnetic ratio in m/As */
-	Gamma0 float
+	Gamma0 float32
 	/** Mesh Size, e.g. 64x64x4 */
 	Size []int
 	/** Cell Size in exchange lengths, e.g. 0.5x0.5.1.2 */
-	CellSize []float
+	CellSize []float32
 }
 
 /** All parameters passed in SI units. Program units are used only internally. */
@@ -64,7 +64,7 @@ func (units *Units) PrintInfo(out io.Writer) {
 
 	fmt.Fprint(out, "Sim Size   : \t ")
 	for i := range units.Size {
-		fmt.Fprint(out, float(units.Size[i])*units.UnitLength()*units.CellSize[i], " ")
+		fmt.Fprint(out, float32(units.Size[i])*units.UnitLength()*units.CellSize[i], " ")
 	}
 	fmt.Fprintln(out, "(m)")
 }
@@ -76,25 +76,25 @@ func (units *Units) PrintInfo(out io.Writer) {
  ENERGY = A * LENGTH;*/
 
 /** The internal unit of length, expressed in meters. */
-func (units *Units) UnitLength() float {
+func (units *Units) UnitLength() float32 {
 	assert(units.Valid())
-	return float(Sqrt(2. * float64(units.AExch/(units.Mu0*units.MSat*units.MSat))))
+	return float32(Sqrt(2. * float3264(units.AExch/(units.Mu0*units.MSat*units.MSat))))
 }
 
 /** The internal unit of time, expressed in seconds. */
-func (units *Units) UnitTime() float {
+func (units *Units) UnitTime() float32 {
 	assert(units.Valid())
 	return 1.0 / (units.Gamma0 * units.MSat)
 }
 
 /** The internal unit of field, expressed in tesla. */
-func (units *Units) UnitField() float {
+func (units *Units) UnitField() float32 {
 	assert(units.Valid())
 	return units.Mu0 * units.MSat
 }
 
 /** The internal unit of energy, expressed in J. */
-func (units *Units) UnitEnergy() float {
+func (units *Units) UnitEnergy() float32 {
 	assert(units.Valid())
 	return units.AExch * units.UnitLength()
 }

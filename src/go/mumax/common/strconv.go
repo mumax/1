@@ -5,28 +5,18 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-package main
+package common
 
-// Calculates a micromagnetic kernel and dumps it to stdout,
-// to be read by kernelpipe.go
-
-import (
-	. "mumax/common"
-	"mumax/tensor"
-	"sim"
-	"os"
-	"fmt"
-	"flag"
+import(
+	"strconv"
 )
 
+// Safe wrappers for strconv, panic on illegal input
 
-func main() {
-	flag.Parse()
-
-	demag := sim.FaceKernel6(size, cellSize, acc)
-	tensor.Write(os.Stdout, demag)
+func Atof(s string) float32 {
+	f, err := strconv.Atof32(s)
+	if err != nil {
+		panic(InputErr(err.String()))
+	}
+	return f
 }
-
-
-
-
