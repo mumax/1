@@ -12,7 +12,7 @@ NVCCFLAGS+=-I../gpukern -I../tensor
 all: mumaxkern-gpu
 
 mumaxkern-gpu: $(OFILES)
-	$(CPP) $(CFLAGS) libgpukern.so $(OFILES) -o mumaxkern-gpu
+	$(CPP) $(CFLAGS) -lgpukern $(OFILES) ../tensor/tensor.o -o mumaxkern-gpu
 
 gpu_kernel_micromag2d.o: gpu_kernel_micromag2d.cu  gpu_kernel_micromag2d.h
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_kernel_micromag2d.cu
