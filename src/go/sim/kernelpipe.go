@@ -13,6 +13,7 @@ import(
 	. "mumax/common"
 	"mumax/tensor"
 	"exec"
+	"os"
 )
 
 // Executes a subprocess that calculates a micromagnetic kernel.
@@ -28,6 +29,15 @@ func PipeKernel(command string, args []string) []*tensor.T3{
 		k[i] = tensor.ToT3(tensor.Read(cmd.Stdout))
 	}
 	
+	
+		wait, errwait := cmd.Wait(0) // Wait for exit
+		CheckErr(errwait, ERR_SUBPROCESS)
+		status := wait.ExitStatus()
+		Println(command + " exited with status ", status)
+		if status != 0 {
+			os.Exit(ERR_SUBPROCESS)
+		}
+
 	return k
 }
 
