@@ -1,4 +1,4 @@
-all: gpukern.so cpukern.so tensor.so gopkgs javapkgs
+all: gpukern.so cpukern.so tensor.so gopkgs javapkgs kernel
 
 gpukern.so: gpukern/*.cu
 	make -C gpukern
@@ -8,6 +8,9 @@ cpukern.so: cpukern/*.cpp
 
 tensor.so: tensor/*.cpp
 	make -C tensor
+
+kernel: tensor.so gpukern.so cpukern.so
+	make -C kernel_init
 
 gopkgs:
 	make -C go
