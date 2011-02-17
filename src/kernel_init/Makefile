@@ -4,7 +4,7 @@ OFILES=\
 	gpu_kernel_micromag3d.o\
 	mumaxkern-gpu.o\
 
-CFLAGS+=-I../gpukern -I../tensor
+CFLAGS+=-I../gpukern -I../tensor -L../../lib
 
 NVCCFLAGS+=-I../gpukern -I../tensor
 

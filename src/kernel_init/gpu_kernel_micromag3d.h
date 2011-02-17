@@ -24,7 +24,7 @@ void gpu_init_kernel_elements_micromag3d(int co1,                   ///< defines
                                          int co2,                   ///< defines the kernel element: e.g. Kxy has co1=0, co2=1
                                          int *kernelSize, 			    ///< Non-strided size of the kernel data
                                          float *cellSize, 			    ///< 3 floats, size of finite difference cell in X,Y,Z respectively
-                                         int *repetition, 					///< 3 ints, for periodicity: e.g. 2*repetition[0]+1 is the number of periods considered the x-direction ([0,0,0] means no periodic repetition)
+                                         int *repetition  					///< 3 ints, for periodicity: e.g. 2*repetition[0]+1 is the number of periods considered the x-direction ([0,0,0] means no periodic repetition)
                                          );
 
 /**
@@ -49,7 +49,7 @@ __global__ void _gpu_init_kernel_elements_micromag3d(float *dev_temp, 			///< po
 /**
  * Returns an element with coordinates [a,b,c] of the Greens kernel component defined by 'co1, co2'.
  */
-__device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, 					///< Non-strided size of the kernel data (x-direction)
+__device__ float _gpu_get_kernel_element_micromag3d(int Nkernel_X, 					///< Non-strided size of the kernel data (x-direction)
                                                     int Nkernel_Y, 					///< Non-strided size of the kernel data (y-direction)
                                                     int Nkernel_Z, 					///< Non-strided size of the kernel data (z-direction)
                                                     int co1, 								///< co1 and co2 define the requested Greens tensor component: e.g. co1=0, co2=1 defines gxy
@@ -76,7 +76,7 @@ __device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, 					///< Non
  */
 void initialize_Gauss_quadrature_on_gpu_micromag3d(float *dev_qd_W_10,  ///< float array (10 floats) containing the 10 Gauss quadrature weights (on device)
                                                    float *dev_qd_P_10,  ///< float array (30 floats) containing the 10 Gauss quadrature points for X, Y and Z contiguously (on device)
-                                                   float *FD_cell_size  ///< 3 floats: the dimensions of the used FD cell, (X, Y, Z) respectively
+                                                   float *cellSize      ///< 3 floats: the dimensions of the used FD cell, (X, Y, Z) respectively
                                                    );
 
                                                    /**

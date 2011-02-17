@@ -47,33 +47,32 @@ __global__ void _gpu_init_kernel_elements_micromag3d(float *data, int Nkernel_X,
 
   if ( i<((Nkernel_X+1)/2) && j<(Nkernel_Y/2) )
     for (int k=0; k<N2/2; k++){
-        data[            i*N12 +             j*N2 +           k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j,  k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+        data[            i*N12 +             j*N2 +           k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j,  k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
       if (i>0)
-        data[(Nkernel_X-i)*N12 +             j*N2 +           k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j,  k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+        data[(Nkernel_X-i)*N12 +             j*N2 +           k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j,  k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
       if (j>0)
-        data[            i*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j,  k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+        data[            i*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j,  k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
       if (k>0) 
-        data[            i*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j, -k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+        data[            i*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j, -k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
       if (i>0 && j>0)
-        data[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j,  k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+        data[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j,  k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
       if (i>0 && k>0) 
-        data[(Nkernel_X-i)*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j, -k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+        data[(Nkernel_X-i)*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j, -k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
       if (j>0 && k>0) 
-        data[            i*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j, -k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+        data[            i*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j, -k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
       if (i>0 && j>0 && k>0) 
-        data[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_Greens_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j, -k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+        data[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j, -k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
     }
   
   return;
 }
 
-__device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int co1, int co2, int a, int b, int c, float cellSize_X, float cellSize_Y, float cellSize_Z, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
+__device__ float _gpu_get_kernel_element_micromag3d(int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int co1, int co2, int a, int b, int c, float cellSize_X, float cellSize_Y, float cellSize_Z, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
 
   float result = 0.0f;
   float *dev_qd_P_10_X = &dev_qd_P_10[X*10];
   float *dev_qd_P_10_Y = &dev_qd_P_10[Y*10];
   float *dev_qd_P_10_Z = &dev_qd_P_10[Z*10];
-  float dim_inverse = 1.0f/( (float) Nkernel_X*Nkernel_Y*Nkernel_Z );
   
   // for elements in Kernel component gxx _________________________________________________________
     if (co1==0 && co2==0){
@@ -421,7 +420,7 @@ __device__ float _gpu_get_Greens_element_micromag3d(int Nkernel_X, int Nkernel_Y
 
 
 
-void initialize_Gauss_quadrature_on_gpu_micromag3d(float *dev_qd_W_10, float *dev_qd_P_10, float *FD_cell_size){
+void initialize_Gauss_quadrature_on_gpu_micromag3d(float *dev_qd_W_10, float *dev_qd_P_10, float *cellSize){
 
   // initialize standard order 10 Gauss quadrature points and weights _____________________________
     float *std_qd_P_10 = (float*) calloc(10, sizeof(float));
@@ -445,9 +444,9 @@ void initialize_Gauss_quadrature_on_gpu_micromag3d(float *dev_qd_W_10, float *de
 
   // Map the standard Gauss quadrature points to the used integration boundaries __________________
     float *host_qd_P_10 =  (float *) calloc (3*10, sizeof(float));
-    get_Quad_Points_micromag3d(&host_qd_P_10[X*10], std_qd_P_10, 10, -0.5f*cellSize_X, 0.5f*cellSize_X);
-    get_Quad_Points_micromag3d(&host_qd_P_10[Y*10], std_qd_P_10, 10, -0.5f*cellSize_Y, 0.5f*cellSize_Y);
-    get_Quad_Points_micromag3d(&host_qd_P_10[Z*10], std_qd_P_10, 10, -0.5f*cellSize_Z, 0.5f*cellSize_Z);
+    get_Quad_Points_micromag3d(&host_qd_P_10[X*10], std_qd_P_10, 10, -0.5f*cellSize[X], 0.5f*cellSize[X]);
+    get_Quad_Points_micromag3d(&host_qd_P_10[Y*10], std_qd_P_10, 10, -0.5f*cellSize[Y], 0.5f*cellSize[Y]);
+    get_Quad_Points_micromag3d(&host_qd_P_10[Z*10], std_qd_P_10, 10, -0.5f*cellSize[Z], 0.5f*cellSize[Z]);
   // ______________________________________________________________________________________________
 
   // copy to the quadrature points and weights to the device ______________________________________
