@@ -83,6 +83,7 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int, periodic []int) [
 	return k
 }
 
+// UNTESTED:
 // Smart version of FaceKernel6, uses symmetry to cut cpu time roughly in 1/8
 func FastKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
 	k := make([]*tensor.T3, 6)
