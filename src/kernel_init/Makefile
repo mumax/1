@@ -13,6 +13,7 @@ all: mumaxkern-gpu
 
 mumaxkern-gpu: $(OFILES)
 	$(CPP) $(CFLAGS) -lgpukern $(OFILES) ../tensor/tensor.o -o mumaxkern-gpu
+	cp -f mumaxkern-gpu ../../bin
 
 gpu_kernel_micromag2d.o: gpu_kernel_micromag2d.cu  gpu_kernel_micromag2d.h
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_kernel_micromag2d.cu

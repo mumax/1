@@ -31,3 +31,5 @@ clean:
 	make clean -C cpukern
 	make clean -C go
 	make clean -C java
+	make clean -C kernel_init
+	
