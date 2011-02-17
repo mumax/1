@@ -73,7 +73,7 @@ void gpu_init_and_FFT_Greens_kernel_elements_micromag2d(float *dev_kernel, int *
         gpu_zero(dev_temp1, kernelN);    
         gpu_sync();
         // Fill in the elements.
-        _gpu_init_Greens_kernel_elements_micromag2d<<<gridsize1, blocksize1>>>(dev_temp1, kernelSize[Y], kernelSize[Z], exchType, exchInConv[Y], exchInConv[Z], co1, co2, FD_cell_size[Y], FD_cell_size[Z], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
+        _gpu_init_Greens_kernel_elements_micromag2d<<<gridsize1, blocksize1>>>(dev_temp1, kernelSize[Y], kernelSize[Z], exchType, exchInConv_Y, exchInConv_Z, co1, co2, FD_cell_size_Y, FD_cell_size_Z, repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
         gpu_sync();
         // Fourier transform the kernel component.
         gpuFFT3dPlan_forward(kernel_plan, dev_temp1, dev_temp2); 
@@ -146,15 +146,46 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z
           result += FD_cell_size_Y * FD_cell_size_Z * 
                     (1.0f/ r2 - 2.0f* (j*FD_cell_size_Y) * (j*FD_cell_size_Y)/r2/r2 );
         }
+
+/*        if (r2_int<400){
+          for (int cntb=0; cntb<10; cntb++)
+          for (int cntc=0; cntc<10; cntc++){
+            for (int cnt2=0; cnt2<10; cnt2++){
+              float y = j * FD_cell_size_Y + dev_qd_P_10_Y[cnt2] + dev_qd_P_10_Y[cntb];
+              for (int cnt3=0; cnt3<10; cnt3++){
+                float z = k * FD_cell_size_Z + dev_qd_P_10_Z[cnt3] + dev_qd_P_10_Z[cntc];
+                result += 1.0f/4.0f * FD_cell_size_Y * FD_cell_size_Z / 4.0f * dev_qd_W_10[cnt2] * dev_qd_W_10[cnt3] *
+                  ( 1.0f/(y*y+z*z) - 2.0f*y*y/(y*y+z*z)/(y*y+z*z) );
+              }
+            }
+          }
+        }
+        else{
+          float r2 = (j*FD_cell_size_Y)*(j*FD_cell_size_Y) + (k*FD_cell_size_Z)*(k*FD_cell_size_Z);
+          result += FD_cell_size_Y * FD_cell_size_Z * 
+                    (1.0f/ r2 - 2.0f* (j*FD_cell_size_Y) * (j*FD_cell_size_Y)/r2/r2 );
+        }*/
+        
       }
       result *= -1.0f/2.0f/3.14159265f*dim_inverse;
 
-      if (exchType == EXCH_6NGBR && exchInConv_Y==1){
+      if (exchType == EXCH_6NGBR && exchInConv_Y==1){   //6 neighbor reduces here to 4 neighbor
         if (b== 0 && c== 0)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y + 2.0f/FD_cell_size_Z/FD_cell_size_Z;
         if (b== 1 && c== 0)  result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
         if (b==-1 && c== 0)  result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
         if (b== 0 && c== 1)  result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
         if (b== 0 && c==-1)  result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+      }
+      if (exchType==EXCH_12NGBR && exchInConv_Y==1){   //12 neighbor reduces here to 8 neighbor
+        if (b== 0 && c== 0)  result -= 5.0f/2.0f/FD_cell_size_Y/FD_cell_size_Y + 5.0f/2.0f/FD_cell_size_Z/FD_cell_size_Z;
+        if (b== 1 && c== 0)  result += 4.0f/3.0f/FD_cell_size_Y/FD_cell_size_Y;
+        if (b==-1 && c== 0)  result += 4.0f/3.0f/FD_cell_size_Y/FD_cell_size_Y;
+        if (b== 0 && c== 1)  result += 4.0f/3.0f/FD_cell_size_Z/FD_cell_size_Z;
+        if (b== 0 && c==-1)  result += 4.0f/3.0f/FD_cell_size_Z/FD_cell_size_Z;
+        if (b== 2 && c== 0)  result -= 1.0f/12.0f/FD_cell_size_Y/FD_cell_size_Y;
+        if (b==-2 && c== 0)  result -= 1.0f/12.0f/FD_cell_size_Y/FD_cell_size_Y;
+        if (b== 0 && c== 2)  result -= 1.0f/12.0f/FD_cell_size_Z/FD_cell_size_Z;
+        if (b== 0 && c==-2)  result -= 1.0f/12.0f/FD_cell_size_Z/FD_cell_size_Z;
       }
     }
   // ______________________________________________________________________________________________
@@ -184,6 +215,26 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z
           result += FD_cell_size_Y * FD_cell_size_Z * 
                     (- 2.0f* (j*FD_cell_size_Y) * (k*FD_cell_size_Y)/r2/r2);
         }
+
+//         if (r2_int<400){
+//           for (int cntb=0; cntb<10; cntb++)
+//           for (int cntc=0; cntc<10; cntc++){
+//             for (int cnt2=0; cnt2<10; cnt2++){
+//               float y = j * FD_cell_size_Y + dev_qd_P_10_Y[cnt2] + dev_qd_P_10_Y[cntb];
+//               for (int cnt3=0; cnt3<10; cnt3++){
+//                 float z = k * FD_cell_size_Z + dev_qd_P_10_Z[cnt3] + dev_qd_P_10_Z[cntc];
+//                 result += 1.0f/4.0f * FD_cell_size_Y * FD_cell_size_Z / 4.0f * dev_qd_W_10[cnt2] * dev_qd_W_10[cnt3] *
+//                   ( - 2.0f*y*z/(y*y+z*z)/(y*y+z*z) );
+//               }
+//             }
+//           }
+//         }
+//         else{
+//           float r2 = (j*FD_cell_size_Y)*(j*FD_cell_size_Y) + (k*FD_cell_size_Z)*(k*FD_cell_size_Z);
+//           result += FD_cell_size_Y * FD_cell_size_Z * 
+//                     (- 2.0f* (j*FD_cell_size_Y) * (k*FD_cell_size_Y)/r2/r2);
+//         }
+
       }
       result *= -1.0f/2.0f/3.14159265f*dim_inverse;
 
@@ -215,15 +266,45 @@ __device__ float _gpu_get_Greens_element_micromag2d(int Nkernel_Y, int Nkernel_Z
           result += FD_cell_size_Y * FD_cell_size_Z * 
                     (1.0f/ r2 - 2.0f* (k*FD_cell_size_Y) * (k*FD_cell_size_Y)/r2/r2);
         }
+/*        if (r2_int<400){
+          for (int cntb=0; cntb<10; cntb++)
+          for (int cntc=0; cntc<10; cntc++){
+            for (int cnt2=0; cnt2<10; cnt2++){
+              float y = j * FD_cell_size_Y + dev_qd_P_10_Y[cnt2] + dev_qd_P_10_Y[cntb];
+              for (int cnt3=0; cnt3<10; cnt3++){
+                float z = k * FD_cell_size_Z + dev_qd_P_10_Z[cnt3] + dev_qd_P_10_Z[cntc];
+                result += 1.0f/4.0f * FD_cell_size_Y * FD_cell_size_Z / 4.0f * dev_qd_W_10[cnt2] * dev_qd_W_10[cnt3] *
+                  ( 1.0f/(y*y+z*z) - 2.0f*z*z/(y*y+z*z)/(y*y+z*z) );
+              }
+            }
+          }
+        }
+        else{
+          float r2 = (j*FD_cell_size_Y)*(j*FD_cell_size_Y) + (k*FD_cell_size_Z)*(k*FD_cell_size_Z);
+          result += FD_cell_size_Y * FD_cell_size_Z * 
+                    (1.0f/ r2 - 2.0f* (k*FD_cell_size_Y) * (k*FD_cell_size_Y)/r2/r2);
+        }*/
+
       }
       result *= -1.0f/2.0f/3.14159265f*dim_inverse;
 
-      if (exchType == EXCH_6NGBR && exchInConv_Z==1){
+      if (exchType == EXCH_6NGBR && exchInConv_Z==1){   //6 neighbor reduces here to 4 neighbor
         if (b== 0 && c== 0)  result -= 2.0f/FD_cell_size_Y/FD_cell_size_Y + 2.0f/FD_cell_size_Z/FD_cell_size_Z;
         if (b== 1 && c== 0)  result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
         if (b==-1 && c== 0)  result += 2.0f/FD_cell_size_Y/FD_cell_size_Y;
         if (b== 0 && c== 1)  result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
         if (b== 0 && c==-1)  result += 2.0f/FD_cell_size_Z/FD_cell_size_Z;
+      }
+      if (exchType==EXCH_12NGBR && exchInConv_Z==1){
+        if (b== 0 && c== 0)  result -= 5.0f/2.0f/FD_cell_size_Y/FD_cell_size_Y + 5.0f/2.0f/FD_cell_size_Z/FD_cell_size_Z;
+        if (b== 1 && c== 0)  result += 4.0f/3.0f/FD_cell_size_Y/FD_cell_size_Y;
+        if (b==-1 && c== 0)  result += 4.0f/3.0f/FD_cell_size_Y/FD_cell_size_Y;
+        if (b== 0 && c== 1)  result += 4.0f/3.0f/FD_cell_size_Z/FD_cell_size_Z;
+        if (b== 0 && c==-1)  result += 4.0f/3.0f/FD_cell_size_Z/FD_cell_size_Z;
+        if (b== 2 && c== 0)  result -= 1.0f/12.0f/FD_cell_size_Y/FD_cell_size_Y;
+        if (b==-2 && c== 0)  result -= 1.0f/12.0f/FD_cell_size_Y/FD_cell_size_Y;
+        if (b== 0 && c== 2)  result -= 1.0f/12.0f/FD_cell_size_Z/FD_cell_size_Z;
+        if (b== 0 && c==-2)  result -= 1.0f/12.0f/FD_cell_size_Z/FD_cell_size_Z;
       }
     }
   // ______________________________________________________________________________________________
@@ -270,8 +351,8 @@ void initialize_Gauss_quadrature_on_gpu_micromag2d(float *dev_qd_W_10, float *de
 
   // Map the standard Gauss quadrature points to the used integration boundaries __________________
     float *host_qd_P_10 =  (float *) calloc (2*10, sizeof(float));
-    get_Quad_Points_micromag2d(&host_qd_P_10[ 0], std_qd_P_10, 10, -0.5f*FD_cell_size[Y], 0.5f*FD_cell_size[Y]);
-    get_Quad_Points_micromag2d(&host_qd_P_10[10], std_qd_P_10, 10, -0.5f*FD_cell_size[Z], 0.5f*FD_cell_size[Z]);
+    get_Quad_Points_micromag2d(&host_qd_P_10[ 0], std_qd_P_10, 10, -0.5f*FD_cell_size_Y, 0.5f*FD_cell_size_Y);
+    get_Quad_Points_micromag2d(&host_qd_P_10[10], std_qd_P_10, 10, -0.5f*FD_cell_size_Z, 0.5f*FD_cell_size_Z);
   // ______________________________________________________________________________________________
 
   // copy to the quadrature points and weights to the device ______________________________________
@@ -320,8 +401,8 @@ void get_Quad_Points_micromag2d(float *gaussQP, float *stdGaussQP, int qOrder, d
 // 
 //   gpu_zero(dev_temp, kernelStorageN);
 //   gpu_sync();
-// //  _gpu_init_Greens_kernel_elements<<<gridsize1, blocksize1>>>(dev_temp, Nkernel[X], Nkernel[Y], Nkernel[Z], testco1, testco2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], cst, repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
-//   _gpu_init_Greens_kernel_elements<<<gridsize1, blocksize1>>>(dev_temp, kernelSize[X], kernelSize[Y], kernelSize[Z], kernelStorageSize[Z], testco1, testco2, FD_cell_size[X], FD_cell_size[Y], FD_cell_size[Z], repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
+// //  _gpu_init_Greens_kernel_elements<<<gridsize1, blocksize1>>>(dev_temp, Nkernel[X], Nkernel[Y], Nkernel[Z], testco1, testco2, FD_cell_size[X], FD_cell_size_Y, FD_cell_size_Z, cst, repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
+//   _gpu_init_Greens_kernel_elements<<<gridsize1, blocksize1>>>(dev_temp, kernelSize[X], kernelSize[Y], kernelSize[Z], kernelStorageSize[Z], testco1, testco2, FD_cell_size[X], FD_cell_size_Y, FD_cell_size_Z, repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
 //   gpu_sync();
 // 
 //   memcpy_from_gpu(dev_temp, host_temp, kernelStorageN);

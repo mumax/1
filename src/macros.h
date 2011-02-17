@@ -41,18 +41,20 @@
 
 
 // Exchange types *****************
-  /// 6-neighbour exchange (2D and 3D geometry).
-#define EXCH_6NGBR 6
+    /// 6-neighbour exchange (2D and 3D geometry).
+  #define EXCH_6NGBR 6
+    /// 6-neighbour exchange (2D and 3D geometry).
+  #define EXCH_12NGBR 12
 // ********************************
 
 
 // Kernel types *******************
-#define KERNEL_DIPOLE 1
-  /// Quantities only dependent on Y and Z coordinate, invariance in X direction. Includes exchange
-#define KERNEL_MICROMAG2D 2
+  #define KERNEL_DIPOLE 1
+    /// Quantities only dependend on Y and Z coordinate, invariance in X direction. Includes exchange
+  #define KERNEL_MICROMAG2D 2
 
-  /// Classical 3D micromagnetic kernel. Can also be used for 2D simulations (1 cell in X). Includes exchange.
-#define KERNEL_MICROMAG3D 3
+    /// Classical 3D micromagnetic kernel. Can also be used for 2D simulations (1 cell in X). Includes exchange.
+  #define KERNEL_MICROMAG3D 3
 // *********************************
 
 
