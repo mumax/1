@@ -1,14 +1,11 @@
 #include "tensor.h"
-#include "assert.h"
-#include "timer.h"
 #include <stdio.h>
 #include "gpu_kernel_micromag3d.h"
+#include "gpukern.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define BLOCKSIZE 16
 
 
 void gpu_init_kernel_elements_micromag3d(int co1, int co2, int *kernelSize, float *cellSize, int *repetition){
@@ -33,6 +30,7 @@ void gpu_init_kernel_elements_micromag3d(int co1, int co2, int *kernelSize, floa
   cudaFree (dev_qd_P_10);
 
   write_tensor_pieces(3, kernelSize, data, stdout);
+  cudaFree (data);
   
   return;
 }
