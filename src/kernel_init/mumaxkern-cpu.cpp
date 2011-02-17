@@ -1,9 +1,8 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include "gpu_kernel_micromag2d.h"
-#include "gpu_kernel_micromag3d.h"
+#include "cpu_kernel_micromag2d.h"
+#include "cpu_kernel_micromag3d.h"
 
 
 int main(int argc, char** argv){
@@ -34,16 +33,18 @@ int main(int argc, char** argv){
   repetition[1] = atoi(argv[10]);
   repetition[2] = atoi(argv[11]);
   
-//  int Nthreads = atoi(argv[12]);
+  int Nthreads = atoi(argv[12]);
+  
+  init_Threads(int Nthreads);
 
   if (kernelType==-1)
     fprintf(stderr, "In kernel initialization: wrong cell size: kernel type could not be recognized\n");
 
   if (kernelType==2)
-    gpu_init_kernel_elements_micromag2d(co1, co2, kernelSize, cellSize, repetition);
-
+    cpu_init_kernel_elements_micromag2d(co1, co2, kernelSize, cellSize, repetition);
+    
   if (kernelType==3)
-    gpu_init_kernel_elements_micromag3d(co1, co2, kernelSize, cellSize, repetition);
+    cpu_init_kernel_elements_micromag3d(co1, co2, kernelSize, cellSize, repetition);
 
   return (0);
 }

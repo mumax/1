@@ -8,65 +8,6 @@ extern "C" {
 #endif
 
 
-void gpu_init_kernel_elements_micromag3d(int co1, int co2, int *kernelSize, float *cellSize, int *repetition){
-
-  // initialization Gauss quadrature points for integrations + copy to gpu ________________________
-    float *dev_qd_W_10 = new_gpu_array(10);
-    float *dev_qd_P_10 = new_gpu_array(3*10);
-    initialize_Gauss_quadrature_on_gpu_micromag3d(dev_qd_W_10, dev_qd_P_10, cellSize);
-  // ______________________________________________________________________________________________
-  
-  int kernelN = kernelSize[X]*kernelSize[Y]*kernelSize[Z];     // size of a kernel component without zeros
-  float *data = new_gpu_array(kernelN);                        // to store kernel component without zeros (input of fft routine)
-  
-  dim3 gridsize((kernelSize[X]+1)/2, kernelSize[Y]/2, 1);
-  dim3 blocksize(1,1,1);
-  check3dconf(gridsize, blocksize);
-
-  _gpu_init_kernel_elements_micromag3d<<<gridsize, blocksize>>>(data, kernelSize[X], kernelSize[Y], kernelSize[Z], co1, co2, cellSize[X], cellSize[Y], cellSize[Z], repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
-  gpu_sync();
-
-  cudaFree (dev_qd_W_10);
-  cudaFree (dev_qd_P_10);
-
-  write_tensor_pieces(3, kernelSize, data, stdout);
-  cudaFree (data);
-  
-  return;
-}
-
-
-
-__global__ void _gpu_init_kernel_elements_micromag3d(float *data, int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int co1, int co2, float cellSize_X, float cellSize_Y, float cellSize_Z, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
-
-  int i = blockIdx.x;
-  int j = blockIdx.y;
-
-  int N2 = Nkernel_Z;
-  int N12 = Nkernel_Y * N2;
-
-  if ( i<((Nkernel_X+1)/2) && j<(Nkernel_Y/2) )
-    for (int k=0; k<N2/2; k++){
-        data[            i*N12 +             j*N2 +           k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j,  k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
-      if (i>0)
-        data[(Nkernel_X-i)*N12 +             j*N2 +           k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j,  k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
-      if (j>0)
-        data[            i*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j,  k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
-      if (k>0) 
-        data[            i*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j, -k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
-      if (i>0 && j>0)
-        data[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j,  k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
-      if (i>0 && k>0) 
-        data[(Nkernel_X-i)*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j, -k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
-      if (j>0 && k>0) 
-        data[            i*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j, -k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
-      if (i>0 && j>0 && k>0) 
-        data[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j, -k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
-    }
-  
-  return;
-}
-
 __device__ float _gpu_get_kernel_element_micromag3d(int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int co1, int co2, int a, int b, int c, float cellSize_X, float cellSize_Y, float cellSize_Z, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
 
   float result = 0.0f;
@@ -416,6 +357,65 @@ __device__ float _gpu_get_kernel_element_micromag3d(int Nkernel_X, int Nkernel_Y
   
   result *= -1.0f/4.0f/3.14159265f;
   return( result );
+}
+
+
+__global__ void _gpu_init_kernel_elements_micromag3d(float *data, int Nkernel_X, int Nkernel_Y, int Nkernel_Z, int co1, int co2, float cellSize_X, float cellSize_Y, float cellSize_Z, int repetition_X, int repetition_Y, int repetition_Z, float *dev_qd_P_10, float *dev_qd_W_10){
+
+  int i = blockIdx.x;
+  int j = blockIdx.y;
+
+  int N2 = Nkernel_Z;
+  int N12 = Nkernel_Y * N2;
+
+  if ( i<((Nkernel_X+1)/2) && j<(Nkernel_Y/2) )
+    for (int k=0; k<N2/2; k++){
+        data[            i*N12 +             j*N2 +           k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j,  k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+      if (i>0)
+        data[(Nkernel_X-i)*N12 +             j*N2 +           k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j,  k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+      if (j>0)
+        data[            i*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j,  k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+      if (k>0) 
+        data[            i*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i,  j, -k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+      if (i>0 && j>0)
+        data[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 +           k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j,  k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+      if (i>0 && k>0) 
+        data[(Nkernel_X-i)*N12 +             j*N2 + Nkernel_Z-k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i,  j, -k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+      if (j>0 && k>0) 
+        data[            i*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2,  i, -j, -k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+      if (i>0 && j>0 && k>0) 
+        data[(Nkernel_X-i)*N12 + (Nkernel_Y-j)*N2 + Nkernel_Z-k] = _gpu_get_kernel_element_micromag3d(Nkernel_X, Nkernel_Y, Nkernel_Z, co1, co2, -i, -j, -k, cellSize_X, cellSize_Y, cellSize_Z, repetition_X, repetition_Y, repetition_Z, dev_qd_P_10, dev_qd_W_10);
+    }
+  
+  return;
+}
+
+
+void gpu_init_kernel_elements_micromag3d(int co1, int co2, int *kernelSize, float *cellSize, int *repetition){
+
+  // initialization Gauss quadrature points for integrations + copy to gpu ________________________
+    float *dev_qd_W_10 = new_gpu_array(10);
+    float *dev_qd_P_10 = new_gpu_array(3*10);
+    initialize_Gauss_quadrature_on_gpu_micromag3d(dev_qd_W_10, dev_qd_P_10, cellSize);
+  // ______________________________________________________________________________________________
+  
+  int kernelN = kernelSize[X]*kernelSize[Y]*kernelSize[Z];     // size of a kernel component without zeros
+  float *data = new_gpu_array(kernelN);                        // to store kernel component without zeros (input of fft routine)
+  
+  dim3 gridsize((kernelSize[X]+1)/2, kernelSize[Y]/2, 1);
+  dim3 blocksize(1,1,1);
+  check3dconf(gridsize, blocksize);
+
+  _gpu_init_kernel_elements_micromag3d<<<gridsize, blocksize>>>(data, kernelSize[X], kernelSize[Y], kernelSize[Z], co1, co2, cellSize[X], cellSize[Y], cellSize[Z], repetition[X], repetition[Y], repetition[Z], dev_qd_P_10, dev_qd_W_10);
+  gpu_sync();
+
+  cudaFree (dev_qd_W_10);
+  cudaFree (dev_qd_P_10);
+
+  write_tensor_pieces(3, kernelSize, data, stdout);
+  cudaFree (data);
+  
+  return;
 }
 
 

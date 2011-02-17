@@ -19,7 +19,7 @@ extern "C" {
 void gpu_kernel_micromag2d(int *kernelSize, float *cellsize, int exchType, int *exchInConv, int *repetition){
   
   // check input + allocate tensor on device ______________________________________________________
-    int kernelStorageN = p->kernelSize[Y] * (pkernelSize[Z]+2);
+    int kernelStorageN = p->kernelSize[Y] * (p->kernelSize[Z]+2);
     tensor *dev_kernel;
     dev_kernel = as_tensor(new_gpu_array(3*kernelStorageN/2), 2, 3, kernelStorageN/2);  // only real parts!!
   // ______________________________________________________________________________________________

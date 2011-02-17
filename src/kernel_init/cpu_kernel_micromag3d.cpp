@@ -3,18 +3,13 @@
 #include "cpu_kernel_micromag3d.h"
 #include "cpukern.h"
 
-#include "../macros.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-/// remark: number of FD cells in a dimension can not be odd if no zero padding!!
-void cpu_init_kernel_elements_micromag3d(int co1, int co2, int *kernelSize, float *cellSize, int *repetition, int Nthreads){
+void cpu_init_kernel_elements_micromag3d(int co1, int co2, int *kernelSize, float *cellSize, int *repetition){
 
-  init_Threads(int Nthreads);
-  
   // initialization Gauss quadrature points for integrations ______________________________________
     float *qd_W_10 = (float*)calloc(10, sizeof(float));
     float *qd_P_10 = (float*)calloc(3*10, sizeof(float));
@@ -22,7 +17,7 @@ void cpu_init_kernel_elements_micromag3d(int co1, int co2, int *kernelSize, floa
   // ______________________________________________________________________________________________
 
   int kernelN = kernelSize[X]*kernelSize[Y]*kernelSize[Z];              // size of a kernel component without zeros
-  float *data = new_cpu_array(kernelN);                                 // temp array on device for storage of kernel component without zeros (input of fft routine)
+  float *data = new_cpu_array(kernelN);                                 // o store kernel component without zeros (input of fft routine)
  
   _cpu_init_kernel_elements_micromag3d(data, kernelSize, co1, co2, cellSize, repetition, qd_P_10, qd_W_10);
 
@@ -34,7 +29,6 @@ void cpu_init_kernel_elements_micromag3d(int co1, int co2, int *kernelSize, floa
   
   return;
 }
-
 
 
 typedef struct{
@@ -417,27 +411,27 @@ void _cpu_init_kernel_elements_micromag3d_t(int id){
   for (int i=start; i<stop; i++)
     for (int j=0; j<arg->Nkernel[Y]/2; j++)
       for (int k=0; k<N2/2; k++){
-          arg->temp[                  i*N12 +                   j*N2 +                 k] = _cpu_get_kernel_element_micromag3d(arg, i, j, k);
+          arg->data[                  i*N12 +                   j*N2 +                 k] = _cpu_get_kernel_element_micromag3d(arg, i, j, k);
         if (i>0)
-          arg->temp[(arg->Nkernel[X]-i)*N12 +                   j*N2 +                 k] = _cpu_get_kernel_element_micromag3d(arg, -i, j, k);
+          arg->data[(arg->Nkernel[X]-i)*N12 +                   j*N2 +                 k] = _cpu_get_kernel_element_micromag3d(arg, -i, j, k);
         if (j>0)
-          arg->temp[                  i*N12 + (arg->Nkernel[Y]-j)*N2 +                 k] = _cpu_get_kernel_element_micromag3d(arg, i, -j, k);
+          arg->data[                  i*N12 + (arg->Nkernel[Y]-j)*N2 +                 k] = _cpu_get_kernel_element_micromag3d(arg, i, -j, k);
         if (k>0) 
-          arg->temp[                  i*N12 +                   j*N2 + arg->Nkernel[Z]-k] = _cpu_get_kernel_element_micromag3d(arg, i, j, -k);
+          arg->data[                  i*N12 +                   j*N2 + arg->Nkernel[Z]-k] = _cpu_get_kernel_element_micromag3d(arg, i, j, -k);
         if (i>0 && j>0)
-          arg->temp[(arg->Nkernel[X]-i)*N12 + (arg->Nkernel[Y]-j)*N2 +                 k] = _cpu_get_kernel_element_micromag3d(arg, -i, -j, k);
+          arg->data[(arg->Nkernel[X]-i)*N12 + (arg->Nkernel[Y]-j)*N2 +                 k] = _cpu_get_kernel_element_micromag3d(arg, -i, -j, k);
         if (i>0 && k>0) 
-          arg->temp[(arg->Nkernel[X]-i)*N12 +                   j*N2 + arg->Nkernel[Z]-k] = _cpu_get_kernel_element_micromag3d(arg, -i, j, -k);
+          arg->data[(arg->Nkernel[X]-i)*N12 +                   j*N2 + arg->Nkernel[Z]-k] = _cpu_get_kernel_element_micromag3d(arg, -i, j, -k);
         if (j>0 && k>0) 
-          arg->temp[                  i*N12 + (arg->Nkernel[Y]-j)*N2 + arg->Nkernel[Z]-k] = _cpu_get_kernel_element_micromag3d(arg, i, -j, -k);
+          arg->data[                  i*N12 + (arg->Nkernel[Y]-j)*N2 + arg->Nkernel[Z]-k] = _cpu_get_kernel_element_micromag3d(arg, i, -j, -k);
         if (i>0 && j>0 && k>0) 
-          arg->temp[(arg->Nkernel[X]-i)*N12 + (arg->Nkernel[Y]-j)*N2 + arg->Nkernel[Z]-k] = _cpu_get_kernel_element_micromag3d(arg, -i, -j, -k);
+          arg->data[(arg->Nkernel[X]-i)*N12 + (arg->Nkernel[Y]-j)*N2 + arg->Nkernel[Z]-k] = _cpu_get_kernel_element_micromag3d(arg, -i, -j, -k);
       }
   
   return;
 }
 
-void _cpu_init_Greens_kernel_elements_micromag3d(float *data, int *Nkernel, int co1, int co2, float *cellSize, int *repetition, qd_P_10, qd_W_10){
+void _cpu_init_kernel_elements_micromag3d(float *data, int *Nkernel, int co1, int co2, float *cellSize, int *repetition, qd_P_10, qd_W_10){
 
   _cpu_init_kernel_elements_micromag3d_arg args;
 
