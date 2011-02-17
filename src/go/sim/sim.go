@@ -182,7 +182,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.initWriters()
 	sim.input.anisKSI = []float32{0.} // even when not used these must be allocated
 	sim.input.anisAxes = []float32{0.}
-	sim.input.kernelType = "mumaxkern-go"
+	sim.input.kernelType = "mumaxkern-gpu"
 	sim.invalidate() //just to make sure we will init()
 	return sim
 }
