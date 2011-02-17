@@ -122,13 +122,13 @@ func daemon_startsim(file string) {
 	//if err2 != nil {
 	//	fmt.Fprintln(os.Stderr, err2)
 	//} else {
-		_, err4 := cmd.Wait(0)
-		CheckErr(err4, ERR_SUBPROCESS)
-		//if err4 != nil {
-		//	fmt.Fprintln(os.Stderr, err4)
-		//} else {
-			Println(DAEMON_PREFIX, "Finished simulation ", file, DAEMON_SUFFIX)
-		//}
+	_, err4 := cmd.Wait(0)
+	CheckErr(err4, ERR_SUBPROCESS)
+	//if err4 != nil {
+	//	fmt.Fprintln(os.Stderr, err4)
+	//} else {
+	Println(DAEMON_PREFIX, "Finished simulation ", file, DAEMON_SUFFIX)
+	//}
 	//}
 }
 

@@ -10,8 +10,8 @@ package sim
 
 import (
 	"io"
-//	"os"
-//	"fmt"
+	//	"os"
+	//	"fmt"
 )
 
 // Reads from in and passes data through to out.

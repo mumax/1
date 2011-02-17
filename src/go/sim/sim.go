@@ -135,7 +135,7 @@ type Sim struct {
 	// Geometry
 	normMap   *DevTensor   // Per-cell magnetization norm. nil means the norm is 1.0 everywhere. Stored on the device
 	normLocal *tensor.T3   // local copy of devNorm
-	avgNorm			float32  // "Total" magnetization norm over the magnet. Divide the sum of all magnetization vectors by this to get the average magnetization correctly, even when the geometry is not square.
+	avgNorm   float32      // "Total" magnetization norm over the magnet. Divide the sum of all magnetization vectors by this to get the average magnetization correctly, even when the geometry is not square.
 	edgeKern  []*DevTensor // Per-cell self-kernel used for edge corrections (could also store some anisotropy types)
 
 	// Benchmark info

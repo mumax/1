@@ -64,7 +64,7 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int, periodic []int) [
 					faceIntegral(B, R, cellsize, s, accuracy)
 
 					for d := s; d < 3; d++ { // destination index Ksdxyz
-						i := KernIdx[s][d]                         // 3x3 symmetric index to 1x6 index
+						i := KernIdx[s][d]               // 3x3 symmetric index to 1x6 index
 						k[i].Array()[xw][yw][zw] += B[d] // We have to ADD because there are multiple contributions in case of periodicity
 					}
 				}

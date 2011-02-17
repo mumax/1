@@ -183,13 +183,13 @@ func (s *Sim) initNormMap() {
 
 // Updates the average magnetization norm
 // Needed to correctly calculate <m> when some cells are missing.
-func (s *Sim) updateAvgNorm(){
+func (s *Sim) updateAvgNorm() {
 	l := s.normLocal.List()
 	var avg float64
-	for _,n := range l{
+	for _, n := range l {
 		avg += float64(n)
 	}
-	s.avgNorm =  float32(avg)
+	s.avgNorm = float32(avg)
 }
 
 

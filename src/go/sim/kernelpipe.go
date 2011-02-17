@@ -9,7 +9,7 @@ package sim
 
 // This file implements piping a kernel from a subprocess.
 
-import(
+import (
 	. "mumax/common"
 	"mumax/tensor"
 	"exec"
@@ -19,25 +19,23 @@ import(
 // Executes a subprocess that calculates a micromagnetic kernel.
 // The subprocess must write 6 rank-3 tensors to stdout:
 // Kxx, Kyy, Kzz, Kyz, Kxz, Kxy.
-func PipeKernel(command string, args []string) []*tensor.T3{
+func PipeKernel(command string, args []string) []*tensor.T3 {
 	k := make([]*tensor.T3, 6)
 
 	cmd, err := subprocess(command, args, exec.DevNull, exec.Pipe, exec.PassThrough)
 	CheckErr(err, ERR_SUBPROCESS)
 
-	for i := range k{
+	for i := range k {
 		k[i] = tensor.ToT3(tensor.Read(cmd.Stdout))
 	}
-	
-	
-		wait, errwait := cmd.Wait(0) // Wait for exit
-		CheckErr(errwait, ERR_SUBPROCESS)
-		status := wait.ExitStatus()
-		Println(command + " exited with status ", status)
-		if status != 0 {
-			os.Exit(ERR_SUBPROCESS)
-		}
+
+	wait, errwait := cmd.Wait(0) // Wait for exit
+	CheckErr(errwait, ERR_SUBPROCESS)
+	status := wait.ExitStatus()
+	Println(command+" exited with status ", status)
+	if status != 0 {
+		os.Exit(ERR_SUBPROCESS)
+	}
 
 	return k
 }
-
