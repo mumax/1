@@ -24,10 +24,12 @@ GOFILES=\
 	kernel.go\
 	relax.go\
 	demag.go\
+	kernelpipe.go\
 	exchange.go\
 	material.go\
 	util.go\
 	sim.go\
+	init.go\
 	simconfig.go\
 	simfield.go\
 	simspintorque.go\
@@ -39,8 +41,7 @@ GOFILES=\
 	simoutput.go\
 	simrun.go\
 	simsolver.go\
-	remotedevice.go\
-	simserver.go\
+	simget.go\
 	timer.go\
 	dashboard.go\
 	appliedfield.go\
@@ -58,7 +59,6 @@ GOFILES=\
 	exec.go\
 	simmetadata.go\
 	resample.go\
-	error.go\
 	wisdom.go\
 	help.go\
 	simdebug.go\

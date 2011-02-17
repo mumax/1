@@ -11,6 +11,25 @@ package common
 
 // This file provides a central definition of common constants.
 
+// vector components
+const(
+	X = 0
+	Y = 1
+	Z = 2
+)
+
+// Maps the 3x3 indices of the symmetric demag kernel (K_ij) onto
+// a length 6 array containing the upper triangular part:
+// (Kxx, Kyy, Kzz, Kyz, Kxz, Kxy)
+const (
+	XX = 0
+	YY = 1
+	ZZ = 2
+	YZ = 3
+	XZ = 4
+	XY = 5
+)
+
 // direction flag for memcpy()
 const (
 	CPY_TO   = 1

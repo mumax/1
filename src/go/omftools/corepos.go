@@ -8,8 +8,8 @@
 package main
 
 import (
-	"omf"
-	"iotool"
+	. "mumax/common"
+	"mumax/omf"
 	"fmt"
 )
 
@@ -63,7 +63,7 @@ func CorePos(fname string, pol float32) {
 
 func init_odt_corepos(filename string) {
 	if coreodt == nil {
-		out := iotool.MustOpenWRONLY(filename)
+		out := MustOpenWRONLY(filename)
 		coreodt = omf.NewTabWriter(out)
 		coreodt.AddColumn("Time", "s")
 		coreodt.AddColumn("CoreX", "m")

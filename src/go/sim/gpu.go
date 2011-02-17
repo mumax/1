@@ -21,6 +21,7 @@ import "runtime"
 //
 
 import (
+	. "mumax/common"
 	"fmt"
 )
 
@@ -200,8 +201,6 @@ func (d Gpu) memcpy(source, dest uintptr, nFloats, direction int) {
 	C.memcpy_gpu_dir((*C.float)(unsafe.Pointer(source)), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats), C.int(direction))
 }
 
-// The size (in bytes) of a C float (not a go float!)
-const SIZEOF_CFLOAT = 4
 
 func (d Gpu) arrayOffset(array uintptr, index int) uintptr {
 	return uintptr(array + uintptr(SIZEOF_CFLOAT*index)) // uintptr(unsafe.Pointer(C.gpu_array_offset((*C.float)(unsafe.Pointer(array)), C.int(index))))

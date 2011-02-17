@@ -7,9 +7,8 @@
 package sim
 
 import (
-	"tensor"
+	. "mumax/common"
 	"os"
-	//"fmt"
 	"math"
 )
 
@@ -38,7 +37,6 @@ func (s *Sim) GridSize(z, y, x int) {
 	s.invalidate()
 }
 
-// TODO: We need one function that sets all metadata centrally
 
 // Defines the cell size in meters
 func (s *Sim) CellSize(z, y, x float32) {
@@ -49,10 +47,21 @@ func (s *Sim) CellSize(z, y, x float32) {
 	s.input.cellSize[X] = x
 	s.input.cellSize[Y] = y
 	s.input.cellSize[Z] = z
-	//	s.metadata["cellsize0"] = fmt.Sprint(x)
-	//	s.metadata["cellsize1"] = fmt.Sprint(y)
-	//	s.metadata["cellsize2"] = fmt.Sprint(z)
 	s.input.cellSizeSet = true
+	s.updateSizes()
+	s.invalidate()
+}
+
+// Defines the maximum cell size in meters
+func (s *Sim) MaxCellSize(z, y, x float32) {
+	if x <= 0. || y <= 0. || z <= 0. {
+		s.Errorln("Max cell size should be > 0")
+		os.Exit(-6)
+	}
+	s.input.maxCellSize[X] = x
+	s.input.maxCellSize[Y] = y
+	s.input.maxCellSize[Z] = z
+	s.input.maxCellSizeSet = true
 	s.updateSizes()
 	s.invalidate()
 }
@@ -65,9 +74,6 @@ func (s *Sim) PartSize(z, y, x float32) {
 	s.input.partSize[X] = x
 	s.input.partSize[Y] = y
 	s.input.partSize[Z] = z
-	//	s.metadata["partsize0"] = fmt.Sprint(x)
-	//	s.metadata["partsize1"] = fmt.Sprint(y)
-	//	s.metadata["partsize2"] = fmt.Sprint(z)
 	s.input.partSizeSet = true
 	s.updateSizes()
 	s.invalidate()
@@ -75,18 +81,26 @@ func (s *Sim) PartSize(z, y, x float32) {
 
 
 func (s *Sim) Periodic(z, y, x int) {
-	s.periodic[X] = x
-	s.periodic[Y] = y
-	s.periodic[Z] = z
+	s.input.periodic[X] = x
+	s.input.periodic[Y] = y
+	s.input.periodic[Z] = z
 	s.invalidate()
 }
 
 // Input file may set only 2 values in the set {size, cellSize, partSize}. The last one is calculated here. It is an error to set all 3 of them.
 func (s *Sim) updateSizes() {
 	in := &s.input
+	defer s.invalidate()
 
-	if in.sizeSet && in.cellSizeSet && in.partSizeSet {
-		panic(InputErr("size, cellsize and partsize may not all be specified together. Specify any two of them and the third one will be calculated automatically."))
+	// Check if two of the four size options have been set
+	numset := 0
+	for _, set := range []bool{in.sizeSet, in.cellSizeSet, in.partSizeSet, in.maxCellSizeSet} {
+		if set {
+			numset++
+		}
+	}
+	if numset > 2 {
+		panic(InputErr("Exactly two of [size, cellsize, partsize, maxcellsize] must be specified"))
 	}
 
 	if in.sizeSet && in.cellSizeSet {
@@ -94,6 +108,7 @@ func (s *Sim) updateSizes() {
 			in.partSize[i] = float32(in.size[i]) * in.cellSize[i]
 		}
 		s.Println("Calculated part size:", in.partSize, " m")
+		return
 	}
 
 	if in.sizeSet && in.partSizeSet {
@@ -101,6 +116,7 @@ func (s *Sim) updateSizes() {
 			in.cellSize[i] = in.partSize[i] / float32(in.size[i])
 		}
 		s.Println("Calculated cell size:", in.cellSize, " m")
+		return
 	}
 
 	if in.cellSizeSet && in.partSizeSet {
@@ -108,60 +124,92 @@ func (s *Sim) updateSizes() {
 			in.size[i] = int((in.partSize[i] / in.cellSize[i]) + 0.5) // We round as good as possible, it is up to the user for partsize to be divisible by cellsize
 		}
 		s.Println("Calculated number of cells:", in.size)
+		return
 	}
 
-	s.invalidate()
+	// Find a gridsize that is suited for CUFFT and
+	// so that the cell size does not exceed maxCellSize by more than a few %. 
+	if in.maxCellSizeSet && in.partSizeSet {
+		for i := range in.partSize {
+			n := int(in.partSize[i] / (in.maxCellSize[i] * (1 + MAX_OVERSIZE)))
+			for !IsGoodGridSize(i, n) { // direction-dependent
+				n++
+			}
+			in.size[i] = n
+			in.cellSize[i] = in.partSize[i] / float32(in.size[i])
+		}
+		s.Println("Calculated number of cells:", in.size)
+		return
+	}
+
+	//panic(InputErr("A valid combination of [size, cellsize, partsize, maxcellsize] must be specified"))
+
+	// s.invalidate() deferred
 }
 
+// When calculating a suited grid size from a maximum cell size,
+// make cells at most this fraction bigger than the specified maximum.
+// (It's better to make them a few percent bigger than a factor 2 too small, e.g.)
+const MAX_OVERSIZE = 0.05
+
+// Returns the smallest power of two >= n
+func findPow2(n float32) int {
+	if n < 1.0 {
+		n = 1.0
+	}
+	return int(math.Pow(2, math.Ceil(math.Log2(float64(n)))))
+
+}
 
 // Sets the accuracy of edge corrections.
 // 0 means no correction.
 func (s *Sim) EdgeCorrection(accuracy int) {
-	s.edgeCorr = accuracy
+	s.input.edgeCorr = accuracy
 	s.invalidate()
 }
 
 
-func (sim *Sim) LoadMSat(file string) {
-	sim.allocNormMap()
-	sim.Println("Loading space-dependent saturation magnetization (norm)", file)
-	in, err := os.Open(file, os.O_RDONLY, 0666)
-	defer in.Close()
-	if err != nil {
-		panic(err)
-	}
-	norm := tensor.ToT3(tensor.Read(in))
-	if !tensor.EqualSize(norm.Size(), sim.normMap.Size()) {
-		norm = resample3(norm, sim.normMap.Size())
-	}
-	TensorCopyTo(norm, sim.normMap)
-	//TODO this should not invalidate the entire sim
-	sim.invalidate()
-}
+//func (sim *Sim) LoadMSat(file string) {
+//	sim.allocNormMap()
+//	sim.Println("Loading space-dependent saturation magnetization (norm)", file)
+//	in, err := os.Open(file, os.O_RDONLY, 0666)
+//	defer in.Close()
+//	if err != nil {
+//		panic(err)
+//	}
+//	norm := tensor.ToT3(tensor.Read(in))
+//	if !tensor.EqualSize(norm.Size(), sim.normMap.Size()) {
+//		norm = resample3(norm, sim.normMap.Size())
+//	}
+//	TensorCopyTo(norm, sim.normMap)
+//	sim.updateAvgNorm()
+//	//TODO this should not invalidate the entire sim
+//	sim.invalidate()
+//}
 
 var INF32 float32 = float32(math.Inf(1))
 
 // Sets up the normMap for a (possibly ellipsoidal) cylinder geometry along Z.
 // Does not take into account the aspect ratio of the cells.
-func (sim *Sim) Cylinder() {
-	sim.initSize()
-	sim.geom = &Ellipsoid{INF32, sim.input.partSize[Y] / 2., sim.input.partSize[Z] / 2.}
-	sim.invalidate()
-}
+//func (sim *Sim) Cylinder() {
+//	sim.initSize()
+//	sim.input.geom = &Ellipsoid{INF32, sim.input.partSize[Y] / 2., sim.input.partSize[Z] / 2.}
+//	sim.invalidate()
+//}
 
 func (sim *Sim) DotArray(r, sep float32, n int) {
 	pitch := 2*r + sep
-	sim.geom = &Array{&Ellipsoid{INF32, r, r}, n, n, pitch, pitch}
+	sim.input.geom = &Array{&Ellipsoid{INF32, r, r}, n, n, pitch, pitch}
 }
 
 func (sim *Sim) SquareHoleArray(r, sep float32, n int) {
 	pitch := 2*r + sep
-	sim.geom = &Inverse{&Array{&Cuboid{INF32, r, r}, n, n, pitch, pitch}}
+	sim.input.geom = &Inverse{&Array{&Cuboid{INF32, r, r}, n, n, pitch, pitch}}
 }
 
 
 func (sim *Sim) Ellipsoid(rz, ry, rx float32) {
-	sim.geom = &Ellipsoid{rx, ry, rz}
+	sim.input.geom = &Ellipsoid{rx, ry, rz}
 	sim.invalidate()
 }
 

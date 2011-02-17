@@ -125,7 +125,7 @@ func NewRK3(sim *Sim) *RK {
 // which can be used to implement adaptive step size.
 func NewRK23(sim *Sim) *RK {
 	rk := newRK(sim, 4)
-	rk.fsal = true 
+	rk.fsal = true
 	rk.c = []float32{0., 1. / 2., 3. / 4., 1.}
 	rk.a = [][]float32{
 		{0., 0., 0., 0.},
@@ -319,29 +319,29 @@ func (rk *RK) Step() {
 				rk.fsal_initiated = true
 			}
 
-				// After having calculated the first torque (k[0]),
-				// dt has not actually been used yet. This is the
-				// last chance to estimate whether the time step is too large
-				// and possibly reduce it
+			// After having calculated the first torque (k[0]),
+			// dt has not actually been used yet. This is the
+			// last chance to estimate whether the time step is too large
+			// and possibly reduce it
 			if i == 0 {
 				if rk.b2 == nil { // means no step control based on error estimate
-					rk.dt = rk.targetDt
+					rk.dt = rk.input.dt
 				}
 				assert(c[i] == 0)
 				maxTorque := rk.Reduce(k[0])
 				rk.Sim.torque = maxTorque // save centrally so it can be output
 				dm := rk.dt * maxTorque
 				// Do not make the magnetization step smaller than minDm
-				if dm < rk.minDm {
-					rk.dt = rk.minDm / maxTorque
+				if dm < rk.input.minDm {
+					rk.dt = rk.input.minDm / maxTorque
 				}
 				// Do not make the time step smaller than minDt
 				if rk.dt*rk.UnitTime() < rk.input.minDt {
 					rk.dt = rk.input.minDt / rk.UnitTime()
 				}
 				// maxDm has priority over minDm (better safe than sorry)
-				if rk.maxDm != 0 && dm > rk.maxDm {
-					rk.dt = rk.maxDm / maxTorque
+				if rk.input.maxDm != 0 && dm > rk.input.maxDm {
+					rk.dt = rk.input.maxDm / maxTorque
 				}
 				// maxDt has priority over minDt (better safe than sorry)
 				if rk.input.maxDt != 0. && rk.dt*rk.UnitTime() > rk.input.maxDt {
@@ -382,9 +382,9 @@ func (rk *RK) Step() {
 			rk.stepError = error
 
 			// calculate new step
-			assert(rk.maxError != 0.)
+			assert(rk.input.maxError != 0.)
 			//TODO: what is the pre-factor of the error estimate?
-			factor := float32(math.Pow(float64(rk.maxError/error), 1./rk.errororder))
+			factor := float32(math.Pow(float64(rk.input.maxError/error), 1./rk.errororder))
 
 			// do not increase by time step by more than 100%
 			if factor > 2. {
@@ -398,7 +398,7 @@ func (rk *RK) Step() {
 			rk.dt = rk.dt * factor
 			checkdt(rk.dt)
 			//undo bad steps
-			if error > 2*rk.maxError {
+			if error > 2*rk.input.maxError {
 				TensorCopyOn(rk.mbackup, m)
 				goodstep = false
 				//fmt.Println("bad step")

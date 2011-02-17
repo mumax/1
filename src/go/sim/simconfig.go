@@ -11,8 +11,9 @@ package sim
 // vortices, Landau patterns, etc.
 
 import (
+	. "mumax/common"
 	"rand"
-	"omf"
+	"mumax/omf"
 )
 
 
@@ -42,7 +43,7 @@ func (s *Sim) SetMCell(z, y, x int, mz, my, mx float32) {
 
 
 func (s *Sim) SetM(z, y, x float32, mz, my, mx float32) {
-	s.initSize()
+	s.initMLocal()
 	i := int((x/s.input.cellSize[X])*float32(s.input.size[X]) - (s.input.partSize[X] / 2.) + 0.5)
 	j := int((y/s.input.cellSize[Y])*float32(s.input.size[Y]) - (s.input.partSize[Y] / 2.) + 0.5)
 	k := int((z/s.input.cellSize[Z])*float32(s.input.size[Z]) - (s.input.partSize[Z] / 2.) + 0.5)

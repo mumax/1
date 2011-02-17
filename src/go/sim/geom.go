@@ -9,6 +9,7 @@ package sim
 // The Geom interface describes arbitrary geometries
 
 import (
+	. "mumax/common"
 	. "math"
 	"image/png"
 	"os"
@@ -165,8 +166,8 @@ func (im *Mask) Inside(x, y, z float32) bool {
 
 
 func (sim *Sim) Mask(image string) {
-	sim.initSize()
-	sim.geom = NewMask(image, sim.input.partSize[Y], sim.input.partSize[Z])
+	sim.initGridSize()
+	sim.input.geom = NewMask(image, sim.input.partSize[Y], sim.input.partSize[Z])
 }
 
 

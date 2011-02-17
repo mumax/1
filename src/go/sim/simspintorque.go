@@ -9,6 +9,10 @@ package sim
 // This file implements the methods for setting
 // spintorque parameters.
 
+import (
+	. "mumax/common"
+)
+
 // Sets the degree of non-adiabaticity (dimensionless)
 func (s *Sim) Xi(xi float32) {
 	s.xi = xi

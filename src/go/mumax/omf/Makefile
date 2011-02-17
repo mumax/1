@@ -1,19 +1,12 @@
 include $(GOROOT)/src/Make.inc
 PKGDIR=$(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 
-TARG=tensor
+TARG=mumax/omf
 
 GOFILES=\
-	tensor.go\
-	arrayslice.go\
-	iterator.go\
-	util.go\
-	vector.go\
 	input.go\
 	output.go\
-	math.go\
-	legacyio.go\
-	codec.go\
+	odt.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 

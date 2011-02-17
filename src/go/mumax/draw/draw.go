@@ -7,7 +7,7 @@
 package draw
 
 import (
-	"tensor"
+	"mumax/tensor"
 	. "image"
 	"image/png"
 	"math"

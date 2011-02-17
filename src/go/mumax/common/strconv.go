@@ -1,36 +1,32 @@
+//  This file is part of MuMax, a high-performance micromagnetic simulator
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-package iotool
+package common
 
-import (
-	"io"
-	"os"
+import(
+	"strconv"
 )
 
-// Blocks until all requested bytes are read.
-// Never returns an error but panics instead
-type SafeReader struct {
-	In io.Reader
-}
+// Safe wrappers for strconv, panic on illegal input
 
-
-func (r *SafeReader) Read(p []byte) (n int, err os.Error) {
-	n, err = r.In.Read(p)
+// Safe strconv.Atof32
+func Atof32(s string) float32 {
+	f, err := strconv.Atof32(s)
 	if err != nil {
-		panic(err)
+		panic(InputErr(err.String()))
 	}
-	if n < len(p) {
-		r.Read(p[n:])
-	}
-	n = len(p)
-	return
+	return f
 }
 
-
-func NewSafeReader(in io.Reader) *SafeReader {
-	return &SafeReader{in}
+// Safe strconv.Atoi
+func Atoi(s string) int {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		panic(InputErr(err.String()))
+	}
+	return i
 }

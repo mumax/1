@@ -4,22 +4,31 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any 
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-package iotool
+package tensor
+
 
 import (
 	"testing"
-	"os"
-	"fmt"
 )
 
-func TestReadline(test *testing.T) {
-	in, err := os.Open("test.in", os.O_RDONLY, 0666)
-	if err != nil {
-		test.Fail()
-		return
+func TestComponent(test *testing.T) {
+	size4 := []int{3, 4, 5, 6}
+	t := NewT4(size4)
+	for i := range t.TArray {
+		t.TArray[i][0][0][0] = float32(i)
 	}
-
-	for line, eof := ReadLine(in); !eof; line, eof = ReadLine(in) {
-		fmt.Println(line)
+	c := Component(t, 1)
+	if Rank(c) != 3 {
+		test.Fail()
+	}
+	if c.TList[0] != 1 {
+		test.Fail()
+	}
+	c1 := Component1(t, 1)
+	if Rank(c1) != 4 {
+		test.Fail()
+	}
+	if c1.TList[0] != 1 {
+		test.Fail()
 	}
 }

@@ -7,6 +7,7 @@
 package sim
 
 import (
+	. "mumax/common"
 	"flag"
 	"os"
 	"fmt"
@@ -37,9 +38,9 @@ var DAEMON_STARTTIME int64 = time.Nanoseconds()
 func DaemonMain() {
 	DAEMON_WATCHTIME = *watch
 	sleeping := false
-	fmt.Println(DAEMON_PREFIX, "Input files should end with .in and the corresponding .out directory should not yet exist.", DAEMON_SUFFIX)
+	Println(DAEMON_PREFIX, "Input files should end with", known_extensions, "and the corresponding .out directory should not yet exist.", DAEMON_SUFFIX)
 	if *walltime > 0 {
-		fmt.Println(DAEMON_PREFIX, "Daemon will exit after ", *walltime, " hours (but running simulations will not be aborted).", DAEMON_SUFFIX)
+		Println(DAEMON_PREFIX, "Daemon will exit after ", *walltime, " hours (but running simulations will not be aborted).", DAEMON_SUFFIX)
 	}
 
 	// ------------- setup watchdirs -----------------------
@@ -59,7 +60,7 @@ func DaemonMain() {
 	for {
 		// check walltime
 		if *walltime > 0 && time.Nanoseconds()-DAEMON_STARTTIME > int64(*walltime)*1e9*3600 {
-			fmt.Println(DAEMON_PREFIX, "Reached maximum walltime: exiting", DAEMON_SUFFIX)
+			Println(DAEMON_PREFIX, "Reached maximum walltime: exiting", DAEMON_SUFFIX)
 			os.Exit(0)
 		}
 		infile := findInputFileAll(watchdirs)
@@ -67,13 +68,13 @@ func DaemonMain() {
 		if infile == "" {
 			// When not periodically watching for new files: exit
 			if DAEMON_WATCHTIME == 0 {
-				fmt.Println(DAEMON_PREFIX, "No new input files and -watch=0: exiting", DAEMON_SUFFIX)
+				Println(DAEMON_PREFIX, "No new input files and -watch=0: exiting", DAEMON_SUFFIX)
 				os.Exit(0)
 			}
 			// When periodically wathcing for new input files:
 			// Say we are watching, but only once (not every N seconds which would be annoying)
 			if !sleeping {
-				fmt.Println(DAEMON_PREFIX, "Looking for new input files every ", DAEMON_WATCHTIME, " seconds", DAEMON_SUFFIX)
+				Println(DAEMON_PREFIX, "Looking for new input files every ", DAEMON_WATCHTIME, " seconds", DAEMON_SUFFIX)
 			}
 			sleeping = true
 			// Then wait for N seconds and re-check for new files
@@ -89,7 +90,7 @@ func DaemonMain() {
 
 // Start the simulation file
 func daemon_startsim(file string) {
-	fmt.Println(DAEMON_PREFIX, "Starting simulation: ", file, DAEMON_SUFFIX)
+	Println(DAEMON_PREFIX, "Starting simulation: ", file, DAEMON_SUFFIX)
 
 	// We try to create the output directory before starting the simulation.
 	// This acts as a synchronization mechanism between multiple daemons:
@@ -99,10 +100,11 @@ func daemon_startsim(file string) {
 	err := os.Mkdir(outfile, 0777)
 	// if the directory already exists, then another daemon had already started the simulation in the meanwhile
 	// TODO: we should check if the error really is a "file exists"
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return
-	}
+	CheckErr(err, ERR_IO)
+	//if err != nil {
+	//	fmt.Fprintln(os.Stderr, err)
+	//	return
+	//}
 
 	//	wd, err3 := os.Getwd()
 	//	if err3 != nil {
@@ -114,18 +116,20 @@ func daemon_startsim(file string) {
 	args := passthrough_cli_args()
 	args = append(args, file)
 
-	fmt.Println(DAEMON_PREFIX, "exec ", cmdstr, []string(args), DAEMON_SUFFIX)
+	Println(DAEMON_PREFIX, "exec ", cmdstr, []string(args), DAEMON_SUFFIX)
 	cmd, err2 := subprocess(cmdstr, args, exec.PassThrough, exec.PassThrough, exec.MergeWithStdout)
-	if err2 != nil {
-		fmt.Fprintln(os.Stderr, err2)
-	} else {
-		_, err4 := cmd.Wait(0)
-		if err4 != nil {
-			fmt.Fprintln(os.Stderr, err4)
-		} else {
-			fmt.Println(DAEMON_PREFIX, "Finished simulation ", file, DAEMON_SUFFIX)
-		}
-	}
+	CheckErr(err2, ERR_SUBPROCESS)
+	//if err2 != nil {
+	//	fmt.Fprintln(os.Stderr, err2)
+	//} else {
+	_, err4 := cmd.Wait(0)
+	CheckErr(err4, ERR_SUBPROCESS)
+	//if err4 != nil {
+	//	fmt.Fprintln(os.Stderr, err4)
+	//} else {
+	Println(DAEMON_PREFIX, "Finished simulation ", file, DAEMON_SUFFIX)
+	//}
+	//}
 }
 
 
@@ -139,6 +143,7 @@ func passthrough_cli_args() (args []string) {
 	args = append(args, fmt.Sprint("-threads=", *threads))
 	args = append(args, fmt.Sprint("-patient=", *patient))
 	args = append(args, fmt.Sprint("-wisdom=", *wisdir))
+	args = append(args, fmt.Sprint("-updatedisp=", *updatedb))
 	return
 }
 
@@ -181,7 +186,7 @@ func findInputFile(dir string) string {
 	// First look for input files in the top-level directory...
 	for _, info := range fileinfo {
 		file := dir + "/" + info.Name
-		if strings.HasSuffix(file, ".in") && !contains(fileinfo, RemoveExtension(RemovePath(file))+".out") {
+		if has_known_extension(file) && !contains(fileinfo, RemoveExtension(RemovePath(file))+".out") {
 			return file
 		}
 	}

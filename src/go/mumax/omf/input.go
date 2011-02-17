@@ -7,9 +7,9 @@
 package omf
 
 import (
+	. "mumax/common"
+	"mumax/tensor"
 	"io"
-	"tensor"
-	"iotool"
 	. "strings"
 	"bufio"
 	"fmt"
@@ -18,18 +18,14 @@ import (
 )
 
 
-// func (c *OmfCodec) Decode(in_ io.Reader) (t *tensor.T4, metadata map[string]string) {
-// 	return Decode(in_)
-// }
-
 func FRead(filename string) (info *Info, data *tensor.T4) {
-	in := iotool.MustOpenRDONLY(filename)
+	in := MustOpenRDONLY(filename)
 	info, data = Read(in)
 	return
 }
 
 func Read(in_ io.Reader) (info *Info, data *tensor.T4) {
-	in := iotool.NewSafeReader(bufio.NewReader(in_))
+	in := NewBlockingReader(bufio.NewReader(in_))
 	info = ReadHeader(in)
 
 	size := []int{3, info.Size[Z], info.Size[Y], info.Size[X]}
@@ -184,7 +180,7 @@ func ReadHeader(in io.Reader) *Info {
 	info := new(Info)
 	info.Desc = desc
 
-	line, eof := iotool.ReadLine(in)
+	line, eof := ReadLine(in)
 	for !eof && !isHeaderEnd(line) {
 		key, value := parseHeaderLine(line)
 
@@ -216,7 +212,7 @@ func ReadHeader(in io.Reader) *Info {
 			desc[desc_key] = desc_value
 		}
 
-		line, eof = iotool.ReadLine(in)
+		line, eof = ReadLine(in)
 	}
 	// the remaining line should now be the begin:data clause
 	key, value := parseHeaderLine(line)

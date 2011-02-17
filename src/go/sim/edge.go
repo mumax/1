@@ -7,7 +7,8 @@
 package sim
 
 import (
-	"tensor"
+	. "mumax/common"
+	"mumax/tensor"
 )
 
 
@@ -22,14 +23,14 @@ func (s *Sim) initGeom() {
 
 	s.initMLocal() // inits sizes etc.
 
-	if s.geom == nil {
+	if s.input.geom == nil {
 		s.Println("Square geometry")
 		return
 	}
 
 	s.initNormMap()
 
-	edgeCorr := pow(2, s.edgeCorr)
+	edgeCorr := pow(2, s.input.edgeCorr)
 	if edgeCorr == 1 {
 		return
 	}
@@ -82,7 +83,7 @@ func (s *Sim) initGeom() {
 						for sk := 0; sk < edgeCorr; sk++ {
 							zs := (float32(k*edgeCorr+sk)+.5)*(s.input.partSize[Z]/float32(sizez*edgeCorr)) - 0.5*(s.input.partSize[Z])
 
-							insideCache[si][sj][sk] = s.geom.Inside(xs, ys, zs)
+							insideCache[si][sj][sk] = s.input.geom.Inside(xs, ys, zs)
 						}
 					}
 				}
@@ -142,7 +143,7 @@ func (s *Sim) initNormMap() {
 	// Even without edge corrections it is good to have soft (antialiased) edges
 	// Normally we use the same subsampling accuracy as required by the edge corrections,
 	// but when edgecorrection==0, we use a default smoothness.
-	softness := s.edgeCorr
+	softness := s.input.edgeCorr
 	if softness == 0 {
 		softness = 0 // TODO Temporarily put softness to 0 as long as dynamics of unnormalized spins are not fixed
 		s.Println("Using default edge smoothness: 2^", softness)
@@ -168,7 +169,7 @@ func (s *Sim) initNormMap() {
 			for k := 0; k < sizez; k++ {
 				z := (float32(k)+.5)*(s.input.partSize[Z]/float32(sizez)) - 0.5*(s.input.partSize[Z])
 
-				if s.geom.Inside(x, y, z) {
+				if s.input.geom.Inside(x, y, z) {
 					norm.Array()[i/refine][j/refine][k/refine] += 1. / refine3
 				}
 
@@ -176,6 +177,19 @@ func (s *Sim) initNormMap() {
 		}
 	}
 	TensorCopyTo(norm, s.normMap)
+	s.updateAvgNorm()
+}
+
+
+// Updates the average magnetization norm
+// Needed to correctly calculate <m> when some cells are missing.
+func (s *Sim) updateAvgNorm() {
+	l := s.normLocal.List()
+	var avg float64
+	for _, n := range l {
+		avg += float64(n)
+	}
+	s.avgNorm = float32(avg)
 }
 
 

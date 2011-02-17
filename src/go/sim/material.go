@@ -8,8 +8,6 @@ package sim
 
 import (
 	. "math"
-	"fmt"
-	"os"
 )
 
 type Material struct {
@@ -30,39 +28,6 @@ type Material struct {
 // 	mat.InitMaterial()
 // 	return mat
 // }
-
-func (s *Sim) InitMaterial() {
-	s.Println("Initializing material parameters")
-	s.mu0 = 4.0E-7 * Pi
-	s.gamma0 = 2.211E5
-	s.muB = 9.2740091523E-24
-	s.e = 1.60217646E-19
-	s.spinPol = DEFAULT_SPIN_POLARIZATION
-	// even when not used, these arrays should be allocated:
-	// they may be passed to C even when they are ignored there
-	//s.anisK = make([]float32, 1)
-	//s.anisAxes = make([]float32, 1)
-
-	if s.input.msat == 0. {
-		s.Errorln("Saturation magnetization should first be set. E.g. msat 800E3")
-		os.Exit(-6)
-	}
-	s.mSat = s.input.msat
-
-	if s.input.aexch == 0. {
-		s.Errorln("Exchange constant should first be set. E.g. aexch 12E-13")
-		os.Exit(-6)
-	}
-	s.aExch = s.input.aexch
-
-	if s.alpha <= 0. {
-		s.Warn("Damping parameter alpha =  ", s.alpha)
-	}
-
-	s.desc["msat"] = fmt.Sprint(s.mSat)
-	s.desc["aexch"] = fmt.Sprint(s.aExch)
-	s.desc["alpha"] = fmt.Sprint(s.alpha)
-}
 
 
 //  Units:
