@@ -284,7 +284,7 @@ void write_tensor(tensor* t, FILE* out){
 void write_tensor_fname(tensor* t, char* filename){
   FILE* file = fopen(filename, "wb");
   if(file == NULL){
-    fprintf(stderr, "Could not write file: %s", filename);
+    fprintf(stderr, "Could not write file: %s\n", filename);
     abort();
   }
   write_tensor(t, file);
@@ -292,8 +292,12 @@ void write_tensor_fname(tensor* t, char* filename){
 }
 
 
+/// First 32-bit word of tensor blob. Identifies the format. Little-endian ASCII for "#t1\n"
+#define T_MAGIC 0x0A317423
+
 void write_tensor_pieces(int rank, int* size, float* list, FILE* out){
-  int length = 1;
+  write_int(T_MAGIC, out);
+  size_t length = 1;
   for(int i=0; i<rank; i++){
     length *= size[i];
   }  
@@ -301,8 +305,12 @@ void write_tensor_pieces(int rank, int* size, float* list, FILE* out){
   for(int i=0; i<rank; i++){
     write_int(size[i], out);
   }
-  fwrite(list, sizeof(float), length, out);
-  // todo: error handling
+  size_t written = fwrite(list, sizeof(float), length, out);
+  //error handling
+  if(written != length){
+    fprintf(stderr, "Could not write tensor data\n");
+    abort();
+  }
 }
 
 
@@ -378,7 +386,7 @@ tensor* read_tensor(FILE* in){
 tensor* read_tensor_fname(char* filename){
   FILE* file = fopen(filename, "rb");
   if(file == NULL){
-    fprintf(stderr, "Could not read file: %s", filename);
+    fprintf(stderr, "Could not read file: %s\n", filename);
     abort();
   }
   tensor* t = read_tensor(file);
@@ -388,7 +396,11 @@ tensor* read_tensor_fname(char* filename){
 
 
 void read_tensor_pieces(int* rank, int** size, float** list, FILE* in){
-  //fread(rank, sizeof(int32_t), 1, in);
+  int magic = read_int(in);
+  if(magic != T_MAGIC){
+	fprintf(stderr, "Bad tensor header: %x\n", magic);
+	abort();
+  }
   (*rank) = read_int(in);
   (*size) = (int*)safe_calloc(*rank, sizeof(int));
   for(int i=0; i<(*rank); i++){
