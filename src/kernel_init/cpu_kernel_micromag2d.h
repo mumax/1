@@ -14,12 +14,6 @@ extern "C" {
 #endif
 
                              
-typedef struct{
-  float *cellSize, *temp, *qd_P_10, *qd_W_10;
-  int *Nkernel, *repetition; 
-  int co1, co2;
-} _cpu_init_kernel_elements_micromag2d_arg;
-
 /**
  * Initializes the micromagnetic 2D kernel elements defined by 'co1, co2'.
  * The kernel element is written to stdout in tensor format.
@@ -34,7 +28,7 @@ void cpu_init_kernel_elements_micromag2d(int co1,               ///< defines the
 /**
  * Computes all elements of the micromagnetic 2D kernel component defined by 'co1, co2'.
  */
-void _cpu_init_Greens_kernel_elements_micromag2d(float *data,     		 ///< pointer to the temporary memory space on the device to store all elements of a given Greens tensor component
+void _cpu_init_kernel_elements_micromag2d(float *data,     		 ///< pointer to the temporary memory space on the device to store all elements of a given Greens tensor component
                                                  int *Nkernel,      	 ///< Non-strided size of the kernel data (x,y,z-direction) 
                                                  int co1, 						 ///< co1 and co2 define the requested Greens tensor component: e.g. co1=1, co2=2 defines gyz
                                                  int co2, 						 ///< co1 and co2 define the requested Greens tensor component: e.g. co1=1, co2=2 defines gyz

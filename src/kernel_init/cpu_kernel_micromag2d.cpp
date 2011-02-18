@@ -31,6 +31,12 @@ void cpu_init_kernel_elements_micromag2d(int co1, int co2, int *kernelSize, floa
 }
 
 
+typedef struct{
+  float *cellSize, *data, *qd_P_10, *qd_W_10;
+  int *Nkernel, *repetition; 
+  int co1, co2;
+} _cpu_init_kernel_elements_micromag2d_arg;
+
 
 float _cpu_get_kernel_element_micromag2d(_cpu_init_kernel_elements_micromag2d_arg *arg, int b, int c){
 
@@ -207,19 +213,19 @@ void _cpu_init_kernel_elements_micromag2d_t(int id){
   int N2 = arg->Nkernel[Z];
   for (int j=start; j<stop; j++)
     for (int k=0; k<N2/2; k++){
-        arg->data[             j*N2 +            k] = _cpu_get_kernel_element_micromag2d(arg, j, k);
+        arg->data[                  j*N2 +                 k] = _cpu_get_kernel_element_micromag2d(arg, j, k);
       if (j>0)
-        arg->data[(Nkernel[Y]-j)*N2 +            k] = _cpu_get_kernel_element_micromag2d(arg, -j, k);
+        arg->data[(arg->Nkernel[Y]-j)*N2 +                 k] = _cpu_get_kernel_element_micromag2d(arg, -j, k);
       if (k>0) 
-        arg->data[             j*N2 + Nkernel[Z]-k] = _cpu_get_kernel_element_micromag2d(arg, j, -k);
+        arg->data[                  j*N2 + arg->Nkernel[Z]-k] = _cpu_get_kernel_element_micromag2d(arg, j, -k);
       if (j>0 && k>0) 
-        arg->data[(Nkernel[Y]-j)*N2 + Nkernel[Z]-k] = _cpu_get_kernel_element_micromag2d(arg, -j, -k);
+        arg->data[(arg->Nkernel[Y]-j)*N2 + arg->Nkernel[Z]-k] = _cpu_get_kernel_element_micromag2d(arg, -j, -k);
     }
     
   return;
 }
 
-void _cpu_init_kernel_elements_micromag2d(float *data, int *Nkernel, int co1, int co2, float *cellSize, int *repetition, qd_P_10, qd_W_10){
+void _cpu_init_kernel_elements_micromag2d(float *data, int *Nkernel, int co1, int co2, float *cellSize, int *repetition, float *qd_P_10, float *qd_W_10){
 
   _cpu_init_kernel_elements_micromag2d_arg args;
 
