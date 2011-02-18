@@ -99,8 +99,9 @@ type Sim struct {
 	//mLocalLock     sync.RWMutex
 	mUpToDate bool // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
 
-	Conv             // Convolution plan for the magnetostatic field
-	wisdomdir string // Absolute path of the kernel wisdom root directory
+	Conv              // Convolution plan for the magnetostatic field
+	exchInConv bool   // Exchange included in convolution?
+	wisdomdir  string // Absolute path of the kernel wisdom root directory
 
 	Material // Stores material parameters and manages the internal units
 	Mesh     // Stores the size of the simulation grid
@@ -184,6 +185,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.input.anisKSI = []float32{0.} // even when not used these must be allocated
 	sim.input.anisAxes = []float32{0.}
 	sim.input.kernelType = DEFAULT_KERNELTYPE
+	sim.exchInConv = true
 	sim.invalidate() //just to make sure we will init()
 	return sim
 }

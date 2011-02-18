@@ -27,6 +27,12 @@ func (s *Sim) KernelType(command string) {
 	s.invalidate()
 }
 
+// Override if exchange should be included in convolution. Mainly intended for debugging.
+func (s *Sim) ExchInConv(exchInConv bool) {
+	s.exchInConv = exchInConv
+	s.invalidate()
+}
+
 // Apply a static field defined in Tesla
 func (s *Sim) StaticField(hz, hy, hx float32) {
 	s.AppliedField = &staticField{[3]float32{hx, hy, hz}} // pass it on in Tesla so that it stays independent of other problem parameters
@@ -159,14 +165,14 @@ func (s *Sim) DemagAccuracy(accuracy int) {
 
 // Calculates the effective field of m and stores it in h
 func (s *Sim) calcHeff(m, h *DevTensor) {
-	// (1) Self-magnetostatic field
+	// (1) Self-magnetostatic field and exchange
 	// The convolution may include the exchange field
 	s.Convolve(m, h)
+	if !s.exchInConv {
+		s.AddExch(m, h)
+	}
 
 	// (2) Add the externally applied field
-
-	//hComp := h.comp
-
 	if s.AppliedField != nil {
 		s.hextSI = s.GetAppliedField(s.time * float64(s.UnitTime()))
 	} else {

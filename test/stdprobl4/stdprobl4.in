@@ -2,6 +2,7 @@
 
 desc:  	description standard_problem_4
 kerneltype mumaxkern-go
+exchinconv false
 
 # material
 msat       	800E3   
