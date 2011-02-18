@@ -9,6 +9,7 @@
 
 int main(int argc, char** argv){
 
+  fprintf(stderr, "Kernel initialization: GPU\n");
   if(argc != 11){
     fprintf(stderr, "Kernel initialization needs 11 command-line arguments.\n");
 	abort();
