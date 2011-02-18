@@ -10,7 +10,6 @@ extern "C" {
 ///@todo Not correct at the edges with a normmap!
 
 
-
 /// 2D, plane per plane, i=plane index
 __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
                                        float* hx, float* hy, float* hz,
