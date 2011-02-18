@@ -9,12 +9,9 @@
 
 int main(int argc, char** argv){
 
-//  int co1 = atoi(argv[1]);
-//  int co2 = atoi(argv[2]);
-
   fprintf(stderr, "Kernel initialization: CPU\n");
   if(argc != 11){
-    fprintf(stderr, "Kernel initialization needs 11 command-line arguments.\n");
+    fprintf(stderr, "Kernel initialization needs 10 command-line arguments.\n");
 	abort();
   }
   int kernelSize[3];

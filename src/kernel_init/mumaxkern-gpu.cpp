@@ -11,7 +11,7 @@ int main(int argc, char** argv){
 
   fprintf(stderr, "Kernel initialization: GPU\n");
   if(argc != 11){
-    fprintf(stderr, "Kernel initialization needs 11 command-line arguments.\n");
+    fprintf(stderr, "Kernel initialization needs 10 command-line arguments.\n");
 	abort();
   }
   int kernelSize[3];
@@ -37,8 +37,7 @@ int main(int argc, char** argv){
   repetition[1] = atoi(argv[8]);
   repetition[2] = atoi(argv[9]);
   
-  //int Nthreads = atoi(argv[10]);
-  //init_Threads(int Nthreads);
+  //int Nthreads = atoi(argv[10]);// not used for now but here for uniformity with CPU
 
   if (kernelType==-1){
     fprintf(stderr, "In kernel initialization: wrong cell size: kernel type could not be recognized\n");
