@@ -202,6 +202,9 @@ void gpu_init_kernel_elements_micromag2d(int co1, int co2, int *kernelSize, floa
 
   cudaFree (dev_qd_W_10);
   cudaFree (dev_qd_P_10);
+  
+  float *cpu_data = (float *) calloc(kernelN, sizeof(float));
+  memcpy_from_gpu(data, cpu_data, kernelN);
 
   //Arne: copy to local memory
   float* localdata = new_cpu_array(kernelN);
