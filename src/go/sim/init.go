@@ -246,12 +246,14 @@ func (s *Sim) initConv() {
 	}
 
 	// Add Exchange kernel to demag kernel
-	for i := range demag {
-		if demag[i] != nil { // Unused components are nil
-			D := demag[i].List()
-			E := exch[i].List()
-			for j := range D {
-				D[j] += E[j]
+	if s.exchInConv {
+		for i := range demag {
+			if demag[i] != nil { // Unused components are nil
+				D := demag[i].List()
+				E := exch[i].List()
+				for j := range D {
+					D[j] += E[j]
+				}
 			}
 		}
 	}
