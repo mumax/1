@@ -16,7 +16,7 @@ solvertype rk23
 #maxdm 0.25
 
 # geometry 
-gridsize       	128 	64 	1    
+gridsize       	256 	64 	1    
 partsize   	500E-9  125E-9  3E-9
 demagaccuracy	16
 
