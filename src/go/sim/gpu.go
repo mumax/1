@@ -13,8 +13,8 @@ import "C"
 import "unsafe"
 import "runtime"
 
-// This single file intefaces all the relevant CUDA func(d Gpu) tions with go
-// It only wraps the func(d Gpu) tions, higher level constructs and assetions
+// This single file interfaces all the relevant CUDA functions with go
+// It only wraps the functions, higher level constructs and assertions
 // are in separate files like fft.go, ...
 //
 // NOTE cgo does not seem to like many cgofiles, so I put everything together here.
@@ -116,7 +116,7 @@ func (d Gpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []
 }
 
 func (d Gpu) addExch(m, h uintptr, size, periodic []int, exchType int) {
-	panic("unimplemented")
+	C.gpu_add_exch((*C.float)(unsafe.Pointer(m)),(*C.float)(unsafe.Pointer(h)), C.int(size[0]),C.int(size[1]),C.int(size[2]), C.int(periodic[0]), C.int(periodic[1]), C.int(periodic[2]), C.int(exchType ))
 }
 
 // func (d Gpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {
