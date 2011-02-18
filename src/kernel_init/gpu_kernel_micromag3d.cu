@@ -412,9 +412,13 @@ void gpu_init_kernel_elements_micromag3d(int co1, int co2, int *kernelSize, floa
   cudaFree (dev_qd_W_10);
   cudaFree (dev_qd_P_10);
 
-  write_tensor_pieces(3, kernelSize, data, stdout);
+  float *cpu_data = (float *) calloc(kernelN, sizeof(float));
+  memcpy_from_gpu(data, cpu_data, kernelN);
+
+  write_tensor_pieces(3, kernelSize, cpu_data, stdout);
   cudaFree (data);
-  
+  free(cpu_data);
+
   return;
 }
 
