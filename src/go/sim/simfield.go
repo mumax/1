@@ -21,7 +21,7 @@ import (
 //                                                                      what is (X,Y,Z) internally becomes (Z,Y,X) for the user!
 
 // Choose the kernel type (command for subprogram, e.g., mumaxkern-go). Mainly intended for debugging.
-func(s *Sim) KernelType(command string){
+func (s *Sim) KernelType(command string) {
 	s.input.kernelType = command
 	s.invalidate()
 }
