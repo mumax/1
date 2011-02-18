@@ -17,5 +17,13 @@ func TestIsFinite(t *testing.T){
 
 	if !IsReal(0.) {t.Fail()}
 	if !IsReal(1.) {t.Fail()}
-	if IsReal(zero/ {t.Fail()}
+	if IsReal(zero/zero) {t.Fail()}
+	if IsReal(one/zero) {t.Fail()}
+	if IsReal(-one/zero) {t.Fail()}
+
+	if IsFinite(0.) {t.Fail()}
+	if !IsFinite(1.) {t.Fail()}
+	if IsFinite(zero/zero) {t.Fail()}
+	if IsFinite(one/zero) {t.Fail()}
+	if IsFinite(-one/zero) {t.Fail()}
 }

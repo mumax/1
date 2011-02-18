@@ -12,6 +12,7 @@ package sim
 import (
 	"os"
 	"exec"
+	"fmt"
 )
 
 // Wrapper for exec.Run.
@@ -31,6 +32,7 @@ func subprocess(command string, args []string, stdin, stdout, stderr int) (cmd *
 		return
 	}
 
+	fmt.Fprintln(os.Stderr, "exec ", allargs)
 	cmd, err = exec.Run(command, allargs, os.Environ(), wd, stdin, stdout, stderr)
 	return
 }
