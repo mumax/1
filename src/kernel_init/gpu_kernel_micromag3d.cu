@@ -416,7 +416,8 @@ void gpu_init_kernel_elements_micromag3d(int co1, int co2, int *kernelSize, floa
   //Arne: copy to local memory
   float* localdata = new_cpu_array(kernelN);
   memcpy_from_gpu(data, localdata, kernelN);
-  write_tensor_pieces(3, kernelSize, localdata, stdout);
+  print_tensor(as_tensorN(localdata, 3, kernelSize));
+  //write_tensor_pieces(3, kernelSize, localdata, stdout);
   free_gpu_array (data);
   free_cpu_array(localdata);	
   
