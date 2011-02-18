@@ -13,23 +13,23 @@ import (
 )
 
 
-/**
- * 6-Neighbor exchange kernel
- *
- * Note on self-contributions and the energy density:
- *
- * Contributions to H_eff that are parallel to m do not matter.
- * They do not influnce the dynamics and only add a constant term to the energy.
- * Therefore, the self-contribution of the exchange field can be neglected. This
- * term is -N*m for a cell in a cubic grid, with N the number of neighbors.
- * By neglecting this term, we do not need to take into account boundary conditions.
- * Because the interaction can then be written as a convolution, we can simply
- * include it in the demag convolution kernel and we do not need a separate calculation
- * of the exchange field anymore: an elegant and efficient solution.
- * The dynamics are still correct, only the total energy is offset with a constant
- * term compared to the usual - M . H. Outputting H_eff becomes less useful however,
- * it's better to look at torques. Away from the boundaries, H_eff is as usual.
- */
+// 6-Neighbor exchange kernel
+//
+// Note on self-contributions and the energy density:
+//
+// Contributions to H_eff that are parallel to m do not matter.
+// They do not influence the dynamics and only add a constant term to the energy.
+// Therefore, the self-contribution of the exchange field can be neglected. This
+// term is -N*m for a cell in a cubic grid, with N the number of neighbors.
+// By neglecting this term, we do not need to take into account boundary conditions.
+// Because the interaction can then be written as a convolution, we can simply
+// include it in the demag convolution kernel and we do not need a separate calculation
+// of the exchange field anymore: an elegant and efficient solution.
+// The dynamics are still correct, only the total energy is offset with a constant
+// term compared to the usual - M . H. Outputting H_eff becomes less useful however,
+// it's better to look at torques. Away from the boundaries, H_eff is as usual.
+//
+// TODO: add to existing kernel instead of freshly allocating.
 func Exch6NgbrKernel(size []int, cellsize []float32) []*tensor.T3 {
 	k := make([]*tensor.T3, 6)
 	for i := range k {
@@ -51,7 +51,9 @@ func Exch6NgbrKernel(size []int, cellsize []float32) []*tensor.T3 {
 	return k
 }
 
-
+// See Donahue, M. J. & Porter, D. G.
+// Exchange energy formulations for 3D micromagnetics
+// Physica B-condensed Matter, 2004, 343, 177-183
 func Exch26NgbrKernel(size []int, cellsize []float32) []*tensor.T3 {
 	k := make([]*tensor.T3, 6)
 	for i := range k {

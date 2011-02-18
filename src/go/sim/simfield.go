@@ -159,14 +159,14 @@ func (s *Sim) DemagAccuracy(accuracy int) {
 
 // Calculates the effective field of m and stores it in h
 func (s *Sim) calcHeff(m, h *DevTensor) {
-	// (1) Self-magnetostatic field
+	// (1) Self-magnetostatic field and exchange
 	// The convolution may include the exchange field
 	s.Convolve(m, h)
-
+	if !s.exchInConv{
+		s.AddExch(m, h)
+	}
+	
 	// (2) Add the externally applied field
-
-	//hComp := h.comp
-
 	if s.AppliedField != nil {
 		s.hextSI = s.GetAppliedField(s.time * float64(s.UnitTime()))
 	} else {
