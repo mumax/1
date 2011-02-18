@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "gpu_kernel_micromag3d.h"
 #include "gpukern.h"
+#include "cpu_mem.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -412,8 +413,12 @@ void gpu_init_kernel_elements_micromag3d(int co1, int co2, int *kernelSize, floa
   cudaFree (dev_qd_W_10);
   cudaFree (dev_qd_P_10);
 
-  write_tensor_pieces(3, kernelSize, data, stdout);
-  cudaFree (data);
+  //Arne: copy to local memory
+  float* localdata = new_cpu_array(kernelN);
+  memcpy_from_gpu(data, localdata, kernelN);
+  write_tensor_pieces(3, kernelSize, localdata, stdout);
+  free_gpu_array (data);
+  free_cpu_array(localdata);	
   
   return;
 }

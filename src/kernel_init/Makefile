@@ -2,13 +2,13 @@ include ../../common.mk
 
 CFLAGS+=-I../cpukern -I../tensor -L../../lib -I../../lib/fftw/include
 
-NVCCFLAGS+=-I../gpukern -I../tensor -L../../lib
+NVCCFLAGS+=-I../cpukern -I../gpukern -I../tensor -L../../lib
 
 all: mumaxkern-gpu mumaxkern-cpu
 
 
 mumaxkern-gpu: gpu_kernel_micromag2d.o gpu_kernel_micromag3d.o mumaxkern-gpu.o
-	$(CPP) $(CFLAGS) -lgpukern $(OFILES) ../tensor/tensor.o gpu_kernel_micromag2d.o gpu_kernel_micromag3d.o mumaxkern-gpu.o -o mumaxkern-gpu
+	$(CPP) $(CFLAGS) -lcpukern -lgpukern $(OFILES) ../tensor/tensor.o gpu_kernel_micromag2d.o gpu_kernel_micromag3d.o mumaxkern-gpu.o -o mumaxkern-gpu
 	cp -f mumaxkern-gpu ../../bin
 
 mumaxkern-cpu: cpu_kernel_micromag2d.o cpu_kernel_micromag3d.o mumaxkern-cpu.o
