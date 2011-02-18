@@ -99,11 +99,22 @@ void thread_done(){
 
 void init_start_stop(int *start, int *stop, int id, int N){
 
-  *start = id * N/T_data->N_threads;
-  if (id!=T_data->N_threads-1)
-    *stop = (id+1) * N/T_data->N_threads;
-  else
-    *stop = N;
+  if (N<T_data->N_threads)
+    if (id<N){
+      *start = id;
+      *stop = id+1;
+    }
+    else{
+      *start = 0;
+      *stop = -1;
+    }      
+  else{  
+    *start = id * N/T_data->N_threads;
+    if (id!=T_data->N_threads-1)
+      *stop = (id+1) * N/T_data->N_threads;
+    else
+      *stop = N;
+  }
 
   return;
 }

@@ -14,7 +14,7 @@ NVCC=nvcc
 CFLAGS+=\
   -Wall\
   -fPIC\
-  -O3\
+  -g\
   -Werror\
 
 # Flags to be passed to NVCC
