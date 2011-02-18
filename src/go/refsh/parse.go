@@ -56,11 +56,23 @@ func parseArg(arg string, argtype Type) Value {
 		return NewValue(parseFloat32(arg))
 	case "float64":
 		return NewValue(parseFloat64(arg))
+	case "bool":
+		return NewValue(parseBool(arg))
 	case "string":
 		return NewValue(arg)
 	}
 	panic("Bug") // is never reached.
 	return NewValue(666)
+}
+
+// INTERNAL
+func parseBool(str string) bool {
+	i, err := strconv.Atob(str)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Could not parse to bool:", str)
+		os.Exit(-3)
+	}
+	return i
 }
 
 // INTERNAL
