@@ -115,7 +115,7 @@ func (d Gpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []
 	C.gpu_add_local_fields((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
 }
 
-func (d Gpu) addExch(m, h uintptr, size, periodic []int){
+func (d Gpu) addExch(m, h uintptr, size, periodic []int, exchType int) {
 	panic("unimplemented")
 }
 

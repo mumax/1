@@ -112,7 +112,8 @@ type Device interface {
 
 	addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int)
 
-	addExch(m, h uintptr, size, periodic []int)
+	// Adds the exchange field to h.
+	addExch(m, h uintptr, size, periodic []int, exchType int)
 
 	// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
 	// TODO: get rid of? decide the stride by yourself instead of globally storing it?

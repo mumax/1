@@ -12,8 +12,8 @@ import (
 	"mumax/tensor"
 )
 
-func (s *Sim) AddExch(m, h *DevTensor){
-	s.addExch(m.data, h.data, s.size3D, s.input.periodic[:])
+func (s *Sim) AddExch(m, h *DevTensor) {
+	s.addExch(m.data, h.data, s.size3D, s.input.periodic[:], s.input.exchType)
 }
 
 

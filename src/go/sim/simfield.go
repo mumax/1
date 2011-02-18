@@ -162,10 +162,10 @@ func (s *Sim) calcHeff(m, h *DevTensor) {
 	// (1) Self-magnetostatic field and exchange
 	// The convolution may include the exchange field
 	s.Convolve(m, h)
-	if !s.exchInConv{
+	if !s.exchInConv {
 		s.AddExch(m, h)
 	}
-	
+
 	// (2) Add the externally applied field
 	if s.AppliedField != nil {
 		s.hextSI = s.GetAppliedField(s.time * float64(s.UnitTime()))
