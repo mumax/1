@@ -1,6 +1,5 @@
 
 
-maxerror	1e-4
 
 msat       	800E3   
 aexch      	1.3E-11     
@@ -9,14 +8,16 @@ alpha      	2
 
 gridsize       	128 	128 	1
 partsize   	500E-9  500E-9  40E-9
-loadmsat    unshifted.tensor
+mask unshifted.png
+
+vortex 1 1
 
 #reproduce along the X-axsis
 periodic	50	0	0
 
 vortex 1 1
 
-
+alpha 1
 autosave  m png 100e-12
 autosave  table ascii 100e-12
 
