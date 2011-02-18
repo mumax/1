@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "cpu_kernel_micromag3d.h"
 #include "cpukern.h"
+#include <math.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -431,7 +432,7 @@ void _cpu_init_kernel_elements_micromag3d_t(int id){
   return;
 }
 
-void _cpu_init_kernel_elements_micromag3d(float *data, int *Nkernel, int co1, int co2, float *cellSize, int *repetition, qd_P_10, qd_W_10){
+void _cpu_init_kernel_elements_micromag3d(float *data, int *Nkernel, int co1, int co2, float *cellSize, int *repetition, float *qd_P_10, float *qd_W_10){
 
   _cpu_init_kernel_elements_micromag3d_arg args;
 
