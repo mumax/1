@@ -1,8 +1,10 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "gpu_kernel_micromag2d.h"
 #include "gpu_kernel_micromag3d.h"
+#include "../macros.h"
 
 
 int main(int argc, char** argv){
@@ -43,8 +45,8 @@ int main(int argc, char** argv){
   }
 
   // x[i],y[i] loops over XX, YY, ZZ, YZ, XZ, XY
-  int x[3] = {X, Y, Z, Y, X, X};
-  int y[3] = {X, Y, Z, Z, Z, Y};
+  int x[6] = {X, Y, Z, Y, X, X};
+  int y[6] = {X, Y, Z, Z, Z, Y};
   for(int i=0; i<6; i++){
     if (kernelType==2)
       gpu_init_kernel_elements_micromag2d(x[i], y[i], kernelSize, cellSize, repetition);

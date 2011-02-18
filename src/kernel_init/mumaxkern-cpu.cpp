@@ -1,9 +1,11 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "cpu_kernel_micromag2d.h"
 #include "cpu_kernel_micromag3d.h"
-
+#include "thread_functions.h"
+#include "../macros.h"
 
 int main(int argc, char** argv){
 
@@ -39,7 +41,7 @@ int main(int argc, char** argv){
   
   int Nthreads = atoi(argv[10]);
   
-  init_Threads(int Nthreads);
+  init_Threads(Nthreads);
 
   if (kernelType==-1){
     fprintf(stderr, "In kernel initialization: wrong cell size: kernel type could not be recognized\n");
@@ -47,8 +49,8 @@ int main(int argc, char** argv){
   }
 
   // x[i],y[i] loops over XX, YY, ZZ, YZ, XZ, XY
-  int x[3] = {X, Y, Z, Y, X, X};
-  int y[3] = {X, Y, Z, Z, Z, Y};
+  int x[6] = {X, Y, Z, Y, X, X};
+  int y[6] = {X, Y, Z, Z, Z, Y};
   for(int i=0; i<6; i++){
     if (kernelType==2)
       cpu_init_kernel_elements_micromag2d(x[i], y[i], kernelSize, cellSize, repetition);

@@ -31,11 +31,6 @@ void cpu_init_kernel_elements_micromag2d(int co1, int co2, int *kernelSize, floa
 }
 
 
-typedef struct{
-  float *cellSize, *temp, *qd_P_10, *qd_W_10;
-  int *Nkernel, *repetition; 
-  int co1, co2;
-} _cpu_init_kernel_elements_micromag2d_arg;
 
 float _cpu_get_kernel_element_micromag2d(_cpu_init_kernel_elements_micromag2d_arg *arg, int b, int c){
 

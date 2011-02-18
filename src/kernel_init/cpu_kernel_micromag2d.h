@@ -14,6 +14,12 @@ extern "C" {
 #endif
 
                              
+typedef struct{
+  float *cellSize, *temp, *qd_P_10, *qd_W_10;
+  int *Nkernel, *repetition; 
+  int co1, co2;
+} _cpu_init_kernel_elements_micromag2d_arg;
+
 /**
  * Initializes the micromagnetic 2D kernel elements defined by 'co1, co2'.
  * The kernel element is written to stdout in tensor format.
