@@ -27,6 +27,12 @@ func (s *Sim) KernelType(command string) {
 	s.invalidate()
 }
 
+// Override if exchange should be included in convolution. Mainly intended for debugging.
+func (s *Sim) ExchInConv(exchInConv bool) {
+	s.exchInConv = exchInConv
+	s.invalidate()
+}
+
 // Apply a static field defined in Tesla
 func (s *Sim) StaticField(hz, hy, hx float32) {
 	s.AppliedField = &staticField{[3]float32{hx, hy, hz}} // pass it on in Tesla so that it stays independent of other problem parameters

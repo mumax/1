@@ -247,6 +247,7 @@ func (s *Sim) initConv() {
 
 	// Add Exchange kernel to demag kernel
 	if s.exchInConv {
+		Println("Exchange included in convolution.")
 		for i := range demag {
 			if demag[i] != nil { // Unused components are nil
 				D := demag[i].List()
@@ -256,6 +257,8 @@ func (s *Sim) initConv() {
 				}
 			}
 		}
+	} else {
+		Println("Exchange separate from convolution.")
 	}
 	s.Conv = *NewConv(s.Backend, s.size[0:], demag)
 }
