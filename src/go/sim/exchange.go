@@ -13,7 +13,7 @@ import (
 )
 
 func (s *Sim) AddExch(m, h *DevTensor) {
-	s.addExch(m.data, h.data, s.size3D, s.input.periodic[:], s.input.exchType)
+	s.addExch(m.data, h.data, s.size3D, s.input.periodic[:], s.cellSize[:], s.input.exchType)
 }
 
 

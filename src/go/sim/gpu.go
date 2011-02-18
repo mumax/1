@@ -115,8 +115,8 @@ func (d Gpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []
 	C.gpu_add_local_fields((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
 }
 
-func (d Gpu) addExch(m, h uintptr, size, periodic []int, exchType int) {
-	C.gpu_add_exch((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(size[0]), C.int(size[1]), C.int(size[2]), C.int(periodic[0]), C.int(periodic[1]), C.int(periodic[2]), C.int(exchType))
+func (d Gpu) addExch(m, h uintptr, size, periodic []int, cellsize []float32, exchType int) {
+	C.gpu_add_exch((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(size[0]), C.int(size[1]), C.int(size[2]), C.int(periodic[0]), C.int(periodic[1]), C.int(periodic[2]), C.float(cellsize[0]), C.float(cellsize[1]), C.float(cellsize[2]), C.int(exchType))
 }
 
 // func (d Gpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {

@@ -17,6 +17,9 @@ void gpu_add_exch(float* m,       ///< magnetization (all 3 components, contiguo
                   int wrap0,         ///< != 0 means periodicity in that direction.
                   int wrap1,
                   int wrap2,
+				  float cellsize0,
+				  float cellsize1,
+				  float cellsize2, 
 				  int type);    ///< exchange type (number of neighbors): 4, 6, ...
 
 #ifdef __cplusplus
