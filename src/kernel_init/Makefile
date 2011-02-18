@@ -26,8 +26,8 @@ cpu_kernel_micromag2d.o: cpu_kernel_micromag2d.cpp  cpu_kernel_micromag2d.h
 gpu_kernel_micromag3d.o: gpu_kernel_micromag3d.cu  gpu_kernel_micromag3d.h
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_kernel_micromag3d.cu
 
-cpu_kernel_micromag3d.o: cpu_kernel_micromag3d.cu  cpu_kernel_micromag3d.h
-	$(CPP) -c $(CFLAGS) cpu_kernel_micromag3d.cu
+cpu_kernel_micromag3d.o: cpu_kernel_micromag3d.cpp cpu_kernel_micromag3d.h
+	$(CPP) -c $(CFLAGS) cpu_kernel_micromag3d.cpp
 
 
 mumaxkern-gpu.o: mumaxkern-gpu.cpp mumaxkern-gpu.h
