@@ -8,36 +8,34 @@ package sim
 
 import ()
 
-/**
- * The Device interface makes an abstraction from a library with
- * basic simulation functions for a specific computing device
- * like a GPU or CPU (or possibly even a cluster).
- *
- * The interface specifies quite a number of simulation primitives
- * like fft's, deltaM(), memory allocation... where all higher-level
- * simulation functions can be derived from.
- *
- * Gpu is the primary implementation of the Device interface:
- * eachs of its functions calls a corresponding C function that does
- * the actual work with CUDA.
- *
- * The GPU implementation can be easily translated to a CPU alternative
- * by just putting the CUDA kernels inside (openMP) for-loops instead of
- * kernel launches. This straightforward translation is wrapped in
- * Cpu
- *
- * The first layer of higher-level functions is provided by the Backend
- * struct, which embeds a Device. Backend does not need to know whether
- * it uses a gpu.Device or cpu.Device, and so the code for both is
- * identical from this point on.
- *
- * By convention, the methods in the Device interface are unsafe
- * and therefore package private. They have safe, public wrappers
- * derived methods in Backend. This allows the safety checks to
- * be implemented only once in Backend and not for each Device.
- * The few methods that are already safe are accessible through
- * Backend thanks to embedding.
- */
+// The Device interface makes an abstraction from a library with
+// basic simulation functions for a specific computing device
+// like a GPU or CPU (or possibly even a cluster).
+//
+// The interface specifies quite a number of simulation primitives
+// like fft's, deltaM(), memory allocation... where all higher-level
+// simulation functions can be derived from.
+//
+// Gpu is the primary implementation of the Device interface:
+// each of its functions calls a corresponding C function that does
+// the actual work with CUDA.
+//
+// The GPU implementation can be easily translated to a CPU alternative
+// by just putting the CUDA kernels inside (OpenMP) for-loops instead of
+// kernel launches. This straightforward translation is wrapped in
+// Cpu
+//
+// The first layer of higher-level functions is provided by the Backend
+// struct, which embeds a Device. Backend does not need to know whether
+// it uses a gpu.Device or cpu.Device, and so the code for both is
+// identical from this point on.
+//
+// By convention, the methods in the Device interface are unsafe
+// and therefore package private. They have safe, public wrappers
+// derived methods in Backend. This allows the safety checks to
+// be implemented only once in Backend and not for each Device.
+// The few methods that are already safe are accessible through
+// Backend thanks to embedding.
 type Device interface {
 
 	// Returns the maximum number of threads on this device
@@ -113,6 +111,9 @@ type Device interface {
 	spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, dtGilb float32, size []int)
 
 	addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int)
+
+	// Adds the exchange field to h.
+	addExch(m, h uintptr, size, periodic []int, cellsize []float32, exchType int)
 
 	// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
 	// TODO: get rid of? decide the stride by yourself instead of globally storing it?
@@ -199,29 +200,29 @@ type Device interface {
 	String() string
 }
 
-// direction flag for memcpy()
-const (
-	CPY_TO   = 1
-	CPY_ON   = 2
-	CPY_FROM = 3
-)
-
-// direction flag for copyPadded()
-const (
-	CPY_PAD   = 1
-	CPY_UNPAD = 2
-)
-
-// direction flag for FFT
-const (
-	FFT_FORWARD = 1
-	FFT_INVERSE = -1
-)
-
-// Reduction operation flags for reduce()
-const (
-	ADD    = 1
-	MAX    = 2
-	MAXABS = 3
-	MIN    = 4
-)
+//// direction flag for memcpy()
+//const (
+//	CPY_TO   = 1
+//	CPY_ON   = 2
+//	CPY_FROM = 3
+//)
+//
+//// direction flag for copyPadded()
+//const (
+//	CPY_PAD   = 1
+//	CPY_UNPAD = 2
+//)
+//
+//// direction flag for FFT
+//const (
+//	FFT_FORWARD = 1
+//	FFT_INVERSE = -1
+//)
+//
+//// Reduction operation flags for reduce()
+//const (
+//	ADD    = 1
+//	MAX    = 2
+//	MAXABS = 3
+//	MIN    = 4
+//)

@@ -10,9 +10,23 @@ package main
 // (sliceing, averaging, cropping, etc.)
 
 import (
-	"tensor"
+	"mumax/tensor"
 )
 
+
+func Crop2D(z1, z2, y1, y2 int) {
+	comp := tensor.NewT4([]int{data.TSize[0], data.TSize[1], y2 - y1, z2 - z1})
+	for c := 0; c < data.TSize[0]; c++ {
+		for i := 0; i < data.TSize[1]; i++ {
+			for j := y1; j < y2; j++ {
+				for k := z1; k < z2; k++ {
+					comp.TArray[c][i][j-y1][k-z1] = data.TArray[c][i][j][k]
+				}
+			}
+		}
+	}
+	data = comp
+}
 
 // Creates a lower-resolution vector field, scaled down by a factor f
 func Downsample(f int) {

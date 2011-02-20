@@ -10,6 +10,8 @@ GOFILES=\
 	iterator.go\
 	vector.go\
 	math.go\
+	input.go\
+	output.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 

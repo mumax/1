@@ -13,7 +13,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"log"
 )
 
 
@@ -149,14 +148,14 @@ func parseFileOrStdin(args []string) *os.File {
 /** Crashes the program when the test is false. */
 func assert(test bool) {
 	if !test {
-		log.Crash("Assertion failed")
+		panic("Assertion failed")
 	}
 }
 
 /** Crashes the program with an error message when the test is false. */
 func assertMsg(test bool, msg string) {
 	if !test {
-		log.Crash(msg)
+		panic(msg)
 	}
 }
 
@@ -166,7 +165,7 @@ func fOpenz(filename string) *os.File {
 	file, ok := os.Open(filename, os.O_RDWR|os.O_CREAT, 0666)
 	if ok != nil {
 		fmt.Fprint(os.Stderr, ok, "\n")
-		log.Crash("Could not open file")
+		panic("Could not open file")
 	}
 	return file
 }

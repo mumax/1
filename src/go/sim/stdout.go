@@ -18,7 +18,7 @@ import (
 // Prints to stdout (unless sim.silent=true) and also to output.log
 func (sim *Sim) Print(msg ...interface{}) {
 	if !sim.silent {
-		fmt.Fprint(os.Stdout, msg...)
+		fmt.Fprint(os.Stderr, msg...)
 	}
 	fmt.Fprint(sim.out, msg...)
 }
@@ -54,7 +54,7 @@ func (sim *Sim) Warn(msg ...interface{}) {
 // appear in the output file.
 func (sim *Sim) Escape(msg ...interface{}) {
 	if !sim.silent {
-		fmt.Fprint(os.Stdout, msg...)
+		fmt.Fprint(os.Stderr, msg...)
 	}
 }
 

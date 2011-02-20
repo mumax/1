@@ -8,10 +8,11 @@
 package sim
 
 import (
+	. "mumax/common"
+	"mumax/tensor"
 	"os"
 	"math"
 	"fmt"
-	"tensor"
 	"rand"
 )
 
@@ -126,6 +127,7 @@ func (s *Sim) initGridSize() {
 	if s.size[Z] == 1 {
 		panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
 	}
+	s.avgNorm = float32(tensor.Prod(s.size3D))
 }
 
 
@@ -244,14 +246,19 @@ func (s *Sim) initConv() {
 	}
 
 	// Add Exchange kernel to demag kernel
-	for i := range demag {
-		if demag[i] != nil { // Unused components are nil
-			D := demag[i].List()
-			E := exch[i].List()
-			for j := range D {
-				D[j] += E[j]
+	if s.exchInConv {
+		Println("Exchange included in convolution.")
+		for i := range demag {
+			if demag[i] != nil { // Unused components are nil
+				D := demag[i].List()
+				E := exch[i].List()
+				for j := range D {
+					D[j] += E[j]
+				}
 			}
 		}
+	} else {
+		Println("Exchange separate from convolution.")
 	}
 	s.Conv = *NewConv(s.Backend, s.size[0:], demag)
 }

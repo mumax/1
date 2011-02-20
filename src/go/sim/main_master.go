@@ -17,6 +17,7 @@ package sim
 //
 // TODO: master could have have the ability to automatically select between GPU/CPU
 import (
+	. "mumax/common"
 	"flag"
 	"os"
 	"exec"
@@ -25,11 +26,18 @@ import (
 )
 
 const WELCOME = `
-  MuMax 0.4.1882
+  MuMax 0.5.1967
   (c) Arne Vansteenkiste & Ben Van de Wiele,
-      DyNaMat/EELAB UGent
+      DyNaMat/EELAB Ghent University.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
   This version is meant for internal testing purposes only,
-  please contact the authors if you like to distribute this program.
+  please contact the authors if you like to distribute this program
+  or obtain the source code.
   
 `
 

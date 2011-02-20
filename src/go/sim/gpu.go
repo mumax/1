@@ -13,14 +13,15 @@ import "C"
 import "unsafe"
 import "runtime"
 
-// This single file intefaces all the relevant CUDA func(d Gpu) tions with go
-// It only wraps the func(d Gpu) tions, higher level constructs and assetions
+// This single file interfaces all the relevant CUDA functions with go
+// It only wraps the functions, higher level constructs and assertions
 // are in separate files like fft.go, ...
 //
 // NOTE cgo does not seem to like many cgofiles, so I put everything together here.
 //
 
 import (
+	. "mumax/common"
 	"fmt"
 )
 
@@ -114,6 +115,10 @@ func (d Gpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []
 	C.gpu_add_local_fields((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
 }
 
+func (d Gpu) addExch(m, h uintptr, size, periodic []int, cellsize []float32, exchType int) {
+	C.gpu_add_exch((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(size[0]), C.int(size[1]), C.int(size[2]), C.int(periodic[0]), C.int(periodic[1]), C.int(periodic[2]), C.float(cellsize[0]), C.float(cellsize[1]), C.float(cellsize[2]), C.int(exchType))
+}
+
 // func (d Gpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {
 // 	switch order {
 // 	default:
@@ -200,8 +205,6 @@ func (d Gpu) memcpy(source, dest uintptr, nFloats, direction int) {
 	C.memcpy_gpu_dir((*C.float)(unsafe.Pointer(source)), (*C.float)(unsafe.Pointer(dest)), C.int(nFloats), C.int(direction))
 }
 
-// The size (in bytes) of a C float (not a go float!)
-const SIZEOF_CFLOAT = 4
 
 func (d Gpu) arrayOffset(array uintptr, index int) uintptr {
 	return uintptr(array + uintptr(SIZEOF_CFLOAT*index)) // uintptr(unsafe.Pointer(C.gpu_array_offset((*C.float)(unsafe.Pointer(array)), C.int(index))))

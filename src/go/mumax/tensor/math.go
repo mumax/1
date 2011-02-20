@@ -38,6 +38,20 @@ func Equal(a, b Interface) bool {
 	return true
 }
 
+// Tests if a and b (representing tensor sizes) are equal
+func EqualSize(sizeA, sizeB []int) bool {
+	if len(sizeA) != len(sizeB) {
+		return false
+	}
+
+	// test for equal size
+	for i, sa := range sizeA {
+		if sa != sizeB[i] {
+			return false
+		}
+	}
+	return true
+}
 
 // Finds the extrema.
 func MinMax(t Interface) (min, max float32) {
@@ -65,10 +79,31 @@ func Average(t Interface) float32 {
 }
 
 
-// Returns a component
+// Returns a component.
+// I.e.: fixes the first index.
+// Turns a A x B x C x ... tensor
+// into a B x C x ... tensor.
+// The underlying data is shared.
 func Component(t Interface, comp int) *T {
 	c := new(T)
 	c.TSize = t.Size()[1:]
+	length := Prod(c.TSize)
+	start := comp * length
+	stop := (comp + 1) * length
+	c.TList = t.List()[start:stop]
+	return c
+}
+
+// Returns a component without changing the rank.
+// I.e.: fixes the first index and makes the first size 1.
+// Turns a A x B x C x ... tensor
+// into a 1 x B x C x ... tensor.
+// The underlying data is shared.
+func Component1(t Interface, comp int) *T {
+	c := new(T)
+	c.TSize = make([]int, Rank(t))
+	copy(c.TSize, t.Size())
+	c.TSize[0] = 1
 	length := Prod(c.TSize)
 	start := comp * length
 	stop := (comp + 1) * length

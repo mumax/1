@@ -18,9 +18,10 @@ package sim
 // FFT layouts and exchange formulations.
 //
 import (
-	"fmt"
+	. "mumax/common"
 	"os"
-	"tensor"
+	"fmt"
+	"mumax/tensor"
 )
 
 
@@ -33,30 +34,30 @@ func (s *Sim) LookupKernel(size []int, cellsize []float32, accuracy int, periodi
 		err := recover()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
-			kernel = FaceKernel6(size, cellsize, accuracy, periodic)
+			kernel = s.CalcDemagKernel(size, cellsize, accuracy, periodic)
 		}
 	}()
 
 	// empty widomdir means we must not use wisdom
 	if s.wisdomdir == "" {
-		kernel = FaceKernel6(size, cellsize, accuracy, periodic)
+		kernel = s.CalcDemagKernel(size, cellsize, accuracy, periodic)
 		return
 	}
 
 	// try to load cached kernel
-	kerndir := s.wisdomdir + "/" + wisdomFileName(size, cellsize, accuracy, periodic)
+	kerndir := s.wisdomdir + "/" + wisdomFileName(size, cellsize, accuracy, periodic, s.input.kernelType)
 	if fileExists(kerndir) {
-		fmt.Println("using wisdom: ", kerndir)
+		Println("using wisdom: ", kerndir)
 		kernel = make([]*tensor.T3, 6)
 		for i := range kernel {
 			if s.needKernComp(i) {
 				kernel[i] = s.loadKernComp(kerndir, i)
 			}
 		}
-		fmt.Println("wisdom loaded")
+		Println("wisdom loaded")
 		return
 	} else {
-		kernel = FaceKernel6(size, cellsize, accuracy, periodic)
+		kernel = s.CalcDemagKernel(size, cellsize, accuracy, periodic)
 		s.storeKernel(kernel, kerndir)
 	}
 
@@ -67,13 +68,7 @@ func (s *Sim) LookupKernel(size []int, cellsize []float32, accuracy int, periodi
 // INTERNAL: Loads kerndir/k**.tensor
 func (s *Sim) loadKernComp(kerndir string, component int) *tensor.T3 {
 	file := kerndir + "/k" + KernString[component] + ".tensor"
-	in, err := os.Open(file, os.O_RDONLY, 0666)
-	defer in.Close()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		panic(err)
-	}
-	return tensor.ToT3(tensor.Read(in))
+	return tensor.ToT3(tensor.ReadF(file))
 }
 
 
@@ -84,7 +79,7 @@ func (s *Sim) storeKernel(kernel []*tensor.T3, kerndir string) {
 		return
 	}
 
-	fmt.Println("storing wisdom: ", kerndir)
+	Println("storing wisdom: ", kerndir)
 
 	// If anything goes wrong unexpectedly, then the kernel could not be saved,
 	// but we should continue to run.
@@ -104,13 +99,7 @@ func (s *Sim) storeKernel(kernel []*tensor.T3, kerndir string) {
 		if s.needKernComp(i) {
 
 			file := kerndir + "/k" + KernString[i] + ".tensor"
-			out, err := os.Open(file, os.O_CREATE|os.O_WRONLY, 0666)
-			defer out.Close()
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				return
-			}
-			tensor.WriteBinary(out, kernel[i])
+			tensor.WriteF(file, kernel[i])
 		}
 	}
 	fmt.Println("storing wisdom OK")
@@ -118,20 +107,19 @@ func (s *Sim) storeKernel(kernel []*tensor.T3, kerndir string) {
 
 
 // INTERNAL returns a directory name (w/o absolute path) to store the kernel with given parameters
-func wisdomFileName(size []int, cellsize []float32, accuracy int, periodic []int) string {
+func wisdomFileName(size []int, cellsize []float32, accuracy int, periodic []int, kernelType string) string {
 	pbc := ""
 	if !(periodic[X] == 0 && periodic[Y] == 0 && periodic[Z] == 0) {
 		pbc = fmt.Sprint("pbc", periodic[Z], "x", periodic[Y], "x", periodic[X])
 	}
-	return fmt.Sprint(size[Z], "x", size[Y], "x", size[X], "/",
+	return fmt.Sprint(kernelType, "/", size[Z], "x", size[Y], "x", size[X], "/",
 		cellsize[Z], "x", cellsize[Y], "x", cellsize[X], "lex3",
 		pbc,
 		"acc", accuracy)
 }
 
 // INTERNAL
-// Absolute path of the default kernel root directory:
-// working directory + /kernelwisdom
+// Absolute path of the default kernel root directory.
 func defaultWisdomDir() string {
 	wd, err := os.Getwd()
 	if err != nil {

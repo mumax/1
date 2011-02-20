@@ -1,4 +1,4 @@
-//  This file is part of MuMax, a high-perfomrance micromagnetic simulator.
+//  This file is part of MuMax, a high-performance micromagnetic simulator.
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -7,10 +7,27 @@
 
 package common
 
+import(
+	"math"
+)
+
 // Size, in bytes, of a C single-precision float
 const SIZEOF_CFLOAT = 4
 
 // Go equivalent of &array[index] (for a float array).
 func ArrayOffset(array uintptr, index int) uintptr {
 	return uintptr(array + uintptr(SIZEOF_CFLOAT*index))
+}
+
+// True if not infinite and not NaN
+func IsReal(f float32) bool{
+	if math.IsInf(float64(f), 0) {return false}
+	return !math.IsNaN(float64(f))
+}
+
+// True if not infinite, not NaN and not zero
+func IsFinite(f float32) bool{
+	if math.IsInf(float64(f), 0) {return false}
+	if math.IsNaN(float64(f)){return false}
+	return f != 0
 }

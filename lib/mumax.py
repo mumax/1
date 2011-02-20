@@ -2,187 +2,216 @@
 #  Copyright 2011  Arne Vansteenkiste.
 #  Use of this source code is governed by the GNU General Public License version 3
 #  (as published by the Free Software Foundation) that can be found in the license.txt file.
-#  Note that you are welcome to modify this code under the condition that you do not remove any 
+#  Note that you are welcome to modify this code under the condition that you send not remove any 
 #  copyright notices and prominently state that you modified it, giving a relevant date.
 
 from sys import stdin
+from sys import stderr
+from sys import stdout
 
 inf = float("inf")
 
 # INTERNAL
-def wait():
-	while 1:
-		stdin.readlines()
+def recv():
+	#stderr.write("py_recv: ") #debug
+	data = stdin.readline()
+	while len(data) == 0 or data[0] != "%":	# skip lines not starting with the % prefix
+		data = stdin.readline()
+	#stderr.write(data + "\n") #debug
+	return float(data[1:])
+
+# INTERNAL: version of print() that flushes (critical to avoid communication deadlock)
+def myprint(x):
+	#stderr.write("py_send: " + str(x) + "\n") #debug
+	#stderr.flush()
+	stdout.write(x)
+	stdout.write("\n")
+	stdout.flush()
 
 # INTERNAL. Shorthand for running a command with one argument
-def do0(command):
-	print(command)
+def send0(command):
+	myprint(command)
 
 # INTERNAL. Shorthand for running a command with one argument
-def do1(command, arg):
-	print(command + " " + str(arg))
+def send1(command, arg):
+	myprint(command + " " + str(arg))
 
 # INTERNAL. Shorthand for running a command with two arguments
-def do2(command, arg1, arg2):
-	print(command + " " + str(arg1) + " " + str(arg2))
+def send2(command, arg1, arg2):
+	myprint(command + " " + str(arg1) + " " + str(arg2))
 
 # INTERNAL. Shorthand for running a command with three arguments
-def do3(command, arg1, arg2, arg3):
-	print(command + " " + str(arg1) + " " + str(arg2) + " " + str(arg3))
+def send3(command, arg1, arg2, arg3):
+	myprint(command + " " + str(arg1) + " " + str(arg2) + " " + str(arg3))
 
 # INTERNAL. Shorthand for running a command with arguments
-def do(command, args):
+def send(command, args):
 	for a in args:
 		command += " " + str(a)
-	print(command)
+	myprint(command)
 		
 
 # Material parameters
 
 # Sets the saturation magnetization in A/m
 def msat(m):
-	do1("msat", m)
+	send1("msat", m)
 
 # Sets the exchange constant in J/m
 def aexch(a):
-	do1("aexch", a)
+	send1("aexch", a)
 
 # Sets the damping parameter
 def alpha(a):
-	do1("alpha", a)
+	send1("alpha", a)
 
 
 # Sets the anisotropy constant K1
 def k1(k):
-	do1("k1", k)
+	send1("k1", k)
 
 # Defines the uniaxial anisotropy axis.
 def anisuniaxial(ux, uy, uz):
-	do3("anisuniaxial", ux, uy, uz)
+	send3("anisuniaxial", ux, uy, uz)
 
 
 # Geometry
 
 # Sets the number of FD cells
 def gridsize(nx, ny, nz):
-	do3("gridsize", nx, ny, nz)
+	send3("gridsize", nx, ny, nz)
 
 # Sets the size of the magnet, in meters
 def partsize(x, y, z):
-	do3("partsize", x, y, z)
+	send3("partsize", x, y, z)
 
 # Sets the cell size, in meters
 def cellsize(x, y, z):
-	do3("cellsize", x, y, z)
+	send3("cellsize", x, y, z)
 
 # Sets the maximum cell size, in meters
 def maxcellsize(x, y, z):
-	do3("maxcellsize", x, y, z)
+	send3("maxcellsize", x, y, z)
 
+# Make the geometry an ellipsoid with specified semi-axes.
+# Use inf to make it a cyliner along that direction.
+def ellipsoid(rx, ry, rz):
+	send3("ellipsoid", rx, ry, rz)
 
 # Initial magnetization
 
 # Loads the magnetization state from a .omf file
 def loadm(filename):
-	do1("loadm", filename)
+	send1("loadm", filename)
 
 # Sets the magnetization to the uniform state (mx, my, mz)
 def uniform(mx, my, mz):
-	do3("uniform", mx, my, mz)
+	send3("uniform", mx, my, mz)
 
-# Adds random noise to the magnetization
+# Adds ransendm noise to the magnetization
 def addnoise(amplitude):
-	do1("addnoise", amplitude)
+	send1("addnoise", amplitude)
 
 # Sets the magnetization to a vortex state
 def vortex(circulation, polarization):
-	do2("vortex", circulation, polarization)
+	send2("vortex", circulation, polarization)
 
 # Sets the magnetization in cell with index i,j,k to (mx, my, mz)
 def setmcell(i, j, k, mx, my, mz):
-	do("setmcell", [i, j, k, mx, my, mz])
+	send("setmcell", [i, j, k, mx, my, mz])
 
 # Sets the magnetization in cell position x, y, z (in meters) to (mx, my, mz)
 def setm(x, y, z, mx, my, mz):
-	do("setmcell", [x, y, z, mx, my, mz])
+	send("setmcell", [x, y, z, mx, my, mz])
 
-# Sets the magnetization to a random state
-def setrandom():
-	do0("setrandom")
+# Sets the magnetization to a ransendm state
+def setransendm():
+	send0("setransendm")
 
-# Sets the random number seed
+# Sets the ransendm number seed
 def seed(s):
-	do1("seed", s)
+	send1("seed", s)
 
 # Output
 
 # Single-time save with automatic file name
 def save(what, format):
-	do2("save", what, format)
+	send2("save", what, format)
 
 # Periodic auto-save
 def autosave(what, format, periodicity):
-	do3("autosave", what, format, periodicity)
+	send3("autosave", what, format, periodicity)
 
 
 # Solver
 
 # Sets the solver type. E.g.: rk32, rk4, semianal...
 def solvertype(solver):
-	do1("solvertype", solver)
+	send1("solvertype", solver)
 
 # Sets the maximum tolerable estimated error per solver step
 def maxerror(error):
-	do1("maxerror", error)
+	send1("maxerror", error)
 
 # Sets the maximum time step 
 def maxdt(dt):
-	do1("maxdt", dt)
+	send1("maxdt", dt)
 
 # Sets the minimum time step 
 def mindt(dt):
-	do1("mindt", dt)
+	send1("mindt", dt)
 
 # Sets the maximum magnetization step 
 def maxdm(dm):
-	do1("maxdm", dm)
+	send1("maxdm", dm)
 
 # Sets the minimum magnetization step 
 def mindm(dm):
-	do1("mindm", dm)
+	send1("mindm", dm)
 
 # Excitation
 
 # Apply a static field
 def staticfield(bx, by, bz):
-	do3("staticfield", bx, by, bz)
+	send3("staticfield", bx, by, bz)
 
 # Apply an RF field
 def rffield(bx, by, bz, freq):
-	do("rffield", [bx, by, bz, freq])
+	send("rffield", [bx, by, bz, freq])
 
 # Apply a sawtooth field
 def sawtoothfield(bx, by, bz, freq):
-	do("sawtoothfield", [bx, by, bz, freq])
+	send("sawtoothfield", [bx, by, bz, freq])
+
+# Apply a rotating RF burst
+def rotatingburst(b, freq, phase, risetime, duration):
+	send("rotatingburst", [b, freq, phase, risetime, duration])
 
 # Run
 
 # Relaxes the magnetization up to the specified maximum residual torque
 def relax():
-	do0("relax")
+	send0("relax")
 
 # Runs for the time specified in seconds
 def run(time):
-	do1("run", time)
+	send1("run", time)
 
 
 # Misc
 
 # Adds a description tag
 def desc(key, value):
-	do2("desc", key, value)	
+	send2("desc", key, value)	
 
 # Save benchmark info to file
 def savebenchmark(file):
-	do1("savebenchmark", file)
+	send1("savebenchmark", file)
 
+
+# Recieve feedback from mumax
+
+# Retrieves an average magnetization component (0=x, 1=y, 2=z).
+def getm(component):
+	send1("getm", component)
+	return recv()

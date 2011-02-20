@@ -1,23 +1,36 @@
 from mumax import *
 
-# we chose lex fixed to 1
-
 msat(800e3)
 aexch(1.3e-11)
-alpha(1)
+alpha(2)
 
+desc("n", {n})
 lex = 5.6858e-9
 d={n}*lex
 partsize(5*d, d, 0.1*d)
 maxcellsize(1.05*lex, 1.05*lex, inf)
 uniform(1, 1, 0)
 
-for i in range(0, 1000):
-	staticfield(-i*1e-4, 0, 0)
-	run(10e-12)
-	relax()
-	#save("m", "png")
-	save("table", "ascii")
 
+b = 0.0
+run(10e-9)
+maxdt(1e-14)
+maxdm(1e-4)
+run(10e-9)
 
+##while getmx() > 0:
+##	staticfield(b, 0, 0)
+##	run(100e-12)
+##	save("table", "ascii")
+##	b -= 1e-4
+
+save("m", "text")
+save("m", "png")
+
+remanencex = getm(0)
+remanencey = getm(1)
+remanencez = getm(2)
+
+file = open("remanence.txt", "a")
+file.write("{n} " + str(remanencex) + " " + str(remanencey) + " " + str(remanencez) + "\n")
 

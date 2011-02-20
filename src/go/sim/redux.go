@@ -6,7 +6,9 @@
 
 package sim
 
-import ()
+import (
+	. "mumax/common"
+)
 
 
 type Reductor struct {

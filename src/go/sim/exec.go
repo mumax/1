@@ -1,3 +1,4 @@
+//  This file is part of MuMax, a high-performance micromagnetic simulator
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -11,6 +12,7 @@ package sim
 import (
 	"os"
 	"exec"
+	"fmt"
 )
 
 // Wrapper for exec.Run.
@@ -30,6 +32,7 @@ func subprocess(command string, args []string, stdin, stdout, stderr int) (cmd *
 		return
 	}
 
+	fmt.Fprintln(os.Stderr, "exec ", allargs)
 	cmd, err = exec.Run(command, allargs, os.Environ(), wd, stdin, stdout, stderr)
 	return
 }

@@ -29,3 +29,4 @@
 #include "gpu_safe.h"
 #include "gpu_anis.h"
 #include "gpu_local_contr2.h"
+#include "gpu_exch.h"

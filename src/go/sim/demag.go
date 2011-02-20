@@ -7,7 +7,8 @@
 package sim
 
 import (
-	"tensor"
+	. "mumax/common"
+	"mumax/tensor"
 	. "math"
 )
 
@@ -63,8 +64,8 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int, periodic []int) [
 					faceIntegral(B, R, cellsize, s, accuracy)
 
 					for d := s; d < 3; d++ { // destination index Ksdxyz
-						i := KernIdx[s][d]                         // 3x3 symmetric index to 1x6 index
-						k[i].Array()[xw][yw][zw] += B.Component[d] // We have to ADD because there are multiple contributions in case of periodicity
+						i := KernIdx[s][d]               // 3x3 symmetric index to 1x6 index
+						k[i].Array()[xw][yw][zw] += B[d] // We have to ADD because there are multiple contributions in case of periodicity
 					}
 				}
 			}
@@ -82,8 +83,9 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int, periodic []int) [
 	return k
 }
 
+// UNTESTED:
 // Smart version of FaceKernel6, uses symmetry to cut cpu time roughly in 1/8
-func FastKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
+func fastKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
 	k := make([]*tensor.T3, 6)
 	for i := range k {
 		k[i] = tensor.NewT3(size)
@@ -113,7 +115,7 @@ func FastKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
 
 					for d := s; d < 3; d++ { // destination index Ksdxyz
 						i := KernIdx[s][d] // 3x3 symmetric index to 1x6 index
-						k[i].Array()[xw][yw][zw] = B.Component[d]
+						k[i].Array()[xw][yw][zw] = B[d]
 					}
 				}
 			}
@@ -131,7 +133,7 @@ func selfKernel(sourcedir int, cellsize []float32, accuracy int) []float32 {
 	B := tensor.NewVector()
 	R := tensor.NewVector()
 	faceIntegral(B, R, cellsize, sourcedir, accuracy)
-	return []float32{B.Component[X], B.Component[Y], B.Component[Z]}
+	return []float32{B[X], B[Y], B[Z]}
 }
 
 
@@ -156,9 +158,9 @@ func faceIntegral(B, R *tensor.Vector, cellsize []float32, s int, accuracy int) 
 		for j := 0; j < n; j++ {
 			pw := -(cellsize[w] / 2.) + cellsize[w]/float32(2*n) + float32(j)*(cellsize[w]/float32(n))
 
-			pole.Component[u] = pu1
-			pole.Component[v] = pv
-			pole.Component[w] = pw
+			pole[u] = pu1
+			pole[v] = pv
+			pole[w] = pw
 
 			R2.SetTo(R)
 			R2.Sub(pole)
@@ -167,7 +169,7 @@ func faceIntegral(B, R *tensor.Vector, cellsize []float32, s int, accuracy int) 
 			R2.Scale(charge / (4 * Pi * r * r))
 			B.Add(R2)
 
-			pole.Component[u] = pu2
+			pole[u] = pu2
 
 			R2.SetTo(R)
 			R2.Sub(pole)

@@ -7,10 +7,10 @@
 package main
 
 import (
+	. "mumax/common"
 	"fmt"
 	"flag"
 	"io/ioutil"
-	"iotool"
 	"os"
 	"path"
 	"strings"
@@ -74,9 +74,9 @@ func main() {
 				Error("Not all {key}'s were specified.")
 				// TODO: it might be nice to show which ones...
 			}
-			out := iotool.MustOpenWRONLY(d.name + d.ext)
-			defer out.Close()
+			out := MustOpenWRONLY(d.name + d.ext)
 			out.Write([]byte(d.content))
+			out.Close() // This should not be a deferred call, otherwise too many files may wind up opened at the same time...
 		}
 	}
 

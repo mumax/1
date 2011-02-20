@@ -17,13 +17,13 @@
 package main
 
 import (
+	"mumax/tensor"
 	"io/ioutil"
 	. "strings"
 	"os"
 	"exec"
 	"fmt"
-	"omf"
-	. "tensor"
+	"mumax/omf"
 	"math"
 	"path"
 	"flag"
@@ -142,7 +142,7 @@ func compareOmf(out, ref string) *Status {
 	_, dataB := omf.FRead(ref)
 	s := NewStatus()
 	s.Filecount = 1
-	if !EqualSize(dataA.Size(), dataB.Size()) {
+	if !tensor.EqualSize(dataA.Size(), dataB.Size()) {
 		s.FatalError = true
 		return s
 	}

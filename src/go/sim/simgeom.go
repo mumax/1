@@ -7,9 +7,8 @@
 package sim
 
 import (
-	"tensor"
+	. "mumax/common"
 	"os"
-	//"fmt"
 	"math"
 )
 
@@ -95,10 +94,12 @@ func (s *Sim) updateSizes() {
 
 	// Check if two of the four size options have been set
 	numset := 0
-	for _,set := range []bool{in.sizeSet, in.cellSizeSet, in.partSizeSet, in.maxCellSizeSet}{
-		if set{numset ++}
+	for _, set := range []bool{in.sizeSet, in.cellSizeSet, in.partSizeSet, in.maxCellSizeSet} {
+		if set {
+			numset++
+		}
 	}
-	if numset > 2{
+	if numset > 2 {
 		panic(InputErr("Exactly two of [size, cellsize, partsize, maxcellsize] must be specified"))
 	}
 
@@ -126,11 +127,15 @@ func (s *Sim) updateSizes() {
 		return
 	}
 
-	// Find a gridsize that is a power of two in each dimension and that is large enough
-	// so that the cell size does not exceed maxCellSize. 
+	// Find a gridsize that is suited for CUFFT and
+	// so that the cell size does not exceed maxCellSize by more than a few %. 
 	if in.maxCellSizeSet && in.partSizeSet {
 		for i := range in.partSize {
-			in.size[i] = findPow2(in.partSize[i] / in.maxCellSize[i])
+			n := int(in.partSize[i] / (in.maxCellSize[i] * (1 + MAX_OVERSIZE)))
+			for !IsGoodGridSize(i, n) { // direction-dependent
+				n++
+			}
+			in.size[i] = n
 			in.cellSize[i] = in.partSize[i] / float32(in.size[i])
 		}
 		s.Println("Calculated number of cells:", in.size)
@@ -142,13 +147,18 @@ func (s *Sim) updateSizes() {
 	// s.invalidate() deferred
 }
 
+// When calculating a suited grid size from a maximum cell size,
+// make cells at most this fraction bigger than the specified maximum.
+// (It's better to make them a few percent bigger than a factor 2 too small, e.g.)
+const MAX_OVERSIZE = 0.05
+
 // Returns the smallest power of two >= n
-func findPow2(n float32) int{
-	if n < 1.0{
+func findPow2(n float32) int {
+	if n < 1.0 {
 		n = 1.0
 	}
-  return int(math.Pow(2, math.Ceil(math.Log2(float64(n)))))
-	
+	return int(math.Pow(2, math.Ceil(math.Log2(float64(n)))))
+
 }
 
 // Sets the accuracy of edge corrections.
@@ -159,22 +169,23 @@ func (s *Sim) EdgeCorrection(accuracy int) {
 }
 
 
-func (sim *Sim) LoadMSat(file string) {
-	sim.allocNormMap()
-	sim.Println("Loading space-dependent saturation magnetization (norm)", file)
-	in, err := os.Open(file, os.O_RDONLY, 0666)
-	defer in.Close()
-	if err != nil {
-		panic(err)
-	}
-	norm := tensor.ToT3(tensor.Read(in))
-	if !tensor.EqualSize(norm.Size(), sim.normMap.Size()) {
-		norm = resample3(norm, sim.normMap.Size())
-	}
-	TensorCopyTo(norm, sim.normMap)
-	//TODO this should not invalidate the entire sim
-	sim.invalidate()
-}
+//func (sim *Sim) LoadMSat(file string) {
+//	sim.allocNormMap()
+//	sim.Println("Loading space-dependent saturation magnetization (norm)", file)
+//	in, err := os.Open(file, os.O_RDONLY, 0666)
+//	defer in.Close()
+//	if err != nil {
+//		panic(err)
+//	}
+//	norm := tensor.ToT3(tensor.Read(in))
+//	if !tensor.EqualSize(norm.Size(), sim.normMap.Size()) {
+//		norm = resample3(norm, sim.normMap.Size())
+//	}
+//	TensorCopyTo(norm, sim.normMap)
+//	sim.updateAvgNorm()
+//	//TODO this should not invalidate the entire sim
+//	sim.invalidate()
+//}
 
 var INF32 float32 = float32(math.Inf(1))
 

@@ -1,3 +1,4 @@
+//  This file is part of MuMax, a high-performance micromagnetic simulator
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -7,11 +8,14 @@
 // Magnetic simulation package
 package sim
 
+// This file implements the Sim data structure that stores the simulation state
+
 import (
-	"tensor"
+	. "mumax/common"
+	"mumax/tensor"
+	"mumax/omf"
 	"time"
 	"fmt"
-	"omf"
 	"os"
 	"bufio"
 )
@@ -25,6 +29,7 @@ const (
 	DEFAULT_MIN_DM            = 0
 	DEFAULT_DT_INTERNAL       = 1e-4
 	DEFAULT_RELAX_MAX_TORQUE  = 1e-3
+	DEFAULT_KERNELTYPE        = "mumaxkern-go"
 )
 
 // Sim has an "input" member of type "Input".
@@ -32,7 +37,7 @@ const (
 // In this struct, all parameters are STILL IN SI UNITS.
 // When Sim.init() is called, a solver is initiated
 // with these values converted to internal units.
-// We need to keep the originial SI values in case a
+// We need to keep the original SI values in case a
 // parameter gets changed during the simulation and
 // we need to re-initialize everything.
 //
@@ -67,7 +72,8 @@ type Input struct {
 	edgeCorr       int        // 0: no edge correction, >0: 2^edgecorr cell subsampling for edge corrections
 	anisType       int        // Anisotropy type
 	anisKSI        []float32  // Anisotropy constant(s), as many as needed
-	anisAxes       []float32  // Anisotopy axes: ux,uy,uz for uniaxial, u1x,u1y,u1z,u2x,u2y,u2z for cubic
+	anisAxes       []float32  // Anisotropy axes: ux,uy,uz for uniaxial, u1x,u1y,u1z,u2x,u2y,u2z for cubic
+	kernelType     string     // Determines which kernel subprogram to use.
 }
 
 
@@ -95,8 +101,9 @@ type Sim struct {
 	//mLocalLock     sync.RWMutex
 	mUpToDate bool // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
 
-	Conv             // Convolution plan for the magnetostatic field
-	wisdomdir string // Absolute path of the kernel wisdom root directory
+	Conv              // Convolution plan for the magnetostatic field
+	exchInConv bool   // Exchange included in convolution?
+	wisdomdir  string // Absolute path of the kernel wisdom root directory
 
 	Material // Stores material parameters and manages the internal units
 	Mesh     // Stores the size of the simulation grid
@@ -133,6 +140,7 @@ type Sim struct {
 	// Geometry
 	normMap   *DevTensor   // Per-cell magnetization norm. nil means the norm is 1.0 everywhere. Stored on the device
 	normLocal *tensor.T3   // local copy of devNorm
+	avgNorm   float32      // "Total" magnetization norm over the magnet. Divide the sum of all magnetization vectors by this to get the average magnetization correctly, even when the geometry is not square.
 	edgeKern  []*DevTensor // Per-cell self-kernel used for edge corrections (could also store some anisotropy types)
 
 	// Benchmark info
@@ -170,7 +178,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	// than the directory of the input file and files with relative paths are
 	// read (e.g. "include file", "load file")
 	workdir := ParentDir(outputdir)
-	fmt.Println("chdir ", workdir)
+	//Println("chdir ", workdir)
 	os.Chdir(workdir)
 	sim.outputDir(Filename(outputdir))
 	sim.desc = make(map[string]interface{})
@@ -178,6 +186,8 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.initWriters()
 	sim.input.anisKSI = []float32{0.} // even when not used these must be allocated
 	sim.input.anisAxes = []float32{0.}
+	sim.input.kernelType = DEFAULT_KERNELTYPE
+	sim.exchInConv = true
 	sim.invalidate() //just to make sure we will init()
 	return sim
 }
