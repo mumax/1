@@ -3,26 +3,27 @@
 
 \subsection{Operating system}
 
-This program was devolped and tested on Ubuntu Linux version 10.04, and we expect it to run on most Linux distributions. It should in principle be possible to compile it on any Unix-like system, perhaps with minor modifications to the make scripts or source files. You are welcome to report issues or submit patches for other platforms.
+\mumax was devolped and tested on Ubuntu Linux version 10.04, and we expect it to run on most Linux distributions. It should in principle be possible to compile it on any Unix-like system, perhaps with minor modifications to the make scripts or source files. You are welcome to report issues or submit patches for other platforms.
 
 \subsection{GPU Hardware}
 
-To take advantage of the GPU acceleration, you need a \idx{CUDA capable} \textsc{NVIDIA} GPU. All recent \textsc{NVIDIA} GPUs should work, though it is highly recommended to use a ``Fermi''-architecture GPU with a \idx{compute capability} of at least 2.0 like the GeForce GTX series, Quadro 4000 or later, Tesla *2050 or later. For more info see \url{http://www.nvidia.com/object/cuda_gpus.html}
+To take advantage of the GPU acceleration, you need a \idx{CUDA capable} \nvidia GPU. All recent \nvidia GPUs should work, though it is highly recommended to use a ``Fermi''-architecture GPU with a \idx{compute capability} of at least 2.0 like the GeForce GTX series, Quadro 4000 or later, Tesla *2050 or later. For more info see \url{http://www.nvidia.com/object/cuda_gpus.html}
 
 \subsection{GPU Drivers}
 
-You will also need to install the proprietary \textsc{NVIDIA} graphics \idx{driver}. This driver may already be installed on your system. E.g., under Ubuntu, the ``Hardware drivers'' program may propose to install this driver. You should try to run a simulation on the GPU -- if that works, it means your driver is up to date.
+You will also need to install the proprietary \nvidia graphics \idx{driver}. This driver may already be installed on your system. E.g., under Ubuntu, the ``Hardware drivers'' program may propose to install this driver. You should try to run a simulation on the GPU -- if that works, it means your driver is up to date.
 
-Otherwise, you can install the driver located in \file{dep/cuda}. First, make sure you have the necessary build tools installed on your system:
+Otherwise, you should download the latest \idx{developer driver} from \nvidia. Before installing it, make sure you have the necessary build tools installed on your system:
 
 \shell{sudo apt-get install build-essential}
 
-You can then install the GPU driver when your X-server is not running: logout from your grahpical session, then use the ``\idx{Console login}'' of your login manager (or press Ctrl-Alt-F1) to obtain a text console. Log in and \cmd{cd} to \file{dep/cuda} the \prog root directory. Type\footnote{Or \cmd{sudo ./devdriver\_3.1\_linux\_32\_256.40.run} on a 32-bit system.}\footnote{Possibly a later version of this driver may be present}
+You can then install the GPU driver when your X-server is not running: logout from your grahpical session, then use the ``\idx{Console login}'' of your login manager (or press Ctrl-Alt-F1) to obtain a text console. Log in and \cmd{cd} to the directory where the driver was saved. Then run, using the appropriate directory and file names for your case:
 
-\shell{cd \prog/dep/cuda\\
-sudo ./devdriver\_3.1\_linux\_64\_256.40.run}
+\shell{cd /home/me/path/to/driver\\
+chmod u+x devdriver\_3.2\_linux\_64\_256.19.26.run\\
+./devdriver\_3.2\_linux\_64\_256.19.26.run}
 
-and follow the instructions. Then reboot your computer. Note that you may have to re-install this driver after every kernel upgrade. To check your system, you can run the progam \idxcmd{nvidia-settings} which shows information about your GPU and driver.
+Follow the on-screen instructions. Then reboot your computer. Note that you may have to re-install this driver after every kernel upgrade. To check your system, you can run the progam \idxcmd{nvidia-settings} which shows information about your GPU and driver.
 
 It is possible that the required driver conflicts with Ubuntu's default version. If installing the driver fails, a possible workaround is to edit \file{/etc/modprobe.d/blacklist.conf} (as root\footnote{execute, e.g., \cmd{sudo gedit /etc/modprobe.d/blacklist.conf}}) and add these lines:
 \small
@@ -39,9 +40,9 @@ Then also remove all distribution-provided \textsc{NVIDIA} drivers with
 
 \shell{sudo apt-get --purge remove nvidia-*}
 
-Then follow the above instructions to re-install the driver provided by \textsc{NVIDIA}.
+Then follow the above instructions to re-install the driver.
 
-Note that you \emph{may} have to run an X-server (i.e., have a graphical desktop installed) for the GPU driver to work correctly. So if you run ubuntu server edition, you may have to install ubuntu-desktop or kubuntu-desktop.
+Note that you \emph{might} have to run an X-server (i.e., have a graphical desktop installed) for the GPU driver to function correctly. So if you run Ubuntu server edition, you may have to install the ubuntu-desktop or kubuntu-desktop packages.
 
 \subsection{Setup}
 
