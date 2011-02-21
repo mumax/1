@@ -5,10 +5,9 @@
 //  Note that you are welcome to modify this code under the condition that you do not remove any
 //  copyright notices and prominently state that you modified it, giving a relevant date.
 
-
 package main
 
-import(
+import (
 	. "mumax/common"
 	"fmt"
 )
@@ -21,4 +20,3 @@ func GetDesc(key string) {
 	value := Atof32(fmt.Sprint(desc))
 	newtable.AppendToColumn(key, value)
 }
-

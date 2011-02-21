@@ -54,6 +54,19 @@ func (t *Table) GetColumn(name string) []float32 {
 }
 
 
+// Retrieve the unit of a column identified by name, e.g., "Mx".
+// Returns "" if the column does not exist.
+func (t *Table) GetUnit(name string) string {
+	index := t.GetColumnIndex(name)
+	if index < 0 {
+		return ""
+	}
+	return t.ColUnit[index]
+}
+
+
+
+
 // Add a column with specified name and unit.
 func (t *Table) AddColumn(name, unit string) {
 	if t.GetColumn(name) != nil {

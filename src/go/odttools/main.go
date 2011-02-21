@@ -43,6 +43,7 @@ var (
 func main() {
 	sh := refsh.New()
 	sh.AddFunc("getdesc", GetDesc)
+	sh.AddFunc("peak", Peak)
 	cmd, args, files := refsh.ParseFlags2()
 
 	// Each file is read and stored in "data".
@@ -69,7 +70,3 @@ func main() {
 
 	newtable.WriteTo(os.Stdout)
 }
-
-
-
-
