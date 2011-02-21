@@ -3,7 +3,7 @@ include $(GOROOT)/src/Make.inc
 main:	*.go
 	$(GC)  main.go 
 	$(LD)  -o $@ *.$O
-	cp -f $(CURDIR)/main ../../../bin/omftool
+	cp -f $(CURDIR)/main ../../../bin/odttool
 
 .PHONY:	clean
 clean:

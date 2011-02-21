@@ -16,6 +16,7 @@ all:
 clean:
 	gomake clean -C mumax
 	gomake clean -C omftools
+	gomake clean -C odttools
 	gomake clean -C template
 	gomake clean -C sim
 	gomake clean -C refsh
