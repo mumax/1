@@ -18,7 +18,6 @@ import (
 	"mumax/omf"
 	"refsh"
 	"fmt"
-	"path"
 	"os"
 )
 
@@ -76,22 +75,5 @@ func main() {
 }
 
 
-// replaces the extension of filename by a new one.
-func replaceExt(filename, newext string) string {
-	extension := path.Ext(filename)
-	return filename[:len(filename)-len(extension)] + newext
-}
 
-// func Slice(dirstr string, pos int){
-//   dirstr = strings.ToUpper(dirstr)
-//   var dir int
-//   switch dirstr{
-//     default: panic("Slice direction should be X, Y or Z")
-//     case "X": dir = 0
-//     case "Y": dir = 1
-//     case "Z": dir = 2
-//   }
-// 
-//   size := copy(data.Size())
-// }
 
