@@ -63,6 +63,16 @@ func ReadTable(in io.Reader) *Table {
 	return t
 }
 
+// Retrieve a column identified by name, e.g., "Mx".
+func (t *Table) GetColumn(name string) []float32 {
+	name = ToLower(name)
+	for i, n := range t.ColName {
+		if ToLower(n) == name {
+			return t.Column[i]
+		}
+	}
+	return nil
+}
 
 // INTERNAL: Does str mark the end of the table header?
 func isTableHeaderEnd(str string) bool {
@@ -75,11 +85,20 @@ func isTableHeaderEnd(str string) bool {
 // INTERNAL: Splits "# key: value1 value2 ..." into "key", "value1", "value2", ...
 // Values are optional, many entries only have the key.
 func parseTableHeaderLine(str string) (split []string) {
-	strs := Split(str, ": \t", -1)
-	split = make([]string, len(strs))
-	split[0] = Trim(strs[0], "# \t")
-	for i := range strs {
-		split[i] = Trim(strs[0], " \t")
+	if !HasPrefix(str, "#") {
+		panic(InputErr("Expected \"#\": " + str))
+	}
+	str = Trim(str, "#")
+	start := 0
+	for i, c := range str {
+		if c == int(':') || i == int(' ') || i == int('\t') {
+			stop := i
+			substr := str[start:stop]
+			if substr != "" {
+				split = append(split, substr)
+			}
+			start = stop + 1
+		}
 	}
 	return
 }

@@ -1,14 +1,14 @@
 package omf
 
 import (
+	. "mumax/common"
 	"testing"
-	"iotool"
 )
 
 
-func TestOdt(test *testing.T) {
-	out := iotool.MustOpenWRONLY("test.odt")
-	table := NewTable(out)
+func TestWrite(test *testing.T) {
+	out := MustOpenWRONLY("test.odt")
+	table := NewTabWriter(out)
 	table.Title = "test"
 	table.AddColumn("Mx", "A/m")
 	table.AddColumn("My", "A/m")
@@ -19,4 +19,16 @@ func TestOdt(test *testing.T) {
 	table.Print(0.96, 0.1, 0)
 	table.Print(16)
 	table.Close()
+}
+
+func TestRead(test *testing.T) {
+	in := MustOpenRDONLY("test.odt")
+	table := ReadTable(in)
+	mx := table.GetColumn("Mx")
+	if mx[0] != 0.95 {
+		test.Fail()
+	}
+	if mx[1] != 0.96 {
+		test.Fail()
+	}
 }
