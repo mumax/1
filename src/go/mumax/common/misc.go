@@ -9,6 +9,7 @@ package common
 
 import(
 	"math"
+	"path"
 )
 
 // Size, in bytes, of a C single-precision float
@@ -31,3 +32,11 @@ func IsFinite(f float32) bool{
 	if math.IsNaN(float64(f)){return false}
 	return f != 0
 }
+
+// replaces the extension of filename by a new one.
+func ReplaceExt(filename, newext string) string {
+	extension := path.Ext(filename)
+	return filename[:len(filename)-len(extension)] + newext
+}
+
+
