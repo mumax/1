@@ -25,6 +25,64 @@ type Table struct {
 }
 
 
+func (t *Table) Init() {
+	t.Desc = make(map[string]interface{})
+}
+
+
+// Retrieve a column index identified by name, e.g., "Mx".
+// Used to index Table.Column
+// Returns -1 if the column does not exist.
+func (t *Table) GetColumnIndex(name string) int {
+	name = ToLower(name)
+	for i, n := range t.ColName {
+		if ToLower(n) == name {
+			return i
+		}
+	}
+	return -1
+}
+
+// Retrieve a column identified by name, e.g., "Mx".
+// Returns nil if the column does not exist.
+func (t *Table) GetColumn(name string) []float32 {
+	index := t.GetColumnIndex(name)
+	if index < 0 {
+		return nil
+	}
+	return t.Column[index]
+}
+
+
+// Add a column with specified name and unit.
+func (t *Table) AddColumn(name, unit string) {
+	if t.GetColumn(name) != nil {
+		panic(Bug("omf.Table: column already exists: " + name))
+	}
+	t.ColName = append(t.ColName, name)
+	t.ColUnit = append(t.ColUnit, unit)
+	t.Column = append(t.Column, make([]float32, 0, 100))
+}
+
+
+// Ensure a column with specified name is present and retrieve it.
+// Adds the column only when it did not yet exist.
+func (t *Table) EnsureColumn(name, unit string) []float32 {
+	col := t.GetColumn(name)
+	if col == nil {
+		t.AddColumn(name, unit)
+		col = t.GetColumn(name)
+	}
+	return col
+}
+
+func (t *Table) AppendToColumn(name string, value float32) {
+	index := t.GetColumnIndex(name)
+	t.Column[index] = append(t.Column[index], value)
+
+}
+
+// Reads a table
 func ReadTable(in io.Reader) *Table {
 	t := new(Table)
 
@@ -72,25 +130,6 @@ func ReadTable(in io.Reader) *Table {
 	}
 	return t
 }
-
-// Retrieve a column identified by name, e.g., "Mx".
-func (t *Table) GetColumn(name string) []float32 {
-	name = ToLower(name)
-	for i, n := range t.ColName {
-		if ToLower(n) == name {
-			return t.Column[i]
-		}
-	}
-	return nil
-}
-
-//// INTERNAL: Does str mark the end of the table header?
-//func isTableHeaderEnd(str string) bool {
-//	str = ToLower(Trim(str, "# "))
-//	str = Replace(str, " ", "", -1)
-//	return HasPrefix(str, "TableStart")
-//}
-
 
 // INTERNAL: Splits "# key: value1 value2 ..." into "key", "value1", "value2", ...
 // Values are optional, many entries only have the key.
