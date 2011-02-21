@@ -72,6 +72,8 @@ func main() {
 			sh.Call(cmd[i], args[i])
 		}
 	}
+
+	newtable.WriteTo(os.Stdout)
 }
 
 

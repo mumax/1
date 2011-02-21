@@ -76,11 +76,28 @@ func (t *Table) EnsureColumn(name, unit string) []float32 {
 	return col
 }
 
+
+// Append data to the column specified by name.
 func (t *Table) AppendToColumn(name string, value float32) {
 	index := t.GetColumnIndex(name)
 	t.Column[index] = append(t.Column[index], value)
-
 }
+
+
+// Write table to output stream.
+func (t *Table) WriteTo(out io.Writer){
+	writer := NewTabWriter(out)
+	for i := range t.ColName{
+		t.AddColumn(t.ColName[i], t.ColUnit[i])
+	}
+	for i := range t.Column{
+		for row := range t.Column[i]{
+			writer.Print(t.Column[i][row])
+		}
+	}
+	writer.Close()
+}
+
 
 // Reads a table
 func ReadTable(in io.Reader) *Table {
