@@ -30,7 +30,8 @@ func ReadTable(in io.Reader) *Table {
 
 	// Read Header
 	line, eof := ReadLine(in)
-	for !eof && !isTableHeaderEnd(line) {
+	done := false
+	for !eof && !done{
 		entries := parseTableHeaderLine(line)
 
 		switch ToLower(entries[0]) {
@@ -49,16 +50,22 @@ func ReadTable(in io.Reader) *Table {
 				t.ColName = append(t.ColName, e)
 				t.Column = append(t.Column, make([]float32, 0, 100))
 			}
+			done = true // #Columns is last header entry, break here.
 		}
-		line, eof = ReadLine(in)
+		if !done{
+				line, eof = ReadLine(in)
+		}
 	}
 
 	// Read data
 	n := 1
+	row := 0
 	for n > 0 {
 		for i := range t.Column {
-			n, _ = fmt.Fscan(in, t.Column[i])
+			t.Column[i] = append(t.Column[i], 0.) //TODO: not very efficient but there is no containter/Float32Vector...
+			n, _ = fmt.Fscan(in, &(t.Column[i][row]))
 		}
+		row++
 	}
 	return t
 }
@@ -74,25 +81,26 @@ func (t *Table) GetColumn(name string) []float32 {
 	return nil
 }
 
-// INTERNAL: Does str mark the end of the table header?
-func isTableHeaderEnd(str string) bool {
-	str = ToLower(Trim(str, "# "))
-	str = Replace(str, " ", "", -1)
-	return HasPrefix(str, "TableStart")
-}
+//// INTERNAL: Does str mark the end of the table header?
+//func isTableHeaderEnd(str string) bool {
+//	str = ToLower(Trim(str, "# "))
+//	str = Replace(str, " ", "", -1)
+//	return HasPrefix(str, "TableStart")
+//}
 
 
 // INTERNAL: Splits "# key: value1 value2 ..." into "key", "value1", "value2", ...
 // Values are optional, many entries only have the key.
 func parseTableHeaderLine(str string) (split []string) {
+	//fmt.Print("Split ", str, ":")
 	if !HasPrefix(str, "#") {
 		panic(InputErr("Expected \"#\": " + str))
 	}
-	str = Trim(str, "#")
-	start := 0
+	str = Trim(str, "#") +  " "
+	start, stop := 0,0
 	for i, c := range str {
-		if c == int(':') || i == int(' ') || i == int('\t') {
-			stop := i
+		if c == int(':') || c == int(' ') || c == int('\t') {
+			stop = i
 			substr := str[start:stop]
 			if substr != "" {
 				split = append(split, substr)
@@ -100,5 +108,11 @@ func parseTableHeaderLine(str string) (split []string) {
 			start = stop + 1
 		}
 	}
+	if stop <= len(str) && start <stop{
+		substr := str[start:stop]
+		split = append(split, substr)
+	}
+
+	//fmt.Println(split)
 	return
 }
