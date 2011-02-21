@@ -85,13 +85,13 @@ func (t *Table) AppendToColumn(name string, value float32) {
 
 
 // Write table to output stream.
-func (t *Table) WriteTo(out io.Writer){
+func (t *Table) WriteTo(out io.Writer) {
 	writer := NewTabWriter(out)
-	for i := range t.ColName{
+	for i := range t.ColName {
 		writer.AddColumn(t.ColName[i], t.ColUnit[i])
 	}
-	for i := range t.Column{
-		for row := range t.Column[i]{
+	for row := range t.Column[0] {
+		for i := range t.Column {
 			writer.Print(t.Column[i][row])
 		}
 	}
