@@ -6,7 +6,6 @@
 extern "C" {
 #endif
 
-/// @todo wrap
 /// 2D, plane per plane, i=plane index
 __global__ void _gpu_add_exch6(float* mx, float* my, float* mz,
                                float* hx, float* hy, float* hz,
@@ -37,14 +36,22 @@ __global__ void _gpu_add_exch6(float* mx, float* my, float* mz,
     if (i-1 >= 0){
       idx = (i-1)*N1*N2 + j*N2 + k;
     } else {
-      idx = I;
+		if(wrap0){
+			idx = (N0-1)*N1*N2 + j*N2 + k;
+		}else{
+      		idx = I;
+		}
     }
 	mx1 = mx[idx]; my1 = my[idx]; mz1 = mz[idx];
 
  	if (i+1 < N0){
       idx = (i+1)*N1*N2 + j*N2 + k;
     } else {
-      idx = I;
+		if(wrap0){
+			idx = (0)*N1*N2 + j*N2 + k;
+		}else{
+      		idx = I;
+		}
     } 
 	mx2 = mx[idx]; my2 = my[idx]; mz2 = mz[idx];
 
@@ -54,16 +61,24 @@ __global__ void _gpu_add_exch6(float* mx, float* my, float* mz,
 
     // neighbors in Y direction
     if (j-1 >= 0){
-      idx = (i)*N1*N2 + (j-1)*N2 + k;
+      idx = i*N1*N2 + (j-1)*N2 + k;
     } else {
-      idx = I;
+		if(wrap1){
+			idx = i*N1*N2 + (N1-1)*N2 + k;
+		}else{
+      		idx = I;
+		}
     }
 	mx1 = mx[idx]; my1 = my[idx]; mz1 = mz[idx];
 
  	if (j+1 < N1){
-      idx = (i)*N1*N2 + (j+1)*N2 + k;
+      idx = i*N1*N2 + (j+1)*N2 + k;
     } else {
-      idx = I;
+		if(wrap1){
+			idx = i*N1*N2 + (0)*N2 + k;
+		}else{
+      		idx = I;
+		}
     } 
 	mx2 = mx[idx]; my2 = my[idx]; mz2 = mz[idx];
 
@@ -73,16 +88,24 @@ __global__ void _gpu_add_exch6(float* mx, float* my, float* mz,
 
     // neighbors in Z direction
     if (k-1 >= 0){
-      idx = (i)*N1*N2 + (j)*N2 + (k-1);
+      idx = i*N1*N2 + j*N2 + (k-1);
     } else {
-      idx = I;
+		if(wrap2){
+			idx = i*N1*N2 + j*N2 + (N2-1);
+		}else{
+      		idx = I;
+		}
     }
 	mx1 = mx[idx]; my1 = my[idx]; mz1 = mz[idx];
 
  	if (k+1 < N2){
-      idx =  (i)*N1*N2 + (j)*N2 + (k+1);
+      idx =  i*N1*N2 + j*N2 + (k+1);
     } else {
-      idx = I;
+		if(wrap2){
+			idx = i*N1*N2 + j*N2 + (0);
+		}else{
+      		idx = I;
+		}
     } 
 	mx2 = mx[idx]; my2 = my[idx]; mz2 = mz[idx];
    
