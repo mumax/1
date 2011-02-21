@@ -88,7 +88,7 @@ func (t *Table) AppendToColumn(name string, value float32) {
 func (t *Table) WriteTo(out io.Writer){
 	writer := NewTabWriter(out)
 	for i := range t.ColName{
-		t.AddColumn(t.ColName[i], t.ColUnit[i])
+		writer.AddColumn(t.ColName[i], t.ColUnit[i])
 	}
 	for i := range t.Column{
 		for row := range t.Column[i]{
