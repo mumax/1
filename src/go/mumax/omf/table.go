@@ -31,7 +31,7 @@ func ReadTable(in io.Reader) *Table {
 	// Read Header
 	line, eof := ReadLine(in)
 	done := false
-	for !eof && !done{
+	for !eof && !done {
 		entries := parseTableHeaderLine(line)
 
 		switch ToLower(entries[0]) {
@@ -40,6 +40,9 @@ func ReadTable(in io.Reader) *Table {
 		//ignored:
 		case "odt", "begin", "end", "table", "title":
 		case "desc":
+			if t.Desc == nil {
+				t.Desc = make(map[string]interface{})
+			}
 			t.Desc[entries[1]] = entries[2]
 		case "units":
 			for _, e := range entries[1:] {
@@ -52,8 +55,8 @@ func ReadTable(in io.Reader) *Table {
 			}
 			done = true // #Columns is last header entry, break here.
 		}
-		if !done{
-				line, eof = ReadLine(in)
+		if !done {
+			line, eof = ReadLine(in)
 		}
 	}
 
@@ -96,8 +99,8 @@ func parseTableHeaderLine(str string) (split []string) {
 	if !HasPrefix(str, "#") {
 		panic(InputErr("Expected \"#\": " + str))
 	}
-	str = Trim(str, "#") +  " "
-	start, stop := 0,0
+	str = Trim(str, "#") + " "
+	start, stop := 0, 0
 	for i, c := range str {
 		if c == int(':') || c == int(' ') || c == int('\t') {
 			stop = i
@@ -108,7 +111,7 @@ func parseTableHeaderLine(str string) (split []string) {
 			start = stop + 1
 		}
 	}
-	if stop <= len(str) && start <stop{
+	if stop <= len(str) && start < stop {
 		substr := str[start:stop]
 		split = append(split, substr)
 	}

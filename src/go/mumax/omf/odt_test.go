@@ -14,6 +14,7 @@ func TestWrite(test *testing.T) {
 	table.AddColumn("My", "A/m")
 	table.AddColumn("Mz", "A/m")
 	table.AddColumn("E", "J")
+	table.AddDesc("tag", "value")
 	table.Print(0.95, 0.1, 0)
 	table.Print(17)
 	table.Print(0.96, 0.1, 0)
@@ -29,6 +30,9 @@ func TestRead(test *testing.T) {
 		test.Fail()
 	}
 	if mx[1] != 0.96 {
+		test.Fail()
+	}
+	if table.Desc["tag"] != "value" {
 		test.Fail()
 	}
 }
