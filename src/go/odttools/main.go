@@ -16,9 +16,8 @@ package main
 import (
 	"refsh"
 	"fmt"
-	"tensor"
-	"omf"
-	"iotool"
+	"mumax/tensor"
+	"mumax/omf"
 	"path"
 	"os"
 )
@@ -30,6 +29,9 @@ var (
 	data     *tensor.T4 // the currently opened vector data
 	info     *omf.Info  // 
 )
+
+
+// Stores the table being built
 
 
 // CLI args consist of flags (starting with --) and files.
