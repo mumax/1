@@ -14,20 +14,21 @@ import (
 	. "mumax/common"
 	. "strings"
 	"io"
+	"fmt"
 )
-
 
 
 type Table struct {
 	Desc             map[string]interface{}
 	ColName, ColUnit []string
-	Column           []float32
+	Column           [][]float32
 }
 
 
 func ReadTable(in io.Reader) *Table {
 	t := new(Table)
 
+	// Read Header
 	line, eof := ReadLine(in)
 	for !eof && !isTableHeaderEnd(line) {
 		entries := parseTableHeaderLine(line)
@@ -35,10 +36,29 @@ func ReadTable(in io.Reader) *Table {
 		switch ToLower(entries[0]) {
 		default:
 			panic(InputErr("Unknown ODT key: " + entries[0]))
-
+		//ignored:
+		case "odt", "begin", "end", "table", "title":
+		case "desc":
+			t.Desc[entries[1]] = entries[2]
+		case "units":
+			for _, e := range entries[1:] {
+				t.ColUnit = append(t.ColUnit, Trim(e, "{}"))
+			}
+		case "columns":
+			for _, e := range entries[1:] {
+				t.ColName = append(t.ColName, e)
+				t.Column = append(t.Column, make([]float32, 0, 100))
+			}
 		}
-
 		line, eof = ReadLine(in)
+	}
+
+	// Read data
+	n := 1
+	for n > 0 {
+		for i := range t.Column {
+			n, _ = fmt.Fscan(in, t.Column[i])
+		}
 	}
 	return t
 }
