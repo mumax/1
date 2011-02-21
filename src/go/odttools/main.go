@@ -26,8 +26,7 @@ import (
 // Stores the currently loaded odt file.
 var (
 	filename string     // the currently opened file
-	data     *tensor.T4 // the currently opened vector data
-	info     *omf.Info  // 
+
 )
 
 

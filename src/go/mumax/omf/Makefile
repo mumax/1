@@ -7,6 +7,7 @@ GOFILES=\
 	input.go\
 	output.go\
 	odt.go\
+	table.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 
