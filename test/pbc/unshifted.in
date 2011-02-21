@@ -8,7 +8,7 @@ alpha      	2
 
 gridsize       	128 	128 	1
 partsize   	500E-9  500E-9  40E-9
-#mask unshifted.png
+mask unshifted.png
 
 vortex 1 1
 
@@ -18,7 +18,7 @@ vortex 1 1
 vortex 1 1
 
 alpha 1
-autosave  m png 1e-12
+autosave  m png 10e-12
 autosave  table ascii 100e-12
 
 staticfield 20e-3 20e-3 0
