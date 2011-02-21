@@ -7,7 +7,7 @@
 // odttool is a general-purpose manipulator for .odt files.
 // 
 // General usage:
-// odttool --command="arg1,arg2" ... infile outfile
+// odttool --command="arg1,arg2" ... infiles outfile
 //
 //
 package main
@@ -24,7 +24,7 @@ import (
 )
 
 
-// Stores the currently loaded omf file.
+// Stores the currently loaded odt file.
 var (
 	filename string     // the currently opened file
 	data     *tensor.T4 // the currently opened vector data
@@ -32,19 +32,13 @@ var (
 )
 
 
-// CLI args consist of flagss (starting with --) and files.
+// CLI args consist of flags (starting with --) and files.
 // They are passed like this:
 // --command="arg1, arg2" ... file1 file2 ...
 // The command is executed on each of the files
 func main() {
 	sh := refsh.New()
-	sh.AddFunc("draw", Draw)
-	sh.AddFunc("draw3d", Draw3D)
-	sh.AddFunc("3d-zoom", Draw3D_Size)
-	sh.AddFunc("3d-detail", Draw3D_Detail)
-	sh.AddFunc("3d-shadow", Draw3D_Shadow)
-	sh.AddFunc("draw3d-dump", Draw3D_Dump)
-	sh.AddFunc("downsample", Downsample)
+	sh.AddFunc("getdesc", GetDesc)
 	cmd, args, files := refsh.ParseFlags2()
 
 	// Each file is read and stored in "data".

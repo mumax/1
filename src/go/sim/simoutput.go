@@ -134,22 +134,29 @@ type Table struct {
 	*Periodic
 }
 
+func (s *Sim) initTabWriter() {
+	if s.tabwriter != nil {
+		panic(Bug("Tabwriter already initiated."))
+	}
+	fname := s.outputdir + "/" + "datatable.odt"
+	out := MustOpenWRONLY(fname)
+	s.tabwriter = omf.NewTabWriter(out)
+	s.tabwriter.AddColumn("Time", "s")
+	s.tabwriter.AddColumn("Mx/Ms", "")
+	s.tabwriter.AddColumn("My/Ms", "")
+	s.tabwriter.AddColumn("Mz/Ms", "")
+	s.tabwriter.AddColumn("Bx", "T")
+	s.tabwriter.AddColumn("By", "T")
+	s.tabwriter.AddColumn("Bz", "T")
+	s.tabwriter.AddColumn("max_dm/dt", "gammaMs")
+	s.tabwriter.AddColumn("min_Mz/Ms", "")
+	s.tabwriter.AddColumn("max_Mz/Ms", "")
+	s.tabwriter.AddColumn("id", "")
+}
+
 func (t *Table) Save(s *Sim) {
 	if s.tabwriter == nil {
-		fname := s.outputdir + "/" + "datatable.odt"
-		out := MustOpenWRONLY(fname)
-		s.tabwriter = omf.NewTabWriter(out)
-		s.tabwriter.AddColumn("Time", "s")
-		s.tabwriter.AddColumn("Mx/Ms", "")
-		s.tabwriter.AddColumn("My/Ms", "")
-		s.tabwriter.AddColumn("Mz/Ms", "")
-		s.tabwriter.AddColumn("Bx", "T")
-		s.tabwriter.AddColumn("By", "T")
-		s.tabwriter.AddColumn("Bz", "T")
-		s.tabwriter.AddColumn("max_dm/dt", "gammaMs")
-		s.tabwriter.AddColumn("min_Mz/Ms", "")
-		s.tabwriter.AddColumn("max_Mz/Ms", "")
-		s.tabwriter.AddColumn("id", "")
+		s.initTabWriter()
 	}
 
 	// calculate reduced quantities
