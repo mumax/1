@@ -1,7 +1,7 @@
 include $(GOROOT)/src/Make.inc
 
 main:	*.go
-	$(GC)  main.go 
+	$(GC)  main.go desc.go
 	$(LD)  -o $@ *.$O
 	cp -f $(CURDIR)/main ../../../bin/odttool
 

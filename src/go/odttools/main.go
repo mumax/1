@@ -1,3 +1,4 @@
+//  This file is part of MuMax, a high-performance micromagnetic simulator
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -34,13 +35,6 @@ var (
 	newtable omf.Table
 )
 
-
-func GetDesc(key string) {
-	desc := table.Desc[key]
-	newtable.EnsureColumn(key, "")
-	value := Atof32(fmt.Sprint(desc))
-	newtable.AppendToColumn(key, value)
-}
 
 // CLI args consist of flags (starting with --) and files.
 // They are passed like this:
