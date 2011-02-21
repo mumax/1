@@ -34,18 +34,18 @@ func (s *Sim) LookupKernel(size []int, cellsize []float32, accuracy int, periodi
 		err := recover()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
-			kernel = FaceKernel6(size, cellsize, accuracy, periodic)
+			kernel = s.CalcDemagKernel(size, cellsize, accuracy, periodic)
 		}
 	}()
 
 	// empty widomdir means we must not use wisdom
 	if s.wisdomdir == "" {
-		kernel = FaceKernel6(size, cellsize, accuracy, periodic)
+		kernel = s.CalcDemagKernel(size, cellsize, accuracy, periodic)
 		return
 	}
 
 	// try to load cached kernel
-	kerndir := s.wisdomdir + "/" + wisdomFileName(size, cellsize, accuracy, periodic)
+	kerndir := s.wisdomdir + "/" + wisdomFileName(size, cellsize, accuracy, periodic, s.input.kernelType)
 	if fileExists(kerndir) {
 		Println("using wisdom: ", kerndir)
 		kernel = make([]*tensor.T3, 6)
@@ -57,7 +57,7 @@ func (s *Sim) LookupKernel(size []int, cellsize []float32, accuracy int, periodi
 		Println("wisdom loaded")
 		return
 	} else {
-		kernel = FaceKernel6(size, cellsize, accuracy, periodic)
+		kernel = s.CalcDemagKernel(size, cellsize, accuracy, periodic)
 		s.storeKernel(kernel, kerndir)
 	}
 
@@ -107,20 +107,19 @@ func (s *Sim) storeKernel(kernel []*tensor.T3, kerndir string) {
 
 
 // INTERNAL returns a directory name (w/o absolute path) to store the kernel with given parameters
-func wisdomFileName(size []int, cellsize []float32, accuracy int, periodic []int) string {
+func wisdomFileName(size []int, cellsize []float32, accuracy int, periodic []int, kernelType string) string {
 	pbc := ""
 	if !(periodic[X] == 0 && periodic[Y] == 0 && periodic[Z] == 0) {
 		pbc = fmt.Sprint("pbc", periodic[Z], "x", periodic[Y], "x", periodic[X])
 	}
-	return fmt.Sprint(size[Z], "x", size[Y], "x", size[X], "/",
+	return fmt.Sprint(kernelType, "/", size[Z], "x", size[Y], "x", size[X], "/",
 		cellsize[Z], "x", cellsize[Y], "x", cellsize[X], "lex3",
 		pbc,
 		"acc", accuracy)
 }
 
 // INTERNAL
-// Absolute path of the default kernel root directory:
-// working directory + /kernelwisdom
+// Absolute path of the default kernel root directory.
 func defaultWisdomDir() string {
 	wd, err := os.Getwd()
 	if err != nil {

@@ -64,7 +64,7 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int, periodic []int) [
 					faceIntegral(B, R, cellsize, s, accuracy)
 
 					for d := s; d < 3; d++ { // destination index Ksdxyz
-						i := KernIdx[s][d]                         // 3x3 symmetric index to 1x6 index
+						i := KernIdx[s][d]               // 3x3 symmetric index to 1x6 index
 						k[i].Array()[xw][yw][zw] += B[d] // We have to ADD because there are multiple contributions in case of periodicity
 					}
 				}
@@ -83,8 +83,9 @@ func FaceKernel6(size []int, cellsize []float32, accuracy int, periodic []int) [
 	return k
 }
 
+// UNTESTED:
 // Smart version of FaceKernel6, uses symmetry to cut cpu time roughly in 1/8
-func FastKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
+func fastKernel6(size []int, cellsize []float32, accuracy int) []*tensor.T3 {
 	k := make([]*tensor.T3, 6)
 	for i := range k {
 		k[i] = tensor.NewT3(size)

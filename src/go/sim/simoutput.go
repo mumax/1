@@ -126,54 +126,37 @@ func resolve(what, format string) Output {
 	return nil // not reached
 }
 
-//__________________________________________ ascii
-
-// Opens a file for writing 
-//func fopen(filename string) *os.File {
-//	file, err := os.Open(filename, os.O_WRONLY|os.O_CREAT, 0666)
-//	if err != nil {
-//		panic(err)
-//	}
-//	return file
-//}
-
-
-// TODO: it would be nice to have a separate date sturcture for the format and one for the data.
-// with a better input file parser we could allow any tensor to be stored:
-// save average(component(m, z)) jpg
-// INTERNAL
-//type MAscii struct {
-//	*Periodic
-//}
-
+// How to format the id for the file name, e.g.: m000000001.omf
 const FILENAME_FORMAT = "%08d"
 
-// INTERNAL
-//func (m *MAscii) Save(s *Sim) {
-//	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
-//	file := fopen(fname)
-//	defer file.Close()
-//	tensor.WriteMetaTensorAscii(file, s.mLocal, s.desc)
-//	m.sinceoutput = float32(s.time) * s.UnitTime()
-//}
 
 type Table struct {
 	*Periodic
 }
 
+func (s *Sim) initTabWriter() {
+	if s.tabwriter != nil {
+		panic(Bug("Tabwriter already initiated."))
+	}
+	fname := s.outputdir + "/" + "datatable.odt"
+	out := MustOpenWRONLY(fname)
+	s.tabwriter = omf.NewTabWriter(out)
+	s.tabwriter.AddColumn("Time", "s")
+	s.tabwriter.AddColumn("Mx/Ms", "")
+	s.tabwriter.AddColumn("My/Ms", "")
+	s.tabwriter.AddColumn("Mz/Ms", "")
+	s.tabwriter.AddColumn("Bx", "T")
+	s.tabwriter.AddColumn("By", "T")
+	s.tabwriter.AddColumn("Bz", "T")
+	s.tabwriter.AddColumn("max_dm/dt", "gammaMs")
+	s.tabwriter.AddColumn("min_Mz/Ms", "")
+	s.tabwriter.AddColumn("max_Mz/Ms", "")
+	s.tabwriter.AddColumn("id", "")
+}
+
 func (t *Table) Save(s *Sim) {
 	if s.tabwriter == nil {
-		fname := s.outputdir + "/" + "datatable.odt"
-		out := MustOpenWRONLY(fname)
-		s.tabwriter = omf.NewTabWriter(out)
-		s.tabwriter.AddColumn("Time", "s")
-		s.tabwriter.AddColumn("Mx/Ms", "")
-		s.tabwriter.AddColumn("My/Ms", "")
-		s.tabwriter.AddColumn("Mz/Ms", "")
-		s.tabwriter.AddColumn("Bx", "T")
-		s.tabwriter.AddColumn("By", "T")
-		s.tabwriter.AddColumn("Bz", "T")
-		s.tabwriter.AddColumn("id", "")
+		s.initTabWriter()
 	}
 
 	// calculate reduced quantities
@@ -184,12 +167,14 @@ func (t *Table) Save(s *Sim) {
 		m[i] = s.devsum.Reduce(s.mDev.comp[i]) / s.avgNorm
 		torque[i] = abs32(s.devmaxabs.Reduce(s.hDev.comp[i]) / s.dt)
 	}
-	//minMz, maxMz := s.devmin.Reduce(s.mDev.comp[X]), s.devmax.Reduce(s.mDev.comp[X])
+	minMz, maxMz := s.devmin.Reduce(s.mDev.comp[X]), s.devmax.Reduce(s.mDev.comp[X])
+	maxtorque := max32(torque[0], max32(torque[1], torque[2]))
 
 	s.tabwriter.Print(float32(s.time) * s.UnitTime())
 	s.tabwriter.Print(m[Z], m[Y], m[X])
 	s.tabwriter.Print(s.hextSI[Z], s.hextSI[Y], s.hextSI[X])
-
+	s.tabwriter.Print(maxtorque)
+	s.tabwriter.Print(minMz, maxMz)
 	s.tabwriter.Print(s.autosaveIdx)
 	s.tabwriter.Flush() // It's handy to have the output stored intermediately
 	t.sinceoutput = float32(s.time) * s.UnitTime()
@@ -214,24 +199,6 @@ func m_average(m *tensor.T4) (mx, my, mz float32) {
 	return
 }
 
-//_________________________________________ binary
-
-// INTERNAL
-//type MBinary struct {
-//	*Periodic
-//}
-//
-// INTERNAL
-// TODO: files are not closed?
-// TODO/ also for writeAscii
-//func (m *MBinary) Save(s *Sim) {
-//	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
-//	out := fopen(fname)
-//	defer out.Close()
-//	tensor.WriteMetaTensorBinary(out, s.mLocal, s.desc)
-//	m.sinceoutput = float32(s.time) * s.UnitTime()
-//}
-
 
 type MOmf struct {
 	*Periodic
@@ -239,7 +206,6 @@ type MOmf struct {
 }
 
 // INTERNAL
-// TODO: format: text
 func (m *MOmf) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
 	var file omf.File
@@ -257,9 +223,9 @@ func (m *MOmf) Save(s *Sim) {
 
 
 // INTERNAL
-type TorqueBinary struct {
-	*Periodic
-}
+//type TorqueBinary struct {
+//	*Periodic
+//}
 
 // TODO: quick and dirty for the moment
 //func (m *TorqueBinary) Save(s *Sim) {
@@ -281,26 +247,13 @@ type MPng struct {
 
 // INTERNAL
 func (m *MPng) Save(s *Sim) {
+	s.assureOutputUpToDate()
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".png"
 	out := MustOpenWRONLY(fname)
 	defer out.Close()
 	draw.PNG(out, s.mLocal)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
-
-// To implement omf.Interface:
-// TODO: generalize
-//func (s *Sim) GetData() (data tensor.Interface, multiplier float32, unit string) {
-//	return s.mLocal, s.input.msat, "A/m"
-//}
-//
-//func (s *Sim) GetMesh() (cellsize []float32, unit string) {
-//	return s.input.cellSize[:], "m"
-//}
-//
-//func (s *Sim) GetMetadata() map[string]string {
-//	return s.metadata
-//}
 
 
 //INTERNAL
@@ -309,4 +262,12 @@ func abs32(x float32) float32 {
 		return x
 	}
 	return -x
+}
+
+//INTERNAL
+func max32(x, y float32) float32 {
+	if x > y {
+		return x
+	}
+	return y
 }

@@ -60,8 +60,8 @@ func main_python(infile string) {
 		wait <- 1
 	}()
 
-	go func(){
-		 mu_wait, errwait := mumax.Wait(0)
+	go func() {
+		mu_wait, errwait := mumax.Wait(0)
 		CheckErr(errwait, ERR_SUBPROCESS)
 		status := mu_wait.ExitStatus()
 		Println("mumax child process exited with status ", status)

@@ -155,8 +155,8 @@ func (im *Mask) Inside(x, y, z float32) bool {
 	inside := im.inside
 	width, height := len(inside[0]), len(inside)
 
-	i := int((y/im.sizey+.5)*float32(height) + .5)
-	j := int((z/im.sizez+.5)*float32(width) + .5)
+	i := int((y/im.sizey+.5)*float32(height))
+	j := int((z/im.sizez+.5)*float32(width))
 
 	if i >= 0 && i < height && j >= 0 && j < width {
 		return inside[i][j]

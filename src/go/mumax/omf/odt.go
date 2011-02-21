@@ -33,6 +33,7 @@ type TabWriter struct {
 	initiated bool
 	closed    bool
 	colcount  int
+	desc      map[string]interface{}
 }
 
 
@@ -54,6 +55,15 @@ func (t *TabWriter) AddColumn(colname, unit string) {
 	t.units = append(t.units, unit)
 }
 
+func (t *TabWriter) AddDesc(key string, val interface{}) {
+	if t.initiated {
+		panic("Can not descriptions when omf.TabWriter is already open")
+	}
+	if t.desc == nil {
+		t.desc = make(map[string]interface{})
+	}
+	t.desc[key] = val
+}
 
 func (t *TabWriter) Print(v ...interface{}) {
 	if !t.initiated {
@@ -88,6 +98,13 @@ func (t *TabWriter) open() {
 	t.tabout = tabwriter.NewWriter(t.bufout, COL_WIDTH, 4, 0, ' ', 0)
 	out := t.tabout
 	fmt.Fprintln(out, "# ODT 1.0")
+
+	if t.desc != nil {
+		hdr(out, "Begin", "Header")
+		writeDesc(out, t.desc)
+		hdr(out, "End", "Header")
+	}
+
 	fmt.Fprintln(out, "# Table Start")
 	fmt.Fprintln(out, "# Title: ", t.Title)
 

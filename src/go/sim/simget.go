@@ -7,20 +7,20 @@
 
 package sim
 
-import(
+import (
 	"fmt"
 )
 
-func Send(v ...interface{}){
+func Send(v ...interface{}) {
 	fmt.Print("%")
 	fmt.Println(v...)
 }
 
-func (s *Sim) GetM(component int){
-	Send(s.getM(2-component)) // translate to ZYX
+func (s *Sim) GetM(component int) {
+	Send(s.getM(2 - component)) // translate to ZYX
 
 }
-func (s *Sim) getM(component int) float32{
-		s.init()
-		return s.devsum.Reduce(s.mDev.comp[component]) / s.avgNorm
+func (s *Sim) getM(component int) float32 {
+	s.init()
+	return s.devsum.Reduce(s.mDev.comp[component]) / s.avgNorm
 }

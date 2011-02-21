@@ -17,11 +17,12 @@ OFILES=\
 	gpu_stream.o\
 	gpu_reduction.o\
 	gpu_fftbig.o\
-	gpu_fft0.o\
+	gpu_fft6.o\
  	gpu_anal.o\
 	gpu_spintorque.o\
 	gpu_anis.o\
 	gpu_local_contr2.o\
+	gpu_exch0.o\
 
 all: libgpukern.so
 
@@ -107,6 +108,9 @@ gpu_anis.o:  gpu_anis.h gpu_anis.cu
 
 gpu_local_contr2.o:  gpu_local_contr2.h gpu_local_contr2.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_local_contr2.cu
+
+gpu_exch0.o:  gpu_exch.h gpu_exch0.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_exch0.cu
 
 test:	all transpose_test zeropad_test reduction_test fft_test spintorque_test
 

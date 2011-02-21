@@ -5,7 +5,9 @@ echo '#! /bin/bash' > $OUTPUT
 echo 'export SIMROOT='$(pwd) >> $OUTPUT
 
 # GO
-echo 'export GOMAXPROCS=$(grep processor /proc/cpuinfo | wc -l) ' >> $OUTPUT
+# It is currently not clear whether we should use 1, 2 or the maximum number of CPUs for best performance
+# (especially when multiple mumax instances are running concurrently). 
+# echo 'export GOMAXPROCS=$(grep processor /proc/cpuinfo | wc -l) ' >> $OUTPUT
 
 # cuda
 echo 'export LD_LIBRARY_PATH=$SIMROOT/dep/cuda/lib64:$SIMROOT/dep/cuda/lib:$LD_LIBRARY_PATH ' >> $OUTPUT

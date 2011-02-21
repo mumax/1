@@ -7,12 +7,9 @@
 package sim
 
 // TODO
-// kernel is a bit of a mess:
 //  * we only need to calculate the upper triangular part
 //  * we need to use the symmetry to make the calculation 8x faster
 //  * return only 1/8 of the total kernel and have a function to obtain the rest via mirroring (good for storing them)
-//  * return []Tensor3 right away without conversion
-
 
 // A kernel is a rank 5 Tensor: K[S][D][x][y][z].
 // S and D are source and destination directions, ranging from 0 (X) to 2 (Z).
