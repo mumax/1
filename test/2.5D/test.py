@@ -1,28 +1,34 @@
 from mumax import *
 
 kerneltype('mumaxkern-cpu')
-exchtype(0)
+#exchtype(0)
 #exchinconv(0)
 
 # material
-msat(800e3)   
-aexch(1.3e-11)     
-alpha(2)
-
+msat(1448e3)
+aexch(1.5e-11)     
+alpha(1)
+anisuniaxial(0, 1, 0)
+k1(40e3)
 
 # geometry 
-nx = 128
-ny = 32
+nx = 1024
+ny = 128
 gridsize(nx, ny, 1)    
-partsize(500e-9, 125e-9, inf)
+partsize(5.12e-6, 0.64e-6, inf)
+
 
 # initial magnetization
-setrandom()
+uniform(0, 0.01, 1)
 
 # run
-autosave("m", "text", 100e-12)
-autosave("table", "ascii", 100e-12)
+autosave("m", "binary", 100e-12)
+autosave("table", "ascii", 10e-12)
+maxdt(1e-12)
+mindt(1e-15)
+mindm(1e-5)
 run(10e-9)
+
 
 
 

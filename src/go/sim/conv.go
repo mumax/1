@@ -113,9 +113,9 @@ func (conv *Conv) loadKernel6(kernel []*tensor.T3) {
 	for i, k := range kernel {
 		if k != nil {
 			Assert(tensor.EqualSize(k.Size(), conv.LogicSize()))
-			for _, e := range k.List(){
-				if !IsReal(e){
-					tensor.Format(k)
+			for _, e := range k.List() {
+				if !IsReal(e) {
+					tensor.Format(os.Stderr, k)
 				}
 				AssertMsg(IsReal(e), "K", KernString[i], " is NaN or Inf") // should not be NaN or Inf
 			}

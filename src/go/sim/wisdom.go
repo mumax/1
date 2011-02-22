@@ -62,11 +62,11 @@ func (s *Sim) LookupKernel(size []int, cellsize []float32, accuracy int, periodi
 	}
 
 	// TODO: hack
-    if size[X] == 1{
+	if size[X] == 1 {
 		kernel[XY] = nil
 		kernel[XZ] = nil
-	}	
-	if IsInf(cellsize[X]){
+	}
+	if IsInf(cellsize[X]) {
 		tensor.Zero(kernel[XX]) // TODO: do not store and multiply
 	}
 	return

@@ -34,7 +34,7 @@ func (s *Sim) ExchInConv(exchInConv bool) {
 }
 
 // Set the exchange type
-func (s *Sim) ExchType(exchType int){
+func (s *Sim) ExchType(exchType int) {
 	s.input.exchType = exchType
 	s.invalidate()
 }
