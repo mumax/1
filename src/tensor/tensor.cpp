@@ -337,7 +337,7 @@ void write_tensor_ascii(tensor* t, FILE* out){
     fprintf(out, "%d\n", t->size[i]);
   }
   for(int i=0; i<tensor_length(t); i++){
-    fprintf(out, "%f\n", t->list[i]);
+    fprintf(out, "%e\n", t->list[i]);
   }
 }
 

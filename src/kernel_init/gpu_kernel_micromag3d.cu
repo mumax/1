@@ -69,7 +69,6 @@ __device__ float _gpu_get_kernel_element_micromag3d(int Nkernel_X, int Nkernel_Y
         }*/
         
       }
-      result *= -1.0f/4.0f/3.14159265f;
     }
   // ______________________________________________________________________________________________
 

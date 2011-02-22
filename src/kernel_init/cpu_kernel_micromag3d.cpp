@@ -124,7 +124,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
         int k = c + cntc*Nkernel[Z]/2;
         int r2_int = i*i+j*j+k*k;
 
-        if (r2_int<400){
+        if (r2_int<0){
           float x1 = (i + 0.5f) * cellSize[X];
           float x2 = (i - 0.5f) * cellSize[X];
           for (int cnt2=0; cnt2<10; cnt2++){
@@ -481,7 +481,6 @@ void initialize_Gauss_quadrature_micromag3d(float *std_qd_W_10, float *mapped_qd
     get_Quad_Points_micromag3d(&mapped_qd_P_10[Y*10], std_qd_P_10, 10, -0.5f*cellSize[Y], 0.5f*cellSize[Y]);
     get_Quad_Points_micromag3d(&mapped_qd_P_10[Z*10], std_qd_P_10, 10, -0.5f*cellSize[Z], 0.5f*cellSize[Z]);
   // ______________________________________________________________________________________________
-
 
   free (std_qd_P_10);
 
