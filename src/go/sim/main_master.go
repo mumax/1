@@ -1,3 +1,4 @@
+//  This file is part of MuMax, a high-performance micromagnetic simulator
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -26,7 +27,7 @@ import (
 )
 
 const WELCOME = `
-  MuMax 0.5.1967
+  MuMax 0.5.2019
   (c) Arne Vansteenkiste & Ben Van de Wiele,
       DyNaMat/EELAB Ghent University.
 
@@ -100,7 +101,7 @@ func main_raw_input(infile string) {
 		os.Exit(ERR_SUBPROCESS)
 	} else {
 		if !*silent {
-			fmt.Println("Child process PID ", cmd.Pid)
+			fmt.Println("Child process PID ", cmd.Process.Pid)
 		}
 		go Pipe(cmd.Stdout, os.Stdout) // TODO: logging etc
 		go Pipe(cmd.Stderr, os.Stderr)

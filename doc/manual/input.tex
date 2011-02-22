@@ -1,28 +1,33 @@
-\section{Running}
-
-\subsection{Launching the program}
-
-To run \prog, type the following code in a terminal:
-
-\shell{\prog \textit{arguments} \textit{input.in}}
-
-Where \textit{\file{input.in}} is the name of the input file to run. It does not necessarily have to end with ``\file{.in}'' but we use this convention throughout this manual. The \textit{\cmd{arguments}} are optinal and described further on. 
-
-\paragraph{Arguments} In the above code, \cmd{\textit{arguments}} should be replaced by an (optional) list of \idx{command line arguments}. Arguments start with a dash (``-'') and should always come \emph{before} the input file. They are only meant for fine-tuning the program's behavior and may usually be omitted. These are the possibilities:
-
-\begin{enumerate}
- \item [\idxcmd{-cpu}] Run on the CPU instead of the GPU.
- \item [\idxcmd{-gpu=N}] Run on GPU number ``N'' when multiple GPUs are present. Default value is ``0'', the first GPU.
- \item [\idxcmd{-silent}] Do not print output to the screen (only to output.log)
- \item [\idxcmd{-updatedisp=N}] Update the ``live'' progress output every N milliseconds
- \item [\idxcmd{-daemon}] Run in deamon mode, see \ref{daemon}
- \item [\idxcmd{-watch=N}] When running in deamon mode, check for new input files every ``N'' seconds. See \ref{daemon}.
-\end{enumerate}
+\section{Running \mumax}
 
 
-\subsection{Input file}
+\subsection{Python input files}
 
-A \prog input file specifies an entire simulation, including which output should be saved. Each file contains a series of \idx{commands} which are executed in the order they are provided. Let us start with a simple example:
+\mumax input files can be written in Python, among others. Let us start with a simple example input file: \file{standardproblem4.py}
+
+\begin{verbatim}
+from mumax import *
+
+# material
+msat(800e3)
+aexch(1.3e-11)
+alpha(0.02)
+
+# geometry 
+gridsize(128, 32, 1)
+partsize(500e-9, 125e-9, 3e-9)
+
+# initial magnetization
+uniform	(1, 1, 0)
+relax(1e-5)
+
+# run
+autosave('table', 'ascii', 10E-12)
+run(1e-9)
+\end{verbatim}
+
+
+\subsection{raw ".in" input files}
 
 
 \begin{verbatim}
@@ -102,6 +107,21 @@ To define the magnet size, you must specify \emph{exactly two} of the three comm
 Upon running an input file, an \idx{output directory} with a corresponding name but ending with ``\file{.out}'' will be created to store the simulation output. It also contains a file \idxfile{output.log} that keeps a log of all the output that appeared on the screen.  
 
 
-\subsection{Program arguments}\label{arguments}
+\subsection{\mumax Arguments}
 
-To obtain a list of program arguments, run \prog \cmd{-help}.
+\mumax is generally started by typing:
+
+\shell{\prog \textit{arguments} \textit{inputfile}}
+
+in a terminal. \cmd{\textit{arguments}} represents the (optional) \idx{command line arguments}, starting with a dash (``-'') or double-dash. These should always be specified \emph{before} the input file(s). They are meant for fine-tuning the program's behavior and may often be omitted. Here are the most important cases:
+
+\begin{tabular}{ll}
+\idxcmd{-help} & Print a complete list of command-line arguments.\\
+\idxcmd{-cpu} & Run on the CPU instead of the GPU. \\
+\idxcmd{-gpu=N}&  Run on GPU number ``N'' when multiple GPUs are present.\\& Default value is ``0'', the first GPU. \\
+\idxcmd{-silent}&  Do not print output to the screen (only to output.log) \\
+\idxcmd{-updatedisp=N}&  Update the ``live'' progress output every N milliseconds \\
+\idxcmd{-daemon}&  Run in deamon mode, see \ref{daemon} \\
+\idxcmd{-watch=N}&  When running in deamon mode, check for new input files every ``N'' seconds. See \ref{daemon}. \\
+\end{tabular}
+

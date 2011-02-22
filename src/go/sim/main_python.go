@@ -1,3 +1,4 @@
+//  This file is part of MuMax, a high-performance micromagnetic simulator
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -26,7 +27,7 @@ func main_python(infile string) {
 	Println("starting ", py_bin, py_args)
 	python, errpy := subprocess(py_bin, py_args, exec.Pipe, exec.Pipe, exec.PassThrough)
 	CheckErr(errpy, ERR_SUBPROCESS)
-	Println("python PID: ", python.Pid)
+	Println("python PID: ", python.Process.Pid)
 
 	// Start mumax --slave subprocess
 	mu_args := passthrough_cli_args()
@@ -34,7 +35,7 @@ func main_python(infile string) {
 	Println("starting ", "mumax ", mu_args)
 	mumax, errmu := subprocess(os.Getenv(SIMROOT)+"/"+SIMCOMMAND, mu_args, exec.Pipe, exec.Pipe, exec.PassThrough)
 	CheckErr(errmu, ERR_SUBPROCESS)
-	Println("mumax slave PID ", mumax.Pid)
+	Println("mumax slave PID ", mumax.Process.Pid)
 
 	// 2-way communication between python and mumax
 	// Python's stdout -> mumax's  stdin

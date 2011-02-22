@@ -8,6 +8,8 @@
 // Magnetic simulation package
 package sim
 
+// This file implements the Sim data structure that stores the simulation state
+
 import (
 	. "mumax/common"
 	"mumax/tensor"
@@ -27,7 +29,7 @@ const (
 	DEFAULT_MIN_DM            = 0
 	DEFAULT_DT_INTERNAL       = 1e-4
 	DEFAULT_RELAX_MAX_TORQUE  = 1e-3
-	DEFAULT_KERNELTYPE        = "mumaxkern-gpu"
+	DEFAULT_KERNELTYPE        = "mumaxkern-go"
 )
 
 // Sim has an "input" member of type "Input".

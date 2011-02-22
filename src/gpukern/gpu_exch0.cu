@@ -6,7 +6,6 @@
 extern "C" {
 #endif
 
-/// @todo wrap
 /// 2D, plane per plane, i=plane index
 __global__ void _gpu_add_exch6(float* mx, float* my, float* mz,
                                float* hx, float* hy, float* hz,
@@ -22,11 +21,14 @@ __global__ void _gpu_add_exch6(float* mx, float* my, float* mz,
   
   if (j < N1 && k < N2){
 
-    // Local H initiated with central cell contribution. 
-	float Hx = - 6.0f * mx[I];
-	float Hy = - 6.0f * my[I];
-	float Hz = - 6.0f * mz[I];
+    // Local H initiated
+	float Hx = hx[I];
+	float Hy = hy[I];
+	float Hz = hz[I];
 
+	float mx1, my1, mz1; // magnetization of neighbor 1
+	float mx2, my2, mz2; // magnetization of neighbor 2
+	
 	// Now add Neighbors.
 
     // neighbors in X direction
@@ -34,51 +36,87 @@ __global__ void _gpu_add_exch6(float* mx, float* my, float* mz,
     if (i-1 >= 0){
       idx = (i-1)*N1*N2 + j*N2 + k;
     } else {
-      idx = I;
+		if(wrap0){
+			idx = (N0-1)*N1*N2 + j*N2 + k;
+		}else{
+      		idx = I;
+		}
     }
-    Hx += mx[idx]; Hy += my[idx]; Hz += mz[idx];
+	mx1 = mx[idx]; my1 = my[idx]; mz1 = mz[idx];
 
  	if (i+1 < N0){
       idx = (i+1)*N1*N2 + j*N2 + k;
     } else {
-      idx = I;
+		if(wrap0){
+			idx = (0)*N1*N2 + j*N2 + k;
+		}else{
+      		idx = I;
+		}
     } 
-    Hx += mx[idx]; Hy += my[idx]; Hz += mz[idx];
+	mx2 = mx[idx]; my2 = my[idx]; mz2 = mz[idx];
+
+    Hx += fac0 * (mx1 + mx2 - 2.0f*mx[I]);
+    Hy += fac0 * (my1 + my2 - 2.0f*my[I]);
+    Hz += fac0 * (mz1 + mz2 - 2.0f*mz[I]);
 
     // neighbors in Y direction
     if (j-1 >= 0){
-      idx = (i)*N1*N2 + (j-1)*N2 + k;
+      idx = i*N1*N2 + (j-1)*N2 + k;
     } else {
-      idx = I;
+		if(wrap1){
+			idx = i*N1*N2 + (N1-1)*N2 + k;
+		}else{
+      		idx = I;
+		}
     }
-    Hx += mx[idx]; Hy += my[idx]; Hz += mz[idx];
+	mx1 = mx[idx]; my1 = my[idx]; mz1 = mz[idx];
 
  	if (j+1 < N1){
-      idx = (i)*N1*N2 + (j+1)*N2 + k;
+      idx = i*N1*N2 + (j+1)*N2 + k;
     } else {
-      idx = I;
+		if(wrap1){
+			idx = i*N1*N2 + (0)*N2 + k;
+		}else{
+      		idx = I;
+		}
     } 
-    Hx += mx[idx]; Hy += my[idx]; Hz += mz[idx];
+	mx2 = mx[idx]; my2 = my[idx]; mz2 = mz[idx];
+
+    Hx += fac1 * (mx1 + mx2 - 2.0f*mx[I]);
+    Hy += fac1 * (my1 + my2 - 2.0f*my[I]);
+    Hz += fac1 * (mz1 + mz2 - 2.0f*mz[I]);
 
     // neighbors in Z direction
     if (k-1 >= 0){
-      idx = (i)*N1*N2 + (j)*N2 + (k-1);
+      idx = i*N1*N2 + j*N2 + (k-1);
     } else {
-      idx = I;
+		if(wrap2){
+			idx = i*N1*N2 + j*N2 + (N2-1);
+		}else{
+      		idx = I;
+		}
     }
-    Hx += mx[idx]; Hy += my[idx]; Hz += mz[idx];
+	mx1 = mx[idx]; my1 = my[idx]; mz1 = mz[idx];
 
  	if (k+1 < N2){
-      idx =  (i)*N1*N2 + (j)*N2 + (k+1);
+      idx =  i*N1*N2 + j*N2 + (k+1);
     } else {
-      idx = I;
+		if(wrap2){
+			idx = i*N1*N2 + j*N2 + (0);
+		}else{
+      		idx = I;
+		}
     } 
-    Hx += mx[idx]; Hy += my[idx]; Hz += mz[idx];
+	mx2 = mx[idx]; my2 = my[idx]; mz2 = mz[idx];
    
-	// Write back to global memory, add to h 
-    hx[I] += fac0 * Hx;
-    hy[I] += fac1 * Hy;
-    hz[I] += fac2 * Hz;
+    Hx += fac2 * (mx1 + mx2 - 2.0f*mx[I]);
+    Hy += fac2 * (my1 + my2 - 2.0f*my[I]);
+    Hz += fac2 * (mz1 + mz2 - 2.0f*mz[I]);
+
+	// Write back to global memory
+    hx[I] = Hx;
+    hy[I] = Hy;
+    hz[I] = Hz;
   }
   
 }

@@ -6,14 +6,15 @@
 msat:       	800E3       # A/m
 aexch:      	1.3E-11     # J/m
 alpha:      	0.02
-exchangetype: 26
+exchangetype: 6
+exchinconv: false
 
 # geometry 
 gridsize:       128 32 2
 partsize:   	500e-9	125e-9 3e-9
 
 # initial magnetization
-load:    	s-state.tensor
+loadm:    	s-state.omf
 
 
 # run
