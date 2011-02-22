@@ -259,7 +259,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
         }
 
       
-        if (r2_int<400){
+/*        if (r2_int<400){
           for (int cnta=0; cnta<10; cnta++)
           for (int cntb=0; cntb<10; cntb++)
           for (int cntc=0; cntc<10; cntc++){
@@ -280,7 +280,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
           float r2 = (i*cellSize[X])*(i*cellSize[X]) + (j*cellSize[Y])*(j*cellSize[Y]) + (k*cellSize[Z])*(k*cellSize[Z]);
           result += cellSize[X] * cellSize[Y] * cellSize[Z] * 
                     (1.0f/ powf(r2,1.5f) - 3.0f* (j*cellSize[Y]) * (j*cellSize[Y]) * powf(r2,-2.5f));
-        }
+        }*/
       
       
       }
