@@ -108,9 +108,13 @@ def loadm(filename):
 def uniform(mx, my, mz):
 	send3("uniform", mx, my, mz)
 
-# Adds ransendm noise to the magnetization
+# Adds random noise to the magnetization
 def addnoise(amplitude):
 	send1("addnoise", amplitude)
+
+# Initializes the magnetization to a random state
+def setrandom():
+	send0("setrandom")
 
 # Sets the magnetization to a vortex state
 def vortex(circulation, polarization):
