@@ -49,12 +49,13 @@ int main(int argc, char** argv){
   // x[i],y[i] loops over XX, YY, ZZ, YZ, XZ, XY
   int x[6] = {X, Y, Z, Y, X, X};
   int y[6] = {X, Y, Z, Z, Z, Y};
-  for(int i=0; i<6; i++){
+//   for(int i=0; i<6; i++){
+  int i = 0;
     if (kernelType==2)
       cpu_init_kernel_elements_micromag2d(x[i], y[i], kernelSize, cellSize, repetition);
       
     if (kernelType==3)
       cpu_init_kernel_elements_micromag3d(x[i], y[i], kernelSize, cellSize, repetition);
-  }
+//   }
   return (0);
 }
