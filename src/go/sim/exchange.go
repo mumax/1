@@ -12,8 +12,11 @@ import (
 	"mumax/tensor"
 )
 
+// exchinconv means ignore component for exchange, already in convolution.
+var ADD_ALL []int = []int{0, 0, 0}// TODO: optimize for 2.5D
+
 func (s *Sim) AddExch(m, h *DevTensor) {
-	s.addExch(m.data, h.data, s.size3D, s.input.periodic[:], s.cellSize[:], s.input.exchType)
+	s.addExch(m.data, h.data, s.size3D, s.input.periodic[:], ADD_ALL, s.cellSize[:], s.input.exchType)
 }
 
 
