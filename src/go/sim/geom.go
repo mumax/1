@@ -10,7 +10,7 @@ package sim
 
 import (
 	. "mumax/common"
-	. "math"
+	"math"
 	"image/png"
 	"os"
 )
@@ -155,8 +155,8 @@ func (im *Mask) Inside(x, y, z float32) bool {
 	inside := im.inside
 	width, height := len(inside[0]), len(inside)
 
-	i := int((y/im.sizey+.5)*float32(height))
-	j := int((z/im.sizez+.5)*float32(width))
+	i := int((y/im.sizey + .5) * float32(height))
+	j := int((z/im.sizez + .5) * float32(width))
 
 	if i >= 0 && i < height && j >= 0 && j < width {
 		return inside[i][j]
@@ -178,6 +178,6 @@ type Wave struct {
 
 func (w *Wave) Inside(x, y, z float32) bool {
 	h := w.h / 8
-	sin := float32(Sin(float64(z / w.w * Pi)))
+	sin := float32(math.Sin(float64(z / w.w * math.Pi)))
 	return x < h*(sin+3) && x > h*(sin-3)
 }

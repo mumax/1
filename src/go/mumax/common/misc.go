@@ -33,6 +33,10 @@ func IsFinite(f float32) bool{
 	return f != 0
 }
 
+func IsInf(f float32) bool{
+	return math.IsInf(float64(f), 0) 
+}
+
 // replaces the extension of filename by a new one.
 func ReplaceExt(filename, newext string) string {
 	extension := path.Ext(filename)
