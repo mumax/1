@@ -1,5 +1,6 @@
 from mumax import *
 
+kerneltype('mumaxkern-cpu')
 
 # material
 msat(800e3)   

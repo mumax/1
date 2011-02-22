@@ -219,3 +219,13 @@ def savebenchmark(file):
 def getm(component):
 	send1("getm", component)
 	return recv()
+
+
+# Debug and fine-tuning
+
+# Override whether the exchange interaction is included in the magnetostatic convolution.
+def exchinconv(b):
+	send1("exchinconv", b)
+
+# Override the subcommand for calculating the magnetostatic kernel
+def kerneltype(cmd)
