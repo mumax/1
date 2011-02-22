@@ -227,6 +227,10 @@ def getm(component):
 def exchinconv(b):
 	send1("exchinconv", b)
 
+# Set the exchange type (number of neighbors)
+def exchtype(t):
+	send1("exchtype", t)
+
 # Override the subcommand for calculating the magnetostatic kernel
 def kerneltype(cmd):
 	send1("kerneltype", cmd)
