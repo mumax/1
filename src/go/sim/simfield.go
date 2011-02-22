@@ -9,6 +9,7 @@ package sim
 
 import (
 	. "mumax/common"
+	"container/vector"
 	"fmt"
 	. "math"
 )
@@ -62,7 +63,7 @@ func (s *Sim) UsePointwiseField(){
 }
 
 type pointwiseField struct{
-
+	points vector.Vector
 }
 
 func (s *Sim) PulsedField(hz, hy, hx float32, duration, risetime float64) {
