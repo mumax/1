@@ -133,13 +133,8 @@ func (refsh *Refsh) ExecFlags() {
 // The function name should first have been added by refsh.Add();
 func (refsh *Refsh) Call(fname string, argv []string) []interface{} {
 	// Debug
-	refsh.Print(">>> ", fname, "\t ")
+	refsh.Errorln(">>> ", fname, "\t ", argv)
 	refsh.CallCount++
-
-	for _, a := range argv {
-		refsh.Print(a, "\t ")
-	}
-	refsh.Println()
 
 	function := refsh.resolve(fname)
 	if function == nil {

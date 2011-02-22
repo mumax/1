@@ -2,6 +2,7 @@ all:
 	gomake -C mumax
 	gomake install -C refsh
 	gomake -C omftools
+	gomake -C odttools
 	gomake -C template
 	gomake -C maxtest
 	cp -f ../../lib/libcpukern.so sim/
@@ -15,6 +16,7 @@ all:
 clean:
 	gomake clean -C mumax
 	gomake clean -C omftools
+	gomake clean -C odttools
 	gomake clean -C template
 	gomake clean -C sim
 	gomake clean -C refsh

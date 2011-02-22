@@ -25,8 +25,8 @@ void cpu_init_kernel_elements_micromag3d(int co1, int co2, int *kernelSize, floa
   free (qd_W_10);
   free (qd_P_10);
   
-  //write_tensor_pieces(3, kernelSize, data, stdout);
-  print_tensor(as_tensorN(data, 3, kernelSize));
+  write_tensor_pieces(3, kernelSize, data, stdout);
+//   print_tensor(as_tensorN(data, 3, kernelSize));
   free (data);
   
   return;
@@ -96,7 +96,8 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
               for (int cnt3=0; cnt3<10; cnt3++){
                 float z = k * cellSize[Z] + qd_P_10_Z[cnt3] + qd_P_10_Z[cntc];
                 result += 1.0f/8.0f * cellSize[Y] * cellSize[Z] / 4.0f * qd_W_10[cnt2] * qd_W_10[cnt3] *
-                  ( x1*powf(x1*x1+y*y+z*z, -1.5f) - x2*powf(x2*x2+y*y+z*z, -1.5f));
+                  qd_W_10[cnta] * qd_W_10[cntb] * qd_W_10[cntc] *
+                  ( x1*powf(x1*x1+y*y+z*z, -1.5f) - x2*powf(x2*x2+y*y+z*z, -1.5f) );
               }
             }
           }
@@ -124,7 +125,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
         int k = c + cntc*Nkernel[Z]/2;
         int r2_int = i*i+j*j+k*k;
 
-        if (r2_int<400){
+        if (r2_int<0){
           float x1 = (i + 0.5f) * cellSize[X];
           float x2 = (i - 0.5f) * cellSize[X];
           for (int cnt2=0; cnt2<10; cnt2++){
@@ -153,6 +154,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
 //               for (int cnt3=0; cnt3<10; cnt3++){
 //                 float z = k * cellSize[Z] + qd_P_10_Z[cnt3] + qd_P_10_Z[cntc];
 //                 result += 1.0f/8.0f * cellSize[Y] * cellSize[Z] / 4.0f * qd_W_10[cnt2] * qd_W_10[cnt3] *
+//                   qd_W_10[cnta] * qd_W_10[cntb] * qd_W_10[cntc] *
 //                   ( y*powf(x1*x1+y*y+z*z, -1.5f) - y*powf(x2*x2+y*y+z*z, -1.5f));
 //               }
 //             }
@@ -209,6 +211,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
               for (int cnt3=0; cnt3<10; cnt3++){
                 float z = k * cellSize[Z] + qd_P_10_Z[cnt3] + qd_P_10_Z[cntc];
                 result += 1.0f/8.0f * cellSize[Y] * cellSize[Z] / 4.0f * qd_W_10[cnt2] * qd_W_10[cnt3] *
+                  qd_W_10[cnta] * qd_W_10[cntb] * qd_W_10[cntc] *
                   ( z*powf(x1*x1+y*y+z*z, -1.5f) - z*powf(x2*x2+y*y+z*z, -1.5f));
               }
             }
@@ -256,7 +259,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
         }
 
       
-/*        if (r2_int<400){
+        if (r2_int<400){
           for (int cnta=0; cnta<10; cnta++)
           for (int cntb=0; cntb<10; cntb++)
           for (int cntc=0; cntc<10; cntc++){
@@ -267,6 +270,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
               for (int cnt3=0; cnt3<10; cnt3++){
                 float z = k * cellSize[Z] + qd_P_10_Z[cnt3] + qd_P_10_Z[cntc];
                 result += 1.0f/8.0f * cellSize[X] * cellSize[Z] / 4.0f * qd_W_10[cnt1] * qd_W_10[cnt3] *
+                  qd_W_10[cnta] * qd_W_10[cntb] * qd_W_10[cntc] *
                   ( y1*powf(x*x+y1*y1+z*z, -1.5f) - y2*powf(x*x+y2*y2+z*z, -1.5f));
               }
             }
@@ -276,7 +280,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
           float r2 = (i*cellSize[X])*(i*cellSize[X]) + (j*cellSize[Y])*(j*cellSize[Y]) + (k*cellSize[Z])*(k*cellSize[Z]);
           result += cellSize[X] * cellSize[Y] * cellSize[Z] * 
                     (1.0f/ powf(r2,1.5f) - 3.0f* (j*cellSize[Y]) * (j*cellSize[Y]) * powf(r2,-2.5f));
-        }*/
+        }
       
       
       }
@@ -324,6 +328,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
               for (int cnt3=0; cnt3<10; cnt3++){
                 float z = k * cellSize[Z] + qd_P_10_Z[cnt3] + qd_P_10_Z[cntc];
                 result += 1.0f/8.0f * cellSize[X] * cellSize[Z] / 4.0f * qd_W_10[cnt1] * qd_W_10[cnt3] *
+                  qd_W_10[cnta] * qd_W_10[cntb] * qd_W_10[cntc] *
                   ( z*powf(x*x+y1*y1+z*z, -1.5f) - z*powf(x*x+y2*y2+z*z, -1.5f));
               }
             }
@@ -381,6 +386,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
               for (int cnt2=0; cnt2<10; cnt2++){
                 float y = j * cellSize[Y] + qd_P_10_Y[cnt2] + qd_P_10_Y[cntb];
                 result += 1.0f/8.0f * cellSize[X] * cellSize[Y] / 4.0f * qd_W_10[cnt1] * qd_W_10[cnt2] *
+                  qd_W_10[cnta] * qd_W_10[cntb] * qd_W_10[cntc] *
                   ( z1*powf(x*x+y*y+z1*z1, -1.5f) - z2*powf(x*x+y*y+z2*z2, -1.5f));
               }
             }
@@ -481,7 +487,6 @@ void initialize_Gauss_quadrature_micromag3d(float *std_qd_W_10, float *mapped_qd
     get_Quad_Points_micromag3d(&mapped_qd_P_10[Y*10], std_qd_P_10, 10, -0.5f*cellSize[Y], 0.5f*cellSize[Y]);
     get_Quad_Points_micromag3d(&mapped_qd_P_10[Z*10], std_qd_P_10, 10, -0.5f*cellSize[Z], 0.5f*cellSize[Z]);
   // ______________________________________________________________________________________________
-
 
   free (std_qd_P_10);
 

@@ -202,12 +202,14 @@ void gpu_init_kernel_elements_micromag2d(int co1, int co2, int *kernelSize, floa
 
   cudaFree (dev_qd_W_10);
   cudaFree (dev_qd_P_10);
+  
+  float *cpu_data = (float *) calloc(kernelN, sizeof(float));
+  memcpy_from_gpu(data, cpu_data, kernelN);
 
-  //Arne: copy to local memory
   float* localdata = new_cpu_array(kernelN);
   memcpy_from_gpu(data, localdata, kernelN);
-  print_tensor(as_tensorN(localdata, 3, kernelSize));
-  //write_tensor_pieces(3, kernelSize, localdata, stdout);
+//   print_tensor(as_tensorN(localdata, 3, kernelSize));
+  write_tensor_pieces(3, kernelSize, localdata, stdout);
   free_gpu_array (data);
   free_cpu_array(localdata);	
 

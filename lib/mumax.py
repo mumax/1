@@ -108,9 +108,13 @@ def loadm(filename):
 def uniform(mx, my, mz):
 	send3("uniform", mx, my, mz)
 
-# Adds ransendm noise to the magnetization
+# Adds random noise to the magnetization
 def addnoise(amplitude):
 	send1("addnoise", amplitude)
+
+# Initializes the magnetization to a random state
+def setrandom():
+	send0("setrandom")
 
 # Sets the magnetization to a vortex state
 def vortex(circulation, polarization):
@@ -215,3 +219,19 @@ def savebenchmark(file):
 def getm(component):
 	send1("getm", component)
 	return recv()
+
+
+# Debug and fine-tuning
+
+# Override whether the exchange interaction is included in the magnetostatic convolution.
+def exchinconv(b):
+	send1("exchinconv", b)
+
+# Set the exchange type (number of neighbors)
+def exchtype(t):
+	send1("exchtype", t)
+
+# Override the subcommand for calculating the magnetostatic kernel
+def kerneltype(cmd):
+	send1("kerneltype", cmd)
+

@@ -27,10 +27,6 @@ cp $OUTPUT bin/mumax
 echo '$SIMROOT/bin/mumax-sim $@' >> bin/mumax
 chmod u+x bin/mumax
 
-cp $OUTPUT bin/outtools
-echo '$SIMROOT/bin/outtools-bin $@' >> bin/outtools
-chmod u+x bin/outtools
-
 cp $OUTPUT bin/maxview
 echo 'java -jar $SIMROOT/bin/maxview.jar' >> bin/maxview
 chmod u+x bin/maxview

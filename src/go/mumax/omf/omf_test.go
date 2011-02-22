@@ -2,9 +2,7 @@ package omf
 
 import (
 	"testing"
-	"tensor"
-	//	"iotool"
-	//	"fmt"
+	"mumax/tensor"
 )
 
 type Test struct{}

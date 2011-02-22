@@ -17,7 +17,9 @@ package sim
 // the value of a parameter that is otherwise unclear.
 // E.g.: # initial_state: magnetzation_up
 func (s *Sim) Desc(key, value string) {
-	if s.tabwriter == nil { s.initTabWriter()}
+	if s.tabwriter == nil {
+		s.initTabWriter()
+	}
 	// We separately add the desc tag to the omf and odt output.
 	// The odt output will only contain the manually added descriptions,
 	// which are supposedly constant and applicable to the entire table.

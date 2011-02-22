@@ -19,11 +19,18 @@ import (
 
 func (s *Sim) CalcDemagKernel(size []int, cellsize []float32, accuracy int, periodic []int) []*tensor.T3 {
 	nthreads := 1
+	// Infinity must be printed as "inf", not "+Inf"
+	cellsizex := ""
+	if IsInf(cellsize[X]) {
+		cellsizex = "inf"
+	} else {
+		cellsizex = fmt.Sprint(cellsize[X])
+	}
 	return PipeKernel(s.input.kernelType, []string{ // kerneltype is the command name for now
 		fmt.Sprint(size[X]),
 		fmt.Sprint(size[Y]),
 		fmt.Sprint(size[Z]),
-		fmt.Sprint(cellsize[X]),
+		cellsizex,
 		fmt.Sprint(cellsize[Y]),
 		fmt.Sprint(cellsize[Z]),
 		fmt.Sprint(periodic[X]),
