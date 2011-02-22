@@ -228,4 +228,6 @@ def exchinconv(b):
 	send1("exchinconv", b)
 
 # Override the subcommand for calculating the magnetostatic kernel
-def kerneltype(cmd)
+def kerneltype(cmd):
+	send1("kerneltype", cmd)
+

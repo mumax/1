@@ -33,6 +33,12 @@ func (s *Sim) ExchInConv(exchInConv bool) {
 	s.invalidate()
 }
 
+// Set the exchange type
+func (s *Sim) ExchType(exchType int){
+	s.input.exchType = exchType
+	s.invalidate()
+}
+
 // Apply a static field defined in Tesla
 func (s *Sim) StaticField(hz, hy, hx float32) {
 	s.AppliedField = &staticField{[3]float32{hx, hy, hz}} // pass it on in Tesla so that it stays independent of other problem parameters
