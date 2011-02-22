@@ -123,7 +123,7 @@ __global__ void _gpu_add_exch6(float* mx, float* my, float* mz,
 
 
 #define BLOCKSIZE 16
-void gpu_add_exch(float* m, float* h, int *size, int *periodic, int *exchInConv, float cellSize, int type){
+void gpu_add_exch(float* m, float* h, int *size, int *periodic, int *exchInConv, float *cellSize, int type){
   assert(type == EXCH_6NGBR);
   dim3 gridsize(divUp(size[Y], BLOCKSIZE), divUp(size[Z], BLOCKSIZE));
   dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
