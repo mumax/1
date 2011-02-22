@@ -1,6 +1,6 @@
 from mumax import *
 
-kerneltype('mumaxkern-go')
+kerneltype('mumaxkern-cpu')
 exchtype(0)
 #exchinconv(0)
 
