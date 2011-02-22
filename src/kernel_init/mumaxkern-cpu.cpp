@@ -50,7 +50,6 @@ int main(int argc, char** argv){
   int x[6] = {X, Y, Z, Y, X, X};
   int y[6] = {X, Y, Z, Z, Z, Y};
   for(int i=0; i<6; i++){
-  int i = 0;
     if (kernelType==2)
       cpu_init_kernel_elements_micromag2d(x[i], y[i], kernelSize, cellSize, repetition);
       
