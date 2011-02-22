@@ -1,5 +1,8 @@
 from mumax import *
 
+kerneltype('mumaxkern-go')
+exchtype(0)
+#exchinconv(0)
 
 # material
 msat(800e3)   
