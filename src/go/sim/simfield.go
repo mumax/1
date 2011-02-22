@@ -10,7 +10,7 @@ package sim
 import (
 	. "mumax/common"
 	"fmt"
-	. "math"
+	"math"
 )
 
 // This file implements the methods for defining
@@ -69,11 +69,11 @@ func (f *pulsedField) GetAppliedField(time float64) [3]float32 {
 	var scale float64
 
 	if time > 0 && time < f.risetime {
-		scale = 0.5 - 0.5*Cos(time*Pi/f.risetime)
+		scale = 0.5 - 0.5*math.Cos(time*math.Pi/f.risetime)
 	} else if time >= f.risetime && time < f.duration+f.risetime {
 		scale = 1.
 	} else if time >= f.duration+f.risetime && time < f.duration+2.*f.risetime {
-		scale = 0.5 + 0.5*Cos((time-f.duration-f.risetime)*Pi/f.risetime)
+		scale = 0.5 + 0.5*math.Cos((time-f.duration-f.risetime)*math.Pi/f.risetime)
 	}
 	scale32 := float32(scale)
 	return [3]float32{scale32 * f.b[0], scale32 * f.b[1], scale32 * f.b[2]}
@@ -92,7 +92,7 @@ type rfField struct {
 }
 
 func (field *rfField) GetAppliedField(time float64) [3]float32 {
-	sin := float32(Sin(field.freq * 2 * Pi * time))
+	sin := float32(math.Sin(field.freq * 2 * math.Pi * time))
 	return [3]float32{field.b[X] * sin, field.b[Y] * sin, field.b[Z] * sin}
 }
 
@@ -107,7 +107,7 @@ func (s *Sim) SawtoothField(hz, hy, hx float32, freq float64) {
 type sawtooth rfField
 
 func (field *sawtooth) GetAppliedField(time float64) [3]float32 {
-	sin := float32(Asin(Sin(field.freq*2*Pi*time)) / (Pi / 2))
+	sin := float32(math.Asin(math.Sin(field.freq*2*math.Pi*time)) / (math.Pi / 2))
 	return [3]float32{field.b[X] * sin, field.b[Y] * sin, field.b[Z] * sin}
 }
 
@@ -124,9 +124,9 @@ type rotatingField struct {
 }
 
 func (field *rotatingField) GetAppliedField(time float64) [3]float32 {
-	sinX := float32(Sin(field.freq*2*Pi*time + field.phase[X]))
-	sinY := float32(Sin(field.freq*2*Pi*time + field.phase[Y]))
-	sinZ := float32(Sin(field.freq*2*Pi*time + field.phase[Z]))
+	sinX := float32(math.Sin(field.freq*2*math.Pi*time + field.phase[X]))
+	sinY := float32(math.Sin(field.freq*2*math.Pi*time + field.phase[Y]))
+	sinZ := float32(math.Sin(field.freq*2*math.Pi*time + field.phase[Z]))
 	return [3]float32{field.b[X] * sinX, field.b[Y] * sinY, field.b[Z] * sinZ}
 }
 
@@ -148,9 +148,9 @@ const SQRT2 = 1.414213562373095
 
 
 func (field *rotatingBurst) GetAppliedField(time float64) [3]float32 {
-	sinx := float32(Sin(field.freq * 2 * Pi * time))
-	siny := float32(Sin(field.freq*2*Pi*time + field.phase))
-	norm := float32(0.25 / SQRT2 * (Erf(time/(field.risetime/2.)-2) + 1) * (2 - Erf((time-field.duration)/(field.risetime/2.)) - 1))
+	sinx := float32(math.Sin(field.freq * 2 * math.Pi * time))
+	siny := float32(math.Sin(field.freq*2*math.Pi*time + field.phase))
+	norm := float32(0.25 / SQRT2 * (math.Erf(time/(field.risetime/2.)-2) + 1) * (2 - math.Erf((time-field.duration)/(field.risetime/2.)) - 1))
 	b := field.b
 	return [3]float32{0, b * norm * sinx, b * norm * siny}
 }
