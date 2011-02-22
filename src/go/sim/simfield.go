@@ -21,6 +21,7 @@ import (
 //                                                                      IMPORTANT: this is one of the places where X,Y,Z get swapped
 //                                                                      what is (X,Y,Z) internally becomes (Z,Y,X) for the user!
 
+
 // Choose the kernel type (command for subprogram, e.g., mumaxkern-go). Mainly intended for debugging.
 func (s *Sim) KernelType(command string) {
 	s.input.kernelType = command
@@ -39,6 +40,7 @@ func (s *Sim) ExchType(exchType int){
 	s.invalidate()
 }
 
+
 // Apply a static field defined in Tesla
 func (s *Sim) StaticField(hz, hy, hx float32) {
 	s.AppliedField = &staticField{[3]float32{hx, hy, hz}} // pass it on in Tesla so that it stays independent of other problem parameters
@@ -53,6 +55,15 @@ func (field *staticField) GetAppliedField(time float64) [3]float32 {
 	return field.b
 }
 
+
+// Apply a field defined by a number of points
+func (s *Sim) UsePointwiseField(){
+
+}
+
+type pointwiseField struct{
+
+}
 
 func (s *Sim) PulsedField(hz, hy, hx float32, duration, risetime float64) {
 	s.AppliedField = &pulsedField{[3]float32{hx, hy, hz}, duration, risetime}
