@@ -70,15 +70,11 @@ func (conv *Conv) Convolve(source, dest *DevTensor) {
 	//Sync
 
 	// Forward FFT
-	//conv.Start("fw FFT")
 	for i := 0; i < 3; i++ {
 		conv.Forward(mcomp[i], buffer[i]) // should not be asynchronous unless we have 3 fft's (?)
 	}
-	//conv.Stop()
 
 	// Point-wise kernel multiplication in reciprocal space
-	//conv.Start("kern mul")
-
 	kernType := conv.KernType()
 
 	switch kernType {
@@ -98,11 +94,9 @@ func (conv *Conv) Convolve(source, dest *DevTensor) {
 	//conv.Stop()
 
 	// Inverse FFT
-	//conv.Start("bw FFT")
 	for i := 0; i < 3; i++ {
 		conv.Inverse(buffer[i], hcomp[i]) // should not be asynchronous unless we have 3 fft's (?)
 	}
-	//conv.Stop()
 }
 
 // INTERNAL: Loads a convolution kernel.
@@ -115,9 +109,13 @@ func (conv *Conv) Convolve(source, dest *DevTensor) {
 // This saves a huge amount of memory
 func (conv *Conv) loadKernel6(kernel []*tensor.T3) {
 
+	// Check sanity of kernel
 	for _, k := range kernel {
 		if k != nil {
-			assert(tensor.EqualSize(k.Size(), conv.LogicSize()))
+			Assert(tensor.EqualSize(k.Size(), conv.LogicSize()))
+			for _, e := range k.List(){
+				Assert(IsReal(e)) // should not be NaN or Inf
+			}
 		}
 	}
 

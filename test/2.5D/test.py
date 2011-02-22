@@ -1,6 +1,6 @@
 from mumax import *
 
-kerneltype('mumaxkern-cpu')
+kerneltype('mumaxkern-gpu')
 exchtype(0)
 #exchinconv(0)
 
