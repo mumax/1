@@ -12,6 +12,7 @@ GOFILES=\
 	math.go\
 	input.go\
 	output.go\
+	format.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 
