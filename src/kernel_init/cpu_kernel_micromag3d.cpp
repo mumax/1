@@ -25,8 +25,8 @@ void cpu_init_kernel_elements_micromag3d(int co1, int co2, int *kernelSize, floa
   free (qd_W_10);
   free (qd_P_10);
   
-//   write_tensor_pieces(3, kernelSize, data, stdout);
-  print_tensor(as_tensorN(data, 3, kernelSize));
+  write_tensor_pieces(3, kernelSize, data, stdout);
+//   print_tensor(as_tensorN(data, 3, kernelSize));
   free (data);
   
   return;
