@@ -2,7 +2,7 @@
 
 
 desc info standard_problem_4
-desc test 1
+kerneltype mumaxkern-gpu
 
 # material
 msat       	800E3   
