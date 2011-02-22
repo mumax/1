@@ -1,3 +1,4 @@
+//  This file is part of MuMax, a high-performance micromagnetic simulator
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -21,8 +22,14 @@ import (
 //                                                                      what is (X,Y,Z) internally becomes (Z,Y,X) for the user!
 
 // Choose the kernel type (command for subprogram, e.g., mumaxkern-go). Mainly intended for debugging.
-func(s *Sim) KernelType(command string){
+func (s *Sim) KernelType(command string) {
 	s.input.kernelType = command
+	s.invalidate()
+}
+
+// Override if exchange should be included in convolution. Mainly intended for debugging.
+func (s *Sim) ExchInConv(exchInConv bool) {
+	s.exchInConv = exchInConv
 	s.invalidate()
 }
 
@@ -158,14 +165,14 @@ func (s *Sim) DemagAccuracy(accuracy int) {
 
 // Calculates the effective field of m and stores it in h
 func (s *Sim) calcHeff(m, h *DevTensor) {
-	// (1) Self-magnetostatic field
+	// (1) Self-magnetostatic field and exchange
 	// The convolution may include the exchange field
 	s.Convolve(m, h)
+	if !s.exchInConv {
+		s.AddExch(m, h)
+	}
 
 	// (2) Add the externally applied field
-
-	//hComp := h.comp
-
 	if s.AppliedField != nil {
 		s.hextSI = s.GetAppliedField(s.time * float64(s.UnitTime()))
 	} else {

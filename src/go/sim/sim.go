@@ -27,6 +27,7 @@ const (
 	DEFAULT_MIN_DM            = 0
 	DEFAULT_DT_INTERNAL       = 1e-4
 	DEFAULT_RELAX_MAX_TORQUE  = 1e-3
+	DEFAULT_KERNELTYPE        = "mumaxkern-gpu"
 )
 
 // Sim has an "input" member of type "Input".
@@ -34,7 +35,7 @@ const (
 // In this struct, all parameters are STILL IN SI UNITS.
 // When Sim.init() is called, a solver is initiated
 // with these values converted to internal units.
-// We need to keep the originial SI values in case a
+// We need to keep the original SI values in case a
 // parameter gets changed during the simulation and
 // we need to re-initialize everything.
 //
@@ -69,7 +70,7 @@ type Input struct {
 	edgeCorr       int        // 0: no edge correction, >0: 2^edgecorr cell subsampling for edge corrections
 	anisType       int        // Anisotropy type
 	anisKSI        []float32  // Anisotropy constant(s), as many as needed
-	anisAxes       []float32  // Anisotopy axes: ux,uy,uz for uniaxial, u1x,u1y,u1z,u2x,u2y,u2z for cubic
+	anisAxes       []float32  // Anisotropy axes: ux,uy,uz for uniaxial, u1x,u1y,u1z,u2x,u2y,u2z for cubic
 	kernelType     string     // Determines which kernel subprogram to use.
 }
 
@@ -98,8 +99,9 @@ type Sim struct {
 	//mLocalLock     sync.RWMutex
 	mUpToDate bool // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
 
-	Conv             // Convolution plan for the magnetostatic field
-	wisdomdir string // Absolute path of the kernel wisdom root directory
+	Conv              // Convolution plan for the magnetostatic field
+	exchInConv bool   // Exchange included in convolution?
+	wisdomdir  string // Absolute path of the kernel wisdom root directory
 
 	Material // Stores material parameters and manages the internal units
 	Mesh     // Stores the size of the simulation grid
@@ -182,7 +184,8 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.initWriters()
 	sim.input.anisKSI = []float32{0.} // even when not used these must be allocated
 	sim.input.anisAxes = []float32{0.}
-	sim.input.kernelType = "mumaxkern-gpu"
+	sim.input.kernelType = DEFAULT_KERNELTYPE
+	sim.exchInConv = true
 	sim.invalidate() //just to make sure we will init()
 	return sim
 }

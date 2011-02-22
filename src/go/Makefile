@@ -29,8 +29,7 @@ clean:
 	
 
 test:	all
-	gomake test -C tensor2
-	gomake test -C tensor
+	gomake test -C mumax
 	gomake test -C sim
 
 

@@ -1,7 +1,8 @@
 # Micromagnetic standard problem 4
 
 desc:  	description standard_problem_4
-kerneltype mumaxkern-cpu
+kerneltype mumaxkern-go
+exchinconv false
 
 # material
 msat       	800E3   

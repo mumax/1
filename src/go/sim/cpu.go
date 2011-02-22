@@ -106,6 +106,10 @@ func (d Cpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []
 	C.cpu_add_local_fields((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
 }
 
+func (d Cpu) addExch(m, h uintptr, size, periodic []int, cellsize []float32, exchType int) {
+	panic("unimplemented")
+}
+
 // func (d Cpu) semianalStep(min, mout, h uintptr, dt, alpha float32, N int) {
 // 	switch order {
 // 	default:
