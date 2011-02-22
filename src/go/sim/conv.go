@@ -38,7 +38,7 @@ func NewConv(backend *Backend, dataSize []int, kernel []*tensor.T3) *Conv {
 	assert(len(dataSize) == 3)
 	assert(len(kernelSize) == 3)
 	for i := range dataSize {
-		assert(dataSize[i] <= kernelSize[i])
+		Assert(dataSize[i] <= kernelSize[i])
 	}
 
 	conv := new(Conv)
@@ -110,11 +110,14 @@ func (conv *Conv) Convolve(source, dest *DevTensor) {
 func (conv *Conv) loadKernel6(kernel []*tensor.T3) {
 
 	// Check sanity of kernel
-	for _, k := range kernel {
+	for i, k := range kernel {
 		if k != nil {
 			Assert(tensor.EqualSize(k.Size(), conv.LogicSize()))
 			for _, e := range k.List(){
-				Assert(IsReal(e)) // should not be NaN or Inf
+				if !IsReal(e){
+					tensor.Format(k)
+				}
+				AssertMsg(IsReal(e), "K", KernString[i], " is NaN or Inf") // should not be NaN or Inf
 			}
 		}
 	}
