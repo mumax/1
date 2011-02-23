@@ -60,20 +60,6 @@ gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
   if (N0>1)
     init_bigfft(plan->planX, paddedSize[X], paddedSize[X], paddedSize[X], CUFFT_C2C, paddedStorageSize[Z] * paddedSize[Y] / 2);
   
-  for (int i=0; i<plan->fwPlanZ->Nbatch; i++)
-    printf("fwZ: Nbatch: %d, i: %d, batch: %d, batch_index_in: %d, batch_index_out: %d\n", plan->fwPlanZ->Nbatch, i, plan->fwPlanZ->batch[i], plan->fwPlanZ->batch_index_in[i], plan->fwPlanZ->batch_index_out[i]);
-  printf("\n");  
-  for (int i=0; i<plan->invPlanZ->Nbatch; i++)
-    printf("invZ: Nbatch: %d, i: %d, batch: %d, batch_index_in: %d, batch_index_out: %d\n", plan->invPlanZ->Nbatch, i, plan->invPlanZ->batch[i], plan->invPlanZ->batch_index_in[i], plan->invPlanZ->batch_index_out[i]);
-  printf("\n");  
-  for (int i=0; i<plan->planY->Nbatch; i++)
-    printf("Y: Nbatch: %d, i: %d, batch: %d, batch_index_in: %d, batch_index_out: %d\n", plan->planY->Nbatch, i, plan->planY->batch[i], plan->planY->batch_index_in[i], plan->planY->batch_index_out[i]);
-  printf("\n");  
-  if (N0>1)
-    for (int i=0; i<plan->planX->Nbatch; i++)
-      printf("X: Nbatch: %d, i: %d, batch: %d, batch_index_in: %d, batch_index_out: %d\n", plan->planX->Nbatch, i, plan->planX->batch[i], plan->planX->batch_index_in[i], plan->planX->batch_index_out[i]);
-  printf("\n");  
-  
   if (N0>0)
     plan->transp = new_gpu_array(plan->paddedStorageN);
   
