@@ -15,24 +15,32 @@ func (s *Sim) Relax() {
 	s.init()
 
 	var startDm float32 = 1e-2
-	var stopDm float32 = 1e-5
+	var minDm float32 = 1e-6
+	var maxTorque float32 = 1e-5
 
-	s.Println("Relaxing until maxdm < ", stopDm)
+	s.Println("Relaxing until torque < ", maxtorque)
 	s.Normalize(s.mDev)
 	s.mUpToDate = false
 
 	backup_maxdm := s.input.maxDm
 
-	for dm := startDm; dm > stopDm; dm /= 2 {
+	dm := startDm
+	s.torque = 2 * maxTorque // to get in loop
+	for s.torque > maxTorque {
+		torque := [4]float32{1, 1, 1, 1}
 		s.input.maxDm = dm
 		// Take a few steps first
 		for i := 0; i < 10; i++ {
 			s.relaxStep()
+			torque[0], torque[1], torque[2], torque[3] = s.torque, torque[0], torque[1], torque[2]
 		}
-		torque := [4]float32{1, 1, 1, 1}
 		for !isUnstable(&torque) {
 			s.relaxStep()
 			torque[0], torque[1], torque[2], torque[3] = s.torque, torque[0], torque[1], torque[2]
+		}
+		if dm > minDm {
+			dm *= 0.8
+			s.Println("\nmax delta m:", dm, "\n")
 		}
 	}
 
@@ -49,23 +57,21 @@ func (s *Sim) relaxStep() {
 	s.mUpToDate = false
 	updateDashboard(s)
 
-
-
 	// TEMP	
-		// save output if so scheduled
-		for _, out := range s.outschedule {
-			if out.NeedSave(float32(s.time) * s.UnitTime()) { // output entries want SI units
-				// assure the local copy of m is up to date and increment the autosave counter if necessary
-				s.assureOutputUpToDate()
-				// save
-				out.Save(s)
-				// TODO here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
-			}
+	// save output if so scheduled
+	for _, out := range s.outschedule {
+		if out.NeedSave(float32(s.time) * s.UnitTime()) { // output entries want SI units
+			// assure the local copy of m is up to date and increment the autosave counter if necessary
+			s.assureOutputUpToDate()
+			// save
+			out.Save(s)
+			// TODO here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
 		}
+	}
 }
 
 
-func isUnstable(t *[4]float32) bool{
+func isUnstable(t *[4]float32) bool {
 	return sign(t[1]-t[0]) == sign(t[3]-t[2]) && sign(t[1]-t[0]) != sign(t[2]-t[1])
 }
 
