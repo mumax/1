@@ -19,7 +19,6 @@ void cpu_add_local_fields (float* m, float* h, int N, float* Hext, int anisType,
   float *hz = &(h[2*N]);
   
   switch (anisType){
-    default: abort();
     case ANIS_NONE:
       cpu_add_external_field(hx, hy, hz,  Hext[X], Hext[Y], Hext[Z],  N);
       break;
@@ -27,6 +26,7 @@ void cpu_add_local_fields (float* m, float* h, int N, float* Hext, int anisType,
       cpu_add_local_fields_uniaxial(mx, my, mz, hx, hy, hz, Hext[X], Hext[Y], Hext[Z],
                                     anisK[0],  anisAxes[0], anisAxes[1], anisAxes[2], N);
       break;
+    default: abort();
   }
 
   return;
