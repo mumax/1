@@ -43,7 +43,25 @@ func Exch6NgbrKernel(size []int, cellsize []float32) []*tensor.T3 {
 		k[i] = tensor.NewT3(size)
 	}
 
-	for s := 0; s < 3; s++ { // source index Ksdxyz
+  for s := 0; s < 3; s++ { // source index Ksdxyz
+    i := KernIdx[s][s]
+    arr := k[i].Array()
+
+//     hx := cellsize[X] * cellsize[X]
+    hy := cellsize[Y] * cellsize[Y]
+//     hz := cellsize[Z] * cellsize[Z]
+
+//     arr[wrap(0, size[X])][wrap(0, size[Y])][wrap(0, size[Z])] = -2./hx - 2./hy - 2./hz
+
+/*    arr[wrap( 1, size[X])][wrap( 0, size[Y])][wrap( 0, size[Z])] = 1./hx
+    arr[wrap(-1, size[X])][wrap( 0, size[Y])][wrap( 0, size[Z])] = 1./hx*/
+    arr[wrap( 0, size[X])][wrap( 1, size[Y])][wrap( 0, size[Z])] = 1./hy
+    arr[wrap( 0, size[X])][wrap(-1, size[Y])][wrap( 0, size[Z])] = 1./hy
+/*    arr[wrap( 0, size[X])][wrap( 0, size[Y])][wrap( 1, size[Z])] = 1./hz
+    arr[wrap( 0, size[X])][wrap( 0, size[Y])][wrap(-1, size[Z])] = 1./hz*/
+  }
+  
+/*	for s := 0; s < 3; s++ { // source index Ksdxyz
 		i := KernIdx[s][s]
 		k[i].Array()[0][0][0] = -2./(cellsize[X]*cellsize[X]) - 2./(cellsize[Y]*cellsize[Y]) - 2./(cellsize[Z]*cellsize[Z])
 
@@ -54,7 +72,7 @@ func Exch6NgbrKernel(size []int, cellsize []float32) []*tensor.T3 {
 				k[i].Array()[index[X]][index[Y]][index[Z]] = 1. / (cellsize[dir] * cellsize[dir])
 			}
 		}
-	}
+	}*/
 	return k
 }
 

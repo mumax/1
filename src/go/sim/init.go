@@ -238,7 +238,7 @@ func (s *Sim) initConv() {
 	var exch []*tensor.T3
 	switch s.input.exchType {
 	default:
-		panic(InputErr("Illegal exchange type: " + fmt.Sprint(s.input.exchType) + ". Options are: 0, 6, 26"))
+		panic(InputErr("Illegal exchange type: " + fmt.Sprint(s.input.exchType) + ". Options are: 0, 6, 12, 26"))
 	case 0: // no exchange
 	case 6:
 		exch = Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
