@@ -65,7 +65,7 @@ type Input struct {
 	maxDm, minDm   float32 // The min/max magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
 	solvertype     string
 	j              [3]float32 // current density in A/m^2
-	exchType       int        // exchange scheme: 6 or 26 neighbors
+	exchType       int        // exchange scheme: 6, 12 or 26 neighbors
 	maxError       float32    // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
 	periodic       [3]int     // Periodic boundary conditions? 0=no, >0=yes
 	geom           Geom       // Shape of the magnet (has Inside(x,y,z) func)

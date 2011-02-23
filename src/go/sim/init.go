@@ -242,6 +242,8 @@ func (s *Sim) initConv() {
 	case 0: // no exchange
 	case 6:
 		exch = Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
+  case 12:
+    exch = Exch12NgbrKernel(s.paddedsize, s.cellSize[0:])
 	case 26:
 		exch = Exch26NgbrKernel(s.paddedsize, s.cellSize[0:])
 	}
