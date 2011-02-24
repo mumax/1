@@ -238,6 +238,21 @@ func (m *Torque) Save(s *Sim) {
 }
 
 
+
+//Utility method for saving in .omf format.
+func (s *Sim) saveOmf(data *tensor.T4, filename, unit, format string){
+	var file omf.File
+	file.T4 = data
+	file.StepSize = s.input.cellSize
+	file.MeshUnit = "m"
+	file.Desc = s.desc
+	file.ValueMultiplier =1 
+	file.ValueUnit = unit
+	file.Format = format
+	file.DataFormat = "4"
+	omf.FEncode(filename, file)
+}
+
 //_________________________________________ png
 
 // INTERNAL

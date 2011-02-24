@@ -13,3 +13,10 @@ package sim
 func (s *Sim) Invalidate() {
 	s.invalidate()
 }
+
+// Saves H to file
+func (s *Sim) SaveH(fname, format string) {
+	s.calcHeff(s.mDev, s.hDev)
+	TensorCopyFrom(s.hDev, s.hLocal)
+	s.saveOmf(s.hLocal, fname, "Msat", format)	
+}
