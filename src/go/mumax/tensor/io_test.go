@@ -25,7 +25,7 @@ func TestIO(test *testing.T) {
 }
 
 
-var t1,t2 *T4
+var t1, t2 *T4
 
 func BenchmarkWrite(bench *testing.B) {
 	size := []int{3, 350, 190, 310}

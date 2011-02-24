@@ -9,7 +9,7 @@
 
 package common
 
-import(
+import (
 	"fmt"
 )
 
@@ -21,8 +21,8 @@ func Assert(test bool) {
 }
 
 // Panics if test is false, printing the message.
-func AssertMsg(test bool, msg ...interface{}){
-	if !test{
+func AssertMsg(test bool, msg ...interface{}) {
+	if !test {
 		panic(Bug(fmt.Sprint(msg...)))
 	}
 }

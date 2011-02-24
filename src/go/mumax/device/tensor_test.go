@@ -13,9 +13,7 @@ import (
 )
 
 
-
-
-func TestCopy(test *testing.T){
+func TestCopy(test *testing.T) {
 	InitDevice()
 
 	size := []int{3, 4, 32, 64}
