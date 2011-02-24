@@ -10,7 +10,7 @@ package main
 
 
 import (
-	. "mumax/common"
+	//. "mumax/common"
 )
 
 
