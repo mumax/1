@@ -113,7 +113,7 @@ func resolve(what, format string) Output {
 		//format gets ignored for now
 		return &Table{&Periodic{0., 0.}}
 	case "torque":
-	    return &Torque{&Periodic{0., 0.}, format}
+		return &Torque{&Periodic{0., 0.}, format}
 	}
 	panic("bug")
 	return nil // not reached
@@ -229,7 +229,7 @@ func (m *Torque) Save(s *Sim) {
 	file.StepSize = s.input.cellSize
 	file.MeshUnit = "m"
 	file.Desc = s.desc
-	file.ValueMultiplier =1 
+	file.ValueMultiplier = 1
 	file.ValueUnit = ""
 	file.Format = m.format
 	file.DataFormat = "4"
@@ -238,15 +238,14 @@ func (m *Torque) Save(s *Sim) {
 }
 
 
-
 //Utility method for saving in .omf format.
-func (s *Sim) saveOmf(data *tensor.T4, filename, unit, format string){
+func (s *Sim) saveOmf(data *tensor.T4, filename, unit, format string) {
 	var file omf.File
 	file.T4 = data
 	file.StepSize = s.input.cellSize
 	file.MeshUnit = "m"
 	file.Desc = s.desc
-	file.ValueMultiplier =1 
+	file.ValueMultiplier = 1
 	file.ValueUnit = unit
 	file.Format = format
 	file.DataFormat = "4"

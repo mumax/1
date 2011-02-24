@@ -74,7 +74,7 @@ type Input struct {
 	anisKSI        []float32  // Anisotropy constant(s), as many as needed
 	anisAxes       []float32  // Anisotropy axes: ux,uy,uz for uniaxial, u1x,u1y,u1z,u2x,u2y,u2z for cubic
 	kernelType     string     // Determines which kernel subprogram to use.
-	wantDemag	   bool		  // DEBUG: false disables the convolution and thus the demag field.
+	wantDemag      bool       // DEBUG: false disables the convolution and thus the demag field.
 }
 
 

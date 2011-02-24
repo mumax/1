@@ -173,9 +173,9 @@ func (s *Sim) DemagAccuracy(accuracy int) {
 func (s *Sim) calcHeff(m, h *DevTensor) {
 	// (1) Self-magnetostatic field and exchange
 	// The convolution may include the exchange field
-	if s.input.wantDemag{
+	if s.input.wantDemag {
 		s.Convolve(m, h)
-	}else{
+	} else {
 		ZeroTensor(h)
 	}
 	if !s.input.wantDemag || !s.exchInConv {

@@ -61,26 +61,26 @@ func (s *Sim) Step() {
 	s.init()
 	s.mUpToDate = false
 
-		// save output if so scheduled
-		for _, out := range s.outschedule {
-			if out.NeedSave(float32(s.time) * s.UnitTime()) { // output entries want SI units
-				// assure the local copy of m is up to date and increment the autosave counter if necessary
-				s.assureOutputUpToDate()
-				// save
-				out.Save(s)
-				// TODO here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
-			}
+	// save output if so scheduled
+	for _, out := range s.outschedule {
+		if out.NeedSave(float32(s.time) * s.UnitTime()) { // output entries want SI units
+			// assure the local copy of m is up to date and increment the autosave counter if necessary
+			s.assureOutputUpToDate()
+			// save
+			out.Save(s)
+			// TODO here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
 		}
+	}
 
-		updateDashboard(s)
+	updateDashboard(s)
 
-		s.step()
-		s.steps++
-		s.mUpToDate = false
+	s.step()
+	s.steps++
+	s.mUpToDate = false
 
-		if math.IsNaN(s.time) || math.IsInf(s.time, 0) {
-			panic("Time step = " + fmt.Sprint(s.dt))
-		}
+	if math.IsNaN(s.time) || math.IsInf(s.time, 0) {
+		panic("Time step = " + fmt.Sprint(s.dt))
+	}
 	//does not invalidate
 }
 
