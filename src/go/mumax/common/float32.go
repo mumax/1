@@ -8,7 +8,9 @@
 
 package common
 
-import("sort")
+import (
+	"sort"
+)
 
 // Float32Array attaches the methods of Interface to []float32, sorting in increasing order.
 type Float32Array []float32

@@ -22,7 +22,7 @@ type Table struct {
 	Desc             map[string]interface{}
 	ColName, ColUnit []string
 	Column           [][]float32
-	PrintHeader		 bool
+	PrintHeader      bool
 }
 
 

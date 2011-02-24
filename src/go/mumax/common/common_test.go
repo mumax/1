@@ -7,23 +7,43 @@
 
 package common
 
-import(
+import (
 	"testing"
 )
 
-func TestIsFinite(t *testing.T){
+func TestIsFinite(t *testing.T) {
 	var one float32 = 1
 	var zero float32 = 0
 
-	if !IsReal(0.) {t.Fail()}
-	if !IsReal(1.) {t.Fail()}
-	if IsReal(zero/zero) {t.Fail()}
-	if IsReal(one/zero) {t.Fail()}
-	if IsReal(-one/zero) {t.Fail()}
+	if !IsReal(0.) {
+		t.Fail()
+	}
+	if !IsReal(1.) {
+		t.Fail()
+	}
+	if IsReal(zero / zero) {
+		t.Fail()
+	}
+	if IsReal(one / zero) {
+		t.Fail()
+	}
+	if IsReal(-one / zero) {
+		t.Fail()
+	}
 
-	if IsFinite(0.) {t.Fail()}
-	if !IsFinite(1.) {t.Fail()}
-	if IsFinite(zero/zero) {t.Fail()}
-	if IsFinite(one/zero) {t.Fail()}
-	if IsFinite(-one/zero) {t.Fail()}
+	if IsFinite(0.) {
+		t.Fail()
+	}
+	if !IsFinite(1.) {
+		t.Fail()
+	}
+	if IsFinite(zero / zero) {
+		t.Fail()
+	}
+	if IsFinite(one / zero) {
+		t.Fail()
+	}
+	if IsFinite(-one / zero) {
+		t.Fail()
+	}
 }

@@ -7,18 +7,17 @@
 
 package common
 
-import(
+import (
 	"fmt"
 	"os"
 )
 
 
-
-func Print(v ...interface{}){
+func Print(v ...interface{}) {
 	fmt.Fprint(os.Stderr, v...)
 }
 
 
-func Println(v ...interface{}){
+func Println(v ...interface{}) {
 	fmt.Fprintln(os.Stderr, v...)
 }

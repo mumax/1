@@ -42,4 +42,3 @@ func Format(out_ io.Writer, t Interface) {
 		}
 	}
 }
-

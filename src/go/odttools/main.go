@@ -38,7 +38,8 @@ var haveOutput bool
 var (
 	newtable omf.Table
 )
-func init(){
+
+func init() {
 	newtable.Init()
 }
 
@@ -78,7 +79,7 @@ func main() {
 			sh.Call(cmd[i], args[i])
 		}
 	}
-	if !haveOutput{
+	if !haveOutput {
 		newtable.WriteTo(os.Stdout)
 	}
 }
