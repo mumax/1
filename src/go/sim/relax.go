@@ -38,9 +38,9 @@ func (s *Sim) Relax() {
 		for !isUnstable(&torque) {
 			s.relaxStep()
 			torque[0], torque[1], torque[2], torque[3] = s.torque, torque[0], torque[1], torque[2]
-		    dm *= 1.01
-			s.input.maxDm = dm
-			s.input.minDm = dm
+		    //dm *= 1.01
+			//s.input.maxDm = dm
+			//s.input.minDm = dm
 		}
 		if dm > minDm {
 			dm *= 0.8
