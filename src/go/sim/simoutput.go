@@ -165,7 +165,7 @@ func (t *Table) Save(s *Sim) {
 	//N := Len(s.size3D)
 	for i := range m {
 		m[i] = s.devsum.Reduce(s.mDev.comp[i]) / s.avgNorm
-		torque[i] = abs32(s.devmaxabs.Reduce(s.hDev.comp[i]) / s.dt)
+		torque[i] = abs32(s.devmaxabs.Reduce(s.hDev.comp[i])) // do we need to / dt? some solvers use torque, some delta M...
 	}
 	minMz, maxMz := s.devmin.Reduce(s.mDev.comp[X]), s.devmax.Reduce(s.mDev.comp[X])
 	maxtorque := max32(torque[0], max32(torque[1], torque[2]))
