@@ -11,8 +11,11 @@ extern "C" {
 #define EXCH_BLOCK_Y 4
 #define I_OFF (EXCH_BLOCK_X+2)*(EXCH_BLOCK_Y+2)
 #define J_OFF (EXCH_BLOCK_X+2)
-
 ///> important: EXCH_BLOCK_X*EXCH_BLOCK_Y needs to be larger than (or equal to) 2*(EXCH_BLOCK_X + EXCH_BLOCK_Y + 2)!! 
+
+#define I_OFF2 (EXCH_BLOCK_X+4)*(EXCH_BLOCK_Y+4)
+#define J_OFF2 (EXCH_BLOCK_X+4)
+
 
 void gpu_add_exch (float *m, float *h, int *size, int *periodic, int *exchInConv, float *cellSize, int type){
   
@@ -36,12 +39,12 @@ void gpu_add_exch (float *m, float *h, int *size, int *periodic, int *exchInConv
           else 
             gpu_add_6NGBR_exchange_3D_geometry (m_comp, h_comp, size, periodic, cellSize);
           break;
-/*        case (EXCH_12NGBR:
-          if size[X] == 1)
-            gpu_add_12NGBR_exchange_2D_geometry (m_comp, h_comp, p);
+        case EXCH_12NGBR:
+          if (size[X] == 1)
+            gpu_add_12NGBR_exchange_2D_geometry (m_comp, h_comp, size, periodic, cellSize);
           else 
-            gpu_add_12NGBR_exchange_3D_geometry (m_comp, h_comp, p);
-          break;*/
+            gpu_add_12NGBR_exchange_3D_geometry (m_comp, h_comp, size, periodic, cellSize);
+          break;
         default:
           fprintf(stderr, "abort: no valid exchType %d\n", type);
           abort();
@@ -285,35 +288,49 @@ void gpu_add_6NGBR_exchange_2D_geometry (float *m, float *h, int *size, int *per
 }
 
 
+
 __global__ void _gpu_add_12NGBR_exchange_2D_geometry(float *m, float *h, int Ny, int Nz, float cst1_y, float cst2_y, float cst1_z, float cst2_z, float cst_yz, int periodic_Y, int periodic_Z){
 
   float result;
   int j, k, ind, ind_h, indg, indg_h, active;
 
   int Ny_minus_1 = Ny-1; int Nz_minus_1 = Nz-1;
+  int Ny_minus_2 = Ny-2; int Nz_minus_2 = Nz-2;
   int cnt = threadIdx.y*EXCH_BLOCK_X + threadIdx.x;
 
 
 // initialize indices for halo elements ------------------------------------------------
-  int halo = cnt < 2*(EXCH_BLOCK_X + EXCH_BLOCK_Y + 2);
+  int halo = cnt < 4*(EXCH_BLOCK_X + EXCH_BLOCK_Y + 4);
   if (halo) {
     if (threadIdx.y<2) {               // shared memory indices, y-halos (coalesced)
-      j = threadIdx.y*(EXCH_BLOCK_Y+1) - 1;
+      j = -threadIdx.y - 1;
       k = threadIdx.x;
     }
-    else {                             // shared memory indices, z-halos (not coalesced)
-      j =  cnt/2 - EXCH_BLOCK_X - 1;
-      k = (cnt%2)*(EXCH_BLOCK_X+1) - 1;
-    }
+    else 
+      if (threadIdx.y<4){
+        j = EXCH_BLOCK_Y - 2 + threadIdx.y;
+        k = threadIdx.x;
+      }
+      else {                             // shared memory indices, z-halos (not coalesced)
+        j =  cnt/4 - 2*EXCH_BLOCK_X - 2;
+//        k = (cnt%2)*(EXCH_BLOCK_X+1) - 1;
+        int mod = cnt%4;
+        if (mod<2)
+          k = -mod - 1;
+        else
+          k = (mod - 1)*EXCH_BLOCK_X;
+/*        k = (cnt%4-1)*(EXCH_BLOCK_X+1) - 1;*/
+      }
 
-    ind_h  = (j+1)*J_OFF + k+1;
+//    ind_h  = (j+1)*J_OFF + k+1;
+    ind_h  = (j+2)*J_OFF2 + k+2;
 
     j = blockIdx.y*EXCH_BLOCK_Y + j;
     k = blockIdx.x*EXCH_BLOCK_X + k;         //global indices
-    if (periodic_Y && j==-1) j += Ny;
-    if (periodic_Y && j==Ny) j -= Ny;
-    if (periodic_Z && k==-1) k += Nz;
-    if (periodic_Z && k==Nz) k -= Nz;
+    if (periodic_Y && j<=-1) j += Ny;
+    if (periodic_Y && j>=Ny) j -= Ny;
+    if (periodic_Z && k<=-1) k += Nz;
+    if (periodic_Z && k>=Nz) k -= Nz;
     indg_h = j*Nz + k;
 
     halo = (j>=0) && (j<Ny) && (k>=0) && (k<Nz);
@@ -323,7 +340,7 @@ __global__ void _gpu_add_12NGBR_exchange_2D_geometry(float *m, float *h, int Ny,
 // initialize indices for main block ---------------------------------------------------
   j    = threadIdx.y;                   // shared memory indices
   k    = threadIdx.x;
-  ind  = (j+1)*J_OFF + k+1;
+  ind  = (j+2)*J_OFF2 + k+2;
 
   j    = blockIdx.y*EXCH_BLOCK_Y + j;   // global indices
   k    = blockIdx.x*EXCH_BLOCK_X + k;
@@ -333,7 +350,7 @@ __global__ void _gpu_add_12NGBR_exchange_2D_geometry(float *m, float *h, int Ny,
 // -------------------------------------------------------------------------------------
 
 // initialize shared memory ------------------------------------------------------------
-  __shared__ float m_sh[I_OFF];
+  __shared__ float m_sh[I_OFF2];
 
 // read the considered part of the plane of array --------------------------------------
   if (active) 
@@ -346,10 +363,14 @@ __global__ void _gpu_add_12NGBR_exchange_2D_geometry(float *m, float *h, int Ny,
 // perform the actual exchange computations --------------------------------------------
   if (active){
     result = cst_yz * m_sh[ind];
-    if (j>0          || periodic_Y) result += cst_y*m_sh[ind - J_OFF];
-    if (j<Ny_minus_1 || periodic_Y) result += cst_y*m_sh[ind + J_OFF];
-    if (k>0          || periodic_Z) result += cst_z*m_sh[ind - 1];
-    if (k<Nz_minus_1 || periodic_Z) result += cst_z*m_sh[ind + 1];
+    if (j>0          || periodic_Y) result += cst1_y*m_sh[ind - J_OFF2];
+    if (j>1          || periodic_Y) result += cst2_y*m_sh[ind - 2*J_OFF2];
+    if (j<Ny_minus_1 || periodic_Y) result += cst1_y*m_sh[ind + J_OFF2];
+    if (j<Ny_minus_2 || periodic_Y) result += cst2_y*m_sh[ind + 2*J_OFF2];
+    if (k>0          || periodic_Z) result += cst1_z*m_sh[ind - 1];
+    if (k>1          || periodic_Z) result += cst2_z*m_sh[ind - 2];
+    if (k<Nz_minus_1 || periodic_Z) result += cst1_z*m_sh[ind + 1];
+    if (k<Nz_minus_2 || periodic_Z) result += cst2_z*m_sh[ind + 2];
     h[indg] += result;
 
   }
@@ -372,7 +393,7 @@ void gpu_add_12NGBR_exchange_2D_geometry (float *m, float *h, int *size, int *pe
   dim3 gridsize (bx, by);
   dim3 blocksize (EXCH_BLOCK_X, EXCH_BLOCK_Y);
 
-  _gpu_add_6NGBR_exchange_2D_geometry <<<gridsize, blocksize>>> (m, h, size[Y], size[Z], cst1_y, cst2_y, cst1_z, cst2_z, cst_yz, periodic[Y], periodic[Z]);
+  _gpu_add_12NGBR_exchange_2D_geometry <<<gridsize, blocksize>>> (m, h, size[Y], size[Z], cst1_y, cst2_y, cst1_z, cst2_z, cst_yz, periodic[Y], periodic[Z]);
   gpu_sync();
   
   return;
