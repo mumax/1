@@ -14,6 +14,7 @@ GOFILES=\
 	print.go\
 	readline.go\
 	strconv.go\
+	float32.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 
