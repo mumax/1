@@ -111,7 +111,8 @@ func (conv *Conv) loadKernel6(kernel []*tensor.T3) {
 
 	// Check sanity of kernel
 	for i, k := range kernel {
-		if k != nil {
+		if k != nil && conv.needKernComp(i){
+			Println("Need Kernel component " + KernString[i])
 			Assert(tensor.EqualSize(k.Size(), conv.LogicSize()))
 			for _, e := range k.List() {
 				if !IsReal(e) {
