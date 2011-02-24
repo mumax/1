@@ -39,16 +39,16 @@ func (s *SemiAnal1) Step() {
 		s.SemianalStep(m1, m2, h, s.dt/2.0, s.alpha)
 		s.calcHeff(m2, h)
 		s.SemianalStep(m1, m1, h, s.dt, s.alpha)
-		s.Torque(m2, h)
-		s.torque = s.Reduce(h)
+	/*	s.Torque(m2, h)
+		s.torque = s.Reduce(h)*/
 	} else {
 
 		s.calcHeff(m1, h)
 		s.SemianalStep(m2, m2, h, s.dt, s.alpha)
 		s.calcHeff(m2, h)
 		s.SemianalStep(m1, m1, h, s.dt, s.alpha)
-		s.Torque(m2, h)
-		s.torque = s.Reduce(h)
+// 		s.Torque(m2, h)
+// 		s.torque = s.Reduce(h)
 
 	}
 
