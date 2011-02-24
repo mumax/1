@@ -1,3 +1,4 @@
+//  This file is part of MuMax, a high-performance micromagnetic simulator
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -45,6 +46,12 @@ func NewSum(b *Backend, N int) *Reductor {
 func (r *Reductor) InitSum(b *Backend, N int) {
 	r.init(b, N)
 	r.operation = ADD
+}
+
+
+func (r *Reductor) InitSumAbs(b *Backend, N int) {
+	r.init(b, N)
+	r.operation = SUMABS
 }
 
 

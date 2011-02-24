@@ -55,4 +55,5 @@ const (
 	MAX    = 2
 	MAXABS = 3
 	MIN    = 4
+	SUMABS = 5
 )

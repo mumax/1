@@ -8,9 +8,8 @@ package sim
 
 import (
 	"testing"
-	"tensor"
+	"mumax/tensor"
 	"fmt"
-	"os"
 	"rand"
 )
 
@@ -18,6 +17,7 @@ var backend = GPU
 
 var fft_test_sizes [][]int = [][]int{
 	{1, 8, 8},
+	{8, 8, 8},
 	{2, 4, 8},
 	{1, 32, 64},
 	{4, 8, 16}}
@@ -26,7 +26,7 @@ var fft_test_sizes [][]int = [][]int{
 func TestFFTPadded(t *testing.T) {
 
 	for _, size := range fft_test_sizes {
-
+		fmt.Println("Size: ", size)
 		paddedsize := padSize(size, []int{0, 0, 0})
 
 		fft := NewFFTPadded(backend, size, paddedsize)
@@ -69,13 +69,13 @@ func TestFFTPadded(t *testing.T) {
 		TensorCopyFrom(devPTT, hostPTT)
 
 		fmt.Println("in:")
-		host.WriteTo(os.Stdout)
+		//host.WriteTo(os.Stdout)
 
 		fmt.Println("out(padded):")
-		hostT.WriteTo(os.Stdout)
+		//hostT.WriteTo(os.Stdout)
 
 		fmt.Println("backtransformed:")
-		hostTT.WriteTo(os.Stdout)
+		//hostTT.WriteTo(os.Stdout)
 
 		var (
 			errorTT  float32 = 0
@@ -115,7 +115,7 @@ func TestFFTPadded(t *testing.T) {
 func TestFFT(t *testing.T) {
 
 	for _, size := range fft_test_sizes {
-
+		fmt.Println("Size: ", size)
 		fft := NewFFT(backend, size)
 		fmt.Println(fft)
 		outsize := fft.PhysicSize()
@@ -147,13 +147,13 @@ func TestFFT(t *testing.T) {
 		TensorCopyFrom(devTT, hostTT)
 
 		fmt.Println("in:")
-		host.WriteTo(os.Stdout)
+		//host.WriteTo(os.Stdout)
 
 		fmt.Println("out:")
-		hostT.WriteTo(os.Stdout)
+		//hostT.WriteTo(os.Stdout)
 
 		fmt.Println("backtransformed:")
-		hostTT.WriteTo(os.Stdout)
+		//hostTT.WriteTo(os.Stdout)
 
 		var (
 			errorTT float32 = 0
@@ -176,10 +176,10 @@ func TestFFT(t *testing.T) {
 }
 
 
-// func abs(r float32) float32 {
-// 	if r < 0 {
-// 		return -r
-// 	}
-// 	//else
-// 	return r
-// }
+func abs(r float32) float32 {
+	if r < 0 {
+		return -r
+	}
+	//else
+	return r
+}
