@@ -49,6 +49,12 @@ func (r *Reductor) InitSum(b *Backend, N int) {
 }
 
 
+func NewSumAbs(b *Backend, N int) *Reductor {
+	r := new(Reductor)
+	r.InitSumAbs(b, N)
+	return r
+}
+
 func (r *Reductor) InitSumAbs(b *Backend, N int) {
 	r.init(b, N)
 	r.operation = SUMABS

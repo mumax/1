@@ -46,7 +46,7 @@ func TestSumAbs(t *testing.T) {
 		dev := backend.newArray(N)
 		backend.memcpyTo(&(host[0]), dev, N)
 
-		sum := NewSum(backend, N)
+		sum := NewSumAbs(backend, N)
 		result := sum.reduce_(dev)
 
 		if result != float32(N) {
