@@ -45,16 +45,16 @@ func GetCol(name string) {
 // coutput column data in a correspondig 2D grid.
 // Missing values become 0.
 func Matrix(i, j, data int){
-	// Sorted copies of the index columns
-	I := make([]float32, len(table.Column[i]))
-	copy(I, table.Column[i])
-	Float32Array(I).Sort()
-	J := make([]float32, len(table.Column[j]))
-	copy(J, table.Column[j])
-	Float32Array(J).Sort()
-
-	
-	D := table.Column[data]
-
-	// Count indices
+//	// Sorted copies of the index columns
+//	I := make([]float32, len(table.Column[i]))
+//	copy(I, table.Column[i])
+//	Float32Array(I).Sort()
+//	J := make([]float32, len(table.Column[j]))
+//	copy(J, table.Column[j])
+//	Float32Array(J).Sort()
+//
+//	
+//	D := table.Column[data]
+//
+//	// Count indices
 }
