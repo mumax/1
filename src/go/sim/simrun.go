@@ -41,7 +41,7 @@ func (s *Sim) Run(time float64) {
 		updateDashboard(s)
 
 		// step
-		s.Step()
+		s.step()
 		s.steps++
 		s.mUpToDate = false
 

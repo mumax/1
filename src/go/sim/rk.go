@@ -276,7 +276,7 @@ func newRK(sim *Sim, order int) *RK {
 // do not re-try the step more than this number of times.
 const MAX_STEP_TRIALS = 10
 
-func (rk *RK) Step() {
+func (rk *RK) step() {
 
 	order := rk.stages
 	k := rk.k

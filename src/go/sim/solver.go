@@ -9,7 +9,7 @@ package sim
 import "strings"
 
 type Solver interface {
-	Step()
+	step()
 	// 	String() string
 }
 

@@ -28,7 +28,7 @@ func NewSemiAnal1(sim *Sim) *SemiAnal1 {
 	return this
 }
 
-func (s *SemiAnal1) Step() {
+func (s *SemiAnal1) step() {
 	m1 := s.mDev
 	m2 := s.m2
 	h := s.hDev
@@ -86,7 +86,7 @@ func NewSemiAnal2(sim *Sim) *SemiAnal2 {
 	return this
 }
 
-func (s *SemiAnal2) Step() {
+func (s *SemiAnal2) step() {
 	m1 := s.mDev
 	h1 := s.hDev
 	m2 := s.m2
@@ -156,7 +156,7 @@ func (s *SemiAnal2) Step() {
 //   return this
 // }
 // 
-// func (s *SemiAnal2) Step() {
+// func (s *SemiAnal2) step() {
 //   m := s.mDev
 //   h := s.hDev
 //   s.calcHeff(m, h)
@@ -191,7 +191,7 @@ func NewSemiAnal2(sim *Sim) *SemiAnal2 {
   return this
 }
 
-func (s *SemiAnal2) Step() {
+func (s *SemiAnal2) step() {
   m1 := s.mDev
   m2 := s.m2
   m3 := s.m3
@@ -258,7 +258,7 @@ func (s *SemiAnal2) Step() {
 //   return this
 // }
 // 
-// func (s *SemiAnal2) Step() {
+// func (s *SemiAnal2) step() {
 //   m1 := s.mDev
 //   m2 := s.m2
 //   m_pred := s.m_pred

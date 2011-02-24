@@ -32,11 +32,11 @@ func (s *Sim) Relax() {
 		s.input.minDm = dm
 		// Take a few steps first
 		for i := 0; i < 10; i++ {
-			s.relaxStep()
+			s.relaxstep()
 			torque[0], torque[1], torque[2], torque[3] = s.torque, torque[0], torque[1], torque[2]
 		}
 		for !isUnstable(&torque) {
-			s.relaxStep()
+			s.relaxstep()
 			torque[0], torque[1], torque[2], torque[3] = s.torque, torque[0], torque[1], torque[2]
 		    //dm *= 1.01
 			//s.input.maxDm = dm
@@ -53,9 +53,9 @@ func (s *Sim) Relax() {
 	s.assureOutputUpToDate()
 }
 
-func (s *Sim) relaxStep() {
+func (s *Sim) relaxstep() {
 	//backup_time := s.time
-	s.Step()
+	s.step()
 	//s.time = backup_time // HACK: during relax we want the time to stand still
 	s.steps++
 	s.mUpToDate = false

@@ -31,7 +31,7 @@ func NewAdaptiveHeun(sim *Sim) *AdaptiveHeun {
 }
 
 
-func (s *AdaptiveHeun) Step() {
+func (s *AdaptiveHeun) step() {
 
 	m := s.mDev
 	m1est := s.m1est
