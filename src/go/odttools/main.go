@@ -35,6 +35,10 @@ var (
 	newtable omf.Table
 )
 
+func init(){
+	newtable.Init()
+}
+
 
 // CLI args consist of flags (starting with --) and files.
 // They are passed like this:
@@ -44,6 +48,9 @@ func main() {
 	sh := refsh.New()
 	sh.AddFunc("getdesc", GetDesc)
 	sh.AddFunc("peak", Peak)
+	sh.AddFunc("header", Header)
+	sh.AddFunc("cat", Cat)
+	sh.AddFunc("getcol", GetCol)
 	cmd, args, files := refsh.ParseFlags2()
 
 	// Each file is read and stored in "data".
