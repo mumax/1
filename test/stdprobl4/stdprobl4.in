@@ -19,7 +19,7 @@ maxerror 1e-5
 #maxdm 0.25
 
 # geometry 
-gridsize       	128 	32 	1    
+gridsize       	256 	64 	1    
 partsize   	500E-9  125E-9  3E-9
 demagaccuracy	16
 
@@ -27,9 +27,13 @@ demagaccuracy	16
 loadm    	s-state.omf
 
 # run
+autosave  torque text 0.9e-15
+
+
 autosave  m png 10e-12
 autosave	table	ascii	5e-12
-staticfield 	-24.6E-3     4.3E-3    0  # T
-run          	1e-9                      # s
+#staticfield 	-24.6E-3     4.3E-3    0  # T
+#run          	1e-9                      # s
+run           1e-15                      # s
 
 savebenchmark benchmark.txt
