@@ -28,3 +28,11 @@ func (s *Sim) SaveM(fname, format string) {
 	TensorCopyFrom(s.mDev, s.mLocal)
 	s.saveOmf(s.mLocal, fname, "Msat", format)	
 }
+
+
+// Overrides whether the magnetostatic field should be calculated.
+// false disables the entire convolution.
+// If not, the exchange should be calculated separately.
+func (s *Sim) Demag(calc_demag bool){
+	s.input.wantDemag = calc_demag
+}
