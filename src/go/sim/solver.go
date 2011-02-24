@@ -17,7 +17,7 @@ func NewSolver(solvertype string, sim *Sim) Solver {
 	solvertype = strings.ToLower(solvertype)
 	switch solvertype {
 	default:
-		panic("Unknown solver type: " + solvertype + ". Options are: rk1, rk2, rk12, rk3, rk23, rk4, rk45, rksemianal1")
+		panic("Unknown solver type: " + solvertype + ". Options are: rk1, rk2, rk12, rk3, rk23, rk4, rkdp, rkck, semianal1")
 	case "rk1":
 		panic("Broken")
 		return NewRK1(sim)

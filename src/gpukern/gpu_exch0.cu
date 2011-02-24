@@ -11,8 +11,8 @@ __global__ void _gpu_add_exch6(float* mx, float* my, float* mz,
                                float* hx, float* hy, float* hz,
                                int N0, int N1, int N2,
                                int wrap0, int wrap1, int wrap2,
-							   float fac0, float fac1, float fac2, 
-							   int i){
+                               float fac0, float fac1, float fac2, 
+                               int i){
 
   //  i is passed
   int j = blockIdx.x * blockDim.x + threadIdx.x;
@@ -123,18 +123,18 @@ __global__ void _gpu_add_exch6(float* mx, float* my, float* mz,
 
 
 #define BLOCKSIZE 16
-void gpu_add_exch(float* m, float* h, int N0, int N1, int N2, int wrap0, int wrap1, int wrap2, float cellsize0, float cellsize1, float cellsize2, int type){
-  assert(type == 6);
-  dim3 gridsize(divUp(N1, BLOCKSIZE), divUp(N2, BLOCKSIZE));
+void gpu_add_exch(float* m, float* h, int *size, int *periodic, int *exchInConv, float *cellSize, int type){
+  assert(type == EXCH_6NGBR);
+  dim3 gridsize(divUp(size[Y], BLOCKSIZE), divUp(size[Z], BLOCKSIZE));
   dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
-  int N = N0 * N1 * N2;
+  int N = size[X]*size[Y]*size[Z];
 
-  float fac0 = 1.0f/(cellsize0 * cellsize0);
-  float fac1 = 1.0f/(cellsize1 * cellsize1);
-  float fac2 = 1.0f/(cellsize2 * cellsize2);
+  float fac0 = 1.0f/(cellSize[0] * cellSize[0]);
+  float fac1 = 1.0f/(cellSize[1] * cellSize[1]);
+  float fac2 = 1.0f/(cellSize[2] * cellSize[2]);
 
-  for(int i=0; i<N0; i++){
-    _gpu_add_exch6<<<gridsize, blocksize>>>(&m[0*N], &m[1*N], &m[2*N], &h[0*N], &h[1*N], &h[2*N], N0, N1, N2, wrap0, wrap1, wrap2, fac0, fac1, fac2, i);
+  for(int i=0; i<size[X]; i++){
+    _gpu_add_exch6<<<gridsize, blocksize>>>(&m[0*N], &m[1*N], &m[2*N], &h[0*N], &h[1*N], &h[2*N], size[X], size[Y], size[Z], periodic[X], periodic[Y], periodic[Z], fac0, fac1, fac2, i);
   }
   gpu_sync();
 }

@@ -113,7 +113,7 @@ type Device interface {
 	addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int)
 
 	// Adds the exchange field to h.
-	addExch(m, h uintptr, size, periodic []int, cellsize []float32, exchType int)
+	addExch(m, h uintptr, size, periodic, exchinconv []int, cellsize []float32, exchType int)
 
 	// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
 	// TODO: get rid of? decide the stride by yourself instead of globally storing it?
@@ -147,7 +147,7 @@ type Device interface {
 	// N: number of vectors 
 	semianalStep(min, mout, h uintptr, dt, alpha float32, N int)
 
-	// Extract only the real parts form in interleaved complex array
+	// Extract only the real parts from in interleaved complex array
 	// 	extractReal(complex, real uintptr, NReal int)
 
 	// Automatically selects between kernelmul3/4/6

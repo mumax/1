@@ -23,8 +23,9 @@ __global__ void _gpu_add_local_fields_uniaxial(float* mx, float* my, float* mz,
     hz[i] += hext_z + k_x2 * mu * U2;
     
   }
+  
+  return;
 }
-
 
 __global__ void _gpu_add_external_field(float* hx, float* hy, float* hz,
                                         float hext_x, float hext_y, float hext_z,
@@ -72,7 +73,9 @@ void gpu_add_local_fields (float* m, float* h, int N, float* Hext, int anisType,
                                                              anisK[0],  anisAxes[0], anisAxes[1], anisAxes[2], N);
       break;
   }
+  
   gpu_sync();
+  return;
 }
 
 #ifdef __cplusplus

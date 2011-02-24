@@ -127,6 +127,6 @@ func (s *Sim) assureOutputUpToDate() {
 // Copies mDev to mLocal.
 // Necessary after each run(), relax(), ...
 func (s *Sim) updateMLocal() {
-	s.Println("Copy m form device to local")
+	s.Println("Copy m from device to local")
 	TensorCopyFrom(s.mDev, s.mLocal)
 }
