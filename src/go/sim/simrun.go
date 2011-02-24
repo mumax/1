@@ -84,6 +84,13 @@ func (s *Sim) Step() {
 	//does not invalidate
 }
 
+// Takes n time steps
+func (s *Sim) Steps(n int){
+	for i:=0; i<n; i++{
+		s.Step()
+	}
+}
+
 var maxtorque float32 = DEFAULT_RELAX_MAX_TORQUE
 
 

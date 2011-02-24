@@ -201,6 +201,14 @@ def relax():
 def run(time):
 	send1("run", time)
 
+# Takes one time step
+def step():
+	send0("step")
+
+# Takes n time steps
+def steps(n):
+	send1("steps", n)
+
 
 # Misc
 
