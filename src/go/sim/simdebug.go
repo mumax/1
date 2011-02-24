@@ -16,6 +16,7 @@ func (s *Sim) Invalidate() {
 
 // Saves H to file
 func (s *Sim) SaveH(fname, format string) {
+	s.init()
 	s.calcHeff(s.mDev, s.hDev)
 	TensorCopyFrom(s.hDev, s.hLocal)
 	s.saveOmf(s.hLocal, fname, "Msat", format)	
