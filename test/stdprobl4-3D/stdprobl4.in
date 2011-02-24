@@ -6,9 +6,6 @@ desc info standard_problem_4
 # exchtype 12
  exchinconv false
 
-solvertype semianal1
-
-
 # material
 msat:       	800E3       # A/m
 aexch:      	1.3E-11     # J/m
@@ -28,5 +25,3 @@ loadm:    	s-state.omf
 autosave:	m	 png	   50E-12
 autosave:	table	 ascii	   10E-12
 staticfield: 	-24.6E-3 4.3E-3    0
-run:          	1E-9                     
-

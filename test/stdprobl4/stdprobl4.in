@@ -4,7 +4,7 @@
 desc info standard_problem_4
 kerneltype mumaxkern-cpu
 # exchtype 12
-exchinconv false
+# exchinconv false
 
 # material
 msat       	800E3   
@@ -27,13 +27,9 @@ demagaccuracy	16
 loadm    	s-state.omf
 
 # run
-autosave  torque text 0.9e-15
-
-
 autosave  m png 10e-12
 autosave	table	ascii	5e-12
-#staticfield 	-24.6E-3     4.3E-3    0  # T
-#run          	1e-9                      # s
-run           1e-15                      # s
+staticfield 	-24.6E-3     4.3E-3    0  # T
+run          	1e-9                      # s
 
 savebenchmark benchmark.txt
