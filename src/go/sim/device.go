@@ -147,7 +147,7 @@ type Device interface {
 	// N: number of vectors 
 	semianalStep(min, mout, h uintptr, dt, alpha float32, N int)
 
-	// Extract only the real parts form in interleaved complex array
+	// Extract only the real parts from in interleaved complex array
 	// 	extractReal(complex, real uintptr, NReal int)
 
 	// Automatically selects between kernelmul3/4/6
