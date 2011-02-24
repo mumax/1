@@ -65,8 +65,6 @@ func (t *Table) GetUnit(name string) string {
 }
 
 
-
-
 // Add a column with specified name and unit.
 func (t *Table) AddColumn(name, unit string) {
 	if t.GetColumn(name) != nil {
