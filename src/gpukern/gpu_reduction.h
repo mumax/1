@@ -25,6 +25,7 @@ extern "C" {
 #define REDUCE_MAX 2
 #define REDUCE_MAXABS 3
 #define REDUCE_MIN 4
+#define REDUCE_SUMABS 5
 
 /// Reduces the input (array on device)
 float gpu_reduce(int operation,     ///< REDUCE_ADD, REDUCE_MAX, ... 

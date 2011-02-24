@@ -1,13 +1,3 @@
-/*
- *  This file is part of MuMax, a high-performance micromagnetic simulator.
- *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
- *  Use of this source code is governed by the GNU General Public License version 3
- *  (as published by the Free Software Foundation) that can be found in the license.txt file.
- *
- *  Note that you are welcome to modify this code under condition that you do not remove any 
- *  copyright notices and prominently state that you modified it, giving a relevant date.
- */
-
 // The code in this source file is based on the reduction code from the CUDPP library. Hence the following notice:
 
 /*
@@ -42,6 +32,16 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //  - restricted to use only floats
 //  - more reduction operations than the original "sum" have been added (min, max, maxabs, ...)
 // Note that you have to comply with both the above BSD and GPL licences.
+
+/*
+ *  This file is part of MuMax, a high-performance micromagnetic simulator.
+ *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
+ *  Use of this source code is governed by the GNU General Public License version 3
+ *  (as published by the Free Software Foundation) that can be found in the license.txt file.
+ *
+ *  Note that you are welcome to modify this code under condition that you do not remove any 
+ *  copyright notices and prominently state that you modified it, giving a relevant date.
+ */
 
 #include "gpu_reduction.h"
 #include "gpu_conf.h"
@@ -79,6 +79,61 @@ In other words if blockSize <= 32, allocate 64*sizeof(T) bytes.
 If blockSize > 32, allocate blockSize*sizeof(T) bytes.
 */
 
+/// This kernel takes a partial sum of absolute values
+template <unsigned int blockSize, bool nIsPow2>
+__global__ void _gpu_sumabs_kernel(float* g_idata, float* g_odata, unsigned int n) {
+  float* sdata = SharedMemory<float>();
+
+  // perform first level of reduction,
+  // reading from global memory, writing to shared memory
+  unsigned int tid = threadIdx.x;
+  unsigned int i = blockIdx.x*blockSize*2 + threadIdx.x;
+  unsigned int gridSize = blockSize*2*gridDim.x;
+
+  float mySum = 0;
+
+  // we reduce multiple elements per thread.  The number is determined by the
+  // number of active thread blocks (via gridDim).  More blocks will result
+  // in a larger gridSize and therefore fewer elements per thread
+  while (i < n)
+  {
+    mySum += fabs(g_idata[i]);
+    // ensure we don't read out of bounds -- this is optimized away for powerOf2 sized arrays
+    if (nIsPow2 || i + blockSize < n)
+      mySum += fabs(g_idata[i+blockSize]);
+    i += gridSize;
+  }
+
+  // each thread puts its local sum into shared memory
+  sdata[tid] = mySum;
+  __syncthreads();
+
+
+  // do reduction in shared mem
+//   if (blockSize >= 512) { if (tid < 256) { sdata[tid] = mySum = mySum + sdata[tid + 256]; } __syncthreads(); }
+//   if (blockSize >= 256) { if (tid < 128) { sdata[tid] = mySum = mySum + sdata[tid + 128]; } __syncthreads(); }
+//   if (blockSize >= 128) { if (tid <  64) { sdata[tid] = mySum = mySum + sdata[tid +  64]; } __syncthreads(); }
+  if (blockSize >= 512) { if (tid < 256) { mySum = mySum + sdata[tid + 256]; sdata[tid] = mySum; } __syncthreads(); }
+  if (blockSize >= 256) { if (tid < 128) { mySum = mySum + sdata[tid + 128]; sdata[tid] = mySum; } __syncthreads(); }
+  if (blockSize >= 128) { if (tid <  64) { mySum = mySum + sdata[tid +  64]; sdata[tid] = mySum; } __syncthreads(); }
+
+  if (tid < 32)
+    {
+      // now that we are using warp-synchronous programming (below)
+      // we need to declare our shared memory volatile so that the compiler
+      // doesn't reorder stores to it and induce incorrect behavior.
+      volatile float* smem = sdata;
+      if (blockSize >=  64) { mySum = mySum + smem[tid + 32]; smem[tid] = mySum;  }
+      if (blockSize >=  32) { mySum = mySum + smem[tid + 16]; smem[tid] = mySum;  }
+      if (blockSize >=  16) { mySum = mySum + smem[tid +  8]; smem[tid] = mySum;  }
+      if (blockSize >=   8) { mySum = mySum + smem[tid +  4]; smem[tid] = mySum;  }
+      if (blockSize >=   4) { mySum = mySum + smem[tid +  2]; smem[tid] = mySum;  }
+      if (blockSize >=   2) { mySum = mySum + smem[tid +  1]; smem[tid] = mySum;  }
+    }
+    // write result for this block to global mem
+    if (tid == 0)
+      g_odata[blockIdx.x] = sdata[0];
+}
 /// This kernel takes a partial sum
 template <unsigned int blockSize, bool nIsPow2>
 __global__ void _gpu_sum_kernel(float* g_idata, float* g_odata, unsigned int n) {
@@ -342,6 +397,48 @@ void gpu_partial_sums(float* d_idata, float* d_odata, int blocks, int threads, i
   }
   gpu_sync();
 }
+void gpu_partial_sumabs(float* d_idata, float* d_odata, int blocks, int threads, int size) {
+  dim3 dimBlock(threads, 1, 1);
+  dim3 dimGrid(blocks, 1, 1);
+
+  // when there is only one warp per block, we need to allocate two warps
+  // worth of shared memory so that we don't index shared memory out of bounds
+  int smemSize = (threads <= 32) ? 2 * threads * sizeof(float) : threads * sizeof(float);
+
+  if (isPow2(size))
+  {
+    switch (threads)
+    {
+      case 512: _gpu_sumabs_kernel<512, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case 256: _gpu_sumabs_kernel<256, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case 128: _gpu_sumabs_kernel<128, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case  64: _gpu_sumabs_kernel< 64, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case  32: _gpu_sumabs_kernel< 32, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case  16: _gpu_sumabs_kernel< 16, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case   8: _gpu_sumabs_kernel<  8, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case   4: _gpu_sumabs_kernel<  4, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case   2: _gpu_sumabs_kernel<  2, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case   1: _gpu_sumabs_kernel<  1, true><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+    }
+  }
+  else
+  {
+    switch (threads)
+    {
+      case 512: _gpu_sumabs_kernel<512, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case 256: _gpu_sumabs_kernel<256, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case 128: _gpu_sumabs_kernel<128, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case  64: _gpu_sumabs_kernel< 64, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case  32: _gpu_sumabs_kernel< 32, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case  16: _gpu_sumabs_kernel< 16, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case   8: _gpu_sumabs_kernel<  8, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case   4: _gpu_sumabs_kernel<  4, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case   2: _gpu_sumabs_kernel<  2, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+      case   1: _gpu_sumabs_kernel<  1, false><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size); break;
+    }
+  }
+  gpu_sync();
+}
 
 
 void gpu_partial_max(float* d_idata, float* d_odata, int blocks, int threads, int size) {
@@ -519,7 +616,16 @@ float gpu_reduce(int operation, float* input, float* dev2, float* host2, int blo
       }
       return maxabs;
     }
-
+    case REDUCE_SUMABS:
+    {
+      gpu_partial_sumabs(input, dev2, blocks, threads, N);
+      memcpy_from_gpu(dev2, host2, blocks);
+      float sum = 0.;
+      for(int i=0; i<blocks; i++){
+        sum += fabs(host2[i]);
+      }
+      return sum;
+    }
   }
 }
 
