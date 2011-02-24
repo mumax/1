@@ -15,7 +15,7 @@ extern "C" {
 ///> important: EXCH_BLOCK_X*EXCH_BLOCK_Y needs to be larger than (or equal to) 2*(EXCH_BLOCK_X + EXCH_BLOCK_Y + 2)!! 
 
 void gpu_add_exch (float *m, float *h, int *size, int *periodic, int *exchInConv, float *cellSize, int type){
-
+  
   float *m_comp = NULL;
   float *h_comp = NULL;
   
