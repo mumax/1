@@ -21,3 +21,10 @@ func (s *Sim) SaveH(fname, format string) {
 	TensorCopyFrom(s.hDev, s.hLocal)
 	s.saveOmf(s.hLocal, fname, "Msat", format)	
 }
+
+// Saves m to file
+func (s *Sim) SaveM(fname, format string) {
+	s.init()
+	TensorCopyFrom(s.mDev, s.mLocal)
+	s.saveOmf(s.mLocal, fname, "Msat", format)	
+}
