@@ -10,7 +10,7 @@ gridsize:     128         128         1
 partsize:   	500e-9  500e-9 50e-9
 
 #initial magnetization
-vortex  1 1
+vortex  -1 -1
 
 
 # excite
