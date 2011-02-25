@@ -44,7 +44,7 @@ func (s *Sim) ExchType(exchType int) {
 
 // Apply a static field defined in Tesla
 func (s *Sim) StaticField(hz, hy, hx float32) {
-	s.AppliedField = &staticField{[3]float32{hx, hy, hz}} // pass it on in Tesla so that it stays independent of other problem parameters
+	s.appliedField = &staticField{[3]float32{hx, hy, hz}} // pass it on in Tesla so that it stays independent of other problem parameters
 	s.Println("Applied field: static, (", hz, ", ", hy, ", ", hx, ") T")
 }
 
@@ -67,7 +67,7 @@ type pointwiseField struct{
 }
 
 func (s *Sim) PulsedField(hz, hy, hx float32, duration, risetime float64) {
-	s.AppliedField = &pulsedField{[3]float32{hx, hy, hz}, duration, risetime}
+	s.appliedField = &pulsedField{[3]float32{hx, hy, hz}, duration, risetime}
 	s.Println("Applied field: pulse, (", hx, ", ", hy, ", ", hz, ") T, ", duration, "s FWHM, ", risetime, "s rise- and falltime (0-100%)")
 }
 
@@ -94,7 +94,7 @@ func (f *pulsedField) GetAppliedField(time float64) [3]float32 {
 
 // Apply an alternating field
 func (s *Sim) RfField(hz, hy, hx float32, freq float64) {
-	s.AppliedField = &rfField{[3]float32{hx, hy, hz}, freq}
+	s.appliedField = &rfField{[3]float32{hx, hy, hz}, freq}
 	s.Println("Applied field: RF, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz")
 }
 
@@ -112,7 +112,7 @@ func (field *rfField) GetAppliedField(time float64) [3]float32 {
 func (s *Sim) SawtoothField(hz, hy, hx float32, freq float64) {
 	var st sawtooth
 	st = sawtooth(rfField{[3]float32{hx, hy, hz}, freq})
-	s.AppliedField = &st
+	s.appliedField = &st
 	s.Println("Applied field: sawtooth, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz")
 }
 
@@ -125,7 +125,7 @@ func (field *sawtooth) GetAppliedField(time float64) [3]float32 {
 
 // Apply a rotating field
 func (s *Sim) RotatingField(hz, hy, hx float32, freq float64, phaseX, phaseY, phaseZ float64) {
-	s.AppliedField = &rotatingField{[3]float32{hx, hy, hz}, freq, [3]float64{phaseX, phaseY, phaseZ}}
+	s.appliedField = &rotatingField{[3]float32{hx, hy, hz}, freq, [3]float64{phaseX, phaseY, phaseZ}}
 	s.Println("Applied field: Rotating, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz", " phases: ", phaseX, ", ", phaseY, ", ", phaseZ, " rad")
 }
 
@@ -146,7 +146,7 @@ func (field *rotatingField) GetAppliedField(time float64) [3]float32 {
 // Apply a rotating burst.
 // phase: -pi/2=CW, pi/2=CCW
 func (s *Sim) RotatingBurst(h float32, freq, phase, risetime, duration float64) {
-	s.AppliedField = &rotatingBurst{h, freq, phase, risetime, duration}
+	s.appliedField = &rotatingBurst{h, freq, phase, risetime, duration}
 	s.Println("Applied field: Rotating burst, ", h, " T, frequency: ", freq, " Hz ", "phase between X-Y: ", phase, " risetime: ", risetime, " s", ", duration: ", duration, " s")
 }
 
@@ -195,8 +195,8 @@ func (s *Sim) calcHeff(m, h *DevTensor) {
 	}
 
 	// (2) Add the externally applied field
-	if s.AppliedField != nil {
-		s.hextSI = s.GetAppliedField(s.time * float64(s.UnitTime()))
+	if s.appliedField != nil {
+		s.hextSI = s.appliedField.GetAppliedField(s.time * float64(s.UnitTime()))
 	} else {
 		s.hextSI = [3]float32{0., 0., 0.}
 	}
