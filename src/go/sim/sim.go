@@ -111,7 +111,7 @@ type Sim struct {
 	Mesh     // Stores the size of the simulation grid
 
 	appliedField AppliedField            // returns the externally applied field in function of time
-	appliedCurrent AppliedField            // returns the externally applied current in function of time
+	appliedCurrDens AppliedField            // returns the externally applied current density in function of time
 	hextSI       [3]float32 // stores the externally applied field returned by AppliedField, in SI UNITS
 	hextInt      []float32  // stores the externally applied field in internal units
 

@@ -45,9 +45,9 @@ func (s *Sim) ExchType(exchType int) {
 
 func (s *Sim) apply(what string, function AppliedField){
 	switch strings.ToLower(what){
-		default: panic(InputErr("Illegal Argument: " + what + " Options are: [field, current]"))
-		case "field": s.appliedField = function
-		case "current": s.appliedCurrent = function
+		default: panic(InputErr("Illegal Argument: " + what + " Options are: [field (or B), currentdensiry (or j)]"))
+		case "field", "b": s.appliedField = function
+		case "currentdensity", "j": s.appliedCurrDens = function
 	}
 }
 
@@ -104,7 +104,7 @@ func (f *pulsedField) GetAppliedField(time float64) [3]float32 {
 // Apply an alternating field
 func (s *Sim) ApplyRf(what string, hz, hy, hx float32, freq float64) {
 	s.apply(what, &rfField{[3]float32{hx, hy, hz}, freq})
-	s.Println("Applied field: RF, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz")
+	s.Println("Applied " + what + ": RF, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz")
 }
 
 type rfField struct {
@@ -122,7 +122,7 @@ func (s *Sim) ApplySawtooth(what string, hz, hy, hx float32, freq float64) {
 	var st sawtooth
 	st = sawtooth(rfField{[3]float32{hx, hy, hz}, freq})
 	s.apply(what, &st)
-	s.Println("Applied field: sawtooth, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz")
+	s.Println("Applied " + what + ": sawtooth, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz")
 }
 
 type sawtooth rfField
@@ -135,7 +135,7 @@ func (field *sawtooth) GetAppliedField(time float64) [3]float32 {
 // Apply a rotating field
 func (s *Sim) ApplyRotating(what string, hz, hy, hx float32, freq float64, phaseX, phaseY, phaseZ float64) {
 	s.apply(what, &rotatingField{[3]float32{hx, hy, hz}, freq, [3]float64{phaseX, phaseY, phaseZ}})
-	s.Println("Applied field: Rotating, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz", " phases: ", phaseX, ", ", phaseY, ", ", phaseZ, " rad")
+	s.Println("Applied " + what + ": Rotating, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz", " phases: ", phaseX, ", ", phaseY, ", ", phaseZ, " rad")
 }
 
 type rotatingField struct {
@@ -156,7 +156,7 @@ func (field *rotatingField) GetAppliedField(time float64) [3]float32 {
 // phase: -pi/2=CW, pi/2=CCW
 func (s *Sim) ApplyRotatingBurst(what string, h float32, freq, phase, risetime, duration float64) {
 	s.apply(what, &rotatingBurst{h, freq, phase, risetime, duration})
-	s.Println("Applied field: Rotating burst, ", h, " T, frequency: ", freq, " Hz ", "phase between X-Y: ", phase, " risetime: ", risetime, " s", ", duration: ", duration, " s")
+	s.Println("Applied " + what + ": Rotating burst, ", h, " T, frequency: ", freq, " Hz ", "phase between X-Y: ", phase, " risetime: ", risetime, " s", ", duration: ", duration, " s")
 }
 
 type rotatingBurst struct {
