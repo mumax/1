@@ -65,7 +65,7 @@ type Input struct {
 	maxDm, minDm   float32 // The min/max magnetization step ("delta m") to be taken by the solver. 0 means not used. May be ignored by certain solvers.
 	solvertype     string
 	j              [3]float32 // current density in A/m^2
-	exchType       int        // exchange scheme: 6 or 26 neighbors
+	exchType       int        // exchange scheme: 6, 12 or 26 neighbors
 	maxError       float32    // The maximum error per step to be made by the solver. 0 means not used. May be ignored by certain solvers.
 	periodic       [3]int     // Periodic boundary conditions? 0=no, >0=yes
 	geom           Geom       // Shape of the magnet (has Inside(x,y,z) func)
@@ -74,6 +74,8 @@ type Input struct {
 	anisKSI        []float32  // Anisotropy constant(s), as many as needed
 	anisAxes       []float32  // Anisotropy axes: ux,uy,uz for uniaxial, u1x,u1y,u1z,u2x,u2y,u2z for cubic
 	kernelType     string     // Determines which kernel subprogram to use.
+	wantDemag      bool       // DEBUG: false disables the convolution and thus the demag field.
+	tabulate       []bool     // What output to tabulate, see simoutput.go
 }
 
 
@@ -99,7 +101,7 @@ type Sim struct {
 	hDev           *DevTensor // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
 	mLocal, hLocal *tensor.T4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
 	//mLocalLock     sync.RWMutex
-	mUpToDate bool // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
+	mUpToDate bool // Is mLocal up to date with mDev? If not, a copy from the device is needed before storing output.
 
 	Conv              // Convolution plan for the magnetostatic field
 	exchInConv bool   // Exchange included in convolution?
@@ -188,6 +190,12 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.input.anisAxes = []float32{0.}
 	sim.input.kernelType = DEFAULT_KERNELTYPE
 	sim.exchInConv = true
+	sim.input.wantDemag = true
+	sim.input.tabulate = make([]bool, TAB_LEN)
+	sim.input.tabulate[TAB_TIME] = true
+	sim.input.tabulate[TAB_M] = true
+	sim.input.tabulate[TAB_B] = true
+	sim.input.tabulate[TAB_ID] = true
 	sim.invalidate() //just to make sure we will init()
 	return sim
 }

@@ -1,3 +1,13 @@
+/*
+ *  This file is part of MuMax, a high-performance micromagnetic simulator.
+ *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
+ *  Use of this source code is governed by the GNU General Public License version 3
+ *  (as published by the Free Software Foundation) that can be found in the license.txt file.
+ *
+ *  Note that you are welcome to modify this code under condition that you do not remove any 
+ *  copyright notices and prominently state that you modified it, giving a relevant date.
+ */
+
 #include "tensor.h"
 #include <stdio.h>
 #include "cpu_kernel_micromag3d.h"
@@ -26,7 +36,7 @@ void cpu_init_kernel_elements_micromag3d(int co1, int co2, int *kernelSize, floa
   free (qd_P_10);
   
   write_tensor_pieces(3, kernelSize, data, stdout);
-  //print_tensor(as_tensorN(data, 3, kernelSize));
+//   print_tensor(as_tensorN(data, 3, kernelSize));
   free (data);
   
   return;
@@ -96,7 +106,8 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
               for (int cnt3=0; cnt3<10; cnt3++){
                 float z = k * cellSize[Z] + qd_P_10_Z[cnt3] + qd_P_10_Z[cntc];
                 result += 1.0f/8.0f * cellSize[Y] * cellSize[Z] / 4.0f * qd_W_10[cnt2] * qd_W_10[cnt3] *
-                  ( x1*powf(x1*x1+y*y+z*z, -1.5f) - x2*powf(x2*x2+y*y+z*z, -1.5f));
+                  qd_W_10[cnta] * qd_W_10[cntb] * qd_W_10[cntc] *
+                  ( x1*powf(x1*x1+y*y+z*z, -1.5f) - x2*powf(x2*x2+y*y+z*z, -1.5f) );
               }
             }
           }
@@ -153,6 +164,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
 //               for (int cnt3=0; cnt3<10; cnt3++){
 //                 float z = k * cellSize[Z] + qd_P_10_Z[cnt3] + qd_P_10_Z[cntc];
 //                 result += 1.0f/8.0f * cellSize[Y] * cellSize[Z] / 4.0f * qd_W_10[cnt2] * qd_W_10[cnt3] *
+//                   qd_W_10[cnta] * qd_W_10[cntb] * qd_W_10[cntc] *
 //                   ( y*powf(x1*x1+y*y+z*z, -1.5f) - y*powf(x2*x2+y*y+z*z, -1.5f));
 //               }
 //             }
@@ -209,6 +221,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
               for (int cnt3=0; cnt3<10; cnt3++){
                 float z = k * cellSize[Z] + qd_P_10_Z[cnt3] + qd_P_10_Z[cntc];
                 result += 1.0f/8.0f * cellSize[Y] * cellSize[Z] / 4.0f * qd_W_10[cnt2] * qd_W_10[cnt3] *
+                  qd_W_10[cnta] * qd_W_10[cntb] * qd_W_10[cntc] *
                   ( z*powf(x1*x1+y*y+z*z, -1.5f) - z*powf(x2*x2+y*y+z*z, -1.5f));
               }
             }
@@ -267,6 +280,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
               for (int cnt3=0; cnt3<10; cnt3++){
                 float z = k * cellSize[Z] + qd_P_10_Z[cnt3] + qd_P_10_Z[cntc];
                 result += 1.0f/8.0f * cellSize[X] * cellSize[Z] / 4.0f * qd_W_10[cnt1] * qd_W_10[cnt3] *
+                  qd_W_10[cnta] * qd_W_10[cntb] * qd_W_10[cntc] *
                   ( y1*powf(x*x+y1*y1+z*z, -1.5f) - y2*powf(x*x+y2*y2+z*z, -1.5f));
               }
             }
@@ -324,6 +338,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
               for (int cnt3=0; cnt3<10; cnt3++){
                 float z = k * cellSize[Z] + qd_P_10_Z[cnt3] + qd_P_10_Z[cntc];
                 result += 1.0f/8.0f * cellSize[X] * cellSize[Z] / 4.0f * qd_W_10[cnt1] * qd_W_10[cnt3] *
+                  qd_W_10[cnta] * qd_W_10[cntb] * qd_W_10[cntc] *
                   ( z*powf(x*x+y1*y1+z*z, -1.5f) - z*powf(x*x+y2*y2+z*z, -1.5f));
               }
             }
@@ -381,6 +396,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
               for (int cnt2=0; cnt2<10; cnt2++){
                 float y = j * cellSize[Y] + qd_P_10_Y[cnt2] + qd_P_10_Y[cntb];
                 result += 1.0f/8.0f * cellSize[X] * cellSize[Y] / 4.0f * qd_W_10[cnt1] * qd_W_10[cnt2] *
+                  qd_W_10[cnta] * qd_W_10[cntb] * qd_W_10[cntc] *
                   ( z1*powf(x*x+y*y+z1*z1, -1.5f) - z2*powf(x*x+y*y+z2*z2, -1.5f));
               }
             }

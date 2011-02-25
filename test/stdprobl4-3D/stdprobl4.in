@@ -1,13 +1,17 @@
 # Micromagnetic standard problem 4
 # but 3D version
 
+desc info standard_problem_4
+ kerneltype mumaxkern-gpu
+# exchtype 12
+ exchinconv false
 
 # material
 msat:       	800E3       # A/m
 aexch:      	1.3E-11     # J/m
 alpha:      	0.02
-exchangetype: 6
-exchinconv: false
+# exchangetype: 6
+# exchinconv: false
 
 # geometry 
 gridsize:       128 32 2
@@ -21,5 +25,3 @@ loadm:    	s-state.omf
 autosave:	m	 png	   50E-12
 autosave:	table	 ascii	   10E-12
 staticfield: 	-24.6E-3 4.3E-3    0
-run:          	1E-9                     
-

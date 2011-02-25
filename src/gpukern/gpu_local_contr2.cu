@@ -1,3 +1,13 @@
+/*
+ *  This file is part of MuMax, a high-performance micromagnetic simulator.
+ *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
+ *  Use of this source code is governed by the GNU General Public License version 3
+ *  (as published by the Free Software Foundation) that can be found in the license.txt file.
+ *
+ *  Note that you are welcome to modify this code under condition that you do not remove any 
+ *  copyright notices and prominently state that you modified it, giving a relevant date.
+ */
+
 #include "gpu_local_contr2.h"
 #include "gpu_mem.h"
 #include "gpu_conf.h"
@@ -23,8 +33,9 @@ __global__ void _gpu_add_local_fields_uniaxial(float* mx, float* my, float* mz,
     hz[i] += hext_z + k_x2 * mu * U2;
     
   }
+  
+  return;
 }
-
 
 __global__ void _gpu_add_external_field(float* hx, float* hy, float* hz,
                                         float hext_x, float hext_y, float hext_z,
@@ -72,7 +83,9 @@ void gpu_add_local_fields (float* m, float* h, int N, float* Hext, int anisType,
                                                              anisK[0],  anisAxes[0], anisAxes[1], anisAxes[2], N);
       break;
   }
+  
   gpu_sync();
+  return;
 }
 
 #ifdef __cplusplus

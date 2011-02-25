@@ -59,7 +59,7 @@ func parseArg(arg string, argtype Type) Value {
 	case "string":
 		return NewValue(arg)
 	}
-	panic("Bug") 
+	panic("Bug")
 	return NewValue(666) // is never reached.
 }
 

@@ -88,22 +88,22 @@ func main_slave() {
 
 		// Idiot-proof error reports
 		if refsh.CallCount == 0 {
-			sim.Errorln("Input file contains no commands.")
+			sim.Errorln("Input contained no commands.")
 		}
 		if !sim.BeenValid {
-			sim.Errorln("Input file does not contain any commands to make the simulation run. Use, e.g., \"run\".")
+			sim.Errorln("Input contained no commands to make the simulation run (e.g., \"run\").")
 		}
 		// The next two lines cause a nil pointer panic when the simulation is not fully initialized
-		if sim.BeenValid && Verbosity > 1 {
-			down()
-			down()
-			down()
-			down()
-			down()
+		//if sim.BeenValid && Verbosity > 1 {
+		//	down()
+		//	down()
+		//	down()
+		//	down()
+		//	down()
 
-			//sim.TimerPrintDetail()
-			//sim.PrintTimer(os.Stdout)
-		}
+		//sim.TimerPrintDetail()
+		//sim.PrintTimer(os.Stdout)
+		//}
 
 		// TODO need to free sim
 

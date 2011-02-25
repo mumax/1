@@ -30,7 +30,7 @@ package sim
 import (
 	. "mumax/common"
 	"mumax/tensor"
-	. "math"
+	"math"
 )
 
 // Zero kernel, for debugging.
@@ -73,7 +73,7 @@ func wrap(number, max int) int {
 
 
 func FSqrt(x float64) float32 {
-	return float32(Sqrt(x))
+	return float32(math.Sqrt(x))
 }
 
 // Add padding x 2 in all directions where periodic == 0, except when a dimension == 1 (no padding neccesary)

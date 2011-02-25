@@ -9,10 +9,21 @@
 
 package common
 
+import (
+	"fmt"
+)
+
 // Panics if test is false
 func Assert(test bool) {
 	if !test {
 		panic(Bug("Assertion failed."))
+	}
+}
+
+// Panics if test is false, printing the message.
+func AssertMsg(test bool, msg ...interface{}) {
+	if !test {
+		panic(Bug(fmt.Sprint(msg...)))
 	}
 }
 

@@ -20,6 +20,7 @@ import (
 	"os"
 	"mumax/draw"
 	"mumax/omf"
+	"strings"
 )
 
 
@@ -109,19 +110,12 @@ func resolve(what, format string) Output {
 		case "text", "ascii":
 			return &MOmf{&Periodic{0., 0.}, "text"}
 		}
-		//	case "torque":
-		//		switch format {
-		//		default:
-		//			panic("unknown format " + format + ". options are: binary, ascii, png")
-		//		case "binary":
-		//			return &TorqueBinary{&Periodic{0., 0.}}
-		//		}
-
 	case "table":
 		//format gets ignored for now
 		return &Table{&Periodic{0., 0.}}
+	case "torque":
+		return &Torque{&Periodic{0., 0.}, format}
 	}
-
 	panic("bug")
 	return nil // not reached
 }
@@ -134,48 +128,110 @@ type Table struct {
 	*Periodic
 }
 
+// Index for s.input.tabulate 
+// (which determines what output to write to the datatable)
+const (
+	TAB_TIME = iota
+	TAB_M
+	TAB_B
+	TAB_ID
+	TAB_MAXDMDT
+	TAB_MINMAXMZ
+	TAB_COREPOS
+	TAB_LEN // Must be last in the list. Not used as key but to know the length of the tabulate array
+)
+
+var tabString []string = []string{"time", "m", "b", "id", "maxdm/dt", "minmaxmz", "corepos"}
+
 func (s *Sim) initTabWriter() {
 	if s.tabwriter != nil {
 		panic(Bug("Tabwriter already initiated."))
 	}
 	fname := s.outputdir + "/" + "datatable.odt"
 	out := MustOpenWRONLY(fname)
+	Print("Opened " + fname )
 	s.tabwriter = omf.NewTabWriter(out)
-	s.tabwriter.AddColumn("Time", "s")
-	s.tabwriter.AddColumn("Mx/Ms", "")
-	s.tabwriter.AddColumn("My/Ms", "")
-	s.tabwriter.AddColumn("Mz/Ms", "")
-	s.tabwriter.AddColumn("Bx", "T")
-	s.tabwriter.AddColumn("By", "T")
-	s.tabwriter.AddColumn("Bz", "T")
-	s.tabwriter.AddColumn("max_dm/dt", "gammaMs")
-	s.tabwriter.AddColumn("min_Mz/Ms", "")
-	s.tabwriter.AddColumn("max_Mz/Ms", "")
-	s.tabwriter.AddColumn("id", "")
+	if s.input.tabulate[TAB_TIME] {
+		s.tabwriter.AddColumn("Time", "s")
+	}
+	if s.input.tabulate[TAB_M] {
+		s.tabwriter.AddColumn("Mx/Ms", "")
+		s.tabwriter.AddColumn("My/Ms", "")
+		s.tabwriter.AddColumn("Mz/Ms", "")
+	}
+	if s.input.tabulate[TAB_B] {
+		s.tabwriter.AddColumn("Bx", "T")
+		s.tabwriter.AddColumn("By", "T")
+		s.tabwriter.AddColumn("Bz", "T")
+	}
+	if s.input.tabulate[TAB_MAXDMDT] {
+		s.tabwriter.AddColumn("max_dm/dt", "gammaMs")
+	}
+	if s.input.tabulate[TAB_MINMAXMZ] {
+		s.tabwriter.AddColumn("min_Mz/Ms", "")
+		s.tabwriter.AddColumn("max_Mz/Ms", "")
+	}
+	if s.input.tabulate[TAB_COREPOS] {
+		s.tabwriter.AddColumn("core_x", "m")
+		s.tabwriter.AddColumn("core_y", "m")
+	}
+	if s.input.tabulate[TAB_ID] {
+		s.tabwriter.AddColumn("id", "")
+	}
+}
+
+func (s *Sim) Tabulate(what string, tabulate bool) {
+	if s.tabwriter != nil {
+		panic(InputErr("tabulate must be called before the datatable is opened (Before run, desc, autosave, ...)."))
+	}
+	s.input.tabulate[indexof(strings.ToLower(what), tabString)] = tabulate
+}
+
+func indexof(key string, array []string) int {
+	for i, v := range array {
+		if v == key {
+			return i
+		}
+	}
+	panic(InputErr("Illegal argument: " + key + " options are: " + fmt.Sprint(array)))
 }
 
 func (t *Table) Save(s *Sim) {
 	if s.tabwriter == nil {
 		s.initTabWriter()
 	}
-
-	// calculate reduced quantities
-	m := [3]float32{}
-	torque := [3]float32{}
-	//N := Len(s.size3D)
-	for i := range m {
-		m[i] = s.devsum.Reduce(s.mDev.comp[i]) / s.avgNorm
-		torque[i] = abs32(s.devmaxabs.Reduce(s.hDev.comp[i]) / s.dt)
+	if s.input.tabulate[TAB_TIME] {
+		s.tabwriter.Print(float32(s.time) * s.UnitTime())
 	}
-	minMz, maxMz := s.devmin.Reduce(s.mDev.comp[X]), s.devmax.Reduce(s.mDev.comp[X])
-	maxtorque := max32(torque[0], max32(torque[1], torque[2]))
-
-	s.tabwriter.Print(float32(s.time) * s.UnitTime())
-	s.tabwriter.Print(m[Z], m[Y], m[X])
-	s.tabwriter.Print(s.hextSI[Z], s.hextSI[Y], s.hextSI[X])
-	s.tabwriter.Print(maxtorque)
-	s.tabwriter.Print(minMz, maxMz)
-	s.tabwriter.Print(s.autosaveIdx)
+	if s.input.tabulate[TAB_M] {
+		m := [3]float32{}
+		for i := range m {
+			m[i] = s.devsum.Reduce(s.mDev.comp[i]) / s.avgNorm
+		}
+		s.tabwriter.Print(m[Z], m[Y], m[X])
+	}
+	if s.input.tabulate[TAB_B] {
+		s.tabwriter.Print(s.hextSI[Z], s.hextSI[Y], s.hextSI[X])
+	}
+	if s.input.tabulate[TAB_MAXDMDT] {
+		torque := [3]float32{}
+		for i := range torque {
+			torque[i] = abs32(s.devmaxabs.Reduce(s.hDev.comp[i])) // do we need to / dt? some solvers use torque, some delta M...
+		}
+		maxtorque := max32(torque[0], max32(torque[1], torque[2]))
+		s.tabwriter.Print(maxtorque)
+	}
+	if s.input.tabulate[TAB_MINMAXMZ] {
+		minMz, maxMz := s.devmin.Reduce(s.mDev.comp[X]), s.devmax.Reduce(s.mDev.comp[X])
+		s.tabwriter.Print(minMz, maxMz)
+	}
+	if s.input.tabulate[TAB_COREPOS] {
+		corepos := s.corePos()
+		s.tabwriter.Print(corepos[0], corepos[1])
+	}
+	if s.input.tabulate[TAB_ID] {
+		s.tabwriter.Print(s.autosaveIdx)
+	}
 	s.tabwriter.Flush() // It's handy to have the output stored intermediately
 	t.sinceoutput = float32(s.time) * s.UnitTime()
 }
@@ -223,20 +279,41 @@ func (m *MOmf) Save(s *Sim) {
 
 
 // INTERNAL
-//type TorqueBinary struct {
-//	*Periodic
-//}
+type Torque struct {
+	*Periodic
+	format string
+}
 
-// TODO: quick and dirty for the moment
-//func (m *TorqueBinary) Save(s *Sim) {
-//	fname := s.outputdir + "/" + "torque" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
-//	out := fopen(fname)
-//	defer out.Close()
-//	TensorCopyFrom(s.hDev, s.hLocal) //!
-//	tensor.WriteMetaTensorBinary(out, s.hLocal, s.desc)
-//	m.sinceoutput = float32(s.time) * s.UnitTime()
-//}
+func (m *Torque) Save(s *Sim) {
+	fname := s.outputdir + "/" + "torque" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
+	var file omf.File
+	TensorCopyFrom(s.hDev, s.hLocal) //!
+	file.T4 = s.hLocal
+	file.StepSize = s.input.cellSize
+	file.MeshUnit = "m"
+	file.Desc = s.desc
+	file.ValueMultiplier = 1
+	file.ValueUnit = ""
+	file.Format = m.format
+	file.DataFormat = "4"
+	omf.FEncode(fname, file)
+	m.sinceoutput = float32(s.time) * s.UnitTime()
+}
 
+
+//Utility method for saving in .omf format.
+func (s *Sim) saveOmf(data *tensor.T4, filename, unit, format string) {
+	var file omf.File
+	file.T4 = data
+	file.StepSize = s.input.cellSize
+	file.MeshUnit = "m"
+	file.Desc = s.desc
+	file.ValueMultiplier = 1
+	file.ValueUnit = unit
+	file.Format = format
+	file.DataFormat = "4"
+	omf.FEncode(filename, file)
+}
 
 //_________________________________________ png
 

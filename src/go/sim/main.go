@@ -147,7 +147,7 @@ func crash(error interface{}) {
 	//     }
 
 	fmt.Fprintln(os.Stderr,
-		`
+`
 
 ---------------------------------------------------------------------
 Aw snap, the program has crahsed.

@@ -10,21 +10,22 @@ gridsize:     128         128         1
 partsize:   	500e-9  500e-9 50e-9
 
 #initial magnetization
-vortex  1 1
+vortex  -1 -1
 
 
 # excite
 alpha		    2
-autosave	  table	ascii	 50E-12
-autosave	  m	omf	250E-12
+tabulate b false
+tabulate corepos true
+autosave	  table	ascii	 10E-12
+autosave	  m	omf	500E-12
 staticfield	15e-3 0 0
-run         10E-9
+run         5E-9
 save		    m 	binary
 
 # release
 alpha		0.005
 staticfield	0 0 0
-autosave m binary 50e-12
 run             100E-9
 
 

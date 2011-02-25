@@ -22,10 +22,12 @@ type Table struct {
 	Desc             map[string]interface{}
 	ColName, ColUnit []string
 	Column           [][]float32
+	PrintHeader      bool
 }
 
 
 func (t *Table) Init() {
+	t.PrintHeader = true
 	t.Desc = make(map[string]interface{})
 }
 
@@ -65,8 +67,6 @@ func (t *Table) GetUnit(name string) string {
 }
 
 
-
-
 // Add a column with specified name and unit.
 func (t *Table) AddColumn(name, unit string) {
 	if t.GetColumn(name) != nil {
@@ -100,6 +100,7 @@ func (t *Table) AppendToColumn(name string, value float32) {
 // Write table to output stream.
 func (t *Table) WriteTo(out io.Writer) {
 	writer := NewTabWriter(out)
+	writer.PrintHeader = t.PrintHeader
 	for i := range t.ColName {
 		writer.AddColumn(t.ColName[i], t.ColUnit[i])
 	}

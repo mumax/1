@@ -33,7 +33,7 @@ func NewAdaptiveEuler(s *Sim) *AdaptiveEuler {
 	return e
 }
 
-func (this *AdaptiveEuler) Step() {
+func (this *AdaptiveEuler) step() {
 	m, h := this.mDev, this.hDev
 
 	// 	this.Normalize(this.m)

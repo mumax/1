@@ -163,6 +163,3 @@ func (t *Tensor) Zero() {
 func (t *Tensor) String() string {
 	return fmt.Sprintf("%#v", t)
 }
-
-
-

@@ -1,3 +1,13 @@
+/*
+ *  This file is part of MuMax, a high-performance micromagnetic simulator.
+ *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
+ *  Use of this source code is governed by the GNU General Public License version 3
+ *  (as published by the Free Software Foundation) that can be found in the license.txt file.
+ *
+ *  Note that you are welcome to modify this code under condition that you do not remove any 
+ *  copyright notices and prominently state that you modified it, giving a relevant date.
+ */
+
 #include "tensor.h"
 #include <stdio.h>
 #include "cpu_kernel_micromag2d.h"
@@ -25,7 +35,7 @@ void cpu_init_kernel_elements_micromag2d(int co1, int co2, int *kernelSize, floa
   free (qd_W_10);
   
   write_tensor_pieces(3, kernelSize, data, stdout);
-  //print_tensor(as_tensorN(data, 3, kernelSize));
+//   print_tensor(as_tensorN(data, 3, kernelSize));
   free (data);
   
   return;

@@ -78,6 +78,14 @@ func Average(t Interface) float32 {
 	return float32(sum / float64(len(l)))
 }
 
+// Sets all components to zero
+func Zero(t Interface) {
+	list := t.List()
+	for i := range list {
+		list[i] = 0.
+	}
+}
+
 
 // Returns a component.
 // I.e.: fixes the first index.

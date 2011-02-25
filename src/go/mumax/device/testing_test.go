@@ -7,7 +7,7 @@
 
 package device
 
-import(
+import (
 	. "mumax/common"
 	"mumax/device/cpu"
 	"mumax/device/gpu"
@@ -28,14 +28,13 @@ func InitDevice() {
 	bytes, err := ioutil.ReadFile(TEST_DEVICE_FILE)
 	dev := strings.ToLower(string(bytes))
 	CheckErr(err, ERR_IO)
-	switch{
-		default:	panic(InputErr(TEST_DEVICE_FILE + ": " + dev))
-		case strings.HasPrefix(dev, "cpu"):
-			Use(cpu.Init(cpu.MaxThreads(), 0))
-		case strings.HasPrefix(dev, "gpu"):
-			Use(gpu.Init(0, gpu.MaxThreads(), 0))
-		case strings.HasPrefix(dev, "multigpu"):
+	switch {
+	default:
+		panic(InputErr(TEST_DEVICE_FILE + ": " + dev))
+	case strings.HasPrefix(dev, "cpu"):
+		Use(cpu.Init(cpu.MaxThreads(), 0))
+	case strings.HasPrefix(dev, "gpu"):
+		Use(gpu.Init(0, gpu.MaxThreads(), 0))
+	case strings.HasPrefix(dev, "multigpu"):
 	}
 }
-
-

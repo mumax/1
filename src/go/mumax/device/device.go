@@ -22,6 +22,8 @@ import (
 )
 
 
+// Set a device for global use.
+// Can be done only once.
 func Use(device Interface) {
 	if dev != nil {
 		panic(Bug("device.Use(): device already set."))

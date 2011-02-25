@@ -37,7 +37,7 @@ func Read(in_ io.Reader) *T {
 }
 
 
-func readHeader(in *BlockingReader) (size []int){
+func readHeader(in *BlockingReader) (size []int) {
 	var bytes4 [4]byte
 	bytes := bytes4[:]
 	in.Read(bytes)
@@ -55,7 +55,7 @@ func readHeader(in *BlockingReader) (size []int){
 	return
 }
 
-func readData(in *BlockingReader, data []float32){
+func readData(in *BlockingReader, data []float32) {
 	var bytes4 [4]byte
 	bytes := bytes4[:]
 	for i := range data {
@@ -87,10 +87,9 @@ func (t *T) ReadFrom(in_ io.Reader) {
 
 // Reads data from the named file to the
 // (already allocated) tensor.
-func (t *T) ReadFromF(filename string){
+func (t *T) ReadFromF(filename string) {
 	in := MustOpenRDONLY(filename)
 	defer in.Close()
 	buf := bufio.NewReader(in)
 	t.ReadFrom(buf)
 }
-

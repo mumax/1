@@ -9,7 +9,7 @@ package sim
 import (
 	. "mumax/common"
 	"mumax/tensor"
-	. "math"
+	"math"
 )
 
 
@@ -137,7 +137,7 @@ func selfKernel(sourcedir int, cellsize []float32, accuracy int) []float32 {
 }
 
 
-// Magnetostatic field at position r (integer, number of cellsizes away form source) for a given source magnetization direction m (X, Y, or
+// Magnetostatic field at position r (integer, number of cellsizes away from source) for a given source magnetization direction m (X, Y, or
 // s = source direction (x, y, z)
 func faceIntegral(B, R *tensor.Vector, cellsize []float32, s int, accuracy int) {
 	n := accuracy                  // number of integration points = n^2
@@ -166,7 +166,7 @@ func faceIntegral(B, R *tensor.Vector, cellsize []float32, s int, accuracy int) 
 			R2.Sub(pole)
 			r := R2.Norm()
 			R2.Normalize()
-			R2.Scale(charge / (4 * Pi * r * r))
+			R2.Scale(charge / (4 * math.Pi * r * r))
 			B.Add(R2)
 
 			pole[u] = pu2
@@ -175,7 +175,7 @@ func faceIntegral(B, R *tensor.Vector, cellsize []float32, s int, accuracy int) 
 			R2.Sub(pole)
 			r = R2.Norm()
 			R2.Normalize()
-			R2.Scale(-charge / (4 * Pi * r * r))
+			R2.Scale(-charge / (4 * math.Pi * r * r))
 			B.Add(R2)
 		}
 	}
