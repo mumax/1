@@ -77,6 +77,15 @@ def anisuniaxial(ux, uy, uz):
 	send3("anisuniaxial", ux, uy, uz)
 
 
+# Defines the spin polarization for spin-transfer torque
+def spinpolarization(p):
+	send1("spinpolarization", p)
+
+# Defines the non-adiabaticity for spin-transfer torque
+def xi(xi):
+	send1("xi", xi)
+
+
 # Geometry
 
 # Sets the number of FD cells
