@@ -15,6 +15,8 @@ vortex  -1 -1
 
 # excite
 alpha		    2
+tabulate b false
+tabulate corepos true
 autosave	  table	ascii	 10E-12
 autosave	  m	omf	500E-12
 staticfield	15e-3 0 0

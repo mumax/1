@@ -199,7 +199,6 @@ func (t *Table) Save(s *Sim) {
 	if s.tabwriter == nil {
 		s.initTabWriter()
 	}
-
 	if s.input.tabulate[TAB_TIME] {
 		s.tabwriter.Print(float32(s.time) * s.UnitTime())
 	}
