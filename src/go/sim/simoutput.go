@@ -149,6 +149,7 @@ func (s *Sim) initTabWriter() {
 	}
 	fname := s.outputdir + "/" + "datatable.odt"
 	out := MustOpenWRONLY(fname)
+	Print("Opened " + fname )
 	s.tabwriter = omf.NewTabWriter(out)
 	if s.input.tabulate[TAB_TIME] {
 		s.tabwriter.AddColumn("Time", "s")
@@ -181,7 +182,7 @@ func (s *Sim) initTabWriter() {
 
 func (s *Sim) Tabulate(what string, tabulate bool) {
 	if s.tabwriter != nil {
-		panic(InputErr("tabulate must be called before running the simulation."))
+		panic(InputErr("tabulate must be called before the datatable is opened (Before run, desc, autosave, ...)."))
 	}
 	s.input.tabulate[indexof(strings.ToLower(what), tabString)] = tabulate
 }
