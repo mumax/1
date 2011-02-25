@@ -27,6 +27,14 @@ func (s *Sim) corePos() (pos [2]float32) {
 			}
 		}
 	}
-	pos[0], pos[1] = float32(maxX) * s.input.cellSize[2], float32(maxY) * s.input.cellSize[1] 
+	pos[0] = float32(maxX)+ interpolate_maxpos(max, -1., mz[maxY][maxX-1], 1., mz[maxY][maxX+1])
+	pos[1] = float32(maxY)+ interpolate_maxpos(max, -1., mz[maxY-1][maxX], 1., mz[maxY+1][maxX])
+
 	return
+}
+
+func interpolate_maxpos(f0, d1, f1, d2, f2 float32) float32 {
+	b := (f2 - f1) / (d2 - d1)
+	a := ((f2-f0)/d2 - (f0-f1)/(-d1)) / (d2 - d1)
+	return -b / (2 * a)
 }
