@@ -144,6 +144,8 @@ func (s *Sim) initTabWriter() {
 	s.tabwriter.AddColumn("max_dm/dt", "gammaMs")
 	s.tabwriter.AddColumn("min_Mz/Ms", "")
 	s.tabwriter.AddColumn("max_Mz/Ms", "")
+	s.tabwriter.AddColumn("core_x", "m")
+	s.tabwriter.AddColumn("core_y", "m")
 	s.tabwriter.AddColumn("id", "")
 }
 
@@ -168,6 +170,8 @@ func (t *Table) Save(s *Sim) {
 	s.tabwriter.Print(s.hextSI[Z], s.hextSI[Y], s.hextSI[X])
 	s.tabwriter.Print(maxtorque)
 	s.tabwriter.Print(minMz, maxMz)
+	corepos := s.corePos()
+	s.tabwriter.Print(corepos[0], corepos[1])
 	s.tabwriter.Print(s.autosaveIdx)
 	s.tabwriter.Flush() // It's handy to have the output stored intermediately
 	t.sinceoutput = float32(s.time) * s.UnitTime()
