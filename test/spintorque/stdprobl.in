@@ -8,6 +8,7 @@ partsize:  100e-9 100e-9 10e-9
 gridsize:  128 128 1
 demagaccuracy	10
 
+tabulate j true
 autosave m     png   10e-12
 autosave table ascii 10e-12
 
@@ -20,7 +21,7 @@ save	m	omf
 
 #run
 alpha:            0.1
-applystatic j   1e12 0 0
+applyrf j   1e12 0 0 500e6
 xi:               0.05
 spinpolarization: 1
 
