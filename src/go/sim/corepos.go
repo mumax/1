@@ -10,17 +10,20 @@ package sim
 // This file implements finding the vortex core position
 
 import (
-	//. "mumax/common"
+	. "mumax/common"
 	//"mumax/tensor"
 )
 
+
+// Returns the vortex core position of the sim's mLocal.
+// x,y coordinate (user axes) expressed in meters, 0,0 is center of grid.
 func (s *Sim) corePos() (pos [2]float32) {
 	mz := s.mLocal.TArray[0][0]
 	var max float32 = -1.
 	maxX, maxY := 0, 0
 	for y := range mz{
 		for x := range mz[y]	{
-			m := mz[y][x]
+			m := Abs(mz[y][x])
 			if m > max{
 				maxX, maxY = x, y
 				max = m
