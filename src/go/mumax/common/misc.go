@@ -48,3 +48,12 @@ func ReplaceExt(filename, newext string) string {
 	extension := path.Ext(filename)
 	return filename[:len(filename)-len(extension)] + newext
 }
+
+
+// Absolute value
+func Abs(x float32) float32{
+	if x < 0{
+		return -x
+	}
+	return x
+}
