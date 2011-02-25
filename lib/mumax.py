@@ -157,6 +157,11 @@ def saveh(filename, format):
 def autosave(what, format, periodicity):
 	send3("autosave", what, format, periodicity)
 
+# Determine what should be saved in the datatable
+# E.g.: autosave('m', True)
+def tabulate(what, want):
+	send2("tabulate", what, want)
+
 
 # Solver
 
