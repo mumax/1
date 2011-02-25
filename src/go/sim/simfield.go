@@ -150,7 +150,7 @@ const SQRT2 = 1.414213562373095
 func (field *rotatingBurst) GetAppliedField(time float64) [3]float32 {
 	sinx := float32(math.Sin(field.freq * 2 * math.Pi * time))
 	siny := float32(math.Sin(field.freq*2*math.Pi*time + field.phase))
-	norm := float32(0.25 / SQRT2 * (math.Erf(time/(field.risetime/2.)-2) + 1) * (2 - math.Erf((time-field.duration)/(field.risetime/2.)) - 1))
+	norm := float32(0.25 * (math.Erf(time/(field.risetime/2.)-2) + 1) * (2 - math.Erf((time-field.duration)/(field.risetime/2.)) - 1))
 	b := field.b
 	return [3]float32{0, b * norm * sinx, b * norm * siny}
 }
