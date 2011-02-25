@@ -21,17 +21,17 @@ func (s *Sim) corePos() (pos [2]float32) {
 	mz := s.mLocal.TArray[0][0]
 	var max float32 = -1.
 	maxX, maxY := 0, 0
-	for y := range mz{
-		for x := range mz[y]	{
+	for y := range mz {
+		for x := range mz[y] {
 			m := Abs(mz[y][x])
-			if m > max{
+			if m > max {
 				maxX, maxY = x, y
 				max = m
 			}
 		}
 	}
-	pos[0] = float32(maxX)+ interpolate_maxpos(max, -1., Abs(mz[maxY][maxX-1]), 1., Abs(mz[maxY][maxX+1])) - float32(len(mz[1])) / 2.
-	pos[1] = float32(maxY)+ interpolate_maxpos(max, -1., Abs(mz[maxY-1][maxX]), 1., Abs(mz[maxY+1][maxX]))- float32(len(mz[0])) / 2.
+	pos[0] = float32(maxX) + interpolate_maxpos(max, -1., Abs(mz[maxY][maxX-1]), 1., Abs(mz[maxY][maxX+1])) - float32(len(mz[1]))/2.
+	pos[1] = float32(maxY) + interpolate_maxpos(max, -1., Abs(mz[maxY-1][maxX]), 1., Abs(mz[maxY+1][maxX])) - float32(len(mz[0]))/2.
 
 	pos[0] *= s.input.cellSize[2]
 	pos[1] *= s.input.cellSize[1]

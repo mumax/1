@@ -75,6 +75,7 @@ type Input struct {
 	anisAxes       []float32  // Anisotropy axes: ux,uy,uz for uniaxial, u1x,u1y,u1z,u2x,u2y,u2z for cubic
 	kernelType     string     // Determines which kernel subprogram to use.
 	wantDemag      bool       // DEBUG: false disables the convolution and thus the demag field.
+	tabulate       []bool     // What output to tabulate, see simoutput.go
 }
 
 
@@ -190,6 +191,11 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.input.kernelType = DEFAULT_KERNELTYPE
 	sim.exchInConv = true
 	sim.input.wantDemag = true
+	sim.input.tabulate = make([]bool, TAB_LEN)
+	sim.input.tabulate[TAB_TIME] = true
+	sim.input.tabulate[TAB_M] = true
+	sim.input.tabulate[TAB_B] = true
+	sim.input.tabulate[TAB_ID] = true
 	sim.invalidate() //just to make sure we will init()
 	return sim
 }

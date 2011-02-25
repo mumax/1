@@ -85,8 +85,8 @@ func (s *Sim) Step() {
 }
 
 // Takes n time steps
-func (s *Sim) Steps(n int){
-	for i:=0; i<n; i++{
+func (s *Sim) Steps(n int) {
+	for i := 0; i < n; i++ {
 		s.Step()
 	}
 }
