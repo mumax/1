@@ -191,21 +191,25 @@ def mindm(dm):
 
 # Excitation
 
-# Apply a static field
-def staticfield(bx, by, bz):
-	send3("staticfield", bx, by, bz)
+# Apply a static field/current
+def applystatic(what, bx, by, bz):
+	send("applystatic", [what, bx, by, bz])
 
-# Apply an RF field
-def rffield(bx, by, bz, freq):
-	send("rffield", [bx, by, bz, freq])
+# Apply an RF field/current
+def applyrf(what, bx, by, bz, freq):
+	send("applyrf", [what, bx, by, bz, freq])
 
-# Apply a sawtooth field
-def sawtoothfield(bx, by, bz, freq):
-	send("sawtoothfield", [bx, by, bz, freq])
+# Apply a pulsed field/current
+def applypulse(what, bx, by, bz, risetime):
+	send("applyrf", [what, bx, by, bz, risetime])
 
-# Apply a rotating RF burst
-def rotatingburst(b, freq, phase, risetime, duration):
-	send("rotatingburst", [b, freq, phase, risetime, duration])
+# Apply a sawtooth field/current
+def applysawtooth(what, bx, by, bz, freq):
+	send("applysawtooth", [what, bx, by, bz, freq])
+
+# Apply a rotating RF burst field/current
+def applyrotatingburst(what, b, freq, phase, risetime, duration):
+	send("applyrotatingburst", [what, b, freq, phase, risetime, duration])
 
 # Run
 
