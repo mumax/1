@@ -12,6 +12,7 @@ import (
 	"container/vector"
 	"fmt"
 	"math"
+	"strings"
 )
 
 // This file implements the methods for defining
@@ -42,10 +43,18 @@ func (s *Sim) ExchType(exchType int) {
 }
 
 
+func (s *Sim) apply(what string, function AppliedField){
+	switch strings.ToLower(what){
+		default: panic(InputErr("Illegal Argument: " + what + " Options are: [field, current]"))
+		case "field": s.appliedField = function
+		case "current": s.appliedCurrent = function
+	}
+}
+
 // Apply a static field defined in Tesla
-func (s *Sim) StaticField(hz, hy, hx float32) {
-	s.appliedField = &staticField{[3]float32{hx, hy, hz}} // pass it on in Tesla so that it stays independent of other problem parameters
-	s.Println("Applied field: static, (", hz, ", ", hy, ", ", hx, ") T")
+func (s *Sim) ApplyStatic(what string, hz, hy, hx float32) {
+	s.apply(what, &staticField{[3]float32{hx, hy, hz}} )
+	s.Println("Applied " + what + ": static, (", hz, ", ", hy, ", ", hx, ") T")
 }
 
 type staticField struct {
@@ -66,9 +75,9 @@ type pointwiseField struct{
 	points vector.Vector
 }
 
-func (s *Sim) PulsedField(hz, hy, hx float32, duration, risetime float64) {
-	s.appliedField = &pulsedField{[3]float32{hx, hy, hz}, duration, risetime}
-	s.Println("Applied field: pulse, (", hx, ", ", hy, ", ", hz, ") T, ", duration, "s FWHM, ", risetime, "s rise- and falltime (0-100%)")
+func (s *Sim) ApplyPulse(what string, hz, hy, hx float32, duration, risetime float64) {
+	s.apply(what, &pulsedField{[3]float32{hx, hy, hz}, duration, risetime})
+	s.Println("Applied " + what + ": pulse, (", hx, ", ", hy, ", ", hz, ") T, ", duration, "s FWHM, ", risetime, "s rise- and falltime (0-100%)")
 }
 
 type pulsedField struct {
@@ -93,8 +102,8 @@ func (f *pulsedField) GetAppliedField(time float64) [3]float32 {
 
 
 // Apply an alternating field
-func (s *Sim) RfField(hz, hy, hx float32, freq float64) {
-	s.appliedField = &rfField{[3]float32{hx, hy, hz}, freq}
+func (s *Sim) ApplyRf(what string, hz, hy, hx float32, freq float64) {
+	s.apply(what, &rfField{[3]float32{hx, hy, hz}, freq})
 	s.Println("Applied field: RF, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz")
 }
 
@@ -109,10 +118,10 @@ func (field *rfField) GetAppliedField(time float64) [3]float32 {
 }
 
 
-func (s *Sim) SawtoothField(hz, hy, hx float32, freq float64) {
+func (s *Sim) ApplySawtooth(what string, hz, hy, hx float32, freq float64) {
 	var st sawtooth
 	st = sawtooth(rfField{[3]float32{hx, hy, hz}, freq})
-	s.appliedField = &st
+	s.apply(what, &st)
 	s.Println("Applied field: sawtooth, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz")
 }
 
@@ -124,8 +133,8 @@ func (field *sawtooth) GetAppliedField(time float64) [3]float32 {
 }
 
 // Apply a rotating field
-func (s *Sim) RotatingField(hz, hy, hx float32, freq float64, phaseX, phaseY, phaseZ float64) {
-	s.appliedField = &rotatingField{[3]float32{hx, hy, hz}, freq, [3]float64{phaseX, phaseY, phaseZ}}
+func (s *Sim) ApplyRotating(what string, hz, hy, hx float32, freq float64, phaseX, phaseY, phaseZ float64) {
+	s.apply(what, &rotatingField{[3]float32{hx, hy, hz}, freq, [3]float64{phaseX, phaseY, phaseZ}})
 	s.Println("Applied field: Rotating, (", hx, ", ", hy, ", ", hz, ") T, frequency: ", freq, " Hz", " phases: ", phaseX, ", ", phaseY, ", ", phaseZ, " rad")
 }
 
@@ -145,8 +154,8 @@ func (field *rotatingField) GetAppliedField(time float64) [3]float32 {
 
 // Apply a rotating burst.
 // phase: -pi/2=CW, pi/2=CCW
-func (s *Sim) RotatingBurst(h float32, freq, phase, risetime, duration float64) {
-	s.appliedField = &rotatingBurst{h, freq, phase, risetime, duration}
+func (s *Sim) ApplyRotatingBurst(what string, h float32, freq, phase, risetime, duration float64) {
+	s.apply(what, &rotatingBurst{h, freq, phase, risetime, duration})
 	s.Println("Applied field: Rotating burst, ", h, " T, frequency: ", freq, " Hz ", "phase between X-Y: ", phase, " risetime: ", risetime, " s", ", duration: ", duration, " s")
 }
 
