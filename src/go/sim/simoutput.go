@@ -134,6 +134,7 @@ const (
 	TAB_TIME = iota
 	TAB_M
 	TAB_B
+	TAB_J
 	TAB_ID
 	TAB_MAXDMDT
 	TAB_MINMAXMZ
@@ -141,7 +142,7 @@ const (
 	TAB_LEN // Must be last in the list. Not used as key but to know the length of the tabulate array
 )
 
-var tabString []string = []string{"time", "m", "b", "id", "maxdm/dt", "minmaxmz", "corepos"}
+var tabString []string = []string{"time", "m", "b", "j", "id", "maxdm/dt", "minmaxmz", "corepos"}
 
 func (s *Sim) initTabWriter() {
 	if s.tabwriter != nil {
@@ -163,6 +164,11 @@ func (s *Sim) initTabWriter() {
 		s.tabwriter.AddColumn("Bx", "T")
 		s.tabwriter.AddColumn("By", "T")
 		s.tabwriter.AddColumn("Bz", "T")
+	}
+	if s.input.tabulate[TAB_J] {
+		s.tabwriter.AddColumn("jx", "A/m2")
+		s.tabwriter.AddColumn("jy", "A/m2")
+		s.tabwriter.AddColumn("jz", "A/m2")
 	}
 	if s.input.tabulate[TAB_MAXDMDT] {
 		s.tabwriter.AddColumn("max_dm/dt", "gammaMs")
@@ -213,13 +219,16 @@ func (t *Table) Save(s *Sim) {
 	if s.input.tabulate[TAB_B] {
 		s.tabwriter.Print(s.hextSI[Z], s.hextSI[Y], s.hextSI[X])
 	}
+	if s.input.tabulate[TAB_J] {
+		s.tabwriter.Print(s.input.j[Z], s.input.j[Y], s.input.j[X])
+	}
 	if s.input.tabulate[TAB_MAXDMDT] {
-		torque := [3]float32{}
-		for i := range torque {
-			torque[i] = abs32(s.devmaxabs.Reduce(s.hDev.comp[i])) // do we need to / dt? some solvers use torque, some delta M...
-		}
-		maxtorque := max32(torque[0], max32(torque[1], torque[2]))
-		s.tabwriter.Print(maxtorque)
+		//torque := [3]float32{}
+		//for i := range torque {
+		//	torque[i] = abs32(s.devmaxabs.Reduce(s.hDev.comp[i])) // do we need to / dt? some solvers use torque, some delta M...
+		//}
+		//maxtorque := max32(torque[0], max32(torque[1], torque[2]))
+		s.tabwriter.Print(s.torque)
 	}
 	if s.input.tabulate[TAB_MINMAXMZ] {
 		minMz, maxMz := s.devmin.Reduce(s.mDev.comp[X]), s.devmax.Reduce(s.mDev.comp[X])

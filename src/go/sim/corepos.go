@@ -21,8 +21,8 @@ func (s *Sim) corePos() (pos [2]float32) {
 	mz := s.mLocal.TArray[0][0]
 	var max float32 = -1.
 	maxX, maxY := 0, 0
-	for y := range mz {
-		for x := range mz[y] {
+	for y := 1; y < len(mz)-1; y++ { // Avoid the boundaries so the neighbor interpolation can't go out of bounds.
+		for x := 1; x < len(mz[y])-1; x++ {
 			m := Abs(mz[y][x])
 			if m > max {
 				maxX, maxY = x, y
