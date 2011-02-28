@@ -73,7 +73,8 @@ func (s Set) ToArray() []float32 {
 // Missing values become 0.
 func Matrix(i_col, j_col, data_col int) {
 
-	// (1) Construct a sorted set of unique i,j indices (floats)
+	// (1) Construct a sorted set of unique i,j indices (floats).
+	// This is the "meshdom", in matlab terms.
 	I := table.Column[i_col]
 	fmt.Println(I)
 	setI := MakeSet()
@@ -109,8 +110,8 @@ func Matrix(i_col, j_col, data_col int) {
 	// to the corresponding i,j position of the matrix. (j, data on the same line as i)
 	// Missing pairs keep 0. as data.
 	D := table.Column[data_col]
-	for i := range I {
-		matrix[I[i]][J[i]] = D[i]
+	for i := range table.Column[i_col] {
+		matrix[table.Column[i_col][i]][table.Column[j_col][i]] = D[i]
 	}
 
 	// (4) Print the matrix
