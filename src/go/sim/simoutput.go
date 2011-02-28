@@ -223,12 +223,12 @@ func (t *Table) Save(s *Sim) {
 		s.tabwriter.Print(s.input.j[Z], s.input.j[Y], s.input.j[X])
 	}
 	if s.input.tabulate[TAB_MAXDMDT] {
-		torque := [3]float32{}
-		for i := range torque {
-			torque[i] = abs32(s.devmaxabs.Reduce(s.hDev.comp[i])) // do we need to / dt? some solvers use torque, some delta M...
-		}
-		maxtorque := max32(torque[0], max32(torque[1], torque[2]))
-		s.tabwriter.Print(maxtorque)
+		//torque := [3]float32{}
+		//for i := range torque {
+		//	torque[i] = abs32(s.devmaxabs.Reduce(s.hDev.comp[i])) // do we need to / dt? some solvers use torque, some delta M...
+		//}
+		//maxtorque := max32(torque[0], max32(torque[1], torque[2]))
+		s.tabwriter.Print(s.torque)
 	}
 	if s.input.tabulate[TAB_MINMAXMZ] {
 		minMz, maxMz := s.devmin.Reduce(s.mDev.comp[X]), s.devmax.Reduce(s.mDev.comp[X])

@@ -19,14 +19,12 @@ func Peak(column string, threshold float32, output string) {
 	newtable.EnsureColumn(output+"_peak", table.GetUnit(column))
 
 	peakpos := 0
+	var value float32 = 0.
 	for peakpos = range col {
 		if col[peakpos] > threshold {
+			value = time[peakpos]
 			break
 		}
-	}
-	var value float32 = 0.
-	if peakpos < len(time) {
-		value = time[peakpos]
 	}
 	newtable.AppendToColumn(output+"_peak", value)
 }

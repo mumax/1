@@ -76,22 +76,18 @@ func Matrix(i_col, j_col, data_col int) {
 	// (1) Construct a sorted set of unique i,j indices (floats).
 	// This is the "meshdom", in matlab terms.
 	I := table.Column[i_col]
-	fmt.Println(I)
 	setI := MakeSet()
 	for i := range I {
 		setI.Add(I[i])
 	}
 	I = setI.ToArray()
-	fmt.Println(setI)
 
 	setJ := MakeSet()
 	J := table.Column[j_col]
-	fmt.Println(J)
 	for i := range J {
 		setJ.Add(J[i])
 	}
 	J = setJ.ToArray()
-	fmt.Println(setJ)
 
 	// (2) Make the "outer product" of the two index sets,
 	// spanning a matrix that can be index with each possible i,j pair
@@ -115,9 +111,9 @@ func Matrix(i_col, j_col, data_col int) {
 	}
 
 	// (4) Print the matrix
-	for _, col := range matrix {
-		for _, data := range col {
-			fmt.Print(data, "\t")
+	for _, i := range I{
+		for _,j := range J{
+			fmt.Print(matrix[i][j], "\t")
 		}
 		fmt.Println()
 	}
