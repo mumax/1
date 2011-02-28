@@ -27,7 +27,7 @@ import (
 )
 
 const WELCOME = `
-  MuMax 0.5.2163
+  MuMax 0.5.2174
   (c) Arne Vansteenkiste & Ben Van de Wiele,
       DyNaMat/EELAB Ghent University.
 
