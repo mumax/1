@@ -99,20 +99,6 @@ __global__ void _gpu_add_6NGBR_exchange_3D_geometry(float *m, float *h, int Nx, 
 // -------------------------------------------------------------------------------------
 
 // initialize indices for main block ---------------------------------------------------
-/*  j    = threadIdx.y;                   // shared memory indices
-  k    = threadIdx.x;
-  ind  = I_OFF + (j+1)*J_OFF + k+1;
-  m_sh[ind - I_OFF] = 0.0f;
-  m_sh[ind] = 0.0f;
-
-  j    = blockIdx.y*EXCH_BLOCK_Y + j;   // global indices
-  k    = blockIdx.x*EXCH_BLOCK_X + k;
-  indg = j*Nz + k;
-
-  active = (j<Ny) && (k<Nz);*/
-// -------------------------------------------------------------------------------------
-
-// initialize indices for main block ---------------------------------------------------
   j    = threadIdx.y;                   // shared memory indices
   k    = threadIdx.x;
   ind  = I_OFF + (j+1)*J_OFF + k+1;
@@ -427,7 +413,212 @@ void gpu_add_12NGBR_exchange_2D_geometry (float *m, float *h, int *size, int *pe
   return;
 }
 
+
+
+__global__ void _gpu_add_12NGBR_exchange_3D_geometry(float *m, float *h, int Nx, int Ny, int Nz, float cst1_x, float cst2_x, float cst1_y, float cst2_y, float cst1_z, float cst2_z, float cst_xyz, int periodic_X, int periodic_Y, int periodic_Z){
+
+  float *hptr, result;
+  int i, j, k, ind, ind_h, indg_in, indg_out, indg_h, active_in, active_out;
+
+  int Nyz = Ny*Nz;
+  int cnt = threadIdx.y*EXCH_BLOCK_X + threadIdx.x;
+
+// initialize shared memory ------------------------------------------------------------
+  __shared__ float m_sh[5*I_OFF2];
+
+// initialize indices for halo elements ------------------------------------------------
+  int halo = cnt < 4*(EXCH_BLOCK_X + EXCH_BLOCK_Y);
+  if (halo) {
+    if (threadIdx.y<2) {               // shared memory indices, y-halos (coalesced)
+      j = -threadIdx.y - 1;
+      k = threadIdx.x;
+    }
+    else if (threadIdx.y<4){
+      j = EXCH_BLOCK_Y - 2 + threadIdx.y;
+      k = threadIdx.x;
+    }
+    else {                             // shared memory indices, z-halos (not coalesced)
+      j =  cnt/4 - EXCH_BLOCK_X;
+      int mod = cnt%4;
+      if (mod<2)
+        k = -mod - 1;
+      else
+        k = EXCH_BLOCK_X +mod-2;
+    }
+
+    ind_h  = 2*I_OFF2 + (j+2)*J_OFF2 + k+2 ;
+    m_sh[ind_h-2*I_OFF2] = 0.0f;
+    m_sh[ind_h-I_OFF2] = 0.0f;
+    m_sh[ind_h] = 0.0f;
+    m_sh[ind_h+I_OFF2] = 0.0f;
+    m_sh[ind_h+2*I_OFF2] = 0.0f;
+
+    j = blockIdx.y*EXCH_BLOCK_Y + j;
+    k = blockIdx.x*EXCH_BLOCK_X + k;         //global indices
+    if (periodic_Y && (j==-1 || j==-2  )) j += Ny;
+    if (periodic_Y && (j==Ny || j==Ny+1)) j -= Ny;
+    if (periodic_Z && (k==-1 || k==-2  )) k += Nz;
+    if (periodic_Z && (k==Nz || k==Nz+1)) k -= Nz;
+    indg_h = j*Nz + k;
+
+    halo = (j>=0) && (j<Ny) && (k>=0) && (k<Nz);
+  }
+// -------------------------------------------------------------------------------------
+
+// initialize indices for main block ---------------------------------------------------
+  j    = threadIdx.y;                   // shared memory indices
+  k    = threadIdx.x;
+//  ind  = I_OFF + (j+1)*J_OFF + k+1;
+  ind  = 2*I_OFF2 + (j+2)*J_OFF2 + k+2;
+
+  m_sh[ind-2*I_OFF2] = 0.0f;
+  m_sh[ind-I_OFF2] = 0.0f;
+  m_sh[ind] = 0.0f;
+  m_sh[ind+I_OFF2] = 0.0f;
+  m_sh[ind+2*I_OFF2] = 0.0f;
+
+  j = blockIdx.y*EXCH_BLOCK_Y + j;      // global indices
+  k = blockIdx.x*EXCH_BLOCK_X + k;
+  indg_out = j*Nz + k;
+  active_out = (j<Ny) && (k<Nz);
+
+  if (periodic_Y && (j==Ny || j==Ny+1)) j -= Ny;
+  if (periodic_Z && (k==Nz || k==Nz+1)) k -= Nz;
+  indg_in = j*Nz + k;
+  active_in = (j<Ny) && (k<Nz);
+// -------------------------------------------------------------------------------------
+
+// if periodic_X: read x=Nx and x=Nx-1 plane of array ----------------------------------
+  if (periodic_X){
+    if (active_in){ 
+      m_sh[ind-I_OFF2] = m[indg_in + (Nx-2)*Nyz];
+      m_sh[ind] = m[indg_in + (Nx-1)*Nyz];
+    }
+    if (halo){
+      m_sh[ind_h-I_OFF2] = m[indg_h + (Nx-2)*Nyz];
+      m_sh[ind_h] = m[indg_h + (Nx-1)*Nyz];
+    }
+  }
+// -------------------------------------------------------------------------------------
+
+// read first and second yz plane of array ---------------------------------------------
+  if (active_in){
+    m_sh[ind+I_OFF2] = m[indg_in];
+    m_sh[ind+2*I_OFF2] = m[indg_in + Nyz];
+  }
+  if (halo){
+    m_sh[ind_h+I_OFF2] = m[indg_h];
+    m_sh[ind_h+2*I_OFF2] = m[indg_h + Nz];
+  }
+// -------------------------------------------------------------------------------------
+
+
+// perform the actual exchange computations --------------------------------------------
+  for (i=0; i<Nx; i++) {
+//  for (i=0; i<0; i++) {
+
+    // move two planes down and read in new plane i+1
+     if (active_in) {
+      hptr = h + indg_out;   // identical to hptr = &h[indg_out]
+
+      m_sh[ind-2*I_OFF2] = m_sh[ind-I_OFF2];
+      m_sh[ind-I_OFF2] = m_sh[ind];
+      m_sh[ind]        = m_sh[ind + I_OFF2];
+      m_sh[ind+I_OFF2] = m_sh[ind + 2*I_OFF2];
+
+      if (i<Nx-2)
+        m_sh[ind + 2*I_OFF2] = m[indg_in + 2*Nyz];
+      else if (periodic_X!=0)
+        m_sh[ind + 2*I_OFF2] = m[indg_in - (Nx-2)*Nyz];
+      else
+        m_sh[ind + 2*I_OFF2] = 0.0f;
+
+      indg_in += Nyz;
+      indg_out += Nyz;
+    }
+
+    if (halo) {
+      m_sh[ind_h-2*I_OFF2] = m_sh[ind_h-I_OFF2];
+      m_sh[ind_h-I_OFF2] = m_sh[ind_h];
+      m_sh[ind_h]        = m_sh[ind_h + I_OFF2];
+      m_sh[ind_h+I_OFF2] = m_sh[ind_h + 2*I_OFF2];
+
+      if (i<Nx-2)
+        m_sh[ind_h + 2*I_OFF2] = m[indg_h + 2*Nyz];
+      else if (periodic_X!=0)
+        m_sh[ind_h + 2*I_OFF2] = m[indg_h - (Nx-2)*Nyz];
+//       else
+//         m_sh[ind_h + 2*I_OFF2] = 0.0f;
+
+      indg_h = indg_h + Nyz;
+    }
+    __syncthreads();
+
+    
+    if (active_out){
+      result = cst_xyz * m_sh[ind];
+      result += cst2_x*m_sh[ind - 2*I_OFF2];
+      result += cst1_x*m_sh[ind - I_OFF2];
+      result += cst1_x*m_sh[ind + I_OFF2];
+      result += cst2_x*m_sh[ind + 2*I_OFF2];
+      result += cst2_y*m_sh[ind - 2*J_OFF2];
+      result += cst1_y*m_sh[ind - J_OFF2];
+      result += cst1_y*m_sh[ind + J_OFF2];
+      result += cst2_y*m_sh[ind + 2*J_OFF2];
+      result += cst2_z*m_sh[ind - 2];
+      result += cst1_z*m_sh[ind - 1];
+      result += cst1_z*m_sh[ind + 1];
+      result += cst2_z*m_sh[ind + 2];
+      *hptr += result;
+
+/*      result = 0.0f;
+      result =  m_sh[ind];
+      result += m_sh[ind - 2*I_OFF2];
+      result += m_sh[ind - I_OFF2];
+      result += m_sh[ind + I_OFF2];
+      result += m_sh[ind + 2*I_OFF2];
+      result += m_sh[ind - 2*J_OFF2];
+      result += m_sh[ind - J_OFF2];
+      result += m_sh[ind + J_OFF2];
+      result += m_sh[ind + 2*J_OFF2];
+      result += m_sh[ind - 2];
+      result += m_sh[ind - 1];
+      result += m_sh[ind + 1];
+      result += m_sh[ind + 2];
+      *hptr += result;*/
+    
+    }
+
+    __syncthreads();
+
+  }
+
+  return;
+}
+
+void gpu_add_12NGBR_exchange_3D_geometry (float *m, float *h, int *size, int *periodic, float *cellSize){
+
+  float cst1_x = 4.0f/3.0f/cellSize[X]/cellSize[X];
+  float cst2_x = -1.0f/12.0f/cellSize[X]/cellSize[X];
+  float cst1_y = 4.0f/3.0f/cellSize[Y]/cellSize[Y];
+  float cst2_y = -1.0f/12.0f/cellSize[Y]/cellSize[Y];
+  float cst1_z = 4.0f/3.0f/cellSize[Z]/cellSize[Z];
+  float cst2_z = -1.0f/12.0f/cellSize[Z]/cellSize[Z];
+  float cst_xyz = -5.0f/2.0f/cellSize[X]/cellSize[X] - 5.0f/2.0f/cellSize[Y]/cellSize[Y] - 5.0f/2.0f/cellSize[Z]/cellSize[Z];
+
+  int bx = 1 + (size[Z]-1)/EXCH_BLOCK_X;    // a grid has blockdim.z=1, so we use the x-component
+  int by = 1 + (size[Y]-1)/EXCH_BLOCK_Y;
+
+  dim3 gridsize (bx, by);
+  dim3 blocksize (EXCH_BLOCK_X, EXCH_BLOCK_Y);
+
+  _gpu_add_12NGBR_exchange_3D_geometry <<<gridsize, blocksize>>> (m, h, size[X], size[Y], size[Z], cst1_x, cst2_x, cst1_y, cst2_y, cst1_z, cst2_z, cst_xyz, periodic[X], periodic[Y], periodic[Z]);
+  gpu_sync();
   
+  return;
+}
+
+
 #ifdef __cplusplus
 }
 #endif

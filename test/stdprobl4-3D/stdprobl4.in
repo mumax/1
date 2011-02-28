@@ -10,7 +10,7 @@ desc info standard_problem_4
 msat:       	800E3       # A/m
 aexch:      	1.3E-11     # J/m
 alpha:      	0.02
-# exchangetype: 6
+# exchangetype: 12
 # exchinconv: false
 
 # geometry 
