@@ -286,10 +286,8 @@ void gpu_add_6NGBR_exchange_2D_geometry (float *m, float *h, int *size, int *per
 __global__ void _gpu_add_12NGBR_exchange_2D_geometry(float *m, float *h, int Ny, int Nz, float cst1_y, float cst2_y, float cst1_z, float cst2_z, float cst_yz, int periodic_Y, int periodic_Z){
 
   float result;
-  int j, k, ind, ind_h, indg, indg_h, active;
+  int j, k, ind, ind_h, indg_in, indg_out, indg_h, active_in, active_out;
 
-  int Ny_minus_1 = Ny-1; int Nz_minus_1 = Nz-1;
-  int Ny_minus_2 = Ny-2; int Nz_minus_2 = Nz-2;
   int cnt = threadIdx.y*EXCH_BLOCK_X + threadIdx.x;
 
 // initialize shared memory ------------------------------------------------------------
@@ -322,7 +320,7 @@ __global__ void _gpu_add_12NGBR_exchange_2D_geometry(float *m, float *h, int Ny,
     if (periodic_Y && (j==-1 || j==-2  )) j += Ny;
     if (periodic_Y && (j==Ny || j==Ny+1)) j -= Ny;
     if (periodic_Z && (k==-1 || k==-2  )) k += Nz;
-    if (periodic_Z && (k==Nz || k==Nz+2)) k -= Nz;
+    if (periodic_Z && (k==Nz || k==Nz+1)) k -= Nz;
     indg_h = j*Nz + k;
 
     halo = (j>=0) && (j<Ny) && (k>=0) && (k<Nz);
@@ -337,45 +335,38 @@ __global__ void _gpu_add_12NGBR_exchange_2D_geometry(float *m, float *h, int Ny,
 
   j = blockIdx.y*EXCH_BLOCK_Y + j;      // global indices
   k = blockIdx.x*EXCH_BLOCK_X + k;
-  if (periodic_Y && (j==Ny || j==Ny+1)) j -= Ny;
-  if (periodic_Z && (k==Nz || k==Ny+2)) k -= Nz;
-  indg = j*Nz + k;
+  indg_out = j*Nz + k;
+  active_out = (j<Ny) && (k<Nz);
 
-  active = (j<Ny) && (k<Nz);
+
+  if (periodic_Y && (j==Ny || j==Ny+1)) j -= Ny;
+  if (periodic_Z && (k==Nz || k==Nz+1)) k -= Nz;
+  indg_in = j*Nz + k;
+  active_in = (j<Ny) && (k<Nz);
+
 // -------------------------------------------------------------------------------------
 
 
 // read the considered part of the plane of array --------------------------------------
-  if (active) 
-    m_sh[ind  ] = m[indg];
+  if (active_in) 
+    m_sh[ind  ] = m[indg_in];
   if (halo) 
     m_sh[ind_h] = m[indg_h];
 // -------------------------------------------------------------------------------------
   __syncthreads();
   
 // perform the actual exchange computations --------------------------------------------
-  if (active){
-//     result = cst_yz * m_sh[ind];
-//     if (j>0          || periodic_Y) result += cst1_y*m_sh[ind - J_OFF2];
-//     if (j>1          || periodic_Y) result += cst2_y*m_sh[ind - 2*J_OFF2];
-//     if (j<Ny_minus_1 || periodic_Y) result += cst1_y*m_sh[ind + J_OFF2];
-//     if (j<Ny_minus_2 || periodic_Y) result += cst2_y*m_sh[ind + 2*J_OFF2];
-//     if (k>0          || periodic_Z) result += cst1_z*m_sh[ind - 1];
-//     if (k>1          || periodic_Z) result += cst2_z*m_sh[ind - 2];
-//     if (k<Nz_minus_1 || periodic_Z) result += cst1_z*m_sh[ind + 1];
-//     if (k<Nz_minus_2 || periodic_Z) result += cst2_z*m_sh[ind + 2];
-
-    result = m_sh[ind];
-    result += m_sh[ind - J_OFF2];
-    result += m_sh[ind - 2*J_OFF2];
-    result += m_sh[ind + J_OFF2];
-    result += m_sh[ind + 2*J_OFF2];
-    result += m_sh[ind - 1];
-    result += m_sh[ind - 2];
-    result += m_sh[ind + 1];
-    result += m_sh[ind + 2];
-
-    h[indg] += result;
+  if (active_out){
+    result = cst_yz * m_sh[ind];
+    result += cst1_y*m_sh[ind - J_OFF2];
+    result += cst2_y*m_sh[ind - 2*J_OFF2];
+    result += cst1_y*m_sh[ind + J_OFF2];
+    result += cst2_y*m_sh[ind + 2*J_OFF2];
+    result += cst1_z*m_sh[ind - 1];
+    result += cst2_z*m_sh[ind - 2];
+    result += cst1_z*m_sh[ind + 1];
+    result += cst2_z*m_sh[ind + 2];
+    h[indg_out] += result;
 
   }
   __syncthreads();
