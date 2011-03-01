@@ -10,7 +10,7 @@ desc info standard_problem_4
 msat:       	800E3       # A/m
 aexch:      	1.3E-11     # J/m
 alpha:      	0.02
-# exchangetype: 6
+# exchangetype: 12
 # exchinconv: false
 
 # geometry 
@@ -26,6 +26,6 @@ autosave:	m	 png	   50E-12
 autosave:	table	 ascii	   10E-12
 staticfield: 	-24.6E-3 4.3E-3    0
 
-run     1e9
+run     1e-9
 
 savebenchmark benchmark.txt

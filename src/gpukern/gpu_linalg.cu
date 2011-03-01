@@ -121,6 +121,25 @@ void gpu_linear_combination_many(float* result, float** vectors, float* weights,
 }
 
 
+///@internal kernel
+__global__ void _gpu_scale_dot_product(float* result, float* vector1, float* vector2, float a, int N){
+  int i = threadindex;
+ 
+  if(i < N)
+    result[i] = a*(vector1[    i] * vector2[    i] + 
+                   vector1[  N+i] * vector2[  N+i] + 
+                   vector1[2*N+i] * vector2[2*N+i]   );
+}
+
+void gpu_scale_dot_product(float* result, float *vector1, float *vector2, float a, int N){
+
+  dim3 gridSize, blockSize;
+  make1dconf(N, &gridSize, &blockSize);
+  _gpu_scale_dot_product<<<gridSize, blockSize>>>(result, vector1, vector2, a, N);
+  gpu_sync();
+}
+
+
 #ifdef __cplusplus
 }
 #endif

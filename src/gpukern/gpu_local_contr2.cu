@@ -88,6 +88,85 @@ void gpu_add_local_fields (float* m, float* h, int N, float* Hext, int anisType,
   return;
 }
 
+
+
+__global__ void _gpu_add_local_fields_uniaxial_H_and_phi(float* mx, float* my, float* mz,
+                                                         float* hx, float* hy, float* hz, float *phi,
+                                                         float hext_x, float hext_y, float hext_z,
+                                                         float k_x2, float U0, float U1, float U2,
+                                                         int N){
+  int i = threadindex;
+
+  if(i<N){
+    float mu = mx[i] * U0 + my[i] * U1 + mz[i] * U2;
+
+    hx[i]  += hext_x + k_x2 * mu * U0;
+    hy[i]  += hext_y + k_x2 * mu * U1;
+    hz[i]  += hext_z + k_x2 * mu * U2;
+    phi[i] -= mx[i]*hext_x + my[i]*hext_y + mz[i]*hext_z + 0.5*k_x2*mu*(mx[i]*U0 + my[i]*U1 + mz[i]*U2);
+    
+  }
+  
+  return;
+}
+
+__global__ void _gpu_add_external_field_H_and_phi(float *mx, float *my, float *mz, 
+                                                  float* hx, float* hy, float* hz, float *phi,
+                                                  float hext_x, float hext_y, float hext_z,
+                                                  int N){
+  int i = threadindex;
+
+  if(i<N){
+    hx [i] += hext_x;
+    hy [i] += hext_y;
+    hz [i] += hext_z;
+    phi[i] -= mx[i]*hext_x + my[i]*hext_y + mz[i]*hext_z;
+  }
+}
+
+
+void gpu_add_local_fields_H_and_phi (float* m, float* h, float *phi, int N, float* Hext, int anisType, float* anisK, float* anisAxes){
+
+
+  float* mx = &(m[0*N]);
+  float* my = &(m[1*N]);
+  float* mz = &(m[2*N]);
+
+  float* hx = &(h[0*N]);
+  float* hy = &(h[1*N]);
+  float* hz = &(h[2*N]);
+
+  /*
+    Uniaxial anisotropy:
+    H_anis = (2*K_1 / (mu0 Ms) )  ( m . u ) u
+  u = axis, normalized
+  */
+  
+  dim3 gridsize, blocksize;
+  make1dconf(N, &gridsize, &blocksize);
+
+  switch (anisType){
+    default: abort();
+    case ANIS_NONE:
+       _gpu_add_external_field_H_and_phi<<<gridsize, blocksize>>>(mx, my, mz, hx, hy, hz, phi, Hext[X], Hext[Y], Hext[Z],  N);
+       break;
+    case ANIS_UNIAXIAL:
+    //printf("anis: K, u,: %f  %f,%f,%f  \n", anisK[0],anisAxes[0],anisAxes[1],anisAxes[2]);
+      _gpu_add_local_fields_uniaxial_H_and_phi<<<gridsize, blocksize>>>(mx, my, mz,
+                                                                        hx, hy, hz, phi,
+                                                                        Hext[X], Hext[Y], Hext[Z],
+                                                                        anisK[0],  anisAxes[0], anisAxes[1], anisAxes[2], N);
+      break;
+  }
+  
+  gpu_sync();
+  return;
+}
+
+
+
+
+
 #ifdef __cplusplus
 }
 #endif
