@@ -425,7 +425,6 @@ void _cpu_init_kernel_elements_micromag3d_t(int id){
   int N2 = arg->Nkernel[Z];
   int N12 = arg->Nkernel[Y] * N2;
   
-
   for (int i=start; i<stop; i++)
     for (int j=0; j<arg->Nkernel[Y]/2; j++)
       for (int k=0; k<N2/2; k++){
