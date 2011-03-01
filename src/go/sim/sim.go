@@ -102,6 +102,9 @@ type Sim struct {
 	mLocal, hLocal *tensor.T4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
 	//mLocalLock     sync.RWMutex
 	mUpToDate bool // Is mLocal up to date with mDev? If not, a copy from the device is needed before storing output.
+	phiDev		*DevTensor // energy density. Use getEDens(), assures this pointer is initiated.
+	phiLocal  *tensor.T3 // local energy density.
+	sumPhi	Reductor
 
 	Conv              // Convolution plan for the magnetostatic field
 	exchInConv bool   // Exchange included in convolution?
