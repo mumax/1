@@ -37,7 +37,7 @@ func (s *Sim) calcEnergy(m, h *DevTensor) float32{
 
 func (s *Sim) GetEnergySI() float32{
 	s.init()
-	return s.calcEnergy(s.mDev, s.hDev) * s.UnitEnergyDensity()
+	return s.calcEnergy(s.mDev, s.hDev) * s.UnitEnergy()
 }
 
 func (s *Sim) initEDens() {
