@@ -208,6 +208,10 @@ def applystatic(what, bx, by, bz):
 def applyrf(what, bx, by, bz, freq):
 	send("applyrf", [what, bx, by, bz, freq])
 
+# Apply a rotating field/current
+def applyrotating(what, bx, by, bz, freq, phaseX, phaseY, phaseZ):
+	send("applyrotating", [what, bx, by, bz, freq, phaseX, phaseY, phaseZ])
+
 # Apply a pulsed field/current
 def applypulse(what, bx, by, bz, risetime):
 	send("applyrf", [what, bx, by, bz, risetime])
@@ -255,6 +259,11 @@ def savebenchmark(file):
 # Retrieves an average magnetization component (0=x, 1=y, 2=z).
 def getm(component):
 	send1("getm", component)
+	return recv()
+
+# Retrieves the maximum torque in units gamma*Msat
+def getmaxtorque(component):
+	send1("getmaxtorque")
 	return recv()
 
 
