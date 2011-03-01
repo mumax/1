@@ -154,8 +154,11 @@ func ReadTable(in io.Reader) *Table {
 	row := 0
 	for n > 0 {
 		for i := range t.Column {
-			t.Column[i] = append(t.Column[i], 0.) //TODO: not very efficient but there is no containter/Float32Vector...
-			n, _ = fmt.Fscan(in, &(t.Column[i][row]))
+			var value float32	
+			n, _ = fmt.Fscan(in, &value)
+			if n != 0{
+				t.Column[i] = append(t.Column[i], value) //TODO: not very efficient but there is no containter/Float32Vector...
+			}
 		}
 		row++
 	}

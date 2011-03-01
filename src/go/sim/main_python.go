@@ -31,7 +31,7 @@ func main_python(infile string) {
 
 	// Start mumax --slave subprocess
 	mu_args := passthrough_cli_args()
-	mu_args = append(mu_args, "--slave", "--stdin", RemoveExtension(infile))
+	mu_args = append(mu_args, "--slave", "--stdin", infile)
 	Println("starting ", "mumax ", mu_args)
 	mumax, errmu := subprocess(os.Getenv(SIMROOT)+"/"+SIMCOMMAND, mu_args, exec.Pipe, exec.Pipe, exec.PassThrough)
 	CheckErr(errmu, ERR_SUBPROCESS)
