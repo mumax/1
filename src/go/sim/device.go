@@ -76,6 +76,9 @@ type Device interface {
 	// adds the constant cnst to a. N = length of a
 	addConstant(a uintptr, cnst float32, N int)
 
+	// result[i] = scale * (a[i]_x*b[i]_x + a[i]_y*b[i]_y + a[i]_z*b[i]_z)
+	scaledDotProduct(result, a, b uintptr, scale float32, N int)
+
 	// a = a * weightA + b * weightB
 	linearCombination(a, b uintptr, weightA, weightB float32, N int)
 

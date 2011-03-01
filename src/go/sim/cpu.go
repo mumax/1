@@ -76,6 +76,10 @@ func (d Cpu) linearCombinationMany(result uintptr, vectors []uintptr, weights []
 	//   )
 }
 
+func (d Cpu) scaledDotProduct(result, a, b uintptr, scale float32, N int){
+	C.cpu_scale_dot_product((*C.float)(unsafe.Pointer(result)), (*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(scale), C.int(N))
+}
+
 func (d Cpu) reduce(operation int, input, output uintptr, buffer *float32, blocks, threads, N int) float32 {
 	return float32(C.cpu_reduce(C.int(operation), (*C.float)(unsafe.Pointer(input)), (*C.float)(unsafe.Pointer(output)), (*C.float)(unsafe.Pointer(buffer)), C.int(blocks), C.int(threads), C.int(N)))
 	//panic("unimplemented")

@@ -87,6 +87,10 @@ func (d Gpu) linearCombinationMany(result uintptr, vectors []uintptr, weights []
 		(C.int)(NElem))
 }
 
+func (d Gpu) scaledDotProduct(result, a, b uintptr, scale float32, N int){
+	C.gpu_scale_dot_product((*C.float)(unsafe.Pointer(result)), (*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(scale), C.int(N))
+}
+
 func (d Gpu) addConstant(a uintptr, cnst float32, N int) {
 	C.gpu_add_constant((*C.float)(unsafe.Pointer(a)), C.float(cnst), C.int(N))
 }
