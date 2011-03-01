@@ -1,7 +1,8 @@
 
 kerneltype mumaxkern-cpu
-exchtype 12
-exchinconv false
+exchtype 26
+# exchinconv false
+# demag false
 
 # material
 msat        800E3   
@@ -10,7 +11,7 @@ alpha       0.02
 
 # geometry 
 partsize    500E-9  125E-9  3E-9
-gridsize    128 32  1   
+gridsize    64 32  1   
 periodic    0 0 0 
 
 # initial magnetization
