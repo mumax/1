@@ -31,6 +31,10 @@ func (s *Sim) calcEDemagExch(m, h *DevTensor) float32{
 	return totalEDens * s.cellSize[X] * s.cellSize[Y] * s.cellSize[Z]	
 }
 
+func (s *Sim) addEDensLocal(m, h, phi *DevTensor){
+//TODO
+}
+
 func (s *Sim) calcEnergy(m, h *DevTensor) float32{
 	return s.calcEDemagExch(m, h) // TODO: add other contributions
 }
