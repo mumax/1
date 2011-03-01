@@ -34,6 +34,9 @@ void cpu_add_constant(float* a, float cnst, int N);
 /// Linear combination: a = a*weightA + b*weightB
 void cpu_linear_combination(float* a, float* b, float weightA, float weightB, int N);
 
+/// result = a*(vector1 'dot' vector2), vector1 and vector2 have 3 components
+void cpu_scale_dot_product(float* result, float *vector1, float *vector2, float a, int N);
+
 #ifdef __cplusplus
 }
 #endif
