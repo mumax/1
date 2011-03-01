@@ -14,7 +14,7 @@ alpha:      	0.02
 # exchinconv: false
 
 # geometry 
-gridsize:       128 32 2
+gridsize:       256 64 4
 partsize:   	500e-9	125e-9 3e-9
 
 # initial magnetization
@@ -25,3 +25,7 @@ loadm:    	s-state.omf
 autosave:	m	 png	   50E-12
 autosave:	table	 ascii	   10E-12
 staticfield: 	-24.6E-3 4.3E-3    0
+
+run     1e9
+
+savebenchmark benchmark.txt
