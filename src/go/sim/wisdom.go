@@ -29,10 +29,11 @@ import (
 // Otherwise, a freshly calculated one is cached and returned.
 func (s *Sim) LookupKernel(size []int, cellsize []float32, accuracy int, periodic []int) (kernel []*tensor.T3) {
 	// Check input sanity
+	// TODO: verify
 	for i:= range periodic{
 		if periodic[i] != 0{
-			if size[i] % ? != 0{
-				panic(InputErr("Invalid size: " + size[i] + " With periodic boundary conditions, the size must be a multiple of ?."))
+			if size[i] % 2 != 0{
+				panic(InputErr("Invalid size: " + fmt.Sprint(size[i]) + " With periodic boundary conditions, the size must be a multiple of 2."))
 			}
 		}
 	}
