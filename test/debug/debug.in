@@ -17,4 +17,4 @@ periodic    0 0 0
 uniform     1 1 1
 
 # run
-safeH test.omf text
+saveh test.omf text
