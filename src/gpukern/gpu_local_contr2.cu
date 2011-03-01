@@ -37,6 +37,41 @@ __global__ void _gpu_add_local_fields_uniaxial(float* mx, float* my, float* mz,
   return;
 }
 
+
+// __global__ void _gpu_add_local_fields_cubic(float* mx, float* my, float* mz,
+//                                             float* hx, float* hy, float* hz,
+//                                             float hext_x, float hext_y, float hext_z,
+//                                             float K1, float K2, 
+//                                             float U0_1, float U0_2, float U0_3,
+//                                             float U1_1, float U1_2, float U1_3,
+//                                             float U2_1, float U2_2, float U2_3,
+//                                             int N){
+//   
+//   if(i<N){
+//         //projection of m on cubic anisotropy axes
+//       float a0 = mx[i]*p_dev->anisAxes[0] + my[i]*p_dev->anisAxes[1] + mz[i]*p_dev->anisAxes[2];
+//       float a1 = mx[i]*p_dev->anisAxes[3] + my[i]*p_dev->anisAxes[4] + mz[i]*p_dev->anisAxes[5];
+//       float a2 = mz[i]*p_dev->anisAxes[6] + my[i]*p_dev->anisAxes[7] + mz[i]*p_dev->anisAxes[8];
+//       
+//       float a00 = a0*a0;
+//       float a11 = a1*a1;
+//       float a22 = a2*a2;
+//       
+//         // differentiated energy expressions
+//       float dphi_0 = p_dev->anisK[0] * (a11+a22) * a0  +  p_dev->anisK[1] * a0  *a11 * a22;
+//       float dphi_1 = p_dev->anisK[0] * (a00+a22) * a1  +  p_dev->anisK[1] * a00 *a1  * a22;
+//       float dphi_2 = p_dev->anisK[0] * (a00+a11) * a2  +  p_dev->anisK[1] * a00 *a11 * a2 ;
+//       
+//         // adding applied field and cubic axes contribution
+//       hx[i] += Hax - dphi_0*p_dev->anisAxes[0] - dphi_1*p_dev->anisAxes[3] - dphi_2*p_dev->anisAxes[6];
+//       hy[i] += Hay - dphi_0*p_dev->anisAxes[1] - dphi_1*p_dev->anisAxes[4] - dphi_2*p_dev->anisAxes[7];
+//       hz[i] += Haz - dphi_0*p_dev->anisAxes[2] - dphi_1*p_dev->anisAxes[5] - dphi_2*p_dev->anisAxes[8];
+//   }
+//  
+// }
+
+
+
 __global__ void _gpu_add_external_field(float* hx, float* hy, float* hz,
                                         float hext_x, float hext_y, float hext_z,
                                         int N){
@@ -63,7 +98,7 @@ void gpu_add_local_fields (float* m, float* h, int N, float* Hext, int anisType,
 
   /*
     Uniaxial anisotropy:
-    H_anis = ( K_1 / (mu0 Ms) )  ( m . u ) u
+    H_anis = ( 2*K_1 / (mu0 Ms) )  ( m . u ) u
 	u = axis, normalized
   */
   
