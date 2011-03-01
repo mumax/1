@@ -10,7 +10,7 @@ package sim
 // This file implements functions for calculating the energy.
 
 import (
-	//. "mumax/common"
+	. "mumax/common"
 	"mumax/tensor"
 )
 
@@ -27,17 +27,17 @@ func (s *Sim) calcEDemagExch(m, h *DevTensor) float32{
 	s.initEDens()
 	phi := s.phiDev
 	s.calcEDensDemagExch(m, h, phi)
-	totalEnergy := s.sumPhi.Reduce(phi)	
-	return totalEnergy
+	totalEDens := s.sumPhi.Reduce(phi)	
+	return totalEDens * s.cellSize[X] * s.cellSize[Y] * s.cellSize[Z]	
 }
 
 func (s *Sim) calcEnergy(m, h *DevTensor) float32{
 	return s.calcEDemagExch(m, h) // TODO: add other contributions
 }
 
-func (s *Sim) GetEnergy() float32{
+func (s *Sim) GetEnergySI() float32{
 	s.init()
-	return s.calcEnergy(s.mDev, s.hDev)
+	return s.calcEnergy(s.mDev, s.hDev) * s.UnitEnergyDensity()
 }
 
 func (s *Sim) initEDens() {
