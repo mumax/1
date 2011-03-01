@@ -117,9 +117,10 @@ func (dev *Backend) MAdd2(a, b, c *DevTensor) {
 }
 
 func(dev *Backend) ScaledDotProduct(result, a, b *DevTensor, scale float32){
+	assert(a.size[0] == 3)
 	assert(tensor.EqualSize(a.size, b.size))
-	assert(tensor.EqualSize(a.size, result.size))
-	dev.scaledDotProduct(result.data, a.data, b.data, scale, tensor.Prod(a.size))
+	assert(tensor.EqualSize(a.size[1:], result.size))
+	dev.scaledDotProduct(result.data, a.data, b.data, scale, tensor.Prod(result.size))
 }
 
 func (dev *Backend) AddLinAnis(h, m *DevTensor, K []*DevTensor) {
