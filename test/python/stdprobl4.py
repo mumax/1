@@ -19,7 +19,7 @@ partsize(500e-9, 125e-9, 3e-9)
 # initial magnetization
 uniform(1, 1, 0)
 alpha(2)
-relax()
+#relax()
 alpha(0.02)
 save("m", "omf")
 
@@ -28,7 +28,9 @@ save("m", "omf")
 autosave("m", "omf", 10e-12)
 autosave("m", "png", 10e-12)
 staticfield(-24.6E-3, 4.3E-3, 0)
-run(1e-9)
+#run(1e-9)
+for i in range(0,1000):
+	step()
 
 
 

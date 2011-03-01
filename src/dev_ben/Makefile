@@ -29,6 +29,9 @@ OFILES=\
 	gpu_exchange.o\
 	gpu_heun.o\
 	gpu_init_anal.o\
+	gpu_mem.o\
+	gpu_conf.o\
+	gpu_safe.o\
 # 	gpu_fftbig.o\
 #	gpu_fft6.o\
 # 	gpu_fft4.o\
@@ -84,6 +87,14 @@ gpu_exchange.o:	gpu_exchange.h gpu_exchange.cu
 gpu_init_anal.o:	gpu_init_anal.h gpu_init_anal.cu
 	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_init_anal.cu
 
+gpu_mem.o:	gpu_mem.h gpu_mem.cu
+	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_mem.cu
+
+gpu_conf.o:	gpu_conf.h gpu_conf.cu
+	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_conf.cu
+
+gpu_safe.o:	gpu_safe.h gpu_safe.cu
+	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_safe.cu
 
 main: $(OFILES) main.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) main.cpp

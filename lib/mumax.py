@@ -1,9 +1,11 @@
 #  This file is part of MuMax, a high-performance micromagnetic simulator.
-#  Copyright 2011  Arne Vansteenkiste.
+#  Copyright 2011  Arne Vansteenkiste, Ben Van de Wiele.
 #  Use of this source code is governed by the GNU General Public License version 3
 #  (as published by the Free Software Foundation) that can be found in the license.txt file.
 #  Note that you are welcome to modify this code under the condition that you send not remove any 
 #  copyright notices and prominently state that you modified it, giving a relevant date.
+
+# @author Arne Vansteenkiste
 
 from sys import stdin
 from sys import stderr
@@ -139,8 +141,17 @@ def seed(s):
 # Output
 
 # Single-time save with automatic file name
+# Format = text | binary
 def save(what, format):
 	send2("save", what, format)
+
+# Single save of the magnetization to a specified file (.omf)
+def savem(filename, format):
+	send2("savem", filename, format)
+
+# Single save of the effective field to a specified file (.omf)
+def saveh(filename, format):
+	send2("saveh", filename, format)
 
 # Periodic auto-save
 def autosave(what, format, periodicity):
@@ -201,6 +212,14 @@ def relax():
 def run(time):
 	send1("run", time)
 
+# Takes one time step
+def step():
+	send0("step")
+
+# Takes n time steps
+def steps(n):
+	send1("steps", n)
+
 
 # Misc
 
@@ -234,4 +253,9 @@ def exchtype(t):
 # Override the subcommand for calculating the magnetostatic kernel
 def kerneltype(cmd):
 	send1("kerneltype", cmd)
+
+# Override whether or not (true/false) the magnetostatic field should be calculated
+def demag(b):
+	send1("demag", cmd)
+
 

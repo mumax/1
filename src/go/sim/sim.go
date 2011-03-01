@@ -74,6 +74,7 @@ type Input struct {
 	anisKSI        []float32  // Anisotropy constant(s), as many as needed
 	anisAxes       []float32  // Anisotropy axes: ux,uy,uz for uniaxial, u1x,u1y,u1z,u2x,u2y,u2z for cubic
 	kernelType     string     // Determines which kernel subprogram to use.
+	wantDemag      bool       // DEBUG: false disables the convolution and thus the demag field.
 }
 
 
@@ -99,7 +100,7 @@ type Sim struct {
 	hDev           *DevTensor // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
 	mLocal, hLocal *tensor.T4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
 	//mLocalLock     sync.RWMutex
-	mUpToDate bool // Is mLocal up to date with mDev? If not, a copy form the device is needed before storing output.
+	mUpToDate bool // Is mLocal up to date with mDev? If not, a copy from the device is needed before storing output.
 
 	Conv              // Convolution plan for the magnetostatic field
 	exchInConv bool   // Exchange included in convolution?
@@ -188,6 +189,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.input.anisAxes = []float32{0.}
 	sim.input.kernelType = DEFAULT_KERNELTYPE
 	sim.exchInConv = true
+	sim.input.wantDemag = true
 	sim.invalidate() //just to make sure we will init()
 	return sim
 }

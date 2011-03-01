@@ -109,19 +109,12 @@ func resolve(what, format string) Output {
 		case "text", "ascii":
 			return &MOmf{&Periodic{0., 0.}, "text"}
 		}
-		//	case "torque":
-		//		switch format {
-		//		default:
-		//			panic("unknown format " + format + ". options are: binary, ascii, png")
-		//		case "binary":
-		//			return &TorqueBinary{&Periodic{0., 0.}}
-		//		}
-
 	case "table":
 		//format gets ignored for now
 		return &Table{&Periodic{0., 0.}}
+	case "torque":
+		return &Torque{&Periodic{0., 0.}, format}
 	}
-
 	panic("bug")
 	return nil // not reached
 }
@@ -165,7 +158,7 @@ func (t *Table) Save(s *Sim) {
 	//N := Len(s.size3D)
 	for i := range m {
 		m[i] = s.devsum.Reduce(s.mDev.comp[i]) / s.avgNorm
-		torque[i] = abs32(s.devmaxabs.Reduce(s.hDev.comp[i]) / s.dt)
+		torque[i] = abs32(s.devmaxabs.Reduce(s.hDev.comp[i])) // do we need to / dt? some solvers use torque, some delta M...
 	}
 	minMz, maxMz := s.devmin.Reduce(s.mDev.comp[X]), s.devmax.Reduce(s.mDev.comp[X])
 	maxtorque := max32(torque[0], max32(torque[1], torque[2]))
@@ -223,20 +216,41 @@ func (m *MOmf) Save(s *Sim) {
 
 
 // INTERNAL
-//type TorqueBinary struct {
-//	*Periodic
-//}
+type Torque struct {
+	*Periodic
+	format string
+}
 
-// TODO: quick and dirty for the moment
-//func (m *TorqueBinary) Save(s *Sim) {
-//	fname := s.outputdir + "/" + "torque" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".tensor"
-//	out := fopen(fname)
-//	defer out.Close()
-//	TensorCopyFrom(s.hDev, s.hLocal) //!
-//	tensor.WriteMetaTensorBinary(out, s.hLocal, s.desc)
-//	m.sinceoutput = float32(s.time) * s.UnitTime()
-//}
+func (m *Torque) Save(s *Sim) {
+	fname := s.outputdir + "/" + "torque" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
+	var file omf.File
+	TensorCopyFrom(s.hDev, s.hLocal) //!
+	file.T4 = s.hLocal
+	file.StepSize = s.input.cellSize
+	file.MeshUnit = "m"
+	file.Desc = s.desc
+	file.ValueMultiplier = 1
+	file.ValueUnit = ""
+	file.Format = m.format
+	file.DataFormat = "4"
+	omf.FEncode(fname, file)
+	m.sinceoutput = float32(s.time) * s.UnitTime()
+}
 
+
+//Utility method for saving in .omf format.
+func (s *Sim) saveOmf(data *tensor.T4, filename, unit, format string) {
+	var file omf.File
+	file.T4 = data
+	file.StepSize = s.input.cellSize
+	file.MeshUnit = "m"
+	file.Desc = s.desc
+	file.ValueMultiplier = 1
+	file.ValueUnit = unit
+	file.Format = format
+	file.DataFormat = "4"
+	omf.FEncode(filename, file)
+}
 
 //_________________________________________ png
 

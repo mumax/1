@@ -98,13 +98,13 @@ func daemon_startsim(file string) {
 	// then this directory exists and we should abort.
 	outfile := RemoveExtension(file) + ".out"
 	err := os.Mkdir(outfile, 0777)
-	// if the directory already exists, then another daemon had already started the simulation in the meanwhile
+	// If the directory already exists, then another daemon had already started the simulation in the meanwhile.
+	// We should NOT crash in that case but just continue with an other input file 
 	// TODO: we should check if the error really is a "file exists"
-	CheckErr(err, ERR_IO)
-	//if err != nil {
-	//	fmt.Fprintln(os.Stderr, err)
-	//	return
-	//}
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
 
 	//	wd, err3 := os.Getwd()
 	//	if err3 != nil {

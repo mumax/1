@@ -12,7 +12,7 @@ package common
 // This file provides a central definition of common constants.
 
 // vector components
-const(
+const (
 	X = 0
 	Y = 1
 	Z = 2
@@ -55,4 +55,5 @@ const (
 	MAX    = 2
 	MAXABS = 3
 	MIN    = 4
+	SUMABS = 5
 )

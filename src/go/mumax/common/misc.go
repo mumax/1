@@ -7,7 +7,7 @@
 
 package common
 
-import(
+import (
 	"math"
 	"path"
 )
@@ -21,20 +21,26 @@ func ArrayOffset(array uintptr, index int) uintptr {
 }
 
 // True if not infinite and not NaN
-func IsReal(f float32) bool{
-	if math.IsInf(float64(f), 0) {return false}
+func IsReal(f float32) bool {
+	if math.IsInf(float64(f), 0) {
+		return false
+	}
 	return !math.IsNaN(float64(f))
 }
 
 // True if not infinite, not NaN and not zero
-func IsFinite(f float32) bool{
-	if math.IsInf(float64(f), 0) {return false}
-	if math.IsNaN(float64(f)){return false}
+func IsFinite(f float32) bool {
+	if math.IsInf(float64(f), 0) {
+		return false
+	}
+	if math.IsNaN(float64(f)) {
+		return false
+	}
 	return f != 0
 }
 
-func IsInf(f float32) bool{
-	return math.IsInf(float64(f), 0) 
+func IsInf(f float32) bool {
+	return math.IsInf(float64(f), 0)
 }
 
 // replaces the extension of filename by a new one.
@@ -42,5 +48,3 @@ func ReplaceExt(filename, newext string) string {
 	extension := path.Ext(filename)
 	return filename[:len(filename)-len(extension)] + newext
 }
-
-

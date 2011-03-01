@@ -25,7 +25,7 @@ func NewHeun(f *Sim) *Heun {
 }
 
 
-func (s *Heun) Step() {
+func (s *Heun) step() {
 	m := s.mDev
 	m1est := s.m1est
 

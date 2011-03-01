@@ -24,16 +24,17 @@ import (
 
 
 type TabWriter struct {
-	out       io.Writer
-	bufout    *bufio.Writer
-	tabout    *tabwriter.Writer
-	Title     string
-	columns   []string
-	units     []string
-	initiated bool
-	closed    bool
-	colcount  int
-	desc      map[string]interface{}
+	out         io.Writer
+	bufout      *bufio.Writer
+	tabout      *tabwriter.Writer
+	Title       string
+	PrintHeader bool // false means no header is printed ('#...' lines)
+	columns     []string
+	units       []string
+	initiated   bool
+	closed      bool
+	colcount    int
+	desc        map[string]interface{}
 }
 
 
@@ -43,6 +44,7 @@ func NewTabWriter(out io.Writer) *TabWriter {
 	t.bufout = bufio.NewWriter(t.out)
 	t.columns = []string{}
 	t.units = []string{}
+	t.PrintHeader = true
 	return t
 }
 
@@ -85,7 +87,9 @@ func (t *TabWriter) Flush() {
 }
 
 func (t *TabWriter) Close() {
-	fmt.Fprintln(t.tabout, "# Table End")
+	if t.PrintHeader {
+		fmt.Fprintln(t.tabout, "# Table End")
+	}
 	t.Flush()
 	if closer := t.out.(io.Closer); closer != nil {
 		closer.Close()
@@ -97,27 +101,29 @@ const COL_WIDTH = 20
 func (t *TabWriter) open() {
 	t.tabout = tabwriter.NewWriter(t.bufout, COL_WIDTH, 4, 0, ' ', 0)
 	out := t.tabout
-	fmt.Fprintln(out, "# ODT 1.0")
+	if t.PrintHeader {
+		fmt.Fprintln(out, "# ODT 1.0")
 
-	if t.desc != nil {
-		hdr(out, "Begin", "Header")
-		writeDesc(out, t.desc)
-		hdr(out, "End", "Header")
+		if t.desc != nil {
+			hdr(out, "Begin", "Header")
+			writeDesc(out, t.desc)
+			hdr(out, "End", "Header")
+		}
+
+		fmt.Fprintln(out, "# Table Start")
+		fmt.Fprintln(out, "# Title: ", t.Title)
+
+		fmt.Fprint(out, "# Units:")
+		for _, u := range t.units {
+			fmt.Fprint(out, "{", u, "} \t")
+		}
+		fmt.Fprintln(out)
+
+		fmt.Fprint(out, "# Columns:")
+		for _, c := range t.columns {
+			fmt.Fprint(out, c, " \t")
+		}
+		fmt.Fprintln(out)
 	}
-
-	fmt.Fprintln(out, "# Table Start")
-	fmt.Fprintln(out, "# Title: ", t.Title)
-
-	fmt.Fprint(out, "# Units:")
-	for _, u := range t.units {
-		fmt.Fprint(out, "{", u, "} \t")
-	}
-	fmt.Fprintln(out)
-
-	fmt.Fprint(out, "# Columns:")
-	for _, c := range t.columns {
-		fmt.Fprint(out, c, " \t")
-	}
-	fmt.Fprintln(out)
 	t.initiated = true
 }

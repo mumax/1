@@ -38,7 +38,7 @@ func main() {
 	// replaced by val1 and val2, respectively.
 	// the original document is then replaced by nil.
 	file = RemoveExtension(file) // remove the last extension (typically ".template")
-	ext := path.Ext(file) // keep the extension before that for later  (typically ".in", ".py", ...)
+	ext := path.Ext(file)        // keep the extension before that for later  (typically ".in", ".py", ...)
 	file = RemoveExtension(file)
 	docs := []*Document{&Document{content, file, ext}}
 
@@ -139,7 +139,7 @@ func Atof(a string) float64 {
 type Document struct {
 	content string
 	name    string
-	ext 	string
+	ext     string
 }
 
 func (d *Document) Replace(key, val string) *Document {

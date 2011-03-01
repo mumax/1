@@ -1,3 +1,13 @@
+/*
+ *  This file is part of MuMax, a high-performance micromagnetic simulator.
+ *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
+ *  Use of this source code is governed by the GNU General Public License version 3
+ *  (as published by the Free Software Foundation) that can be found in the license.txt file.
+ *
+ *  Note that you are welcome to modify this code under condition that you do not remove any 
+ *  copyright notices and prominently state that you modified it, giving a relevant date.
+ */
+
 #include "gpu_local_contr.h"
 #include "gpu_mem.h"
 #include "gpu_conf.h"
@@ -29,6 +39,7 @@ __global__ void _gpu_add_local_contr(float* mx, float* my, float* mz,
       hx[i] += Hax + projection*p_dev->anisAxes[X];
       hy[i] += Hay + projection*p_dev->anisAxes[Y];
       hz[i] += Haz + projection*p_dev->anisAxes[Z];
+
     }
     
 
@@ -58,8 +69,7 @@ __global__ void _gpu_add_local_contr(float* mx, float* my, float* mz,
   return;
 }
 
-
-void gpu_add_local_contr (float *m, float *h, int Ntot, float *Hext, int anisType, dev_par *p_dev){
+void gpu_add_local_contr (float *m, float *hint Ntot, float *Hext, int anisType, dev_par *p_dev){
 
   float *hx = h + X*Ntot;
   float *hy = h + Y*Ntot;
