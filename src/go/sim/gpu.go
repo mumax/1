@@ -119,6 +119,10 @@ func (d Gpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []
 	C.gpu_add_local_fields((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
 }
 
+func (d Gpu) addLocalFieldsPhi(m, h, phi uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int){
+	C.gpu_add_local_fields_H_and_phi((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), (*C.float)(unsafe.Pointer(phi)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
+}
+
 func (d Gpu) addExch(m, h uintptr, size, periodic, exchinconv []int, cellsize []float32, exchType int) {
 	C.gpu_add_exch((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), (*C.int)(unsafe.Pointer(&size[0])), (*C.int)(unsafe.Pointer(&periodic[0])), (*C.int)(unsafe.Pointer(&exchinconv[0])), (*C.float)(unsafe.Pointer(&cellsize[0])), C.int(exchType))
 }

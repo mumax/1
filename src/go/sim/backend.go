@@ -116,6 +116,12 @@ func (dev *Backend) MAdd2(a, b, c *DevTensor) {
 	dev.madd2(a.data, b.data, c.data, tensor.Prod(a.Size()))
 }
 
+func(dev *Backend) ScaledDotProduct(result, a, b *DevTensor, scale float32){
+	assert(tensor.EqualSize(a.size, b.size))
+	assert(tensor.EqualSize(a.size, result.size))
+	dev.scaledDotProduct(result.data, a.data, b.data, scale, tensor.Prod(a.size))
+}
+
 func (dev *Backend) AddLinAnis(h, m *DevTensor, K []*DevTensor) {
 	dev.addLinAnis(h.comp[X].data, h.comp[Y].data, h.comp[Z].data,
 		m.comp[X].data, m.comp[Y].data, m.comp[Z].data,
@@ -123,6 +129,7 @@ func (dev *Backend) AddLinAnis(h, m *DevTensor, K []*DevTensor) {
 		K[YZ].data, K[XZ].data, K[XY].data,
 		h.length)
 }
+
 
 // a[i]  = weightA * a[i] + weightB * b[i]
 func (dev *Backend) LinearCombination(a, b *DevTensor, weightA, weightB float32) {
