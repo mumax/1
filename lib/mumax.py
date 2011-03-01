@@ -257,6 +257,11 @@ def getm(component):
 	send1("getm", component)
 	return recv()
 
+# Retrieves the maximum torque in units gamma*Msat
+def getmaxtorque(component):
+	send1("getmaxtorque")
+	return recv()
+
 
 # Debug and fine-tuning
 

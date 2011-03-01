@@ -7,20 +7,33 @@
 
 package sim
 
+// This file implements retrieving values from the simulation.
+
 import (
 	"fmt"
 )
 
+// INTERNAL: Send a value to stdout, to be recieved by a subprocess.
 func Send(v ...interface{}) {
 	fmt.Print("%")
 	fmt.Println(v...)
 }
 
+
+// Gets an average magnetization component.
 func (s *Sim) GetM(component int) {
 	Send(s.getM(2 - component)) // translate to ZYX
 
 }
+
 func (s *Sim) getM(component int) float32 {
 	s.init()
 	return s.devsum.Reduce(s.mDev.comp[component]) / s.avgNorm
+}
+
+
+// Gets the maximum torque expressed in gamma*Ms, as set by the current solver.
+func (s *Sim) GetMaxTorque(){
+	s.init()
+	Send(s.torque)
 }
