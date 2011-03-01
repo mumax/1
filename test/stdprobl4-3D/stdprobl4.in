@@ -2,8 +2,8 @@
 # but 3D version
 
 desc info standard_problem_4
-# kerneltype mumaxkern-cpu
- exchtype 12
+ kerneltype mumaxkern-gpu
+# exchtype 12
  exchinconv false
 
 
