@@ -75,6 +75,7 @@ type Input struct {
 	anisAxes       []float32  // Anisotropy axes: ux,uy,uz for uniaxial, u1x,u1y,u1z,u2x,u2y,u2z for cubic
 	kernelType     string     // Determines which kernel subprogram to use.
 	wantDemag      bool       // DEBUG: false disables the convolution and thus the demag field.
+	tabulate       []bool     // What output to tabulate, see simoutput.go
 }
 
 
@@ -101,6 +102,9 @@ type Sim struct {
 	mLocal, hLocal *tensor.T4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
 	//mLocalLock     sync.RWMutex
 	mUpToDate bool // Is mLocal up to date with mDev? If not, a copy from the device is needed before storing output.
+	phiDev		*DevTensor // energy density. Use getEDens(), assures this pointer is initiated.
+	phiLocal  *tensor.T3 // local energy density.
+	sumPhi	Reductor
 
 	Conv              // Convolution plan for the magnetostatic field
 	exchInConv bool   // Exchange included in convolution?
@@ -109,7 +113,8 @@ type Sim struct {
 	Material // Stores material parameters and manages the internal units
 	Mesh     // Stores the size of the simulation grid
 
-	AppliedField            // returns the externally applied in function of time
+	appliedField AppliedField            // returns the externally applied field in function of time
+	appliedCurrDens AppliedField            // returns the externally applied current density in function of time
 	hextSI       [3]float32 // stores the externally applied field returned by AppliedField, in SI UNITS
 	hextInt      []float32  // stores the externally applied field in internal units
 
@@ -190,6 +195,11 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.input.kernelType = DEFAULT_KERNELTYPE
 	sim.exchInConv = true
 	sim.input.wantDemag = true
+	sim.input.tabulate = make([]bool, TAB_LEN)
+	sim.input.tabulate[TAB_TIME] = true
+	sim.input.tabulate[TAB_M] = true
+	sim.input.tabulate[TAB_B] = true
+	sim.input.tabulate[TAB_ID] = true
 	sim.invalidate() //just to make sure we will init()
 	return sim
 }

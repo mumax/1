@@ -1,27 +1,28 @@
 # Spintorque standard problem
 
-maxerror 1e-2
 
 aexch:  13e-12
 msat:   8e5
 
 partsize:  100e-9 100e-9 10e-9
-gridsize:  128 128 8
+gridsize:  128 128 1
 demagaccuracy	10
+
+tabulate j true
+autosave m     png   10e-12
+autosave table ascii 10e-12
 
 #relax
 alpha   2
 vortex	1 1
-run     10e-9
+run     0.5e-9
 save	m	omf
 
 
 #run
 alpha:            0.1
-currentdensity:   1e12 0 0
+applyrf j   1e12 0 0 500e6
 xi:               0.05
 spinpolarization: 1
 
-autosave m     omf   10e-12
-autosave table ascii 10e-12
 run 10e-9

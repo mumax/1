@@ -24,6 +24,8 @@ GOFILES=\
 	kernel.go\
 	relax.go\
 	demag.go\
+	field.go\
+	energy.go\
 	kernelpipe.go\
 	exchange.go\
 	material.go\
@@ -63,6 +65,7 @@ GOFILES=\
 	help.go\
 	simdebug.go\
 	simhysteresis.go\
+	corepos.go\
 
 CGO_CFLAGS+=-I../../../lib/fftw/include/ -I/usr/local/cuda/include/
 

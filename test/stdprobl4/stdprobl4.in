@@ -29,7 +29,7 @@ loadm    	s-state.omf
 # run
 autosave  m png 10e-12
 autosave	table	ascii	5e-12
-staticfield 	-24.6E-3     4.3E-3    0  # T
+applystatic field 	-24.6E-3     4.3E-3    0  # T
 run          	1e-9                      # s
 
 savebenchmark benchmark.txt

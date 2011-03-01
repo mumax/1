@@ -10,7 +10,8 @@ package main
 
 
 import (
-//. "mumax/common"
+	. "mumax/common"
+	"fmt"
 )
 
 
@@ -31,6 +32,7 @@ func Cat() {
 	}
 }
 
+
 // add one column to the internal table
 func GetCol(name string) {
 	i := table.GetColumnIndex(name)
@@ -41,20 +43,79 @@ func GetCol(name string) {
 	}
 }
 
+type Empty struct{}
+
+type Set map[float32]Empty
+
+func MakeSet() Set {
+	return Set(make(map[float32]Empty))
+}
+
+func (s Set) Add(x float32) {
+	if _, ok := s[x]; !ok {
+		s[x] = Empty{}
+	}
+}
+
+func (s Set) ToArray() []float32 {
+	array := make([]float32, len(s))
+	i := 0
+	for val, _ := range s {
+		array[i] = val
+		i++
+	}
+	Float32Array(array).Sort()
+	return array
+}
+
 // Assuming columns i,j contain matrix indices,
 // coutput column data in a correspondig 2D grid.
 // Missing values become 0.
-func Matrix(i, j, data int) {
-	//	// Sorted copies of the index columns
-	//	I := make([]float32, len(table.Column[i]))
-	//	copy(I, table.Column[i])
-	//	Float32Array(I).Sort()
-	//	J := make([]float32, len(table.Column[j]))
-	//	copy(J, table.Column[j])
-	//	Float32Array(J).Sort()
-	//
-	//	
-	//	D := table.Column[data]
-	//
-	//	// Count indices
+func Matrix(i_col, j_col, data_col int) {
+
+	// (1) Construct a sorted set of unique i,j indices (floats).
+	// This is the "meshdom", in matlab terms.
+	I := table.Column[i_col]
+	setI := MakeSet()
+	for i := range I {
+		setI.Add(I[i])
+	}
+	I = setI.ToArray()
+
+	setJ := MakeSet()
+	J := table.Column[j_col]
+	for i := range J {
+		setJ.Add(J[i])
+	}
+	J = setJ.ToArray()
+
+	// (2) Make the "outer product" of the two index sets,
+	// spanning a matrix that can be index with each possible i,j pair
+	// (even those not present in the input, their data will be 0.)
+	matrix := make(map[float32]map[float32]float32)
+	for i := range I {
+		for j := range J {
+			if matrix[I[i]] == nil {
+				matrix[I[i]] = make(map[float32]float32)
+			}
+			matrix[I[i]][J[j]] = 0.
+		}
+	}
+
+	// (3) Loop over the i indices in the output and add the corrsponing data
+	// to the corresponding i,j position of the matrix. (j, data on the same line as i)
+	// Missing pairs keep 0. as data.
+	D := table.Column[data_col]
+	for i := range table.Column[i_col] {
+		matrix[table.Column[i_col][i]][table.Column[j_col][i]] = D[i]
+	}
+
+	// (4) Print the matrix
+	for _, i := range I{
+		for _,j := range J{
+			fmt.Print(matrix[i][j], "\t")
+		}
+		fmt.Println()
+	}
+	haveOutput=true
 }

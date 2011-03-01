@@ -12,7 +12,7 @@
  * @file
  * General linear algebra functions
  *
- * @author Arne Vansteenkiste
+ * @author Arne Vansteenkiste, Ben Van de Wiele
  */
 #ifndef gpu_linalg_h
 #define gpu_linalg_h
