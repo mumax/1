@@ -69,6 +69,10 @@ func (s Set) ToArray() []float32 {
 }
 
 
+func Meshdom(i_colname, j_colname, data_colname string) {
+	matrix(i_colname, j_colname, data_colname, true)
+}
+
 func Matrix(i_colname, j_colname, data_colname string, octave_format bool) {
 	matrix(i_colname, j_colname, data_colname, false)
 }
@@ -120,11 +124,14 @@ func matrix(i_colname, j_colname, data_colname string, octave_format bool) {
 	}
 
 	// (4) Print the matrix
-	for _, i := range I{
-		for _,j := range J{
+	if octave_format{ fmt.Print("data=reshape([") }
+	for ind_i, i := range I{
+		for ind_j,j := range J{
 			fmt.Print(matrix[i][j], "\t")
+			if octave_format && !(ind_i == len(I)-1 && ind_j == len(J)-1) { fmt.Print(",") }
 		}
-		fmt.Println()
+		if !octave_format  { fmt.Println() }
 	}
+	if octave_format{ fmt.Println("], ", len(J), ", ", len(I), ");") } 
 	haveOutput=true
 }
