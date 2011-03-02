@@ -87,7 +87,7 @@ func (d Gpu) linearCombinationMany(result uintptr, vectors []uintptr, weights []
 		(C.int)(NElem))
 }
 
-func (d Gpu) scaledDotProduct(result, a, b uintptr, scale float32, N int){
+func (d Gpu) scaledDotProduct(result, a, b uintptr, scale float32, N int) {
 	C.gpu_scale_dot_product((*C.float)(unsafe.Pointer(result)), (*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(scale), C.int(N))
 }
 
@@ -119,7 +119,7 @@ func (d Gpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []
 	C.gpu_add_local_fields((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
 }
 
-func (d Gpu) addLocalFieldsPhi(m, h, phi uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int){
+func (d Gpu) addLocalFieldsPhi(m, h, phi uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int) {
 	C.gpu_add_local_fields_H_and_phi((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), (*C.float)(unsafe.Pointer(phi)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
 }
 

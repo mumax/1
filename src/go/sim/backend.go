@@ -116,7 +116,7 @@ func (dev *Backend) MAdd2(a, b, c *DevTensor) {
 	dev.madd2(a.data, b.data, c.data, tensor.Prod(a.Size()))
 }
 
-func(dev *Backend) ScaledDotProduct(result, a, b *DevTensor, scale float32){
+func (dev *Backend) ScaledDotProduct(result, a, b *DevTensor, scale float32) {
 	assert(a.size[0] == 3)
 	assert(tensor.EqualSize(a.size, b.size))
 	assert(tensor.EqualSize(a.size[1:], result.size))

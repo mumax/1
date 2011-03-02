@@ -33,7 +33,7 @@ func (s *Sim) getM(component int) float32 {
 
 
 // Gets the maximum torque expressed in gamma*Ms, as set by the current solver.
-func (s *Sim) GetMaxTorque(){
+func (s *Sim) GetMaxTorque() {
 	s.init()
 	Send(s.torque)
 }
