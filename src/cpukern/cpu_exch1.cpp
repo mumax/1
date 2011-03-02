@@ -689,6 +689,15 @@ void cpu_add_12NGBR_exchange_3D_geometry (float *m, float *h, int *size, int *pe
   args.cst0_z = -5.0f/2.0f/cellSize[Z]/cellSize[Z];
   args.cst1_z = 4.0f/3.0f/cellSize[Z]/cellSize[Z];
   args.cst2_z = -1.0f/12.0f/cellSize[Z]/cellSize[Z];
+/*  args.cst0_x = 0.0f;
+  args.cst1_x = 1.0f;
+  args.cst2_x = 1.0f;
+  args.cst0_y = 0.0f;
+  args.cst1_y = 1.0f;
+  args.cst2_y = 1.0f;
+  args.cst0_z = 0.0f;
+  args.cst1_z = 1.0f;
+  args.cst2_z = 1.0f;*/
   args.periodic = periodic;
   args.Nx = size[X];
   args.Ny = size[Y];

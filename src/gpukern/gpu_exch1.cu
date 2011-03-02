@@ -468,7 +468,6 @@ __global__ void _gpu_add_12NGBR_exchange_3D_geometry(float *m, float *h, int Nx,
 // initialize indices for main block ---------------------------------------------------
   j    = threadIdx.y;                   // shared memory indices
   k    = threadIdx.x;
-//  ind  = I_OFF + (j+1)*J_OFF + k+1;
   ind  = 2*I_OFF2 + (j+2)*J_OFF2 + k+2;
 
   m_sh[ind-2*I_OFF2] = 0.0f;
@@ -515,7 +514,6 @@ __global__ void _gpu_add_12NGBR_exchange_3D_geometry(float *m, float *h, int Nx,
 
 // perform the actual exchange computations --------------------------------------------
   for (i=0; i<Nx; i++) {
-//  for (i=0; i<0; i++) {
 
     // move two planes down and read in new plane i+1
      if (active_in) {
@@ -571,8 +569,7 @@ __global__ void _gpu_add_12NGBR_exchange_3D_geometry(float *m, float *h, int Nx,
       result += cst2_z*m_sh[ind + 2];
       *hptr += result;
 
-/*      result = 0.0f;
-      result =  m_sh[ind];
+/*      result =  m_sh[ind];
       result += m_sh[ind - 2*I_OFF2];
       result += m_sh[ind - I_OFF2];
       result += m_sh[ind + I_OFF2];
@@ -605,6 +602,14 @@ void gpu_add_12NGBR_exchange_3D_geometry (float *m, float *h, int *size, int *pe
   float cst1_z = 4.0f/3.0f/cellSize[Z]/cellSize[Z];
   float cst2_z = -1.0f/12.0f/cellSize[Z]/cellSize[Z];
   float cst_xyz = -5.0f/2.0f/cellSize[X]/cellSize[X] - 5.0f/2.0f/cellSize[Y]/cellSize[Y] - 5.0f/2.0f/cellSize[Z]/cellSize[Z];
+
+//   float cst1_x = 1.0f;
+//   float cst2_x = 1.0f;
+//   float cst1_y = 1.0f;
+//   float cst2_y = 1.0f;
+//   float cst1_z = 1.0f;
+//   float cst2_z = 1.0f;
+//   float cst_xyz = 0.0f;
 
   int bx = 1 + (size[Z]-1)/EXCH_BLOCK_X;    // a grid has blockdim.z=1, so we use the x-component
   int by = 1 + (size[Y]-1)/EXCH_BLOCK_Y;
