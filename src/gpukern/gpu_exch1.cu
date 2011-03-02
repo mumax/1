@@ -184,7 +184,6 @@ __global__ void _gpu_add_6NGBR_exchange_3D_geometry(float *m, float *h, int Nx, 
 
 void gpu_add_6NGBR_exchange_3D_geometry (float *m, float *h, int *size, int *periodic, float *cellSize){
 
-  printf("hallo\n");
   float cst_x = 1.0f/cellSize[X]/cellSize[X];
   float cst_y = 1.0f/cellSize[Y]/cellSize[Y];
   float cst_z = 1.0f/cellSize[Z]/cellSize[Z];

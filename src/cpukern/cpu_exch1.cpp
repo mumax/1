@@ -44,175 +44,312 @@ void cpu_add_exch (float *m, float *h, int *size, int *periodic, int *exchInConv
   return;
 }
 
+
+
 typedef struct{
   float *m, *h, *cellSize;
   float cst_y, cst_z;
-  int *size, *periodic;
+  int *periodic;
   int Ny, Nz, Ntot;
 } cpu_add_6NGBR_exchange_2D_geometry_arg;
 
-void cpu_add_6NGBR_exchange_2D_geometry_t(int id){
+void cpu_add_6NGBR_exchange_2D_geometry1_t(int id){
 
   cpu_add_6NGBR_exchange_2D_geometry_arg *arg = (cpu_add_6NGBR_exchange_2D_geometry_arg *) func_arg;
  
   float *pH, *pM;
   int start, stop;
+
   init_start_stop (&start, &stop, id, arg->Ntot-arg->Nz);
-
-  for (pH = arg->h + start, pM = arg->m + arg->Nz + start; pH < arg->h + stop; pH++, pM++)                 // add cst_y*M[y+1]
+  for (pH = arg->h + start, pM = arg->m + arg->Nz + start; pH < arg->h + stop; pH++, pM++)                // add cst_y*M[y+1]
     *pH += arg->cst_y * (*pM);
-  for (pH = arg->h + arg->Nz + start, pM = arg->m + start; pM < arg->m + stop; pH++, pM++)                 // add cst_y*M[y-1] 
-    *pH += arg->cst_y * (*pM);
-/*  for (pH = h + Nz, pM = m; pH < h + Ntot; pH++, pM++)                      // add cst_y*M[y-1] 
-    *pH += cst_y * (*pM);*/
-  
-//   if (arg->periodic[Y] && id==0){
-//     for (pH = arg->h + arg->Ntot - arg->Nz, pM = arg->m; pH < arg->h + arg->Ntot; pH++, pM++)             // add cst_y*M[y=Ny] for periodic case
-//       *pH += arg->cst_y * (*pM);
-//     for (pH = arg->h, pM = arg->m + arg->Ntot - arg->Nz; pH < arg->h + arg->Nz; pH++, pM++)               // add cst_y*M[y=-1] for periodic case
-//       *pH += arg->cst_y * (*pM);
-//   }
-
-
-//   init_start_stop (&start, &stop, id, arg->Ny);
-//   for (int i=start; i<stop; i++){
-//     for (pH = arg->h + i*arg->Nz, pM = arg->m + i*arg->Nz + 1; pH<arg->h + (i+1)*arg->Nz-1; pH++, pM++)   // add cst_z*M[z+1]
-//       *pH += arg->cst_z * (*pM);
-//     if (arg->periodic[Z])                                                                                 // add cst_z*M[z=Nz] for periodic case
-//       arg->h[(i+1)*arg->Nz-1] += arg->cst_z*arg->m[i*arg->Nz];
-// 
-//     for (pH = arg->h + i*arg->Nz + 1, pM = arg->m + i*arg->Nz; pH<arg->h + (i+1)*arg->Nz; pH++, pM++)     // add cst_z*M[z-1]
-//       *pH += arg->cst_z * (*pM);
-//     if (arg->periodic[Z])                                                                                 // add cst_z*M[z=-1] for periodic case
-//       arg->h[i*arg->Nz] += arg->cst_z*arg->m[(i+1)*arg->Nz-1];
-//   }
-
-//   init_start_stop (&start, &stop, id, arg->Ntot);
-//   for (pH = arg->h + start, pM = arg->m + start; pH < arg->h + stop; pH++, pM++)                           // add (cst_y + cst_z) * M
-//     *pH -= 2.0f*(arg->cst_y + arg->cst_z) * (*pM);
+  if (arg->periodic[Y] && id==0){
+    for (pH = arg->h + arg->Ntot - arg->Nz, pM = arg->m; pH < arg->h + arg->Ntot; pH++, pM++)             // add cst_y*M[y=Ny] for periodic case
+      *pH += arg->cst_y * (*pM);
+  }
 
   return;
 }
 
+void cpu_add_6NGBR_exchange_2D_geometry2_t(int id){
+
+  cpu_add_6NGBR_exchange_2D_geometry_arg *arg = (cpu_add_6NGBR_exchange_2D_geometry_arg *) func_arg;
+ 
+  float *pH, *pM;
+  int start, stop;
+
+  init_start_stop (&start, &stop, id, arg->Ntot-arg->Nz);
+  for (pH = arg->h + arg->Nz + start, pM = arg->m + start; pM < arg->m + stop; pH++, pM++)                // add cst_y*M[y-1] 
+    *pH += arg->cst_y * (*pM);
+  if (arg->periodic[Y] && id==0){
+    for (pH = arg->h, pM = arg->m + arg->Ntot - arg->Nz; pH < arg->h + arg->Nz; pH++, pM++)               // add cst_y*M[y=-1] for periodic case
+      *pH += arg->cst_y * (*pM);
+  }
+
+  return;
+}
+
+void cpu_add_6NGBR_exchange_2D_geometry3_t(int id){
+
+  cpu_add_6NGBR_exchange_2D_geometry_arg *arg = (cpu_add_6NGBR_exchange_2D_geometry_arg *) func_arg;
+ 
+  float *pH, *pM;
+  int start, stop;
+
+  init_start_stop (&start, &stop, id, arg->Ny);
+  for (int i=start; i<stop; i++){
+    for (pH = arg->h + i*arg->Nz, pM = arg->m + i*arg->Nz + 1; pH<arg->h + (i+1)*arg->Nz-1; pH++, pM++)   // add cst_z*M[z+1]
+      *pH += arg->cst_z * (*pM);
+    if (arg->periodic[Z])                                                                                 // add cst_z*M[z=Nz] for periodic case
+      arg->h[(i+1)*arg->Nz-1] += arg->cst_z*arg->m[i*arg->Nz];
+
+    for (pH = arg->h + i*arg->Nz + 1, pM = arg->m + i*arg->Nz; pH<arg->h + (i+1)*arg->Nz; pH++, pM++)     // add cst_z*M[z-1]
+      *pH += arg->cst_z * (*pM);
+    if (arg->periodic[Z])                                                                                 // add cst_z*M[z=-1] for periodic case
+      arg->h[i*arg->Nz] += arg->cst_z*arg->m[(i+1)*arg->Nz-1];
+  }
+
+  return;
+}
+
+void cpu_add_6NGBR_exchange_2D_geometry4_t(int id){
+
+  cpu_add_6NGBR_exchange_2D_geometry_arg *arg = (cpu_add_6NGBR_exchange_2D_geometry_arg *) func_arg;
+ 
+  float *pH, *pM;
+  int start, stop;
+
+  init_start_stop (&start, &stop, id, arg->Ntot);
+  for (pH = arg->h + start, pM = arg->m + start; pH < arg->h + stop; pH++, pM++)                           // add (cst_y + cst_z) * M
+    *pH -= 2.0f*(arg->cst_y + arg->cst_z) * (*pM);
+
+  return;
+}
 
 void cpu_add_6NGBR_exchange_2D_geometry (float *m, float *h, int *size, int *periodic, float *cellSize){
-  
-  float *pH, *pM;
-  
-  int Ny = size[Y];
-  int Nz = size[Z];
-  int Ntot = Ny*Nz;
- 
-  float cst_y = 1.0f/cellSize[Y]/cellSize[Y];
-  float cst_z = 1.0f/cellSize[Z]/cellSize[Z];
-/*  float cst_y = 1.0f;
-  float cst_z = 1.0f;*/
   
   cpu_add_6NGBR_exchange_2D_geometry_arg args;
   args.m = m;
   args.h = h;
   args.cellSize = cellSize;
-  args.cst_y = cst_y;
-  args.cst_z = cst_z;
-  args.size = size;
+  args.cst_y = 1.0f/cellSize[Y]/cellSize[Y];
+  args.cst_z = 1.0f/cellSize[Z]/cellSize[Z];
   args.periodic = periodic;
-  args.Ny = Ny;
-  args.Nz = Nz;
-  args.Ntot = Ntot;
+  args.Ny = size[Y];
+  args.Nz = size[Z];
+  args.Ntot = size[Y]*size[Z];
 
   func_arg = (void *) (&args);
 
-  thread_Wrapper(cpu_add_6NGBR_exchange_2D_geometry_t);
+  thread_Wrapper(cpu_add_6NGBR_exchange_2D_geometry1_t);
+  thread_Wrapper(cpu_add_6NGBR_exchange_2D_geometry2_t);
+  thread_Wrapper(cpu_add_6NGBR_exchange_2D_geometry3_t);
+  thread_Wrapper(cpu_add_6NGBR_exchange_2D_geometry4_t);
   
-/*  for (pH = h, pM = m + Nz; pH < h + Ntot - Nz; pH++, pM++)                 // add cst_y*M[y+1]
-    *pH += cst_y * (*pM);*/
-  if (periodic[Y])
-    for (pH = h + Ntot - Nz, pM = m; pH < h + Ntot; pH++, pM++)             // add cst_y*M[y=Ny] for periodic case
-      *pH += cst_y * (*pM);
+  return;
+}
 
-/*  for (pH = h + Nz, pM = m; pH < h + Ntot; pH++, pM++)                      // add cst_y*M[y-1] 
-    *pH += cst_y * (*pM);*/
-  if (periodic[Y])
-    for (pH = h, pM = m + Ntot - Nz; pH < h + Nz; pH++, pM++)               // add cst_y*M[y=-1] for periodic case
-      *pH += cst_y * (*pM);
 
-  
-  for (int i=0; i<Ny; i++){
-    for (pH = h + i*Nz, pM = m + i*Nz + 1; pH<h + (i+1)*Nz-1; pH++, pM++)   // add cst_z*M[z+1]
-      *pH += cst_z * (*pM);
-    if (periodic[Z])                                                        // add cst_z*M[z=Nz] for periodic case
-      h[(i+1)*Nz-1] += cst_z*m[i*Nz];
 
-    for (pH = h + i*Nz + 1, pM = m + i*Nz; pH<h + (i+1)*Nz; pH++, pM++)     // add cst_z*M[z-1]
-      *pH += cst_z * (*pM);
-    if (periodic[Z])                                                        // add cst_z*M[z=-1] for periodic case
-      h[i*Nz] += cst_z*m[(i+1)*Nz-1];
+typedef struct{
+  float *m, *h, *cellSize;
+  float cst_x, cst_y, cst_z;
+  int *periodic;
+  int Nx, Ny, Nz, Nyz, Ntot;
+} cpu_add_6NGBR_exchange_3D_geometry_arg;
+
+void cpu_add_6NGBR_exchange_3D_geometry1_t(int id){
+
+  cpu_add_6NGBR_exchange_3D_geometry_arg *arg = (cpu_add_6NGBR_exchange_3D_geometry_arg *) func_arg;
+ 
+  float *pH, *pM;
+  int start, stop;
+
+  init_start_stop (&start, &stop, id, arg->Ntot-arg->Nyz);
+  for (pH = arg->h + start, pM = arg->m + arg->Nyz + start; pH < arg->h + stop; pH++, pM++){    // add cst_x*M[x+1]
+    *pH += arg->cst_x * (*pM);
+  }
+  if (arg->periodic[X]){
+    init_start_stop (&start, &stop, id, arg->Nyz);
+    for (pH = arg->h + arg->Ntot - arg->Nyz + start, pM = arg->m + start; pM < arg->m + stop; pH++, pM++)              // add cst_x*M[x=Nx] for periodic case
+      *pH += arg->cst_x * (*pM);
+  }
+//   for (pH = h, pM = m + Nyz; pH < h + Ntot - Nyz; pH++, pM++){    // add cst_x*M[x+1]
+//     *pH += cst_x * (*pM);
+//   }
+//   if (periodic[X])
+//     for (pH = h + Ntot - Nyz, pM = m; pH < h + Ntot; pH++, pM++)  // add cst_x*M[x=Nx] for periodic case
+//       *pH += cst_x * (*pM);
+
+  return;
+}
+        
+void cpu_add_6NGBR_exchange_3D_geometry2_t(int id){
+
+  cpu_add_6NGBR_exchange_3D_geometry_arg *arg = (cpu_add_6NGBR_exchange_3D_geometry_arg *) func_arg;
+ 
+  float *pH, *pM;
+  int start, stop;
+
+  init_start_stop (&start, &stop, id, arg->Ntot-arg->Nyz);
+  for (pH = arg->h + arg->Nyz + start, pM = arg->m + start; pM < arg->m + stop; pH++, pM++)                           // add cst_x*M[x-1] 
+    *pH += arg->cst_x * (*pM);
+  if (arg->periodic[X]){
+    init_start_stop (&start, &stop, id, arg->Nyz);
+    for (pH = arg->h + start, pM = arg->m + arg->Ntot - arg->Nyz + start; pH < arg->h + stop; pH++, pM++)             // add cst_x*M[x=-1] for periodic case
+      *pH += arg->cst_x * (*pM);
+  }
+//   for (pH = h + Nyz, pM = m; pH < h + Ntot; pH++, pM++)           // add cst_x*M[x-1] 
+//     *pH += cst_x * (*pM);
+//   if (periodic[X])
+//     for (pH = h, pM = m + Ntot - Nyz; pH < h + Nyz; pH++, pM++)   // add cst_x*M[x=-1] for periodic case
+//       *pH += cst_x * (*pM);
+
+  return;
+}
+
+void cpu_add_6NGBR_exchange_3D_geometry3_t(int id){
+
+  cpu_add_6NGBR_exchange_3D_geometry_arg *arg = (cpu_add_6NGBR_exchange_3D_geometry_arg *) func_arg;
+ 
+  float *pH, *pM;
+  int start, stop;
+
+  init_start_stop (&start, &stop, id, arg->Nx);
+  for (int i=start; i<stop; i++){
+    for (pH = arg->h + i*arg->Nyz, pM = arg->m + i*arg->Nyz + arg->Nz; pH<arg->h + (i+1)*arg->Nyz - arg->Nz; pH++, pM++)    // add cst_y*M[y+1]
+      *pH += arg->cst_y * (*pM);
+    if (arg->periodic[Y])                                                        
+      for (pH = arg->h + (i+1)*arg->Nyz - arg->Nz, pM = arg->m + i*arg->Nyz; pH<arg->h + (i+1)*arg->Nyz; pH++, pM++)   // add cst_y*M[y=Ny] for periodic case
+        *pH += arg->cst_y * (*pM);
+
+    for (pH = arg->h + i*arg->Nyz + arg->Nz, pM = arg->m + i*arg->Nyz; pH<arg->h + (i+1)*arg->Nyz; pH++, pM++)         // add cst_y*M[y-1]
+      *pH += arg->cst_y * (*pM);
+    if (arg->periodic[Y])                                                        
+      for (pH = arg->h + i*arg->Nyz, pM =  arg->m + (i+1)*arg->Nyz - arg->Nz; pH<arg->h + i*arg->Nyz + arg->Nz; pH++, pM++) // add cst_y*M[y=-1] for periodic case
+        *pH += arg->cst_y * (*pM);
   }
 
-  for (pH = h, pM = m; pH < h + Ntot; pH++, pM++)                           // add (cst_y + cst_z) * M
-    *pH -= 2.0f*(cst_y + cst_z) * (*pM);
+  return;
+}
 
+void cpu_add_6NGBR_exchange_3D_geometry4_t(int id){
+
+  cpu_add_6NGBR_exchange_3D_geometry_arg *arg = (cpu_add_6NGBR_exchange_3D_geometry_arg *) func_arg;
+ 
+  float *pH, *pM;
+  int start, stop;
+
+  init_start_stop (&start, &stop, id, arg->Nx*arg->Ny);
+  for (int i=start; i<stop; i++){
+    for (pH = arg->h + i*arg->Nz, pM = arg->m + i*arg->Nz + 1; pH<arg->h + (i+1)*arg->Nz - 1; pH++, pM++)    // add cst_z*M[z+1]
+      *pH += arg->cst_z * (*pM);
+    if (arg->periodic[Z])
+      arg->h[(i+1)*arg->Nz-1] += arg->cst_z*arg->m[i*arg->Nz];                                          // add cst_z*M[z=Nz] for periodic case
+
+    for (pH = arg->h + i*arg->Nz + 1, pM = arg->m + i*arg->Nz; pH<arg->h + (i+1)*arg->Nz; pH++, pM++)        // add cst_z*M[z+1]
+      *pH += arg->cst_z * (*pM);
+    if (arg->periodic[Z])
+      arg->h[i*arg->Nz] += arg->cst_z*arg->m[(i+1)*arg->Nz - 1];                                        // add cst_z*M[z=-1] for periodic case
+  }  
+
+  return;
+}
+
+void cpu_add_6NGBR_exchange_3D_geometry5_t(int id){
+
+  cpu_add_6NGBR_exchange_3D_geometry_arg *arg = (cpu_add_6NGBR_exchange_3D_geometry_arg *) func_arg;
+ 
+  float *pH, *pM;
+  int start, stop;
+
+  init_start_stop (&start, &stop, id, arg->Ntot);
+  for (pH = arg->h + start, pM = arg->m + start; pH < arg->h + stop; pH++, pM++)                              // add (cst_x + cst_y + cst_z) * M
+    *pH -= 2.0f*(arg->cst_x + arg->cst_y + arg->cst_z) * (*pM);
+  
   return;
 }
 
 void cpu_add_6NGBR_exchange_3D_geometry (float *m, float *h, int *size, int *periodic, float *cellSize){
 
-  float *pH, *pM;
+//   float *pH, *pM;
+//   
+//   int Nx= size[X];
+//   int Ny = size[Y];
+//   int Nz = size[Z];
+//   int Nyz = Ny*Nz;
+//   int Ntot = Nyz*Nx;
+
+//   float cst_x = 1.0f/cellSize[X]/cellSize[X];
+//   float cst_y = 1.0f/cellSize[Y]/cellSize[Y];
+//   float cst_z = 1.0f/cellSize[Z]/cellSize[Z];
+
+  cpu_add_6NGBR_exchange_3D_geometry_arg args;
+  args.m = m;
+  args.h = h;
+  args.cellSize = cellSize;
+  args.cst_x = 1.0f/cellSize[X]/cellSize[X];
+  args.cst_y = 1.0f/cellSize[Y]/cellSize[Y];
+  args.cst_z = 1.0f/cellSize[Z]/cellSize[Z];
+  args.periodic = periodic;
+  args.Nx = size[X];
+  args.Ny = size[Y];
+  args.Nz = size[Z];
+  args.Nyz = size[Y]*size[Z];
+  args.Ntot = size[X]*args.Nyz;
+
+  func_arg = (void *) (&args);
+
+  thread_Wrapper(cpu_add_6NGBR_exchange_3D_geometry1_t);
+  thread_Wrapper(cpu_add_6NGBR_exchange_3D_geometry2_t);
+  thread_Wrapper(cpu_add_6NGBR_exchange_3D_geometry3_t);
+  thread_Wrapper(cpu_add_6NGBR_exchange_3D_geometry4_t);
+  thread_Wrapper(cpu_add_6NGBR_exchange_3D_geometry5_t);
   
-  int Nx= size[X];
-  int Ny = size[Y];
-  int Nz = size[Z];
-  int Nyz = Ny*Nz;
-  int Ntot = Nyz*Nx;
-
-  float cst_x = 1.0f/cellSize[X]/cellSize[X];
-
-  for (pH = h, pM = m + Nyz; pH < h + Ntot - Nyz; pH++, pM++){    // add cst_x*M[x+1]
+/*  for (pH = h, pM = m + Nyz; pH < h + Ntot - Nyz; pH++, pM++){    // add cst_x*M[x+1]
     *pH += cst_x * (*pM);
   }
   if (periodic[X])
     for (pH = h + Ntot - Nyz, pM = m; pH < h + Ntot; pH++, pM++)  // add cst_x*M[x=Nx] for periodic case
       *pH += cst_x * (*pM);
+*/
+//   for (pH = h + Nyz, pM = m; pH < h + Ntot; pH++, pM++)           // add cst_x*M[x-1] 
+//     *pH += cst_x * (*pM);
+//   if (periodic[X])
+//     for (pH = h, pM = m + Ntot - Nyz; pH < h + Nyz; pH++, pM++)   // add cst_x*M[x=-1] for periodic case
+//       *pH += cst_x * (*pM);
 
-  for (pH = h + Nyz, pM = m; pH < h + Ntot; pH++, pM++)           // add cst_x*M[x-1] 
-    *pH += cst_x * (*pM);
-  if (periodic[X])
-    for (pH = h, pM = m + Ntot - Nyz; pH < h + Nyz; pH++, pM++)   // add cst_x*M[x=-1] for periodic case
-      *pH += cst_x * (*pM);
 
 
-  float cst_y = 1.0f/cellSize[Y]/cellSize[Y];
+//   for (int i=0; i<Nx; i++){
+//     for (pH = h + i*Nyz, pM = m + i*Nyz + Nz; pH<h + (i+1)*Nyz - Nz; pH++, pM++)    // add cst_y*M[y+1]
+//       *pH += cst_y * (*pM);
+//     if (periodic[Y])                                                        
+//       for (pH = h + (i+1)*Nyz - Nz, pM = m + i*Nyz; pH<h + (i+1)*Nyz; pH++, pM++)   // add cst_y*M[y=Ny] for periodic case
+//         *pH += cst_y * (*pM);
+// 
+//     for (pH = h + i*Nyz + Nz, pM = m + i*Nyz; pH<h + (i+1)*Nyz; pH++, pM++)         // add cst_y*M[y-1]
+//       *pH += cst_y * (*pM);
+//     if (periodic[Y])                                                        
+//       for (pH = h + i*Nyz, pM =  m + (i+1)*Nyz - Nz; pH<h + i*Nyz + Nz; pH++, pM++) // add cst_y*M[y=-1] for periodic case
+//         *pH += cst_y * (*pM);
+//   }
 
-  for (int i=0; i<Nx; i++){
-    for (pH = h + i*Nyz, pM = m + i*Nyz + Nz; pH<h + (i+1)*Nyz - Nz; pH++, pM++)    // add cst_y*M[y+1]
-      *pH += cst_y * (*pM);
-    if (periodic[Y])                                                        
-      for (pH = h + (i+1)*Nyz - Nz, pM = m + i*Nyz; pH<h + (i+1)*Nyz; pH++, pM++)   // add cst_y*M[y=Ny] for periodic case
-        *pH += cst_y * (*pM);
 
-    for (pH = h + i*Nyz + Nz, pM = m + i*Nyz; pH<h + (i+1)*Nyz; pH++, pM++)         // add cst_y*M[y-1]
-      *pH += cst_y * (*pM);
-    if (periodic[Y])                                                        
-      for (pH = h + i*Nyz, pM =  m + (i+1)*Nyz - Nz; pH<h + i*Nyz + Nz; pH++, pM++) // add cst_y*M[y=-1] for periodic case
-        *pH += cst_y * (*pM);
-  }
+//   for (int i=0; i<Nx*Ny; i++){
+//     for (pH = h + i*Nz, pM = m + i*Nz + 1; pH<h + (i+1)*Nz - 1; pH++, pM++)    // add cst_z*M[z+1]
+//       *pH += cst_z * (*pM);
+//     if (periodic[Z])
+//       h[(i+1)*Nz-1] += cst_z*m[i*Nz];                                          // add cst_z*M[z=Nz] for periodic case
+// 
+//     for (pH = h + i*Nz + 1, pM = m + i*Nz; pH<h + (i+1)*Nz; pH++, pM++)        // add cst_z*M[z+1]
+//       *pH += cst_z * (*pM);
+//     if (periodic[Z])
+//       h[i*Nz] += cst_z*m[(i+1)*Nz - 1];                                        // add cst_z*M[z=-1] for periodic case
+//   }  
 
-  float cst_z = 1.0f/cellSize[Z]/cellSize[Z];
-
-  for (int i=0; i<Nx*Ny; i++){
-    for (pH = h + i*Nz, pM = m + i*Nz + 1; pH<h + (i+1)*Nz - 1; pH++, pM++)    // add cst_z*M[z+1]
-      *pH += cst_z * (*pM);
-    if (periodic[Z])
-      h[(i+1)*Nz-1] += cst_z*m[i*Nz];                                          // add cst_z*M[z=Nz] for periodic case
-
-    for (pH = h + i*Nz + 1, pM = m + i*Nz; pH<h + (i+1)*Nz; pH++, pM++)        // add cst_z*M[z+1]
-      *pH += cst_z * (*pM);
-    if (periodic[Z])
-      h[i*Nz] += cst_z*m[(i+1)*Nz - 1];                                        // add cst_z*M[z=-1] for periodic case
-  }  
-
-  for (pH = h, pM = m; pH < h + Ntot; pH++, pM++)                              // add (cst_x + cst_y + cst_z) * M
-    *pH -= 2.0f*(cst_x + cst_y + cst_z) * (*pM);
+/*  for (pH = h, pM = m; pH < h + Ntot; pH++, pM++)                              // add (cst_x + cst_y + cst_z) * M
+    *pH -= 2.0f*(cst_x + cst_y + cst_z) * (*pM);*/
   
 
   return;
