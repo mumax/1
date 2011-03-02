@@ -103,10 +103,10 @@ void cpu_add_6NGBR_exchange_2D_geometry (float *m, float *h, int *size, int *per
   int Nz = size[Z];
   int Ntot = Ny*Nz;
  
-/*  float cst_y = 1.0f/cellSize[Y]/cellSize[Y];
-  float cst_z = 1.0f/cellSize[Z]/cellSize[Z];*/
-  float cst_y = 1.0f;
-  float cst_z = 1.0f;
+  float cst_y = 1.0f/cellSize[Y]/cellSize[Y];
+  float cst_z = 1.0f/cellSize[Z]/cellSize[Z];
+/*  float cst_y = 1.0f;
+  float cst_z = 1.0f;*/
   
   cpu_add_6NGBR_exchange_2D_geometry_arg args;
   args.m = m;
