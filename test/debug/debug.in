@@ -1,8 +1,8 @@
 
 kerneltype mumaxkern-cpu
-exchtype 26
-# exchinconv false
-# demag false
+exchtype 6
+exchinconv false
+demag false
 
 # material
 msat        800E3   
