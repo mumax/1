@@ -3,8 +3,8 @@
 
 desc info standard_problem_4
  kerneltype mumaxkern-gpu
- exchtype 6
- exchinconv false
+ exchtype 12
+# exchinconv false
 
 # material
 msat:       	800E3       # A/m
