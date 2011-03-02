@@ -9,20 +9,24 @@ package sim
 
 // This file implements functions for calculating the effective field.
 
+import (
+	. "mumax/common"
+)
+
 // Calulates the sum of the demag and exchange fields.
-func (s *Sim) calcHDemagExch(m, h *DevTensor){
+func (s *Sim) calcHDemagExch(m, h *DevTensor) {
 	if s.input.wantDemag {
 		s.Convolve(m, h)
 	} else {
 		ZeroTensor(h)
 	}
-	if !s.input.wantDemag || !s.exchInConv {
+	if !s.input.wantDemag || !s.exchInConv || IsInf(s.cellSize[X]) {
 		s.AddExch(m, h)
 	}
 }
 
 // Adds the "local" fields to H (zeeman, anisotropy)
-func (s *Sim) addLocalFields(m, h *DevTensor){
+func (s *Sim) addLocalFields(m, h *DevTensor) {
 	if s.appliedField != nil {
 		s.hextSI = s.appliedField.GetAppliedField(s.time * float64(s.UnitTime()))
 	} else {
