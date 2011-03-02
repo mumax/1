@@ -68,11 +68,19 @@ func (s Set) ToArray() []float32 {
 	return array
 }
 
+
+func Matrix(i_colname, j_colname, data_colname string, octave_format bool) {
+	matrix(i_colname, j_colname, data_colname, false)
+}
+
 // Assuming columns i,j contain matrix indices,
 // coutput column data in a correspondig 2D grid.
 // Missing values become 0.
-func Matrix(i_col, j_col, data_col int) {
-
+func matrix(i_colname, j_colname, data_colname string, octave_format bool) {
+	i_col := table.GetColumnIndex(i_colname)
+	j_col := table.GetColumnIndex(j_colname)
+	data_col := table.GetColumnIndex(data_colname)
+	
 	// (1) Construct a sorted set of unique i,j indices (floats).
 	// This is the "meshdom", in matlab terms.
 	I := table.Column[i_col]
@@ -106,6 +114,7 @@ func Matrix(i_col, j_col, data_col int) {
 	// to the corresponding i,j position of the matrix. (j, data on the same line as i)
 	// Missing pairs keep 0. as data.
 	D := table.Column[data_col]
+		
 	for i := range table.Column[i_col] {
 		matrix[table.Column[i_col][i]][table.Column[j_col][i]] = D[i]
 	}
