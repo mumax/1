@@ -605,10 +605,10 @@ void gpu_add_12NGBR_exchange_3D_geometry (float *m, float *h, int *size, int *pe
 
 //   float cst1_x = 1.0f;
 //   float cst2_x = 1.0f;
-//   float cst1_y = 1.0f;
-//   float cst2_y = 1.0f;
-//   float cst1_z = 1.0f;
-//   float cst2_z = 1.0f;
+//   float cst1_y = 0.0f;
+//   float cst2_y = 0.0f;
+//   float cst1_z = 0.0f;
+//   float cst2_z = 0.0f;
 //   float cst_xyz = 0.0f;
 
   int bx = 1 + (size[Z]-1)/EXCH_BLOCK_X;    // a grid has blockdim.z=1, so we use the x-component
