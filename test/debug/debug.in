@@ -11,11 +11,11 @@ alpha       0.02
 
 # geometry 
 partsize    500E-9  125E-9  3E-9
-gridsize    256 64  2   
+gridsize    64 32 4   
 periodic    0 0 0 
 
 # initial magnetization
 uniform     1 1 1
 
 # run
-saveh cpu.omf text
+saveh gpu.omf text

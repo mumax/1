@@ -12,7 +12,7 @@ aexch:      	1.3E-11     # J/m
 alpha:      	0.02
 
 # geometry 
-gridsize:       256 64 2
+gridsize:       256 64 4
 partsize:   	500e-9	125e-9 3e-9
 
 # initial magnetization
