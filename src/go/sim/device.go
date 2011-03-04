@@ -182,6 +182,8 @@ type Device interface {
 	fft(plan uintptr, in, out uintptr, direction int)
 
 	freeFFTPlan(plan uintptr)
+	
+	gaussianNoise(data uintptr, mean, stddev float32, N int)
 
 	//______________________________________________________________________________ already safe
 

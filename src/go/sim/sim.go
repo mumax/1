@@ -76,6 +76,7 @@ type Input struct {
 	kernelType     string     // Determines which kernel subprogram to use.
 	wantDemag      bool       // DEBUG: false disables the convolution and thus the demag field.
 	tabulate       []bool     // What output to tabulate, see simoutput.go
+	temp		   float32    // Temperature in K
 }
 
 
@@ -154,6 +155,7 @@ type Sim struct {
 	LastrunSimtimePerSecond float64
 
 	anisKInt []float32 // Anisotropy constant(s), as many as needed, internal units
+	tempNoise	*DevTensor // Buffer for thermal noise, one component.
 }
 
 

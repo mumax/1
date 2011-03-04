@@ -64,6 +64,7 @@ GOFILES=\
 	simdebug.go\
 	simhysteresis.go\
 	corepos.go\
+	temperature.go\
 
 CGO_CFLAGS+=-I../../../lib/fftw/include/ -I/usr/local/cuda/include/
 
