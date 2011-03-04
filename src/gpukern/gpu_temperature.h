@@ -22,6 +22,7 @@ extern "C" {
 #endif
 
 
+void gpu_gaussian_noise(float* devData, float mean, float stddev, int n);
 
 #ifdef __cplusplus
 }
