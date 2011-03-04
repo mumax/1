@@ -12,3 +12,17 @@ package sim
 import (
 )
 
+
+// Accoding to Brown:
+// H = η sqrt( 2 α kB T / γ μ0 Ms V dt )
+func (s *Sim) addThermalNoise(h *DevTensor){
+	s.assureTempInitiated()
+	
+}
+
+
+func (s *Sim) assureTempInitiated(){
+	if (s.tempNoise == nil){
+		s.tempNoise = NewTensor(s.Backend, s.size3D)
+	}	
+}
