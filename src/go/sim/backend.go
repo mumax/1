@@ -102,7 +102,7 @@ func (dev *Backend) MAdd2(a, b, c *DevTensor) {
 	dev.madd2(a.data, b.data, c.data, tensor.Prod(a.Size()))
 }
 
-func(dev *Backend) ScaledDotProduct(result, a, b *DevTensor, scale float32){
+func (dev *Backend) ScaledDotProduct(result, a, b *DevTensor, scale float32) {
 	assert(a.size[0] == 3)
 	assert(tensor.EqualSize(a.size, b.size))
 	assert(tensor.EqualSize(a.size[1:], result.size))
@@ -137,7 +137,7 @@ func (dev *Backend) AddLocalFields(m, h *DevTensor, hext []float32, anisType int
 	dev.addLocalFields(m.data, h.data, hext, anisType, anisK, anisAxes, m.length/3)
 }
 
-func (dev *Backend) GaussianNoise(target *DevTensor, stddev float32){
+func (dev *Backend) GaussianNoise(target *DevTensor, stddev float32) {
 	dev.gaussianNoise(target.data, 0., stddev, tensor.Prod(target.size))
 }
 

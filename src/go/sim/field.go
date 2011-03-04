@@ -10,7 +10,7 @@ package sim
 // This file implements functions for calculating the effective field.
 
 // Calulates the sum of the demag and exchange fields.
-func (s *Sim) calcHDemagExch(m, h *DevTensor){
+func (s *Sim) calcHDemagExch(m, h *DevTensor) {
 	if s.input.wantDemag {
 		s.Convolve(m, h)
 	} else {
@@ -22,7 +22,7 @@ func (s *Sim) calcHDemagExch(m, h *DevTensor){
 }
 
 // Adds the "local" fields to H (zeeman, anisotropy)
-func (s *Sim) addLocalFields(m, h *DevTensor){
+func (s *Sim) addLocalFields(m, h *DevTensor) {
 	if s.appliedField != nil {
 		s.hextSI = s.appliedField.GetAppliedField(s.time * float64(s.UnitTime()))
 	} else {
@@ -46,8 +46,8 @@ func (s *Sim) calcHeff(m, h *DevTensor) {
 
 	// (2) Add the externally applied field
 	s.addLocalFields(m, h)
-	
-	if s.input.temp != 0{
+
+	if s.input.temp != 0 {
 		s.addThermalField(h)
 	}
 

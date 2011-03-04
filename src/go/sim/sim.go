@@ -76,7 +76,7 @@ type Input struct {
 	kernelType     string     // Determines which kernel subprogram to use.
 	wantDemag      bool       // DEBUG: false disables the convolution and thus the demag field.
 	tabulate       []bool     // What output to tabulate, see simoutput.go
-	temp		   float32    // Temperature in K
+	temp           float32    // Temperature in K
 }
 
 
@@ -102,10 +102,10 @@ type Sim struct {
 	hDev           *DevTensor // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
 	mLocal, hLocal *tensor.T4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
 	//mLocalLock     sync.RWMutex
-	mUpToDate bool // Is mLocal up to date with mDev? If not, a copy from the device is needed before storing output.
-	phiDev		*DevTensor // energy density. Use getEDens(), assures this pointer is initiated.
+	mUpToDate bool       // Is mLocal up to date with mDev? If not, a copy from the device is needed before storing output.
+	phiDev    *DevTensor // energy density. Use getEDens(), assures this pointer is initiated.
 	phiLocal  *tensor.T3 // local energy density.
-	sumPhi	Reductor
+	sumPhi    Reductor
 
 	Conv              // Convolution plan for the magnetostatic field
 	exchInConv bool   // Exchange included in convolution?
@@ -114,10 +114,10 @@ type Sim struct {
 	Material // Stores material parameters and manages the internal units
 	Mesh     // Stores the size of the simulation grid
 
-	appliedField AppliedField            // returns the externally applied field in function of time
-	appliedCurrDens AppliedField            // returns the externally applied current density in function of time
-	hextSI       [3]float32 // stores the externally applied field returned by AppliedField, in SI UNITS
-	hextInt      []float32  // stores the externally applied field in internal units
+	appliedField    AppliedField // returns the externally applied field in function of time
+	appliedCurrDens AppliedField // returns the externally applied current density in function of time
+	hextSI          [3]float32   // stores the externally applied field returned by AppliedField, in SI UNITS
+	hextInt         []float32    // stores the externally applied field in internal units
 
 	//relaxer   *Relax
 	Solver         // Does the time stepping, can be euler, heun, ...
@@ -157,8 +157,8 @@ type Sim struct {
 	LastrunStepsPerSecond   float64
 	LastrunSimtimePerSecond float64
 
-	anisKInt []float32 // Anisotropy constant(s), as many as needed, internal units
-	tempNoise	*DevTensor // Buffer for thermal noise, one component.
+	anisKInt  []float32  // Anisotropy constant(s), as many as needed, internal units
+	tempNoise *DevTensor // Buffer for thermal noise, one component.
 }
 
 

@@ -18,7 +18,7 @@ import (
 
 // Adds the stored thermal noise to h
 // it must be updated first with updateTempNoise()
-func (s *Sim) addThermalField(h *DevTensor){
+func (s *Sim) addThermalField(h *DevTensor) {
 	s.Add(h, s.tempNoise)
 }
 
@@ -26,23 +26,23 @@ func (s *Sim) addThermalField(h *DevTensor){
 // Updates the stored thermal noise. To be called at the first stage of each time step
 // Accoding to Brown:
 // H = η sqrt( 2 α kB T / γ μ0 Ms V dt )
-func (s *Sim) updateTempNoise(dt float32){
+func (s *Sim) updateTempNoise(dt float32) {
 	s.assureTempInitiated()
-	dt *= s.UnitTime() 
-	V := s.input.cellSize[X] *s.input.cellSize[Y] *  s.input.cellSize[Z]
-	stddev := Sqrt32( (2 * s.alpha * kBSI * s.input.temp) / (s.gamma0 * s.mu0 * s.mSat * V * dt) )	/  s.mSat
+	dt *= s.UnitTime()
+	V := s.input.cellSize[X] * s.input.cellSize[Y] * s.input.cellSize[Z]
+	stddev := Sqrt32((2*s.alpha*kBSI*s.input.temp)/(s.gamma0*s.mu0*s.mSat*V*dt)) / s.mSat
 	//fmt.Fprintln(os.Stderr, "stddev: ", stddev)
 	s.GaussianNoise(s.tempNoise, stddev)
 }
 
-func (s *Sim) assureTempInitiated(){
-	if (s.tempNoise == nil){
+func (s *Sim) assureTempInitiated() {
+	if s.tempNoise == nil {
 		s.tempNoise = NewTensor(s.Backend, s.size4D[:])
 	}
 }
 
 
-func (s *Sim) Temperature(T float32){
+func (s *Sim) Temperature(T float32) {
 	s.input.temp = T
 	s.Println("Temperature = ", T, " K")
 }

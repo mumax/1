@@ -292,7 +292,9 @@ func (rk *RK) step() {
 	//	}
 
 	// The thermal noise is assumed constant during the step.
-	if rk.input.temp != 0 { rk.updateTempNoise(rk.dt) }
+	if rk.input.temp != 0 {
+		rk.updateTempNoise(rk.dt)
+	}
 
 	TensorCopyOn(m, rk.mbackup)
 	goodstep := false
@@ -400,14 +402,14 @@ func (rk *RK) step() {
 			}
 
 			rk.dt = rk.dt * factor
-				// Do not make the time step smaller than minDt
-				if rk.dt*rk.UnitTime() < rk.input.minDt {
-					rk.dt = rk.input.minDt / rk.UnitTime()
-				}
-				// maxDt has priority over minDt (better safe than sorry)
-				if rk.input.maxDt != 0. && rk.dt*rk.UnitTime() > rk.input.maxDt {
-					rk.dt = rk.input.maxDt / rk.UnitTime()
-				}
+			// Do not make the time step smaller than minDt
+			if rk.dt*rk.UnitTime() < rk.input.minDt {
+				rk.dt = rk.input.minDt / rk.UnitTime()
+			}
+			// maxDt has priority over minDt (better safe than sorry)
+			if rk.input.maxDt != 0. && rk.dt*rk.UnitTime() > rk.input.maxDt {
+				rk.dt = rk.input.maxDt / rk.UnitTime()
+			}
 			checkdt(rk.dt)
 			//undo bad steps
 			if error > 2*rk.input.maxError {
