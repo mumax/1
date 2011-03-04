@@ -10,6 +10,9 @@ package sim
 // This file implements thermal fluctuations.
 
 import (
+	. "mumax/common"
+	"os"
+	"fmt"
 )
 
 
@@ -17,12 +20,25 @@ import (
 // H = η sqrt( 2 α kB T / γ μ0 Ms V dt )
 func (s *Sim) addThermalNoise(h *DevTensor){
 	s.assureTempInitiated()
-	
+	dt := s.dt * s.UnitTime() // TODO: check that this dt is up to date when adapted by solver...
+	V := s.input.cellSize[X] *s.input.cellSize[Y] *  s.input.cellSize[Z]
+	stddev := Sqrt32( (2 * s.alpha * kBSI * s.input.temp) / (s.gamma0 * s.mu0 * s.mSat * V * dt) )	/  s.UnitField()
+	fmt.Fprintln(os.Stderr, "stddev: ", stddev)
+	for i:=0; i<3; i++{
+		s.GaussianNoise(s.tempNoise, stddev)
+		s.Add( h.comp[i], s.tempNoise)
+	}
 }
 
 
 func (s *Sim) assureTempInitiated(){
 	if (s.tempNoise == nil){
 		s.tempNoise = NewTensor(s.Backend, s.size3D)
-	}	
+	}
+}
+
+
+func (s *Sim) Temperature(T float32){
+	s.input.temp = T
+	s.Println("Temperature = ", T, " K")
 }

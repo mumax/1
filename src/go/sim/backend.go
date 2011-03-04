@@ -78,20 +78,6 @@ func (dev *Backend) copyUnpad(source, dest uintptr, sourceSize, destSize []int) 
 	dev.copyPadded(source, dest, sourceSize, destSize, CPY_UNPAD)
 }
 
-// // Gets one float32 from a Device array.
-// // Slow, for debug only
-// func (dev *Backend) arrayGet(array uintptr, index int) float32 {
-// 	var f float32
-// 	dev.memcpyFrom(dev.arrayOffset(array, index), &f, 1)
-// 	return f
-// }
-// 
-// // Sets one float32 on a Device array.
-// // Slow, for debug only
-// func (dev *Backend) arraySet(array uintptr, index int, value float32) {
-// 	dev.memcpyTo(&value, dev.arrayOffset(array, index), 1)
-// }
-
 
 // a[i] += b[i]
 func (dev *Backend) Add(a, b *DevTensor) {
@@ -135,11 +121,6 @@ func (dev *Backend) AddConstant(a *DevTensor, cnst float32) {
 	dev.addConstant(a.data, cnst, tensor.Prod(a.Size()))
 }
 
-// func (dev *Backend) Normalize(m *DevTensor) {
-// 	assert(len(m.size) == 4)
-// 	N := m.size[1] * m.size[2] * m.size[3]
-// 	dev.normalize(m.data, N)
-// }
 
 func (dev *Backend) AddLocalFields(m, h *DevTensor, hext []float32, anisType int, anisK, anisAxes []float32) {
 	assert(m.length == h.length)
@@ -148,6 +129,9 @@ func (dev *Backend) AddLocalFields(m, h *DevTensor, hext []float32, anisType int
 	dev.addLocalFields(m.data, h.data, hext, anisType, anisK, anisAxes, m.length/3)
 }
 
+func (dev *Backend) GaussianNoise(target *DevTensor, stddev float32){
+	dev.gaussianNoise(target.data, 0., stddev, tensor.Prod(target.size))
+}
 
 func (dev *Backend) SemianalStep(min, mout, h *DevTensor, dt, alpha float32) {
 	assert(min.length == h.length)

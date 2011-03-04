@@ -23,6 +23,9 @@ type Material struct {
 }
 
 
+// Boltzmann's constant in J/K
+const kBSI = 1.380650424E-23	// J/K
+
 // func NewMaterial() *Material {
 // 	mat := new(Material)
 // 	mat.InitMaterial()
