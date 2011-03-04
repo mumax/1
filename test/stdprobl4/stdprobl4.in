@@ -3,8 +3,8 @@
 
 desc info standard_problem_4
 kerneltype mumaxkern-cpu
-# exchtype 12
-# exchinconv false
+exchtype 12
+exchinconv false
 
 # material
 msat       	800E3   
@@ -19,7 +19,7 @@ maxerror 1e-5
 #maxdm 0.25
 
 # geometry 
-gridsize       	256 	64 	1    
+gridsize       	128 32	1    
 partsize   	500E-9  125E-9  3E-9
 demagaccuracy	16
 

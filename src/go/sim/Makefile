@@ -24,6 +24,8 @@ GOFILES=\
 	kernel.go\
 	relax.go\
 	demag.go\
+	field.go\
+	energy.go\
 	kernelpipe.go\
 	exchange.go\
 	material.go\

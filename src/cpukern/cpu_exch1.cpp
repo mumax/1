@@ -71,7 +71,7 @@ void cpu_add_6NGBR_exchange_2D_geometry (float *m, float *h, int *size, int *per
   for (int i=0; i<Ny; i++){
     for (pH = h + i*Nz, pM = m + i*Nz + 1; pH<h + (i+1)*Nz-1; pH++, pM++)   // add cst_z*M[z+1]
       *pH += cst_z * (*pM);
-    if (periodic[Z])                                                      // add cst_z*M[z=Nz] for periodic case
+    if (periodic[Z])                                                        // add cst_z*M[z=Nz] for periodic case
       h[(i+1)*Nz-1] += cst_z*m[i*Nz];
 
     for (pH = h + i*Nz + 1, pM = m + i*Nz; pH<h + (i+1)*Nz; pH++, pM++)     // add cst_z*M[z-1]
