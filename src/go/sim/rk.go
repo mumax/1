@@ -286,11 +286,6 @@ func (rk *RK) step() {
 	m1 := rk.m0
 	a := rk.a
 
-	//	if rk.dt == 0. {
-	//		rk.dt = 1e-5 // program units, should really be small enough
-	//		rk.Println("Using default initial dt: ", rk.dt)
-	//	}
-
 	// The thermal noise is assumed constant during the step.
 	if rk.input.temp != 0 {
 		rk.updateTempNoise(rk.dt)
@@ -402,14 +397,7 @@ func (rk *RK) step() {
 			}
 
 			rk.dt = rk.dt * factor
-			// Do not make the time step smaller than minDt
-			if rk.dt*rk.UnitTime() < rk.input.minDt {
-				rk.dt = rk.input.minDt / rk.UnitTime()
-			}
-			// maxDt has priority over minDt (better safe than sorry)
-			if rk.input.maxDt != 0. && rk.dt*rk.UnitTime() > rk.input.maxDt {
-				rk.dt = rk.input.maxDt / rk.UnitTime()
-			}
+
 			checkdt(rk.dt)
 			//undo bad steps
 			if error > 2*rk.input.maxError {
@@ -418,6 +406,14 @@ func (rk *RK) step() {
 				//fmt.Println("bad step")
 			} else {
 				goodstep = true
+				// Do not make the time step smaller than minDt
+				if rk.dt*rk.UnitTime() < rk.input.minDt {
+					rk.dt = rk.input.minDt / rk.UnitTime()
+				}
+				// maxDt has priority over minDt (better safe than sorry)
+				if rk.input.maxDt != 0. && rk.dt*rk.UnitTime() > rk.input.maxDt {
+					rk.dt = rk.input.maxDt / rk.UnitTime()
+				}
 			}
 		}
 	}
