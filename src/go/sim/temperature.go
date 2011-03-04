@@ -18,7 +18,7 @@ import (
 
 // Accoding to Brown:
 // H = η sqrt( 2 α kB T / γ μ0 Ms V dt )
-func (s *Sim) addThermalNoise(h *DevTensor){
+func (s *Sim) addThermalField(h *DevTensor){
 	s.assureTempInitiated()
 	dt := s.dt * s.UnitTime() // TODO: check that this dt is up to date when adapted by solver...
 	V := s.input.cellSize[X] *s.input.cellSize[Y] *  s.input.cellSize[Z]
