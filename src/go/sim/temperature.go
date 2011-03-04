@@ -43,6 +43,13 @@ func (s *Sim) assureTempInitiated() {
 
 
 func (s *Sim) Temperature(T float32) {
+	if !s.IsValid() { // not yet initiated, set rk12 behind the screens.
+		s.input.solvertype = "rk12"
+	} else {
+		if s.input.solvertype != "rk12" {
+			panic(InputErr("Finite temperature is only compatible with the RK12 solver type"))
+		}
+	}
 	s.input.temp = T
 	s.Println("Temperature = ", T, " K")
 }
