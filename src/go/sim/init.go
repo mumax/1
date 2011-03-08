@@ -128,7 +128,7 @@ func (s *Sim) initGridSize() {
 		panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
 	}
 	for i := range s.size3D {
-		if !IsGoodGridSize(s.size3D[i], i) {
+		if !IsGoodGridSize(i, s.size3D[i]) {
 			panic(InputErr("Unsuited grid size: " + fmt.Sprint(s.size3D[i]) + " (X,Y size must be 16*2^n*{1,2,5,7}), Z must be 2^n*{1,2,5,7}"))
 		}
 	}

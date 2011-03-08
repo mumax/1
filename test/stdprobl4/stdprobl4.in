@@ -19,7 +19,7 @@ mindt 10e-15
 #maxdm 0.25
 
 # geometry 
-gridsize       	136 	40 	1    
+gridsize       	128 	32 	1    
 partsize   	500E-9  125E-9  3E-9
 demagaccuracy	16
 
