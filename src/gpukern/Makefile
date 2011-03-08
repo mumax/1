@@ -22,7 +22,7 @@ OFILES=\
 	gpu_spintorque.o\
 	gpu_anis.o\
 	gpu_local_contr2.o\
-	gpu_exch1.o\
+	gpu_exch.o\
 	gpu_temperature.o\
 
 all: libgpukern.so
