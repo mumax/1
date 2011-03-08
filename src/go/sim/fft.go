@@ -89,9 +89,9 @@ func (fft *FFT) Inverse(in, out *DevTensor) {
 }
 
 
-func (fft *FFT) InverseInplace(data *DevTensor) {
-	fft.Inverse(data, data)
-}
+//func (fft *FFT) InverseInplace(data *DevTensor) {
+//	fft.Inverse(data, data)
+//}
 
 
 /**
