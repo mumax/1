@@ -85,6 +85,10 @@ def spinpolarization(p):
 def xi(xi):
 	send1("xi", xi)
 
+# Sets the temperature in Kelvin
+def temperature(T):
+	send1("temperature", T)
+
 
 # Geometry
 

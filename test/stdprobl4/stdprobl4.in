@@ -2,9 +2,6 @@
 
 
 desc info standard_problem_4
-kerneltype mumaxkern-go
-# exchtype 12
-# exchinconv false
 
 # material
 msat       	800E3   
@@ -21,7 +18,6 @@ mindt 10e-15
 # geometry 
 gridsize       	128 	32 	1    
 partsize   	500E-9  125E-9  3E-9
-demagaccuracy	16
 
 # initial magnetization
 loadm    	s-state.omf

@@ -87,7 +87,7 @@ func matrix(i_colname, j_colname, data_colname string, octave_format bool) {
 	i_col := table.GetColumnIndex(i_colname)
 	j_col := table.GetColumnIndex(j_colname)
 	data_col := table.GetColumnIndex(data_colname)
-	
+
 	// (1) Construct a sorted set of unique i,j indices (floats).
 	// This is the "meshdom", in matlab terms.
 	I := table.Column[i_col]
@@ -104,26 +104,26 @@ func matrix(i_colname, j_colname, data_colname string, octave_format bool) {
 	}
 	J = setJ.ToArray()
 
-	if octave_format{
-		fmt.Print("x=[")	
-		for i := range I{
-			if i != 0{
+	if octave_format {
+		fmt.Print("x=[")
+		for i := range I {
+			if i != 0 {
 				fmt.Print(", ")
 			}
 			fmt.Print(I[i])
 		}
 		fmt.Println("];")
 
-		fmt.Print("y=[")	
-		for i := range J{
-			if i != 0{
+		fmt.Print("y=[")
+		for i := range J {
+			if i != 0 {
 				fmt.Print(", ")
 			}
 			fmt.Print(J[i])
 		}
 		fmt.Println("];")
 	}
-	
+
 	// (2) Make the "outer product" of the two index sets,
 	// spanning a matrix that can be index with each possible i,j pair
 	// (even those not present in the input, their data will be 0.)
@@ -146,14 +146,22 @@ func matrix(i_colname, j_colname, data_colname string, octave_format bool) {
 	}
 
 	// (4) Print the matrix
-	if octave_format{ fmt.Print("data=reshape([") }
-	for ind_i, i := range I{
-		for ind_j,j := range J{
-			fmt.Print(matrix[i][j], "\t")
-			if octave_format && !(ind_i == len(I)-1 && ind_j == len(J)-1) { fmt.Print(",") }
-		}
-		if !octave_format  { fmt.Println() }
+	if octave_format {
+		fmt.Print("data=reshape([")
 	}
-	if octave_format{ fmt.Println("], ", len(J), ", ", len(I), ");") } 
-	haveOutput=true
+	for ind_i, i := range I {
+		for ind_j, j := range J {
+			fmt.Print(matrix[i][j], "\t")
+			if octave_format && !(ind_i == len(I)-1 && ind_j == len(J)-1) {
+				fmt.Print(",")
+			}
+		}
+		if !octave_format {
+			fmt.Println()
+		}
+	}
+	if octave_format {
+		fmt.Println("], ", len(J), ", ", len(I), ");")
+	}
+	haveOutput = true
 }
