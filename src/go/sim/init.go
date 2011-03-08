@@ -264,6 +264,8 @@ func (s *Sim) initConv() {
 		Println("Exchange separate from convolution.")
 	}
 	s.Conv = *NewConv(s.Backend, s.size[0:], demag)
+	// DEBUG: FFT self-test
+	//s.Conv.FFT.Test(tensor.ToT3(tensor.Component(s.mLocal, 0)), tensor.ToT3(tensor.Component(s.hLocal,0)), s.mDev, s.Conv.buffer[1])
 }
 
 
