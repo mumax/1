@@ -210,7 +210,7 @@ def applyrf(what, bx, by, bz, freq):
 
 # Apply a pulsed field/current
 def applypulse(what, bx, by, bz, risetime):
-	send("applyrf", [what, bx, by, bz, risetime])
+	send("applypulse", [what, bx, by, bz, risetime])
 
 # Apply a sawtooth field/current
 def applysawtooth(what, bx, by, bz, freq):
