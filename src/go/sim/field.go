@@ -9,6 +9,10 @@ package sim
 
 // This file implements functions for calculating the effective field.
 
+import (
+	. "mumax/common"
+)
+
 // Calulates the sum of the demag and exchange fields.
 func (s *Sim) calcHDemagExch(m, h *DevTensor) {
 	if s.input.wantDemag {
@@ -16,7 +20,7 @@ func (s *Sim) calcHDemagExch(m, h *DevTensor) {
 	} else {
 		ZeroTensor(h)
 	}
-	if !s.input.wantDemag || !s.exchInConv {
+	if !s.input.wantDemag || !s.exchInConv || IsInf(s.cellSize[X]) {
 		s.AddExch(m, h)
 	}
 }

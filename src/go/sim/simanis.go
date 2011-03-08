@@ -36,6 +36,29 @@ func (s *Sim) AnisUniaxial(uz, uy, ux float32) {
 	s.input.anisAxes = []float32{ux, uy, uz}
 }
 
+// Sets a cubic anisotropy
+// K1 still needs to be set separately
+// ux,uy,uz is the anisotropy direction,
+// it does not need to be normalized
+func (s *Sim) AnisCubic(u1z, u1y, u1x float32, u2z, u2y, u2x float32) {
+	s.input.anisType = ANIS_CUBIC
+
+	norm1 := sqrt32(u1x*u1x + u1y*u1y + u1z*u1z)
+	norm2 := sqrt32(u2x*u2x + u2y*u2y + u2z*u2z)
+	if norm1 == 0. || norm2 == 0. {
+		panic(InputErr("Anisotropy axis should not be 0"))
+	}
+	u1x /= norm1
+	u1y /= norm1
+	u1z /= norm1
+
+	u2x /= norm1
+	u2y /= norm1
+	u2z /= norm1
+
+	s.input.anisAxes = []float32{u1x, u1y, u1z, u2x, u2y, u2z}
+}
+
 const (
 	ANIS_NONE     = 0
 	ANIS_UNIAXIAL = 1

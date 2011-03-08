@@ -40,8 +40,6 @@ func (s *Sim) addEDensLocal(m, h, phi *DevTensor) {
 	panic("TODO")
 }
 
-
-// Calculates the total energy in internal units.
 func (s *Sim) calcEnergy(m, h *DevTensor) float32 {
 	return s.calcEDemagExch(m, h) // TODO: add other contributions
 }
