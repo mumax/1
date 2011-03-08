@@ -405,7 +405,6 @@ void gpu_copy_to_pad2(float* source, float* dest, int *unpad_size, int *pad_size
   if ( pad_size[0]!=unpad_size[0] || pad_size[1]!=unpad_size[1])
     _gpu_copy_pad2<<<gridSize, blockSize>>>(S0, source, dest, S1, S2, S1, pad_size[2]-2);      // for out of place forward FFTs in z-direction, contiguous data arrays
   else{
-    fprintf(stderr, "hallo\n");
     _gpu_copy_pad2<<<gridSize, blockSize>>>(S0, source, dest, S1, S2, S1, pad_size[2]);        // for in place forward FFTs in z-direction, contiguous data arrays
   }
   gpu_sync();
