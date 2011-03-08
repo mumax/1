@@ -9,7 +9,7 @@
  */
 
 /**
- * @author Ben
+ * @author Ben Van de Wiele
  */
 #include "../macros.h"
 #include "gpu_transpose2.h"
@@ -177,12 +177,6 @@ __syncthreads();
 
 __global__ void _gpu_yz_transpose_fw_copy(float *data1, float *data2, int N2, int N1x2){
 
-//   int j = blockIdx.y;
-//   int k = threadIdx.x;
-
-  ///@todo check timing with x<->y
-/*  int j = blockIdx.x * blockDim.x + threadIdx.x;
-  int k = blockIdx.y * blockDim.y + threadIdx.y;*/
   int k = blockIdx.x * blockDim.x + threadIdx.x;
   int j = blockIdx.y * blockDim.y + threadIdx.y;
   
@@ -192,7 +186,6 @@ __global__ void _gpu_yz_transpose_fw_copy(float *data1, float *data2, int N2, in
 
   return;
 }
-
 
 void gpu_transpose_complex_in_plane_fw(float *data, int N1, int N2){
 
@@ -258,7 +251,6 @@ __global__ void _gpu_transpose_complex_in_plane_inv(complex* input, complex* out
 
   return;
 }
-
 
 __global__ void _gpu_yz_transpose_inv_copy(float *data1, float *data2, int N1, int N2x2){
 

@@ -9,7 +9,7 @@
  */
 
 /**
- * @author Ben
+ * @author Ben Van de Wiele
  */
 #include <cufft.h>
 #include <cufft.h>

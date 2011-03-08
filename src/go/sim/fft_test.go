@@ -17,6 +17,7 @@ var backend = GPU
 
 var fft_test_sizes [][]int = [][]int{
 	{1, 8, 8},
+  {1, 40, 40},
 	{8, 8, 8},
 	{2, 4, 8},
 	{1, 32, 64},

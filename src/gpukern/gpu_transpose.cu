@@ -9,7 +9,7 @@
  */
 
 /**
- * @author Arne
+ * @author Arne Vansteenkiste
  */
 #include "gpu_transpose.h"
 #include "gpu_safe.h"
