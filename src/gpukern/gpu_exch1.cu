@@ -492,8 +492,6 @@ __global__ void _gpu_add_12NGBR_exchange_3D_geometry(float *m, float *h, int Nx,
     if (active_in){ 
       m_sh[ind - I_OFF2] = m[indg_in + (Nx-2)*Nyz];
       m_sh[ind         ] = m[indg_in + (Nx-1)*Nyz];
-/*      m_sh[ind - I_OFF2] = indg_in + (Nx-2)*Nyz;
-      m_sh[ind         ] = indg_in + (Nx-1)*Nyz;*/
     }
     if (halo){
       m_sh[ind_h - I_OFF2] = m[indg_h + (Nx-2)*Nyz];
@@ -504,16 +502,12 @@ __global__ void _gpu_add_12NGBR_exchange_3D_geometry(float *m, float *h, int Nx,
 
 // read first and second yz plane of array ---------------------------------------------
   if (active_in){
-/*    m_sh[ind +   I_OFF2] = indg_in      ;
-    m_sh[ind + 2*I_OFF2] = indg_in + Nyz;*/
     m_sh[ind +   I_OFF2] = m[indg_in      ];
     m_sh[ind + 2*I_OFF2] = m[indg_in + Nyz];
   }
   if (halo){
     m_sh[ind_h +   I_OFF2] = m[indg_h     ];
     m_sh[ind_h + 2*I_OFF2] = m[indg_h + Nyz];
-/*    m_sh[ind_h +   I_OFF2] = indg_h     ;
-    m_sh[ind_h + 2*I_OFF2] = indg_h + Nyz;*/
   }
 // -------------------------------------------------------------------------------------
 
@@ -547,10 +541,7 @@ __global__ void _gpu_add_12NGBR_exchange_3D_geometry(float *m, float *h, int Nx,
       m_sh[ind_h           ] = m_sh[ind_h +   I_OFF2];
       m_sh[ind_h +   I_OFF2] = m_sh[ind_h + 2*I_OFF2];
 
-//       indg_h = indg_h + Nyz;
       if (i<Nx-2)
-//        m_sh[ind_h + 2*I_OFF2] = 0.0f;
-//         m_sh[ind_h + 2*I_OFF2] = indg_h + 2*Nyz;
        m_sh[ind_h + 2*I_OFF2] = m[indg_h + 2*Nyz];
       else if (periodic_X!=0)
         m_sh[ind_h + 2*I_OFF2] = m[indg_h - (Nx-2)*Nyz];
@@ -564,38 +555,19 @@ __global__ void _gpu_add_12NGBR_exchange_3D_geometry(float *m, float *h, int Nx,
     
     if (active_out){
       result = cst_xyz * m_sh[ind];
-
       result += cst2_x*m_sh[ind - 2*I_OFF2];
       result += cst1_x*m_sh[ind - I_OFF2];
       result += cst1_x*m_sh[ind + I_OFF2];
       result += cst2_x*m_sh[ind + 2*I_OFF2];
-
       result += cst2_y*m_sh[ind - 2*J_OFF2];
       result += cst1_y*m_sh[ind - J_OFF2];
       result += cst1_y*m_sh[ind + J_OFF2];
       result += cst2_y*m_sh[ind + 2*J_OFF2];
-
       result += cst2_z*m_sh[ind - 2];
       result += cst1_z*m_sh[ind - 1];
       result += cst1_z*m_sh[ind + 1];
       result += cst2_z*m_sh[ind + 2];
       *hptr += result;
-
-//     result =  m_sh[ind];
-//      result =  0.0f;
-//     result += m_sh[ind - 2*I_OFF2];
-//     result += m_sh[ind - I_OFF2];
-//     result += m_sh[ind + I_OFF2];
-//     result += m_sh[ind + 2*I_OFF2];
-//      result += m_sh[ind - 2*J_OFF2];
-/*     result += m_sh[ind - J_OFF2];
-     result += m_sh[ind + J_OFF2];
-     result += m_sh[ind + 2*J_OFF2];
-     result += m_sh[ind - 2];
-     result += m_sh[ind - 1];
-     result += m_sh[ind + 1];
-     result += m_sh[ind + 2];*/
-//      *hptr += result;
     
     }
 
