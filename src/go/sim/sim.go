@@ -191,7 +191,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.desc = make(map[string]interface{})
 	sim.hextInt = make([]float32, 3)
 	sim.initWriters()
-	sim.input.anisKSI = []float32{0.} // even when not used these must be allocated
+	sim.input.anisKSI = []float32{0., 0., 0.} // even when not used these must be allocated
 	sim.input.anisAxes = []float32{0.}
 	if *cpu {
 		sim.input.kernelType = "mumaxkern-cpu"

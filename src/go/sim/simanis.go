@@ -17,6 +17,12 @@ import (
 
 func (s *Sim) K1(k1 float32) {
 	s.input.anisKSI[0] = k1
+	s.invalidate()
+}
+
+func (s *Sim) K2(k2 float32) {
+	s.input.anisKSI[1] = k2
+	s.invalidate()
 }
 
 // Sets a uniaxial anisotropy
@@ -34,6 +40,7 @@ func (s *Sim) AnisUniaxial(uz, uy, ux float32) {
 	uz /= norm
 
 	s.input.anisAxes = []float32{ux, uy, uz}
+	s.invalidate()
 }
 
 // Sets a cubic anisotropy
@@ -63,6 +70,7 @@ func (s *Sim) AnisCubic(u1z, u1y, u1x float32, u2z, u2y, u2x float32) {
 	s.Println("Cubic anisotropy axes: (", u1z, u1y, u1x, "), (",u2z, u2y, u2x, "), (",  u3z, u3y, u3x, ")")
 
 	s.input.anisAxes = []float32{u1x, u1y, u1z, u2x, u2y, u2z, u3x, u3y, u3z}
+	s.invalidate()
 }
 
 const (
