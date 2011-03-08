@@ -40,11 +40,13 @@ void test_complex_YZ(){
     memcpy_to_gpu(host, dev, N);
 
   // do one to initialize CUDA before the actual timing
-  gpu_transposeYZ_complex(dev, dev2, N0, N1, N2*N3);
+//  gpu_transposeYZ_complex(dev, dev2, N0, N1, N2*N3);
+  gpu_transpose_complex_YZ(dev, dev2, N1, N2*N3, N0);
 
   timer_start("transpose_YZ_complex");
   for(int i=0; i<RUNS; i++)
-    gpu_transposeYZ_complex(dev, dev2, N0, N1, N2*N3);
+    gpu_transpose_complex_YZ(dev, dev2, N1, N2*N3, N0);
+//    gpu_transposeYZ_complex(dev, dev2, N0, N1, N2*N3);
   timer_stop("transpose_YZ_complex");
 
   memcpy_from_gpu(dev2, host2, N);
@@ -63,7 +65,7 @@ void test_complex_YZ(){
 }
 
 
-void test_complex(){
+/*void test_complex(){
   int N1 = 256, N2 = 512, N3=2;
   int N = N1*N2*N3;
 
@@ -105,8 +107,8 @@ void test_complex(){
 
   printf("PASS\n");
 }
-
-void test_real(){
+*/
+/*void test_real(){
   int N1 = 256, N2 = 1024;
   int N = N1*N2;
 
@@ -142,10 +144,10 @@ void test_real(){
   }
   printf("PASS\n");
 }
-
+*/
 int main(){
-  test_real();
-  test_complex();
+//   test_real();
+//   test_complex();
   test_complex_YZ();
   timer_printdetail();
 }
