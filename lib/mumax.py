@@ -141,7 +141,7 @@ def setmcell(i, j, k, mx, my, mz):
 
 # Sets the magnetization in cell position x, y, z (in meters) to (mx, my, mz)
 def setm(x, y, z, mx, my, mz):
-	send("setmcell", [x, y, z, mx, my, mz])
+	send("setm", [x, y, z, mx, my, mz])
 
 # Sets the magnetization to a ransendm state
 def setransendm():
@@ -218,7 +218,7 @@ def applyrotating(what, bx, by, bz, freq, phaseX, phaseY, phaseZ):
 
 # Apply a pulsed field/current
 def applypulse(what, bx, by, bz, risetime):
-	send("applyrf", [what, bx, by, bz, risetime])
+	send("applypulse", [what, bx, by, bz, risetime])
 
 # Apply a sawtooth field/current
 def applysawtooth(what, bx, by, bz, freq):
