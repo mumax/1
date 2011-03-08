@@ -79,9 +79,9 @@ func Average(t Interface) float32 {
 }
 
 // Sets all components to zero
-func Zero(t Interface){
+func Zero(t Interface) {
 	list := t.List()
-	for i:=range list{
+	for i := range list {
 		list[i] = 0.
 	}
 }

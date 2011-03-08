@@ -1,3 +1,13 @@
+/*
+ *  This file is part of MuMax, a high-performance micromagnetic simulator.
+ *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
+ *  Use of this source code is governed by the GNU General Public License version 3
+ *  (as published by the Free Software Foundation) that can be found in the license.txt file.
+ *
+ *  Note that you are welcome to modify this code under condition that you do not remove any 
+ *  copyright notices and prominently state that you modified it, giving a relevant date.
+ */
+
 /**
  * @file
  *
@@ -5,9 +15,9 @@
  *    - Applied field
  *    - anisotropy field
  *
- *    @todo thermal field, magnetoelastic field
+ *    @todo kubical anisotropy thermal field, magnetoelastic field
  *
- * @author Arne Vansteenkiste
+ * @author Arne Vansteenkiste, Ben Van de Wiele
  *
  */
 #ifndef cpu_local_contr_h
@@ -19,8 +29,25 @@ extern "C" {
 
 
 /// Adds the local contributions to the effective field.
-void cpu_add_local_fields (float* m, float* h, int N, float* Hext, int anisType, float* anisK, float* anisAxes);
+void cpu_add_local_fields (float *m,              ///> magnetization data Mx, My, Mz contiguously
+                           float *h,              ///> effective field data Hx, Hy, Hz contiguously
+                           int N,                 ///> number of FD cells
+                           float *Hext,           ///> 3 floats, externally applied field
+                           int anisType,          ///> anisotropy type
+                           float *anisK,          ///> anisotropy constants
+                           float *anisAxes        ///> anisotropy axes
+                           );
 
+/// Adds the local contributions to the effective field and the energy density.
+void cpu_add_local_fields_H_and_phi (float *m,              ///> magnetization data Mx, My, Mz contiguously
+                                     float *h,              ///> effective field data Hx, Hy, Hz contiguously
+                                     float *phi,            ///> energy density
+                                     int N,                 ///> number of FD cells
+                                     float *Hext,           ///> 3 floats, externally applied field
+                                     int anisType,          ///> anisotropy type
+                                     float *anisK,          ///> anisotropy constants
+                                     float *anisAxes        ///> anisotropy axes
+                                     );
 
 
 #ifdef __cplusplus

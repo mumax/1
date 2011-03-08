@@ -2,7 +2,6 @@
 
 
 desc info standard_problem_4
-kerneltype mumaxkern-cpu
 
 # material
 msat       	800E3   
@@ -11,7 +10,7 @@ alpha      	0.02
 
 solvertype rk23
 maxerror 1e-5
-#mindt 10e-15
+mindt 10e-15
 #maxdt 1e-12
 #mindm 1e-3
 #maxdm 0.25
@@ -19,15 +18,14 @@ maxerror 1e-5
 # geometry 
 gridsize       	128 	32 	1    
 partsize   	500E-9  125E-9  3E-9
-demagaccuracy	16
 
 # initial magnetization
 loadm    	s-state.omf
 
 # run
 autosave  m png 10e-12
-autosave	table	ascii	5e-12
-staticfield 	-24.6E-3     4.3E-3    0  # T
+autosave	table	ascii	1e-12
+applystatic field 	-24.6E-3     4.3E-3    0  # T
 run          	1e-9                      # s
 
 savebenchmark benchmark.txt

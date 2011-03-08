@@ -174,7 +174,7 @@ __global__ void _gpu_add_6NGBR_exchange_3D_geometry(float *m, float *h, int Nx, 
 
 
 void gpu_add_6NGBR_exchange_2D_geometry (float *m, float *h, param *p){
-
+  
   float cst_y = 1.0f/p->cellSize[Y]/p->cellSize[Y];
   float cst_z = 1.0f/p->cellSize[Z]/p->cellSize[Z];
   float cst_yz = -2.0f/p->cellSize[Y]/p->cellSize[Y] - 2.0f/p->cellSize[Z]/p->cellSize[Z];

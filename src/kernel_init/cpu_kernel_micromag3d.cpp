@@ -1,3 +1,13 @@
+/*
+ *  This file is part of MuMax, a high-performance micromagnetic simulator.
+ *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
+ *  Use of this source code is governed by the GNU General Public License version 3
+ *  (as published by the Free Software Foundation) that can be found in the license.txt file.
+ *
+ *  Note that you are welcome to modify this code under condition that you do not remove any 
+ *  copyright notices and prominently state that you modified it, giving a relevant date.
+ */
+
 #include "tensor.h"
 #include <stdio.h>
 #include "cpu_kernel_micromag3d.h"
@@ -259,7 +269,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
         }
 
       
-        if (r2_int<400){
+/*        if (r2_int<400){
           for (int cnta=0; cnta<10; cnta++)
           for (int cntb=0; cntb<10; cntb++)
           for (int cntc=0; cntc<10; cntc++){
@@ -280,7 +290,7 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
           float r2 = (i*cellSize[X])*(i*cellSize[X]) + (j*cellSize[Y])*(j*cellSize[Y]) + (k*cellSize[Z])*(k*cellSize[Z]);
           result += cellSize[X] * cellSize[Y] * cellSize[Z] * 
                     (1.0f/ powf(r2,1.5f) - 3.0f* (j*cellSize[Y]) * (j*cellSize[Y]) * powf(r2,-2.5f));
-        }
+        }*/
       
       
       }

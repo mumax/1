@@ -18,6 +18,7 @@ OFILES=\
 	cpu_fft2.o\
 	cpu_local_contr.o\
 	thread_functions.o\
+	cpu_exch1.o
 
 all: libcpukern.so
 
@@ -33,6 +34,7 @@ libcpukern.a:	$(OFILES)
 
 thread_functions.o:  thread_functions.h thread_functions.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) thread_functions.cpp
+
 cpu_mem0.o:  cpu_mem.h cpu_mem0.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_mem0.cpp
 
@@ -102,9 +104,9 @@ cpu_transpose.o:  cpu_transpose.h cpu_transpose.cpp
 cpu_fft.o:  cpu_fft.h cpu_fft.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_fft.cpp
 
-cpu_fft1.o:  cpu_fft1.h cpu_fft1.cpp
-	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_fft1.cpp
-
+# cpu_fft1.o:  cpu_fft1.h cpu_fft1.cpp
+# 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_fft1.cpp
+# 
 cpu_init.o:  cpu_init.h cpu_init.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_init.cpp
 
@@ -114,8 +116,12 @@ cpu_reduction.o:  cpu_reduction.h cpu_reduction.cpp
 cpu_local_contr.o:  cpu_local_contr.h cpu_local_contr.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_local_contr.cpp
 
-thread_functions.o:  thread_functions.h thread_functions.cpp
-	$(CPP) -c $(CFLAGS) $(OMPFLAGS) thread_functions.cpp
+# thread_functions.o:  thread_functions.h thread_functions.cpp
+# 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) thread_functions.cpp
+# 
+cpu_exch1.o:  cpu_exch.h cpu_exch1.cpp
+	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_exch1.cpp
+
 
 test:
 

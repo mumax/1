@@ -1,9 +1,11 @@
 #  This file is part of MuMax, a high-performance micromagnetic simulator.
-#  Copyright 2011  Arne Vansteenkiste.
+#  Copyright 2011  Arne Vansteenkiste, Ben Van de Wiele.
 #  Use of this source code is governed by the GNU General Public License version 3
 #  (as published by the Free Software Foundation) that can be found in the license.txt file.
 #  Note that you are welcome to modify this code under the condition that you send not remove any 
 #  copyright notices and prominently state that you modified it, giving a relevant date.
+
+# @author Arne Vansteenkiste
 
 from sys import stdin
 from sys import stderr
@@ -75,6 +77,19 @@ def anisuniaxial(ux, uy, uz):
 	send3("anisuniaxial", ux, uy, uz)
 
 
+# Defines the spin polarization for spin-transfer torque
+def spinpolarization(p):
+	send1("spinpolarization", p)
+
+# Defines the non-adiabaticity for spin-transfer torque
+def xi(xi):
+	send1("xi", xi)
+
+# Sets the temperature in Kelvin
+def temperature(T):
+	send1("temperature", T)
+
+
 # Geometry
 
 # Sets the number of FD cells
@@ -139,12 +154,26 @@ def seed(s):
 # Output
 
 # Single-time save with automatic file name
+# Format = text | binary
 def save(what, format):
 	send2("save", what, format)
+
+# Single save of the magnetization to a specified file (.omf)
+def savem(filename, format):
+	send2("savem", filename, format)
+
+# Single save of the effective field to a specified file (.omf)
+def saveh(filename, format):
+	send2("saveh", filename, format)
 
 # Periodic auto-save
 def autosave(what, format, periodicity):
 	send3("autosave", what, format, periodicity)
+
+# Determine what should be saved in the datatable
+# E.g.: autosave('m', True)
+def tabulate(what, want):
+	send2("tabulate", what, want)
 
 
 # Solver
@@ -175,21 +204,29 @@ def mindm(dm):
 
 # Excitation
 
-# Apply a static field
-def staticfield(bx, by, bz):
-	send3("staticfield", bx, by, bz)
+# Apply a static field/current
+def applystatic(what, bx, by, bz):
+	send("applystatic", [what, bx, by, bz])
 
-# Apply an RF field
-def rffield(bx, by, bz, freq):
-	send("rffield", [bx, by, bz, freq])
+# Apply an RF field/current
+def applyrf(what, bx, by, bz, freq):
+	send("applyrf", [what, bx, by, bz, freq])
 
-# Apply a sawtooth field
-def sawtoothfield(bx, by, bz, freq):
-	send("sawtoothfield", [bx, by, bz, freq])
+# Apply a rotating field/current
+def applyrotating(what, bx, by, bz, freq, phaseX, phaseY, phaseZ):
+	send("applyrotating", [what, bx, by, bz, freq, phaseX, phaseY, phaseZ])
 
-# Apply a rotating RF burst
-def rotatingburst(b, freq, phase, risetime, duration):
-	send("rotatingburst", [b, freq, phase, risetime, duration])
+# Apply a pulsed field/current
+def applypulse(what, bx, by, bz, risetime):
+	send("applyrf", [what, bx, by, bz, risetime])
+
+# Apply a sawtooth field/current
+def applysawtooth(what, bx, by, bz, freq):
+	send("applysawtooth", [what, bx, by, bz, freq])
+
+# Apply a rotating RF burst field/current
+def applyrotatingburst(what, b, freq, phase, risetime, duration):
+	send("applyrotatingburst", [what, b, freq, phase, risetime, duration])
 
 # Run
 
@@ -200,6 +237,14 @@ def relax():
 # Runs for the time specified in seconds
 def run(time):
 	send1("run", time)
+
+# Takes one time step
+def step():
+	send0("step")
+
+# Takes n time steps
+def steps(n):
+	send1("steps", n)
 
 
 # Misc
@@ -220,6 +265,11 @@ def getm(component):
 	send1("getm", component)
 	return recv()
 
+# Retrieves the maximum torque in units gamma*Msat
+def getmaxtorque(component):
+	send1("getmaxtorque")
+	return recv()
+
 
 # Debug and fine-tuning
 
@@ -234,4 +284,9 @@ def exchtype(t):
 # Override the subcommand for calculating the magnetostatic kernel
 def kerneltype(cmd):
 	send1("kerneltype", cmd)
+
+# Override whether or not (true/false) the magnetostatic field should be calculated
+def demag(b):
+	send1("demag", cmd)
+
 

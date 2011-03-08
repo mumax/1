@@ -20,7 +20,7 @@ import (
 // (This is really the Landau-Lifschitz formulation.  Divide the
 // RHS by (1+DampCoef^2) for the Landau-Lifschitz-Gilbert formulation.)
 // This program actually solves RHS=(-1/DampCoef)(mxh)-mx(mxh).
-// The routine Grid2D::GetTimeStep() does the conversion from StepSize
+// The routine Grid2D::GetTimestep() does the conversion from StepSize
 // to actual time step in seconds, via
 //             time_step = StepSize/(DampCoef.GyRatio.Ms)
 // See also PRECESSION_RATIO below.
@@ -38,7 +38,10 @@ func (s *Sim) DeltaM(m, h *DevTensor, dt float32) {
 	// otherwise use the Landau-Lifschitz torque.
 	// Of course, the spin-transfer torque term with zero current density
 	// gives the same result as the LL torque, but is slightly slower. 
-	if s.input.j[0] != 0 || s.input.j[1] != 0 || s.input.j[2] != 0 {
+	if s.appliedCurrDens != nil || s.input.j[0] != 0 || s.input.j[1] != 0 || s.input.j[2] != 0 {
+		if s.appliedCurrDens != nil {
+			s.input.j = s.appliedCurrDens.GetAppliedField(s.time * float64(s.UnitTime()))
+		}
 		s.SpintorqueDeltaM(m, h, dt)
 	} else {
 		N := m.size[1] * m.size[2] * m.size[3]

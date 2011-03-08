@@ -22,7 +22,8 @@ OFILES=\
 	gpu_spintorque.o\
 	gpu_anis.o\
 	gpu_local_contr2.o\
-	gpu_exch0.o\
+	gpu_exch1.o\
+	gpu_temperature.o\
 
 all: libgpukern.so
 
@@ -109,8 +110,14 @@ gpu_anis.o:  gpu_anis.h gpu_anis.cu
 gpu_local_contr2.o:  gpu_local_contr2.h gpu_local_contr2.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_local_contr2.cu
 
-gpu_exch0.o:  gpu_exch.h gpu_exch0.cu
-	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_exch0.cu
+gpu_temperature.o:  gpu_temperature.h gpu_temperature.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_temperature.cu
+
+# gpu_exch0.o:  gpu_exch.h gpu_exch0.cu
+# 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_exch0.cu
+
+gpu_exch1.o:  gpu_exch.h gpu_exch1.cu
+	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_exch1.cu
 
 test:	all transpose_test zeropad_test reduction_test fft_test spintorque_test
 

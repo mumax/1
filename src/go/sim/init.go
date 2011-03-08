@@ -127,6 +127,11 @@ func (s *Sim) initGridSize() {
 	if s.size[Z] == 1 {
 		panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
 	}
+	for i := range s.size3D {
+		if !IsGoodGridSize(i, s.size3D[i]) {
+			panic(InputErr("Unsuited grid size: " + fmt.Sprint(s.size3D[i]) + " (X,Y size must be 16*2^n*{1,2,5,7}), Z must be 2^n*{1,2,5,7}"))
+		}
+	}
 	s.avgNorm = float32(tensor.Prod(s.size3D))
 }
 
@@ -238,12 +243,14 @@ func (s *Sim) initConv() {
 	var exch []*tensor.T3
 	switch s.input.exchType {
 	default:
-		panic(InputErr("Illegal exchange type: " + fmt.Sprint(s.input.exchType) + ". Options are: 0, 6, 26"))
+		panic(InputErr("Illegal exchange type: " + fmt.Sprint(s.input.exchType) + ". Options are: 0, 6, 12"))
 	case 0: // no exchange
 	case 6:
 		exch = Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
-	case 26:
-		exch = Exch26NgbrKernel(s.paddedsize, s.cellSize[0:])
+	case 12:
+		exch = Exch12NgbrKernel(s.paddedsize, s.cellSize[0:])
+		//case 26:
+		//exch = Exch26NgbrKernel(s.paddedsize, s.cellSize[0:])
 	}
 
 	// Add Exchange kernel to demag kernel
@@ -262,6 +269,8 @@ func (s *Sim) initConv() {
 		Println("Exchange separate from convolution.")
 	}
 	s.Conv = *NewConv(s.Backend, s.size[0:], demag)
+	// DEBUG: FFT self-test
+	//s.Conv.FFT.Test(tensor.ToT3(tensor.Component(s.mLocal, 0)), tensor.ToT3(tensor.Component(s.hLocal,0)), s.mDev, s.Conv.buffer[1])
 }
 
 

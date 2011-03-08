@@ -19,7 +19,7 @@ func (s *Sim) Hysteresis(bz0, by0, bx0, bz1, by1, bx1 float32, steps int) {
 		bx := bx0 + (bx1-bx0)*float32(i)/float32(steps)
 		by := by0 + (by1-by0)*float32(i)/float32(steps)
 		bz := bz0 + (bz1-bz0)*float32(i)/float32(steps)
-		s.StaticField(bz, by, bx)
+		s.ApplyStatic("field", bz, by, bx)
 		s.Relax()
 		s.Save("m", "omf")
 		s.Save("table", "ascii")

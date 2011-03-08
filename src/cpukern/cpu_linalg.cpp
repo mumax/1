@@ -1,3 +1,13 @@
+/*
+ *  This file is part of MuMax, a high-performance micromagnetic simulator.
+ *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
+ *  Use of this source code is governed by the GNU General Public License version 3
+ *  (as published by the Free Software Foundation) that can be found in the license.txt file.
+ *
+ *  Note that you are welcome to modify this code under condition that you do not remove any 
+ *  copyright notices and prominently state that you modified it, giving a relevant date.
+ */
+
 #include "cpu_linalg.h"
 #include "thread_functions.h"
 
@@ -139,7 +149,6 @@ void cpu_linear_combination_t(int id){
 
 void cpu_linear_combination(float* a, float* b, float weightA, float weightB, int N){
 
-
   cpu_linear_combination_arg args;
   args.a = a;
   args.b = b;
@@ -154,6 +163,47 @@ void cpu_linear_combination(float* a, float* b, float weightA, float weightB, in
   return;
 }
 //end cpu_linear_combination -----------
+
+
+//begin cpu_scale_dot_product ----------
+typedef struct{
+  float *result, *vector1, *vector2;
+  float a;
+  int N;
+} cpu_scale_dot_product_arg;
+
+void cpu_scale_dot_product_t(int id){
+  cpu_scale_dot_product_arg *arg = (cpu_scale_dot_product_arg *) func_arg;
+ 
+  int start, stop;
+  init_start_stop (&start, &stop, id, arg->N);
+
+  for(int i=start; i<stop; i++)
+    arg->result[i] = arg->a*(arg->vector1[         i] * arg->vector2[         i] + 
+                             arg->vector1[  arg->N+i] * arg->vector2[  arg->N+i] + 
+                             arg->vector1[2*arg->N+i] * arg->vector2[2*arg->N+i]   );
+  
+  return;
+}
+
+void cpu_scale_dot_product(float* result, float *vector1, float *vector2, float a, int N){
+
+  cpu_scale_dot_product_arg args;
+  args.result = result;
+  args.vector1 = vector1;
+  args.vector2 = vector2;
+  args.a = a;
+  args.N = N;
+
+  func_arg = (void *) (&args);
+
+  thread_Wrapper(cpu_scale_dot_product_t);
+  
+  return;
+}
+//end cpu_scale_dot_product ------------
+
+
 
 #ifdef __cplusplus
 }

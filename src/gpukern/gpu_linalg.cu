@@ -1,3 +1,13 @@
+/*
+ *  This file is part of MuMax, a high-performance micromagnetic simulator.
+ *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
+ *  Use of this source code is governed by the GNU General Public License version 3
+ *  (as published by the Free Software Foundation) that can be found in the license.txt file.
+ *
+ *  Note that you are welcome to modify this code under condition that you do not remove any 
+ *  copyright notices and prominently state that you modified it, giving a relevant date.
+ */
+
 #include "gpu_linalg.h"
 #include "gpu_safe.h"
 #include "gpu_conf.h"
@@ -107,6 +117,25 @@ void gpu_linear_combination_many(float* result, float** vectors, float* weights,
   dim3 gridSize, blockSize;
   make1dconf(NElem, &gridSize, &blockSize);
   _gpu_linear_combination_many<<<gridSize, blockSize>>>(result, vectors, weights, NVectors, NElem);
+  gpu_sync();
+}
+
+
+///@internal kernel
+__global__ void _gpu_scale_dot_product(float* result, float* vector1, float* vector2, float a, int N){
+  int i = threadindex;
+ 
+  if(i < N)
+    result[i] = a*(vector1[    i] * vector2[    i] + 
+                   vector1[  N+i] * vector2[  N+i] + 
+                   vector1[2*N+i] * vector2[2*N+i]   );
+}
+
+void gpu_scale_dot_product(float* result, float *vector1, float *vector2, float a, int N){
+
+  dim3 gridSize, blockSize;
+  make1dconf(N, &gridSize, &blockSize);
+  _gpu_scale_dot_product<<<gridSize, blockSize>>>(result, vector1, vector2, a, N);
   gpu_sync();
 }
 

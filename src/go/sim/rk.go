@@ -276,7 +276,7 @@ func newRK(sim *Sim, order int) *RK {
 // do not re-try the step more than this number of times.
 const MAX_STEP_TRIALS = 10
 
-func (rk *RK) Step() {
+func (rk *RK) step() {
 
 	order := rk.stages
 	k := rk.k
@@ -286,10 +286,10 @@ func (rk *RK) Step() {
 	m1 := rk.m0
 	a := rk.a
 
-	//	if rk.dt == 0. {
-	//		rk.dt = 1e-5 // program units, should really be small enough
-	//		rk.Println("Using default initial dt: ", rk.dt)
-	//	}
+	// The thermal noise is assumed constant during the step.
+	if rk.input.temp != 0 {
+		rk.updateTempNoise(rk.dt)
+	}
 
 	TensorCopyOn(m, rk.mbackup)
 	goodstep := false
@@ -322,8 +322,9 @@ func (rk *RK) Step() {
 			// After having calculated the first torque (k[0]),
 			// dt has not actually been used yet. This is the
 			// last chance to estimate whether the time step is too large
-			// and possibly reduce it
-			if i == 0 {
+			// and possibly reduce it. 
+			// This cannot be done with finite temperature!
+			if rk.input.temp == 0 && i == 0 {
 				if rk.b2 == nil { // means no step control based on error estimate
 					rk.dt = rk.input.dt
 				}
@@ -396,6 +397,7 @@ func (rk *RK) Step() {
 			}
 
 			rk.dt = rk.dt * factor
+
 			checkdt(rk.dt)
 			//undo bad steps
 			if error > 2*rk.input.maxError {
@@ -404,6 +406,14 @@ func (rk *RK) Step() {
 				//fmt.Println("bad step")
 			} else {
 				goodstep = true
+				// Do not make the time step smaller than minDt
+				if rk.dt*rk.UnitTime() < rk.input.minDt {
+					rk.dt = rk.input.minDt / rk.UnitTime()
+				}
+				// maxDt has priority over minDt (better safe than sorry)
+				if rk.input.maxDt != 0. && rk.dt*rk.UnitTime() > rk.input.maxDt {
+					rk.dt = rk.input.maxDt / rk.UnitTime()
+				}
 			}
 		}
 	}

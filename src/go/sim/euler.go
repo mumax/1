@@ -25,7 +25,7 @@ func (this *Euler) String() string {
 }
 
 
-func (this *Euler) Step() {
+func (this *Euler) step() {
 	m, h := this.mDev, this.hDev
 
 	// 	this.Normalize(this.m)

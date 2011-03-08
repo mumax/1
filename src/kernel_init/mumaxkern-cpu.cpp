@@ -1,3 +1,13 @@
+/*
+ *  This file is part of MuMax, a high-performance micromagnetic simulator.
+ *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
+ *  Use of this source code is governed by the GNU General Public License version 3
+ *  (as published by the Free Software Foundation) that can be found in the license.txt file.
+ *
+ *  Note that you are welcome to modify this code under condition that you do not remove any 
+ *  copyright notices and prominently state that you modified it, giving a relevant date.
+ */
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,13 +17,12 @@
 #include "thread_functions.h"
 #include "../macros.h"
 
-void calc_kernel(int kernelType, int i, int j);
 
 int main(int argc, char** argv){
 
   fprintf(stderr, "Kernel initialization: CPU\n");
-  if(argc != 11 && argc != 13){
-    fprintf(stderr, "Kernel initialization needs 10 or 12 command-line arguments.\n");
+  if(argc != 11){// && argc != 13){
+    fprintf(stderr, "Kernel initialization needs 10 command-line arguments.\n");
 	abort();
   }
   int kernelSize[3];
@@ -54,29 +63,38 @@ int main(int argc, char** argv){
 	abort();
   }
 
-  // component not specified: generate all
-  if(ki < 0 && kj < 0){
-					// x[i],y[i] loops over XX, YY, ZZ, YZ, XZ, XY
-					int x[6] = {X, Y, Z, Y, X, X};
-					int y[6] = {X, Y, Z, Z, Z, Y};
-					for(int i=0; i<6; i++){
+  // x[i],y[i] loops over XX, YY, ZZ, YZ, XZ, XY
+  int x[6] = {X, Y, Z, Y, X, X};
+  int y[6] = {X, Y, Z, Z, Z, Y};
+  for(int i=0; i<6; i++){
     if (kernelType==2)
       cpu_init_kernel_elements_micromag2d(x[i], y[i], kernelSize, cellSize, repetition);
       
     if (kernelType==3)
       cpu_init_kernel_elements_micromag3d(x[i], y[i], kernelSize, cellSize, repetition);
-					}
-  }else{
-	  // generate only specified component
-    if (kernelType==2)
-      cpu_init_kernel_elements_micromag2d(ki, kj, kernelSize, cellSize, repetition);
-      
-    if (kernelType==3)
-      cpu_init_kernel_elements_micromag3d(ki, kj, kernelSize, cellSize, repetition);
-	}
+  }
+
+//  // component not specified: generate all
+//  if(ki < 0 && kj < 0){
+//					// x[i],y[i] loops over XX, YY, ZZ, YZ, XZ, XY
+//					int x[6] = {X, Y, Z, Y, X, X};
+//					int y[6] = {X, Y, Z, Z, Z, Y};
+//	for(int i=0; i<6; i++){
+//    if (kernelType==2)
+//      cpu_init_kernel_elements_micromag2d(x[i], y[i], kernelSize, cellSize, repetition);
+//      
+//    if (kernelType==3)
+//      cpu_init_kernel_elements_micromag3d(x[i], y[i], kernelSize, cellSize, repetition);
+//}
+//  }else{
+//	  // generate only specified component
+//    if (kernelType==2)
+//      cpu_init_kernel_elements_micromag2d(ki, kj, kernelSize, cellSize, repetition);
+//      
+//    if (kernelType==3)
+//      cpu_init_kernel_elements_micromag3d(ki, kj, kernelSize, cellSize, repetition);
+//	}
 
   return (0);
 }
 
-void calc_kernel(int kernelType, int i, int j){
-}

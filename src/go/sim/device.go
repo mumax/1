@@ -76,6 +76,9 @@ type Device interface {
 	// adds the constant cnst to a. N = length of a
 	addConstant(a uintptr, cnst float32, N int)
 
+	// result[i] = scale * (a[i]_x*b[i]_x + a[i]_y*b[i]_y + a[i]_z*b[i]_z)
+	scaledDotProduct(result, a, b uintptr, scale float32, N int)
+
 	// a = a * weightA + b * weightB
 	linearCombination(a, b uintptr, weightA, weightB float32, N int)
 
@@ -110,10 +113,14 @@ type Device interface {
 	// here be dragons
 	spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, dtGilb float32, size []int)
 
+	// Adds the "local" field contribution: Zeeman and anisotropy
 	addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int)
 
+	// Adds the "local" field contribution: Zeeman and anisotropy, and also calculates the energy density phi
+	addLocalFieldsPhi(m, h, phi uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int)
+
 	// Adds the exchange field to h.
-	addExch(m, h uintptr, size, periodic []int, cellsize []float32, exchType int)
+	addExch(m, h uintptr, size, periodic, exchinconv []int, cellsize []float32, exchType int)
 
 	// Override the GPU stride, handy for debugging. -1 Means reset to the original GPU stride
 	// TODO: get rid of? decide the stride by yourself instead of globally storing it?
@@ -147,7 +154,7 @@ type Device interface {
 	// N: number of vectors 
 	semianalStep(min, mout, h uintptr, dt, alpha float32, N int)
 
-	// Extract only the real parts form in interleaved complex array
+	// Extract only the real parts from in interleaved complex array
 	// 	extractReal(complex, real uintptr, NReal int)
 
 	// Automatically selects between kernelmul3/4/6
@@ -182,6 +189,8 @@ type Device interface {
 	fft(plan uintptr, in, out uintptr, direction int)
 
 	freeFFTPlan(plan uintptr)
+
+	gaussianNoise(data uintptr, mean, stddev float32, N int)
 
 	//______________________________________________________________________________ already safe
 

@@ -118,4 +118,3 @@ func replaceExt(filename, newext string) string {
 // 
 //   size := copy(data.Size())
 // }
-

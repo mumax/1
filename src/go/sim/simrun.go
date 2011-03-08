@@ -41,7 +41,7 @@ func (s *Sim) Run(time float64) {
 		updateDashboard(s)
 
 		// step
-		s.Step()
+		s.step()
 		s.steps++
 		s.mUpToDate = false
 
@@ -56,35 +56,43 @@ func (s *Sim) Run(time float64) {
 	//does not invalidate
 }
 
-var maxtorque float32 = DEFAULT_RELAX_MAX_TORQUE
-
-func (s *Sim) Relax() {
+// Take one time step
+func (s *Sim) Step() {
 	s.init()
-	s.Println("Relaxing until torque < ", maxtorque)
-	s.dt = RELAX_START_DT
-	s.torque = maxtorque * 1000
-	s.Normalize(s.mDev)
 	s.mUpToDate = false
 
-	backup_maxdt := s.input.maxDt
-	if s.input.maxDt == 0 {
-		s.input.maxDt = 0.02 * s.UnitTime()
-		s.Println("Using default max dt: ", s.input.maxDt)
+	// save output if so scheduled
+	for _, out := range s.outschedule {
+		if out.NeedSave(float32(s.time) * s.UnitTime()) { // output entries want SI units
+			// assure the local copy of m is up to date and increment the autosave counter if necessary
+			s.assureOutputUpToDate()
+			// save
+			out.Save(s)
+			// TODO here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
+		}
 	}
 
-	backup_time := s.time
-	for s.torque >= maxtorque {
-		// step
-		s.Step()
-		s.time = backup_time // HACK: during relax we want the time to stand still
-		s.steps++
-		s.mUpToDate = false
-		updateDashboard(s)
+	updateDashboard(s)
+
+	s.step()
+	s.steps++
+	s.mUpToDate = false
+
+	if math.IsNaN(s.time) || math.IsInf(s.time, 0) {
+		panic("Time step = " + fmt.Sprint(s.dt))
 	}
-	s.input.maxDt = backup_maxdt
-	s.updateMLocal() // Even if no output was saved, mLocal should be up to date for a possible next relax()
-	s.assureOutputUpToDate()
+	//does not invalidate
 }
+
+// Takes n time steps
+func (s *Sim) Steps(n int) {
+	for i := 0; i < n; i++ {
+		s.Step()
+	}
+}
+
+var maxtorque float32 = DEFAULT_RELAX_MAX_TORQUE
+
 
 // re-initialize benchmark data
 func (s *Sim) start_benchmark() {
@@ -127,6 +135,6 @@ func (s *Sim) assureOutputUpToDate() {
 // Copies mDev to mLocal.
 // Necessary after each run(), relax(), ...
 func (s *Sim) updateMLocal() {
-	s.Println("Copy m form device to local")
+	s.Println("Copy m from device to local")
 	TensorCopyFrom(s.mDev, s.mLocal)
 }

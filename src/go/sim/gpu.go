@@ -87,6 +87,10 @@ func (d Gpu) linearCombinationMany(result uintptr, vectors []uintptr, weights []
 		(C.int)(NElem))
 }
 
+func (d Gpu) scaledDotProduct(result, a, b uintptr, scale float32, N int) {
+	C.gpu_scale_dot_product((*C.float)(unsafe.Pointer(result)), (*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(scale), C.int(N))
+}
+
 func (d Gpu) addConstant(a uintptr, cnst float32, N int) {
 	C.gpu_add_constant((*C.float)(unsafe.Pointer(a)), C.float(cnst), C.int(N))
 }
@@ -115,8 +119,12 @@ func (d Gpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []
 	C.gpu_add_local_fields((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
 }
 
-func (d Gpu) addExch(m, h uintptr, size, periodic []int, cellsize []float32, exchType int) {
-	C.gpu_add_exch((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(size[0]), C.int(size[1]), C.int(size[2]), C.int(periodic[0]), C.int(periodic[1]), C.int(periodic[2]), C.float(cellsize[0]), C.float(cellsize[1]), C.float(cellsize[2]), C.int(exchType))
+func (d Gpu) addLocalFieldsPhi(m, h, phi uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int) {
+	C.gpu_add_local_fields_H_and_phi((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), (*C.float)(unsafe.Pointer(phi)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
+}
+
+func (d Gpu) addExch(m, h uintptr, size, periodic, exchinconv []int, cellsize []float32, exchType int) {
+	C.gpu_add_exch((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), (*C.int)(unsafe.Pointer(&size[0])), (*C.int)(unsafe.Pointer(&periodic[0])), (*C.int)(unsafe.Pointer(&exchinconv[0])), (*C.float)(unsafe.Pointer(&cellsize[0])), C.int(exchType))
 }
 
 // func (d Gpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {
@@ -192,6 +200,10 @@ func (d Gpu) fft(plan uintptr, in, out uintptr, direction int) {
 	}
 }
 
+
+func (d Gpu) gaussianNoise(data uintptr, mean, stddev float32, N int) {
+	C.gpu_gaussian_noise((*C.float)(unsafe.Pointer(data)), C.float(mean), C.float(stddev), C.int(N))
+}
 
 func (d Gpu) newArray(nFloats int) uintptr {
 	return uintptr(unsafe.Pointer(C.new_gpu_array(C.int(nFloats))))

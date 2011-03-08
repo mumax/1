@@ -30,10 +30,18 @@ var (
 )
 
 
+// If we have already output something by the end of the program, quit.
+// Otherwise, output the newly constructed table.
+var haveOutput bool
+
 // Stores the table being built
 var (
 	newtable omf.Table
 )
+
+func init() {
+	newtable.Init()
+}
 
 
 // CLI args consist of flags (starting with --) and files.
@@ -44,6 +52,11 @@ func main() {
 	sh := refsh.New()
 	sh.AddFunc("getdesc", GetDesc)
 	sh.AddFunc("peak", Peak)
+	sh.AddFunc("header", Header)
+	sh.AddFunc("cat", Cat)
+	sh.AddFunc("getcol", GetCol)
+	sh.AddFunc("matrix", Matrix)
+	sh.AddFunc("meshdom", Meshdom)
 	cmd, args, files := refsh.ParseFlags2()
 
 	// Each file is read and stored in "data".
@@ -67,6 +80,7 @@ func main() {
 			sh.Call(cmd[i], args[i])
 		}
 	}
-
-	newtable.WriteTo(os.Stdout)
+	if !haveOutput {
+		newtable.WriteTo(os.Stdout)
+	}
 }

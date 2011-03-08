@@ -1,3 +1,4 @@
+//  This file is part of MuMax, a high-performance micromagnetic simulator
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -6,78 +7,81 @@
 
 package sim
 
+// This file implements functionality to quickly relax the magnetization to the ground state.
+
 import ()
 
-// OBSOLETE
-// TODO: REMOVE
-type Relax struct {
-	sim *Sim
-	Reductor
-	m1est     *DevTensor
-	t0        *DevTensor
-	maxtorque float32
-}
+func (s *Sim) Relax() {
+	s.init()
 
-// sets the maximum residual torque
-func (r *Relax) MaxTorque(maxtorque float32) {
-	r.maxtorque = maxtorque
-}
+	var startDm float32 = 1e-2
+	var minDm float32 = 1e-6
+	var maxTorque float32 = 1e-5
 
-func NewRelax(s *Sim) *Relax {
-	r := new(Relax)
-	r.sim = s
-	r.Reductor.InitMaxAbs(s.Backend, prod(s.size4D[0:]))
-	r.m1est = NewTensor(s.Backend, Size4D(s.size[0:]))
-	r.t0 = NewTensor(s.Backend, Size4D(s.size[0:]))
-	return r
-}
+	s.Println("Relaxing until torque < ", maxtorque)
+	s.Normalize(s.mDev)
+	s.mUpToDate = false
 
-const (
-	RELAX_START_DT     = 1e-5
-	DEFAULT_MAX_TORQUE = 1e-5
-)
+	backup_maxdm := s.input.maxDm
 
-// One relaxation step.
-// sets sim.torque to the maximum torque so the driver can decide whether or not to stop.
-func (r *Relax) RelaxStep() {
-
-	m := r.sim.mDev
-	m1est := r.m1est
-	h := r.sim.hDev
-	sim := r.sim
-	maxError := float32(1e-4)
-
-	sim.calcHeff(m, h)
-	sim.DeltaM(m, h, r.sim.dt)
-	sim.torque = r.Reduce(h) / r.sim.dt // torque = delta M / delta t
-	TensorCopyOn(h, r.t0)
-	TensorCopyOn(m, m1est)
-	sim.Add(m1est, r.t0)
-	sim.Normalize(m1est) // Euler estimate
-
-	sim.calcHeff(m1est, h)
-	sim.DeltaM(m1est, h, r.sim.dt)
-	tm1est := h
-	t := tm1est
-	sim.LinearCombination(t, r.t0, 0.5, 0.5)
-	sim.Add(m, t)
-	sim.Normalize(m) // Heun solution
-
-	// Error estimate
-	sim.MAdd(m1est, -1, m) // difference between Heun and Euler
-	error := r.Reduce(m1est)
-
-	// calculate new step
-	factor := maxError / error
-	// do not increase too much
-	if factor > 1.2 {
-		factor = 1.2
-	}
-	// do not decrease too much
-	if factor < 0.8 {
-		factor = 0.8
+	dm := startDm
+	s.torque = 2 * maxTorque // to get in loop
+	for s.torque > maxTorque {
+		torque := [4]float32{1, 1, 1, 1}
+		s.input.maxDm = dm
+		s.input.minDm = dm
+		// Take a few steps first
+		for i := 0; i < 10; i++ {
+			s.relaxstep()
+			torque[0], torque[1], torque[2], torque[3] = s.torque, torque[0], torque[1], torque[2]
+		}
+		for !isUnstable(&torque) {
+			s.relaxstep()
+			torque[0], torque[1], torque[2], torque[3] = s.torque, torque[0], torque[1], torque[2]
+			//dm *= 1.01
+			//s.input.maxDm = dm
+			//s.input.minDm = dm
+		}
+		if dm > minDm {
+			dm *= 0.8
+			s.Println("\nmax delta m:", dm, "\n")
+		}
 	}
 
-	//sim.time += float64(sim.dt) // TODO: remove when output per step can be saved?
-	sim.dt *= factor
+	s.input.maxDm = backup_maxdm
+	s.updateMLocal() // Even if no output was saved, mLocal should be up to date for a possible next relax()
+	s.assureOutputUpToDate()
+}
+
+func (s *Sim) relaxstep() {
+	//backup_time := s.time
+	s.step()
+	//s.time = backup_time // HACK: during relax we want the time to stand still
+	s.steps++
+	s.mUpToDate = false
+	updateDashboard(s)
+
+	// TEMP	
+	// save output if so scheduled
+	for _, out := range s.outschedule {
+		if out.NeedSave(float32(s.time) * s.UnitTime()) { // output entries want SI units
+			// assure the local copy of m is up to date and increment the autosave counter if necessary
+			s.assureOutputUpToDate()
+			// save
+			out.Save(s)
+			// TODO here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
+		}
+	}
+}
+
+
+func isUnstable(t *[4]float32) bool {
+	return sign(t[1]-t[0]) == sign(t[3]-t[2]) && sign(t[1]-t[0]) != sign(t[2]-t[1])
+}
+
+func sign(x float32) float32 {
+	if x < 0 {
+		return -1
+	}
+	return 1
 }
