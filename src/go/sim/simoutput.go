@@ -150,7 +150,7 @@ func (s *Sim) initTabWriter() {
 	}
 	fname := s.outputdir + "/" + "datatable.odt"
 	out := MustOpenWRONLY(fname)
-	Print("Opened " + fname )
+	Print("Opened " + fname)
 	s.tabwriter = omf.NewTabWriter(out)
 	if s.input.tabulate[TAB_TIME] {
 		s.tabwriter.AddColumn("Time", "s")

@@ -127,6 +127,11 @@ func (s *Sim) initGridSize() {
 	if s.size[Z] == 1 {
 		panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
 	}
+	for i := range s.size3D {
+		if !IsGoodGridSize(s.size3D[i], i) {
+			panic(InputErr("Unsuited grid size: " + fmt.Sprint(s.size3D[i]) + " (X,Y size must be 16*2^n*{1,2,5,7}), Z must be 2^n*{1,2,5,7}"))
+		}
+	}
 	s.avgNorm = float32(tensor.Prod(s.size3D))
 }
 
@@ -244,7 +249,7 @@ func (s *Sim) initConv() {
 		exch = Exch6NgbrKernel(s.paddedsize, s.cellSize[0:])
 	case 12:
 		exch = Exch12NgbrKernel(s.paddedsize, s.cellSize[0:])
-	//case 26:
+		//case 26:
 		//exch = Exch26NgbrKernel(s.paddedsize, s.cellSize[0:])
 	}
 
