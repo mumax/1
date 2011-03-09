@@ -227,7 +227,8 @@ func (t *Table) Save(s *Sim) {
 		s.tabwriter.Print(s.input.j[Z], s.input.j[Y], s.input.j[X])
 	}
 	if s.input.tabulate[TAB_E] {
-		E := s.GetEnergySI()
+		E := s.energy * s.UnitEnergy()
+		//E := s.GetEnergySI()
 		s.tabwriter.Print(E)
 	}
 	if s.input.tabulate[TAB_MAXDMDT] {

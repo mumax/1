@@ -62,36 +62,26 @@ func (s *Sim) updateHext() {
 
 
 func (s *Sim) calcHeffEdens(m, h, phi *DevTensor) {
-	// (1) Self-magnetostatic field and exchange
-	// The convolution may include the exchange field
 	s.calcHDemagExchEdens(m, h, phi)
-
-	// (2) Add the externally applied field
 	s.addLocalFieldsEdens(m, h, phi)
-
-	// WARNING: thermal field not included in energy
 	if s.input.temp != 0 {
 		s.addThermalField(h)
 	}
-
 	s.energy = s.sumEdens(phi)
 }
 
 // Calculates the effective field of m and stores it in h
 func (s *Sim) calcHeff(m, h *DevTensor) {
-	// (1) Self-magnetostatic field and exchange
-	// The convolution may include the exchange field
 	s.calcHDemagExch(m, h)
-
-	// (2) Add the externally applied field
 	s.addLocalFields(m, h)
-
 	if s.input.temp != 0 {
 		s.addThermalField(h)
 	}
+}
 
-	// (3) Add the edge-correction field
-	//	if s.input.edgeCorr != 0 {
-	//		s.addEdgeField(m, h)
-	//	}
+// Calculates the effective field and updates phiDev and energy
+func (s *Sim) calcHeffEnergy(m, h *DevTensor) {
+	s.initEDens()
+	s.calcHeffEdens(m, h, s.phiDev)
+	s.energy = s.sumEdens(s.phiDev)
 }

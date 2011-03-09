@@ -36,7 +36,7 @@ func (s *Sim) calcEDemagExch(m, h *DevTensor) float32 {
 
 // Calculates the total energy form the energy density,
 // using the cell size. Result in interal units.
-func (s *Sim) sumEdens(phi *DevTensor) float32{
+func (s *Sim) sumEdens(phi *DevTensor) float32 {
 	totalEDens := s.sumPhi.Reduce(phi)
 	return totalEDens * s.cellSize[X] * s.cellSize[Y] * s.cellSize[Z]
 }
