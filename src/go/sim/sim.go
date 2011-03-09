@@ -74,8 +74,9 @@ type Input struct {
 	anisAxes       []float32  // Anisotropy axes: ux,uy,uz for uniaxial, u1x,u1y,u1z,u2x,u2y,u2z for cubic
 	kernelType     string     // Determines which kernel subprogram to use.
 	wantDemag      bool       // DEBUG: false disables the convolution and thus the demag field.
-	tabulate       []bool     // What output to tabulate, see simoutput.go
-	temp           float32    // Temperature in K
+	wantEnergy     bool
+	tabulate       []bool  // What output to tabulate, see simoutput.go
+	temp           float32 // Temperature in K
 }
 
 
@@ -100,11 +101,11 @@ type Sim struct {
 	size3D         []int      //simulation grid size (without 3 as first element)
 	hDev           *DevTensor // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
 	mLocal, hLocal *tensor.T4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
-	//mLocalLock     sync.RWMutex
-	mUpToDate bool       // Is mLocal up to date with mDev? If not, a copy from the device is needed before storing output.
-	phiDev    *DevTensor // energy density. Use getEDens(), assures this pointer is initiated.
-	phiLocal  *tensor.T3 // local energy density.
-	sumPhi    Reductor
+	mUpToDate      bool       // Is mLocal up to date with mDev? If not, a copy from the device is needed before storing output.
+	phiDev         *DevTensor // energy density. Use getEDens(), assures this pointer is initiated.
+	phiLocal       *tensor.T3 // local energy density.
+	sumPhi         Reductor   // Sum reduction for energy density
+	energy         float32    //total energy
 
 	Conv              // Convolution plan for the magnetostatic field
 	exchInConv bool   // Exchange included in convolution?

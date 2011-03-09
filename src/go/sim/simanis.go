@@ -63,11 +63,11 @@ func (s *Sim) AnisCubic(u1z, u1y, u1x float32, u2z, u2y, u2x float32) {
 	u2y /= norm1
 	u2z /= norm1
 
-	u3x := u1y * u2z - u1z * u2y
-	u3y := u1x * u2z - u1z * u2x
-	u3z := u1x * u2y - u1y * u2x
+	u3x := u1y*u2z - u1z*u2y
+	u3y := u1x*u2z - u1z*u2x
+	u3z := u1x*u2y - u1y*u2x
 
-	s.Println("Cubic anisotropy axes: (", u1z, u1y, u1x, "), (",u2z, u2y, u2x, "), (",  u3z, u3y, u3x, ")")
+	s.Println("Cubic anisotropy axes: (", u1z, u1y, u1x, "), (", u2z, u2y, u2x, "), (", u3z, u3y, u3x, ")")
 
 	s.input.anisAxes = []float32{u1x, u1y, u1z, u2x, u2y, u2z, u3x, u3y, u3z}
 	s.invalidate()

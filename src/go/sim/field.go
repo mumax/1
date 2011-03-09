@@ -13,6 +13,12 @@ import (
 	. "mumax/common"
 )
 
+// Calulates the sum of the demag and exchange fields and corresponding energy density
+func (s *Sim) calcHDemagExchEdens(m, h, phi *DevTensor) {
+	s.calcHDemagExch(m, h)
+	s.ScaledDotProduct(phi, m, h, -1./2.)
+}
+
 // Calulates the sum of the demag and exchange fields.
 func (s *Sim) calcHDemagExch(m, h *DevTensor) {
 	if s.input.wantDemag {
@@ -25,8 +31,23 @@ func (s *Sim) calcHDemagExch(m, h *DevTensor) {
 	}
 }
 
+
 // Adds the "local" fields to H (zeeman, anisotropy)
 func (s *Sim) addLocalFields(m, h *DevTensor) {
+	s.updateHext()
+	// TODO: only if needed
+	s.AddLocalFields(m, h, s.hextInt, s.input.anisType, s.anisKInt, s.input.anisAxes)
+}
+
+
+// Adds the "local" fields to H (zeeman, anisotropy) and adds the corresponding energy density to phi
+func (s *Sim) addLocalFieldsEdens(m, h, phi *DevTensor) {
+	s.updateHext()
+	s.AddLocalFields(m, h, s.hextInt, s.input.anisType, s.anisKInt, s.input.anisAxes)
+}
+
+// updates the externally applied field
+func (s *Sim) updateHext() {
 	if s.appliedField != nil {
 		s.hextSI = s.appliedField.GetAppliedField(s.time * float64(s.UnitTime()))
 	} else {
@@ -37,9 +58,23 @@ func (s *Sim) addLocalFields(m, h *DevTensor) {
 	s.hextInt[0] = s.hextSI[0] / B
 	s.hextInt[1] = s.hextSI[1] / B
 	s.hextInt[2] = s.hextSI[2] / B
+}
 
-	// TODO: only if needed
-	s.AddLocalFields(m, h, s.hextInt, s.input.anisType, s.anisKInt, s.input.anisAxes)
+
+func (s *Sim) calcHeffEdens(m, h, phi *DevTensor) {
+	// (1) Self-magnetostatic field and exchange
+	// The convolution may include the exchange field
+	s.calcHDemagExchEdens(m, h, phi)
+
+	// (2) Add the externally applied field
+	s.addLocalFieldsEdens(m, h, phi)
+
+	// WARNING: thermal field not included in energy
+	if s.input.temp != 0 {
+		s.addThermalField(h)
+	}
+
+	s.energy = s.sumEdens(phi)
 }
 
 // Calculates the effective field of m and stores it in h
@@ -56,7 +91,7 @@ func (s *Sim) calcHeff(m, h *DevTensor) {
 	}
 
 	// (3) Add the edge-correction field
-	if s.input.edgeCorr != 0 {
-		s.addEdgeField(m, h)
-	}
+	//	if s.input.edgeCorr != 0 {
+	//		s.addEdgeField(m, h)
+	//	}
 }
