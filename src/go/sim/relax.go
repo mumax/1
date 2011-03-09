@@ -13,45 +13,16 @@ import ()
 
 func (s *Sim) Relax() {
 	s.init()
-
-	var startDm float32 = 1e-2
-	var minDm float32 = 1e-6
-	var maxTorque float32 = 1e-5
-
-	s.Println("Relaxing until torque < ", maxtorque)
-	s.Normalize(s.mDev)
-	s.mUpToDate = false
-
-	backup_maxdm := s.input.maxDm
-
-	dm := startDm
-	s.torque = 2 * maxTorque // to get in loop
-	for s.torque > maxTorque {
-		torque := [4]float32{1, 1, 1, 1}
-		s.input.maxDm = dm
-		s.input.minDm = dm
-		// Take a few steps first
-		for i := 0; i < 10; i++ {
-			s.relaxstep()
-			torque[0], torque[1], torque[2], torque[3] = s.torque, torque[0], torque[1], torque[2]
-		}
-		for !isUnstable(&torque) {
-			s.relaxstep()
-			torque[0], torque[1], torque[2], torque[3] = s.torque, torque[0], torque[1], torque[2]
-			//dm *= 1.01
-			//s.input.maxDm = dm
-			//s.input.minDm = dm
-		}
-		if dm > minDm {
-			dm *= 0.8
-			//s.Println("\nmax delta m:", dm, "\n")
-		}
+	s.wantEnergy = true
+	s.relaxstep()
+	prevE := s.energy + 1 // to get in loop
+	for s.energy <= prevE{
+		prevE = s.energy
+		s.relaxstep()
 	}
-
-	s.input.maxDm = backup_maxdm
-	s.updateMLocal() // Even if no output was saved, mLocal should be up to date for a possible next relax()
-	s.assureOutputUpToDate()
 }
+	
+
 
 func (s *Sim) relaxstep() {
 	//backup_time := s.time
