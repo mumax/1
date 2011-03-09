@@ -1,5 +1,6 @@
 from mumax import *
 
+tabulate('E', True)
 msat(800E3)
 aexch(1.3E-11)
 alpha(1)
@@ -14,8 +15,11 @@ alpha(2)
 relax()
 save("m", "png")
 
-for i in range(0,100):
-	staticfield(i*1.0e-3, 0, 0)
-	relax()
+autosave('table', 'ascii', 1e-12)
+for i in range(0,2):
+	applystatic('field', i*1.0e-2, 0, 0)
+	#relax()
+	run(1000e-12)
 	save("m", "text")
+	save("m", "png")
 
