@@ -74,7 +74,6 @@ type Input struct {
 	anisAxes       []float32  // Anisotropy axes: ux,uy,uz for uniaxial, u1x,u1y,u1z,u2x,u2y,u2z for cubic
 	kernelType     string     // Determines which kernel subprogram to use.
 	wantDemag      bool       // DEBUG: false disables the convolution and thus the demag field.
-	wantEnergy     bool
 	tabulate       []bool  // What output to tabulate, see simoutput.go
 	temp           float32 // Temperature in K
 }
@@ -105,7 +104,8 @@ type Sim struct {
 	phiDev         *DevTensor // energy density. Use getEDens(), assures this pointer is initiated.
 	phiLocal       *tensor.T3 // local energy density.
 	sumPhi         Reductor   // Sum reduction for energy density
-	energy         float32    //total energy
+	energy         float32    // total energy
+	wantEnergy     bool		  // Should the energy be calculated on-the-fly (e.g. during relaxation)?
 
 	Conv              // Convolution plan for the magnetostatic field
 	exchInConv bool   // Exchange included in convolution?

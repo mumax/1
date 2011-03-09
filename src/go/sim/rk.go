@@ -316,14 +316,14 @@ func (rk *RK) step() {
 				}
 				if rk.fsal {
 					// update energy at the end of the step for fsal solvers
-					if i == order-1 {
+					if rk.wantEnergy && i == order-1 {
 						rk.calcHeffEnergy(m1, k[i])
 					} else {
 						rk.calcHeff(m1, k[i])
 					}
 				} else {
 					// update energy at the beginning of the step for non-fsal solvers
-					if i == 0 {
+					if rk.wantEnergy && i == 0 {
 						rk.calcHeffEnergy(m1, k[i])
 					} else {
 						rk.calcHeff(m1, k[i])
