@@ -16,10 +16,9 @@ relax()
 save("m", "png")
 
 autosave('table', 'ascii', 1e-12)
-for i in range(0,2):
-	applystatic('field', i*1.0e-2, 0, 0)
-	#relax()
-	run(1000e-12)
+for i in range(0,100):
+	applystatic('field', i*1.0e-3, 0, 0)
+	relax()
 	save("m", "text")
 	save("m", "png")
 
