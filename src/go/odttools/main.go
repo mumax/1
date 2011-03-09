@@ -57,6 +57,9 @@ func main() {
 	sh.AddFunc("getcol", GetCol)
 	sh.AddFunc("matrix", Matrix)
 	sh.AddFunc("meshdom", Meshdom)
+	sh.AddFunc("diff", Diff)
+	sh.AddFunc("diff2", Diff2)
+	sh.AddFunc("avgdiff2", AvgDiff2)
 	cmd, args, files := refsh.ParseFlags2()
 
 	// Each file is read and stored in "data".
@@ -68,6 +71,7 @@ func main() {
 	}
 
 	for _, file := range files {
+		fmt.Fprintln(os.Stdout, file)
 		table = omf.ReadTable(MustOpenRDONLY(file))
 		filename = file
 
