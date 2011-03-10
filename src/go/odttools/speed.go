@@ -63,7 +63,7 @@ func Diff2(data1, data2 string, timecol string) {
 	}
 }
 
-func AvgDiff2(data1, data2 string, timecol string) {
+func AvgDiff2(data1, data2 string, timecol string, max float32) {
 	defer func(){err := recover()
 		if err != nil{
 			fmt.Fprintln(os.Stdout, err)
@@ -94,8 +94,10 @@ func AvgDiff2(data1, data2 string, timecol string) {
 		prevTime = t
 		prevData1 = data1
 		prevData2 = data2
+		if speed < max{ // leave out bad peaks
 		total += float64(speed)
 		N++
+		}
 	}
 	newtable.AppendToColumn(diffname, float32(total/float64(N)))
 }

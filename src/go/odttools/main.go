@@ -71,7 +71,7 @@ func main() {
 	}
 
 	for _, file := range files {
-		fmt.Fprintln(os.Stdout, file)
+		fmt.Fprintln(os.Stderr, file)
 		table = omf.ReadTable(MustOpenRDONLY(file))
 		filename = file
 
