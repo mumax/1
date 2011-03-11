@@ -15,7 +15,7 @@ import (
 )
 
 
-// Calculates the demag + exchange energy, requiring a convolution.
+// Calculates the demag + exchange energy density, requiring a convolution.
 // When needed at every step, there are faster (but less flexible)
 // methods.
 func (s *Sim) calcEDensDemagExch(m, h, phi *DevTensor) {
@@ -23,6 +23,9 @@ func (s *Sim) calcEDensDemagExch(m, h, phi *DevTensor) {
 	s.ScaledDotProduct(phi, m, h, -1./2.)
 }
 
+// Calculates the total demag+exchange energy, requiring a convolution.
+// When needed at every step, there are faster (but less flexible)
+// methods.
 func (s *Sim) calcEDemagExch(m, h *DevTensor) float32 {
 	s.initEDens()
 	phi := s.phiDev
@@ -31,19 +34,23 @@ func (s *Sim) calcEDemagExch(m, h *DevTensor) float32 {
 	return totalEDens * s.cellSize[X] * s.cellSize[Y] * s.cellSize[Z]
 }
 
+
+// Adds the "local" energy density contributions
 func (s *Sim) addEDensLocal(m, h, phi *DevTensor) {
-	//TODO
+	panic("TODO")
 }
 
 func (s *Sim) calcEnergy(m, h *DevTensor) float32 {
 	return s.calcEDemagExch(m, h) // TODO: add other contributions
 }
 
+// Calculates the total energy in SI units.
 func (s *Sim) GetEnergySI() float32 {
 	s.init()
 	return s.calcEnergy(s.mDev, s.hDev) * s.UnitEnergy()
 }
 
+// INTERNAL: assure phiDev and friends are initiated.
 func (s *Sim) initEDens() {
 	if s.phiDev == nil {
 		s.init()

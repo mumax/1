@@ -205,23 +205,10 @@ func (d Cpu) fft(plan uintptr, in, out uintptr, direction int) {
 	}
 }
 
-/// unsafe FFT
-// func (d Cpu) fftForward(plan uintptr, in, out uintptr) {
-// 	C.cpuFFT3dPlan_forward((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
-// }
-//
-//
-// /// unsafe FFT
-// func (d Cpu) fftInverse(plan uintptr, in, out uintptr) {
-// 	C.cpuFFT3dPlan_inverse((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
-// }
-
-
-// func(d Cpu) (fft *FFT) Normalization() int{
-//   return int(C.gpuFFT3dPlan_normalization((*C.gpuFFT3dPlan)(fft.plan)))
-// }
-
-
+func (d Cpu) gaussianNoise(data uintptr, mean, stddev float32, N int) {
+	panic("unimplemented")
+	//C.cpu_gaussian_noise((*C.float)(unsafe.Pointer(data)), C.float(mean), C.float(stddev), C.int(N))
+}
 //_______________________________________________________________________________ GPU memory allocation
 
 // Allocates an array of float32s on the CPU.

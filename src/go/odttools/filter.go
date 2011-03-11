@@ -68,10 +68,25 @@ func (s Set) ToArray() []float32 {
 	return array
 }
 
+
+// Like Matrix() but outputs octave/matlab commands that set
+// x, y and data for use in surf(x,y,data)
+func Meshdom(i_colname, j_colname, data_colname string) {
+	matrix(i_colname, j_colname, data_colname, true)
+}
+
+
 // Assuming columns i,j contain matrix indices,
 // coutput column data in a correspondig 2D grid.
 // Missing values become 0.
-func Matrix(i_col, j_col, data_col int) {
+func Matrix(i_colname, j_colname, data_colname string, octave_format bool) {
+	matrix(i_colname, j_colname, data_colname, false)
+}
+
+func matrix(i_colname, j_colname, data_colname string, octave_format bool) {
+	i_col := table.GetColumnIndex(i_colname)
+	j_col := table.GetColumnIndex(j_colname)
+	data_col := table.GetColumnIndex(data_colname)
 
 	// (1) Construct a sorted set of unique i,j indices (floats).
 	// This is the "meshdom", in matlab terms.
@@ -88,6 +103,26 @@ func Matrix(i_col, j_col, data_col int) {
 		setJ.Add(J[i])
 	}
 	J = setJ.ToArray()
+
+	if octave_format {
+		fmt.Print("x=[")
+		for i := range I {
+			if i != 0 {
+				fmt.Print(", ")
+			}
+			fmt.Print(I[i])
+		}
+		fmt.Println("];")
+
+		fmt.Print("y=[")
+		for i := range J {
+			if i != 0 {
+				fmt.Print(", ")
+			}
+			fmt.Print(J[i])
+		}
+		fmt.Println("];")
+	}
 
 	// (2) Make the "outer product" of the two index sets,
 	// spanning a matrix that can be index with each possible i,j pair
@@ -111,11 +146,22 @@ func Matrix(i_col, j_col, data_col int) {
 	}
 
 	// (4) Print the matrix
-	for _, i := range I{
-		for _,j := range J{
-			fmt.Print(matrix[i][j], "\t")
-		}
-		fmt.Println()
+	if octave_format {
+		fmt.Print("data=reshape([")
 	}
-	haveOutput=true
+	for ind_i, i := range I {
+		for ind_j, j := range J {
+			fmt.Print(matrix[i][j], "\t")
+			if octave_format && !(ind_i == len(I)-1 && ind_j == len(J)-1) {
+				fmt.Print(",")
+			}
+		}
+		if !octave_format {
+			fmt.Println()
+		}
+	}
+	if octave_format {
+		fmt.Println("], ", len(J), ", ", len(I), ");")
+	}
+	haveOutput = true
 }

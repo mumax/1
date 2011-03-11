@@ -13,7 +13,7 @@ import (
 type Material struct {
 	aExch   float32 // Exchange constant in J/m
 	mSat    float32 // Saturation magnetization in A/m
-	mu0     float32 // mu0 in N/A^2
+	mu0     float32 // mu0 in J/m A^2
 	gamma0  float32 // Gyromagnetic ratio in m/As
 	muB     float32 // Bohr magneton in Am^2
 	e       float32 // Electron charge in As
@@ -22,6 +22,9 @@ type Material struct {
 	spinPol float32 // Spin-transfer torque: spin-polarization of the electrical current (0-100%)
 }
 
+
+// Boltzmann's constant in J/K
+const kBSI = 1.380650424E-23 // J/K
 
 // func NewMaterial() *Material {
 // 	mat := new(Material)

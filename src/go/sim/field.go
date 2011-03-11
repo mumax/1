@@ -51,6 +51,10 @@ func (s *Sim) calcHeff(m, h *DevTensor) {
 	// (2) Add the externally applied field
 	s.addLocalFields(m, h)
 
+	if s.input.temp != 0 {
+		s.addThermalField(h)
+	}
+
 	// (3) Add the edge-correction field
 	if s.input.edgeCorr != 0 {
 		s.addEdgeField(m, h)

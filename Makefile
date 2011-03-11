@@ -13,6 +13,7 @@ all:
 	make -C bin
 
 depend:
+	make -C lib
 	make -C dep
 
 .PHONY: clean

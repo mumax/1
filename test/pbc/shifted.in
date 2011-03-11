@@ -17,7 +17,7 @@ vortex 1 1
 autosave  m png 100e-12
 autosave  table ascii 100e-12
 
-staticfield 20e-3 20e-3 0
+applystatic field 20e-3 20e-3 0
 run 5e-9
 
 alpha 0.02

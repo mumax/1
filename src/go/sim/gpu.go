@@ -201,6 +201,10 @@ func (d Gpu) fft(plan uintptr, in, out uintptr, direction int) {
 }
 
 
+func (d Gpu) gaussianNoise(data uintptr, mean, stddev float32, N int) {
+	C.gpu_gaussian_noise((*C.float)(unsafe.Pointer(data)), C.float(mean), C.float(stddev), C.int(N))
+}
+
 func (d Gpu) newArray(nFloats int) uintptr {
 	return uintptr(unsafe.Pointer(C.new_gpu_array(C.int(nFloats))))
 }

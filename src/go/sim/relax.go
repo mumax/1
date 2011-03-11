@@ -44,7 +44,7 @@ func (s *Sim) Relax() {
 		}
 		if dm > minDm {
 			dm *= 0.8
-			s.Println("\nmax delta m:", dm, "\n")
+			//s.Println("\nmax delta m:", dm, "\n")
 		}
 	}
 

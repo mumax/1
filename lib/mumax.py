@@ -85,6 +85,10 @@ def spinpolarization(p):
 def xi(xi):
 	send1("xi", xi)
 
+# Sets the temperature in Kelvin
+def temperature(T):
+	send1("temperature", T)
+
 
 # Geometry
 
@@ -207,6 +211,10 @@ def applystatic(what, bx, by, bz):
 # Apply an RF field/current
 def applyrf(what, bx, by, bz, freq):
 	send("applyrf", [what, bx, by, bz, freq])
+
+# Apply a rotating field/current
+def applyrotating(what, bx, by, bz, freq, phaseX, phaseY, phaseZ):
+	send("applyrotating", [what, bx, by, bz, freq, phaseX, phaseY, phaseZ])
 
 # Apply a pulsed field/current
 def applypulse(what, bx, by, bz, risetime):

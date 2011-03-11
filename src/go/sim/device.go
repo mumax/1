@@ -190,6 +190,8 @@ type Device interface {
 
 	freeFFTPlan(plan uintptr)
 
+	gaussianNoise(data uintptr, mean, stddev float32, N int)
+
 	//______________________________________________________________________________ already safe
 
 	// The GPU stride in number of float32s (!)

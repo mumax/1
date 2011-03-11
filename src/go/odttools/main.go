@@ -56,6 +56,7 @@ func main() {
 	sh.AddFunc("cat", Cat)
 	sh.AddFunc("getcol", GetCol)
 	sh.AddFunc("matrix", Matrix)
+	sh.AddFunc("meshdom", Meshdom)
 	cmd, args, files := refsh.ParseFlags2()
 
 	// Each file is read and stored in "data".

@@ -29,7 +29,6 @@ const (
 	DEFAULT_MIN_DM            = 0
 	DEFAULT_DT_INTERNAL       = 1e-4
 	DEFAULT_RELAX_MAX_TORQUE  = 1e-3
-	DEFAULT_KERNELTYPE        = "mumaxkern-go"
 )
 
 // Sim has an "input" member of type "Input".
@@ -76,6 +75,7 @@ type Input struct {
 	kernelType     string     // Determines which kernel subprogram to use.
 	wantDemag      bool       // DEBUG: false disables the convolution and thus the demag field.
 	tabulate       []bool     // What output to tabulate, see simoutput.go
+	temp           float32    // Temperature in K
 }
 
 
@@ -156,7 +156,8 @@ type Sim struct {
 	LastrunStepsPerSecond   float64
 	LastrunSimtimePerSecond float64
 
-	anisKInt []float32 // Anisotropy constant(s), as many as needed, internal units
+	anisKInt  []float32  // Anisotropy constant(s), as many as needed, internal units
+	tempNoise *DevTensor // Buffer for thermal noise, one component.
 }
 
 
@@ -190,9 +191,13 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.desc = make(map[string]interface{})
 	sim.hextInt = make([]float32, 3)
 	sim.initWriters()
-	sim.input.anisKSI = []float32{0.} // even when not used these must be allocated
+	sim.input.anisKSI = []float32{0., 0., 0.} // even when not used these must be allocated
 	sim.input.anisAxes = []float32{0.}
-	sim.input.kernelType = DEFAULT_KERNELTYPE
+	if *cpu {
+		sim.input.kernelType = "mumaxkern-cpu"
+	} else {
+		sim.input.kernelType = "mumaxkern-gpu"
+	}
 	sim.exchInConv = true
 	sim.input.wantDemag = true
 	sim.input.tabulate = make([]bool, TAB_LEN)

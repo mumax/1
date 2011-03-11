@@ -57,3 +57,7 @@ func Abs(x float32) float32{
 	}
 	return x
 }
+
+func Sqrt32(x float32) float32{
+	return float32(math.Sqrt(float64(x)))
+}
