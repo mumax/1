@@ -79,6 +79,10 @@ def partsize(x, y, z):
 # Sets the cell size, in meters
 def cellsize(x, y, z):
 	do3("cellsize", x, y, z)
+	
+# Sets the number of periodic repetitions
+def periodic(Nx, Ny, Nz):
+  do3("periodic", Nx, Ny, Nz)
 
 
 # Initial magnetization

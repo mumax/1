@@ -137,7 +137,7 @@ def setmcell(i, j, k, mx, my, mz):
 
 # Sets the magnetization in cell position x, y, z (in meters) to (mx, my, mz)
 def setm(x, y, z, mx, my, mz):
-	send("setmcell", [x, y, z, mx, my, mz])
+	send("setm", [x, y, z, mx, my, mz])
 
 # Sets the magnetization to a ransendm state
 def setransendm():
