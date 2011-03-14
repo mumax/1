@@ -32,6 +32,24 @@ func (s *Sim) getM(component int) float32 {
 }
 
 
+func (s *Sim) GetMaxM(component int) {
+	Send(s.getMaxM(2 - component)) // translate to ZYX
+
+}
+func (s *Sim) getMaxM(component int) float32 {
+	s.init()
+	return s.devmax.Reduce(s.mDev.comp[component]) 
+}
+
+func (s *Sim) GetMinM(component int) {
+	Send(s.getMinM(2 - component)) // translate to ZYX
+
+}
+func (s *Sim) getMinM(component int) float32 {
+	s.init()
+	return s.devmin.Reduce(s.mDev.comp[component]) 
+}
+
 // Gets the maximum torque expressed in gamma*Ms, as set by the current solver.
 func (s *Sim) GetMaxTorque() {
 	s.init()

@@ -102,3 +102,50 @@ func AvgDiff2(data1, data2 string, timecol string, max float32) {
 	newtable.AppendToColumn(diffname, float32(total/float64(N)))
 }
 
+func AvgDiff2NoPeak(data1, data2 string, timecol string, peakcolName string, max float32) {
+	defer func(){err := recover()
+		if err != nil{
+			fmt.Fprintln(os.Stdout, err)
+		}
+	}()
+
+	peakcol := table.GetColumn(peakcolName)
+	col1 := table.GetColumn(data1)
+	col2 := table.GetColumn(data2)
+	time := table.GetColumn(timecol)
+	diffname := "d" + data1 + "_d" + timecol
+	newtable.EnsureColumn(diffname, "(" + table.GetUnit(data1) + ")/(" + table.GetUnit(timecol) + ")")
+
+	var prevTime float32 
+	var prevData1, prevData2 float32
+	var total float64 = 0.
+	var N int
+ 	peak := false
+	for i := range col1 {
+		data1 := col1[i]
+		data2 := col2[i]
+		t := time[i]
+		var speed float32 = 0
+		if peakcol[i] > max{
+			peak = true
+			break
+		}
+		if i > 0{
+			dt := t - prevTime
+			dx := data1 -prevData1
+			dy := data2 -prevData2
+			speed = Sqrt32(dx*dx + dy*dy)/dt
+		}	
+		prevTime = t
+		prevData1 = data1
+		prevData2 = data2
+		if speed < 1000{ // leave out bad peaks hack
+		total += float64(speed)
+		N++
+		}
+	}
+	speed := float32(total/float64(N))
+	if peak{speed = 0}
+	newtable.AppendToColumn(diffname, speed)
+}
+

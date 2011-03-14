@@ -275,6 +275,16 @@ def getm(component):
 	send1("getm", component)
 	return recv()
 
+# Retrieves the maximum value of a magnetization component (0=x, 1=y, 2=z).
+def getmaxm(component):
+	send1("getmaxm", component)
+	return recv()
+
+# Retrieves the minimum value of a magnetization component (0=x, 1=y, 2=z).
+def getminm(component):
+	send1("getminm", component)
+	return recv()
+
 # Retrieves the maximum torque in units gamma*Msat
 def getmaxtorque(component):
 	send1("getmaxtorque")
