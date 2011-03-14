@@ -204,6 +204,16 @@ def mindm(dm):
 
 # Excitation
 
+# Apply a pointwise-defined field/current defined by a number of time + field points
+# The field is linearly interpolated between the defined points
+# E.g.:
+#  applypointwise('field', 0,       0,0,0) 
+#  applypointwise('field', 1e-9, 1e-3,0,0) 
+# Sets up a linear ramp in 1ns form 0 to 1mT along X.
+# Arbitrary functions can be well approximated by specifying a large number of time+field combinations.
+def applypointwise(what, time, bx, by, bz):
+	send("applypointwise", [what, time, bx, by, bz])
+
 # Apply a static field/current
 def applystatic(what, bx, by, bz):
 	send("applystatic", [what, bx, by, bz])
