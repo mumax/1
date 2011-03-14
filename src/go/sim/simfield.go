@@ -54,14 +54,14 @@ func (s *Sim) apply(what string, function AppliedField) {
 }
 
 
-func (s *Sim) getApplied(what string) AppliedField{
+func (s *Sim) getApplied(what string) AppliedField {
 	switch strings.ToLower(what) {
 	default:
 		panic(Bug("Illegal Argument: " + what + " Options are: [field (or B), currentdensiry (or j)]"))
 	case "field", "b":
-		return s.appliedField 
+		return s.appliedField
 	case "currentdensity", "j":
-			return s.appliedCurrDens
+		return s.appliedCurrDens
 	}
 	panic(Bug(""))
 	return nil
@@ -85,7 +85,7 @@ func (field *staticField) GetAppliedField(time float64) [3]float32 {
 // Apply a field defined by a number of points
 func (s *Sim) ApplyPointwise(what string, time float64, bz, by, bx float32) {
 	p, ok := (s.getApplied(what)).(*pointwiseField)
-	if ! ok{
+	if !ok {
 		println("new pointwise applied " + what)
 		p = &pointwiseField{0, make([]fieldpoint, 0)}
 		s.apply(what, p)
@@ -94,32 +94,34 @@ func (s *Sim) ApplyPointwise(what string, time float64, bz, by, bx float32) {
 }
 
 type pointwiseField struct {
-	lastIdx int // Index of last time, for fast lookup of next
-	points []fieldpoint // stores time, bx, by, bz
+	lastIdx int          // Index of last time, for fast lookup of next
+	points  []fieldpoint // stores time, bx, by, bz
 }
 
-type fieldpoint struct{
+type fieldpoint struct {
 	time float64
-	b [3]float32
+	b    [3]float32
 }
 
-func (f *pointwiseField) add(t float64, bx, by, bz float32){
+func (f *pointwiseField) add(t float64, bx, by, bz float32) {
 	f.points = append(f.points, fieldpoint{t, [3]float32{bx, by, bz}})
 }
 
 func (field *pointwiseField) GetAppliedField(time float64) [3]float32 {
 
-	if len( field.points) < 2{
+	if len(field.points) < 2 {
 		panic(InputErr("Pointwise field/current needs at least two points"))
 	}
 	//find closest times
-	for ;field.lastIdx <len(field.points); field.lastIdx++{
-		if field.points[field.lastIdx].time >= time{break}	
-	}	
+	for ; field.lastIdx < len(field.points); field.lastIdx++ {
+		if field.points[field.lastIdx].time >= time {
+			break
+		}
+	}
 	i := field.lastIdx // points to a time _past_ t
 
 	// out of range: field is 0
-	if i-1 < 0 || i >= len(field.points){
+	if i-1 < 0 || i >= len(field.points) {
 		return [3]float32{0., 0., 0.}
 	}
 	pt1 := field.points[i-1]
@@ -128,12 +130,11 @@ func (field *pointwiseField) GetAppliedField(time float64) [3]float32 {
 	dt := pt2.time - pt1.time
 	t := float32((time - pt1.time) / (dt)) // 0..1
 	B := [3]float32{0, 0, 0}
-	for i := range B{
-		B[i] = pt1.b[i] + t * (pt2.b[i] - pt1.b[i])	
+	for i := range B {
+		B[i] = pt1.b[i] + t*(pt2.b[i]-pt1.b[i])
 	}
-	 return B
+	return B
 }
-
 
 
 func (s *Sim) ApplyPulse(what string, hz, hy, hx float32, duration, risetime float64) {
