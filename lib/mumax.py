@@ -204,6 +204,16 @@ def mindm(dm):
 
 # Excitation
 
+# Apply a pointwise-defined field/current defined by a number of time + field points
+# The field is linearly interpolated between the defined points
+# E.g.:
+#  applypointwise('field', 0,       0,0,0) 
+#  applypointwise('field', 1e-9, 1e-3,0,0) 
+# Sets up a linear ramp in 1ns form 0 to 1mT along X.
+# Arbitrary functions can be well approximated by specifying a large number of time+field combinations.
+def applypointwise(what, time, bx, by, bz):
+	send("applypointwise", [what, time, bx, by, bz])
+
 # Apply a static field/current
 def applystatic(what, bx, by, bz):
 	send("applystatic", [what, bx, by, bz])
@@ -263,6 +273,16 @@ def savebenchmark(file):
 # Retrieves an average magnetization component (0=x, 1=y, 2=z).
 def getm(component):
 	send1("getm", component)
+	return recv()
+
+# Retrieves the maximum value of a magnetization component (0=x, 1=y, 2=z).
+def getmaxm(component):
+	send1("getmaxm", component)
+	return recv()
+
+# Retrieves the minimum value of a magnetization component (0=x, 1=y, 2=z).
+def getminm(component):
+	send1("getminm", component)
 	return recv()
 
 # Retrieves the maximum torque in units gamma*Msat

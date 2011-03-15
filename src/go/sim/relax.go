@@ -16,12 +16,11 @@ func (s *Sim) Relax() {
 	s.wantEnergy = true
 	s.relaxstep()
 	prevE := s.energy + 1 // to get in loop
-	for s.energy <= prevE{
+	for s.energy <= prevE {
 		prevE = s.energy
 		s.relaxstep()
 	}
 }
-	
 
 
 func (s *Sim) relaxstep() {

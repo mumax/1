@@ -296,7 +296,9 @@ func (rk *RK) step() {
 	trials := 0
 	// previous energy value to make sure energy drops when wantEnergy == true
 	prevEnergy := rk.energy
-	if prevEnergy == 0 {prevEnergy = 9999999999}
+	if prevEnergy == 0 {
+		prevEnergy = 9999999999
+	}
 
 	// Try to take a step with the current dt.
 	// If the step fails (error too big),
@@ -420,7 +422,7 @@ func (rk *RK) step() {
 			checkdt(rk.dt)
 			//undo bad steps
 			// if we want the energy to be calculated on-the-fly, we make sure it always drops
-			if error > 2*rk.input.maxError || (rk.wantEnergy && rk.energy > prevEnergy){
+			if error > 2*rk.input.maxError || (rk.wantEnergy && rk.energy > prevEnergy) {
 				TensorCopyOn(rk.mbackup, m)
 				goodstep = false
 				//fmt.Println("bad step")

@@ -60,6 +60,7 @@ func main() {
 	sh.AddFunc("diff", Diff)
 	sh.AddFunc("diff2", Diff2)
 	sh.AddFunc("avgdiff2", AvgDiff2)
+	sh.AddFunc("avgdiff2nopeak", AvgDiff2NoPeak)
 	cmd, args, files := refsh.ParseFlags2()
 
 	// Each file is read and stored in "data".
