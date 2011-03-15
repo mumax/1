@@ -36,3 +36,8 @@ func (s *Sim) SaveM(fname, format string) {
 func (s *Sim) Demag(calc_demag bool) {
 	s.input.wantDemag = calc_demag
 }
+
+// Overrides whether the energy should be calculated.
+func (s *Sim) Energy(calc_energy bool) {
+	s.wantEnergy = calc_energy
+}

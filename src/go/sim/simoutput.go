@@ -99,10 +99,6 @@ func resolve(what, format string) Output {
 		switch format {
 		default:
 			panic("unknown format " + format + ". options are: binary (=binary4,omf), text (=ascii), png")
-			//		case "binary":
-			//			return &MBinary{&Periodic{0., 0.}}
-			//		case "ascii":
-			//			return &MAscii{&Periodic{0., 0.}}
 		case "png":
 			return &MPng{&Periodic{0., 0.}}
 		case "binary", "binary4", "omf":
@@ -113,6 +109,8 @@ func resolve(what, format string) Output {
 	case "table":
 		//format gets ignored for now
 		return &Table{&Periodic{0., 0.}}
+	case "energydensity":
+		return &Edens{&Periodic{0., 0.}, format}
 	case "torque":
 		return &Torque{&Periodic{0., 0.}, format}
 	}
@@ -289,6 +287,39 @@ func (m *MOmf) Save(s *Sim) {
 	file.Desc = s.desc
 	file.ValueMultiplier = s.mSat
 	file.ValueUnit = "A/m"
+	file.Format = m.format
+	file.DataFormat = "4"
+	omf.FEncode(fname, file)
+	m.sinceoutput = float32(s.time) * s.UnitTime()
+}
+
+type Edens struct {
+	*Periodic
+	format string
+}
+
+
+var edens4 *tensor.T4
+var edens3 *tensor.T3
+
+// INTERNAL
+func (m *Edens) Save(s *Sim) {
+	s.initEDens()
+	// no initEDens() to make sure it has been calculated already
+	if edens4 == nil{
+		edens4 = tensor.NewT4(s.size4D[:])
+		edens3 = tensor.ToT3(tensor.Component(edens4, 0))
+	}
+	TensorCopyFrom(s.phiDev, edens3)	
+
+	fname := s.outputdir + "/" + "phi" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
+	var file omf.File
+	file.T4 = edens4
+	file.StepSize = s.input.cellSize
+	file.MeshUnit = "m"
+	file.Desc = s.desc
+	file.ValueMultiplier = s.mSat
+	file.ValueUnit = "internal"
 	file.Format = m.format
 	file.DataFormat = "4"
 	omf.FEncode(fname, file)
