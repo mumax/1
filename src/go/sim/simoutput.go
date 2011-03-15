@@ -109,7 +109,7 @@ func resolve(what, format string) Output {
 	case "table":
 		//format gets ignored for now
 		return &Table{&Periodic{0., 0.}}
-	case "energydensity":
+	case "phi", "energydensity":
 		return &Edens{&Periodic{0., 0.}, format}
 	case "torque":
 		return &Torque{&Periodic{0., 0.}, format}
