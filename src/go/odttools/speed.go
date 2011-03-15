@@ -10,6 +10,7 @@ package main
 import (
 	. "mumax/common"
 	"os"
+	"math"
 	"fmt"
 )
 
@@ -149,3 +150,32 @@ func AvgDiff2NoPeak(data1, data2 string, timecol string, peakcolName string, max
 	newtable.AppendToColumn(diffname, speed)
 }
 
+
+func InplaneRMS(data1, data2 string, peakcolName string, max float32) {
+	defer func(){err := recover()
+		if err != nil{
+			fmt.Fprintln(os.Stdout, err)
+		}
+	}()
+
+	peakcol := table.GetColumn(peakcolName)
+	col1 := table.GetColumn(data1)
+	col2 := table.GetColumn(data2)
+	newtable.EnsureColumn("inplanerms", "")
+	var rms float64
+	var N int
+ 	peak := false
+	for i := range col1 {
+		data1 := col1[i]
+		data2 := col2[i]
+		rms += float64(data1*data1 + data2*data2)
+		N++
+		if peakcol[i] > max{
+			peak = true
+			break
+		}
+	}
+	rms = math.Sqrt(rms/float64(N))
+	if peak{rms = 0}
+	newtable.AppendToColumn("inplanerms", float32(rms))
+}
