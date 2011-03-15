@@ -222,6 +222,10 @@ def applystatic(what, bx, by, bz):
 def applyrf(what, bx, by, bz, freq):
 	send("applyrf", [what, bx, by, bz, freq])
 
+# Apply an RF field/current, slowly ramped in
+def applyrframp(what, bx, by, bz, freq, ramptime):
+	send("applyrframp", [what, bx, by, bz, freq, ramptime])
+
 # Apply a rotating field/current
 def applyrotating(what, bx, by, bz, freq, phaseX, phaseY, phaseZ):
 	send("applyrotating", [what, bx, by, bz, freq, phaseX, phaseY, phaseZ])
