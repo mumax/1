@@ -118,8 +118,8 @@ func AvgDiff2NoPeak(data1, data2 string, timecol string, peakcolName string, max
 
 	var prevTime float32 
 	var prevData1, prevData2 float32
-	var total float64 = 0.
-	var N int
+	var total float32 = 0.
+	//var N int
  	peak := false
 	for i := range col1 {
 		data1 := col1[i]
@@ -139,12 +139,12 @@ func AvgDiff2NoPeak(data1, data2 string, timecol string, peakcolName string, max
 		prevTime = t
 		prevData1 = data1
 		prevData2 = data2
-		if speed < 1000{ // leave out bad peaks hack
-		total += float64(speed)
-		N++
+		if speed < 500{ // leave out bad peaks hack
+		if speed > total	{total = speed}
+		//N++
 		}
 	}
-	speed := float32(total/float64(N))
+	speed := float32(total)//float64(N))
 	if peak{speed = 0}
 	newtable.AppendToColumn(diffname, speed)
 }
