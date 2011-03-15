@@ -1,6 +1,7 @@
 # Micromagnetic standard problem 4
 from mumax import *
 
+energy(True)
 
 # material
 msat(800e3)   
@@ -24,6 +25,7 @@ tabulate('E', True)
 
 # run
 autosave("m", "omf", 100e-12)
+autosave("energydensity", "text", 100e-12)
 autosave("table", "ascii", 1e-12)
 run(10e-9)
 

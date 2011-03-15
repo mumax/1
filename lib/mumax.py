@@ -313,4 +313,8 @@ def kerneltype(cmd):
 def demag(b):
 	send1("demag", cmd)
 
+# Override whether or not (true/false) the energy should be calculated
+def energy(b):
+	send1("energy", b)
+
 
