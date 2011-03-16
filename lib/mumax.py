@@ -284,6 +284,11 @@ def getmaxm(component):
 	send1("getmaxm", component)
 	return recv()
 
+# Retrives the vortex core position in meters, center = 0,0
+def getcorepos():
+	send0("getcorepos")
+	return recv(), recv()
+
 # Retrieves the minimum value of a magnetization component (0=x, 1=y, 2=z).
 def getminm(component):
 	send1("getminm", component)
