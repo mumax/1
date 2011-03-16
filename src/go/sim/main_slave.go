@@ -13,6 +13,7 @@ package sim
 // python or java wrappers.
 
 import (
+	. "mumax/common"
 	"os"
 	"flag"
 	"fmt"
@@ -78,7 +79,7 @@ func main_slave() {
 		refsh.CrashOnError = true
 		refsh.AddAllMethods(sim)
 		refsh.Output = sim
-		refsh.Exec(in)
+		refsh.Exec(NewBlockingReader(in))
 
 		// We're done
 		err2 := os.Rename(running, sim.outputdir+"/finished")

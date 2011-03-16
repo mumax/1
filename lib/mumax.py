@@ -139,6 +139,10 @@ def vortex(circulation, polarization):
 def setmcell(i, j, k, mx, my, mz):
 	send("setmcell", [i, j, k, mx, my, mz])
 
+# Like setmcell but for a range of cells between x1,y1,z1 (inclusive) and x2,y2,z2 (exclusive)
+def setmrange(x1, y1, z1, x2, y2, z2, mx, my, mz):
+	send("setmrange", [x1, y1, z1, x2, y2, z2, mx, my, mz])
+
 # Sets the magnetization in cell position x, y, z (in meters) to (mx, my, mz)
 def setm(x, y, z, mx, my, mz):
 	send("setm", [x, y, z, mx, my, mz])

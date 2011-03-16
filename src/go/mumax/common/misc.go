@@ -51,13 +51,13 @@ func ReplaceExt(filename, newext string) string {
 
 
 // Absolute value
-func Abs(x float32) float32{
-	if x < 0{
+func Abs(x float32) float32 {
+	if x < 0 {
 		return -x
 	}
 	return x
 }
 
-func Sqrt32(x float32) float32{
+func Sqrt32(x float32) float32 {
 	return float32(math.Sqrt(float64(x)))
 }
