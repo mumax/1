@@ -113,6 +113,11 @@ def maxcellsize(x, y, z):
 def ellipsoid(rx, ry, rz):
 	send3("ellipsoid", rx, ry, rz)
 
+# Sets number of periods in given direction
+def periodic(Nx, Ny, Nz):
+  send3("periodic", Nx, Ny, Nz)
+
+
 # Initial magnetization
 
 # Loads the magnetization state from a .omf file
