@@ -12,7 +12,6 @@ import (
 )
 
 // Blocks until all requested bytes are read.
-// Never returns an error but panics instead.
 type BlockingReader struct {
 	In io.Reader
 }
@@ -21,10 +20,21 @@ type BlockingReader struct {
 func (r *BlockingReader) Read(p []byte) (n int, err os.Error) {
 	n, err = r.In.Read(p)
 	if err != nil {
-		panic(IOErr(err.String()))
+		if err == os.EOF {
+			return
+		} else {
+			panic(IOErr(err.String()))
+		}
 	}
 	if n < len(p) {
-		r.Read(p[n:])
+		_, err = r.Read(p[n:])
+	}
+	if err != nil {
+		if err == os.EOF {
+			return
+		} else {
+			panic(IOErr(err.String()))
+		}
 	}
 	n = len(p)
 	return
