@@ -46,6 +46,10 @@ def send2(command, arg1, arg2):
 def send3(command, arg1, arg2, arg3):
 	myprint(command + " " + str(arg1) + " " + str(arg2) + " " + str(arg3))
 
+def send_3ints_3floats(command, arg1, arg2, arg3, arg4, arg5, arg6):
+  myprint(command + " " + str(arg1) + " " + str(arg2) + " " + str(arg3) + " {0:.3f} {1:.3f} {2:.3f}".format(arg4, arg5, arg6))
+
+
 # INTERNAL. Shorthand for running a command with arguments
 def send(command, args):
 	for a in args:
@@ -139,10 +143,25 @@ def setrandom():
 # Sets the magnetization to a vortex state
 def vortex(circulation, polarization):
 	send2("vortex", circulation, polarization)
+	
+def SBW():
+  send0("SBW")
+
+def SNW():
+  send0("SNW")
+
+def ABW():
+  send0("ABW")
+
+def ANW():
+  send0("ANW")
 
 # Sets the magnetization in cell with index i,j,k to (mx, my, mz)
+#def setmcell(i, j, k, mx, my, mz):
+	#send("setmcell", [i, j, k, mx, my, mz])
+
 def setmcell(i, j, k, mx, my, mz):
-	send("setmcell", [i, j, k, mx, my, mz])
+  send_3ints_3floats("setmcell", i, j, k, mx, my, mz)
 
 # Like setmcell but for a range of cells between x1,y1,z1 (inclusive) and x2,y2,z2 (exclusive)
 def setmrange(x1, y1, z1, x2, y2, z2, mx, my, mz):
