@@ -55,3 +55,10 @@ func (s *Sim) GetMaxTorque() {
 	s.init()
 	Send(s.torque)
 }
+
+
+func (s* Sim) GetCorePos(){
+	s.init()
+	Send(s.corePos()[0])
+	Send(s.corePos()[1])
+}

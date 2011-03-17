@@ -52,16 +52,18 @@ func ReadLine(in io.Reader) (line []string, eof bool) {
 // Reads one character from the Reader
 // -1 means EOF
 // errors are cought and cause panic
+// TODO: flips on incomplete read from reader, should be BlockingReader
 func ReadChar(in io.Reader) int {
 	buffer := [1]byte{}
 	switch nr, err := in.Read(buffer[0:]); true {
 	case nr < 0: // error
 		panic(err)
-	case nr == 0: // eof
+	case nr == 0: // eof TODO: or incomplete read!
 		return -1
 	case nr > 0: // ok
 		return int(buffer[0])
 	}
+	panic(("ReadChar"))
 	return 0 // never reached
 }
 
