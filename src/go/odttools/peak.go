@@ -28,3 +28,22 @@ func Peak(column string, threshold float32, output string) {
 	}
 	newtable.AppendToColumn(output+"_peak", value)
 }
+
+// counts the number of peaks
+func PeakCount(column string, threshold float32) {
+	col := table.GetColumn(column)
+	newtable.EnsureColumn(column+"_peaks", "")
+
+	peaks := 0
+	armed := true
+	for peakpos := range col {
+		if armed && col[peakpos] > threshold {
+			peaks ++
+			armed = false
+		}
+		if col[peakpos] < threshold{
+			armed = true
+		}
+	}
+	newtable.AppendToColumn(column+"_peaks", float32(peaks))
+}
