@@ -52,6 +52,7 @@ func main() {
 	sh := refsh.New()
 	sh.AddFunc("getdesc", GetDesc)
 	sh.AddFunc("peak", Peak)
+	sh.AddFunc("peakcount", PeakCount)
 	sh.AddFunc("header", Header)
 	sh.AddFunc("cat", Cat)
 	sh.AddFunc("getcol", GetCol)

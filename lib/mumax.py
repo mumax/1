@@ -232,6 +232,14 @@ def mindm(dm):
 
 # Excitation
 
+
+def applyfunction(what, func, duration, timestep):
+	t=0
+	while t<=duration:
+		bx,by,bz = func(t)
+		applypointwise(what, t, bx, by, bz)
+		t+=timestep
+
 # Apply a pointwise-defined field/current defined by a number of time + field points
 # The field is linearly interpolated between the defined points
 # E.g.:
