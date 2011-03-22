@@ -38,10 +38,10 @@ func PeakCount(column string, threshold float32) {
 	armed := true
 	for peakpos := range col {
 		if armed && col[peakpos] > threshold {
-			peaks ++
+			peaks++
 			armed = false
 		}
-		if col[peakpos] < threshold{
+		if col[peakpos] < threshold {
 			armed = true
 		}
 	}
