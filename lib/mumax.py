@@ -18,6 +18,7 @@ def recv():
 	#stderr.write("py_recv: ") #debug
 	data = stdin.readline()
 	while len(data) == 0 or data[0] != "%":	# skip lines not starting with the % prefix
+		stderr.write("py recv():" + data + "\n") #debug
 		data = stdin.readline()
 	#stderr.write(data + "\n") #debug
 	return float(data[1:])
