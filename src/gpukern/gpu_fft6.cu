@@ -124,11 +124,11 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   //     zero out the output matrix
     gpu_zero(output, plan->paddedStorageN);
   //     padding of the input matrix towards the output matrix
-    timer_start("fw_copy_to_pad");
-    startChrono();
+    //timer_start("fw_copy_to_pad");
+    //startChrono();
     gpu_copy_to_pad2(input, output, size, pSSize);
-    fprintf(stdout, "\n\n time: %e\n\n", stopChrono());
-    timer_stop("fw_copy_to_pad");
+    //fprintf(sterr, "\n\n time: %e\n\n", stopChrono());
+    //timer_stop("fw_copy_to_pad");
 
   
   float* data = output;
