@@ -172,7 +172,11 @@ func (s *Sim) initTabWriter() {
 		s.tabwriter.AddColumn("jz", "A/m2")
 	}
 	if s.input.tabulate[TAB_E] {
-		s.tabwriter.AddColumn("Energy", "J")
+		if IsInf(s.cellSize[X]){
+			s.tabwriter.AddColumn("Energy", "J/m")
+		}else{
+			s.tabwriter.AddColumn("Energy", "J")
+		}
 	}
 	if s.input.tabulate[TAB_MAXDMDT] {
 		s.tabwriter.AddColumn("max_dm/dt", "gammaMs")
