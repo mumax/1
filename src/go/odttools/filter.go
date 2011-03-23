@@ -151,7 +151,7 @@ func matrix(i_colname, j_colname, data_colname string, octave_format bool) {
 
 	// (3.5)
 	// Missing data gets replaced by nearest value
-	DELTA := 2 // do not look further than DELTA neighbors 
+	DELTA := 5 // do not look further than DELTA neighbors 
 	for i := range I {
 		for j := range J {
 			if matrix[I[i]][J[j]] == SENTINEL {
