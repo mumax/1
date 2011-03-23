@@ -18,20 +18,24 @@ var backend = GPU
 var fft_test_sizes [][]int = [][]int{
   {1,16,16}}
 
-
-func timeFFT(t *testing.T) {
+func TestTimeFFT(t *testing.T) {
 // func testFFTPadded2(t *testing.T) {
   
-var basic_size []int = []int{1,16,16}
+var basic_size []int = []int{1,32,32}
 var size []int = []int{1,16,16}
 
 
   for i := 1; i < 11; i++ {
-    size[0] = i*basic_size[0]
+    size[0] = basic_size[0]
     size[1] = i*basic_size[1]
     size[2] = i*basic_size[2]
 
-    fmt.Println("Size in: ", size)
+    fmt.Println("cnt: ", i, "Size in: ", size)
+    fmt.Println()
+    fmt.Println()
+    fmt.Println()
+    fmt.Println()
+    fmt.Println()
     paddedsize := padSize(size, []int{0, 0, 0})
 
     fft := NewFFTPadded(backend, size, paddedsize)
@@ -65,7 +69,6 @@ var size []int = []int{1,16,16}
     fft.Free()
     fftP.Free()
     
-//     host.Free()
     dev.Free()
     devT.Free()
     devTT.Free()

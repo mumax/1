@@ -335,6 +335,10 @@ def getmaxtorque(component):
 	send1("getmaxtorque")
 	return recv()
 
+# Retrieves the total energy in SI units
+def getE():
+  send0("getE")
+  return recv()
 
 # Debug and fine-tuning
 

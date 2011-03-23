@@ -17,6 +17,7 @@ import (
 func Send(v ...interface{}) {
 	fmt.Print("%")
 	fmt.Println(v...)
+
 }
 
 
@@ -62,3 +63,9 @@ func (s* Sim) GetCorePos(){
 	Send(s.corePos()[0])
 	Send(s.corePos()[1])
 }
+
+// Gets the total energy in SI units.
+func (s *Sim) GetE() {
+  Send(s.GetEnergySI())
+}
+
