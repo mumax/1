@@ -109,6 +109,12 @@ def cellsize(x, y, z):
 def maxcellsize(x, y, z):
 	send3("maxcellsize", x, y, z)
 
+# Sets periodic boundary conditions.
+# The magnetic is repeated nx, ny, nz times in the x,y,z direction (to the left and to the rigth), respectively.
+# A value of 0 means no periodicity in that direction.
+def periodic(nx, ny, nz):
+	send3('periodic', nx, ny, nz)
+
 # Make the geometry an ellipsoid with specified semi-axes.
 # Use inf to make it a cyliner along that direction.
 def ellipsoid(rx, ry, rz):
