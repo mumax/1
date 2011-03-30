@@ -1,4 +1,5 @@
 all: manual.bbl
+	doxygen pydoxygen.cfg
 	pdflatex -halt-on-error manual.tex
 	makeindex manual
 
