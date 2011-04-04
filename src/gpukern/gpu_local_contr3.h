@@ -30,13 +30,13 @@ extern "C" {
 /**
  * Adds the local contributions to the effective field.
  */
-void gpu_add_local_fields (float* m, float* h, int N, int HextType, float *Hext, int anisType, float *anisK, float *anisAxes);
+void gpu_add_local_fields (float *m, float *h, int N, int HextType, float *Hext, float *hmap, int anisType, float *anisK, float *anisAxes);
 
 
 /**
  * Adds the local contributions to the effective field and to the energy density.
  */
-void gpu_add_local_fields_H_and_phi (float* m, float* h, float *phi, int N, int HextType, float* Hext, int anisType, float* anisK, float* anisAxes);
+void gpu_add_local_fields_H_and_phi (float* m, float* h, float *phi, int N, int HextType, float* Hext, float *hmap, int anisType, float* anisK, float* anisAxes);
 
 #ifdef __cplusplus
 }

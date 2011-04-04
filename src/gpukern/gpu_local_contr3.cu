@@ -38,16 +38,17 @@ __global__ void _gpu_add_uniaxial_anis_uniform_Hext(float *mx, float *my, float 
 
 __global__ void _gpu_add_uniaxial_anis_non_uniform_Hext(float *mx, float *my, float *mz,
                                                         float *hx, float *hy, float *hz,
-                                                        float *hext_x, float *hext_y, float *hext_z,
+                                                        float hext_x, float hext_y, float hext_z,
+                                                        float *hmap_x, float *hmap_y, float *hmap_z,
                                                         float k_x2, float U0, float U1, float U2,
                                                         int N){
   int i = threadindex;
 
   if(i<N){
     float mu = mx[i] * U0 + my[i] * U1 + mz[i] * U2;
-    hx[i] += hext_x[i] + k_x2 * mu * U0;
-    hy[i] += hext_y[i] + k_x2 * mu * U1;
-    hz[i] += hext_z[i] + k_x2 * mu * U2;
+    hx[i] += hext_x * hmap_x[i] + k_x2 * mu * U0;
+    hy[i] += hext_y * hmap_y[i] + k_x2 * mu * U1;
+    hz[i] += hext_z * hmap_z[i] + k_x2 * mu * U2;
   }
   
   return;
@@ -93,7 +94,8 @@ __global__ void _gpu_add_cubic_anis_uniform_Hext(float *mx, float *my, float *mz
 
 __global__ void _gpu_add_cubic_anis_non_uniform_Hext(float *mx, float *my, float *mz,
                                                      float *hx, float *hy, float *hz,
-                                                     float *hext_x, float *hext_y, float *hext_z,
+                                                     float hext_x, float hext_y, float hext_z,
+                                                     float *hmap_x, float *hmap_y, float *hmap_z,
                                                      float K0, float K1, 
                                                      float U0_0, float U0_1, float U0_2,
                                                      float U1_0, float U1_1, float U1_2,
@@ -118,9 +120,9 @@ __global__ void _gpu_add_cubic_anis_non_uniform_Hext(float *mx, float *my, float
       float dphi_2 = K0 * (a00+a11) * a2  +  K1 * a00 *a11 * a2 ;
       
         // adding applied field and cubic axes contribution
-      hx[i] += hext_x[i] - dphi_0*U0_0 - dphi_1*U1_0 - dphi_2*U2_0;
-      hy[i] += hext_y[i] - dphi_0*U0_1 - dphi_1*U1_1 - dphi_2*U2_1;
-      hz[i] += hext_z[i] - dphi_0*U0_2 - dphi_1*U1_2 - dphi_2*U2_2;
+      hx[i] += hext_x * hmap_x[i] - dphi_0*U0_0 - dphi_1*U1_0 - dphi_2*U2_0;
+      hy[i] += hext_y * hmap_y[i] - dphi_0*U0_1 - dphi_1*U1_1 - dphi_2*U2_1;
+      hz[i] += hext_z * hmap_z[i] - dphi_0*U0_2 - dphi_1*U1_2 - dphi_2*U2_2;
   }
   
   return;
@@ -129,8 +131,8 @@ __global__ void _gpu_add_cubic_anis_non_uniform_Hext(float *mx, float *my, float
 
 
 __global__ void _gpu_add_uniform_Hext(float *hx, float *hy, float *hz,
-                              float hext_x, float hext_y, float hext_z,
-                              int N){
+                                      float hext_x, float hext_y, float hext_z,
+                                      int N){
   int i = threadindex;
 
   if(i<N){
@@ -141,19 +143,20 @@ __global__ void _gpu_add_uniform_Hext(float *hx, float *hy, float *hz,
 }
 
 __global__ void _gpu_add_non_uniform_Hext(float *hx, float *hy, float *hz,
-                                          float *hext_x, float *hext_y, float *hext_z,
+                                          float hext_x, float hext_y, float hext_z,
+                                          float *hmap_x, float *hmap_y, float *hmap_z,
                                           int N){
   int i = threadindex;
 
   if(i<N){
-    hx [i] += hext_x[i];
-    hy [i] += hext_y[i];
-    hz [i] += hext_z[i];
+    hx [i] += hext_x * hmap_x[i];
+    hy [i] += hext_y * hmap_y[i];
+    hz [i] += hext_z * hmap_z[i];
   }
 }
 
 
-void gpu_add_local_fields (float *m, float *h, int N, int HextType, float *Hext, int anisType, float *anisK, float *anisAxes){
+void gpu_add_local_fields (float *m, float *h, int N, int HextType, float *Hext, float *Hmap, int anisType, float *anisK, float *anisAxes){
 
 
   float* mx = &(m[0*N]);
@@ -177,21 +180,25 @@ void gpu_add_local_fields (float *m, float *h, int N, int HextType, float *Hext,
     default: abort();
     case ANIS_NONE:
       if (HextType == HEXT_UNIFORM)
-        _gpu_add_uniform_Hext<<<gridsize, blocksize>>>(hx, hy, hz,  Hext[X], Hext[Y], Hext[Z],  N);
+        _gpu_add_uniform_Hext<<<gridsize, blocksize>>>(hx, hy, hz, 
+                                                       Hext[X], Hext[Y], Hext[Z],  N);
       else
-        _gpu_add_non_uniform_Hext<<<gridsize, blocksize>>>(hx, hy, hz,  &Hext[X*N], &Hext[Y*N], Hext[&Z*N],  N);
+        _gpu_add_non_uniform_Hext<<<gridsize, blocksize>>>(hx, hy, hz, 
+                                                           Hext[X], Hext[Y], Hext[Z], 
+                                                           &Hmap[X*N], &Hmap[Y*N], &Hmap[Z*N], N);
       break;
     case ANIS_UNIAXIAL:
       if (HextType == HEXT_UNIFORM)
         _gpu_add_uniaxial_anis_uniform_Hext<<<gridsize, blocksize>>>(mx, my, mz,
-                                                                hx, hy, hz,
-                                                                &Hext[X*N], &Hext[Y*N], &Hext[Z*N],
-                                                                anisK[0],  anisAxes[0], anisAxes[1], anisAxes[2], N);
+                                                                     hx, hy, hz,
+                                                                     Hext[X], Hext[Y], Hext[Z],
+                                                                     anisK[0],  anisAxes[0], anisAxes[1], anisAxes[2], N);
       else
          _gpu_add_uniaxial_anis_non_uniform_Hext<<<gridsize, blocksize>>>(mx, my, mz,
-                                                                                         hx, hy, hz,
-                                                                                         &Hext[X*N], &Hext[Y*N], &Hext[Z*N],
-                                                                                         anisK[0],  anisAxes[0], anisAxes[1], anisAxes[2], N);
+                                                                          hx, hy, hz,
+                                                                          Hext[X], Hext[Y], Hext[Z],
+                                                                          &Hmap[X*N], &Hmap[Y*N], &Hmap[Z*N],
+                                                                          anisK[0],  anisAxes[0], anisAxes[1], anisAxes[2], N);
         
       break;
     case ANIS_CUBIC:
@@ -207,7 +214,8 @@ void gpu_add_local_fields (float *m, float *h, int N, int HextType, float *Hext,
       else
         _gpu_add_cubic_anis_non_uniform_Hext<<<gridsize, blocksize>>>(mx, my, mz,
                                                                       hx, hy, hz,
-                                                                      &Hext[X*N], &Hext[Y*N], &Hext[Z*N],
+                                                                      Hext[X*N], Hext[Y*N], Hext[Z*N],
+                                                                      &Hmap[X*N], &Hmap[Y*N], &Hmap[Z*N],
                                                                       anisK[0], anisK[1],
                                                                       anisAxes[0], anisAxes[1], anisAxes[2],
                                                                       anisAxes[3], anisAxes[4], anisAxes[5],
@@ -250,7 +258,8 @@ __global__ void _gpu_add_uniaxial_anis_uniform_Hext_and_phi(float *mx, float *my
 
 __global__ void _gpu_add_uniaxial_anis_non_uniform_Hext_and_phi(float *mx, float *my, float *mz,
                                                                 float *hx, float *hy, float *hz, float *phi,
-                                                                float *hext_x, float *hext_y, float *hext_z,
+                                                                float hext_x, float hext_y, float hext_z,
+                                                                float *Hmap_x, float *Hmap_y, float *Hmap_z,
                                                                 float k_x2, float U0, float U1, float U2,
                                                                 int N){
   int i = threadindex;
@@ -258,10 +267,11 @@ __global__ void _gpu_add_uniaxial_anis_non_uniform_Hext_and_phi(float *mx, float
   if(i<N){
     float mu = mx[i] * U0 + my[i] * U1 + mz[i] * U2;
 
-    hx[i]  += hext_x[i] + k_x2 * mu * U0;
-    hy[i]  += hext_y[i] + k_x2 * mu * U1;
-    hz[i]  += hext_z[i] + k_x2 * mu * U2;
-    phi[i] -= mx[i]*hext_x[i] + my[i]*hext_y[i] + mz[i]*hext_z[i] + 0.5f*k_x2*mu*(mx[i]*U0 + my[i]*U1 + mz[i]*U2);
+    hx[i]  += hext_x * Hmap_x[i] + k_x2 * mu * U0;
+    hy[i]  += hext_y * Hmap_y[i] + k_x2 * mu * U1;
+    hz[i]  += hext_z * Hmap_z[i] + k_x2 * mu * U2;
+    phi[i] -= mx[i]*hext_x*Hmap_x[i] + my[i]*hext_y*Hmap_y[i] + mz[i]*hext_z*Hmap_z[i] 
+              + 0.5f*k_x2*mu*(mx[i]*U0 + my[i]*U1 + mz[i]*U2);
     
   }
   
@@ -270,7 +280,7 @@ __global__ void _gpu_add_uniaxial_anis_non_uniform_Hext_and_phi(float *mx, float
 
 __global__ void _gpu_add_cubic_anis_uniform_Hext_and_phi(float *mx, float *my, float *mz,
                                                          float *hx, float *hy, float *hz, float *phi,
-                                                         float hext_x, float hext_y, float Hext_z,
+                                                         float hext_x, float hext_y, float hext_z,
                                                          float K0, float K1, 
                                                          float U0_0, float U0_1, float U0_2,
                                                          float U1_0, float U1_1, float U1_2,
@@ -312,7 +322,8 @@ __global__ void _gpu_add_cubic_anis_uniform_Hext_and_phi(float *mx, float *my, f
 
 __global__ void _gpu_add_cubic_anis_non_uniform_Hext_and_phi(float *mx, float *my, float *mz,
                                                              float *hx, float *hy, float *hz, float *phi,
-                                                             float *hext_x, float *hext_y, float *hext_z,
+                                                             float hext_x, float hext_y, float hext_z,
+                                                             float *hmap_x, float *hmap_y, float *hmap_z,
                                                              float K0, float K1, 
                                                              float U0_0, float U0_1, float U0_2,
                                                              float U1_0, float U1_1, float U1_2,
@@ -340,10 +351,10 @@ __global__ void _gpu_add_cubic_anis_non_uniform_Hext_and_phi(float *mx, float *m
       float cub0 = dphi_0*U0_0 + dphi_1*U1_0 + dphi_2*U2_0;
       float cub1 = dphi_0*U0_1 + dphi_1*U1_1 + dphi_2*U2_1;
       float cub2 = dphi_0*U0_2 + dphi_1*U1_2 + dphi_2*U2_2;
-      hx[i] += hext_x[i] - cub0;
-      hy[i] += hext_y[i] - cub1;
-      hz[i] += hext_z[i] - cub2;
-      phi[i] -= mx[i]*hext_x[i] + my[i]*hext_y[i] + mz[i]*hext_z[i] 
+      hx[i] += hext_x*hmap_x[i] - cub0;
+      hy[i] += hext_y*hmap_y[i] - cub1;
+      hz[i] += hext_z*hmap_z[i] - cub2;
+      phi[i] -= mx[i]*hext_x*hmap_x[i] + my[i]*hext_y*hmap_y[i] + mz[i]*hext_z*hmap_z[i] 
                 - 0.25f*(mx[i]*cub0 + my[i]*cub1 + mz[i]*cub2);
 
   }
@@ -368,19 +379,20 @@ __global__ void _gpu_add_uniform_Hext_and_phi(float *mx, float *my, float *mz,
 
 __global__ void _gpu_add_non_uniform_Hext_and_phi(float *mx, float *my, float *mz, 
                                                   float *hx, float *hy, float *hz, float *phi,
-                                                  float *hext_x, float *hext_y, float *hext_z,
+                                                  float hext_x, float hext_y, float hext_z,
+                                                  float *hmap_x, float *hmap_y, float *hmap_z,
                                                   int N){
   int i = threadindex;
 
   if(i<N){
-    hx [i] += hext_x[i];
-    hy [i] += hext_y[i];
-    hz [i] += hext_z[i];
-    phi[i] -= mx[i]*hext_x[i] + my[i]*hext_y[i] + mz[i]*hext_z[i];
+    hx [i] += hext_x * hmap_x[i];
+    hy [i] += hext_y * hmap_y[i];
+    hz [i] += hext_z * hmap_z[i];
+    phi[i] -= mx[i]*hext_x*hmap_x[i] + my[i]*hext_y*hmap_y[i] + mz[i]*hext_z*hmap_z[i];
   }
 }
 
-void gpu_add_local_fields_H_and_phi (float* m, float* h, float *phi, int N, int HextType, float* Hext, int anisType, float* anisK, float* anisAxes){
+void gpu_add_local_fields_H_and_phi (float *m, float *h, float *phi, int N, int HextType, float *Hext, float *hmap, int anisType, float* anisK, float* anisAxes){
 
 
   float *mx = &(m[0*N]);
@@ -404,9 +416,14 @@ void gpu_add_local_fields_H_and_phi (float* m, float* h, float *phi, int N, int 
     default: abort();
     case ANIS_NONE:
       if (HextType == HEXT_UNIFORM)
-        _gpu_add_uniform_Hext_and_phi<<<gridsize, blocksize>>>(mx, my, mz, hx, hy, hz, phi, Hext[X], Hext[Y], Hext[Z],  N);
+        _gpu_add_uniform_Hext_and_phi<<<gridsize, blocksize>>>(mx, my, mz, 
+                                                               hx, hy, hz, phi, 
+                                                               Hext[X], Hext[Y], Hext[Z],  N);
       else
-        _gpu_add_non_uniform_Hext_and_phi<<<gridsize, blocksize>>>(mx, my, mz, hx, hy, hz, phi, &Hext[X*N], &Hext[Y*N], &Hext[Z*N],  N);
+        _gpu_add_non_uniform_Hext_and_phi<<<gridsize, blocksize>>>(mx, my, mz, 
+                                                                   hx, hy, hz, phi, 
+                                                                   Hext[X], Hext[Y], Hext[Z], 
+                                                                   &hmap[X*N], &hmap[Y*N], &hmap[Z*N], N);
       break;
     case ANIS_UNIAXIAL:
       if (HextType == HEXT_UNIFORM)
@@ -417,7 +434,8 @@ void gpu_add_local_fields_H_and_phi (float* m, float* h, float *phi, int N, int 
       else
         _gpu_add_uniaxial_anis_non_uniform_Hext_and_phi<<<gridsize, blocksize>>>(mx, my, mz,
                                                                                  hx, hy, hz, phi,
-                                                                                 &Hext[X*N], &Hext[Y*N], &Hext[Z*N],
+                                                                                 Hext[X], Hext[Y], Hext[Z],
+                                                                                 &hmap[X*N], &hmap[Y*N], &hmap[Z*N],
                                                                                  anisK[0], anisAxes[0], anisAxes[1], anisAxes[2], N);
       break;
     case ANIS_CUBIC:
@@ -433,7 +451,8 @@ void gpu_add_local_fields_H_and_phi (float* m, float* h, float *phi, int N, int 
      else
         _gpu_add_cubic_anis_non_uniform_Hext_and_phi<<<gridsize, blocksize>>>(mx, my, mz,
                                                                               hx, hy, hz, phi,
-                                                                              &Hext[X*N], &Hext[Y*N], &Hext[Z*N],
+                                                                              Hext[X], Hext[Y], Hext[Z],
+                                                                              &hmap[X*N], &hmap[Y*N], &hmap[Z*N],
                                                                               anisK[0], anisK[1],
                                                                               anisAxes[0], anisAxes[1], anisAxes[2],
                                                                               anisAxes[3], anisAxes[4], anisAxes[5],

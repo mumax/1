@@ -62,8 +62,8 @@ void cpu_add_uniform_Hext(float* hx, float* hy, float* hz,
 
 
 typedef struct{
-  float *hx, *hy, *hz;
-  float *hext_x, *hext_y, *hext_z;
+  float *hx, *hy, *hz, *hmap_x, *hmap_y, *hmap_z;
+  float hext_x, hext_y, hext_z;
   int N;
 }cpu_add_non_uniform_Hext_arg;
 
@@ -75,16 +75,17 @@ void cpu_add_non_uniform_Hext_t(int id){
   init_start_stop (&start, &stop, id, arg->N);
 
   for(int i = start; i < stop; i++){
-    arg->hx[i] += arg->hext_x[i];
-    arg->hy[i] += arg->hext_y[i];
-    arg->hz[i] += arg->hext_z[i];
+    arg->hx[i] += arg->hext_x * arg->hmap_x[i];
+    arg->hy[i] += arg->hext_y * arg->hmap_y[i];
+    arg->hz[i] += arg->hext_z * arg->hmap_z[i];
   }
 
   return;
 }
 
 void cpu_add_non_uniform_Hext(float *hx, float *hy, float *hz,
-                              float *hext_x, float *hext_y, float *hext_z,
+                              float hext_x, float hext_y, float hext_z,
+                              float *hmap_x, float *hmap_y, float *hmap_z,
                               int N){
 
   cpu_add_non_uniform_Hext_arg args;
@@ -94,6 +95,9 @@ void cpu_add_non_uniform_Hext(float *hx, float *hy, float *hz,
   args.hext_x = hext_x;
   args.hext_y = hext_y;
   args.hext_z = hext_z;
+  args.hmap_x = hmap_x;
+  args.hmap_y = hmap_y;
+  args.hmap_z = hmap_z;
   args.N = N;
   
   func_arg = (void *) (&args);
@@ -130,8 +134,10 @@ void cpu_add_uniaxial_anis_uniform_Hext_t(int id){
   return;
 }
 
-void cpu_add_uniaxial_anis_uniform_Hext (float *mx, float *my, float *mz, float* hx, float* hy, float* hz,
-                                         float hext_x, float hext_y, float hext_z, float anisK, float U0, float U1, float U2,
+void cpu_add_uniaxial_anis_uniform_Hext (float *mx, float *my, float *mz, 
+                                         float* hx, float* hy, float* hz,
+                                         float hext_x, float hext_y, float hext_z, 
+                                         float anisK, float U0, float U1, float U2,
                                          int N){
 
   cpu_add_uniaxial_anis_uniform_Hext_arg args;
@@ -152,15 +158,15 @@ void cpu_add_uniaxial_anis_uniform_Hext (float *mx, float *my, float *mz, float*
   
   func_arg = (void *) (&args);
 
-  thread_Wrapper(cpu_uniaxial_anis_uniform_Hext_t);
+  thread_Wrapper(cpu_add_uniaxial_anis_uniform_Hext_t);
 
   return;
 }
 
 
 typedef struct{
-  float *mx, *my, *mz, *hx, *hy, *hz;
-  float *hext_x, *hext_y, *hext_z, anisK, U0, U1, U2;
+  float *mx, *my, *mz, *hx, *hy, *hz, *hmap_x, *hmap_y, *hmap_z;
+  float hext_x, hext_y, hext_z, anisK, U0, U1, U2;
   int N;
 }cpu_add_uniaxial_anis_non_uniform_Hext_arg;
 
@@ -173,16 +179,19 @@ void cpu_add_uniaxial_anis_non_uniform_Hext_t(int id){
   
   for (int i=start; i<stop; i++){
     float mu = arg->mx[i] * arg->U0 + arg->my[i] * arg->U1 + arg->mz[i] * arg->U2;
-    arg->hx[i] += arg->hext_x[i] + arg->anisK * mu * arg->U0;
-    arg->hy[i] += arg->hext_y[i] + arg->anisK * mu * arg->U1;
-    arg->hz[i] += arg->hext_z[i] + arg->anisK * mu * arg->U2;
+    arg->hx[i] += arg->hext_x * arg->hmap_x[i] + arg->anisK * mu * arg->U0;
+    arg->hy[i] += arg->hext_y * arg->hmap_y[i] + arg->anisK * mu * arg->U1;
+    arg->hz[i] += arg->hext_z * arg->hmap_z[i] + arg->anisK * mu * arg->U2;
   }
   
   return;
 }
 
-void cpu_add_uniaxial_anis_non_uniform_Hext (float *mx, float *my, float *mz, float* hx, float* hy, float* hz,
-                                             float *hext_x, float *hext_y, float *hext_z, float anisK, float U0, float U1, float U2,
+void cpu_add_uniaxial_anis_non_uniform_Hext (float *mx, float *my, float *mz, 
+                                             float *hx, float *hy, float *hz,
+                                             float hext_x, float hext_y, float hext_z, 
+                                             float *hmap_x, float *hmap_y, float *hmap_z,
+                                             float anisK, float U0, float U1, float U2,
                                              int N){
 
   cpu_add_uniaxial_anis_non_uniform_Hext_arg args;
@@ -195,6 +204,9 @@ void cpu_add_uniaxial_anis_non_uniform_Hext (float *mx, float *my, float *mz, fl
   args.hext_x = hext_x;
   args.hext_y = hext_y;
   args.hext_z = hext_z;
+  args.hmap_x = hmap_x;
+  args.hmap_y = hmap_y;
+  args.hmap_z = hmap_z;
   args.anisK = anisK;
   args.U0 = U0;
   args.U1 = U1;
@@ -203,7 +215,7 @@ void cpu_add_uniaxial_anis_non_uniform_Hext (float *mx, float *my, float *mz, fl
   
   func_arg = (void *) (&args);
 
-  thread_Wrapper(cpu_uniaxial_anis_non_uniform_Hext_t);
+  thread_Wrapper(cpu_add_uniaxial_anis_non_uniform_Hext_t);
 
   return;
 }
@@ -287,8 +299,8 @@ void cpu_add_cubic_anis_uniform_Hext(float *mx, float *my, float *mz, float* hx,
 
 
 typedef struct{
-  float *mx, *my, *mz, *hx, *hy, *hz;
-  float *hext_x, *hext_y, *hext_z, K0, K1, U0_0, U0_1, U0_2, U1_0, U1_1, U1_2, U2_0, U2_1, U2_2;
+  float *mx, *my, *mz, *hx, *hy, *hz, *hmap_x, *hmap_y, *hmap_z;
+  float hext_x, hext_y, hext_z, K0, K1, U0_0, U0_1, U0_2, U1_0, U1_1, U1_2, U2_0, U2_1, U2_2;
   int N;
 }cpu_add_cubic_anis_non_uniform_Hext_arg;
 
@@ -315,16 +327,19 @@ void cpu_add_cubic_anis_non_uniform_Hext_t(int id){
       float dphi_2 = arg->K0 * (a00+a11) * a2  +  arg->K1 * a00 *a11 * a2 ;
       
         // adding applied field and cubic axes contribution
-      arg->hx[i] += arg->hext_x[i] - dphi_0*arg->U0_0 - dphi_1*arg->U1_0 - dphi_2*arg->U2_0;
-      arg->hy[i] += arg->hext_y[i] - dphi_0*arg->U0_1 - dphi_1*arg->U1_1 - dphi_2*arg->U2_1;
-      arg->hz[i] += arg->hext_z[i] - dphi_0*arg->U0_2 - dphi_1*arg->U1_2 - dphi_2*arg->U2_2;
+      arg->hx[i] += arg->hext_x*arg->hmap_x[i] - dphi_0*arg->U0_0 - dphi_1*arg->U1_0 - dphi_2*arg->U2_0;
+      arg->hy[i] += arg->hext_y*arg->hmap_y[i] - dphi_0*arg->U0_1 - dphi_1*arg->U1_1 - dphi_2*arg->U2_1;
+      arg->hz[i] += arg->hext_z*arg->hmap_z[i] - dphi_0*arg->U0_2 - dphi_1*arg->U1_2 - dphi_2*arg->U2_2;
   }
   
   return;
 }
 
-void cpu_add_cubic_anis_non_uniform_Hext(float *mx, float *my, float *mz, float* hx, float* hy, float* hz,
-                                         float *hext_x, float *hext_y, float *hext_z, float K0, float K1, 
+void cpu_add_cubic_anis_non_uniform_Hext(float *mx, float *my, float *mz, 
+                                         float *hx, float *hy, float *hz,
+                                         float hext_x, float hext_y, float hext_z, 
+                                         float *hmap_x, float *hmap_y, float *hmap_z,
+                                         float K0, float K1, 
                                          float U0_0, float U0_1, float U0_2,
                                          float U1_0, float U1_1, float U1_2,
                                          float U2_0, float U2_1, float U2_2, 
@@ -340,6 +355,9 @@ void cpu_add_cubic_anis_non_uniform_Hext(float *mx, float *my, float *mz, float*
   args.hext_x = hext_x;
   args.hext_y = hext_y;
   args.hext_z = hext_z;
+  args.hmap_x = hmap_x;
+  args.hmap_y = hmap_y;
+  args.hmap_z = hmap_z;
   args.K0 = K0;
   args.K1 = K1;
   args.U0_0 = U0_0;
@@ -363,7 +381,7 @@ void cpu_add_cubic_anis_non_uniform_Hext(float *mx, float *my, float *mz, float*
 
 
 
-void cpu_add_local_fields (float* m, float* h, int N, int HextType, float* Hext, int anisType, float* anisK, float* anisAxes){
+void cpu_add_local_fields (float *m, float *h, int N, int HextType, float *Hext, float *hmap, int anisType, float* anisK, float* anisAxes){
 
   float *mx = &(m[0*N]);
   float *my = &(m[1*N]);
@@ -376,29 +394,42 @@ void cpu_add_local_fields (float* m, float* h, int N, int HextType, float* Hext,
   switch (anisType){
     case ANIS_NONE:
       if (HextType == HEXT_UNIFORM)
-        cpu_add_uniform_Hext(hx, hy, hz,  Hext[X], Hext[Y], Hext[Z],  N);
+        cpu_add_uniform_Hext(hx, hy, hz, 
+                             Hext[X], Hext[Y], Hext[Z],  N);
       else
-        cpu_add_non_uniform_Hext(hx, hy, hz,  &Hext[X*N], &Hext[Y*N], &Hext[Z*N],  N);
+        cpu_add_non_uniform_Hext(hx, hy, hz, 
+                                 Hext[X], Hext[Y], Hext[Z],
+                                 &hmap[X*N], &hmap[Y*N], &hmap[Z*N], N);
         
       break;
     case ANIS_UNIAXIAL:
       if (HextType == HEXT_UNIFORM)
-        cpu_add_uniaxial_anis_uniform_Hext(mx, my, mz, hx, hy, hz, Hext[X], Hext[Y], Hext[Z],
+        cpu_add_uniaxial_anis_uniform_Hext(mx, my, mz, 
+                                           hx, hy, hz, 
+                                           Hext[X], Hext[Y], Hext[Z],
                                            anisK[0], anisAxes[0], anisAxes[1], anisAxes[2], N);
       else
-        cpu_add_uniaxial_anis_non_uniform_Hext(mx, my, mz, hx, hy, hz, &Hext[X*N], &Hext[Y*N], &Hext[Z*N],
+        cpu_add_uniaxial_anis_non_uniform_Hext(mx, my, mz, 
+                                               hx, hy, hz, 
+                                               Hext[X], Hext[Y], Hext[Z],
+                                               &hmap[X*N], &hmap[Y*N], &hmap[Z*N],
                                                anisK[0], anisAxes[0], anisAxes[1], anisAxes[2], N);
       break;
     case ANIS_CUBIC:
       if (HextType == HEXT_UNIFORM)
-        cpu_add_cubic_anis_uniform_Hext(mx, my, mz, hx, hy, hz, Hext[X], Hext[Y], Hext[Z],
+        cpu_add_cubic_anis_uniform_Hext(mx, my, mz, 
+                                        hx, hy, hz, 
+                                        Hext[X], Hext[Y], Hext[Z],
                                         anisK[0], anisK[1],
                                         anisAxes[0], anisAxes[1], anisAxes[2],
                                         anisAxes[3], anisAxes[4], anisAxes[5],
                                         anisAxes[6], anisAxes[7], anisAxes[8],
                                         N);
       else
-        cpu_add_cubic_anis_non_uniform_Hext(mx, my, mz, hx, hy, hz, &Hext[X*N], &Hext[Y*N], &Hext[Z*N],
+        cpu_add_cubic_anis_non_uniform_Hext(mx, my, mz, 
+                                            hx, hy, hz, 
+                                            Hext[X], Hext[Y], Hext[Z],
+                                            &hmap[X*N], &hmap[Y*N], &hmap[Z*N],
                                             anisK[0], anisK[1],
                                             anisAxes[0], anisAxes[1], anisAxes[2],
                                             anisAxes[3], anisAxes[4], anisAxes[5],
@@ -466,8 +497,8 @@ void cpu_add_uniform_Hext_and_phi(float *mx, float *my, float *mz,
 
 
 typedef struct{
-  float *mx, *my, *mz, *hx, *hy, *hz, *phi;
-  float *hext_x, *hext_y, *hext_z;
+  float *mx, *my, *mz, *hx, *hy, *hz, *phi, *hmap_x, *hmap_y, *hmap_z;
+  float hext_x, hext_y, hext_z;
   int N;
 }cpu_add_non_uniform_Hext_and_phi_arg;
 
@@ -479,10 +510,10 @@ void cpu_add_non_uniform_Hext_and_phi_t(int id){
   init_start_stop (&start, &stop, id, arg->N);
 
   for(int i = start; i < stop; i++){
-    arg->hx[i] += arg->hext_x[i];
-    arg->hy[i] += arg->hext_y[i];
-    arg->hz[i] += arg->hext_z[i];
-    arg->phi[i] -= arg->mx[i]*arg->hext_x[i] + arg->my[i]*arg->hext_y[i] + arg->mz[i]*arg->hext_z[i];
+    arg->hx[i] += arg->hext_x * arg->hmap_x[i];
+    arg->hy[i] += arg->hext_y * arg->hmap_y[i];
+    arg->hz[i] += arg->hext_z * arg->hmap_z[i];
+    arg->phi[i] -= arg->mx[i]*arg->hext_x*arg->hmap_x[i] + arg->my[i]*arg->hext_y*arg->hmap_y[i] + arg->mz[i]*arg->hext_z*arg->hmap_z[i];
   }
 
   return;
@@ -490,7 +521,8 @@ void cpu_add_non_uniform_Hext_and_phi_t(int id){
 
 void cpu_add_non_uniform_Hext_and_phi(float *mx, float *my, float *mz,
                                       float *hx, float *hy, float *hz, float *phi,
-                                      float *hext_x, float *hext_y, *float hext_z,
+                                      float hext_x, float hext_y, float hext_z,
+                                      float *hmap_x, float *hmap_y, float *hmap_z,
                                       int N){
 
   cpu_add_non_uniform_Hext_and_phi_arg args;
@@ -504,6 +536,9 @@ void cpu_add_non_uniform_Hext_and_phi(float *mx, float *my, float *mz,
   args.hext_x = hext_x;
   args.hext_y = hext_y;
   args.hext_z = hext_z;
+  args.hmap_x = hmap_x;
+  args.hmap_y = hmap_y;
+  args.hmap_z = hmap_z;
   args.N = N;
   
   func_arg = (void *) (&args);
@@ -523,7 +558,7 @@ typedef struct{
 
 void cpu_add_uniaxial_anis_uniform_Hext_and_phi_t(int id){
   
-  cpu_add_uniaxial_anis_uniformt_Hext_and_phi_arg *arg = (cpu_add_uniaxial_anis_uniform_Hext_and_phi_arg *) func_arg;
+  cpu_add_uniaxial_anis_uniform_Hext_and_phi_arg *arg = (cpu_add_uniaxial_anis_uniform_Hext_and_phi_arg *) func_arg;
 
   int start, stop;
   init_start_stop (&start, &stop, id, arg->N);
@@ -540,7 +575,7 @@ void cpu_add_uniaxial_anis_uniform_Hext_and_phi_t(int id){
   return;
 }
 
-void cpu_uniaxial_anis_uniform_Hext_and_phi(float *mx, float *my, float *mz, float* hx, float* hy, float* hz, float *phi,
+void cpu_add_uniaxial_anis_uniform_Hext_and_phi(float *mx, float *my, float *mz, float* hx, float* hy, float* hz, float *phi,
                                             float hext_x, float hext_y, float hext_z, float anisK, float U0, float U1, float U2,
                                             int N){
 
@@ -571,8 +606,8 @@ void cpu_uniaxial_anis_uniform_Hext_and_phi(float *mx, float *my, float *mz, flo
 
 
 typedef struct{
-  float *mx, *my, *mz, *hx, *hy, *hz, *phi;
-  float *hext_x, *hext_y, *hext_z, anisK, U0, U1, U2;
+  float *mx, *my, *mz, *hx, *hy, *hz, *phi, *hmap_x, *hmap_y, *hmap_z;
+  float hext_x, hext_y, hext_z, anisK, U0, U1, U2;
   int N;
 }cpu_add_uniaxial_anis_non_uniform_Hext_and_phi_arg;
 
@@ -585,18 +620,21 @@ void cpu_add_uniaxial_anis_non_uniform_Hext_and_phi_t(int id){
   
   for (int i=start; i<stop; i++){
     float mu = arg->mx[i] * arg->U0 + arg->my[i] * arg->U1 + arg->mz[i] * arg->U2;
-    arg->hx[i] += arg->hext_x[i] + arg->anisK * mu * arg->U0;
-    arg->hy[i] += arg->hext_y[i] + arg->anisK * mu * arg->U1;
-    arg->hz[i] += arg->hext_z[i] + arg->anisK * mu * arg->U2;
-    arg->phi[i] -= arg->mx[i]*arg->hext_x[i] + arg->my[i]*arg->hext_y[i] + arg->mz[i]*arg->hext_z[i] + 
+    arg->hx[i] += arg->hext_x*arg->hmap_x[i] + arg->anisK * mu * arg->U0;
+    arg->hy[i] += arg->hext_y*arg->hmap_y[i] + arg->anisK * mu * arg->U1;
+    arg->hz[i] += arg->hext_z*arg->hmap_z[i] + arg->anisK * mu * arg->U2;
+    arg->phi[i] -= arg->mx[i]*arg->hext_x*arg->hmap_x[i] + arg->my[i]*arg->hext_y*arg->hmap_y[i] + arg->mz[i]*arg->hext_z*arg->hmap_z[i] + 
                    0.5*arg->anisK*mu*(arg->mx[i]*arg->U0 + arg->my[i]*arg->U1 + arg->mz[i]*arg->U2);
   }
   
   return;
 }
 
-void cpu_uniaxial_anis_non_uniform_Hext_and_phi(float *mx, float *my, float *mz, float* hx, float* hy, float* hz, float *phi,
-                                                float *hext_x, float *hext_y, float *hext_z, float anisK, float U0, float U1, float U2,
+void cpu_add_uniaxial_anis_non_uniform_Hext_and_phi(float *mx, float *my, float *mz, 
+                                                float *hx, float *hy, float *hz, float *phi,
+                                                float hext_x, float hext_y, float hext_z, 
+                                                float *hmap_x, float *hmap_y, float *hmap_z,
+                                                float anisK, float U0, float U1, float U2,
                                                 int N){
 
   cpu_add_uniaxial_anis_non_uniform_Hext_and_phi_arg args;
@@ -610,6 +648,9 @@ void cpu_uniaxial_anis_non_uniform_Hext_and_phi(float *mx, float *my, float *mz,
   args.hext_x = hext_x;
   args.hext_y = hext_y;
   args.hext_z = hext_z;
+  args.hmap_x = hmap_x;
+  args.hmap_y = hmap_y;
+  args.hmap_z = hmap_z;
   args.anisK = anisK;
   args.U0 = U0;
   args.U1 = U1;
@@ -709,8 +750,8 @@ void cpu_add_cubic_anis_uniform_Hext_and_phi(float *mx, float *my, float *mz, fl
 
 
 typedef struct{
-  float *mx, *my, *mz, *hx, *hy, *hz, *phi;
-  float *hext_x, *hext_y, *hext_z, K0, K1, U0_0, U0_1, U0_2, U1_0, U1_1, U1_2, U2_0, U2_1, U2_2;
+  float *mx, *my, *mz, *hx, *hy, *hz, *phi, *hmap_x, *hmap_y, *hmap_z;
+  float hext_x, hext_y, hext_z, K0, K1, U0_0, U0_1, U0_2, U1_0, U1_1, U1_2, U2_0, U2_1, U2_2;
   int N;
 }cpu_add_cubic_anis_non_uniform_Hext_and_phi_arg;
 
@@ -740,10 +781,10 @@ void cpu_add_cubic_anis_non_uniform_Hext_and_phi_t(int id){
       float cub0 = dphi_0*arg->U0_0 + dphi_1*arg->U1_0 + dphi_2*arg->U2_0;
       float cub1 = dphi_0*arg->U0_1 + dphi_1*arg->U1_1 + dphi_2*arg->U2_1;
       float cub2 = dphi_0*arg->U0_2 + dphi_1*arg->U1_2 + dphi_2*arg->U2_2;
-      arg->hx[i] += arg->hext_x[i] - cub0;
-      arg->hy[i] += arg->hext_y[i] - cub1;
-      arg->hz[i] += arg->hext_z[i] - cub2;
-      arg->phi[i] -= arg->mx[i]*arg->hext_x[i] + arg->my[i]*arg->hext_y[i] + arg->mz[i]*arg->hext_z[i] 
+      arg->hx[i] += arg->hext_x * arg->hmap_x[i] - cub0;
+      arg->hy[i] += arg->hext_y * arg->hmap_y[i] - cub1;
+      arg->hz[i] += arg->hext_z * arg->hmap_z[i] - cub2;
+      arg->phi[i] -= arg->mx[i]*arg->hext_x*arg->hmap_x[i] + arg->my[i]*arg->hext_y*arg->hmap_y[i] + arg->mz[i]*arg->hext_z*arg->hmap_z[i] 
                 - 0.25f*(arg->mx[i]*cub0 + arg->my[i]*cub1 + arg->mz[i]*cub2);
       
   }
@@ -751,8 +792,11 @@ void cpu_add_cubic_anis_non_uniform_Hext_and_phi_t(int id){
   return;
 }
 
-void cpu_add_cubic_anis_non_uniform_Hext_and_phi(float *mx, float *my, float *mz, float* hx, float* hy, float* hz, float *phi,
-                                                 float *hext_x, float *hext_y, float *hext_z, float K0, float K1, 
+void cpu_add_cubic_anis_non_uniform_Hext_and_phi(float *mx, float *my, float *mz, 
+                                                 float *hx, float *hy, float *hz, float *phi,
+                                                 float hext_x, float hext_y, float hext_z, 
+                                                 float *hmap_x, float *hmap_y, float *hmap_z,
+                                                 float K0, float K1, 
                                                  float U0_0, float U0_1, float U0_2,
                                                  float U1_0, float U1_1, float U1_2,
                                                  float U2_0, float U2_1, float U2_2, 
@@ -769,6 +813,9 @@ void cpu_add_cubic_anis_non_uniform_Hext_and_phi(float *mx, float *my, float *mz
   args.hext_x = hext_x;
   args.hext_y = hext_y;
   args.hext_z = hext_z;
+  args.hmap_x = hmap_x;
+  args.hmap_y = hmap_y;
+  args.hmap_z = hmap_z;
   args.K0 = K0;
   args.K1 = K1;
   args.U0_0 = U0_0;
@@ -792,7 +839,7 @@ void cpu_add_cubic_anis_non_uniform_Hext_and_phi(float *mx, float *my, float *mz
 
 
 
-void cpu_add_local_fields_H_and_phi (float *m, float *h, float *phi, int N, int HextType, float *Hext, int anisType, float* anisK, float* anisAxes){
+void cpu_add_local_fields_H_and_phi (float *m, float *h, float *phi, int N, int HextType, float *Hext, float *hmap, int anisType, float* anisK, float* anisAxes){
 
   float *mx = &(m[0*N]);
   float *my = &(m[1*N]);
@@ -805,28 +852,43 @@ void cpu_add_local_fields_H_and_phi (float *m, float *h, float *phi, int N, int 
   switch (anisType){
     case ANIS_NONE:
       if (HextType == HEXT_UNIFORM)
-        cpu_add_uniform_Hext_and_phi(mx, my, mz, hx, hy, hz, phi, Hext[X], Hext[Y], Hext[Z], N);
+        cpu_add_uniform_Hext_and_phi(mx, my, mz, hx, 
+                                     hy, hz, phi, 
+                                     Hext[X], Hext[Y], Hext[Z], N);
       else
-        cpu_add_non_uniform_Hext_and_phi(mx, my, mz, hx, hy, hz, phi, &Hext[X*N], &Hext[Y*N], &Hext[Z*N], N);
+        cpu_add_non_uniform_Hext_and_phi(mx, my, mz, 
+                                         hx, hy, hz, phi, 
+                                         Hext[X], Hext[Y], Hext[Z], 
+                                         &hmap[X*N], &hmap[Y*N], &hmap[Z*N], N);
       break;
     case ANIS_UNIAXIAL:
       if (HextType == HEXT_UNIFORM)
-        cpu_add_uniaxial_anis_uniform_Hext_and_phi(mx, my, mz, hx, hy, hz, phi, Hext[X], Hext[Y], Hext[Z],
+        cpu_add_uniaxial_anis_uniform_Hext_and_phi(mx, my, mz, 
+                                                   hx, hy, hz, phi, 
+                                                   Hext[X], Hext[Y], Hext[Z],
                                                    anisK[0], anisAxes[0], anisAxes[1], anisAxes[2], N);
       else
-        cpu_add_uniaxial_anis_non_uniform_Hext_and_phi(mx, my, mz, hx, hy, hz, phi, &Hext[X*N], &Hext[Y*N], &Hext[Z*N],
+        cpu_add_uniaxial_anis_non_uniform_Hext_and_phi(mx, my, mz, 
+                                                       hx, hy, hz, phi, 
+                                                       Hext[X], Hext[Y], Hext[Z], 
+                                                       &hmap[X*N], &hmap[Y*N], &hmap[Z*N],
                                                        anisK[0], anisAxes[0], anisAxes[1], anisAxes[2], N);
       break;
     case ANIS_CUBIC:
       if (HextType == HEXT_UNIFORM)
-        cpu_add_cubic_anis_uniform_Hext_and_phi(mx, my, mz, hx, hy, hz, phi, Hext[X], Hext[Y], Hext[Z],
+        cpu_add_cubic_anis_uniform_Hext_and_phi(mx, my, mz, 
+                                                hx, hy, hz, phi, 
+                                                Hext[X], Hext[Y], Hext[Z],
                                                 anisK[0], anisK[1],
                                                 anisAxes[0], anisAxes[1], anisAxes[2],
                                                 anisAxes[3], anisAxes[4], anisAxes[5],
                                                 anisAxes[6], anisAxes[7], anisAxes[8],
                                                 N);
       else
-        cpu_add_cubic_anis_non_uniform_Hext_and_phi(mx, my, mz, hx, hy, hz, phi, &Hext[X*N], &Hext[Y*N], &Hext[Z*N],
+        cpu_add_cubic_anis_non_uniform_Hext_and_phi(mx, my, mz, 
+                                                    hx, hy, hz, phi, 
+                                                    Hext[X], Hext[Y], Hext[Z],
+                                                    &hmap[X*N], &hmap[Y*N], &hmap[Z*N],
                                                     anisK[0], anisK[1],
                                                     anisAxes[0], anisAxes[1], anisAxes[2],
                                                     anisAxes[3], anisAxes[4], anisAxes[5],
