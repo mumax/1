@@ -102,7 +102,7 @@ func (s *Sim) SBW() {
   for i := range a[0] {
     for j := range a[0][i] {
       for k := range a[0][i][j] {
-        theta := pi * float64(k-s.size[2]/2.0) / float64(s.size[2])
+        theta := pi * (float64(k-s.size[2]/2.0) + .5) / float64(s.size[2])
         phi   := 0.0
         a[X][i][j][k] = float32(math.Sin(theta))
         a[Y][i][j][k] = float32(math.Cos(theta)*math.Cos(phi))
@@ -122,7 +122,7 @@ func (s *Sim) SNW() {
   for i := range a[0] {
     for j := range a[0][i] {
       for k := range a[0][i][j] {
-        theta := pi * float64(k-s.size[2]/2.0) / float64(s.size[2])
+        theta := pi * (float64(k-s.size[2]/2.0) + .5) / float64(s.size[2])
         phi   := pi/2.0
         a[X][i][j][k] = float32(math.Sin(theta))
         a[Y][i][j][k] = float32(math.Cos(theta)*math.Cos(phi))
@@ -142,8 +142,8 @@ func (s *Sim) ABW() {
   for i := range a[0] {
     for j := range a[0][i] {
       for k := range a[0][i][j] {
-        theta := pi * float64(k-s.size[2]/2.0) / float64(s.size[2])
-        phi   := pi * float64(j-s.size[1]/2.0) / float64(s.size[1])
+        theta := pi * (float64(k-s.size[2]/2.0) + .5) / float64(s.size[2])
+        phi   := pi * (float64(j-s.size[1]/2.0) + .5) / float64(s.size[1])
         a[X][i][j][k] = float32(math.Sin(theta))
         a[Y][i][j][k] = float32(math.Cos(theta)*math.Cos(phi))
         a[Z][i][j][k] = float32(math.Cos(theta)*math.Sin(phi))
@@ -162,7 +162,7 @@ func (s *Sim) ANW() {
   for i := range a[0] {
     for j := range a[0][i] {
       for k := range a[0][i][j] {
-        theta := pi * float64(k-s.size[2]/2.0) / float64(s.size[2])
+        theta := pi * (float64(k-s.size[2]/2.0) + .5) / float64(s.size[2])
         phi   := pi/4.0
         a[X][i][j][k] = float32(math.Sin(theta))
         a[Y][i][j][k] = float32(math.Cos(theta)*math.Cos(phi))

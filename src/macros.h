@@ -58,7 +58,13 @@
 // *********************************
 
 
-
+// Applied field type **************
+    /// Uniform external applied field
+  #define HEXT_UNIFORM 0
+  
+    /// Non-uniform external applied field
+  #define HA_NON_UNIFORM 1
+// *********************************
 
 
 
