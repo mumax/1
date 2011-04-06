@@ -17,7 +17,6 @@ cp Makefile $OUT
 cp common.mk $OUT
 
 cp -r bin $OUT
-cp -r dep $OUT
 cp -r lib $OUT
 
 mkdir $OUT/src

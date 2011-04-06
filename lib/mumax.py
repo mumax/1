@@ -209,6 +209,14 @@ def mindm(dm):
 # Excitation
 
 
+## Apply a field/current density defined by a custom function.
+# E.g.:
+# def myfield(t):
+# 	return 0, 0, A*sin(omega*t)
+#
+# applyfunction('field', myfield, 1e-9, 10e-12)
+#
+# this applies the field for 1ns, sampled every 10ps with linear interpolation between the samples.
 def applyfunction(what, func, duration, timestep):
 	t=0
 	while t<=duration:
@@ -225,6 +233,10 @@ def applyfunction(what, func, duration, timestep):
 # Arbitrary functions can be well approximated by specifying a large number of time+field combinations.
 def applypointwise(what, time, bx, by, bz):
 	send("applypointwise", [what, time, bx, by, bz])
+
+
+def fieldmask(filename):
+	send1("fieldmask", filename)
 
 ## Apply a static field/current
 def applystatic(what, bx, by, bz):

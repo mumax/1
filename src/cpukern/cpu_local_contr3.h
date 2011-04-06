@@ -32,8 +32,8 @@ extern "C" {
 void cpu_add_local_fields (float *m,              ///> magnetization data Mx, My, Mz contiguously
                            float *h,              ///> effective field data Hx, Hy, Hz contiguously
                            int N,                 ///> number of FD cells
-                           int HextType,          ///> HEXT_UNIFORM or HEXT_NON_UNIFORM
-                           float *Hext,           ///> 3 floats, externally applied field
+                           float *Hext,           ///> 3 floats, externally applied uniform field or time varying part of non-uniform field
+                           float *Hmap,           ///> space varying applied field (non-uniform case)
                            int anisType,          ///> anisotropy type
                            float *anisK,          ///> anisotropy constants
                            float *anisAxes        ///> anisotropy axes
@@ -44,8 +44,8 @@ void cpu_add_local_fields_H_and_phi (float *m,              ///> magnetization d
                                      float *h,              ///> effective field data Hx, Hy, Hz contiguously
                                      float *phi,            ///> energy density
                                      int N,                 ///> number of FD cells
-                                     int HextType,          ///> HEXT_UNIFORM or HEXT_NON_UNIFORM
-                                     float *Hext,           ///> 3 floats, externally applied field
+                                     float *Hext,           ///> 3 floats, externally applied uniform field or time varying part of non-uniform field
+                                     float *Hmap,           ///> space varying applied field (non-uniform case)
                                      int anisType,          ///> anisotropy type
                                      float *anisK,          ///> anisotropy constants
                                      float *anisAxes        ///> anisotropy axes

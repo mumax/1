@@ -36,14 +36,14 @@ func (s *Sim) calcHDemagExch(m, h *DevTensor) {
 func (s *Sim) addLocalFields(m, h *DevTensor) {
 	s.updateHext()
 	// TODO: only if needed
-	s.AddLocalFields(m, h, s.hextInt, s.input.anisType, s.anisKInt, s.input.anisAxes)
+	s.AddLocalFields(m, h, s.hextInt, s.hMask, s.input.anisType, s.anisKInt, s.input.anisAxes)
 }
 
 
 // Adds the "local" fields to H (zeeman, anisotropy) and adds the corresponding energy density to phi
 func (s *Sim) addLocalFieldsEdens(m, h, phi *DevTensor) {
 	s.updateHext()
-	s.AddLocalFieldsEdens(m, h, phi, s.hextInt, s.input.anisType, s.anisKInt, s.input.anisAxes)
+	s.AddLocalFieldsEdens(m, h, phi, s.hextInt, s.hMask, s.input.anisType, s.anisKInt, s.input.anisAxes)
 }
 
 // updates the externally applied field

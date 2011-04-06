@@ -130,18 +130,18 @@ func (dev *Backend) AddConstant(a *DevTensor, cnst float32) {
 }
 
 
-func (dev *Backend) AddLocalFields(m, h *DevTensor, hext []float32, anisType int, anisK, anisAxes []float32) {
+func (dev *Backend) AddLocalFields(m, h *DevTensor, hext []float32, hMask *DevTensor, anisType int, anisK, anisAxes []float32) {
 	assert(m.length == h.length)
 	assert(len(m.size) == 4)
 	//fmt.Printf("hext:%v, anistype:%v, anisK:%v, anisAxes:%v\n", hext, anisType, anisK, anisAxes)
-	dev.addLocalFields(m.data, h.data, hext, anisType, anisK, anisAxes, m.length/3)
+	dev.addLocalFields(m.data, h.data, hext, hMask, anisType, anisK, anisAxes, m.length/3)
 }
 
-func (dev *Backend) AddLocalFieldsEdens(m, h, phi *DevTensor, hext []float32, anisType int, anisK, anisAxes []float32) {
+func (dev *Backend) AddLocalFieldsEdens(m, h, phi *DevTensor, hext []float32, hMask *DevTensor, anisType int, anisK, anisAxes []float32) {
 	assert(m.length == h.length)
 	assert(len(m.size) == 4)
 	//fmt.Printf("hext:%v, anistype:%v, anisK:%v, anisAxes:%v\n", hext, anisType, anisK, anisAxes)
-	dev.addLocalFieldsPhi(m.data, h.data, phi.data, hext, anisType, anisK, anisAxes, m.length/3)
+	dev.addLocalFieldsPhi(m.data, h.data, phi.data, hext, hMask, anisType, anisK, anisAxes, m.length/3)
 }
 
 func (dev *Backend) GaussianNoise(target *DevTensor, stddev float32) {
