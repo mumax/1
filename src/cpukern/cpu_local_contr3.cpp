@@ -381,7 +381,7 @@ void cpu_add_cubic_anis_non_uniform_Hext(float *mx, float *my, float *mz,
 
 
 
-void cpu_add_local_fields (float *m, float *h, int N, int HextType, float *Hext, float *hmap, int anisType, float* anisK, float* anisAxes){
+void cpu_add_local_fields (float *m, float *h, int N, float *Hext, float *hmap, int anisType, float* anisK, float* anisAxes){
 
   float *mx = &(m[0*N]);
   float *my = &(m[1*N]);
@@ -393,7 +393,7 @@ void cpu_add_local_fields (float *m, float *h, int N, int HextType, float *Hext,
   
   switch (anisType){
     case ANIS_NONE:
-      if (HextType == HEXT_UNIFORM)
+      if (hmap == NULL)
         cpu_add_uniform_Hext(hx, hy, hz, 
                              Hext[X], Hext[Y], Hext[Z],  N);
       else
@@ -403,7 +403,7 @@ void cpu_add_local_fields (float *m, float *h, int N, int HextType, float *Hext,
         
       break;
     case ANIS_UNIAXIAL:
-      if (HextType == HEXT_UNIFORM)
+      if (hmap == NULL)
         cpu_add_uniaxial_anis_uniform_Hext(mx, my, mz, 
                                            hx, hy, hz, 
                                            Hext[X], Hext[Y], Hext[Z],
@@ -416,7 +416,7 @@ void cpu_add_local_fields (float *m, float *h, int N, int HextType, float *Hext,
                                                anisK[0], anisAxes[0], anisAxes[1], anisAxes[2], N);
       break;
     case ANIS_CUBIC:
-      if (HextType == HEXT_UNIFORM)
+      if (hmap == NULL)
         cpu_add_cubic_anis_uniform_Hext(mx, my, mz, 
                                         hx, hy, hz, 
                                         Hext[X], Hext[Y], Hext[Z],
@@ -839,7 +839,7 @@ void cpu_add_cubic_anis_non_uniform_Hext_and_phi(float *mx, float *my, float *mz
 
 
 
-void cpu_add_local_fields_H_and_phi (float *m, float *h, float *phi, int N, int HextType, float *Hext, float *hmap, int anisType, float* anisK, float* anisAxes){
+void cpu_add_local_fields_H_and_phi (float *m, float *h, float *phi, int N, float *Hext, float *hmap, int anisType, float* anisK, float* anisAxes){
 
   float *mx = &(m[0*N]);
   float *my = &(m[1*N]);
@@ -851,7 +851,7 @@ void cpu_add_local_fields_H_and_phi (float *m, float *h, float *phi, int N, int 
   
   switch (anisType){
     case ANIS_NONE:
-      if (HextType == HEXT_UNIFORM)
+      if (hmap == NULL)
         cpu_add_uniform_Hext_and_phi(mx, my, mz, hx, 
                                      hy, hz, phi, 
                                      Hext[X], Hext[Y], Hext[Z], N);
@@ -862,7 +862,7 @@ void cpu_add_local_fields_H_and_phi (float *m, float *h, float *phi, int N, int 
                                          &hmap[X*N], &hmap[Y*N], &hmap[Z*N], N);
       break;
     case ANIS_UNIAXIAL:
-      if (HextType == HEXT_UNIFORM)
+      if (hmap == NULL)
         cpu_add_uniaxial_anis_uniform_Hext_and_phi(mx, my, mz, 
                                                    hx, hy, hz, phi, 
                                                    Hext[X], Hext[Y], Hext[Z],
@@ -875,7 +875,7 @@ void cpu_add_local_fields_H_and_phi (float *m, float *h, float *phi, int N, int 
                                                        anisK[0], anisAxes[0], anisAxes[1], anisAxes[2], N);
       break;
     case ANIS_CUBIC:
-      if (HextType == HEXT_UNIFORM)
+      if (hmap == NULL)
         cpu_add_cubic_anis_uniform_Hext_and_phi(mx, my, mz, 
                                                 hx, hy, hz, phi, 
                                                 Hext[X], Hext[Y], Hext[Z],

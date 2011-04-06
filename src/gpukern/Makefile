@@ -24,7 +24,7 @@ OFILES=\
 	gpu_local_contr2.o\
 	gpu_exch1.o\
 	gpu_temperature.o\
-# 	gpu_local_contr3.o\
+#  	gpu_local_contr3.o\
 
 all: libgpukern.so
 

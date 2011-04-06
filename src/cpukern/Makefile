@@ -119,7 +119,7 @@ cpu_local_contr.o:  cpu_local_contr.h cpu_local_contr.cpp
 
 # cpu_local_contr3.o:  cpu_local_contr3.h cpu_local_contr3.cpp
 # 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_local_contr3.cpp
-# 
+
 cpu_exch1.o:  cpu_exch.h cpu_exch1.cpp
 	$(CPP) -c $(CFLAGS) $(OMPFLAGS) cpu_exch1.cpp
 

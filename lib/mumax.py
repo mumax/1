@@ -123,14 +123,7 @@ def ABW():
 def ANW():
   send0("ANW")
 
-<<<<<<< HEAD
-# Sets the magnetization in cell with index i,j,k to (mx, my, mz)
-#def setmcell(i, j, k, mx, my, mz):
-	#send("setmcell", [i, j, k, mx, my, mz])
-
-=======
 ## Sets the magnetization in cell with index i,j,k to (mx, my, mz)
->>>>>>> devarne5
 def setmcell(i, j, k, mx, my, mz):
   send_3ints_3floats("setmcell", i, j, k, mx, my, mz)
 
