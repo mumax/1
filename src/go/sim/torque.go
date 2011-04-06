@@ -82,7 +82,7 @@ func (s *Sim) SpintorqueDeltaM(m, h *DevTensor, dt float32) {
 		u[i] = 0.5 * (s.input.j[i] / s.UnitCurrentDensity()) / (s.cellSize[i])
 	}
 	//fmt.Println("alpha ", alpha, ", beta ", beta, ", epsillon ", epsillon)
-	s.spintorqueDeltaM(m.data, h.data, alpha, beta, epsillon, u[:], dtGilb, m.size[1:]) // TODO: we need sim.size3D, sim.size4D to avoid slicing al the time.
+	s.spintorqueDeltaM(m.data, h.data, alpha, beta, epsillon, u[:], s.jMask, dtGilb, m.size[1:]) // TODO: we need sim.size3D, sim.size4D to avoid slicing al the time.
 }
 
 

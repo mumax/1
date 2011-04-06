@@ -10,10 +10,19 @@ rm -rf $OUT
 mkdir $OUT
 
 
-cp setup_64bit.bash $OUT
+cp setup.bash $OUT
+cp LICENSE.txt $OUT
+cp README.txt $OUT
+cp Makefile $OUT
+cp common.mk $OUT
+
 cp -r bin $OUT
 cp -r lib $OUT
 
+mkdir $OUT/src
+cp -r src/ $OUT
+rm -rf $OUT/src/dev_arne
+rm -rf $OUT/src/dev_ben
 
 mkdir $OUT/examples
 cp -r examples/*.in $OUT/examples

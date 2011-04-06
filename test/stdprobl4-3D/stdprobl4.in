@@ -2,19 +2,17 @@
 # but 3D version
 
 desc info standard_problem_4
- kerneltype mumaxkern-gpu
-# exchtype 12
- exchinconv false
+ kerneltype mumaxkern-cpu
+ exchtype 12
+# exchinconv false
 
 # material
 msat:       	800E3       # A/m
 aexch:      	1.3E-11     # J/m
 alpha:      	0.02
-# exchangetype: 12
-# exchinconv: false
 
 # geometry 
-gridsize:       256 64 4
+gridsize:       256 72 4
 partsize:   	500e-9	125e-9 3e-9
 
 # initial magnetization
@@ -24,7 +22,8 @@ loadm:    	s-state.omf
 # run
 autosave:	m	 png	   50E-12
 autosave:	table	 ascii	   10E-12
-staticfield: 	-24.6E-3 4.3E-3    0
+applystatic field   -24.6E-3     4.3E-3    0  # T
+#staticfield: 	-24.6E-3 4.3E-3    0
 
 run     1e-9
 

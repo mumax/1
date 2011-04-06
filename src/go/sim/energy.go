@@ -30,8 +30,23 @@ func (s *Sim) calcEDemagExch(m, h *DevTensor) float32 {
 	s.initEDens()
 	phi := s.phiDev
 	s.calcEDensDemagExch(m, h, phi)
+	return s.sumEdens(phi)
+}
+
+
+// Returns the "volume" of an FD cell. For infinite thickness this is the surface area.
+func (s *Sim) cellVolume() float32{
+	cellsizeX := s.cellSize[X]
+	if IsInf(cellsizeX){cellsizeX = 1.} // Handle infinite thickness
+	return cellsizeX * s.cellSize[Y] * s.cellSize[Z]
+}
+
+
+// Calculates the total energy form the energy density,
+// using the cell size. Result in interal units.
+func (s *Sim) sumEdens(phi *DevTensor) float32 {
 	totalEDens := s.sumPhi.Reduce(phi)
-	return totalEDens * s.cellSize[X] * s.cellSize[Y] * s.cellSize[Z]
+	return totalEDens * s.cellVolume()
 }
 
 
@@ -40,8 +55,6 @@ func (s *Sim) addEDensLocal(m, h, phi *DevTensor) {
 	panic("TODO")
 }
 
-
-// Calculates the total energy in internal units.
 func (s *Sim) calcEnergy(m, h *DevTensor) float32 {
 	return s.calcEDemagExch(m, h) // TODO: add other contributions
 }

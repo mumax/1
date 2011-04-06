@@ -11,6 +11,7 @@ import (
 	. "mumax/common"
 	"exec"
 	"os"
+	"syscall"
 )
 
 // Main for python ".py" input files
@@ -56,6 +57,8 @@ func main_python(infile string) {
 		status := py_wait.ExitStatus()
 		Println("python exited with status ", status)
 		if status != 0 {
+			// kill the sibling
+			syscall.Kill(mumax.Process.Pid, 9)
 			os.Exit(ERR_SUBPROCESS)
 		}
 		wait <- 1
@@ -67,6 +70,8 @@ func main_python(infile string) {
 		status := mu_wait.ExitStatus()
 		Println("mumax child process exited with status ", status)
 		if status != 0 {
+			// kill the sibling
+			syscall.Kill(python.Process.Pid, 9)
 			os.Exit(ERR_SUBPROCESS)
 		}
 		wait <- 1

@@ -33,7 +33,9 @@ func BenchmarkWrite(bench *testing.B) {
 		t1 = NewT4(size)
 		bench.SetBytes(4 * int64(Len(t1)))
 	}
-	WriteF("iotest.t", t1)
+	for i := 0; i < bench.N; i++ {
+		WriteF("iotest.t", t1)
+	}
 }
 
 func BenchmarkRead(bench *testing.B) {
@@ -42,5 +44,7 @@ func BenchmarkRead(bench *testing.B) {
 		t2 = NewT4(size)
 		bench.SetBytes(4 * int64(Len(t2)))
 	}
-	t1.ReadFromF("iotest.t")
+	for i := 0; i < bench.N; i++ {
+		t1.ReadFromF("iotest.t")
+	}
 }

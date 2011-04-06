@@ -51,6 +51,7 @@ func main() {
 	sh.AddFunc("corepos", CorePos)
 	sh.AddFunc("crop2d", Crop2D)
 	sh.AddFunc("size", Size)
+	sh.AddFunc("dissipation", Dissipation)
 	cmd, args, files := refsh.ParseFlags2()
 
 	// Each file is read and stored in "data".

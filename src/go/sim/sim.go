@@ -100,11 +100,12 @@ type Sim struct {
 	size3D         []int      //simulation grid size (without 3 as first element)
 	hDev           *DevTensor // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
 	mLocal, hLocal *tensor.T4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
-	//mLocalLock     sync.RWMutex
-	mUpToDate bool       // Is mLocal up to date with mDev? If not, a copy from the device is needed before storing output.
-	phiDev    *DevTensor // energy density. Use getEDens(), assures this pointer is initiated.
-	phiLocal  *tensor.T3 // local energy density.
-	sumPhi    Reductor
+	mUpToDate      bool       // Is mLocal up to date with mDev? If not, a copy from the device is needed before storing output.
+	phiDev         *DevTensor // energy density. Use getEDens(), assures this pointer is initiated.
+	phiLocal       *tensor.T3 // local energy density.
+	sumPhi         Reductor   // Sum reduction for energy density
+	energy         float32    // total energy
+	wantEnergy     bool       // Should the energy be calculated on-the-fly (e.g. during relaxation)?
 
 	Conv              // Convolution plan for the magnetostatic field
 	exchInConv bool   // Exchange included in convolution?
@@ -117,6 +118,8 @@ type Sim struct {
 	appliedCurrDens AppliedField // returns the externally applied current density in function of time
 	hextSI          [3]float32   // stores the externally applied field returned by AppliedField, in SI UNITS
 	hextInt         []float32    // stores the externally applied field in internal units
+	hMask			*DevTensor   // spatial mask to be multiplied pointwise by hExt
+	jMask			*DevTensor	 // spatial mask to be multiplied pointwise by currDens
 
 	//relaxer   *Relax
 	Solver         // Does the time stepping, can be euler, heun, ...
@@ -191,7 +194,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.desc = make(map[string]interface{})
 	sim.hextInt = make([]float32, 3)
 	sim.initWriters()
-	sim.input.anisKSI = []float32{0.} // even when not used these must be allocated
+	sim.input.anisKSI = []float32{0., 0., 0.} // even when not used these must be allocated
 	sim.input.anisAxes = []float32{0.}
 	if *cpu {
 		sim.input.kernelType = "mumaxkern-cpu"

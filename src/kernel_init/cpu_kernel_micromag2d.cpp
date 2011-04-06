@@ -48,7 +48,6 @@ typedef struct{
   int co1, co2;
 } _cpu_init_kernel_elements_micromag2d_arg;
 
-
 float _cpu_get_kernel_element_micromag2d(_cpu_init_kernel_elements_micromag2d_arg *arg, int b, int c){
 
   int *Nkernel = arg->Nkernel;

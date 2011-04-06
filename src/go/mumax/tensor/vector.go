@@ -47,6 +47,14 @@ func (v *Vector) SetTo(other *Vector) {
 	v[2] = other[2]
 }
 
+func (a *Vector) Cross(b *Vector) Vector {
+	var cross Vector
+	cross[0] = a[1]*b[2] - a[2]*b[1]
+	cross[1] = a[0]*b[2] - a[2]*b[0]
+	cross[2] = a[0]*b[1] - a[1]*b[0]
+	return cross
+}
+
 func (a *Vector) Dot(b *Vector) float32 {
 	return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
 }

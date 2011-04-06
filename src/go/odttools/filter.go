@@ -12,6 +12,8 @@ package main
 import (
 	. "mumax/common"
 	"fmt"
+	"os"
+	"math"
 )
 
 
@@ -124,6 +126,8 @@ func matrix(i_colname, j_colname, data_colname string, octave_format bool) {
 		fmt.Println("];")
 	}
 
+	var SENTINEL float32 = -123.456789 // quick and dirty hack
+
 	// (2) Make the "outer product" of the two index sets,
 	// spanning a matrix that can be index with each possible i,j pair
 	// (even those not present in the input, their data will be 0.)
@@ -133,7 +137,7 @@ func matrix(i_colname, j_colname, data_colname string, octave_format bool) {
 			if matrix[I[i]] == nil {
 				matrix[I[i]] = make(map[float32]float32)
 			}
-			matrix[I[i]][J[j]] = 0.
+			matrix[I[i]][J[j]] = SENTINEL
 		}
 	}
 
@@ -145,7 +149,36 @@ func matrix(i_colname, j_colname, data_colname string, octave_format bool) {
 		matrix[table.Column[i_col][i]][table.Column[j_col][i]] = D[i]
 	}
 
-	// (4) Print the matrix
+	// (3.5)
+	// Missing data gets replaced by nearest value
+	DELTA := 5 // do not look further than DELTA neighbors 
+	for i := range I {
+		for j := range J {
+			if matrix[I[i]][J[j]] == SENTINEL {
+
+				fmt.Fprintln(os.Stderr, "missing: ", i, j)
+				minDst := float32(math.Inf(1))
+				nearest := float32(0)
+				for i_ := imax(0, i-DELTA); i_ < imin(len(I), i+DELTA); i_++ {
+					for j_ := imax(0, j-DELTA); j_ < imin(len(J), j+DELTA); j_++ {
+						if matrix[I[i_]][J[j_]] != SENTINEL {
+
+							dst := sqr(I[i]-I[i_]) + sqr(J[j]-J[j_])
+							if dst < minDst {
+								minDst = dst
+								nearest = matrix[I[i_]][J[j_]]
+							}
+
+						}
+					}
+				}
+				matrix[I[i]][J[j]] = nearest
+
+			}
+		}
+	}
+
+	//(4) Print the matrix
 	if octave_format {
 		fmt.Print("data=reshape([")
 	}
@@ -164,4 +197,23 @@ func matrix(i_colname, j_colname, data_colname string, octave_format bool) {
 		fmt.Println("], ", len(J), ", ", len(I), ");")
 	}
 	haveOutput = true
+}
+
+
+func imin(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func imax(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func sqr(x float32) float32 {
+	return x * x
 }

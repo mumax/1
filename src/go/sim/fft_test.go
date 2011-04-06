@@ -16,14 +16,71 @@ import (
 var backend = GPU
 
 var fft_test_sizes [][]int = [][]int{
-	{1, 8, 8},
-	{8, 8, 8},
-	{2, 4, 8},
-	{1, 32, 64},
-	{4, 8, 16}}
+  {1,16,16}}
+
+func TestTimeFFT(t *testing.T) {
+// func testFFTPadded2(t *testing.T) {
+  
+var basic_size []int = []int{1,32,32}
+var size []int = []int{1,16,16}
+
+
+  for i := 1; i < 11; i++ {
+    size[0] = basic_size[0]
+    size[1] = i*basic_size[1]
+    size[2] = i*basic_size[2]
+
+    fmt.Println("cnt: ", i, "Size in: ", size)
+    fmt.Println()
+    fmt.Println()
+    fmt.Println()
+    fmt.Println()
+    fmt.Println()
+    paddedsize := padSize(size, []int{0, 0, 0})
+
+    fft := NewFFTPadded(backend, size, paddedsize)
+    fftP := NewFFT(backend, paddedsize) // with manual padding
+
+    fmt.Println(fft)
+    fmt.Println(fftP)
+
+    outsize := fftP.PhysicSize()
+
+    host := tensor.NewT(size)
+    dev, devT, devTT := NewTensor(backend, size), NewTensor(backend, outsize), NewTensor(backend, size)
+
+    host.List()[0] = 1.
+    for i := 0; i < size[0]; i++ {
+      for j := 0; j < size[1]; j++ {
+        for k := 0; k < size[2]; k++ {
+          host.List()[i*size[1]*size[2]+j*size[2]+k] = rand.Float32() //1.
+        }
+      }
+    }
+
+
+    TensorCopyTo(host, dev)
+
+    for j := 1; j < 10; j++ {
+      fft.Forward(dev, devT)
+      fft.Inverse(devT, devTT)
+    }
+
+    fft.Free()
+    fftP.Free()
+    
+    dev.Free()
+    devT.Free()
+    devTT.Free()
+    
+  }
+
+
+}
 
 
 func TestFFTPadded(t *testing.T) {
+
 
 	for _, size := range fft_test_sizes {
 		fmt.Println("Size: ", size)

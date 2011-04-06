@@ -294,6 +294,12 @@ func (rk *RK) step() {
 	TensorCopyOn(m, rk.mbackup)
 	goodstep := false
 	trials := 0
+	// previous energy value to make sure energy drops when wantEnergy == true
+	prevEnergy := rk.energy
+	if prevEnergy == 0 {
+		prevEnergy = 9999999999
+	}
+
 	// Try to take a step with the current dt.
 	// If the step fails (error too big),
 	// then cut dt and try again (at most MAX_STEP_TRIALS times) 
@@ -314,7 +320,22 @@ func (rk *RK) step() {
 						rk.MAdd(m1, rk.dt*a[i][j], k[j])
 					}
 				}
-				rk.calcHeff(m1, k[i])
+				if rk.fsal {
+					// update energy at the end of the step for fsal solvers
+					if rk.wantEnergy && i == order-1 {
+						rk.calcHeffEnergy(m1, k[i])
+					} else {
+						rk.calcHeff(m1, k[i])
+					}
+				} else {
+					// update energy at the beginning of the step for non-fsal solvers
+					if rk.wantEnergy && i == 0 {
+						rk.calcHeffEnergy(m1, k[i])
+					} else {
+						rk.calcHeff(m1, k[i])
+					}
+				}
+
 				rk.Torque(m1, k[i])
 				rk.fsal_initiated = true
 			}
@@ -400,7 +421,8 @@ func (rk *RK) step() {
 
 			checkdt(rk.dt)
 			//undo bad steps
-			if error > 2*rk.input.maxError {
+			// if we want the energy to be calculated on-the-fly, we make sure it always drops
+			if error > 2*rk.input.maxError || (rk.wantEnergy && rk.energy > prevEnergy) {
 				TensorCopyOn(rk.mbackup, m)
 				goodstep = false
 				//fmt.Println("bad step")

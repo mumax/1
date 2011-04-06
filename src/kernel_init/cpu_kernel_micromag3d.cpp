@@ -28,7 +28,7 @@ void cpu_init_kernel_elements_micromag3d(int co1, int co2, int *kernelSize, floa
   // ______________________________________________________________________________________________
 
   int kernelN = kernelSize[X]*kernelSize[Y]*kernelSize[Z];              // size of a kernel component without zeros
-  float *data = new_cpu_array(kernelN);                                 // o store kernel component without zeros (input of fft routine)
+  float *data = new_cpu_array(kernelN);                                 // To store kernel component without zeros (input of fft routine)
  
   _cpu_init_kernel_elements_micromag3d(data, kernelSize, co1, co2, cellSize, repetition, qd_P_10, qd_W_10);
 
@@ -135,14 +135,14 @@ float _cpu_get_kernel_element_micromag3d(_cpu_init_kernel_elements_micromag3d_ar
         int k = c + cntc*Nkernel[Z]/2;
         int r2_int = i*i+j*j+k*k;
 
-        if (r2_int<0){
+        if (r2_int<400){
           float x1 = (i + 0.5f) * cellSize[X];
           float x2 = (i - 0.5f) * cellSize[X];
           for (int cnt2=0; cnt2<10; cnt2++){
             float y = j * cellSize[Y] + qd_P_10_Y[cnt2];
             for (int cnt3=0; cnt3<10; cnt3++){
               float z = k * cellSize[Z] + qd_P_10_Z[cnt3];
-              result += 1.0f/8.0f * cellSize[Y] * cellSize[Z] / 4.0f * qd_W_10[cnt2] * qd_W_10[cnt3] *
+              result += cellSize[Y] * cellSize[Z] / 4.0f * qd_W_10[cnt2] * qd_W_10[cnt3] *
                 ( y*powf(x1*x1+y*y+z*z, -1.5f) - y*powf(x2*x2+y*y+z*z, -1.5f));
             }
           }
@@ -425,7 +425,6 @@ void _cpu_init_kernel_elements_micromag3d_t(int id){
   int N2 = arg->Nkernel[Z];
   int N12 = arg->Nkernel[Y] * N2;
   
-
   for (int i=start; i<stop; i++)
     for (int j=0; j<arg->Nkernel[Y]/2; j++)
       for (int k=0; k<N2/2; k++){
