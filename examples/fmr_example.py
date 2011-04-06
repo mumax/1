@@ -12,6 +12,9 @@ from math import sin, pi
 msat(490e3)   
 aexch(9e-12)     
 alpha(0.01)
+#anisotropy:
+k1(-5.7e3)
+anisuniaxial(0, 0, 1)
 
 # geometry 
 nx = 128
