@@ -50,19 +50,19 @@ void cpu_init(int threads,      ///< number of threads to use, 0 means autodect 
     if( threads > 1){
       // set up multi-threaded fftw
       fftwf_init_threads();
-      fftwf_plan_with_nthreads(threads);
+//       fftwf_plan_with_nthreads(threads);
     }
 
-    // set up openMP
-    omp_set_num_threads(threads);
+//     // set up openMP
+//     omp_set_num_threads(threads);
 
     // set up Ben
     init_Threads(threads);
 
-    // set up options
+/*    // set up options
     if (options & PATIENT_FLAG){
       fftw_strategy = FFTW_PATIENT;
-    }
+    }*/
 }
 
 
