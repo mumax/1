@@ -26,6 +26,7 @@ void gpu_spintorque_deltaM(float* m,       ///< magnetization (all 3 components,
                            float beta,     ///< b(1+alpha*xi)
                            float epsillon, ///< b(xi-alpha)
                            float* u,       /// 0.5 * U_spintorque / cellsize[i]
+                           float* jmap,    /// space-dependent mask for J, pointwise multiplied: J = (jx * mask_x, jy * mask_y, jz * mask_z)
                            float dt_gilb,  ///< dt * gilbert factor
                            int N0,         ///< length of each of the components of m, h (1/3 of m's total length)
                            int N1,

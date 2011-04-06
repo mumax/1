@@ -111,8 +111,13 @@ func (d Gpu) deltaM(m, h uintptr, alpha, dtGilbert float32, N int) {
 	C.gpu_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha), C.float(dtGilbert), C.int(N))
 }
 
-func (d Gpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, dtGilb float32, size []int) {
-	C.gpu_spintorque_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha), C.float(beta), C.float(epsillon), (*C.float)(unsafe.Pointer(&u[0])), C.float(dtGilb), C.int(size[0]), C.int(size[1]), C.int(size[2]))
+func (d Gpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, jMask *DevTensor, dtGilb float32, size []int) {
+	// jMask may be nil
+	var jMap unsafe.Pointer
+	if jMask != nil{
+		jMap = unsafe.Pointer(jMask.data)
+	}
+	C.gpu_spintorque_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha), C.float(beta), C.float(epsillon), (*C.float)(unsafe.Pointer(&u[0])), (*C.float)(jMap), C.float(dtGilb), C.int(size[0]), C.int(size[1]), C.int(size[2]))
 }
 
 func (d Gpu) addLocalFields(m, h uintptr, Hext []float32, hMask *DevTensor, anisType int, anisK []float32, anisAxes []float32, N int) {

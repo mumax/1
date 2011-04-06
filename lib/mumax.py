@@ -223,6 +223,17 @@ def applypointwise(what, time, bx, by, bz):
 	send("applypointwise", [what, time, bx, by, bz])
 
 
+## Set a space-dependent mask to be multiplied pointwise by the current density.
+#  This allows for space-dependent current densities to be defined.
+#  filename is an .omf file that defines the mask.
+#  J(r,t) = (jx(t) * mask_x(r), jy(t) * mask_y(r), jz(t) * mask_z(r))
+def currentmask(filename):
+	send1("currentmask", filename)
+
+## Set a space-dependent mask to be multiplied pointwise by the applied magnetic field
+#  This allows for space-dependent fields to be defined.
+#  filename is an .omf file that defines the mask.
+#  B(r,t) = (bx(t) * mask_x(r), by(t) * mask_y(r), bz(t) * mask_z(r))
 def fieldmask(filename):
 	send1("fieldmask", filename)
 

@@ -43,6 +43,7 @@ func (s *Sim) ExchType(exchType int) {
 	s.invalidate()
 }
 
+// Set a space-dependent mask to be multiplied pointwise by the field
 func (s *Sim) FieldMask(file string){
 	s.init()
 	_, mask := omf.FRead(file)
