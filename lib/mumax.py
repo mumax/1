@@ -110,7 +110,15 @@ def setrandom():
 ## Sets the magnetization to a vortex state
 def vortex(circulation, polarization):
 	send2("vortex", circulation, polarization)
-	
+
+## Sets a vortex in an array
+def Vortex_in_array(i, j, basic_size, separation, circulation, polarization):
+  send("Vortex_in_array", [i, j, basic_size, separation, circulation, polarization])
+  
+## Sets a mask for dot/vortex array (r: dot size in meters, sep: separation in meter, n: max[#dots in x-dir, #dots in y-dir])
+def	DotArray(r, sep, n):
+	send3("DotArray", r, sep, n)
+
 def SBW():
   send0("SBW")
 
@@ -123,9 +131,13 @@ def ABW():
 def ANW():
   send0("ANW")
 
-## Sets the magnetization in cell with index i,j,k to (mx, my, mz)
+# Sets the magnetization in cell with index i,j,k to (mx, my, mz)
 def setmcell(i, j, k, mx, my, mz):
-  send_3ints_3floats("setmcell", i, j, k, mx, my, mz)
+	send("setmcell", [i, j, k, mx, my, mz])
+
+## Sets the magnetization in cell with index i,j,k to (mx, my, mz)
+#def setmcell(i, j, k, mx, my, mz):
+  #send_3ints_3floats("setmcell", i, j, k, mx, my, mz)
 
 ## Like setmcell but for a range of cells between x1,y1,z1 (inclusive) and x2,y2,z2 (exclusive)
 def setmrange(x1, y1, z1, x2, y2, z2, mx, my, mz):
