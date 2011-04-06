@@ -106,7 +106,7 @@ func (d Cpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []f
 	panic(Bug("spin torque not implemented on CPU"))
 }
 
-func (d Cpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int) {
+func (d Cpu) addLocalFields(m, h uintptr, Hext []float32, hMask *DevTensor, anisType int, anisK []float32, anisAxes []float32, N int) {
 	C.cpu_add_local_fields((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
 }
 

@@ -114,7 +114,7 @@ type Device interface {
 	spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, dtGilb float32, size []int)
 
 	// Adds the "local" field contribution: Zeeman and anisotropy
-	addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int)
+	addLocalFields(m, h uintptr, Hext []float32, hMask *DevTensor, anisType int, anisK []float32, anisAxes []float32, N int)
 
 	// Adds the "local" field contribution: Zeeman and anisotropy, and also calculates the energy density phi
 	addLocalFieldsPhi(m, h, phi uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int)
