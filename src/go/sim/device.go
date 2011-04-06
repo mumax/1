@@ -117,7 +117,7 @@ type Device interface {
 	addLocalFields(m, h uintptr, Hext []float32, hMask *DevTensor, anisType int, anisK []float32, anisAxes []float32, N int)
 
 	// Adds the "local" field contribution: Zeeman and anisotropy, and also calculates the energy density phi
-	addLocalFieldsPhi(m, h, phi uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int)
+	addLocalFieldsPhi(m, h, phi uintptr, Hext []float32, hMask *DevTensor, anisType int, anisK []float32, anisAxes []float32, N int)
 
 	// Adds the exchange field to h.
 	addExch(m, h uintptr, size, periodic, exchinconv []int, cellsize []float32, exchType int)
