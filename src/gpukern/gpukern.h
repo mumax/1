@@ -38,6 +38,6 @@
 #include "gpu_conf.h"
 #include "gpu_safe.h"
 #include "gpu_anis.h"
-#include "gpu_local_contr2.h"
+#include "gpu_local_contr3.h"
 #include "gpu_exch.h"
 #include "gpu_temperature.h"
