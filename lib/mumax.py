@@ -18,7 +18,6 @@ from sys import stdout
 ## Infinity
 inf = float("inf")
 
-
 # Material parameters
 
 ## Sets the saturation magnetization in A/m
@@ -85,6 +84,11 @@ def periodic(nx, ny, nz):
 def ellipsoid(rx, ry, rz):
 	send3("ellipsoid", rx, ry, rz)
 
+# Sets number of periods in given direction
+def periodic(Nx, Ny, Nz):
+  send3("periodic", Nx, Ny, Nz)
+
+
 # Initial magnetization
 
 ## Loads the magnetization state from a .omf file
@@ -106,10 +110,29 @@ def setrandom():
 ## Sets the magnetization to a vortex state
 def vortex(circulation, polarization):
 	send2("vortex", circulation, polarization)
+	
+def SBW():
+  send0("SBW")
 
+def SNW():
+  send0("SNW")
+
+def ABW():
+  send0("ABW")
+
+def ANW():
+  send0("ANW")
+
+<<<<<<< HEAD
+# Sets the magnetization in cell with index i,j,k to (mx, my, mz)
+#def setmcell(i, j, k, mx, my, mz):
+	#send("setmcell", [i, j, k, mx, my, mz])
+
+=======
 ## Sets the magnetization in cell with index i,j,k to (mx, my, mz)
+>>>>>>> devarne5
 def setmcell(i, j, k, mx, my, mz):
-	send("setmcell", [i, j, k, mx, my, mz])
+  send_3ints_3floats("setmcell", i, j, k, mx, my, mz)
 
 ## Like setmcell but for a range of cells between x1,y1,z1 (inclusive) and x2,y2,z2 (exclusive)
 def setmrange(x1, y1, z1, x2, y2, z2, mx, my, mz):
@@ -283,6 +306,10 @@ def getmaxtorque(component):
 	send1("getmaxtorque")
 	return recv()
 
+# Retrieves the total energy in SI units
+def getE():
+  send0("getE")
+  return recv()
 
 ## Debug and fine-tuning
 
@@ -301,6 +328,10 @@ def kerneltype(cmd):
 ## Override whether or not (true/false) the magnetostatic field should be calculated
 def demag(b):
 	send1("demag", cmd)
+
+# Override whether or not (true/false) the energy should be calculated
+def energy(b):
+	send1("energy", b)
 
 
 ## @internal

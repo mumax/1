@@ -18,6 +18,39 @@ extern "C" {
 //#define BLOCKSIZE 32
 #define BLOCKSIZE 16
 
+
+
+
+#include <stddef.h>
+#include <stdio.h>
+#include <sys/time.h>
+
+static double start;
+
+// timing functions
+void startChrono(){
+  int rtn;
+  struct timeval tp;
+
+  rtn=gettimeofday(&tp, NULL);
+  start = (double)tp.tv_sec+(1.e-6)*tp.tv_usec;
+}
+
+double stopChrono()
+{
+  struct timeval tp;
+  double stop;
+  int rtn;
+
+  rtn=gettimeofday(&tp, NULL);
+  stop = (double)tp.tv_sec+(1.e-6)*tp.tv_usec;
+
+  return (stop - start);
+}
+
+
+
+
 gpuFFT3dPlan* new_gpuFFT3dPlan_padded(int* size, int* paddedSize){
 
   int N0 = size[X];
@@ -91,9 +124,11 @@ void gpuFFT3dPlan_forward(gpuFFT3dPlan* plan, float* input, float* output){
   //     zero out the output matrix
     gpu_zero(output, plan->paddedStorageN);
   //     padding of the input matrix towards the output matrix
-    timer_start("fw_copy_to_pad");
+    //timer_start("fw_copy_to_pad");
+    //startChrono();
     gpu_copy_to_pad2(input, output, size, pSSize);
-    timer_stop("fw_copy_to_pad");
+    //fprintf(sterr, "\n\n time: %e\n\n", stopChrono());
+    //timer_stop("fw_copy_to_pad");
 
   
   float* data = output;

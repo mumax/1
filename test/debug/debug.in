@@ -1,7 +1,7 @@
 
-kerneltype mumaxkern-cpu
-exchtype 12
-exchinconv false
+kerneltype mumaxkern-gpu
+#exchtype 12
+#exchinconv false
 # demag false
 
 # material
