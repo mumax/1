@@ -9,6 +9,8 @@ package sim
 
 import (
 	. "mumax/common"
+	"mumax/omf"
+	"mumax/tensor"
 	"fmt"
 	"math"
 	"strings"
@@ -41,6 +43,17 @@ func (s *Sim) ExchType(exchType int) {
 	s.invalidate()
 }
 
+func (s *Sim) FieldMask(file string){
+	s.init()
+	_, mask := omf.FRead(file)
+	if !tensor.EqualSize(mask.Size(), s.mDev.Size()){
+		mask = resample4(mask, s.mDev.Size())
+	}
+	if s.hMask != nil{s.hMask.Free()}
+	s.hMask = NewTensor(s.Backend, s.mDev.Size())
+	TensorCopyTo(mask, s.hMask)
+	// does not invalidate
+}
 
 func (s *Sim) apply(what string, function AppliedField) {
 	switch strings.ToLower(what) {
