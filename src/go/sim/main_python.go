@@ -24,7 +24,12 @@ func main_python(infile string) {
 
 	// Start python subprocess
 	py_bin, errlook := exec.LookPath("python")
-	py_args := []string{"../" + infile}
+
+	// python is started with wd infile.out, so the py file is located in ../infle.py
+	//parent := ParentDir(infile)
+	file := Filename(infile)
+	py_args := []string{"../" + file}
+
 	py_args = append([]string{py_bin}, py_args...)
 	CheckErr(errlook, ERR_SUBPROCESS)
 	Println("starting ", py_bin, py_args)
