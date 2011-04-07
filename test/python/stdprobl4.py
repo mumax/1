@@ -30,5 +30,7 @@ autosave('table', 'ascii', 5e-12)
 applystatic('field', -24.6E-3, 4.3E-3, 0)
 run(1e-9)
 
-
+f=open("test.txt", "a")
+f.write("hi")
+f.close()
 

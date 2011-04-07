@@ -10,6 +10,7 @@ package sim
 import (
 	. "mumax/common"
 	"exec"
+	"fmt"
 	"os"
 	"syscall"
 )
@@ -22,11 +23,17 @@ func main_python(infile string) {
 	os.Mkdir(outdir, 0777) //TODO: permission?
 
 	// Start python subprocess
-	py_args := []string{infile}
 	py_bin, errlook := exec.LookPath("python")
+	py_args := []string{"../" + infile}
+	py_args = append([]string{py_bin}, py_args...)
 	CheckErr(errlook, ERR_SUBPROCESS)
 	Println("starting ", py_bin, py_args)
-	python, errpy := subprocess(py_bin, py_args, exec.Pipe, exec.Pipe, exec.PassThrough)
+	fmt.Fprintln(os.Stderr, "exec ", py_args)
+	py_wd := ReplaceExt(infile, ".out")
+	fmt.Fprintln(os.Stderr, "py_wd", py_wd)
+	python, errpy := exec.Run(py_bin, py_args, os.Environ(), py_wd, exec.Pipe, exec.Pipe, exec.PassThrough)
+
+
 	CheckErr(errpy, ERR_SUBPROCESS)
 	Println("python PID: ", python.Process.Pid)
 
