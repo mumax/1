@@ -39,7 +39,7 @@ func (s *Sim) GetMaxM(component int) {
 }
 func (s *Sim) getMaxM(component int) float32 {
 	s.init()
-	return s.devmax.Reduce(s.mDev.comp[component]) 
+	return s.devmax.Reduce(s.mDev.comp[component])
 }
 
 func (s *Sim) GetMinM(component int) {
@@ -48,7 +48,7 @@ func (s *Sim) GetMinM(component int) {
 }
 func (s *Sim) getMinM(component int) float32 {
 	s.init()
-	return s.devmin.Reduce(s.mDev.comp[component]) 
+	return s.devmin.Reduce(s.mDev.comp[component])
 }
 
 // Gets the maximum torque expressed in gamma*Ms, as set by the current solver.
@@ -58,7 +58,7 @@ func (s *Sim) GetMaxTorque() {
 }
 
 
-func (s* Sim) GetCorePos(){
+func (s *Sim) GetCorePos() {
 	s.init()
 	Send(s.corePos()[0])
 	Send(s.corePos()[1])
@@ -66,6 +66,5 @@ func (s* Sim) GetCorePos(){
 
 // Gets the total energy in SI units.
 func (s *Sim) GetE() {
-  Send(s.GetEnergySI())
+	Send(s.GetEnergySI())
 }
-

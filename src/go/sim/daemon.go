@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"rand"
 	"exec"
 	"io/ioutil"
 )
@@ -184,10 +185,27 @@ func findInputFile(dir string) string {
 	}
 
 	// First look for input files in the top-level directory...
-	for _, info := range fileinfo {
-		file := dir + "/" + info.Name
-		if has_known_extension(file) && !contains(fileinfo, RemoveExtension(RemovePath(file))+".out") {
-			return file
+	if *random {
+		N := len(fileinfo) 
+		hit := make([]bool, N) // file has already been hit?
+		for i:=0; i<N; i++{
+			I := rand.Intn(N)
+			for hit[I]{ // find first non-hit file
+				I++
+				if I >= N{I=0}
+			}
+			info := fileinfo[I]
+			file := dir + "/" + info.Name
+			if has_known_extension(file) && !contains(fileinfo, RemoveExtension(RemovePath(file))+".out") {
+				return file
+			}
+		}
+	} else {
+		for _, info := range fileinfo {
+			file := dir + "/" + info.Name
+			if has_known_extension(file) && !contains(fileinfo, RemoveExtension(RemovePath(file))+".out") {
+				return file
+			}
 		}
 	}
 

@@ -44,13 +44,15 @@ func (s *Sim) ExchType(exchType int) {
 }
 
 // Set a space-dependent mask to be multiplied pointwise by the field
-func (s *Sim) FieldMask(file string){
+func (s *Sim) FieldMask(file string) {
 	s.init()
 	_, mask := omf.FRead(file)
-	if !tensor.EqualSize(mask.Size(), s.mDev.Size()){
+	if !tensor.EqualSize(mask.Size(), s.mDev.Size()) {
 		mask = resample4(mask, s.mDev.Size())
 	}
-	if s.hMask != nil{s.hMask.Free()}
+	if s.hMask != nil {
+		s.hMask.Free()
+	}
 	s.hMask = NewTensor(s.Backend, s.mDev.Size())
 	TensorCopyTo(mask, s.hMask)
 	// does not invalidate
@@ -199,17 +201,17 @@ func (s *Sim) ApplyRfRamp(what string, hz, hy, hx float32, freq float64, ramptim
 }
 
 type rfRamp struct {
-	b    [3]float32
-	freq float64
+	b        [3]float32
+	freq     float64
 	ramptime float64
 }
 
 func (field *rfRamp) GetAppliedField(time float64) [3]float32 {
 	fac := 1.
-	if time < field.ramptime{
-		fac = time/field.ramptime
+	if time < field.ramptime {
+		fac = time / field.ramptime
 	}
-	sin := float32(math.Sin(field.freq * 2 * math.Pi * time) * fac)
+	sin := float32(math.Sin(field.freq*2*math.Pi*time) * fac)
 	return [3]float32{field.b[X] * sin, field.b[Y] * sin, field.b[Z] * sin}
 }
 

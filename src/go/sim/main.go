@@ -27,6 +27,7 @@ var (
 	slave     *bool   = flag.Bool("slave", false, "When as child of another process")
 	silent    *bool   = flag.Bool("silent", false, "Do not show simulation output on the screen, only save to output.log")
 	daemon    *bool   = flag.Bool("daemon", false, "Watch directories for new input files and run them automatically.")
+	random    *bool   = flag.Bool("random", false, "With daemon: run input files in random order.")
 	watch     *int    = flag.Int("watch", 60, "With -daemon, re-check for new input files every N seconds. -watch=0 disables watching, program exits when no new input files are left.")
 	walltime  *int    = flag.Int("walltime", 0, "With -daemon, keep the deamon alive for N hours. Handy for nightly runs. -walltime=0 (default) runs the daemon forever.")
 	verbosity *int    = flag.Int("verbosity", 2, "Control the debug verbosity (0 - 3)")

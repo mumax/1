@@ -72,8 +72,8 @@ func (s *Sim) Uniform(mz, my, mx float32) {
 // in-plane circulation (-1 or +1)
 // and core polarization (-1 or 1)
 func (s *Sim) Vortex(circulation, polarization int) {
- 	s.initMLocal()
-	cy, cx :=  s.size[1]/2, s.size[2]/2
+	s.initMLocal()
+	cy, cx := s.size[1]/2, s.size[2]/2
 	a := s.mLocal.Array()
 	for i := range a[0] {
 		for j := range a[0][i] {
@@ -98,110 +98,109 @@ func (s *Sim) Vortex(circulation, polarization int) {
 // in-plane circulation (-1 or +1)
 // and core polarization (-1 or 1)
 // The data array is expected to have only zeros at the start
-func (s *Sim) Vortex_in_array(vrtx_i, vrtx_j, basic_size, separation float32, circulation, polarization int){
-  s.initMLocal()
-  c := s.input.cellSize
-  B := basic_size/c[2]
-  S := separation/c[2]
-  
-  cx, cy := int( (vrtx_i+0.5)*B ), int( (vrtx_j+0.5)*B )
-  a := s.mLocal.Array()
-  for i := range a[0] {
-    for j := int(vrtx_j*B + S/2); j< int( (vrtx_j+1)*B - S/2 ); j++ {
-      for k := int(vrtx_i*B + S/2); k< int( (vrtx_i+1)*B - S/2 ); k++ {
-        y := j - cy
-        x := k - cx
-        a[X][i][j][k] = 0
-        a[Y][i][j][k] = float32(x * circulation)
-        a[Z][i][j][k] = float32(-y * circulation)
-      }
-    }
-    a[Z][i][cy][cx] = 0.
-    a[Y][i][cy][cx] = 0.
-    a[X][i][cy][cx] = float32(polarization)
-  }
-  s.invalidate()
+func (s *Sim) Vortex_in_array(vrtx_i, vrtx_j, basic_size, separation float32, circulation, polarization int) {
+	s.initMLocal()
+	c := s.input.cellSize
+	B := basic_size / c[2]
+	S := separation / c[2]
+
+	cx, cy := int((vrtx_i+0.5)*B), int((vrtx_j+0.5)*B)
+	a := s.mLocal.Array()
+	for i := range a[0] {
+		for j := int(vrtx_j*B + S/2); j < int((vrtx_j+1)*B-S/2); j++ {
+			for k := int(vrtx_i*B + S/2); k < int((vrtx_i+1)*B-S/2); k++ {
+				y := j - cy
+				x := k - cx
+				a[X][i][j][k] = 0
+				a[Y][i][j][k] = float32(x * circulation)
+				a[Z][i][j][k] = float32(-y * circulation)
+			}
+		}
+		a[Z][i][cy][cx] = 0.
+		a[Y][i][cy][cx] = 0.
+		a[X][i][cy][cx] = float32(polarization)
+	}
+	s.invalidate()
 }
 
 // Make the magnetization the starting configuration of a symmetric Bloch wall
 func (s *Sim) SBW() {
-  s.initMLocal()
-  a := s.mLocal.Array()
-  pi := math.Pi
-  for i := range a[0] {
-    for j := range a[0][i] {
-      for k := range a[0][i][j] {
-        theta := pi * (float64(k-s.size[2]/2.0) + .5) / float64(s.size[2])
-        phi   := 0.0
-        a[X][i][j][k] = float32(math.Sin(theta))
-        a[Y][i][j][k] = float32(math.Cos(theta)*math.Cos(phi))
-        a[Z][i][j][k] = float32(math.Cos(theta)*math.Sin(phi))
-      }
-    }
-  }
-  s.invalidate()
+	s.initMLocal()
+	a := s.mLocal.Array()
+	pi := math.Pi
+	for i := range a[0] {
+		for j := range a[0][i] {
+			for k := range a[0][i][j] {
+				theta := pi * (float64(k-s.size[2]/2.0) + .5) / float64(s.size[2])
+				phi := 0.0
+				a[X][i][j][k] = float32(math.Sin(theta))
+				a[Y][i][j][k] = float32(math.Cos(theta) * math.Cos(phi))
+				a[Z][i][j][k] = float32(math.Cos(theta) * math.Sin(phi))
+			}
+		}
+	}
+	s.invalidate()
 }
 
 
 // Make the magnetization the starting configuration of a symmetric Néel wall
 func (s *Sim) SNW() {
-  s.initMLocal()
-  a := s.mLocal.Array()
-  pi := math.Pi
-  for i := range a[0] {
-    for j := range a[0][i] {
-      for k := range a[0][i][j] {
-        theta := pi * (float64(k-s.size[2]/2.0) + .5) / float64(s.size[2])
-        phi   := pi/2.0
-        a[X][i][j][k] = float32(math.Sin(theta))
-        a[Y][i][j][k] = float32(math.Cos(theta)*math.Cos(phi))
-        a[Z][i][j][k] = float32(math.Cos(theta)*math.Sin(phi))
-      }
-    }
-  }
-  s.invalidate()
+	s.initMLocal()
+	a := s.mLocal.Array()
+	pi := math.Pi
+	for i := range a[0] {
+		for j := range a[0][i] {
+			for k := range a[0][i][j] {
+				theta := pi * (float64(k-s.size[2]/2.0) + .5) / float64(s.size[2])
+				phi := pi / 2.0
+				a[X][i][j][k] = float32(math.Sin(theta))
+				a[Y][i][j][k] = float32(math.Cos(theta) * math.Cos(phi))
+				a[Z][i][j][k] = float32(math.Cos(theta) * math.Sin(phi))
+			}
+		}
+	}
+	s.invalidate()
 }
 
 
 // Make the magnetization the starting configuration of a asymmetric Bloch wall
 func (s *Sim) ABW() {
-  s.initMLocal()
-  a := s.mLocal.Array()
-  pi := math.Pi
-  for i := range a[0] {
-    for j := range a[0][i] {
-      for k := range a[0][i][j] {
-        theta := pi * (float64(k-s.size[2]/2.0) + .5) / float64(s.size[2])
-        phi   := pi * (float64(j-s.size[1]/2.0) + .5) / float64(s.size[1])
-        a[X][i][j][k] = float32(math.Sin(theta))
-        a[Y][i][j][k] = float32(math.Cos(theta)*math.Cos(phi))
-        a[Z][i][j][k] = float32(math.Cos(theta)*math.Sin(phi))
-      }
-    }
-  }
-  s.invalidate()
+	s.initMLocal()
+	a := s.mLocal.Array()
+	pi := math.Pi
+	for i := range a[0] {
+		for j := range a[0][i] {
+			for k := range a[0][i][j] {
+				theta := pi * (float64(k-s.size[2]/2.0) + .5) / float64(s.size[2])
+				phi := pi * (float64(j-s.size[1]/2.0) + .5) / float64(s.size[1])
+				a[X][i][j][k] = float32(math.Sin(theta))
+				a[Y][i][j][k] = float32(math.Cos(theta) * math.Cos(phi))
+				a[Z][i][j][k] = float32(math.Cos(theta) * math.Sin(phi))
+			}
+		}
+	}
+	s.invalidate()
 }
 
 
 // Make the magnetization the starting configuration of a asymmetric Néel wall
 func (s *Sim) ANW() {
-  s.initMLocal()
-  a := s.mLocal.Array()
-  pi := math.Pi
-  for i := range a[0] {
-    for j := range a[0][i] {
-      for k := range a[0][i][j] {
-        theta := pi * (float64(k-s.size[2]/2.0) + .5) / float64(s.size[2])
-        phi   := pi/4.0
-        a[X][i][j][k] = float32(math.Sin(theta))
-        a[Y][i][j][k] = float32(math.Cos(theta)*math.Cos(phi))
-        a[Z][i][j][k] = float32(math.Cos(theta)*math.Sin(phi))
-      }
-    }
-  }
-  s.invalidate()
+	s.initMLocal()
+	a := s.mLocal.Array()
+	pi := math.Pi
+	for i := range a[0] {
+		for j := range a[0][i] {
+			for k := range a[0][i][j] {
+				theta := pi * (float64(k-s.size[2]/2.0) + .5) / float64(s.size[2])
+				phi := pi / 4.0
+				a[X][i][j][k] = float32(math.Sin(theta))
+				a[Y][i][j][k] = float32(math.Cos(theta) * math.Cos(phi))
+				a[Z][i][j][k] = float32(math.Cos(theta) * math.Sin(phi))
+			}
+		}
+	}
+	s.invalidate()
 }
-
 
 
 func (s *Sim) LoadM(file string) {

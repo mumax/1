@@ -35,13 +35,15 @@ func (s *Sim) CurrentDensity(jz, jy, jx float32) {
 
 
 // Set a space-dependent mask to be multiplied pointwise by the current density
-func (s *Sim) CurrentMask(file string){
+func (s *Sim) CurrentMask(file string) {
 	s.init()
 	_, mask := omf.FRead(file)
-	if !tensor.EqualSize(mask.Size(), s.mDev.Size()){
+	if !tensor.EqualSize(mask.Size(), s.mDev.Size()) {
 		mask = resample4(mask, s.mDev.Size())
 	}
-	if s.jMask != nil{s.jMask.Free()}
+	if s.jMask != nil {
+		s.jMask.Free()
+	}
 	s.jMask = NewTensor(s.Backend, s.mDev.Size())
 	TensorCopyTo(mask, s.jMask)
 	// does not invalidate

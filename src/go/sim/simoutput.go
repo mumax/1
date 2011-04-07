@@ -170,9 +170,9 @@ func (s *Sim) initTabWriter() {
 		s.tabwriter.AddColumn("jz", "A/m2")
 	}
 	if s.input.tabulate[TAB_E] {
-		if IsInf(s.cellSize[X]){
+		if IsInf(s.cellSize[X]) {
 			s.tabwriter.AddColumn("Energy", "J/m")
-		}else{
+		} else {
 			s.tabwriter.AddColumn("Energy", "J")
 		}
 	}
@@ -310,11 +310,11 @@ var edens3 *tensor.T3
 func (m *Edens) Save(s *Sim) {
 	s.initEDens()
 	// no initEDens() to make sure it has been calculated already
-	if edens4 == nil{
+	if edens4 == nil {
 		edens4 = tensor.NewT4(s.size4D[:])
 		edens3 = tensor.ToT3(tensor.Component(edens4, 0))
 	}
-	TensorCopyFrom(s.phiDev, edens3)	
+	TensorCopyFrom(s.phiDev, edens3)
 
 	fname := s.outputdir + "/" + "phi" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
 	var file omf.File

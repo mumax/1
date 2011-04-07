@@ -125,7 +125,7 @@ func (s *Sim) storeKernel(kernel []*tensor.T3, kerndir string) {
 
 // INTERNAL returns a directory name (w/o absolute path) to store the kernel with given parameters
 func wisdomFileName(size []int, cellsize []float32, accuracy int, periodic []int, kernelType string) string {
-		pbc := fmt.Sprint("pbc", periodic[Z], "x", periodic[Y], "x", periodic[X])
+	pbc := fmt.Sprint("pbc", periodic[Z], "x", periodic[Y], "x", periodic[X])
 	return fmt.Sprint(kernelType, "/", size[Z], "x", size[Y], "x", size[X], "/",
 		cellsize[Z], "x", cellsize[Y], "x", cellsize[X], "lex3",
 		pbc,

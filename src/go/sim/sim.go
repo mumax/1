@@ -118,8 +118,8 @@ type Sim struct {
 	appliedCurrDens AppliedField // returns the externally applied current density in function of time
 	hextSI          [3]float32   // stores the externally applied field returned by AppliedField, in SI UNITS
 	hextInt         []float32    // stores the externally applied field in internal units
-	hMask			*DevTensor   // spatial mask to be multiplied pointwise by hExt
-	jMask			*DevTensor	 // spatial mask to be multiplied pointwise by currDens
+	hMask           *DevTensor   // spatial mask to be multiplied pointwise by hExt
+	jMask           *DevTensor   // spatial mask to be multiplied pointwise by currDens
 
 	//relaxer   *Relax
 	Solver         // Does the time stepping, can be euler, heun, ...
