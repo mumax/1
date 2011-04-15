@@ -179,6 +179,10 @@ def autosave(what, format, periodicity):
 def tabulate(what, want):
 	send2("tabulate", what, want)
 
+## Reduce the resolution of saved output by a factor to save disk space.
+def subsampleoutput(factor):
+	send1("subsampleoutput", factor)
+
 
 # Solver
 
