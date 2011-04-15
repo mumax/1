@@ -40,26 +40,51 @@ func resample4(in *tensor.T4, size2 []int) *tensor.T4 {
 
 
 // input is assumed vector field
-func subsample4(in *tensor.T4, out *tensor.T4) {
-	assert(in.Size()[0] == 3)
-	assert(out.Size()[0] == 3)
+func subsample4(data *tensor.T4, small *tensor.T4, f int) {
+	bigsize := data.Size()
+	smallsize := []int{3, bigsize[1] / f, bigsize[2] / f, bigsize[3] / f}
+	for i := range smallsize {
+		if smallsize[i] < 1 {
+			smallsize[i] = 1
+		}
+	}
+	A := data.Array()  // big array
+	a := small.Array() // small array
 
-	out_a := out.Array()
-	in_a := in.Array()
-	size1 := in.Size()
-	size2 := out.Size()
-	for c := range out_a {
-		for i := range out_a[c] {
-			i1 := (i * size1[1]) / size2[1]
-			for j := range out_a[0][i] {
-				j1 := (j * size1[2]) / size2[2]
-				for k := range out_a[0][i][j] {
-					k1 := (k * size1[3]) / size2[3]
-					out_a[c][i][j][k] = in_a[c][i1][j1][k1]
+	// reset small array before adding to it
+	sl := small.List()
+	for i:= range sl{
+		sl[i] = 0
+	}
+
+
+	for c := range a {
+
+		for i := range a[c] {
+			for j := range a[c][i] {
+				for k := range a[c][i][j] {
+
+					n := 0
+
+					for I := i * f; I < min((i+1)*f, bigsize[1]); I++ {
+						for J := j * f; J < min((j+1)*f, bigsize[2]); J++ {
+							for K := k * f; K < min((k+1)*f, bigsize[3]); K++ {
+								n++
+								a[c][i][j][k] += A[c][I][J][K]
+							}
+						}
+					}
+					a[c][i][j][k] /= float32(n)
 				}
 			}
 		}
 	}
+}
+
+
+func min(a, b int) int{
+	if a < b {return a}
+	return b
 }
 
 

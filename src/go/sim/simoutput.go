@@ -321,7 +321,7 @@ func subsampleOutput(in *tensor.T4) *tensor.T4 {
 	if !tensor.EqualSize(subsampleBuffer.Size(), size2) {
 		subsampleBuffer = tensor.NewT4(size2)
 	}
-	subsample4(in, subsampleBuffer)
+	subsample4(in, subsampleBuffer, outputSubsample)
 	return subsampleBuffer
 }
 
