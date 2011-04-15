@@ -109,14 +109,18 @@ func (d Cpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []f
 func (d Cpu) addLocalFields(m, h uintptr, Hext []float32, hMask *DevTensor, anisType int, anisK []float32, anisAxes []float32, N int) {
 	// hMask may be nil, then hMap must be NULL
 	var hMap unsafe.Pointer
-	if hMask != nil{hMap = unsafe.Pointer(hMask.data)}
+	if hMask != nil {
+		hMap = unsafe.Pointer(hMask.data)
+	}
 	C.cpu_add_local_fields((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), (*C.float)(hMap), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
 }
 
 func (d Cpu) addLocalFieldsPhi(m, h, phi uintptr, Hext []float32, hMask *DevTensor, anisType int, anisK []float32, anisAxes []float32, N int) {
 	// hMask may be nil, then hMap must be NULL
 	var hMap unsafe.Pointer
-	if hMask != nil{hMap = unsafe.Pointer(hMask.data)}
+	if hMask != nil {
+		hMap = unsafe.Pointer(hMask.data)
+	}
 	C.cpu_add_local_fields_H_and_phi((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), (*C.float)(unsafe.Pointer(phi)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), (*C.float)(hMap), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
 }
 

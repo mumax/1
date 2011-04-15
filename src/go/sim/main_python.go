@@ -38,7 +38,6 @@ func main_python(infile string) {
 	fmt.Fprintln(os.Stderr, "py_wd", py_wd)
 	python, errpy := exec.Run(py_bin, py_args, os.Environ(), py_wd, exec.Pipe, exec.Pipe, exec.PassThrough)
 
-
 	CheckErr(errpy, ERR_SUBPROCESS)
 	Println("python PID: ", python.Process.Pid)
 

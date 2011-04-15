@@ -35,9 +35,11 @@ func (s *Sim) calcEDemagExch(m, h *DevTensor) float32 {
 
 
 // Returns the "volume" of an FD cell. For infinite thickness this is the surface area.
-func (s *Sim) cellVolume() float32{
+func (s *Sim) cellVolume() float32 {
 	cellsizeX := s.cellSize[X]
-	if IsInf(cellsizeX){cellsizeX = 1.} // Handle infinite thickness
+	if IsInf(cellsizeX) {
+		cellsizeX = 1.
+	} // Handle infinite thickness
 	return cellsizeX * s.cellSize[Y] * s.cellSize[Z]
 }
 
