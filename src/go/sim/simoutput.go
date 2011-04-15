@@ -23,6 +23,8 @@ import (
 	"strings"
 )
 
+// reduce output resolution by N to save disk space.
+var outputSubsample int = 1
 
 // Sets the output directory where all output files are stored
 func (s *Sim) outputDir(outputdir string) {
@@ -285,8 +287,11 @@ type MOmf struct {
 func (m *MOmf) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
 	var file omf.File
-	file.T4 = s.mLocal
+	file.T4 = subsampleOutput(s.mLocal)
 	file.StepSize = s.input.cellSize
+	for i := range file.StepSize {
+		file.StepSize[i] *= float32(outputSubsample)
+	}
 	file.MeshUnit = "m"
 	file.Desc = s.desc
 	file.ValueMultiplier = s.mSat
@@ -296,6 +301,30 @@ func (m *MOmf) Save(s *Sim) {
 	omf.FEncode(fname, file)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
+
+var subsampleBuffer *tensor.T4
+
+func subsampleOutput(in *tensor.T4) *tensor.T4 {
+	if outputSubsample == 1 {
+		return in
+	}
+
+	size2 := []int{3, 0, 0, 0}
+	copy(size2, in.Size())
+	for i := 1; i < 4; i++ {
+		size2[i] /= outputSubsample
+		if size2[i] == 0{size2[i] = 1}
+	}
+	if subsampleBuffer == nil {
+		subsampleBuffer = tensor.NewT4(size2)
+	}
+	if !tensor.EqualSize(subsampleBuffer.Size(), size2) {
+		subsampleBuffer = tensor.NewT4(size2)
+	}
+	subsample4(in, subsampleBuffer)
+	return subsampleBuffer
+}
+
 
 type Edens struct {
 	*Periodic
@@ -318,7 +347,7 @@ func (m *Edens) Save(s *Sim) {
 
 	fname := s.outputdir + "/" + "phi" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
 	var file omf.File
-	file.T4 = edens4
+	file.T4 = subsampleOutput(edens4)
 	file.StepSize = s.input.cellSize
 	file.MeshUnit = "m"
 	file.Desc = s.desc
@@ -341,7 +370,7 @@ func (m *Torque) Save(s *Sim) {
 	fname := s.outputdir + "/" + "torque" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
 	var file omf.File
 	TensorCopyFrom(s.hDev, s.hLocal) //!
-	file.T4 = s.hLocal
+	file.T4 = subsampleOutput(s.hLocal)
 	file.StepSize = s.input.cellSize
 	file.MeshUnit = "m"
 	file.Desc = s.desc
@@ -381,8 +410,13 @@ func (m *MPng) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".png"
 	out := MustOpenWRONLY(fname)
 	defer out.Close()
-	draw.PNG(out, s.mLocal)
+	draw.PNG(out, subsampleOutput(s.mLocal))
 	m.sinceoutput = float32(s.time) * s.UnitTime()
+}
+
+
+func (s *Sim) SubsampleOutput(factor int) {
+	outputSubsample = factor
 }
 
 

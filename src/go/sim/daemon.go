@@ -186,13 +186,15 @@ func findInputFile(dir string) string {
 
 	// First look for input files in the top-level directory...
 	if *random {
-		N := len(fileinfo) 
+		N := len(fileinfo)
 		hit := make([]bool, N) // file has already been hit?
-		for i:=0; i<N; i++{
+		for i := 0; i < N; i++ {
 			I := rand.Intn(N)
-			for hit[I]{ // find first non-hit file
+			for hit[I] { // find first non-hit file
 				I++
-				if I >= N{I=0}
+				if I >= N {
+					I = 0
+				}
 			}
 			info := fileinfo[I]
 			file := dir + "/" + info.Name
