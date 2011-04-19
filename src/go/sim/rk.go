@@ -286,14 +286,20 @@ func (rk *RK) step() {
 	m1 := rk.m0
 	a := rk.a
 
-	//	if rk.dt == 0. {
-	//		rk.dt = 1e-5 // program units, should really be small enough
-	//		rk.Println("Using default initial dt: ", rk.dt)
-	//	}
+	// The thermal noise is assumed constant during the step.
+	if rk.input.temp != 0 {
+		rk.updateTempNoise(rk.dt)
+	}
 
 	TensorCopyOn(m, rk.mbackup)
 	goodstep := false
 	trials := 0
+	// previous energy value to make sure energy drops when wantEnergy == true
+	prevEnergy := rk.energy
+	if prevEnergy == 0 {
+		prevEnergy = 9999999999
+	}
+
 	// Try to take a step with the current dt.
 	// If the step fails (error too big),
 	// then cut dt and try again (at most MAX_STEP_TRIALS times) 
@@ -314,7 +320,22 @@ func (rk *RK) step() {
 						rk.MAdd(m1, rk.dt*a[i][j], k[j])
 					}
 				}
-				rk.calcHeff(m1, k[i])
+				if rk.fsal {
+					// update energy at the end of the step for fsal solvers
+					if rk.wantEnergy && i == order-1 {
+						rk.calcHeffEnergy(m1, k[i])
+					} else {
+						rk.calcHeff(m1, k[i])
+					}
+				} else {
+					// update energy at the beginning of the step for non-fsal solvers
+					if rk.wantEnergy && i == 0 {
+						rk.calcHeffEnergy(m1, k[i])
+					} else {
+						rk.calcHeff(m1, k[i])
+					}
+				}
+
 				rk.Torque(m1, k[i])
 				rk.fsal_initiated = true
 			}
@@ -322,8 +343,9 @@ func (rk *RK) step() {
 			// After having calculated the first torque (k[0]),
 			// dt has not actually been used yet. This is the
 			// last chance to estimate whether the time step is too large
-			// and possibly reduce it
-			if i == 0 {
+			// and possibly reduce it. 
+			// This cannot be done with finite temperature!
+			if rk.input.temp == 0 && i == 0 {
 				if rk.b2 == nil { // means no step control based on error estimate
 					rk.dt = rk.input.dt
 				}
@@ -396,14 +418,24 @@ func (rk *RK) step() {
 			}
 
 			rk.dt = rk.dt * factor
+
 			checkdt(rk.dt)
 			//undo bad steps
-			if error > 2*rk.input.maxError {
+			// if we want the energy to be calculated on-the-fly, we make sure it always drops
+			if error > 2*rk.input.maxError || (rk.wantEnergy && rk.energy > prevEnergy) {
 				TensorCopyOn(rk.mbackup, m)
 				goodstep = false
 				//fmt.Println("bad step")
 			} else {
 				goodstep = true
+				// Do not make the time step smaller than minDt
+				if rk.dt*rk.UnitTime() < rk.input.minDt {
+					rk.dt = rk.input.minDt / rk.UnitTime()
+				}
+				// maxDt has priority over minDt (better safe than sorry)
+				if rk.input.maxDt != 0. && rk.dt*rk.UnitTime() > rk.input.maxDt {
+					rk.dt = rk.input.maxDt / rk.UnitTime()
+				}
 			}
 		}
 	}

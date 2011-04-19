@@ -96,9 +96,13 @@ gpu_conf.o:	gpu_conf.h gpu_conf.cu
 gpu_safe.o:	gpu_safe.h gpu_safe.cu
 	$(NVCC)  -c $(CUDALIBS) $(NVCCFLAGS) gpu_safe.cu
 
+# main: $(OFILES) main.cpp
+# 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) main.cpp
+# 	$(NVCC) $(CUDALIBS) $(OFILES) ../gpukern/libgpukern.so main.o -o main
+
 main: $(OFILES) main.cpp
 	$(NVCC) -c $(NVCCFLAGS) $(LDFLAGS) $(CUDALIBS) main.cpp
-	$(NVCC) $(CUDALIBS) $(OFILES) ../gpukern/libgpukern.so main.o -o main
+	$(NVCC) $(CUDALIBS) $(OFILES) ../../lib/libgpukern.so main.o -o main
 
 
 .PHONY:	clean

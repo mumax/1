@@ -12,11 +12,15 @@ import (
 	"mumax/tensor"
 )
 
-// exchinconv means ignore component for exchange, already in convolution.
-var ADD_ALL []int = []int{0, 0, 0} // TODO: optimize for 2.5D
 
 func (s *Sim) AddExch(m, h *DevTensor) {
-	s.addExch(m.data, h.data, s.size3D, s.input.periodic[:], ADD_ALL, s.cellSize[:], s.input.exchType)
+	// exchinconv means ignore component for exchange, already in convolution.
+	var exchInConv []int = []int{0, 0, 0} // TODO: optimize for 2.5D
+	if IsInf(s.cellSize[X]) {
+		exchInConv[Y] = 1
+		exchInConv[Z] = 1
+	}
+	s.addExch(m.data, h.data, s.size3D, s.input.periodic[:], exchInConv, s.cellSize[:], s.input.exchType)
 }
 
 
@@ -154,6 +158,45 @@ func Exch26NgbrKernel(size []int, cellsize []float32) []*tensor.T3 {
 		arr[wrap(-1, size[X])][wrap(-1, size[Y])][wrap(-1, size[Z])] = 1./hx + 1./hy + 1./hz
 
 	}
+
+	//   for s := 0; s < 3; s++ { // source index Ksdxyz
+	//     i := KernIdx[s][s]
+	//     arr := k[i].Array()
+	// 
+	//     arr[wrap(0, size[X])][wrap(0, size[Y])][wrap(0, size[Z])] =1.
+	// 
+	//     arr[wrap(1, size[X])][wrap(0, size[Y])][wrap(0, size[Z])] = 1.
+	//     arr[wrap(-1, size[X])][wrap(0, size[Y])][wrap(0, size[Z])] = 1.
+	//     arr[wrap(0, size[X])][wrap(1, size[Y])][wrap(0, size[Z])] = 1.
+	//     arr[wrap(0, size[X])][wrap(-1, size[Y])][wrap(0, size[Z])] = 1.
+	//     arr[wrap(0, size[X])][wrap(0, size[Y])][wrap(1, size[Z])] = 1.
+	//     arr[wrap(0, size[X])][wrap(0, size[Y])][wrap(-1, size[Z])] = 1.
+	// 
+	//     arr[wrap(1, size[X])][wrap(1, size[Y])][wrap(0, size[Z])] = 1.
+	//     arr[wrap(1, size[X])][wrap(-1, size[Y])][wrap(0, size[Z])] = 1.
+	//     arr[wrap(-1, size[X])][wrap(1, size[Y])][wrap(0, size[Z])] = 1.
+	//     arr[wrap(-1, size[X])][wrap(-1, size[Y])][wrap(0, size[Z])] = 1.
+	// 
+	//     arr[wrap(1, size[X])][wrap(0, size[Y])][wrap(1, size[Z])] = 1.
+	//     arr[wrap(1, size[X])][wrap(0, size[Y])][wrap(-1, size[Z])] = 1.
+	//     arr[wrap(-1, size[X])][wrap(0, size[Y])][wrap(1, size[Z])] = 1.
+	//     arr[wrap(-1, size[X])][wrap(0, size[Y])][wrap(-1, size[Z])] = 1.
+	// 
+	//     arr[wrap(0, size[X])][wrap(1, size[Y])][wrap(1, size[Z])] = 1.
+	//     arr[wrap(0, size[X])][wrap(1, size[Y])][wrap(-1, size[Z])] = 1.
+	//     arr[wrap(0, size[X])][wrap(-1, size[Y])][wrap(1, size[Z])] = 1.
+	//     arr[wrap(0, size[X])][wrap(-1, size[Y])][wrap(-1, size[Z])] = 1.
+	// 
+	//     arr[wrap(1, size[X])][wrap(1, size[Y])][wrap(1, size[Z])] = 1.
+	//     arr[wrap(1, size[X])][wrap(1, size[Y])][wrap(-1, size[Z])] = 1.
+	//     arr[wrap(1, size[X])][wrap(-1, size[Y])][wrap(1, size[Z])] = 1.
+	//     arr[wrap(1, size[X])][wrap(-1, size[Y])][wrap(-1, size[Z])] = 1.
+	//     arr[wrap(-1, size[X])][wrap(1, size[Y])][wrap(1, size[Z])] = 1.
+	//     arr[wrap(-1, size[X])][wrap(1, size[Y])][wrap(-1, size[Z])] = 1.
+	//     arr[wrap(-1, size[X])][wrap(-1, size[Y])][wrap(1, size[Z])] = 1.
+	//     arr[wrap(-1, size[X])][wrap(-1, size[Y])][wrap(-1, size[Z])] = 1.
+	// 
+	//   }
 
 	return k
 }

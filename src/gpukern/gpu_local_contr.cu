@@ -39,6 +39,7 @@ __global__ void _gpu_add_local_contr(float* mx, float* my, float* mz,
       hx[i] += Hax + projection*p_dev->anisAxes[X];
       hy[i] += Hay + projection*p_dev->anisAxes[Y];
       hz[i] += Haz + projection*p_dev->anisAxes[Z];
+
     }
     
 
@@ -68,8 +69,7 @@ __global__ void _gpu_add_local_contr(float* mx, float* my, float* mz,
   return;
 }
 
-
-void gpu_add_local_contr (float *m, float *h, int Ntot, float *Hext, int anisType, dev_par *p_dev){
+void gpu_add_local_contr (float *m, float *hint Ntot, float *Hext, int anisType, dev_par *p_dev){
 
   float *hx = h + X*Ntot;
   float *hy = h + Y*Ntot;

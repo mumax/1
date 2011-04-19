@@ -1,7 +1,7 @@
 # Micromagnetic standard problem 4
 from mumax import *
+from sys import stdin
 
-init("probl4.in")
 desc("description", "standard_problem_4")
 
 # material
@@ -11,24 +11,27 @@ alpha(0.02)
 
 
 # geometry 
-gridsize(128, 32, 1)    
+nx = 128
+ny = 32
+gridsize(nx, ny, 1)    
 partsize(500e-9, 125e-9, 3e-9)
-#demagaccuracy(10)
 
 # initial magnetization
-#loadm    	s-state.omf
 uniform(1, 1, 0)
 alpha(2)
-relax(1e-4)
+run(1e-9) # relax
 alpha(0.02)
 save("m", "omf")
 
 
 # run
+subsampleoutput(2)
 autosave("m", "omf", 10e-12)
-autosave("table", "ascii", 10e-12)
-staticfield(-24.6e-3, 4.3e-3, 0)
+autosave('table', 'ascii', 5e-12)
+applystatic('field', -24.6E-3, 4.3E-3, 0)
 run(1e-9)
 
-savebenchmark("benchmark.txt")
-exit()
+f=open("test.txt", "a")
+f.write("hi")
+f.close()
+

@@ -30,9 +30,9 @@ import (
 func (s *Sim) LookupKernel(size []int, cellsize []float32, accuracy int, periodic []int) (kernel []*tensor.T3) {
 	// Check input sanity
 	// TODO: verify
-	for i:= range periodic{
-		if periodic[i] != 0{
-			if size[i] % 2 != 0{
+	for i := range periodic {
+		if periodic[i] != 0 {
+			if size[i]%2 != 0 {
 				panic(InputErr("Invalid size: " + fmt.Sprint(size[i]) + " With periodic boundary conditions, the size must be a multiple of 2."))
 			}
 		}
@@ -125,10 +125,7 @@ func (s *Sim) storeKernel(kernel []*tensor.T3, kerndir string) {
 
 // INTERNAL returns a directory name (w/o absolute path) to store the kernel with given parameters
 func wisdomFileName(size []int, cellsize []float32, accuracy int, periodic []int, kernelType string) string {
-	pbc := ""
-	if !(periodic[X] == 0 && periodic[Y] == 0 && periodic[Z] == 0) {
-		pbc = fmt.Sprint("pbc", periodic[Z], "x", periodic[Y], "x", periodic[X])
-	}
+	pbc := fmt.Sprint("pbc", periodic[Z], "x", periodic[Y], "x", periodic[X])
 	return fmt.Sprint(kernelType, "/", size[Z], "x", size[Y], "x", size[X], "/",
 		cellsize[Z], "x", cellsize[Y], "x", cellsize[X], "lex3",
 		pbc,

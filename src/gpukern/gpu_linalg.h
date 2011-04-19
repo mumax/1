@@ -12,7 +12,7 @@
  * @file
  * General linear algebra functions
  *
- * @author Arne Vansteenkiste
+ * @author Arne Vansteenkiste, Ben Van de Wiele
  */
 #ifndef gpu_linalg_h
 #define gpu_linalg_h
@@ -42,6 +42,9 @@ void gpu_linear_combination(float* a, float* b, float weightA, float weightB, in
 /// i = 0..NElem
 /// j = 0..NVectors
 void gpu_linear_combination_many(float* result, float** vectors, float* weights, int NVectors, int NElem);
+
+/// result = a*(vector1 'dot' vector2), vector1 and vector2 have 3 components with N elements
+void gpu_scale_dot_product(float* result, float *vector1, float *vector2, float a, int N);
 
 #ifdef __cplusplus
 }

@@ -23,6 +23,8 @@ import (
 	"strings"
 )
 
+// reduce output resolution by N to save disk space.
+var outputSubsample int = 1
 
 // Sets the output directory where all output files are stored
 func (s *Sim) outputDir(outputdir string) {
@@ -99,10 +101,6 @@ func resolve(what, format string) Output {
 		switch format {
 		default:
 			panic("unknown format " + format + ". options are: binary (=binary4,omf), text (=ascii), png")
-			//		case "binary":
-			//			return &MBinary{&Periodic{0., 0.}}
-			//		case "ascii":
-			//			return &MAscii{&Periodic{0., 0.}}
 		case "png":
 			return &MPng{&Periodic{0., 0.}}
 		case "binary", "binary4", "omf":
@@ -113,6 +111,8 @@ func resolve(what, format string) Output {
 	case "table":
 		//format gets ignored for now
 		return &Table{&Periodic{0., 0.}}
+	case "phi", "energydensity":
+		return &Edens{&Periodic{0., 0.}, format}
 	case "torque":
 		return &Torque{&Periodic{0., 0.}, format}
 	}
@@ -136,13 +136,14 @@ const (
 	TAB_B
 	TAB_J
 	TAB_ID
+	TAB_E
 	TAB_MAXDMDT
 	TAB_MINMAXMZ
 	TAB_COREPOS
 	TAB_LEN // Must be last in the list. Not used as key but to know the length of the tabulate array
 )
 
-var tabString []string = []string{"time", "m", "b", "j", "id", "maxdm/dt", "minmaxmz", "corepos"}
+var tabString []string = []string{"time", "m", "b", "j", "id", "e", "maxdm/dt", "minmaxmz", "corepos"}
 
 func (s *Sim) initTabWriter() {
 	if s.tabwriter != nil {
@@ -150,7 +151,7 @@ func (s *Sim) initTabWriter() {
 	}
 	fname := s.outputdir + "/" + "datatable.odt"
 	out := MustOpenWRONLY(fname)
-	Print("Opened " + fname )
+	Print("Opened " + fname)
 	s.tabwriter = omf.NewTabWriter(out)
 	if s.input.tabulate[TAB_TIME] {
 		s.tabwriter.AddColumn("Time", "s")
@@ -169,6 +170,13 @@ func (s *Sim) initTabWriter() {
 		s.tabwriter.AddColumn("jx", "A/m2")
 		s.tabwriter.AddColumn("jy", "A/m2")
 		s.tabwriter.AddColumn("jz", "A/m2")
+	}
+	if s.input.tabulate[TAB_E] {
+		if IsInf(s.cellSize[X]) {
+			s.tabwriter.AddColumn("Energy", "J/m")
+		} else {
+			s.tabwriter.AddColumn("Energy", "J")
+		}
 	}
 	if s.input.tabulate[TAB_MAXDMDT] {
 		s.tabwriter.AddColumn("max_dm/dt", "gammaMs")
@@ -222,6 +230,11 @@ func (t *Table) Save(s *Sim) {
 	if s.input.tabulate[TAB_J] {
 		s.tabwriter.Print(s.input.j[Z], s.input.j[Y], s.input.j[X])
 	}
+	if s.input.tabulate[TAB_E] {
+		E := s.energy * s.UnitEnergy()
+		//E := s.GetEnergySI()
+		s.tabwriter.Print(E)
+	}
 	if s.input.tabulate[TAB_MAXDMDT] {
 		//torque := [3]float32{}
 		//for i := range torque {
@@ -274,12 +287,72 @@ type MOmf struct {
 func (m *MOmf) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
 	var file omf.File
-	file.T4 = s.mLocal
+	file.T4 = subsampleOutput(s.mLocal)
 	file.StepSize = s.input.cellSize
+	for i := range file.StepSize {
+		file.StepSize[i] *= float32(outputSubsample)
+	}
 	file.MeshUnit = "m"
 	file.Desc = s.desc
 	file.ValueMultiplier = s.mSat
 	file.ValueUnit = "A/m"
+	file.Format = m.format
+	file.DataFormat = "4"
+	omf.FEncode(fname, file)
+	m.sinceoutput = float32(s.time) * s.UnitTime()
+}
+
+var subsampleBuffer *tensor.T4
+
+func subsampleOutput(in *tensor.T4) *tensor.T4 {
+	if outputSubsample == 1 {
+		return in
+	}
+
+	size2 := []int{3, 0, 0, 0}
+	copy(size2, in.Size())
+	for i := 1; i < 4; i++ {
+		size2[i] /= outputSubsample
+		if size2[i] == 0{size2[i] = 1}
+	}
+	if subsampleBuffer == nil {
+		subsampleBuffer = tensor.NewT4(size2)
+	}
+	if !tensor.EqualSize(subsampleBuffer.Size(), size2) {
+		subsampleBuffer = tensor.NewT4(size2)
+	}
+	subsample4(in, subsampleBuffer, outputSubsample)
+	return subsampleBuffer
+}
+
+
+type Edens struct {
+	*Periodic
+	format string
+}
+
+
+var edens4 *tensor.T4
+var edens3 *tensor.T3
+
+// INTERNAL
+func (m *Edens) Save(s *Sim) {
+	s.initEDens()
+	// no initEDens() to make sure it has been calculated already
+	if edens4 == nil {
+		edens4 = tensor.NewT4(s.size4D[:])
+		edens3 = tensor.ToT3(tensor.Component(edens4, 0))
+	}
+	TensorCopyFrom(s.phiDev, edens3)
+
+	fname := s.outputdir + "/" + "phi" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
+	var file omf.File
+	file.T4 = subsampleOutput(edens4)
+	file.StepSize = s.input.cellSize
+	file.MeshUnit = "m"
+	file.Desc = s.desc
+	file.ValueMultiplier = s.mSat
+	file.ValueUnit = "internal"
 	file.Format = m.format
 	file.DataFormat = "4"
 	omf.FEncode(fname, file)
@@ -297,7 +370,7 @@ func (m *Torque) Save(s *Sim) {
 	fname := s.outputdir + "/" + "torque" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".omf"
 	var file omf.File
 	TensorCopyFrom(s.hDev, s.hLocal) //!
-	file.T4 = s.hLocal
+	file.T4 = subsampleOutput(s.hLocal)
 	file.StepSize = s.input.cellSize
 	file.MeshUnit = "m"
 	file.Desc = s.desc
@@ -337,8 +410,13 @@ func (m *MPng) Save(s *Sim) {
 	fname := s.outputdir + "/" + "m" + fmt.Sprintf(FILENAME_FORMAT, s.autosaveIdx) + ".png"
 	out := MustOpenWRONLY(fname)
 	defer out.Close()
-	draw.PNG(out, s.mLocal)
+	draw.PNG(out, subsampleOutput(s.mLocal))
 	m.sinceoutput = float32(s.time) * s.UnitTime()
+}
+
+
+func (s *Sim) SubsampleOutput(factor int) {
+	outputSubsample = factor
 }
 
 

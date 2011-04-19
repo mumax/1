@@ -11,6 +11,8 @@ package sim
 
 import (
 	. "mumax/common"
+	"mumax/tensor"
+	"mumax/omf"
 )
 
 // Sets the degree of non-adiabaticity (dimensionless)
@@ -29,4 +31,20 @@ func (s *Sim) CurrentDensity(jz, jy, jx float32) {
 	s.input.j[Y] = jy
 	s.input.j[Z] = jz
 	s.Println("current density: ", s.input.j, "A/m^2")
+}
+
+
+// Set a space-dependent mask to be multiplied pointwise by the current density
+func (s *Sim) CurrentMask(file string) {
+	s.init()
+	_, mask := omf.FRead(file)
+	if !tensor.EqualSize(mask.Size(), s.mDev.Size()) {
+		mask = resample4(mask, s.mDev.Size())
+	}
+	if s.jMask != nil {
+		s.jMask.Free()
+	}
+	s.jMask = NewTensor(s.Backend, s.mDev.Size())
+	TensorCopyTo(mask, s.jMask)
+	// does not invalidate
 }

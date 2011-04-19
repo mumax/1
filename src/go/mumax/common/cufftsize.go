@@ -43,7 +43,7 @@ func IsGoodGridSize(direction, n int) bool {
 	case Z:
 		return n%16 == 0
 	case Y:
-		return n%8 == 0
+		return n%16 == 0
 	case X:
 		return n%1 == 0
 	}

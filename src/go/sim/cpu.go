@@ -76,6 +76,10 @@ func (d Cpu) linearCombinationMany(result uintptr, vectors []uintptr, weights []
 	//   )
 }
 
+func (d Cpu) scaledDotProduct(result, a, b uintptr, scale float32, N int) {
+	C.cpu_scale_dot_product((*C.float)(unsafe.Pointer(result)), (*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(scale), C.int(N))
+}
+
 func (d Cpu) reduce(operation int, input, output uintptr, buffer *float32, blocks, threads, N int) float32 {
 	return float32(C.cpu_reduce(C.int(operation), (*C.float)(unsafe.Pointer(input)), (*C.float)(unsafe.Pointer(output)), (*C.float)(unsafe.Pointer(buffer)), C.int(blocks), C.int(threads), C.int(N)))
 	//panic("unimplemented")
@@ -97,13 +101,27 @@ func (d Cpu) deltaM(m, h uintptr, alpha, dtGilbert float32, N int) {
 	C.cpu_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha), C.float(dtGilbert), C.int(N))
 }
 
-func (d Cpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, dtGilb float32, size []int) {
+func (d Cpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, jMask *DevTensor, dtGilb float32, size []int) {
 	//C.cpu_spintorque_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha),  C.float(beta),  C.float(epsillon), (*C.float)(unsafe.Pointer(&u[0])), C.float(dtGilb), C.int(size[0]), C.int(size[1]), C.int(size[2]))
 	panic(Bug("spin torque not implemented on CPU"))
 }
 
-func (d Cpu) addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int) {
-	C.cpu_add_local_fields((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
+func (d Cpu) addLocalFields(m, h uintptr, Hext []float32, hMask *DevTensor, anisType int, anisK []float32, anisAxes []float32, N int) {
+	// hMask may be nil, then hMap must be NULL
+	var hMap unsafe.Pointer
+	if hMask != nil {
+		hMap = unsafe.Pointer(hMask.data)
+	}
+	C.cpu_add_local_fields((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), (*C.float)(hMap), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
+}
+
+func (d Cpu) addLocalFieldsPhi(m, h, phi uintptr, Hext []float32, hMask *DevTensor, anisType int, anisK []float32, anisAxes []float32, N int) {
+	// hMask may be nil, then hMap must be NULL
+	var hMap unsafe.Pointer
+	if hMask != nil {
+		hMap = unsafe.Pointer(hMask.data)
+	}
+	C.cpu_add_local_fields_H_and_phi((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), (*C.float)(unsafe.Pointer(phi)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), (*C.float)(hMap), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
 }
 
 func (d Cpu) addExch(m, h uintptr, size, periodic, exchinconv []int, cellsize []float32, exchType int) {
@@ -197,23 +215,10 @@ func (d Cpu) fft(plan uintptr, in, out uintptr, direction int) {
 	}
 }
 
-/// unsafe FFT
-// func (d Cpu) fftForward(plan uintptr, in, out uintptr) {
-// 	C.cpuFFT3dPlan_forward((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
-// }
-//
-//
-// /// unsafe FFT
-// func (d Cpu) fftInverse(plan uintptr, in, out uintptr) {
-// 	C.cpuFFT3dPlan_inverse((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
-// }
-
-
-// func(d Cpu) (fft *FFT) Normalization() int{
-//   return int(C.gpuFFT3dPlan_normalization((*C.gpuFFT3dPlan)(fft.plan)))
-// }
-
-
+func (d Cpu) gaussianNoise(data uintptr, mean, stddev float32, N int) {
+	panic("unimplemented")
+	//C.cpu_gaussian_noise((*C.float)(unsafe.Pointer(data)), C.float(mean), C.float(stddev), C.int(N))
+}
 //_______________________________________________________________________________ GPU memory allocation
 
 // Allocates an array of float32s on the CPU.

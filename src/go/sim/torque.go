@@ -39,7 +39,7 @@ func (s *Sim) DeltaM(m, h *DevTensor, dt float32) {
 	// Of course, the spin-transfer torque term with zero current density
 	// gives the same result as the LL torque, but is slightly slower. 
 	if s.appliedCurrDens != nil || s.input.j[0] != 0 || s.input.j[1] != 0 || s.input.j[2] != 0 {
-		if s.appliedCurrDens != nil{
+		if s.appliedCurrDens != nil {
 			s.input.j = s.appliedCurrDens.GetAppliedField(s.time * float64(s.UnitTime()))
 		}
 		s.SpintorqueDeltaM(m, h, dt)
@@ -82,7 +82,7 @@ func (s *Sim) SpintorqueDeltaM(m, h *DevTensor, dt float32) {
 		u[i] = 0.5 * (s.input.j[i] / s.UnitCurrentDensity()) / (s.cellSize[i])
 	}
 	//fmt.Println("alpha ", alpha, ", beta ", beta, ", epsillon ", epsillon)
-	s.spintorqueDeltaM(m.data, h.data, alpha, beta, epsillon, u[:], dtGilb, m.size[1:]) // TODO: we need sim.size3D, sim.size4D to avoid slicing al the time.
+	s.spintorqueDeltaM(m.data, h.data, alpha, beta, epsillon, u[:], s.jMask, dtGilb, m.size[1:]) // TODO: we need sim.size3D, sim.size4D to avoid slicing al the time.
 }
 
 

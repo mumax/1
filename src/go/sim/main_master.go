@@ -27,7 +27,7 @@ import (
 )
 
 const WELCOME = `
-  MuMax 0.5.2174
+  MuMax 0.6.2368
   (c) Arne Vansteenkiste & Ben Van de Wiele,
       DyNaMat/EELAB Ghent University.
 
@@ -36,9 +36,7 @@ const WELCOME = `
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
-  This version is meant for internal testing purposes only,
-  please contact the authors if you like to distribute this program
-  or obtain the source code.
+  This is a beta version for testing purposes.
   
 `
 

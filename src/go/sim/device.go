@@ -76,6 +76,9 @@ type Device interface {
 	// adds the constant cnst to a. N = length of a
 	addConstant(a uintptr, cnst float32, N int)
 
+	// result[i] = scale * (a[i]_x*b[i]_x + a[i]_y*b[i]_y + a[i]_z*b[i]_z)
+	scaledDotProduct(result, a, b uintptr, scale float32, N int)
+
 	// a = a * weightA + b * weightB
 	linearCombination(a, b uintptr, weightA, weightB float32, N int)
 
@@ -108,9 +111,13 @@ type Device interface {
 	// b = µB / e * Ms (Bohr magneton, electron charge, saturation magnetization)
 	// u = current density / (2*cell size)
 	// here be dragons
-	spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, dtGilb float32, size []int)
+	spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, jMask *DevTensor, dtGilb float32, size []int)
 
-	addLocalFields(m, h uintptr, Hext []float32, anisType int, anisK []float32, anisAxes []float32, N int)
+	// Adds the "local" field contribution: Zeeman and anisotropy
+	addLocalFields(m, h uintptr, Hext []float32, hMask *DevTensor, anisType int, anisK []float32, anisAxes []float32, N int)
+
+	// Adds the "local" field contribution: Zeeman and anisotropy, and also calculates the energy density phi
+	addLocalFieldsPhi(m, h, phi uintptr, Hext []float32, hMask *DevTensor, anisType int, anisK []float32, anisAxes []float32, N int)
 
 	// Adds the exchange field to h.
 	addExch(m, h uintptr, size, periodic, exchinconv []int, cellsize []float32, exchType int)
@@ -182,6 +189,8 @@ type Device interface {
 	fft(plan uintptr, in, out uintptr, direction int)
 
 	freeFFTPlan(plan uintptr)
+
+	gaussianNoise(data uintptr, mean, stddev float32, N int)
 
 	//______________________________________________________________________________ already safe
 

@@ -10,7 +10,7 @@ echo 'export SIMROOT='$(pwd) >> $OUTPUT
 # echo 'export GOMAXPROCS=$(grep processor /proc/cpuinfo | wc -l) ' >> $OUTPUT
 
 # cuda
-echo 'export LD_LIBRARY_PATH=$SIMROOT/dep/cuda/lib64:$SIMROOT/dep/cuda/lib:$LD_LIBRARY_PATH ' >> $OUTPUT
+echo 'export LD_LIBRARY_PATH=$SIMROOT/lib:$LD_LIBRARY_PATH ' >> $OUTPUT
 
 # fftw
 echo 'export LD_LIBRARY_PATH=$SIMROOT/lib/fftw/lib:$LD_LIBRARY_PATH' >> $OUTPUT

@@ -10,7 +10,9 @@ package sim
 import (
 	. "mumax/common"
 	"exec"
+	"fmt"
 	"os"
+	"syscall"
 )
 
 // Main for python ".py" input files
@@ -21,11 +23,21 @@ func main_python(infile string) {
 	os.Mkdir(outdir, 0777) //TODO: permission?
 
 	// Start python subprocess
-	py_args := []string{infile}
 	py_bin, errlook := exec.LookPath("python")
+
+	// python is started with wd infile.out, so the py file is located in ../infle.py
+	//parent := ParentDir(infile)
+	file := Filename(infile)
+	py_args := []string{"../" + file}
+
+	py_args = append([]string{py_bin}, py_args...)
 	CheckErr(errlook, ERR_SUBPROCESS)
 	Println("starting ", py_bin, py_args)
-	python, errpy := subprocess(py_bin, py_args, exec.Pipe, exec.Pipe, exec.PassThrough)
+	fmt.Fprintln(os.Stderr, "exec ", py_args)
+	py_wd := ReplaceExt(infile, ".out")
+	fmt.Fprintln(os.Stderr, "py_wd", py_wd)
+	python, errpy := exec.Run(py_bin, py_args, os.Environ(), py_wd, exec.Pipe, exec.Pipe, exec.PassThrough)
+
 	CheckErr(errpy, ERR_SUBPROCESS)
 	Println("python PID: ", python.Process.Pid)
 
@@ -56,6 +68,8 @@ func main_python(infile string) {
 		status := py_wait.ExitStatus()
 		Println("python exited with status ", status)
 		if status != 0 {
+			// kill the sibling
+			syscall.Kill(mumax.Process.Pid, 9)
 			os.Exit(ERR_SUBPROCESS)
 		}
 		wait <- 1
@@ -67,6 +81,8 @@ func main_python(infile string) {
 		status := mu_wait.ExitStatus()
 		Println("mumax child process exited with status ", status)
 		if status != 0 {
+			// kill the sibling
+			syscall.Kill(python.Process.Pid, 9)
 			os.Exit(ERR_SUBPROCESS)
 		}
 		wait <- 1

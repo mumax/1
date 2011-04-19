@@ -21,7 +21,7 @@ save	m	omf
 
 #run
 alpha:            0.1
-applyrf j   1e12 0 0 500e6
+applystatic j   1e12 0 0
 xi:               0.05
 spinpolarization: 1
 

@@ -25,6 +25,7 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
                                        float* hx, float* hy, float* hz,
                                        float alpha, float beta, float epsillon,
                                        float ux, float uy, float uz,
+                                       float* jmapx, float* jmapy, float* jmapz,
                                        float dt_gilb,
                                        int N0, int N1, int N2, int i){
 
@@ -33,6 +34,18 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
   int I = i*N1*N2 + j*N2 + k;
   
   if (j < N1 && k < N2){
+
+	// space-dependent map
+	if(jmapx != NULL){
+		ux *= jmapx[I];
+	}
+	if(jmapy != NULL){
+		uy *= jmapy[I];
+	}
+	if(jmapz != NULL){
+		uz *= jmapz[I];
+	}
+
 
     // (1) calculate the directional derivative of (mx, my mz) along (ux,uy,uz).
     // Result is (diffmx, diffmy, diffmz) (= Hspin)
@@ -175,14 +188,17 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
 
 #define BLOCKSIZE 16
 
-void gpu_spintorque_deltaM(float* m, float* h, float alpha, float beta, float epsillon, float* u, float dt_gilb, int N0,  int N1, int N2){
+void gpu_spintorque_deltaM(float* m, float* h, float alpha, float beta, float epsillon, float* u, float* jmap, float dt_gilb, int N0,  int N1, int N2){
 
   dim3 gridsize(divUp(N1, BLOCKSIZE), divUp(N2, BLOCKSIZE));
   dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
   int N = N0 * N1 * N2;
+  float* jmapx = &jmap[0*N];
+  float* jmapy = &jmap[1*N];
+  float* jmapz = &jmap[2*N];
   
   for(int i=0; i<N0; i++){
-    _gpu_spintorque_deltaM<<<gridsize, blocksize>>>(&m[0*N], &m[1*N], &m[2*N], &h[0*N], &h[1*N], &h[2*N], alpha, beta, epsillon, u[0], u[1], u[2], dt_gilb, N0, N1, N2, i);
+    _gpu_spintorque_deltaM<<<gridsize, blocksize>>>(&m[0*N], &m[1*N], &m[2*N], &h[0*N], &h[1*N], &h[2*N], alpha, beta, epsillon, u[0], u[1], u[2], jmapx,  jmapy, jmapz, dt_gilb, N0, N1, N2, i);
   }
   gpu_sync();
 }

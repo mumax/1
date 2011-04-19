@@ -12,6 +12,8 @@ package main
 import (
 	. "mumax/common"
 	"fmt"
+	"os"
+	"math"
 )
 
 
@@ -87,7 +89,7 @@ func matrix(i_colname, j_colname, data_colname string, octave_format bool) {
 	i_col := table.GetColumnIndex(i_colname)
 	j_col := table.GetColumnIndex(j_colname)
 	data_col := table.GetColumnIndex(data_colname)
-	
+
 	// (1) Construct a sorted set of unique i,j indices (floats).
 	// This is the "meshdom", in matlab terms.
 	I := table.Column[i_col]
@@ -104,26 +106,28 @@ func matrix(i_colname, j_colname, data_colname string, octave_format bool) {
 	}
 	J = setJ.ToArray()
 
-	if octave_format{
-		fmt.Print("x=[")	
-		for i := range I{
-			if i != 0{
+	if octave_format {
+		fmt.Print("x=[")
+		for i := range I {
+			if i != 0 {
 				fmt.Print(", ")
 			}
 			fmt.Print(I[i])
 		}
 		fmt.Println("];")
 
-		fmt.Print("y=[")	
-		for i := range J{
-			if i != 0{
+		fmt.Print("y=[")
+		for i := range J {
+			if i != 0 {
 				fmt.Print(", ")
 			}
 			fmt.Print(J[i])
 		}
 		fmt.Println("];")
 	}
-	
+
+	var SENTINEL float32 = -123.456789 // quick and dirty hack
+
 	// (2) Make the "outer product" of the two index sets,
 	// spanning a matrix that can be index with each possible i,j pair
 	// (even those not present in the input, their data will be 0.)
@@ -133,7 +137,7 @@ func matrix(i_colname, j_colname, data_colname string, octave_format bool) {
 			if matrix[I[i]] == nil {
 				matrix[I[i]] = make(map[float32]float32)
 			}
-			matrix[I[i]][J[j]] = 0.
+			matrix[I[i]][J[j]] = SENTINEL
 		}
 	}
 
@@ -145,15 +149,71 @@ func matrix(i_colname, j_colname, data_colname string, octave_format bool) {
 		matrix[table.Column[i_col][i]][table.Column[j_col][i]] = D[i]
 	}
 
-	// (4) Print the matrix
-	if octave_format{ fmt.Print("data=reshape([") }
-	for ind_i, i := range I{
-		for ind_j,j := range J{
-			fmt.Print(matrix[i][j], "\t")
-			if octave_format && !(ind_i == len(I)-1 && ind_j == len(J)-1) { fmt.Print(",") }
+	// (3.5)
+	// Missing data gets replaced by nearest value
+	DELTA := 5 // do not look further than DELTA neighbors 
+	for i := range I {
+		for j := range J {
+			if matrix[I[i]][J[j]] == SENTINEL {
+
+				fmt.Fprintln(os.Stderr, "missing: ", i, j)
+				minDst := float32(math.Inf(1))
+				nearest := float32(0)
+				for i_ := imax(0, i-DELTA); i_ < imin(len(I), i+DELTA); i_++ {
+					for j_ := imax(0, j-DELTA); j_ < imin(len(J), j+DELTA); j_++ {
+						if matrix[I[i_]][J[j_]] != SENTINEL {
+
+							dst := sqr(I[i]-I[i_]) + sqr(J[j]-J[j_])
+							if dst < minDst {
+								minDst = dst
+								nearest = matrix[I[i_]][J[j_]]
+							}
+
+						}
+					}
+				}
+				matrix[I[i]][J[j]] = nearest
+
+			}
 		}
-		if !octave_format  { fmt.Println() }
 	}
-	if octave_format{ fmt.Println("], ", len(J), ", ", len(I), ");") } 
-	haveOutput=true
+
+	//(4) Print the matrix
+	if octave_format {
+		fmt.Print("data=reshape([")
+	}
+	for ind_i, i := range I {
+		for ind_j, j := range J {
+			fmt.Print(matrix[i][j], "\t")
+			if octave_format && !(ind_i == len(I)-1 && ind_j == len(J)-1) {
+				fmt.Print(",")
+			}
+		}
+		if !octave_format {
+			fmt.Println()
+		}
+	}
+	if octave_format {
+		fmt.Println("], ", len(J), ", ", len(I), ");")
+	}
+	haveOutput = true
+}
+
+
+func imin(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func imax(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func sqr(x float32) float32 {
+	return x * x
 }
