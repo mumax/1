@@ -1,5 +1,5 @@
 #! /bin/bash
-export SIMROOT=$(dirname $(readlink -f $0))/..
+export SIMROOT=$(readlink -f $(dirname $(readlink -f $0))/..)
 echo SIMROOT: $SIMROOT
 export GOMAXPROCS=$(grep processor /proc/cpuinfo | wc -l) 
 export LD_LIBRARY_PATH=$SIMROOT/dep/cuda/lib64:$SIMROOT/dep/cuda/lib:$LD_LIBRARY_PATH 
