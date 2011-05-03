@@ -84,7 +84,7 @@ def periodic(nx, ny, nz):
 def ellipsoid(rx, ry, rz):
 	send3("ellipsoid", rx, ry, rz)
 
-# Sets number of periods in given direction
+# Sets number of periods in given direction (0 is no periodicity)
 def periodic(Nx, Ny, Nz):
   send3("periodic", Nx, Ny, Nz)
 
@@ -111,7 +111,7 @@ def setrandom():
 def vortex(circulation, polarization):
 	send2("vortex", circulation, polarization)
 
-## Sets a vortex in an array
+## Sets a vortex in an array (i,j: dot coordinates, basic_size: dot diameter+separation in meter, separation: dot separation in meter)
 def Vortex_in_array(i, j, basic_size, separation, circulation, polarization):
   send("Vortex_in_array", [i, j, basic_size, separation, circulation, polarization])
   
@@ -119,15 +119,19 @@ def Vortex_in_array(i, j, basic_size, separation, circulation, polarization):
 def	DotArray(r, sep, n):
 	send3("DotArray", r, sep, n)
 
+## starting configuration for Symmetrical Bloch Wall (cfr. K. Ramstock et al. Status Solidi A 155, 505–518, 1996)
 def SBW():
   send0("SBW")
 
+## starting configuration for Symmetrical Neel Wall (cfr. K. Ramstock et al. Status Solidi A 155, 505–518, 1996)
 def SNW():
   send0("SNW")
 
+## starting configuration for Assymmetrical Bloch Wall (cfr. K. Ramstock et al. Status Solidi A 155, 505–518, 1996)
 def ABW():
   send0("ABW")
 
+## starting configuration for Assymmetrical Neel Wall (cfr. K. Ramstock et al. Status Solidi A 155, 505–518, 1996)
 def ANW():
   send0("ANW")
 
