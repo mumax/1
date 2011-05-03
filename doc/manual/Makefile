@@ -1,12 +1,6 @@
-all: manual.bbl
+all: 
 	doxygen pydoxygen.cfg
-	pdflatex -halt-on-error manual.tex
-	makeindex manual
-
-manual.bbl:	*.bib
-	pdflatex -halt-on-error manual.tex
-	bibtex manual
-	pdflatex -halt-on-error manual.tex
+	make -C latex
 
 .PHONY: clean
 clean:
