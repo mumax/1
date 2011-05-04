@@ -114,21 +114,3 @@ To define the magnet size, you must specify \emph{exactly two} of the three comm
 Upon running an input file, an \idx{output directory} with a corresponding name but ending with ``\file{.out}'' will be created to store the simulation output. It also contains a file \idxfile{output.log} that keeps a log of all the output that appeared on the screen.  
 
 
-\subsection{\mumax Arguments}
-
-\mumax is generally started by typing:
-
-\shell{\prog \textit{arguments} \textit{inputfile}}
-
-in a terminal. \cmd{\textit{arguments}} represents the (optional) \idx{command line arguments}, starting with a dash (``-'') or double-dash. These should always be specified \emph{before} the input file(s). They are meant for fine-tuning the program's behavior and may often be omitted. Here are the most important cases:
-
-\begin{tabular}{ll}
-\idxcmd{-help} & Print a complete list of command-line arguments.\\
-\idxcmd{-cpu} & Run on the CPU instead of the GPU. \\
-\idxcmd{-gpu=N}&  Run on GPU number ``N'' when multiple GPUs are present.\\& Default value is ``0'', the first GPU. \\
-\idxcmd{-silent}&  Do not print output to the screen (only to output.log) \\
-\idxcmd{-updatedisp=N}&  Update the ``live'' progress output every N milliseconds \\
-\idxcmd{-daemon}&  Run in deamon mode, see \ref{daemon} \\
-\idxcmd{-watch=N}&  When running in deamon mode, check for new input files every ``N'' seconds. See \ref{daemon}. \\
-\end{tabular}
-
