@@ -366,7 +366,7 @@ def energy(b):
 	send1("energy", b)
 
 
-## @internal
+## \internal
 def recv():
 	#stderr.write("py_recv: ") #debug
 	data = stdin.readline()
@@ -376,7 +376,7 @@ def recv():
 	#stderr.write(data + "\n") #debug
 	return float(data[1:])
 
-## @internal: version of print() that flushes (critical to avoid communication deadlock)
+## @internal : version of print() that flushes (critical to avoid communication deadlock)
 def myprint(x):
 	#stderr.write("py_send: " + str(x) + "\n") #debug
 	#stderr.flush()
