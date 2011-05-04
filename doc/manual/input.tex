@@ -1,5 +1,6 @@
 \section{Input files}
 
+\newcommand{\command}[1]{\hyperref[#1]{\textbf{#1}}\index{#1}\label{#1}}
 
 \mumax input files are written in Python. This way, one can build up a micromagnetic simulation suitable for each application by including loops, if-clauses, etc.  An introduction to the Python programming language can be found at \url{http://www.python.org/}.  Moreover, in order to set parameters, launch procedures, save output, etc. \mumax-specific commands are to be used.  Here is a simple example input file: \file{standardproblem4.py}
 
@@ -66,7 +67,6 @@ In what follows, we comment on the different \mumax-specific commands.
 \end{itemize}
 
 \newcommand{\defcommand}[2][\space]{\textbf{#2}\index{#2}\label{#2} \textit{#1}}
-\newcommand{\command}[1]{\hyperref[#1]{\textbf{#1}}\index{#1}\label{#1}}
 
 
 \subsubsection*{Part size}
