@@ -11,6 +11,7 @@
 all:
 	make -C src
 	make -C bin
+	make -C doc
 
 depend:
 	make -C lib
