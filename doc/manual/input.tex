@@ -1,7 +1,7 @@
 \section{Input files}
 
 
-\mumax input files can be written in Python, among others. Let us start with a simple example input file: \file{standardproblem4.py}
+\mumax input files are written in Python. This way, one can build up a micromagnetic simulation suitable for each application by including loops, if-clauses, etc.  An introduction to the Python programming language can be found at \url{http://www.python.org/}.  Moreover, in order to set parameters, launch procedures, save output, etc. \mumax-specific commands are to be used.  Here is a simple example input file: \file{standardproblem4.py}
 
 \begin{verbatim}
 from mumax import *
@@ -22,47 +22,52 @@ relax(1e-5)
 # run
 autosave('table', 'ascii', 10E-12)
 run(1e-9)
-\end{verbatim}
+\end{verbatim}                                                                                                                                            
 
+All text after a hashmark (\#) is considered a \idx{comment} and is ignored by the simulation.  They are only included for clarity and could be omitted.  All other text in the Python file is treated as a series of \idx{commands} that are executed in the order they are specified. In general, the order of the commands matters but should be easy to deduce.  E.g., you can not call \command{run} to start the time evolution when you have not first specified the material parameters, simulation size, etc\ldots. On the other hand, after having {run} the simulation for some time, you \emph{can} change the material parameters and call commands like \command{run} again. Either way, the program will tell you if it can not run a certain command yet because some parameters should be set first.
+
+In what follows, we comment on the different \mumax-specific commands.
 
 \subsection{Material parameters}
 
+\begin{itemize}
+ \item \textbf{msat}(\textit{arg}):\\
+				Sets the saturation magnetization to the value specified in A/m.\\
+				\textit{arg}: saturation magnetization in A/m.
+ 
+ \item \textbf{aexch}(\textit{arg}):\\
+				Sets the exchange constant to the value specified in J/m.\\
+				\textit{arg}: exchange constant in J/m.
 
+ \item \textbf{alpha}(\textit{arg}):\\
+				Sets the damping coefficient to the specified value.\\
+				\textit{arg}: damping coefficient.
 
-\subsection{raw ".in" input files}
+ \item \textbf{k1}(\textit{arg}):\\
+				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with anisuniaxial\\
+%				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with anisuniaxial or anis cubic.\\
+				\textit{arg}: first order anisotropy constant in J/m$^3$.
 
+ \item \textbf{k2}(\textit{arg}):\\
+				Sets the second order anisotropy constant K2 to the specified value in J/m$^3$.  Only for cubic anisotropy.  Should be used in combination with \textrm{anisuncubic}\\
+%				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with anisuniaxial or anis cubic.\\
+				\textit{arg}: second order anisotropy constant in J/m$^3$.
 
-\begin{verbatim}
-# material
-msat       	800e3 
-aexch      	1.3e-11
-alpha      	0.02
+ \item \textbf{anisuniaxial}(\textit{arg1, arg2, arg3}):\\
+				Defines the uniaxial anisotropy axis, normalization is done internally.\\
+				\textit{arg1}: projection of anisotropy axis along the $x$-axis.\\
+				\textit{arg2}: projection of anisotropy axis along the $y$-axis.\\
+				\textit{arg3}: projection of anisotropy axis along the $z$-axis.
 
-# geometry 
-gridsize	1     	32      128    
-partsize	500e-9	125e-9 	3e-9
+ \item \textbf{k1}(\textit{arg}):\\
+				Sets the uniaxial anisotropy constant K1 to the specified value in J/m$^3$.\\
+				\textit{arg}: first order uniaxial anisotropy constant in J/m$^3$.
 
-# initial magnetization
-uniform		1 1 0
-
-# run
-autosave	table	ascii	10E-12
-run          	1E-9
-\end{verbatim}
+\end{itemize}
 
 \newcommand{\defcommand}[2][\space]{\textbf{#2}\index{#2}\label{#2} \textit{#1}}
 \newcommand{\command}[1]{\hyperref[#1]{\textbf{#1}}\index{#1}\label{#1}}
 
-\paragraph{Comments} All text after a hashmark (\#) is considered a \idx{comment} and is ignored by the simulation. In the above example, the statements \cmd{\# material}, \cmd{\# geometry}, \ldots are thus comments. They are only included for clarity and could be omitted.
-
-\paragraph{Commands} All the other text in the input file is treated as a series of \idx{commands} that are executed in the order they are specified. In general, the order of the commands matters but should be easy to deduce.  E.g., you can not call \command{run} to start the time evolution when you have not first specified the material parameters, simulation size, etc\ldots. On the other hand, after having {run} the simulation for some time, you \emph{can} change the material parameters and call commands like \command{run} again. Either way, the program will tell you if it can not run a certain command yet because some parameters should be set first. A list of commands is found below.
-
-\subsubsection*{Material parameters}
-\begin{tabular}{ll}
-\defcommand[value]{msat}  & Sets the saturation magnetization to the value specified in A/m. \\
-\defcommand[value]{aexch} & Sets the exchange constant to the value specified in J/m. \\
-\defcommand[value]{alpha} & Sets the damping coefficient.
-\end{tabular}
 
 \subsubsection*{Part size}
 To define the magnet size, you must specify \emph{exactly two} of the three commands below.\\

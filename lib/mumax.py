@@ -32,7 +32,6 @@ def aexch(a):
 def alpha(a):
 	send1("alpha", a)
 
-
 ## Sets the anisotropy constant K1.
 def k1(k):
 	send1("k1", k)
