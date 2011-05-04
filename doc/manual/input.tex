@@ -45,14 +45,13 @@ In what follows, we comment on the different \mumax-specific commands.
 				\textit{arg}: damping coefficient.
 
  \item \textbf{k1}(\textit{arg}):\\
-				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with anisuniaxial\\
-%				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with anisuniaxial or anis cubic.\\
+				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with \texttt{anisuniaxial}\\
+%				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with anisuniaxial or aniscubic.\\
 				\textit{arg}: first order anisotropy constant in J/m$^3$.
 
- \item \textbf{k2}(\textit{arg}):\\
-				Sets the second order anisotropy constant K2 to the specified value in J/m$^3$.  Only for cubic anisotropy.  Should be used in combination with \textrm{anisuncubic}\\
-%				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with anisuniaxial or anis cubic.\\
-				\textit{arg}: second order anisotropy constant in J/m$^3$.
+%  \item \textbf{k2}(\textit{arg}):\\
+% 				Sets the second order anisotropy constant K2 to the specified value in J/m$^3$.  Only for cubic anisotropy.  Should be used in combination with \texttt{anisuncubic}\\
+% 				\textit{arg}: second order anisotropy constant in J/m$^3$.
 
  \item \textbf{anisuniaxial}(\textit{arg1, arg2, arg3}):\\
 				Defines the uniaxial anisotropy axis, normalization is done internally.\\
@@ -60,52 +59,79 @@ In what follows, we comment on the different \mumax-specific commands.
 				\textit{arg2}: projection of anisotropy axis along the $y$-axis.\\
 				\textit{arg3}: projection of anisotropy axis along the $z$-axis.
 
- \item \textbf{k1}(\textit{arg}):\\
-				Sets the uniaxial anisotropy constant K1 to the specified value in J/m$^3$.\\
-				\textit{arg}: first order uniaxial anisotropy constant in J/m$^3$.
+ \item \textbf{spinpolarization}(\textit{arg}):\\
+				Sets the spin polarization for spin-transfer torque to the specified value.\\
+				\textit{arg}: spin polarization.
+
+ \item \textbf{xi}(\textit{arg}):\\
+				Sets the non-adiabicity for spin-transfer torque to the specified value.\\
+				\textit{arg}: non-adiabicity.
+
+ \item \textbf{temperature}(\textit{arg}):\\
+				Sets the temperature to the specified value in Kelvin.\\
+				\textit{arg}: temperature in Kelvin.
 
 \end{itemize}
 
-\newcommand{\defcommand}[2][\space]{\textbf{#2}\index{#2}\label{#2} \textit{#1}}
 
 
-\subsubsection*{Part size}
+\subsection{Geometry parameters}
 To define the magnet size, you must specify \emph{exactly two} of the three commands below.\\
 
-\begin{tabular}{ll}
-\defcommand[x y z]{partsize}  & Sets the size of the magnet, specified in m. \\
-\defcommand[x y z]{cellsize}  & Sets the size of the finite difference cells, in m. \\
-\defcommand[$N_x$ $N_y$ $N_z$]{gridsize} & Sets the number of finite difference cells.
-\end{tabular}\\
-\bigskip
-
 \begin{itemize}
- \item After having set two of these values, the remaining one is calculated automatically. E.g. the part size and cell size automatically fix the number of cells.
- \item For performance reasons, the number of cells in each direction should preferentially be a power of two.
- \item For a 2D simulation, one can simply use $N_x \times N_y \times 1$ cells. In that case, optimized algorithms for a 2D geometry are used. Note that only the last dimension ($Z$) can be $1$ cell large, e.g., $1 \times N_y \times N_z$ is not a valid grid size.
+ \item \textbf{partsize}(\textit{arg1, arg2, arg3}):\\
+				Sets the size of the simulation domain, specified in meter.\\
+				\textit{arg1}: size in the $x$-direction in meter.\\
+				\textit{arg2}: size in the $y$-direction in meter.\\
+				\textit{arg3}: size in the $z$-direction in meter.
+
+ \item \textbf{cellsize}(\textit{arg1, arg2, arg3}):\\
+				Sets the size of the finite difference cells used in the simulation, specified in meter.\\
+				\textit{arg1}: size in the $x$-direction in meter.\\
+				\textit{arg2}: size in the $y$-direction in meter.\\
+				\textit{arg3}: size in the $z$-direction in meter.
+
+ \item \textbf{gridsize}(\textit{arg1, arg2, arg3}):\\
+				Sets the number of finite difference (FD) cells used in the simulation.\\
+				\textit{arg1}: number of FD cells in the $x$-direction.\\
+				\textit{arg2}: number of FD cells in the $y$-direction.\\
+				\textit{arg3}: number of FD cells in the $z$-direction.
+
 \end{itemize}
 
 
-\subsubsection*{Initial magnetization state}
-\begin{tabular}{ll}
-\defcommand[$m_x$ $m_y$ $m_z$]{uniform}  & Initializes the magnetization to a uniform state.\\
-\defcommand[amplitude]{addnoise} & Adds random noise with the specified amplitude to a previously\\& defined magnetization state.
-\end{tabular}
+Comments
+\begin{enumerate}
+ \item After having set two of these values, the remaining one is calculated automatically. 
+ \item Due to GPU-hardware specifications, the resulting number of finite difference (FD) cells in the $x$-dimensions should be a product of 16.  If not, an error message will occure.
+ \item For performance reasons, the resulting number of FD cells ($N_x$, $N_y$, $N_z$) should be chosen such that $N_x\geq N_y \geq N_z$.
+ \item For performance reasons, the number of cells in each direction should preferentially be a power of two. Sizes $N_x=16\times2^{n_x}\times\{3,5 \mathrm{\,or\,} 7\}$, $N_y=2^{n_y}\times\{3,5 \mathrm{\,or\,} 7\}$ and $N_z=2^{n_z}\times\{3,5 \mathrm{\,or\,} 7\}$ are also possible, but slower. Other products of prime fractures result in much slower simulation times and should be avoided.  A warning will appear when the resulting number of FD cells leads to inferior efficiencies.
+ \item For a 2D simulation, one can simply use $N_x \times N_y \times 1$ cells. In that case, optimized algorithms for a 2D geometry are used. Note that only the last dimension ($z$) can be $1$ cell large, e.g., $1 \times N_y \times N_z$ is not a valid grid size.
+ \item Simulations following the 2.5D approach can be conducted when choosing the last dimension ($z$) equal to '\texttt{inf}'.  In this approach, the geometry is infinite in the $z$-direction leading to a 2D geometry discretization, the micromagnetic fields and material properties are invariant in the $z$-direction.  In this case the 2.5D demag kernel is used together with optimized algorithms.
+\end{enumerate}
+
+Other geometry related commands are
+
+\begin{itemize}
+ \item \textbf{maxcellsize}(\textit{arg1, arg2, arg3}):\\
+				Can be used in stead of \texttt{cellsize}.  Sets the maximum size of the finite difference cells, specified in meter of the simulation domain.  In this case, \mumax adjusts the cellsize such that the resulting number of FD cells leads to efficient simulation times.\\
+				\textit{arg1}: maximum cell size in the $x$-direction in meter.\\
+				\textit{arg2}: maximum cell size in the $y$-direction in meter.\\
+				\textit{arg3}: maximum cell size in the $z$-direction in meter.
+\end{itemize}
 
 
-
-
-\subsubsection{Applied magnetic field}
-\begin{tabular}{ll}
-\defcommand[$B_x$ $B_y$ $B_z$]{staticfield}  & Applies a static magnetic field, specified in tesla.\\
-\end{tabular}
-
-\subsubsection*{Scheduled output}
-\begin{tabular}{ll}
-\defcommand[what format interval]{autosave}  & $what$ = m (magnetization) or table.\\
-& $format$ = ascii, binary or png.\\
-& $interval$ = save output every $interval$ seconds.
-\end{tabular}
+% \subsubsection{Applied magnetic field}
+% \begin{tabular}{ll}
+% \defcommand[$B_x$ $B_y$ $B_z$]{staticfield}  & Applies a static magnetic field, specified in tesla.\\
+% \end{tabular}
+% 
+% \subsubsection*{Scheduled output}
+% \begin{tabular}{ll}
+% \defcommand[what format interval]{autosave}  & $what$ = m (magnetization) or table.\\
+% & $format$ = ascii, binary or png.\\
+% & $interval$ = save output every $interval$ seconds.
+% \end{tabular}
 
 
 \subsection{Output}
