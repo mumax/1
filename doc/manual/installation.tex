@@ -3,27 +3,28 @@
 
 \subsection{Operating system}
 
-\mumax was devolped and tested on Ubuntu Linux version 10.04, and we expect it to run on most Linux distributions. It should in principle be possible to compile it on any Unix-like system, perhaps with minor modifications to the make scripts or source files. You are welcome to report issues or submit patches for other platforms.
+\mumax requires a 64-bit Linux Operating System. The software was developed on Ubuntu Linux 10.04 and has since successfully been tested on a few other distributions as well. It should in principle be possible to compile it on any Unix-like system, perhaps with minor modifications to the make scripts or source files. You are welcome to report issues or submit patches for other platforms.
 
 \subsection{GPU Hardware}
 
-To take advantage of the GPU acceleration, you need a \idx{CUDA capable} \nvidia GPU. All recent \nvidia GPUs should work, though it is highly recommended to use a ``Fermi''-architecture GPU with a \idx{compute capability} of at least 2.0 like the GeForce GTX series, Quadro 4000 or later, Tesla *2050 or later. For more info see \url{http://www.nvidia.com/object/cuda_gpus.html}
+To take advantage of the GPU acceleration, you need a \idx{CUDA capable} \nvidia GPU. All recent \nvidia GPUs should work, though it is highly recommended to use a recent ``Fermi''-architecture GPU with a \idx{compute capability} of at least 2.0 like the GeForce GTX series, Quadro 4000 or later, Tesla *2050 or later. For more info see \url{http://www.nvidia.com/object/cuda_gpus.html}
 
 \subsection{GPU Drivers}
 
-You will also need to install the proprietary \nvidia graphics \idx{driver}. This driver may already be installed on your system. E.g., under Ubuntu, the ``Hardware drivers'' program may propose to install this driver. You should try to run a simulation on the GPU -- if that works, it means your driver is up to date.
+You will also need to install the proprietary \nvidia graphics \idx{driver}. This driver may already be installed on your system. E.g., under Ubuntu, the ``Hardware drivers'' program may propose to install this driver. You should try to run a simulation on the GPU -- if that works, it means your driver is up to date. Alternatively, the program \cmd{nvidia-settings} should report the driver version if it was installed correctly. The driver version number should be at least 260.\\
 
-Otherwise, you should download the latest \idx{developer driver} from \nvidia. Before installing it, make sure you have the necessary build tools installed on your system:
+
+If no suited driver is present, you should download the latest \idx{developer driver} from \nvidia. Before installing it, make sure you have the necessary build tools installed on your system:
 
 \shell{sudo apt-get install build-essential}
 
 You can then install the GPU driver when your X-server is not running: logout from your grahpical session, then use the ``\idx{Console login}'' of your login manager (or press Ctrl-Alt-F1) to obtain a text console. Log in and \cmd{cd} to the directory where the driver was saved. Then run, using the appropriate directory and file names for your case:
 
 \shell{cd /home/me/path/to/driver\\
-chmod u+x devdriver\_3.2\_linux\_64\_256.19.26.run\\
-./devdriver\_3.2\_linux\_64\_256.19.26.run}
+chmod u+x devdriver\_3.2\_linux\_64\_260*.run\\
+./devdriver\_3.2\_linux\_64\_260*.run}
 
-Follow the on-screen instructions. Then reboot your computer. Note that you may have to re-install this driver after every kernel upgrade. To check your system, you can run the progam \idxcmd{nvidia-settings} which shows information about your GPU and driver.
+Follow the on-screen instructions. Then reboot your computer. Note that you may have to re-install this driver after every kernel upgrade. To check your system, you can run the progam \idxcmd{nvidia-settings} which shows information about your GPU and driver.\\
 
 It is possible that the required driver conflicts with Ubuntu's default version. If installing the driver fails, a possible workaround is to edit \file{/etc/modprobe.d/blacklist.conf} (as root\footnote{execute, e.g., \cmd{sudo gedit /etc/modprobe.d/blacklist.conf}}) and add these lines:
 \small
@@ -42,18 +43,16 @@ Then also remove all distribution-provided \textsc{NVIDIA} drivers with
 
 Then follow the above instructions to re-install the driver.
 
-Note that you \emph{might} have to run an X-server (i.e., have a graphical desktop installed) for the GPU driver to function correctly. So if you run Ubuntu server edition, you may have to install the ubuntu-desktop or kubuntu-desktop packages.
+Note that you may have to run an X-server (i.e., have a graphical desktop installed) for the GPU driver to function correctly. So if you run Ubuntu Server edition, you may have to install the ubuntu-desktop or kubuntu-desktop packages.
 
 \subsection{Setup}
 
-We recommend downloading a pre-compiled version of the program for either a 32-bit or 64-bit architecture. The 64-bit version is recommended if your system supports it. You can place the \prog directory anywhere on your hard drive. The only needed setup is running 
+We recommend downloading a pre-compiled version of the program. You can unzip \file{mumax.tar.gz} anywhere on your hard drive. You can then start the program by typing \cmd{/path/to/\prog/bin/\prog} in a terminal, where you replace \file{/path/to/\prog} by the actual location where you put the \prog directory.
 
-\shell{cd \prog\\
-./setup\_64bit.sh}
+\shell{tar xvfz mumax.tar.gz\\
+cd mumax\\
+./bin/mumax}
 
-(or \cmd{./setup\_32bit.sh} on a 32-bit system). This will create the \cmd{\prog} program in the \file{bin/} directory. Note that you have to re-run the setup 
-script if you moved the \prog directory to a different location on your hard drive. You can now start the the program by typing \cmd{/path/to/\prog/bin/\prog} in a terminal, where you replace \file{/path/to/\prog} by the actual location where you put the \prog directory.
-
-It is recommended to edit the (hidden) \file{.bashrc} file in your home directory and the following line: \cmd{export PATH=\$PATH:/path/to/\prog} where you replace \file{/path/to/\prog} by the actual location where you put the \prog directory. When you now open a new terminal, you will be able to start the program by just typing \prog.
+It is recommended to edit the (hidden) \file{.bashrc} file in your home directory and the following line: \cmd{export PATH=\$PATH:/path/to/\prog/bin} where you replace \file{/path/to/\prog} by the actual location where you put the \prog directory. When you now open a new terminal, you will be able to start the program by just typing \prog.
 
 
