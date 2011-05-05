@@ -183,26 +183,263 @@ Other geometry related commands are
 				Sets the magnetization randomly througout the sample in a specified direction.  The magnetization has an amplitude which is defined by the \texttt{msat} command.  Note that the parenthesis should be added.
 				}\flushleft}
 
+ \item {\vspace{-0.4cm}\textbf{setransendm():}
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the magnetization to a ransendm state 
+				}\flushleft}
+
  \item {\vspace{-0.4cm}\textbf{addnoise(\textit{arg})}:
 				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Adds noise to the local magnetization. \\
 				\textbf{\textit{arg}}: amplitude of the noise, should be between 0 and 1.
 				}\flushleft}
 
+ \item {\vspace{-0.4cm}\textbf{loadm(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Loads the magnetization state from a .omf file.  If the discretization grid does not correspond, an interpolation is made.\\
+				\textbf{\textit{arg}}: filename, myfile.omf.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{vortex(\textit{arg1, arg2})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the magnetization to a vortex state\\
+				\textbf{\textit{arg1}}: circulation\\
+				\textbf{\textit{arg2}}: polarization
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{vortex\_in\_array(\textit{arg1, arg2, arg3, arg4, arg5, arg6})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Set a vortex in a 2D array. A square unit entities (vortex + separation) are considered.  The total number of unit entities should fit the discretization grid.\\
+				\textbf{\textit{arg1}}: integer i $\rightarrow$ i'th vortex in $x$-direction\\
+				\textbf{\textit{arg2}}: integer j $\rightarrow$ j'th vortex in $y$-direction\\
+				\textbf{\textit{arg3}}: unit size (vortex size + separation) in meter \\
+				\textbf{\textit{arg4}}: separation in meter\\
+				\textbf{\textit{arg5}}: circulation\\
+				\textbf{\textit{arg6}}: polarization
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{DotArray(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets a mask for dot/vortex array.\\
+				\textbf{\textit{arg1}}: dot size in meters\\
+				\textbf{\textit{arg2}}: separation in meters\\
+				\textbf{\textit{arg3}}: max(\# dots in $x$-direction, \#dots in $y$-direction)
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{setmcell(\textit{arg1, arg2, arg3, arg4, arg5, arg6})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the magnetization in a given cell.\\
+				\textbf{\textit{arg1, arg2, arg3}}: 3D cell index [i,j,k]\\
+				\textbf{\textit{arg4, arg5, arg6}}: magnetization [m$_x$, m$_y$, m$_z$]
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{setmrange(\textit{arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the magnetization in a given range of cells between [i$_1$,j$_1$,k$_1$] (inclusif) and [i$_2$,j$_2$,k$_2$] (exclusif).\\
+				\textbf{\textit{arg1, arg2, arg3}}: 3D cell index of bottom left range [i$_1$,j$_1$,k$_1$]\\
+				\textbf{\textit{arg4, arg5, arg6}}: 3D cell index [i$_2$,j$_2$,k$_2$]\\
+				\textbf{\textit{arg7, arg8, arg9}}: magnetization [m$_x$, m$_y$, m$_z$]
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{setm(\textit{arg1, arg2, arg3, arg4, arg5, arg6})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the magnetization in a cell with coordinates in meters.\\
+				\textbf{\textit{arg1, arg2, arg3}}: 3D cell index [x,y,z] in meters\\
+				\textbf{\textit{arg4, arg5, arg6}}: magnetization [m$_x$, m$_y$, m$_z$]
+				}\flushleft}
+
 \end{itemize}
 
-% \subsubsection{Applied magnetic field}
-% \begin{tabular}{ll}
-% \defcommand[$B_x$ $B_y$ $B_z$]{staticfield}  & Applies a static magnetic field, specified in tesla.\\
-% \end{tabular}
-% 
-% \subsubsection*{Scheduled output}
-% \begin{tabular}{ll}
-% \defcommand[what format interval]{autosave}  & $what$ = m (magnetization) or table.\\
-% & $format$ = ascii, binary or png.\\
-% & $interval$ = save output every $interval$ seconds.
-% \end{tabular}
 
+\subsection{Writing output}
+
+\begin{itemize}
+
+ \item {\textbf{save(\textit{arg1, arg2})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Saves data with automatic file name\\
+				\textbf{\textit{arg1}}: what to be saved: 'm', 'table', 'phi' (energy density), 'torque'\\
+				\textbf{\textit{arg2}}: format: 'png', 'binary', 'text'
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{savem(\textit{arg1, arg2})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Single save of the magnetization to a specified file (.omf)\\
+				\textbf{\textit{arg1}}: filename\\
+				\textbf{\textit{arg2}}: format: 'png', 'binary', 'text'
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{saveh(\textit{arg1, arg2})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Single save of the effective field to a specified file (.omf)\\
+				\textbf{\textit{arg1}}: filename\\
+				\textbf{\textit{arg2}}: format: 'png', 'binary', 'text'
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{autosave(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Periodic save of the magnetization to an automatic file.  The filename corresponds to the id which can be found in the datatable.\\
+				\textbf{\textit{arg1}}: what to be saved: 'm', 'table', 'phi' (energy density), 'torque'\\
+				\textbf{\textit{arg2}}: format: 'png', 'binary', 'text'\\
+				\textbf{\textit{arg3}}: periodicity in seconds.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{tabulate(\textit{arg1, arg2})}:  ******** KLOPT DIT? *******
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Determines what should be saved in the datatable, e.g. tabulate('m', True)\\
+				\textbf{\textit{arg1}}: what: 'm', 'E' (energy), 'torque'\\
+				\textbf{\textit{arg2}}: boolean\\
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{subsampleoutput(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Reduce the resolution of saved output by a factor to save disk space\\
+				\textbf{\textit{arg}}: subsampling factor
+				}\flushleft}
+
+\end{itemize}
+
+
+\subsection{Adjusting the solver}
+
+The following commands can be used to change and/or fine tune the default solver and default solver settings.
+
+\begin{itemize}
+
+ \item {\textbf{solvertype(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Overrides the standard solver type.\\
+				\textbf{\textit{arg}}: 'rk12', 'rk23', 'rk45', 'rkdp', 'rkck', 'euler', 'fixedeuler' or 'heun' 
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{maxerror(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the maximum tolerable estimated error per solver step.\\
+				\textbf{\textit{arg}}: error
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{maxdt(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the maximum time step in seconds.\\
+				\textbf{\textit{arg}}: maximum time step in seconds.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{mindt(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the minimum time step in seconds.\\
+				\textbf{\textit{arg}}: minimum time step in seconds.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{maxdm(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the maximum magnetization step.\\
+				\textbf{\textit{arg}}: maximum magnetization step (normalized).
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{mindm(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the minimum magnetization step.\\
+				\textbf{\textit{arg}}: minimum magnetization step (normalized).
+				}\flushleft}
+
+\end{itemize}
+
+
+\subsection{Defining the excitation}
+
+\begin{itemize}
+
+ \item {\textbf{applystatic(\textit{arg1, arg2, arg3, arg4})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Apply a static field or current density.\\
+				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$\\
+				\textbf{\textit{arg2, arg3, arg4}}: excitation $f$ with components [$f_x$, $f_y$, $f_z$]
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{applyrf(\textit{arg1, arg2, arg3, arg4, arg5})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Apply a radio frequent field or current density.\\
+				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$\\
+				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$\\
+				\textbf{\textit{arg5}}: frequency in Herz
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{applyrframp(\textit{arg1, arg2, arg3, arg4, arg5, arg6})}:   ****** KLOPT DIT *******
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Apply a radio frequent field or current density slowly ramped in time.\\
+				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$\\
+				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$\\
+				\textbf{\textit{arg5}}: frequency in Herz\\
+				\textbf{\textit{arg6}}: ramptime in seconds
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{applyrotating(\textit{arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9})}:   ****** KLOPT DIT *******
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Apply a radio frequent, rotating field or current density.\\
+				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$\\
+				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$\\
+				\textbf{\textit{arg5}}: frequency in Herz\\
+				\textbf{\textit{arg6}}: ramptime in seconds\\
+				\textbf{\textit{arg7, arg8, arg9}}: phase in $x$-, $y$- and $z$-direction
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{applypulse(\textit{arg1, arg2, arg3, arg4, arg5})}:   ****** KLOPT DIT *******
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Apply one single pulse field or current density, uniform in space.\\
+				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$\\
+				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$\\
+				\textbf{\textit{arg5}}: risetime in seconds
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{applysawtooth(\textit{arg1, arg2, arg3, arg4, arg5})}:   ****** KLOPT DIT *******
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Apply a sawtooth field or current density.\\
+				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$\\
+				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$\\
+				\textbf{\textit{arg5}}: frequency
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{applyrotatingburst(\textit{arg1, arg2, arg3, arg4, arg5, arg6})}:   ****** KLOPT DIT *******
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Apply a rotating radio frequent field or current density.\\
+				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$\\
+				\textbf{\textit{arg2}}: amplitude excitation\\
+				\textbf{\textit{arg3}}: frequency in Hertz\\
+				\textbf{\textit{arg4}}: phase\\
+				\textbf{\textit{arg5}}: risetime in seconds\\
+				\textbf{\textit{arg6}}: duration in seconds
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{applypointwise(\textit{arg1, arg2, arg3, arg4})}:   ****** KLOPT DIT *******
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Apply a pointwise-defined field/current defined by a number of time + field points.  The field is linearly interpolated between the defined points.	E.g.:\\ 
+				\qquad\texttt{applypointwise('field', 0, 0,0,0)}\\
+				\qquad\texttt{applypointwise('field', 1e-9, 1e-3,0,0)} \\
+				sets up a linear ramp in 1ns from 0 to 1 mT in the $x$-direction.  Arbitrary functions can be well approximated by specifying a large number of time+field combinations.\\
+				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$\\
+				\textbf{\textit{arg2}}: time window in seconds\\
+				\textbf{\textit{arg3, arg4, arg5}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$
+				}\flushleft}
+
+
+
+
+ \item {\vspace{-0.4cm}\textbf{fieldmask(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Set a space dependent mask to be multiplied pointwise by the applied magnetic field.  This allows the definition of time and space dependent fields $B(r,t) = B_x(t)*mask_x(r) + B_y(t)*mask_y(r) + B_y(t)*mask_z(r)$.  Here $B(t)= B_x(t) + B_y(t) + B_z(t)$ is defined with the functions above and while the mask defines the space dependency.\\
+				\textbf{\textit{arg}}: filename, in .omf format
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{currentmask(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Set a space dependent mask to be multiplied pointwise by the applied current density.  This allows the definition of time and space dependent current densities $J(r,t) = J_x(t)*mask_x(r) + J_y(t)*mask_y(r) + J_y(t)*mask_z(r)$.  Here $J(t)= J_x(t) + J_y(t) + J_z(t)$ is defined with the functions above and while the mask defines the space dependency.\\
+				\textbf{\textit{arg}}: filename, in .omf format
+				}\flushleft}
+
+
+\end{itemize}
+
+To define a 
 
 \subsection{Output}
 
