@@ -1,7 +1,8 @@
-\section{Input files}
+\section{How to build your simulations}
 
 \newcommand{\command}[1]{\hyperref[#1]{\textbf{#1}}\index{#1}\label{#1}}
 
+\subsection{Python input files}
 \mumax input files are written in Python. This way, one can build up a micromagnetic simulation suitable for each application by including loops, if-clauses, etc.  An introduction to the Python programming language can be found at \url{http://www.python.org/}.  Moreover, in order to set parameters, launch procedures, save output, etc. \mumax-specific commands are to be used.  Here is a simple example input file: \file{standardproblem4.py}
 
 \begin{verbatim}
@@ -29,73 +30,97 @@ All text after a hashmark (\#) is considered a \idx{comment} and is ignored by t
 
 In what follows, we comment on the different \mumax-specific commands.
 
-\subsection{Material parameters}
+\subsection{Material input parameters}
 
 \begin{itemize}
- \item \textbf{msat}(\textit{arg}):\\
+ \item {\textbf{msat(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the saturation magnetization to the value specified in A/m.\\
-				\textit{arg}: saturation magnetization in A/m.
+				\textbf{\textit{arg}}: saturation magnetization in A/m.
+				}\flushleft}
  
- \item \textbf{aexch}(\textit{arg}):\\
+ \item {\vspace{-0.4cm}\textbf{aexch(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the exchange constant to the value specified in J/m.\\
-				\textit{arg}: exchange constant in J/m.
+				\textbf{\textit{arg}}: exchange constant in J/m.
+				}\flushleft}
 
- \item \textbf{alpha}(\textit{arg}):\\
+ \item {\vspace{-0.4cm}\textbf{alpha(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the damping coefficient to the specified value.\\
-				\textit{arg}: damping coefficient.
+				\textbf{\textit{arg}}: damping coefficient.
+				}\flushleft}
 
- \item \textbf{k1}(\textit{arg}):\\
+ \item {\vspace{-0.4cm}\textbf{k1(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with \texttt{anisuniaxial}\\
 %				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with anisuniaxial or aniscubic.\\
-				\textit{arg}: first order anisotropy constant in J/m$^3$.
+				\textbf{\textit{arg}}: first order anisotropy constant in J/m$^3$.
+				}\flushleft}
 
-%  \item \textbf{k2}(\textit{arg}):\\
+%  \item {\textbf{k2(\textit{arg})}:
+%				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 % 				Sets the second order anisotropy constant K2 to the specified value in J/m$^3$.  Only for cubic anisotropy.  Should be used in combination with \texttt{anisuncubic}\\
-% 				\textit{arg}: second order anisotropy constant in J/m$^3$.
+% 				\textbf{\textit{arg}}: second order anisotropy constant in J/m$^3$.
+%				}\flushleft}
 
- \item \textbf{anisuniaxial}(\textit{arg1, arg2, arg3}):\\
+ \item {\vspace{-0.4cm}\textbf{anisuniaxial(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Defines the uniaxial anisotropy axis, normalization is done internally.\\
-				\textit{arg1}: projection of anisotropy axis along the $x$-axis.\\
-				\textit{arg2}: projection of anisotropy axis along the $y$-axis.\\
-				\textit{arg3}: projection of anisotropy axis along the $z$-axis.
+				\textbf{\textit{arg1}}: projection of anisotropy axis along the $x$-axis.\\
+				\textbf{\textit{arg2}}: projection of anisotropy axis along the $y$-axis.\\
+				\textbf{\textit{arg3}}: projection of anisotropy axis along the $z$-axis.
+				}\flushleft}
 
- \item \textbf{spinpolarization}(\textit{arg}):\\
+ \item {\vspace{-0.4cm}\textbf{spinpolarization(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the spin polarization for spin-transfer torque to the specified value.\\
-				\textit{arg}: spin polarization.
+				\textbf{\textit{arg}}: spin polarization.
+				}\flushleft}
 
- \item \textbf{xi}(\textit{arg}):\\
+ \item {\vspace{-0.4cm}\textbf{xi(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the non-adiabicity for spin-transfer torque to the specified value.\\
-				\textit{arg}: non-adiabicity.
+				\textbf{\textit{arg}}: non-adiabicity.
+				}\flushleft}
 
- \item \textbf{temperature}(\textit{arg}):\\
+ \item {\vspace{-0.4cm}\textbf{temperature(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the temperature to the specified value in Kelvin.\\
-				\textit{arg}: temperature in Kelvin.
+				\textbf{\textit{arg}}: temperature in Kelvin.
+				}\flushleft}
 
 \end{itemize}
 
 
 
-\subsection{Geometry parameters}
-To define the magnet size, you must specify \emph{exactly two} of the three commands below.\\
+\subsection{Geometry input parameters}
+To define the magnet size, you must specify \emph{exactly two} of the three commands below.
 
 \begin{itemize}
- \item \textbf{partsize}(\textit{arg1, arg2, arg3}):\\
+ \item {\textbf{partsize(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the size of the simulation domain, specified in meter.\\
-				\textit{arg1}: size in the $x$-direction in meter.\\
-				\textit{arg2}: size in the $y$-direction in meter.\\
-				\textit{arg3}: size in the $z$-direction in meter.
+				\textbf{\textit{arg1}}: size in the $x$-direction in meter.\\
+				\textbf{\textit{arg2}}: size in the $y$-direction in meter.\\
+				\textbf{\textit{arg3}}: size in the $z$-direction in meter.
+				}\flushleft}
 
- \item \textbf{cellsize}(\textit{arg1, arg2, arg3}):\\
+ \item {\vspace{-0.4cm}\textbf{cellsize(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the size of the finite difference cells used in the simulation, specified in meter.\\
-				\textit{arg1}: size in the $x$-direction in meter.\\
-				\textit{arg2}: size in the $y$-direction in meter.\\
-				\textit{arg3}: size in the $z$-direction in meter.
+				\textbf{\textit{arg1}}: size in the $x$-direction in meter.\\
+				\textbf{\textit{arg2}}: size in the $y$-direction in meter.\\
+				\textbf{\textit{arg3}}: size in the $z$-direction in meter.
+				}\flushleft}
 
- \item \textbf{gridsize}(\textit{arg1, arg2, arg3}):\\
+ \item {\vspace{-0.4cm}\textbf{gridsize(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the number of finite difference (FD) cells used in the simulation.\\
-				\textit{arg1}: number of FD cells in the $x$-direction.\\
-				\textit{arg2}: number of FD cells in the $y$-direction.\\
-				\textit{arg3}: number of FD cells in the $z$-direction.
+				\textbf{\textit{arg1}}: number of FD cells in the $x$-direction.\\
+				\textbf{\textit{arg2}}: number of FD cells in the $y$-direction.\\
+				\textbf{\textit{arg3}}: number of FD cells in the $z$-direction.
+				}\flushleft}
 
 \end{itemize}
 
@@ -113,13 +138,58 @@ Comments
 Other geometry related commands are
 
 \begin{itemize}
- \item \textbf{maxcellsize}(\textit{arg1, arg2, arg3}):\\
+
+ \item {\textbf{maxcellsize(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Can be used in stead of \texttt{cellsize}.  Sets the maximum size of the finite difference cells, specified in meter of the simulation domain.  In this case, \mumax adjusts the cellsize such that the resulting number of FD cells leads to efficient simulation times.\\
-				\textit{arg1}: maximum cell size in the $x$-direction in meter.\\
-				\textit{arg2}: maximum cell size in the $y$-direction in meter.\\
-				\textit{arg3}: maximum cell size in the $z$-direction in meter.
+				\textbf{\textit{arg1}}: maximum cell size in the $x$-direction in meter.\\
+				\textbf{\textit{arg2}}: maximum cell size in the $y$-direction in meter.\\
+				\textbf{\textit{arg3}}: maximum cell size in the $z$-direction in meter.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{periodic(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the number of periodic images in each direction when periodic boundary conditions are considered.  E.g. \texttt{periodic(0,0,20)} defines a geometry which is only periodic in the $z$-direction.  In the positive as well as in the negative $z$-direction, 20 periodic images are considered. On default, no periodicity is considered.\\
+				\textbf{\textit{arg1}}: number of periodic images in the positive and negative $x$-direction.\\
+				\textbf{\textit{arg2}}: number of periodic images in the positive and negative $y$-direction.\\
+				\textbf{\textit{arg3}}: number of periodic images in the positive and negative $z$-direction.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{ellipsoid(\textit{arg1, arg2, arg3}}):
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Make the geometry an ellipsoid with specified semi-axis.  Use \texttt{ellipsoid(arg1, arg2, inf)} to define a cylinder in the 2.5D approach.\\
+				\textbf{\textit{arg1}}: size of the semi-axis in the $x$-direction in meter.\\
+				\textbf{\textit{arg2}}: size of the semi-axis in the $y$-direction in meter.\\
+				\textbf{\textit{arg3}}: size of the semi-axis in the $z$-direction in meter.
+				}\flushleft}
+
 \end{itemize}
 
+
+\subsection{Defining the initial magnetization}
+
+
+\begin{itemize}
+ \item  {\textbf{uniform(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the magnetization uniform througout the sample in a specified direction.  \mumax normalizes the input and takes the amplitude is defined by the \texttt{msat} command.\\
+				\textbf{\textit{arg1}}: magnetization direction in the $x$-direction.\\
+				\textbf{\textit{arg2}}: magnetization direction in the $y$-direction.\\
+				\textbf{\textit{arg3}}: magnetization direction in the $z$-direction.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{setrandom():}
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the magnetization randomly througout the sample in a specified direction.  The magnetization has an amplitude which is defined by the \texttt{msat} command.  Note that the parenthesis should be added.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{addnoise(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Adds noise to the local magnetization. \\
+				\textbf{\textit{arg}}: amplitude of the noise, should be between 0 and 1.
+				}\flushleft}
+
+\end{itemize}
 
 % \subsubsection{Applied magnetic field}
 % \begin{tabular}{ll}
