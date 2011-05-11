@@ -1,4 +1,4 @@
-//  Copyright 2010  Arne Vansteenkiste
+//  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
 //  Note that you are welcome to modify this code under the condition that you do not remove any 

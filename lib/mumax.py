@@ -88,6 +88,8 @@ def periodic(Nx, Ny, Nz):
   send3("periodic", Nx, Ny, Nz)
 
 
+
+
 # Initial magnetization
 
 ## Loads the magnetization state from a .omf file
