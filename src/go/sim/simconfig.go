@@ -123,6 +123,94 @@ func (s *Sim) Vortex_in_array(vrtx_i, vrtx_j, basic_size, separation float32, ci
 	s.invalidate()
 }
 
+// Make an anti-dot array with Nx times Ny rectangular holes. The basic cells have dimensions basic_size_x times basic_size_y in nanometer. 
+// The separation in the x- and y-direction are basic_size_y and separation_x respectively.  Initial magnetization [mx, my, mz].
+func (s *Sim) Anti_dot_array_rectangle(basic_size_x, basic_size_y, separation_x, separation_y, mx, my, mz float32, Nx, Ny int) {
+
+  s.initMLocal()
+  a := s.mLocal.Array()
+  c := s.input.cellSize
+  Bx := basic_size_x / c[2]
+  Sx := separation_x / c[2]
+  By := basic_size_y / c[1]
+  Sy := separation_y / c[1]
+ 
+  for i := range a[0] {
+    for j := range a[0][i] {
+      for k := range a[0][i][j] {
+        a[X][i][j][k] = mx
+        a[Y][i][j][k] = my
+        a[Z][i][j][k] = mz
+      }
+    }
+  }
+
+  for cnt1 := 0; cnt1<Ny; cnt1++ {
+    for cnt2 := 0; cnt2<Nx; cnt2++ {
+      for i := range a[0] {
+        for j := int(float32(cnt1)*By + Sy/2); j<int(float32(cnt1+1)*By - Sy/2); j++ {
+          for k := int(float32(cnt2)*Bx + Sx/2); k<int(float32(cnt2+1)*Bx - Sx/2); k++ {
+            a[X][i][j][k] = 0.
+            a[Y][i][j][k] = 0.
+            a[Z][i][j][k] = 0.
+          }
+        }
+      }
+    }
+  } 
+  s.invalidate()
+}
+
+
+
+// Make an anti-dot array with Nx times Ny ellips-shapes holes. The basic cells have dimensions basic_size_x times basic_size_y in nanometer. 
+// The separation in the x- and y-direction are basic_size_y and separation_x respectively.  Initial magnetization [mx, my, mz].
+func (s *Sim) Anti_dot_array_ellips(basic_size_x, basic_size_y, separation_x, separation_y, mx, my, mz float32, Nx, Ny int) {
+
+  s.initMLocal()
+  a := s.mLocal.Array()
+
+  c := s.input.cellSize
+  Bx := basic_size_x / c[2]
+  Sx := separation_x / c[2]
+  rx := (Bx-Sx)/2.;
+  By := basic_size_y / c[1]
+  Sy := separation_y / c[1]
+  ry := (By-Sy)/2.;
+ 
+  for i := range a[0] {
+    for j := range a[0][i] {
+      for k := range a[0][i][j] {
+        a[X][i][j][k] = mx
+        a[Y][i][j][k] = my
+        a[Z][i][j][k] = mz
+      }
+    }
+  }
+
+  for cnt1 := 0; cnt1<Ny; cnt1++{
+    cy := float32(cnt1)*By + By/2
+    for cnt2 := 0; cnt2<Nx; cnt2++ {
+      cx := float32(cnt2)*Bx + Bx/2
+      for i := range a[0] {
+        for j := int(float32(cnt1)*By + Sy/2); j<int(float32(cnt1+1)*By - Sy/2); j++  {
+          y := float32(i) - cy
+          for k := int(float32(cnt2)*Bx + Sx/2); k<int(float32(cnt2+1)*Bx - Sx/2); k++ {
+            x := float32(k) - cx
+            if (x*x/rx/rx + y*y/ry*ry)<1{
+              a[X][i][j][k] = 0.
+              a[Y][i][j][k] = 0.
+              a[Z][i][j][k] = 0.
+            }
+          }
+        }
+      }
+    }
+  } 
+  s.invalidate()
+}
+
+
 // Make the magnetization the starting configuration of a symmetric Bloch wall
 func (s *Sim) SBW() {
 	s.initMLocal()
