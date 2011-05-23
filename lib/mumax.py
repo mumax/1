@@ -83,6 +83,9 @@ def periodic(nx, ny, nz):
 def ellipsoid(rx, ry, rz):
 	send3("ellipsoid", rx, ry, rz)
 
+def mask(file):
+	send1("mask", file)
+
 # Sets number of periods in given direction
 def periodic(Nx, Ny, Nz):
   send3("periodic", Nx, Ny, Nz)
