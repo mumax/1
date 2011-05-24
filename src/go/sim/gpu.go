@@ -107,8 +107,12 @@ func (d Gpu) normalizeMap(m, normMap uintptr, N int) {
 	C.gpu_normalize_map((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(normMap)), C.int(N))
 }
 
-func (d Gpu) deltaM(m, h uintptr, alpha, dtGilbert float32, N int) {
-	C.gpu_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha), C.float(dtGilbert), C.int(N))
+func (d Gpu) deltaM(m, h uintptr, alphaMul float32, alphaMask *DevTensor, dtGilbert float32, N int) {
+	var alphaMap uintptr
+	if alphaMask != nil{
+		alphaMap = alphaMask.data
+	}
+	C.gpu_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alphaMul), (*C.float)(unsafe.Pointer(alphaMap)), C.float(dtGilbert), C.int(N))
 }
 
 func (d Gpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, jMask *DevTensor, dtGilb float32, size []int) {
