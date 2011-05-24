@@ -149,6 +149,11 @@ func CopyUnpad(source, dest *DevTensor) {
 }
 
 
+func(t *DevTensor) Set(x, y, z int, value float32){
+
+}
+
+
 func (t *DevTensor) String() string {
 	return fmt.Sprintf("%#v", t)
 }

@@ -233,3 +233,26 @@ func sqr(x float64) float64 {
 }
 
 var inf float32 = float32(math.Inf(1))
+
+
+func (sim *Sim) initAlphaMask(){
+	if sim.normMap == nil{
+		sim.normMap = NewTensor(sim.Backend, sim.size[:])
+	}
+}
+
+func (sim *Sim) SetAlpha(z, y, x int, alpha float32){
+	sim.initAlphaMask()
+	sim.alphaMask.Set(x, y, z, alpha)
+}
+
+func (sim *Sim) initMsatMask(){
+	if sim.normMap == nil{
+		sim.normMap = NewTensor(sim.Backend, sim.size[:])
+	}
+}
+
+func (sim *Sim) SetMsat(z, y, x int, msat float32){
+	sim.initMsatMask()
+	sim.normMap.Set(x, y, z, msat)
+}
