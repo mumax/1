@@ -10,6 +10,7 @@
 
 #include "cpu_torque.h"
 #include "thread_functions.h"
+#include "assert.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,12 +58,14 @@ void cpu_deltaM_t(int id){
   return;
 }
 
-void cpu_deltaM(float* m, float* h, float alpha, float dt_gilb, int N){
+void cpu_deltaM(float* m, float* h, float alpha_mul, float* alpha_map, float dt_gilb, int N){
+
+  assert(alpha_map == NULL); // space-dependent alpha not yet implemented
 
   cpu_deltaM_arg args;
   args.m = m;
   args.h = h;
-  args.alpha = alpha;
+  args.alpha = alpha_mul;
   args.dt_gilb = dt_gilb;
   args.N = N;
 
