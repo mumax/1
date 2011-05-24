@@ -99,6 +99,8 @@ def setmsat(x, y, z, msat):
 def setalpha(x, y, z, alphaMul):
 	send('setalpha', [x, y, z, alphaMul])
 
+
+
 # Initial magnetization
 
 ## Loads the magnetization state from a .omf file
@@ -122,7 +124,7 @@ def vortex(circulation, polarization):
 	send2("vortex", circulation, polarization)
 
 ## Sets a vortex in an array
-def Vortex_in_array(i, j, basic_size, separation, circulation, polarization):
+def vortex_in_array(i, j, basic_size, separation, circulation, polarization):
   send("Vortex_in_array", [i, j, basic_size, separation, circulation, polarization])
   
 ## Sets a mask for dot/vortex array (r: dot size in meters, sep: separation in meter, n: max[#dots in x-dir, #dots in y-dir])
