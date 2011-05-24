@@ -209,11 +209,6 @@ func (sim *Sim) SquareHoleArray(r, sep float32, n int) {
 }
 
 
-func (sim *Sim) AntiDotArrayRectangle(rx, ry, sepx, sepy float32, n int) {
-  pitchx := rx + sepx
-  pitchy := ry + sepy
-  sim.input.geom = &Inverse{&Array{&Cuboid{INF32, ry/2, rx/2}, n, n, pitchy, pitchx}}
-}
 
 func (sim *Sim) Ellipsoid(rz, ry, rx float32) {
 	sim.input.geom = &Ellipsoid{rx, ry, rz}
@@ -253,6 +248,20 @@ func (sim *Sim) SetAlpha(z, y, x int, alpha float32){
 	sim.alphaMask.Set(x, y, z, alpha)
 }
 
+
+func (sim *Sim) setAlphaRange(x1, y1, z1 , x2, y2, z2 int, alpha float32){
+  sim.initGeom()
+  sim.initMsatMask()
+  
+  for i := z1; i<z2; i++ {
+    for j := y1; j<y2; j++ {
+      for k := x1; k<x2; k++ {
+        sim.alphaMask.Set(i,j,k, alpha)
+      }
+    }
+  }
+}
+
 func (sim *Sim) initMsatMask(){
 	if sim.normMap == nil{
 		sim.normMap = NewTensor(sim.Backend, sim.size[:])
@@ -264,3 +273,44 @@ func (sim *Sim) SetMsat(z, y, x int, msat float32){
 	sim.initMsatMask()
 	sim.normMap.Set(x, y, z, msat)
 }
+
+
+func (sim *Sim) setMsatRange(x1, y1, z1 , x2, y2, z2 int, msat float32){
+  sim.initGeom()
+  sim.initMsatMask()
+  
+  for i := z1; i<z2; i++ {
+    for j := y1; j<y2; j++ {
+      for k := x1; k<x2; k++ {
+        sim.normMap.Set(i,j,k, msat)
+      }
+    }
+  }
+}
+
+
+// func (sim *Sim) AntiDotArrayRectangle(basic_size_x, basic_size_y, separation_x, separation_y float32, Nx, Ny int) {
+// 
+//   sim.initGeom()
+//   sim.initMsatMask()
+// 
+//   c := sim.input.cellSize
+//   a := sim.mLocal.Array()
+//   Bx := basic_size_x / c[2]
+//   Sx := separation_x / c[2]
+//   By := basic_size_y / c[1]
+//   Sy := separation_y / c[1]
+//  
+//   for cnt1 := 0; cnt1<Ny; cnt1++ {
+//     for cnt2 := 0; cnt2<Nx; cnt2++ {
+//       for i := range a[0] {
+//         for j := int(float32(cnt1)*By + Sy/2); j<int(float32(cnt1+1)*By - Sy/2); j++ {
+//           for k := int(float32(cnt2)*Bx + Sx/2); k<int(float32(cnt2+1)*Bx - Sx/2); k++ {
+//             sim.normMap.Set(i,j,k, 0.0)
+//           }
+//         }
+//       }
+//     }
+//   } 
+// }
+

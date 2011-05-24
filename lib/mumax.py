@@ -94,10 +94,19 @@ def periodic(Nx, Ny, Nz):
 def setmsat(x, y, z, msat):
 	send('setmsat', [x, y, z, msat])
 
+## Sets the reduced saturation magnetization of a cell in the integer range [x1,y1,z1] -> [x2,y2,z2]
+def setMsatRange(x1, y1, z1, x2, y2, z2, msat):
+  send('setMsatRange', [x1, y1, z1, x2, y2, z2, msat])
+
 ## Sets the alpha multiplier of cell with integer index x,y,z.
 # The damping of that cell will be alpha*alphaMul.
 def setalpha(x, y, z, alphaMul):
 	send('setalpha', [x, y, z, alphaMul])
+
+## Sets the alpha multiplier of a cell in the integer range [x1,y1,z1] -> [x2,y2,z2]
+# The damping of that cell will be alpha*alphaMul.
+def setAlphaRange(x1, y1, z1, x2, y2, z2, alpha):
+  send('setAlphaRange', [x1, y1, z1, x2, y2, z2, alpha])
 
 
 
@@ -132,15 +141,17 @@ def	DotArray(r, sep, n):
 	send3("DotArray", r, sep, n)
 
 ## Sets a mask for antidot array with rectangular holes.
-#def AntiDotArrayRectangle(basic_size_x, basic_size_y, separation_x, separation_y, Nx, Ny):
-  #send("AntiDotArrayRectangle", [basic_size_x, basic_size_y, separation_x, separation_y, Nx, Ny])
+def AntiDotArrayRectangle(basic_size_x, basic_size_y, separation_x, separation_y, Nx, Ny):
+  send("AntiDotArrayRectangle", [basic_size_x, basic_size_y, separation_x, separation_y, Nx, Ny])
 
-def AntiDotArrayRectangle(rx, ry, sepx, sepy, n):
-  send("AntiDotArrayRectangle", [rx, ry, sepx, sepy, n])
+#def AntiDotArrayRectangle(rx, ry, sepx, sepy, n):
+  #send("AntiDotArrayRectangle", [rx, ry, sepx, sepy, n])
 
 ## Sets a mask for antidot array with ellipsoidal holes.
 def AntiDotArrayEllips(basic_size_x, basic_size_y, separation_x, separation_y, Nx, Ny):
   send("AntiDotArrayEllips", [basic_size_x, basic_size_y, separation_x, separation_y, Nx, Ny])
+
+
 
 def SBW():
   send0("SBW")
