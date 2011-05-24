@@ -11,8 +11,13 @@ To take advantage of the GPU acceleration, you need a \idx{CUDA capable} \nvidia
 
 \subsection{GPU Drivers}
 
-You will also need to install the proprietary \nvidia graphics \idx{driver}. This driver may already be installed on your system. E.g., under Ubuntu, the ``Hardware drivers'' program may propose to install this driver. You should try to run a simulation on the GPU -- if that works, it means your driver is up to date. Alternatively, the program \cmd{nvidia-settings} should report the driver version if it was installed correctly. The driver version number should be at least 260.\\
+\subsubsection{Ubuntu 11.04 and the like}
 
+As of Ubuntu 11.04, the necessary drivers are usually installed automatically. However, if you get an error message telling you that your cuda driver version is insufficient you will need to update it. Open the program "Additional Drivers" (or "Hardware Drivers"), it can also be started from the command line by: \texttt{jockey-gnome} or \texttt{jockey-kde}. Select the "version current" driver and click activate.
+
+\subsubsection{Ubuntu 10.04 and the like}
+
+On older systems you will need to manually install the proprietary \nvidia graphics \idx{driver}. This driver may already be installed on your system. E.g., under Ubuntu, the ``Hardware drivers'' program may propose to install this driver. You should try to run a simulation on the GPU -- if that works, it means your driver is up to date. Alternatively, the program \cmd{nvidia-settings} should report the driver version if it was installed correctly. The driver version number should be at least 260.\\
 
 If no suited driver is present, you should download the latest \idx{developer driver} from \nvidia. Before installing it, make sure you have the necessary build tools installed on your system:
 

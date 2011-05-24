@@ -39,6 +39,10 @@ In what follows, we comment on the different \mumax-specific commands.
 				\textbf{\textit{arg}}: saturation magnetization in A/m.
 				}\flushleft}
  
+ \item \textbf{setmsat}(\textit{i, j, k, scale}):\\
+				Sets the saturation magnetization of the cell with index i,j,k to scale*msat\\
+				\textit{i,j,k}: integer index of the cell. \textit{scale}: saturation magnetization scale factor.
+
  \item {\vspace{-0.4cm}\textbf{aexch(\textit{arg})}:
 				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the exchange constant to the value specified in J/m.\\
@@ -90,9 +94,17 @@ In what follows, we comment on the different \mumax-specific commands.
 				\textbf{\textit{arg}}: temperature in Kelvin.
 				}\flushleft}
 
+
+ \item \textbf{setalpha}(\textit{i,j,k,scale}):\\
+				Sets the damping coefficient of a single cell to alpha*scale.
+				\textit{i,j,k}: integer index of the cell. \textit{scale}: alpha scale factor.
+
+ \item \textbf{k1}(\textit{arg}):\\
+				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with anisuniaxial\\
+%				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with anisuniaxial or anis cubic.\\
+				\textit{arg}: first order anisotropy constant in J/m$^3$.
+
 \end{itemize}
-
-
 
 \subsection{Geometry input parameters}
 To define the magnet size, you must specify \emph{exactly two} of the three commands below.
@@ -235,7 +247,7 @@ Other geometry related commands are
 
  \item {\vspace{-0.4cm}\textbf{setmrange(\textit{arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9})}:
 				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
-				Sets the magnetization in a given range of cells between [i$_1$,j$_1$,k$_1$] (inclusif) and [i$_2$,j$_2$,k$_2$] (exclusif).\\
+				Sets the magnetization in a given range of cells between [i$_1$,j$_1$,k$_1$] (inclusive) and [i$_2$,j$_2$,k$_2$] (exclusif).\\
 				\textbf{\textit{arg1, arg2, arg3}}: 3D cell index of bottom left range [i$_1$,j$_1$,k$_1$]\\
 				\textbf{\textit{arg4, arg5, arg6}}: 3D cell index [i$_2$,j$_2$,k$_2$]\\
 				\textbf{\textit{arg7, arg8, arg9}}: magnetization [m$_x$, m$_y$, m$_z$]
@@ -284,10 +296,10 @@ Other geometry related commands are
 				\textbf{\textit{arg3}}: periodicity in seconds.
 				}\flushleft}
 
- \item {\vspace{-0.4cm}\textbf{tabulate(\textit{arg1, arg2})}:  ******** CHECK THIS *******
+ \item {\vspace{-0.4cm}\textbf{tabulate(\textit{arg1, arg2})}:  
 				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Determines what should be saved in the datatable, e.g. tabulate('m', True)\\
-				\textbf{\textit{arg1}}: what: 'm', 'E' (energy), 'torque'\\
+				\textbf{\textit{arg1}}: what: 'm', 'E' (energy), 'torque' 'time', 'b', 'j', 'id', 'maxdm/dt', 'minmaxmz', 'corepos'\\
 				\textbf{\textit{arg2}}: boolean\\
 				}\flushleft}
 
@@ -370,60 +382,60 @@ The following commands can be used to change and/or fine tune the default solver
 				\textbf{\textit{arg5}}: frequency in Herz.
 				}\flushleft}
 
- \item {\vspace{-0.4cm}\textbf{applyrframp(\textit{arg1, arg2, arg3, arg4, arg5, arg6})}:   ****** CHECK THIS *******
-				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
-				Apply a radio frequent field or current density slowly ramped in time.\\
-				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
-				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$.\\
-				\textbf{\textit{arg5}}: frequency in Herz.\\
-				\textbf{\textit{arg6}}: ramptime in seconds.
-				}\flushleft}
+% \item {\vspace{-0.4cm}\textbf{applyrframp(\textit{arg1, arg2, arg3, arg4, arg5, arg6})}:   ****** CHECK THIS *******
+%				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+%				Apply a radio frequent field or current density slowly ramped in time.\\
+%				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
+%				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$.\\
+%				\textbf{\textit{arg5}}: frequency in Herz.\\
+%				\textbf{\textit{arg6}}: ramptime in seconds.
+%				}\flushleft}
+%
+% \item {\vspace{-0.4cm}\textbf{applyrotating(\textit{arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9})}:   ****** CHECK THIS *******
+%				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+%				Apply a radio frequent, rotating field or current density.\\
+%				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
+%				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$.\\
+%				\textbf{\textit{arg5}}: frequency in Herz.\\
+%				\textbf{\textit{arg6}}: ramptime in seconds.\\
+%				\textbf{\textit{arg7, arg8, arg9}}: phase in $x$-, $y$- and $z$-direction.
+%				}\flushleft}
 
- \item {\vspace{-0.4cm}\textbf{applyrotating(\textit{arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9})}:   ****** CHECK THIS *******
-				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
-				Apply a radio frequent, rotating field or current density.\\
-				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
-				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$.\\
-				\textbf{\textit{arg5}}: frequency in Herz.\\
-				\textbf{\textit{arg6}}: ramptime in seconds.\\
-				\textbf{\textit{arg7, arg8, arg9}}: phase in $x$-, $y$- and $z$-direction.
-				}\flushleft}
+% \item {\vspace{-0.4cm}\textbf{applypulse(\textit{arg1, arg2, arg3, arg4, arg5})}:   ****** CHECK THIS *******
+%				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+%				Apply one single pulse field or current density.\\
+%				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
+%				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$.\\
+%				\textbf{\textit{arg5}}: risetime in seconds.
+%				}\flushleft}
 
- \item {\vspace{-0.4cm}\textbf{applypulse(\textit{arg1, arg2, arg3, arg4, arg5})}:   ****** CHECK THIS *******
-				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
-				Apply one single pulse field or current density.\\
-				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
-				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$.\\
-				\textbf{\textit{arg5}}: risetime in seconds.
-				}\flushleft}
+% \item {\vspace{-0.4cm}\textbf{applysawtooth(\textit{arg1, arg2, arg3, arg4, arg5})}:   ****** CHECK THIS *******
+%				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+%				Apply a sawtooth field or current density.\\
+%				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
+%				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$.\\
+%				\textbf{\textit{arg5}}: frequency.
+%				}\flushleft}
+%
+% \item {\vspace{-0.4cm}\textbf{applyrotatingburst(\textit{arg1, arg2, arg3, arg4, arg5, arg6})}:   ****** CHECK THIS *******
+%				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+%				Apply a rotating radio frequent field or current density.\\
+%				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
+%				\textbf{\textit{arg2}}: amplitude excitation.\\
+%				\textbf{\textit{arg3}}: frequency in Hertz.\\
+%				\textbf{\textit{arg4}}: phase.\\
+%				\textbf{\textit{arg5}}: risetime in seconds.\\
+%				\textbf{\textit{arg6}}: duration in seconds.
+%				}\flushleft}
 
- \item {\vspace{-0.4cm}\textbf{applysawtooth(\textit{arg1, arg2, arg3, arg4, arg5})}:   ****** CHECK THIS *******
-				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
-				Apply a sawtooth field or current density.\\
-				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
-				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$.\\
-				\textbf{\textit{arg5}}: frequency.
-				}\flushleft}
-
- \item {\vspace{-0.4cm}\textbf{applyrotatingburst(\textit{arg1, arg2, arg3, arg4, arg5, arg6})}:   ****** CHECK THIS *******
-				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
-				Apply a rotating radio frequent field or current density.\\
-				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
-				\textbf{\textit{arg2}}: amplitude excitation.\\
-				\textbf{\textit{arg3}}: frequency in Hertz.\\
-				\textbf{\textit{arg4}}: phase.\\
-				\textbf{\textit{arg5}}: risetime in seconds.\\
-				\textbf{\textit{arg6}}: duration in seconds.
-				}\flushleft}
-
- \item {\vspace{-0.4cm}\textbf{applypointwise(\textit{arg1, arg2, arg3, arg4})}:   ****** CHECK THIS *******
+ \item {\vspace{-0.4cm}\textbf{applypointwise(\textit{arg1, arg2, arg3, arg4})}: 
 				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Apply a pointwise-defined field/current defined by a number of time + field points.  The field is linearly interpolated between the defined points.	E.g.:\\ 
 				\qquad\texttt{applypointwise('field', 0, 0,0,0)}\\
 				\qquad\texttt{applypointwise('field', 1e-9, 1e-3,0,0)} \\
 				sets up a linear ramp in 1ns from 0 to 1 mT in the $x$-direction.  Arbitrary functions can be well approximated by specifying a large number of time+field combinations.\\
 				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
-				\textbf{\textit{arg2}}: time window in seconds.\\
+				\textbf{\textit{arg2}}: time in seconds.\\
 				\textbf{\textit{arg3, arg4, arg5}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$.
 				}\flushleft}
 

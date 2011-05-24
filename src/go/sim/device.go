@@ -100,7 +100,7 @@ type Device interface {
 
 	// Safe version: func (*Sim) DeltaM()
 	// overwrites h with torque(m, h) * dtGilbert. N = length of one component
-	deltaM(m, h uintptr, alpha, dtGilbert float32, N int)
+	deltaM(m, h uintptr, alphaMul float32, alphaMask *DevTensor, dtGilbert float32, N int)
 
 	// Safe version: func (*Sim) DeltaM()
 	// overwrites h with torque(m, h) * dtGilbert, inculding spin-transfer torque terms. size = of one component
