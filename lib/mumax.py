@@ -86,10 +86,18 @@ def ellipsoid(rx, ry, rz):
 def mask(file):
 	send1("mask", file)
 
-# Sets number of periods in given direction
+##Sets number of periods in given direction
 def periodic(Nx, Ny, Nz):
   send3("periodic", Nx, Ny, Nz)
 
+## Sets the reduced saturation magnetization of cell with integer index x,y,z
+def setmsat(x, y, z, msat):
+	send('setmsat', [x, y, z, msat])
+
+## Sets the alpha multiplier of cell with integer index x,y,z.
+# The damping of that cell will be alpha*alphaMul.
+def setalpha(x, y, z, alphaMul):
+	send('setalpha', [x, y, z, alphaMul])
 
 # Initial magnetization
 

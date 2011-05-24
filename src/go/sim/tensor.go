@@ -150,7 +150,10 @@ func CopyUnpad(source, dest *DevTensor) {
 
 
 func(t *DevTensor) Set(x, y, z int, value float32){
-
+	N1 := t.size[1]
+	N2 := t.size[2]
+	index := x * N1 * N2 + y * N2 + z
+	t.memcpyTo(&value, (t.data+uintptr(4*index)), 1)
 }
 
 
