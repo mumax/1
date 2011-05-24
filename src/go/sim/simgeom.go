@@ -209,6 +209,12 @@ func (sim *Sim) SquareHoleArray(r, sep float32, n int) {
 }
 
 
+func (sim *Sim) AntiDotArrayRectangle(rx, ry, sepx, sepy float32, n int) {
+  pitchx := rx + sepx
+  pitchy := ry + sepy
+  sim.input.geom = &Inverse{&Array{&Cuboid{INF32, ry/2, rx/2}, n, n, pitchy, pitchx}}
+}
+
 func (sim *Sim) Ellipsoid(rz, ry, rx float32) {
 	sim.input.geom = &Ellipsoid{rx, ry, rz}
 	sim.invalidate()

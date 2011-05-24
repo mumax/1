@@ -120,6 +120,17 @@ def vortex_in_array(i, j, basic_size, separation, circulation, polarization):
 def	DotArray(r, sep, n):
 	send3("DotArray", r, sep, n)
 
+## Sets a mask for antidot array with rectangular holes.
+#def AntiDotArrayRectangle(basic_size_x, basic_size_y, separation_x, separation_y, Nx, Ny):
+  #send("AntiDotArrayRectangle", [basic_size_x, basic_size_y, separation_x, separation_y, Nx, Ny])
+
+def AntiDotArrayRectangle(rx, ry, sepx, sepy, n):
+  send("AntiDotArrayRectangle", [rx, ry, sepx, sepy, n])
+
+## Sets a mask for antidot array with ellipsoidal holes.
+def AntiDotArrayEllips(basic_size_x, basic_size_y, separation_x, separation_y, Nx, Ny):
+  send("AntiDotArrayEllips", [basic_size_x, basic_size_y, separation_x, separation_y, Nx, Ny])
+
 def SBW():
   send0("SBW")
 
