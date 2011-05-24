@@ -36,6 +36,10 @@ In what follows, we comment on the different \mumax-specific commands.
 				Sets the saturation magnetization to the value specified in A/m.\\
 				\textit{arg}: saturation magnetization in A/m.
  
+ \item \textbf{setmsat}(\textit{i, j, k, scale}):\\
+				Sets the saturation magnetization of the cell with index i,j,k to scale*msat\\
+				\textit{i,j,k}: integer index of the cell. \textit{scale}: saturation magnetization scale factor.
+
  \item \textbf{aexch}(\textit{arg}):\\
 				Sets the exchange constant to the value specified in J/m.\\
 				\textit{arg}: exchange constant in J/m.
@@ -43,6 +47,10 @@ In what follows, we comment on the different \mumax-specific commands.
  \item \textbf{alpha}(\textit{arg}):\\
 				Sets the damping coefficient to the specified value.\\
 				\textit{arg}: damping coefficient.
+
+ \item \textbf{setalpha}(\textit{i,j,k,scale}):\\
+				Sets the damping coefficient of a single cell to alpha*scale.
+				\textit{i,j,k}: integer index of the cell. \textit{scale}: alpha scale factor.
 
  \item \textbf{k1}(\textit{arg}):\\
 				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with anisuniaxial\\
