@@ -98,10 +98,10 @@ func (s *Sim) Vortex(circulation, polarization int) {
 // in-plane circulation (-1 or +1)
 // and core polarization (-1 or 1)
 // The data array is expected to have only zeros at the start
-func (s *Sim) Vortex_in_array(vrtx_i, vrtx_j, basic_size, separation float32, circulation, polarization int) {
+func (s *Sim) Vortex_in_array(vrtx_i, vrtx_j, unit_size, separation float32, circulation, polarization int) {
 	s.initMLocal()
 	c := s.input.cellSize
-	B := basic_size / c[2]
+	B := unit_size / c[2]
 	S := separation / c[2]
 
 	cx, cy := int((vrtx_i+0.5)*B), int((vrtx_j+0.5)*B)
@@ -123,70 +123,36 @@ func (s *Sim) Vortex_in_array(vrtx_i, vrtx_j, basic_size, separation float32, ci
 	s.invalidate()
 }
 
-/*Make an anti-dot array with Nx times Ny rectangular holes. The basic cells have dimensions basic_size_x times basic_size_y in nanometer. 
-The separation in the x- and y-direction are basic_size_y and separation_x respectively.  Initial magnetization [mx, my, mz].*/
-// func (s *Sim) AntiDotArrayRectangle(basic_size_x, basic_size_y, separation_x, separation_y float32, Nx, Ny int) {
-// 
-//   s.initMLocal()
-//   a := s.mLocal.Array()
-//   c := s.input.cellSize
-//   Bx := basic_size_x / c[2]
-//   Sx := separation_x / c[2]
-//   By := basic_size_y / c[1]
-//   Sy := separation_y / c[1]
-//  
-//   for cnt1 := 0; cnt1<Ny; cnt1++ {
-//     for cnt2 := 0; cnt2<Nx; cnt2++ {
-//       for i := range a[0] {
-//         for j := int(float32(cnt1)*By + Sy/2); j<int(float32(cnt1+1)*By - Sy/2); j++ {
-//           for k := int(float32(cnt2)*Bx + Sx/2); k<int(float32(cnt2+1)*Bx - Sx/2); k++ {
-//             a[X][i][j][k] = 0
-//             a[Y][i][j][k] = 0
-//             a[Z][i][j][k] = -1
-//           }
-//         }
-//       }
-//     }
-//   } 
-//   s.invalidate()
-// }
 
-
-
-// Make an anti-dot array with Nx times Ny ellips-shapes holes. The basic cells have dimensions basic_size_x times basic_size_y in nanometer. 
-// The separation in the x- and y-direction are basic_size_y and separation_x respectively.  Initial magnetization [mx, my, mz].
-func (s *Sim) AntiDotArrayEllips(basic_size_x, basic_size_y, separation_x, separation_y float32, Nx, Ny int) {
-
+func (s *Sim) VortexInArray(vrtx_i, vrtx_j, unit_size_x, unit_size_y, separation_x, separation_y float32, circulation, polarization int) {
   s.initMLocal()
-  a := s.mLocal.Array()
-
   c := s.input.cellSize
-  Bx := basic_size_x / c[2]
+  Bx := unit_size_x / c[2]
   Sx := separation_x / c[2]
-  rx := (Bx-Sx)/2.;
-  By := basic_size_y / c[1]
+  By := unit_size_y / c[1]
   Sy := separation_y / c[1]
-  ry := (By-Sy)/2.;
- 
-  for cnt1 := 0; cnt1<Ny; cnt1++{
-    cy := float32(cnt1)*By + By/2
-    for cnt2 := 0; cnt2<Nx; cnt2++ {
-      cx := float32(cnt2)*Bx + Bx/2
-      for i := range a[0] {
-        for j := int(float32(cnt1)*By + Sy/2); j<int(float32(cnt1+1)*By - Sy/2); j++  {
-          y := float32(i) - cy
-          for k := int(float32(cnt2)*Bx + Sx/2); k<int(float32(cnt2+1)*Bx - Sx/2); k++ {
-            x := float32(k) - cx
-            if (x*x/rx/rx + y*y/ry*ry)<1{
-              a[X][i][j][k] = 0.
-              a[Y][i][j][k] = 0.
-              a[Z][i][j][k] = 0.
-            }
-          }
-        }
+
+// cx := int((vrtx_i+0.5)*Bx) 
+  cx := float32(vrtx_i)*Bx + Bx/2 - 0.5
+  cy := float32(vrtx_j)*By + By/2 - 0.5
+/*  cy :=int((vrtx_j+0.5)*By)*/
+  a := s.mLocal.Array()
+  for i := range a[0] {
+/*    for j := int(vrtx_j*By + Sy/2); j < int((vrtx_j+1)*By-Sy/2); j++ {
+      for k := int(vrtx_i*Bx + Sx/2); k < int((vrtx_i+1)*By-Sy/2); k++ {*/
+    for j := int(float32(vrtx_j)*By + Sy/2); j<int(float32(vrtx_j+1)*By - Sy/2); j++ {
+      for k := int(float32(vrtx_i)*Bx + Sx/2); k<int(float32(vrtx_i+1)*Bx - Sx/2); k++ {
+        y := float32(j) - cy
+        x := float32(k) - cx
+        a[X][i][j][k] = 0
+        a[Y][i][j][k] = x*float32(circulation)
+        a[Z][i][j][k] = -y*float32(circulation)
       }
     }
-  } 
+    a[Z][i][int(cy)][int(cx)] = 0.
+    a[Y][i][int(cy)][int(cx)] = 0.
+    a[X][i][int(cy)][int(cx)] = float32(polarization)
+  }
   s.invalidate()
 }
 
