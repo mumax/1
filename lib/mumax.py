@@ -185,7 +185,7 @@ def setmCell(i, j, k, mx, my, mz):
 #def setmcell(i, j, k, mx, my, mz):
   #send_3ints_3floats("setmcell", i, j, k, mx, my, mz)
 
-## Like setmcell but for a range of cells between x1,y1,z1 (inclusive) and x2,y2,z2 (exclusive)
+## Like setmcell but for a range of cells between x1,y1,z1 (inclusive) and x2,y2,z2 (inclusive)
 def setmRange(x1, y1, z1, x2, y2, z2, mx, my, mz):
 	send("setmrange", [x1, y1, z1, x2, y2, z2, mx, my, mz])
 

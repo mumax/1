@@ -14,8 +14,8 @@ aexch(1.3e-11)
 alpha(0.02)
 
 # geometry 
-gridsize(128, 32, 1)
-partsize(500e-9, 125e-9, 3e-9)
+gridSize(128, 32, 1)
+partSize(500e-9, 125e-9, 3e-9)
 
 # initial magnetization
 uniform	(1, 1, 0)
@@ -46,6 +46,22 @@ In what follows, we comment on the different \mumax-specific commands.
 				\textbf{\textit{arg4}}: saturation magnetization scale factor
 				}\flushleft}
 
+ \item {\vspace{-0.4cm}\textbf{setMsatRange(\textit{arg1, arg2, arg3, arg4, arg5, arg6, arg7})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the saturation magnetization in the cells within the range [x1, y1, z1] to [x2, y2, z2] to scale*msat.  Note that this command can be used to define (unstructured) antidot arrays with rectangular holes when scaling factor is zero.\\
+				\textbf{\textit{arg1, arg2, arg3}}: integer index of the cell (lower bound).\\
+				\textbf{\textit{arg4, arg5, arg6}}: integer index of the cell (upper bound).\\
+				\textbf{\textit{arg7}}: saturation magnetization scale factor
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{setMsatEllipse(\textit{arg1, arg2, arg3, arg4, arg5, arg6, arg7})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the saturation magnetization in an ellips-shaped region to scale*msat.  Note that this command can be used to define (unstructured) antidot arrays with ellips-shaped holes when scaling factor is zero.\\
+				\textbf{\textit{arg1, arg2}}: [x,y] center coordinate of the ellips in meters.\\
+				\textbf{\textit{arg3, arg4}}: [rx, ry] semi-axis in $x-$ and $y-$ direction\\
+				\textbf{\textit{arg5}}: saturation magnetization scale factor
+				}\flushleft}
+
  \item {\vspace{-0.4cm}\textbf{aexch(\textit{arg})}:
 				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the exchange constant to the value specified in J/m.\\
@@ -74,9 +90,7 @@ In what follows, we comment on the different \mumax-specific commands.
  \item {\vspace{-0.4cm}\textbf{anisUniaxial(\textit{arg1, arg2, arg3})}:
 				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Defines the uniaxial anisotropy axis, normalization is done internally.\\
-				\textbf{\textit{arg1}}: projection of anisotropy axis along the $x$-axis.\\
-				\textbf{\textit{arg2}}: projection of anisotropy axis along the $y$-axis.\\
-				\textbf{\textit{arg3}}: projection of anisotropy axis along the $z$-axis.
+				\textbf{\textit{arg1, arg2, arg3}}: projection of anisotropy axis along the $x$-, $y$- and $z$-axis.
 				}\flushleft}
 
  \item {\vspace{-0.4cm}\textbf{spinPolarization(\textit{arg})}:
@@ -118,25 +132,19 @@ To define the magnet size, you must specify \emph{exactly two} of the three comm
  \item {\textbf{partSize(\textit{arg1, arg2, arg3})}:
 				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the size of the simulation domain, specified in meter.\\
-				\textbf{\textit{arg1}}: size in the $x$-direction in meter.\\
-				\textbf{\textit{arg2}}: size in the $y$-direction in meter.\\
-				\textbf{\textit{arg3}}: size in the $z$-direction in meter.
+				\textbf{\textit{arg1, arg2, arg3}}: size in the $x$-, $y$- and $z$-direction in meter.\\
 				}\flushleft}
 
  \item {\vspace{-0.4cm}\textbf{cellSize(\textit{arg1, arg2, arg3})}:
 				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the size of the finite difference cells used in the simulation, specified in meter.\\
-				\textbf{\textit{arg1}}: size in the $x$-direction in meter.\\
-				\textbf{\textit{arg2}}: size in the $y$-direction in meter.\\
-				\textbf{\textit{arg3}}: size in the $z$-direction in meter.
+				\textbf{\textit{arg1, arg2, arg3}}: size in the $x$-, $y$- and $z$-direction in meter.
 				}\flushleft}
 
  \item {\vspace{-0.4cm}\textbf{gridSize(\textit{arg1, arg2, arg3})}:
 				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the number of finite difference (FD) cells used in the simulation.\\
-				\textbf{\textit{arg1}}: number of FD cells in the $x$-direction.\\
-				\textbf{\textit{arg2}}: number of FD cells in the $y$-direction.\\
-				\textbf{\textit{arg3}}: number of FD cells in the $z$-direction.
+				\textbf{\textit{arg1, arg2, arg3}}: number of FD cells in the $x$-, $y$- and $z$-direction.
 				}\flushleft}
 
 \end{itemize}
@@ -159,25 +167,51 @@ Other geometry related commands are
  \item {\textbf{maxCellSize(\textit{arg1, arg2, arg3})}:
 				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Can be used in stead of \texttt{cellsize}.  Sets the maximum size of the finite difference cells, specified in meter of the simulation domain.  In this case, \mumax adjusts the cellsize such that the resulting number of FD cells leads to efficient simulation times.\\
-				\textbf{\textit{arg1}}: maximum cell size in the $x$-direction in meter.\\
-				\textbf{\textit{arg2}}: maximum cell size in the $y$-direction in meter.\\
-				\textbf{\textit{arg3}}: maximum cell size in the $z$-direction in meter.
+				\textbf{\textit{arg1, arg2, arg3}}: maximum cell size in the $x$-, $y$- and $z$-direction in meter.
 				}\flushleft}
 
  \item {\vspace{-0.4cm}\textbf{periodic(\textit{arg1, arg2, arg3})}:
 				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the number of periodic images in each direction when periodic boundary conditions are considered.  E.g. \texttt{periodic(0,0,20)} defines a geometry which is only periodic in the $z$-direction.  In the positive as well as in the negative $z$-direction, 20 periodic images are considered. On default, no periodicity is considered.\\
-				\textbf{\textit{arg1}}: number of periodic images in the positive and negative $x$-direction.\\
-				\textbf{\textit{arg2}}: number of periodic images in the positive and negative $y$-direction.\\
-				\textbf{\textit{arg3}}: number of periodic images in the positive and negative $z$-direction.
+				\textbf{\textit{arg1, arg2, arg3}}: number of periodic images in the positive and negative $x$-, $y$- and $z$-direction.
 				}\flushleft}
 
  \item {\vspace{-0.4cm}\textbf{ellipsoid(\textit{arg1, arg2, arg3}}):
 				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Make the geometry an ellipsoid with specified semi-axis.  Use \texttt{ellipsoid(arg1, arg2, inf)} to define a cylinder in the 2.5D approach.\\
-				\textbf{\textit{arg1}}: size of the semi-axis in the $x$-direction in meter.\\
-				\textbf{\textit{arg2}}: size of the semi-axis in the $y$-direction in meter.\\
-				\textbf{\textit{arg3}}: size of the semi-axis in the $z$-direction in meter.
+				\textbf{\textit{arg1, arg2, arg3}}: size of the semi-axis in the $x$-, $y$- and $z$-direction in meter.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{dotArrayRectangle(\textit{arg1, arg2, arg3, arg4, arg5, arg6}}):
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets a mask for a dot array with rectangular dots.\\
+				\textbf{\textit{arg1, arg2}}: size of the unit entity dot + separation in the $x$- and $y$-direction in meter.\\
+				\textbf{\textit{arg3, arg4}}: separation between the dots in the $x$- and $y$-direction.\\
+				\textbf{\textit{arg5, arg6}}: number of dots in the $x$- and $y$-direction.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{dotArrayEllips(\textit{arg1, arg2, arg3, arg4, arg5, arg6}}):
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets a mask for a dot array with ellips-shaped dots.\\
+				\textbf{\textit{arg1, arg2}}: size of the unit entity dot + separation in the $x$- and $y$-direction in meter.\\
+				\textbf{\textit{arg3, arg4}}: separation between the dots in the $x$- and $y$-direction.\\
+				\textbf{\textit{arg5, arg6}}: number of dots in the $x$- and $y$-direction.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{antiDotArrayRectangle(\textit{arg1, arg2, arg3, arg4, arg5, arg6}}):
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets a mask for an antidot array with rectangular holes.\\
+				\textbf{\textit{arg1, arg2}}: size of the unit entity hole + separation in the $x$- and $y$-direction in meter.\\
+				\textbf{\textit{arg3, arg4}}: separation between the holes in the $x$- and $y$-direction.\\
+				\textbf{\textit{arg5, arg6}}: number of holes in the $x$- and $y$-direction.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{antiDotArrayEllips(\textit{arg1, arg2, arg3, arg4, arg5, arg6}}):
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets a mask for an antidot array with ellips-shaped holes.\\
+				\textbf{\textit{arg1, arg2}}: size of the unit entity hole + separation in the $x$- and $y$-direction in meter.\\
+				\textbf{\textit{arg3, arg4}}: separation between the holes in the $x$- and $y$-direction.\\
+				\textbf{\textit{arg5, arg6}}: number of holes in the $x$- and $y$-direction.
 				}\flushleft}
 
 \end{itemize}
@@ -190,9 +224,7 @@ Other geometry related commands are
  \item  {\textbf{uniform(\textit{arg1, arg2, arg3})}:
 				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the magnetization uniform througout the sample in a specified direction.  \mumax normalizes the input and takes the amplitude is defined by the \texttt{msat} command.\\
-				\textbf{\textit{arg1}}: magnetization direction in the $x$-direction.\\
-				\textbf{\textit{arg2}}: magnetization direction in the $y$-direction.\\
-				\textbf{\textit{arg3}}: magnetization direction in the $z$-direction.
+				\textbf{\textit{arg1, arg2, arg3}}: magnetization direction in the $x$-, $y$- and $z$-direction.
 				}\flushleft}
 
  \item {\vspace{-0.4cm}\textbf{setRandom():}
@@ -219,15 +251,15 @@ Other geometry related commands are
 				\textbf{\textit{arg2}}: polarization
 				}\flushleft}
 
- \item {\vspace{-0.4cm}\textbf{vortexInArray(\textit{arg1, arg2, arg3, arg4, arg5, arg6})}:
+ \item {\vspace{-0.4cm}\textbf{vortexInArray(\textit{arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8})}:
 				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
-				Set a vortex in a 2D array. A square unit entities (vortex + separation) are considered.  The total number of unit entities should fit the discretization grid.  The dimensions of the FD cells are considered to be equal in $x$- and $y$-direction.\\
-				\textbf{\textit{arg1}}: integer i $\rightarrow$ i'th vortex in $x$-direction\\
-				\textbf{\textit{arg2}}: integer j $\rightarrow$ j'th vortex in $y$-direction\\
-				\textbf{\textit{arg3}}: unit size (vortex size + separation) in meter \\
-				\textbf{\textit{arg4}}: separation in meter\\
-				\textbf{\textit{arg5}}: circulation\\
-				\textbf{\textit{arg6}}: polarization
+				Set a vortex in a 2D array. A rectangular unit entitie (vortex + separation) is considered.  The total number of entities should fit the discretization grid.\\
+				\textbf{\textit{arg1}}: integer i $\rightarrow$ i'th vortex in $x$-direction.\\
+				\textbf{\textit{arg2}}: integer j $\rightarrow$ j'th vortex in $y$-direction.\\
+				\textbf{\textit{arg3, arg4}}: unit size (vortex size + separation) in the $x$- and $y$-direction in meter.\\
+				\textbf{\textit{arg5, arg6}}: separation in the $x$- and $y$-direction in meter.\\
+				\textbf{\textit{arg7}}: circulation\\
+				\textbf{\textit{arg8}}: polarization
 				}\flushleft}
 
  \item {\vspace{-0.4cm}\textbf{setmCell(\textit{arg1, arg2, arg3, arg4, arg5, arg6})}:
