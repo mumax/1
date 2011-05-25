@@ -21,9 +21,9 @@ import (
 func (sim *Sim) SetMRange(z1, y1, x1, z2, y2, x2 int, mz, my, mx float32) {
 	sim.initMLocal()
 	s := sim.mLocal.Array()
-	for i := x1; i < x2; i++ {
-		for j := y1; j < y2; j++ {
-			for k := z1; k < z2; k++ {
+	for i := x1; i <= x2; i++ {
+		for j := y1; j <= y2; j++ {
+			for k := z1; k <= z2; k++ {
 				s[X][i][j][k] = mx
 				s[Y][i][j][k] = my
 				s[Z][i][j][k] = mz
