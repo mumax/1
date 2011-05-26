@@ -253,7 +253,7 @@ func (sim *Sim) SetAlpha(z, y, x int, alpha float32){
 // Set the damping constant in an area between [x1, y1, z1] and [x2, y2, z2] (inclusive)
 func (sim *Sim) SetAlphaRange(x1, y1, z1 , x2, y2, z2 int, alpha float32){
   sim.initGeom()
-  sim.initMsatMask()
+  sim.initAlphaMask()
   
   for i := z1; i<=z2; i++ {
     for j := y1; j<=y2; j++ {
