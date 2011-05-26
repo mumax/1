@@ -24,11 +24,12 @@ extern "C" {
 
 
 /// Overwrites h with deltaM(m, h)
-void gpu_deltaM(float* m,       ///< magnetization (all 3 components, contiguously)
-                float* h,       ///< effective field, to be overwritten by torque
-                float alpha,    ///< damping constant
-                float dt_gilb,  ///< dt * gilbert factor
-                int N           ///< length of each of the components of m, h (1/3 of m's total length)
+void gpu_deltaM(float* m,        ///< magnetization (all 3 components, contiguously)
+                float* h,        ///< effective field, to be overwritten by torque
+                float alpha_mul, ///< damping constant multiplier
+                float* alpha_map,///< damping constant map, NULL means uniform.
+                float dt_gilb,   ///< dt * gilbert factor
+                int N            ///< length of each of the components of m, h (1/3 of m's total length)
                 );
 
 #ifdef __cplusplus

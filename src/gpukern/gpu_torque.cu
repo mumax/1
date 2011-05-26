@@ -17,11 +17,18 @@ extern "C" {
 #endif
 
 /// @internal
-__global__ void _gpu_deltaM(float* mx, float* my, float* mz, float* hx, float* hy, float* hz, float alpha, float dt_gilb, int N){
+__global__ void _gpu_deltaM(float* mx, float* my, float* mz, float* hx, float* hy, float* hz, float alpha_mul, float* alpha_map, float dt_gilb, int N){
 
   int i = threadindex;
 
   if(i < N){
+	float alpha;
+	if(alpha_map == NULL){
+		alpha = alpha_mul;	
+	}else{
+		alpha = alpha_mul * alpha_map[i];
+	}
+	
     float Mx = mx[i];
     float My = my[i];
     float Mz = mz[i];
@@ -46,7 +53,7 @@ __global__ void _gpu_deltaM(float* mx, float* my, float* mz, float* hx, float* h
   }
 }
 
-void gpu_deltaM(float* m, float* h, float alpha, float dt_gilb, int N){
+void gpu_deltaM(float* m, float* h, float alpha_mul, float* alpha_map, float dt_gilb, int N){
 
   dim3 gridSize, blockSize;
   make1dconf(N, &gridSize, &blockSize);
@@ -59,7 +66,7 @@ void gpu_deltaM(float* m, float* h, float alpha, float dt_gilb, int N){
   float* hy = &(h[1*N]);
   float* hz = &(h[2*N]);
 
-  _gpu_deltaM<<<gridSize, blockSize>>>(mx, my, mz, hx, hy, hz, alpha, dt_gilb, N);
+  _gpu_deltaM<<<gridSize, blockSize>>>(mx, my, mz, hx, hy, hz, alpha_mul, alpha_map, dt_gilb, N);
   gpu_sync();
 }
 

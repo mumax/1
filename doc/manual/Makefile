@@ -1,7 +1,5 @@
 all: 
-	doxygen pydoxygen.cfg
-	make -C latex
-	mv latex/refman.pdf ../../
+	pdflatex -halt-on-error manual.tex
 
 .PHONY: clean
 clean:
