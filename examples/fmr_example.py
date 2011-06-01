@@ -14,13 +14,13 @@ aexch(9e-12)
 alpha(0.01)
 #anisotropy:
 k1(-5.7e3)
-anisuniaxial(0, 0, 1)
+anisUniaxial(0, 0, 1)
 
 # geometry 
 nx = 128
 ny = 128
-gridsize(nx, ny, 1)    
-partsize(300e-9, 300e-9, 50e-9)
+gridSize(nx, ny, 1)    
+partSize(300e-9, 300e-9, 50e-9)
 
 # initial magnetization
 uniform(1, 0, 0)
@@ -35,11 +35,11 @@ def myfield(t):
 
 # apply custum defined field for 2ns, sample its value every 10ps
 # (linear interpolation between samples)
-applyfunction('field', myfield, 2e-9, 10e-12) 
+applyFunction('field', myfield, 2e-9, 10e-12) 
 
 
 # current densities j(t) (in A/m^2) can be defined similarly:
-applyfunction('j', myfield, 2e-9, 10e-12) 
+applyFunction('j', myfield, 2e-9, 10e-12) 
 
 
 autosave('table', 'ascii', 20e-12)
