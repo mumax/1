@@ -1,3 +1,10 @@
+\section{Examples}
+
+\subsection{Custom-defined field}
+
+%../../examples/fmr_example.py
+
+\begin{verbatim}
 # This example illustrates how to define an arbitary field
 # B = f(t)
 # current densities j(t) can be defined similarly.
@@ -21,12 +28,12 @@ partSize(300e-9, 300e-9, 50e-9)
 # initial magnetization
 uniform(1, 0, 0)
 
-# custom-defined RF field along Y-axis
+# custom-defined oscillating field along Y-axis
 A = 1e-3    	# RF amplitude (T)
 def myfield(t):
-	f = 3000e6  # frequency = 3GHz
-	by = A * sin( 2*pi * f * t)
-	return 0, by, 0
+    f = 3000e6  # frequency = 3GHz
+    by = A * sin( 2*pi * f * t)
+    return 0, by, 0
 
 # apply the custum defined field "myfield" for 2ns, sample its value every 10ps
 # (linear interpolation between samples)
@@ -40,3 +47,14 @@ autosave('table', 'ascii', 20e-12)
 autosave('m', 'png', 50e-12)
 run(2e-9) # run for 2ns
 
+\end{verbatim}
+
+
+
+
+
+
+
+
+
+\subsection{}
