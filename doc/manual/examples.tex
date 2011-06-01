@@ -1,8 +1,68 @@
 \section{Examples}
 
+\subsection{Standard problem 4}
+
+\begin{verbatim}
+# Micromagnetic standard problem 4
+from mumax import *
+
+# Material parameters:
+msat(800e3)   
+aexch(1.3e-11)     
+alpha(0.02)
+
+# geometry 
+nx = 128
+ny = 32
+gridSize(nx, ny, 1)    
+partSize(500e-9, 125e-9, 3e-9)
+
+# initial magnetization
+uniform(1, 1, 0)
+alpha(2)
+
+#relax:
+alpha(1)
+run(10E-9)
+alpha(0.02)
+save("m", "omf")
+
+# run
+autosave("m", "omf", 10e-12)
+autosave("m", "png", 10e-12)
+applyStatic('field', -24.6E-3, 4.3E-3, 0) # Apply a static external field
+run(1e-9)
+\end{verbatim}
+
+
+
+\subsection{Geometry mask}
+
+\begin{verbatim}
+
+# material parameters:
+msat(800e3)   
+aexch(1.3e-11)     
+alpha(1)
+
+
+# geometry 
+nx = 128
+ny = 32
+gridSize(nx, ny, 1)    
+partSize(500e-9, 125e-9, 3e-9)
+mask('shape.png') # While pixel: remove cell, black pixel: keep cell
+
+# initial magnetization
+setmRandom() # random magnetization
+alpha(2)
+run(10E-9)
+save("m", "omf")
+
+\end{verbatim}
+
 \subsection{Custom-defined field}
 
-%../../examples/fmr_example.py
 
 \begin{verbatim}
 # This example illustrates how to define an arbitary field
@@ -57,4 +117,3 @@ run(2e-9) # run for 2ns
 
 
 
-\subsection{}
