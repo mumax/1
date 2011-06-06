@@ -272,7 +272,7 @@ def applyFunction(what, func, duration, timestep):
 	while t<=duration:
 		bx,by,bz = func(t)
 		applyPointwise(what, t, bx, by, bz)
-		#t+=timestep
+		t+=timestep
 
 ## Apply a pointwise-defined field/current defined by a number of time + field points
 # The field is linearly interpolated between the defined points
