@@ -36,9 +36,18 @@ def alpha(a):
 def k1(k):
 	send1("k1", k)
 
+## Sets the anisotropy constant K2.
+def k2(k):
+	send1("k2", k)
+
 ## Defines the uniaxial anisotropy axis.
 def anisUniaxial(ux, uy, uz):
 	send3("anisuniaxial", ux, uy, uz)
+
+
+## Defines the uniaxial anisotropy axis.
+def anisCubic(u1x, u1y, u1z, u2x, u2y, u2z):
+	send("aniscubic", [u1x, u1y, u1z, u2x, u2y, u2z])
 
 
 ## Defines the spin polarization for spin-transfer torque
