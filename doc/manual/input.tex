@@ -93,6 +93,12 @@ In what follows, we comment on the different \mumax-specific commands.
 				\textbf{\textit{arg1, arg2, arg3}}: projection of anisotropy axis along the $x$-, $y$- and $z$-axis.
 				}\flushleft}
 
+ \item {\vspace{-0.4cm}\textbf{anisCubic}(\textit{u1, v1, w1,  u2, v2, w2})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Defines two of the three cubic anisotropy axes. The third axis is computed automatically to be perpendicular to both of them. Normalization is done internally.\\
+				\textbf{\textit{u1, v1, w1}}: projection of first anisotropy axis along the $x$-, $y$- and $z$-axis.
+				\textbf{\textit{u2, v2, w2}}: projection of second anisotropy axis along the $x$-, $y$- and $z$-axis. }\flushleft
+
  \item {\vspace{-0.4cm}\textbf{spinPolarization(\textit{arg})}:
 				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
 				Sets the spin polarization for spin-transfer torque to the specified value.\\
