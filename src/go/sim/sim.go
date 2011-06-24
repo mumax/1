@@ -99,7 +99,7 @@ type Sim struct {
 	mDev           *DevTensor // magnetization on the device (GPU), 4D tensor
 	size3D         []int      //simulation grid size (without 3 as first element)
 	hDev           *DevTensor // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
-	alphaMask		*DevTensor // space-dependent alpha mask, multiplied by input.alpha
+	alphaMask      *DevTensor // space-dependent alpha mask, multiplied by input.alpha
 	mLocal, hLocal *tensor.T4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
 	mUpToDate      bool       // Is mLocal up to date with mDev? If not, a copy from the device is needed before storing output.
 	phiDev         *DevTensor // energy density. Use getEDens(), assures this pointer is initiated.

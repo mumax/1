@@ -215,7 +215,6 @@ func (sim *Sim) Ellipsoid(rz, ry, rx float32) {
 }
 
 
-
 //DEBUG
 // func (s *Sim) TestGeom(w, h float32) {
 // 	s.initSize()
@@ -230,55 +229,55 @@ func sqr(x float64) float64 {
 var inf float32 = float32(math.Inf(1))
 
 
-func (sim *Sim) initAlphaMask(){
-	if sim.alphaMask == nil{
+func (sim *Sim) initAlphaMask() {
+	if sim.alphaMask == nil {
 		sim.alphaMask = NewTensor(sim.Backend, sim.size[:])
-      for i := 0; i<sim.size[0]; i++ {
-        for j := 0; j<sim.size[1]; j++ {
-          for k := 0; k<sim.size[2]; k++ {
-            sim.alphaMask.Set(i,j,k, 1)
-          }
-        }
-      }
+		for i := 0; i < sim.size[0]; i++ {
+			for j := 0; j < sim.size[1]; j++ {
+				for k := 0; k < sim.size[2]; k++ {
+					sim.alphaMask.Set(i, j, k, 1)
+				}
+			}
+		}
 	}
 }
 
 // Set the damping constant in a cell [x, y, z]
-func (sim *Sim) SetAlpha(z, y, x int, alpha float32){
+func (sim *Sim) SetAlpha(z, y, x int, alpha float32) {
 	sim.initGeom()
 	sim.initAlphaMask()
 	sim.alphaMask.Set(x, y, z, alpha)
 }
 
 // Set the damping constant in an area between [x1, y1, z1] and [x2, y2, z2] (inclusive)
-func (sim *Sim) SetAlphaRange(x1, y1, z1 , x2, y2, z2 int, alpha float32){
-  sim.initGeom()
-  sim.initAlphaMask()
-  
-  for i := z1; i<=z2; i++ {
-    for j := y1; j<=y2; j++ {
-      for k := x1; k<=x2; k++ {
-        sim.alphaMask.Set(i,j,k, alpha)
-      }
-    }
-  }
+func (sim *Sim) SetAlphaRange(x1, y1, z1, x2, y2, z2 int, alpha float32) {
+	sim.initGeom()
+	sim.initAlphaMask()
+
+	for i := z1; i <= z2; i++ {
+		for j := y1; j <= y2; j++ {
+			for k := x1; k <= x2; k++ {
+				sim.alphaMask.Set(i, j, k, alpha)
+			}
+		}
+	}
 }
 
-func (sim *Sim) initMsatMask(){
-	if sim.normMap == nil{
+func (sim *Sim) initMsatMask() {
+	if sim.normMap == nil {
 		sim.normMap = NewTensor(sim.Backend, sim.size[:])
-    for i := 0; i<sim.size[0]; i++ {
-      for j := 0; j<sim.size[1]; j++ {
-        for k := 0; k<sim.size[2]; k++ {
-          sim.normMap.Set(i,j,k, 1)
-        }
-      }
-    }
+		for i := 0; i < sim.size[0]; i++ {
+			for j := 0; j < sim.size[1]; j++ {
+				for k := 0; k < sim.size[2]; k++ {
+					sim.normMap.Set(i, j, k, 1)
+				}
+			}
+		}
 	}
 }
 
 // Set the normalized (!) saturation magnetization in a cell [x, y, z]
-func (sim *Sim) SetMsat(z, y, x int, msat float32){
+func (sim *Sim) SetMsat(z, y, x int, msat float32) {
 	sim.initGeom()
 	sim.initMsatMask()
 	sim.normMap.Set(x, y, z, msat)
@@ -286,174 +285,172 @@ func (sim *Sim) SetMsat(z, y, x int, msat float32){
 
 
 // Set the normalized (!) saturation magnetization in an rectangular area between [x1, y1, z1] and [x2, y2, z2] (inclusive)
-func (sim *Sim) SetMsatRange(z1, y1, x1, z2, y2, x2 int, msat float32){
-  sim.initGeom()
-  sim.initMsatMask()
-  
-  for i := x1; i<=x2; i++ {
-    for j := y1; j<=y2; j++ {
-      for k := z1; k<=z2; k++ {
-        sim.normMap.Set(i,j,k, msat)
-      }
-    }
-  }
+func (sim *Sim) SetMsatRange(z1, y1, x1, z2, y2, x2 int, msat float32) {
+	sim.initGeom()
+	sim.initMsatMask()
+
+	for i := x1; i <= x2; i++ {
+		for j := y1; j <= y2; j++ {
+			for k := z1; k <= z2; k++ {
+				sim.normMap.Set(i, j, k, msat)
+			}
+		}
+	}
 }
 
 // Set the normalized (!) saturation magnetization in an ellips-shaped region with center [rx, ry] and radii
 func (s *Sim) SetMsatEllips(cx, cy, rx, ry, msat float32) {
 
-  s.initGeom()
-  s.initMsatMask()
+	s.initGeom()
+	s.initMsatMask()
 
-  c := s.input.cellSize
-  start_x := int( math.Floor( float64( (cx - rx)/c[2]) ))
-  start_y := int( math.Floor( float64( (cy - ry)/c[1]) ))
-  stop_x := int( math.Ceil( float64( (cx + rx)/c[2]) ))
-  stop_y := int( math.Ceil( float64( (cy + ry)/c[1]) ))
+	c := s.input.cellSize
+	start_x := int(math.Floor(float64((cx - rx) / c[2])))
+	start_y := int(math.Floor(float64((cy - ry) / c[1])))
+	stop_x := int(math.Ceil(float64((cx + rx) / c[2])))
+	stop_y := int(math.Ceil(float64((cy + ry) / c[1])))
 
+	for i := 0; i < s.size[0]; i++ {
+		for j := start_y; j <= stop_y; j++ {
+			y := float32(j)*c[1] - cy
+			for k := start_x; k <= stop_x; k++ {
+				x := float32(k)*c[2] - cx
+				if (x*x/rx/rx + y*y/ry/ry) < 1 {
+					s.normMap.Set(i, j, k, msat)
+				}
+			}
+		}
+	}
 
-  for i := 0; i<s.size[0]; i++ {
-    for j := start_y; j<=stop_y; j++  {
-      y := float32(j)*c[1] - cy
-      for k := start_x; k<=stop_x; k++ {
-        x := float32(k)*c[2] - cx
-        if (x*x/rx/rx + y*y/ry/ry)<1 {
-          s.normMap.Set(i,j,k, msat)
-        }
-      }
-    }
-  }
+	/*for i := 0; i<s.size[0]; i++ {
+	  for j := start_y; j<=stop_y; j++  {
+	    y := float32(j)*c[1] - cy
+	    for k := start_x; j<=stop_x; k++ {
+	      x := float32(k)*c[2] - cx
+	      if (x*x/rx/rx + y*y/ry/ry)<1 {
+	        s.normMap.Set(i,j,k, 0.0)
+	      }
+	    }
+	  }
+	}*/
 
-
-/*for i := 0; i<s.size[0]; i++ {
-    for j := start_y; j<=stop_y; j++  {
-      y := float32(j)*c[1] - cy
-      for k := start_x; j<=stop_x; k++ {
-        x := float32(k)*c[2] - cx
-        if (x*x/rx/rx + y*y/ry/ry)<1 {
-          s.normMap.Set(i,j,k, 0.0)
-        }
-      }
-    }
-  }*/
-  
 }
 
 // Make an dot array with Nx times Ny rectangular holes. The unit cells (separation + dot) have dimensions unit_size_x times unit_size_y in nanometer. 
 func (sim *Sim) DotArrayRectangle(unit_size_x, unit_size_y, separation_x, separation_y float32, Nx, Ny int) {
 
-  sim.initGeom()
-  sim.initMsatMask()
+	sim.initGeom()
+	sim.initMsatMask()
 
-  c := sim.input.cellSize
-  Bx := unit_size_x / c[2]
-  Sx := separation_x / c[2]
-  By := unit_size_y / c[1]
-  Sy := separation_y / c[1]
- 
-  for cnt1 := 0; cnt1<Ny; cnt1++ {
-    for cnt2 := 0; cnt2<Nx; cnt2++ {
-      for i := 0; i<sim.size[0]; i++ {
-        for j := int(float32(cnt1)*By); j<int(float32(cnt1+1)*By); j++ {
-          for k := int(float32(cnt2)*Bx); k<int(float32(cnt2+1)*Bx); k++ {
-            if !( j>=int(float32(cnt1)*By + Sy/2) && j<int(float32(cnt1+1)*By - Sy/2) && k>=int(float32(cnt2)*Bx + Sx/2) && k<int(float32(cnt2+1)*Bx - Sx/2) ){
-              sim.normMap.Set(i,j,k, 0.0)
-            }
-          }
-        }
-      }
-    }
-  } 
+	c := sim.input.cellSize
+	Bx := unit_size_x / c[2]
+	Sx := separation_x / c[2]
+	By := unit_size_y / c[1]
+	Sy := separation_y / c[1]
+
+	for cnt1 := 0; cnt1 < Ny; cnt1++ {
+		for cnt2 := 0; cnt2 < Nx; cnt2++ {
+			for i := 0; i < sim.size[0]; i++ {
+				for j := int(float32(cnt1) * By); j < int(float32(cnt1+1)*By); j++ {
+					for k := int(float32(cnt2) * Bx); k < int(float32(cnt2+1)*Bx); k++ {
+						if !(j >= int(float32(cnt1)*By+Sy/2) && j < int(float32(cnt1+1)*By-Sy/2) && k >= int(float32(cnt2)*Bx+Sx/2) && k < int(float32(cnt2+1)*Bx-Sx/2)) {
+							sim.normMap.Set(i, j, k, 0.0)
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 // Make an dot array with Nx times Ny ellips-shaped holes. The unit cells (separation + dot) have dimensions unit_size_x times unit_size_y in nanometer. 
 func (s *Sim) DotArrayEllips(unit_size_x, unit_size_y, separation_x, separation_y float32, Nx, Ny int) {
 
-  s.initGeom()
-  s.initMsatMask()
+	s.initGeom()
+	s.initMsatMask()
 
-  c := s.input.cellSize
-  Bx := unit_size_x / c[2]
-  Sx := separation_x / c[2]
-  rx := (Bx-Sx)/2.;
-  By := unit_size_y / c[1]
-  Sy := separation_y / c[1]
-  ry := (By-Sy)/2.;
- 
-  for cnt1 := 0; cnt1<Ny; cnt1++{
-    cy := float32(cnt1)*By + By/2 - 0.5
-    for cnt2 := 0; cnt2<Nx; cnt2++ {
-      cx := float32(cnt2)*Bx + Bx/2 - 0.5
-      for i := 0; i<s.size[0]; i++ {
-        for j := int(float32(cnt1)*By); j<int(float32(cnt1+1)*By); j++  {
-          y := float32(j) - cy
-          for k := int(float32(cnt2)*Bx); k<int(float32(cnt2+1)*Bx); k++ {
-            x := float32(k) - cx
-            if (x*x/rx/rx + y*y/ry/ry)>1{
-              s.normMap.Set(i,j,k, 0.0)
-            }
-          }
-        }
-      }
-    }
-  } 
+	c := s.input.cellSize
+	Bx := unit_size_x / c[2]
+	Sx := separation_x / c[2]
+	rx := (Bx - Sx) / 2.
+	By := unit_size_y / c[1]
+	Sy := separation_y / c[1]
+	ry := (By - Sy) / 2.
+
+	for cnt1 := 0; cnt1 < Ny; cnt1++ {
+		cy := float32(cnt1)*By + By/2 - 0.5
+		for cnt2 := 0; cnt2 < Nx; cnt2++ {
+			cx := float32(cnt2)*Bx + Bx/2 - 0.5
+			for i := 0; i < s.size[0]; i++ {
+				for j := int(float32(cnt1) * By); j < int(float32(cnt1+1)*By); j++ {
+					y := float32(j) - cy
+					for k := int(float32(cnt2) * Bx); k < int(float32(cnt2+1)*Bx); k++ {
+						x := float32(k) - cx
+						if (x*x/rx/rx + y*y/ry/ry) > 1 {
+							s.normMap.Set(i, j, k, 0.0)
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 // Make an anti-dot array with Nx times Ny rectangular holes. The unit cells (separation + hole) have dimensions unit_size_x times unit_size_y in nanometer. 
 func (sim *Sim) AntiDotArrayRectangle(unit_size_x, unit_size_y, separation_x, separation_y float32, Nx, Ny int) {
 
-  sim.initGeom()
-  sim.initMsatMask()
+	sim.initGeom()
+	sim.initMsatMask()
 
-  c := sim.input.cellSize
-  Bx := unit_size_x / c[2]
-  Sx := separation_x / c[2]
-  By := unit_size_y / c[1]
-  Sy := separation_y / c[1]
- 
-  for cnt1 := 0; cnt1<Ny; cnt1++ {
-    for cnt2 := 0; cnt2<Nx; cnt2++ {
-      for i := 0; i<sim.size[0]; i++ {
-        for j := int(float32(cnt1)*By + Sy/2); j<int(float32(cnt1+1)*By - Sy/2); j++ {
-          for k := int(float32(cnt2)*Bx + Sx/2); k<int(float32(cnt2+1)*Bx - Sx/2); k++ {
-            sim.normMap.Set(i,j,k, 0.0)
-          }
-        }
-      }
-    }
-  } 
+	c := sim.input.cellSize
+	Bx := unit_size_x / c[2]
+	Sx := separation_x / c[2]
+	By := unit_size_y / c[1]
+	Sy := separation_y / c[1]
+
+	for cnt1 := 0; cnt1 < Ny; cnt1++ {
+		for cnt2 := 0; cnt2 < Nx; cnt2++ {
+			for i := 0; i < sim.size[0]; i++ {
+				for j := int(float32(cnt1)*By + Sy/2); j < int(float32(cnt1+1)*By-Sy/2); j++ {
+					for k := int(float32(cnt2)*Bx + Sx/2); k < int(float32(cnt2+1)*Bx-Sx/2); k++ {
+						sim.normMap.Set(i, j, k, 0.0)
+					}
+				}
+			}
+		}
+	}
 }
 
 
 // Make an anti-dot array with Nx times Ny ellips-shaped holes. The basic cells (separation + hole) have dimensions unit_size_x times unit_size_y in nanometer. 
 func (s *Sim) AntiDotArrayEllips(unit_size_x, unit_size_y, separation_x, separation_y float32, Nx, Ny int) {
 
-  s.initGeom()
-  s.initMsatMask()
+	s.initGeom()
+	s.initMsatMask()
 
-  c := s.input.cellSize
-  Bx := unit_size_x / c[2]
-  Sx := separation_x / c[2]
-  rx := (Bx-Sx)/2.;
-  By := unit_size_y / c[1]
-  Sy := separation_y / c[1]
-  ry := (By-Sy)/2.;
- 
-  for cnt1 := 0; cnt1<Ny; cnt1++{
-    cy := float32(cnt1)*By + By/2 - 0.5
-    for cnt2 := 0; cnt2<Nx; cnt2++ {
-      cx := float32(cnt2)*Bx + Bx/2 - 0.5
-      for i := 0; i<s.size[0]; i++ {
-        for j := int(float32(cnt1)*By + Sy/2); j<int(float32(cnt1+1)*By - Sy/2); j++  {
-          y := float32(j) - cy
-          for k := int(float32(cnt2)*Bx + Sx/2); k<int(float32(cnt2+1)*Bx - Sx/2); k++ {
-            x := float32(k) - cx
-            if (x*x/rx/rx + y*y/ry/ry)<1{
-              s.normMap.Set(i,j,k, 0.0)
-            }
-          }
-        }
-      }
-    }
-  } 
+	c := s.input.cellSize
+	Bx := unit_size_x / c[2]
+	Sx := separation_x / c[2]
+	rx := (Bx - Sx) / 2.
+	By := unit_size_y / c[1]
+	Sy := separation_y / c[1]
+	ry := (By - Sy) / 2.
+
+	for cnt1 := 0; cnt1 < Ny; cnt1++ {
+		cy := float32(cnt1)*By + By/2 - 0.5
+		for cnt2 := 0; cnt2 < Nx; cnt2++ {
+			cx := float32(cnt2)*Bx + Bx/2 - 0.5
+			for i := 0; i < s.size[0]; i++ {
+				for j := int(float32(cnt1)*By + Sy/2); j < int(float32(cnt1+1)*By-Sy/2); j++ {
+					y := float32(j) - cy
+					for k := int(float32(cnt2)*Bx + Sx/2); k < int(float32(cnt2+1)*Bx-Sx/2); k++ {
+						x := float32(k) - cx
+						if (x*x/rx/rx + y*y/ry/ry) < 1 {
+							s.normMap.Set(i, j, k, 0.0)
+						}
+					}
+				}
+			}
+		}
+	}
 }

@@ -68,11 +68,10 @@ func Permission(filename string) uint32 {
 
 // Checks if the file exists.
 func FileExists(file string) bool {
-    f, err := os.Open(file, os.O_RDONLY, 0666)
-    if err != nil {
-        return false
-    }
-    f.Close()
-    return true
+	f, err := os.Open(file, os.O_RDONLY, 0666)
+	if err != nil {
+		return false
+	}
+	f.Close()
+	return true
 }
-

@@ -25,8 +25,8 @@ func Dissipation(ordinate string) {
 	mx, my, mz := tensor.Component(data, 0).List(), tensor.Component(data, 2).List(), tensor.Component(data, 2).List()
 	hx, hy, hz := tensor.Component(hdata, 0).List(), tensor.Component(hdata, 2).List(), tensor.Component(hdata, 2).List()
 
-	sum := 0.	
-	for i := range mx{
+	sum := 0.
+	for i := range mx {
 		var m *tensor.Vector = new(tensor.Vector)
 		var h *tensor.Vector = new(tensor.Vector)
 		var mxh *tensor.Vector = new(tensor.Vector)
@@ -37,9 +37,7 @@ func Dissipation(ordinate string) {
 		*mxh = m.Cross(h)
 		*mxmxh = m.Cross(mxh)
 		sum -= float64(alpha * mxmxh.Norm())
-	} 
-
+	}
 
 	fmt.Println(x, "\t", sum)
 }
-

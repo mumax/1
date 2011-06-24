@@ -125,35 +125,35 @@ func (s *Sim) Vortex_in_array(vrtx_i, vrtx_j, unit_size, separation float32, cir
 
 
 func (s *Sim) VortexInArray(vrtx_i, vrtx_j, unit_size_x, unit_size_y, separation_x, separation_y float32, circulation, polarization int) {
-  s.initMLocal()
-  c := s.input.cellSize
-  Bx := unit_size_x / c[2]
-  Sx := separation_x / c[2]
-  By := unit_size_y / c[1]
-  Sy := separation_y / c[1]
+	s.initMLocal()
+	c := s.input.cellSize
+	Bx := unit_size_x / c[2]
+	Sx := separation_x / c[2]
+	By := unit_size_y / c[1]
+	Sy := separation_y / c[1]
 
-// cx := int((vrtx_i+0.5)*Bx) 
-  cx := float32(vrtx_i)*Bx + Bx/2 - 0.5
-  cy := float32(vrtx_j)*By + By/2 - 0.5
-/*  cy :=int((vrtx_j+0.5)*By)*/
-  a := s.mLocal.Array()
-  for i := range a[0] {
-/*    for j := int(vrtx_j*By + Sy/2); j < int((vrtx_j+1)*By-Sy/2); j++ {
-      for k := int(vrtx_i*Bx + Sx/2); k < int((vrtx_i+1)*By-Sy/2); k++ {*/
-    for j := int(float32(vrtx_j)*By + Sy/2); j<int(float32(vrtx_j+1)*By - Sy/2); j++ {
-      for k := int(float32(vrtx_i)*Bx + Sx/2); k<int(float32(vrtx_i+1)*Bx - Sx/2); k++ {
-        y := float32(j) - cy
-        x := float32(k) - cx
-        a[X][i][j][k] = 0
-        a[Y][i][j][k] = x*float32(circulation)
-        a[Z][i][j][k] = -y*float32(circulation)
-      }
-    }
-    a[Z][i][int(cy)][int(cx)] = 0.
-    a[Y][i][int(cy)][int(cx)] = 0.
-    a[X][i][int(cy)][int(cx)] = float32(polarization)
-  }
-  s.invalidate()
+	// cx := int((vrtx_i+0.5)*Bx) 
+	cx := float32(vrtx_i)*Bx + Bx/2 - 0.5
+	cy := float32(vrtx_j)*By + By/2 - 0.5
+	/*  cy :=int((vrtx_j+0.5)*By)*/
+	a := s.mLocal.Array()
+	for i := range a[0] {
+		/*    for j := int(vrtx_j*By + Sy/2); j < int((vrtx_j+1)*By-Sy/2); j++ {
+		      for k := int(vrtx_i*Bx + Sx/2); k < int((vrtx_i+1)*By-Sy/2); k++ {*/
+		for j := int(float32(vrtx_j)*By + Sy/2); j < int(float32(vrtx_j+1)*By-Sy/2); j++ {
+			for k := int(float32(vrtx_i)*Bx + Sx/2); k < int(float32(vrtx_i+1)*Bx-Sx/2); k++ {
+				y := float32(j) - cy
+				x := float32(k) - cx
+				a[X][i][j][k] = 0
+				a[Y][i][j][k] = x * float32(circulation)
+				a[Z][i][j][k] = -y * float32(circulation)
+			}
+		}
+		a[Z][i][int(cy)][int(cx)] = 0.
+		a[Y][i][int(cy)][int(cx)] = 0.
+		a[X][i][int(cy)][int(cx)] = float32(polarization)
+	}
+	s.invalidate()
 }
 
 

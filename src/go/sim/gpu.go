@@ -109,7 +109,7 @@ func (d Gpu) normalizeMap(m, normMap uintptr, N int) {
 
 func (d Gpu) deltaM(m, h uintptr, alphaMul float32, alphaMask *DevTensor, dtGilbert float32, N int) {
 	var alphaMap uintptr
-	if alphaMask != nil{
+	if alphaMask != nil {
 		alphaMap = alphaMask.data
 	}
 	C.gpu_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alphaMul), (*C.float)(unsafe.Pointer(alphaMap)), C.float(dtGilbert), C.int(N))

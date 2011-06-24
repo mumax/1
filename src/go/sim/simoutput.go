@@ -313,7 +313,9 @@ func subsampleOutput(in *tensor.T4) *tensor.T4 {
 	copy(size2, in.Size())
 	for i := 1; i < 4; i++ {
 		size2[i] /= outputSubsample
-		if size2[i] == 0{size2[i] = 1}
+		if size2[i] == 0 {
+			size2[i] = 1
+		}
 	}
 	if subsampleBuffer == nil {
 		subsampleBuffer = tensor.NewT4(size2)
