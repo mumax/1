@@ -21,9 +21,11 @@ import (
 // Renders in 2D, automatically saves in a .png file.
 func Draw() {
 	outfile := replaceExt(filename, ".png")
+	if !FileExists(outfile){
 	out := MustOpenWRONLY(outfile)
 	defer out.Close()
 	draw.PNG(out, data)
+}
 }
 
 

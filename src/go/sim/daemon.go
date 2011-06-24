@@ -247,7 +247,6 @@ func fileExists(file string) bool {
 	return true
 }
 
-
 func isDirectory(file string) bool {
 	f, err := os.Open(file, os.O_RDONLY, 0666)
 	defer f.Close()
