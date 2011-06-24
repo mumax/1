@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	DEFAULT_SOLVERTYPE        = "rk23"
+	DEFAULT_SOLVERTYPE        = "rk12"
 	DEFAULT_MAXERROR          = 1e-4
 	DEFAULT_DEMAG_ACCURACY    = 8
 	DEFAULT_SPIN_POLARIZATION = 1

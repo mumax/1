@@ -8,4 +8,4 @@ export LD_LIBRARY_PATH=$SIMROOT/lib/fftw/lib:$LD_LIBRARY_PATH
 export PYTHONPATH=$PYTHONPATH:$SIMROOT/lib
 export PATH=$PATH:$SIMROOT/bin
 export LD_LIBRARY_PATH=$SIMROOT/lib:$LD_LIBRARY_PATH
-$SIMROOT/bin/mumax-sim $@
+exec -a mumax $SIMROOT/bin/mumax-sim $@
