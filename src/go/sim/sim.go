@@ -197,10 +197,12 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.initWriters()
 	sim.input.anisKSI = []float32{0., 0., 0.} // even when not used these must be allocated
 	sim.input.anisAxes = []float32{0.}
+	// TODO(b): mumaxkern-go is slow but seems failsafe so it is the default for now
+	// change when mumaxkern-gpu is debugged.
 	if *cpu {
-		sim.input.kernelType = "mumaxkern-cpu"
+		sim.input.kernelType = "mumaxkern-go" //"mumaxkern-cpu"
 	} else {
-		sim.input.kernelType = "mumaxkern-gpu"
+		sim.input.kernelType = "mumaxkern-go" //"mumaxkern-gpu"
 	}
 	sim.exchInConv = true
 	sim.input.wantDemag = true
