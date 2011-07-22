@@ -1,0 +1,119 @@
+\section{Examples}
+
+\subsection{Standard problem 4}
+
+\begin{verbatim}
+# Micromagnetic standard problem 4
+from mumax import *
+
+# Material parameters:
+msat(800e3)   
+aexch(1.3e-11)     
+alpha(0.02)
+
+# geometry 
+nx = 128
+ny = 32
+gridSize(nx, ny, 1)    
+partSize(500e-9, 125e-9, 3e-9)
+
+# initial magnetization
+uniform(1, 1, 0)
+alpha(2)
+
+#relax:
+alpha(1)
+run(10E-9)
+alpha(0.02)
+save("m", "omf")
+
+# run
+autosave("m", "omf", 10e-12)
+autosave("m", "png", 10e-12)
+applyStatic('field', -24.6E-3, 4.3E-3, 0) # Apply a static external field
+run(1e-9)
+\end{verbatim}
+
+
+
+\subsection{Geometry mask}
+
+\begin{verbatim}
+
+# material parameters:
+msat(800e3)   
+aexch(1.3e-11)     
+alpha(1)
+
+
+# geometry 
+nx = 128
+ny = 32
+gridSize(nx, ny, 1)    
+partSize(500e-9, 125e-9, 3e-9)
+mask('shape.png') # While pixel: remove cell, black pixel: keep cell
+
+# initial magnetization
+setmRandom() # random magnetization
+alpha(2)
+run(10E-9)
+save("m", "omf")
+
+\end{verbatim}
+
+\subsection{Custom-defined field}
+
+
+\begin{verbatim}
+# This example illustrates how to define an arbitary field
+# B = f(t)
+# current densities j(t) can be defined similarly.
+
+from mumax import *
+from math import sin, pi
+
+# Nickel:
+msat(490e3)   
+aexch(9e-12)     
+alpha(0.01)
+k1(-5.7e3)
+anisUniaxial(0, 0, 1)
+
+# geometry 
+nx = 128
+ny = 128
+gridSize(nx, ny, 1)    
+partSize(300e-9, 300e-9, 50e-9)
+
+# initial magnetization
+uniform(1, 0, 0)
+
+# custom-defined oscillating field along Y-axis
+A = 1e-3    	# RF amplitude (T)
+def myfield(t):
+    f = 3000e6  # frequency = 3GHz
+    by = A * sin( 2*pi * f * t)
+    return 0, by, 0
+
+# apply the custum defined field "myfield" for 2ns, sample its value every 10ps
+# (linear interpolation between samples)
+applyFunction('field', myfield, 2e-9, 10e-12) 
+
+# current densities j(t) (in A/m^2) can be defined similarly:
+applyFunction('j', myfield, 2e-9, 10e-12) 
+
+# schedule output and run
+autosave('table', 'ascii', 20e-12)
+autosave('m', 'png', 50e-12)
+run(2e-9) # run for 2ns
+
+\end{verbatim}
+
+
+
+
+
+
+
+
+
