@@ -389,8 +389,8 @@ def getMinm(component):
 	return recv()
 
 ## Retrieves the maximum torque in units gamma*Msat
-def getMaxTorque(component):
-	send1("getmaxtorque")
+def getMaxTorque():
+	send0("getmaxtorque")
 	return recv()
 
 # Retrieves the total energy in SI units
