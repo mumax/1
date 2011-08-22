@@ -33,6 +33,11 @@ func (s *Sim) getM(component int) float32 {
 }
 
 
+func(s *Sim) getMPos(component int, z, y, x int){
+	Send( s.mDev.Get(component, x, y, z))
+}
+
+
 func (s *Sim) GetMaxM(component int) {
 	Send(s.getMaxM(2 - component)) // translate to ZYX
 
