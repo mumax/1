@@ -33,7 +33,7 @@ func (s *Sim) getM(component int) float32 {
 }
 
 
-func(s *Sim) getMPos(component int, z, y, x int){
+func(s *Sim) GetMPos(component int, z, y, x int){
 	Send( s.mDev.Get(component, x, y, z))
 }
 

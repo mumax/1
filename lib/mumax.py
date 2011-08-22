@@ -375,7 +375,7 @@ def getm(component):
 
 ## Retrieves a magnetization component (0=mx, 1=my, 2=mz) at position x,y,z.
 def getmPos(component, x, y, z):
-	send(["getmPos", component, x, y, z])
+	send("getmPos", [component, x, y, z])
 	return recv()
 
 ## Retrieves the maximum value of a magnetization component (0=x, 1=y, 2=z).
