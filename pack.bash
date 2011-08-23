@@ -10,7 +10,7 @@ rm -rf $OUT
 mkdir $OUT
 
 
-cp doc/manual/latex/refman.pdf $OUT
+cp doc/manual/manual.pdf $OUT
 cp setup.bash $OUT
 cp LICENSE.txt $OUT
 cp README.txt $OUT
