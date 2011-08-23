@@ -24,12 +24,25 @@ func Draw() {
 	if !FileExists(outfile) {
 		out := MustOpenWRONLY(outfile)
 		defer out.Close()
-		draw.PNG(out, data)
+		draw.PNG(out, data.Component(c))
 	} else {
 		fmt.Fprintln(os.Stderr, "File exists:", outfile)
 	}
 }
 
+
+// Renders in 2D, automatically saves in a .png file.
+func DrawComp(c int) {
+	compname = string('x' + c)
+	outfile := replaceExt(filename, "_" + compname + ".png")
+	if !FileExists(outfile) {
+		out := MustOpenWRONLY(outfile)
+		defer out.Close()
+		draw.PNG(out, data)
+	} else {
+		fmt.Fprintln(os.Stderr, "File exists:", outfile)
+	}
+}
 
 // Parameter for draw3d(), passed on to maxview
 var (
