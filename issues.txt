@@ -1,0 +1,13 @@
+
+1. First of all it seems like nvcc (as a fork of Open64) conflicting with AMD's 
+Open64. So, if you have AMD's Open64 installed on your system then nvcc fails. 
+Issue could be resolved simply by erasing the AMD Open64.
+
+Mykola Dvornik
+ 
+2. nvcc and gcc frequently report "No new line at the end of the file" and 
+threat this like an error. By simply echo/sed to the entire sources resolves 
+the issue.
+
+
+Mykola Dvornik
