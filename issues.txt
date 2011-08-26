@@ -1,3 +1,22 @@
+Hi Arne,
+
+I've successfully compiled latest snapshot of mumax with go.rc56.
+
+The only issue appeared was the problem with linking against CUDA libraries. So RedHat ld doesn't like things like "-l:libcudart.so". So, I've changed them to "-lcudart"-like and the issue disappeared.
+
+I have tested it with example.in and it is working fine with Tesla C2070 and CUDA 4.
+
+I have attached my system configuration and list of the software, so you can claim that old-fashion RedHat distros are supported by mumax.
+
+Perhaps you can setup some repo, so I can submit my binaries.
+
+Besides, I have noticed that mumax saves in ovf v1.0 format (which is big endian), so the question is do you have some plans to support ovf 2.0 (little endian) in the future?  I saw go code and some comments in it, so perhaps it is possible to extend the function a little bit, so mumax can offer both ovf v1.0 and v2.0 formats?
+
+Thanks for your help.
+
+Best wishes,
+Mykola.
+
 
 1. First of all it seems like nvcc (as a fork of Open64) conflicting with AMD's 
 Open64. So, if you have AMD's Open64 installed on your system then nvcc fails. 
