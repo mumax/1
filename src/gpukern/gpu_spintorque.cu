@@ -198,10 +198,10 @@ void gpu_spintorque_deltaM(float* m, float* h, float alpha, float beta, float ep
   float* jmapy = NULL;
   float* jmapz = NULL;
 
-  if jmap != NULL{
-  	 jmapx = &jmap[0*N];
-  	 jmapy = &jmap[1*N];
-  	 jmapz = &jmap[2*N];
+  if(jmap != NULL){
+  	jmapx = &jmap[0*N];
+  	jmapy = &jmap[1*N];
+  	jmapz = &jmap[2*N];
   }
   
   for(int i=0; i<N0; i++){
