@@ -33,7 +33,7 @@ def myfield(t):
 applyFunction('field', myfield, 2e-9, 10e-12) 
 
 # current densities j(t) (in A/m^2) can be defined similarly:
-currentMask("mask.omf")
+#currentMask("mask.omf")
 applyStatic('j', 10e9, 0, 0) 
 
 # schedule output and run
