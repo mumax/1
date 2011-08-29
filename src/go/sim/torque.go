@@ -2,7 +2,8 @@ package sim
 
 import (
 	"mumax/tensor"
-	// 	"fmt"
+	"fmt"
+	"os"
 )
 
 
@@ -64,6 +65,10 @@ func (s *Sim) DeltaM(m, h *DevTensor, dt float32) {
 func (s *Sim) SpintorqueDeltaM(m, h *DevTensor, dt float32) {
 
 	assert(s.alphaMask == nil) // space-dependent alpha not yet implemented.
+	if s.jMask == nil{
+		fmt.Fprintln(os.Stderr, "Spin-transfer torque requires a currentMask to be set")
+		os.Exit(-7)
+	}
 
 	alpha := s.alpha
 	dtGilb := dt / (1 + alpha*alpha)
