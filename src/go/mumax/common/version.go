@@ -29,6 +29,7 @@ func CheckVersion(url string, myversion int) (shouldUpgrade bool) {
 	if err != nil {
 		return
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode == 200 { // OK
 		bodybuf, err2 := ioutil.ReadAll(resp.Body)
