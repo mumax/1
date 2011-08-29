@@ -11,8 +11,6 @@ package common
 
 import (
 	"http"
-	"fmt"
-	"os"
 	"io/ioutil"
 	"strconv"
 	"strings"
@@ -21,35 +19,26 @@ import (
 
 // Read a simple text file on the webserver to see if a newer version is available
 func CheckVersion(url string, myversion int) (shouldUpgrade bool) {
+	// Don't crash
 	defer func() {
-		err := recover()
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err) // TODO: rm
-		}
+		recover()
 	}()
-	println("Hit ", url)
+
 	var client http.Client
 	resp, _, err := client.Get(url)
-
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err) // TODO: rm
-		return                       // too bad
+		return
 	}
-
-	fmt.Println(resp)
 
 	if resp.StatusCode == 200 { // OK
 		bodybuf, err2 := ioutil.ReadAll(resp.Body)
 		if err2 != nil {
-			fmt.Fprintln(os.Stderr, err) // TODO: rm
-			return                       // too bad
+			return
 		}
 		body := strings.Trim(string(bodybuf), " \n\t")
-		println(body)
 		server, err3 := strconv.Atoi(body)
 		if err3 != nil {
-			fmt.Fprintln(os.Stderr, err3) // TODO: rm
-			return                       // too bad
+			return
 		}
 		shouldUpgrade = server > myversion
 	}

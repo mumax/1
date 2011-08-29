@@ -157,7 +157,7 @@ func (t *DevTensor) Set(x, y, z int, value float32) {
 }
 
 
-func (t *DevTensor) Get(comp, x, y, z int) float32{
+func (t *DevTensor) Get(comp, x, y, z int) float32 {
 	var value float32
 	N0 := t.size[0]
 	N1 := t.size[1]

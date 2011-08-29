@@ -66,8 +66,8 @@ func (s *Sim) SpintorqueDeltaM(m, h *DevTensor, dt float32) {
 
 	assert(s.alphaMask == nil) // space-dependent alpha not yet implemented.
 
-	if s.jMask == nil{
-		fmt.Fprintln(os.Stderr, RED + BOLD + "Spin-transfer torque requires a currentMask to be set" + RESET)
+	if s.jMask == nil {
+		fmt.Fprintln(os.Stderr, RED+BOLD+"Spin-transfer torque requires a currentMask to be set"+RESET)
 		os.Exit(-7)
 	}
 

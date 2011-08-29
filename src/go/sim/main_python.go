@@ -82,9 +82,11 @@ func main_python(infile string) {
 		Println("mumax child process exited with status ", status)
 		if status != 0 {
 			// kill the sibling
-			if python != nil{if python.Process != nil{
-				syscall.Kill(python.Process.Pid, 9)
-}}
+			if python != nil {
+				if python.Process != nil {
+					syscall.Kill(python.Process.Pid, 9)
+				}
+			}
 			os.Exit(ERR_SUBPROCESS)
 		}
 		wait <- 1
