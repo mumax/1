@@ -145,6 +145,14 @@ def setRandom():
 ## Sets the magnetization to a vortex state
 def vortex(circulation, polarization):
 	send2("vortex", circulation, polarization)
+	
+## Sets a vortex state with ellips shape having semi-axes [sx, sy] and center [cx, cy] with a certain circulation and polarization
+def setVortexEllips(cx, cy, sx, sy, circulation, polarization):
+  send("SetVortexEllips", [cx, cy, sx, sy, circulation, polarization])
+
+## Sets a vortex state with rectangular shape having edges [sx, sy] and center [cx, cy] with a certain circulation and polarization
+def setVortexEllips(cx, cy, sx, sy, circulation, polarization):
+  send("SetVortexEllips", [cx, cy, sx, sy, circulation, polarization])
 
 ## Sets a vortex in an array
 #def vortexInArray(i, j, unit_size, separation, circulation, polarization):
