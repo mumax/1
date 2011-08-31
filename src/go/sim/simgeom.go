@@ -298,11 +298,13 @@ func (sim *Sim) SetMsatRange(z1, y1, x1, z2, y2, x2 int, msat float32) {
 	}
 }
 
-// Set the normalized (!) saturation magnetization in an ellips-shaped region with center [rx, ry] and radii
-func (s *Sim) SetMsatEllips(cx, cy, rx, ry, msat float32) {
+// Set the normalized (!) saturation magnetization in an ellips-shaped region with center [cx, cy] and semi-axes [sx, sy]
+func (s *Sim) SetMsatEllips(cx, cy, sx, sy, msat float32) {
 
 	s.initGeom()
 	s.initMsatMask()
+	rx := sx/2.0
+	ry := sy/2.0
 
 	c := s.input.cellSize
 	start_x := int(math.Floor(float64((cx - rx) / c[2])))
