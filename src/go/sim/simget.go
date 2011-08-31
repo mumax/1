@@ -73,3 +73,9 @@ func (s *Sim) GetCorePos() {
 func (s *Sim) GetE() {
 	Send(s.GetEnergySI())
 }
+
+
+// Gets the time in seconds
+func (s *Sim) GetTime(){
+	Send(s.time * float64(s.UnitTime()))
+}

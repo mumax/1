@@ -411,6 +411,11 @@ def getE():
   send0("getE")
   return recv()
 
+# Retrieves the time in seconds
+def getTime():
+  send0("getTime")
+  return recv()
+
 ## Debug and fine-tuning
 
 ## Override whether the exchange interaction is included in the magnetostatic convolution.
