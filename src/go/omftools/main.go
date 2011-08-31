@@ -41,6 +41,7 @@ var (
 func main() {
 	sh := refsh.New()
 	sh.AddFunc("draw", Draw)
+	sh.AddFunc("drawcomp", DrawComp)
 	sh.AddFunc("draw3d", Draw3D)
 	sh.AddFunc("3d-zoom", Draw3D_Size)
 	sh.AddFunc("3d-detail", Draw3D_Detail)

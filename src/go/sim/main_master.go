@@ -26,8 +26,10 @@ import (
 	"fmt"
 )
 
+const VERSION = 2470
+
 const WELCOME = `
-  MuMax 0.6.2368
+  MuMax 0.9.2470
   (c) Arne Vansteenkiste & Ben Van de Wiele,
       DyNaMat/EELAB Ghent University.
 
@@ -62,8 +64,13 @@ func has_known_extension(filename string) bool {
 // Start a mumax/python/... slave subprocess and tee its output
 func main_master() {
 
+	shouldupgrade := CheckVersion("http://dynamag.ugent.be/mumax/latest-version.txt", VERSION)
+
 	if !*silent {
 		fmt.Println(WELCOME)
+		if shouldupgrade {
+			fmt.Println("A newer version of MuMax is available")
+		}
 		PrintInfo()
 	}
 

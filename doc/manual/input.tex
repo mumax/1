@@ -1,9 +1,9 @@
-\section{Running \mumax}
+\section{How to build your simulations}
 
+\newcommand{\command}[1]{\hyperref[#1]{\textbf{#1}}\index{#1}\label{#1}}
 
 \subsection{Python input files}
-
-\mumax input files can be written in Python, among others. Let us start with a simple example input file: \file{standardproblem4.py}
+\mumax input files are written in Python. This way, one can build up a micromagnetic simulation suitable for each application by including loops, if-clauses, etc.  An introduction to the Python programming language can be found at \url{http://www.python.org/}.  Moreover, in order to set parameters, launch procedures, save output, etc. \mumax-specific commands are to be used.  Here is a simple example input file: \file{standardproblem4.py}
 
 \begin{verbatim}
 from mumax import *
@@ -14,8 +14,8 @@ aexch(1.3e-11)
 alpha(0.02)
 
 # geometry 
-gridsize(128, 32, 1)
-partsize(500e-9, 125e-9, 3e-9)
+gridSize(128, 32, 1)
+partSize(500e-9, 125e-9, 3e-9)
 
 # initial magnetization
 uniform	(1, 1, 0)
@@ -24,81 +24,560 @@ relax(1e-5)
 # run
 autosave('table', 'ascii', 10E-12)
 run(1e-9)
-\end{verbatim}
+\end{verbatim}                                                                                                                                            
 
+All text after a hashmark (\#) is considered a \idx{comment} and is ignored by the simulation.  They are only included for clarity and could be omitted.  All other text in the Python file is treated as a series of \idx{commands} that are executed in the order they are specified. In general, the order of the commands matters but should be easy to deduce.  E.g., you can not call \command{run} to start the time evolution when you have not first specified the material parameters, simulation size, etc\ldots. On the other hand, after having {run} the simulation for some time, you \emph{can} change the material parameters and call commands like \command{run} again. Either way, the program will tell you if it can not run a certain command yet because some parameters should be set first.
 
-\subsection{raw ".in" input files}
+In what follows, we comment on the different \mumax-specific commands.
 
-
-\begin{verbatim}
-# material
-msat       	800e3 
-aexch      	1.3e-11
-alpha      	0.02
-
-# geometry 
-gridsize	1     	32      128    
-partsize	500e-9	125e-9 	3e-9
-
-# initial magnetization
-uniform		1 1 0
-
-# run
-autosave	table	ascii	10E-12
-run          	1E-9
-\end{verbatim}
-
-\newcommand{\defcommand}[2][\space]{\textbf{#2}\index{#2}\label{#2} \textit{#1}}
-\newcommand{\command}[1]{\hyperref[#1]{\textbf{#1}}\index{#1}\label{#1}}
-
-\paragraph{Comments} All text after a hashmark (\#) is considered a \idx{comment} and is ignored by the simulation. In the above example, the statements \cmd{\# material}, \cmd{\# geometry}, \ldots are thus comments. They are only included for clarity and could be omitted.
-
-\paragraph{Commands} All the other text in the input file is treated as a series of \idx{commands} that are executed in the order they are specified. In general, the order of the commands matters but should be easy to deduce.  E.g., you can not call \command{run} to start the time evolution when you have not first specified the material parameters, simulation size, etc\ldots. On the other hand, after having {run} the simulation for some time, you \emph{can} change the material parameters and call commands like \command{run} again. Either way, the program will tell you if it can not run a certain command yet because some parameters should be set first. A list of commands is found below.
-
-\subsubsection*{Material parameters}
-\begin{tabular}{ll}
-\defcommand[value]{msat}  & Sets the saturation magnetization to the value specified in A/m. \\
-\defcommand[value]{aexch} & Sets the exchange constant to the value specified in J/m. \\
-\defcommand[value]{alpha} & Sets the damping coefficient.
-\end{tabular}
-
-\subsubsection*{Part size}
-To define the magnet size, you must specify \emph{exactly two} of the three commands below.\\
-
-\begin{tabular}{ll}
-\defcommand[x y z]{partsize}  & Sets the size of the magnet, specified in m. \\
-\defcommand[x y z]{cellsize}  & Sets the size of the finite difference cells, in m. \\
-\defcommand[$N_x$ $N_y$ $N_z$]{gridsize} & Sets the number of finite difference cells.
-\end{tabular}\\
-\bigskip
+\subsection{Material input parameters}
 
 \begin{itemize}
- \item After having set two of these values, the remaining one is calculated automatically. E.g. the part size and cell size automatically fix the number of cells.
- \item For performance reasons, the number of cells in each direction should preferentially be a power of two.
- \item For a 2D simulation, one can simply use $N_x \times N_y \times 1$ cells. In that case, optimized algorithms for a 2D geometry are used. Note that only the last dimension ($Z$) can be $1$ cell large, e.g., $1 \times N_y \times N_z$ is not a valid grid size.
+ \item {\textbf{msat(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the saturation magnetization to the value specified in A/m.\\
+				\textbf{\textit{arg}}: saturation magnetization in A/m.
+				}\flushleft}
+ 
+ \item {\vspace{-0.4cm}\textbf{setMsat(\textit{arg1, arg2, arg3, arg4})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the saturation magnetization of the cell with index i,j,k to scale*msat\\
+				\textbf{\textit{arg1, arg2, arg3}}: integer index of the cell.\\
+				\textbf{\textit{arg4}}: saturation magnetization scale factor
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{setMsatRange(\textit{arg1, arg2, arg3, arg4, arg5, arg6, arg7})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the saturation magnetization in the cells within the range [x1, y1, z1] to [x2, y2, z2] to scale*msat.  Note that this command can be used to define (unstructured) antidot arrays with rectangular holes when scaling factor is zero.\\
+				\textbf{\textit{arg1, arg2, arg3}}: integer index of the cell (lower bound).\\
+				\textbf{\textit{arg4, arg5, arg6}}: integer index of the cell (upper bound).\\
+				\textbf{\textit{arg7}}: saturation magnetization scale factor
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{ellipsoid(\textit{arg1, arg2, arg3, arg4, arg5, arg6, arg7})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the saturation magnetization in an ellips-shaped region to scale*msat.  Note that this command can be used to define (unstructured) antidot arrays with ellips-shaped holes when scaling factor is zero.\\
+				\textbf{\textit{arg1, arg2}}: [x,y] center coordinate of the ellips in meters.\\
+				\textbf{\textit{arg3, arg4}}: [rx, ry] semi-axis in $x-$ and $y-$ direction\\
+				\textbf{\textit{arg5}}: saturation magnetization scale factor
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{aexch(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the exchange constant to the value specified in J/m.\\
+				\textbf{\textit{arg}}: exchange constant in J/m.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{alpha(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the damping coefficient to the specified value.\\
+				\textbf{\textit{arg}}: damping coefficient.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{k1(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with \texttt{anisuniaxial}\\
+%				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with anisuniaxial or aniscubic.\\
+				\textbf{\textit{arg}}: first order anisotropy constant in J/m$^3$.
+				}\flushleft}
+
+%  \item {\textbf{k2(\textit{arg})}:
+%				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+% 				Sets the second order anisotropy constant K2 to the specified value in J/m$^3$.  Only for cubic anisotropy.  Should be used in combination with \texttt{anisuncubic}\\
+% 				\textbf{\textit{arg}}: second order anisotropy constant in J/m$^3$.
+%				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{anisUniaxial(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Defines the uniaxial anisotropy axis, normalization is done internally.\\
+				\textbf{\textit{arg1, arg2, arg3}}: projection of anisotropy axis along the $x$-, $y$- and $z$-axis.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{anisCubic}(\textit{u1, v1, w1,  u2, v2, w2})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Defines two of the three cubic anisotropy axes. The third axis is computed automatically to be perpendicular to both of them. Normalization is done internally.\\
+				\textbf{\textit{u1, v1, w1}}: projection of first anisotropy axis along the $x$-, $y$- and $z$-axis.
+				\textbf{\textit{u2, v2, w2}}: projection of second anisotropy axis along the $x$-, $y$- and $z$-axis. }\flushleft
+
+ \item {\vspace{-0.4cm}\textbf{spinPolarization(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the spin polarization for spin-transfer torque to the specified value.\\
+				\textbf{\textit{arg}}: spin polarization.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{xi(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the non-adiabicity for spin-transfer torque to the specified value.\\
+				\textbf{\textit{arg}}: non-adiabicity.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{temperature(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the temperature to the specified value in Kelvin.\\
+				\textbf{\textit{arg}}: temperature in Kelvin.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{setAlpha(\textit{arg1, arg2, arg3, arg4})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the damping coefficient of a single cell to alpha*scale.\\
+				\textbf{\textit{arg1, arg2, arg3}}: integer index of the cell.\\
+				\textbf{\textit{arg4}}: scaling factor
+				}\flushleft}
+
+ \item \textbf{k1}(\textit{arg}):\\
+				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with anisUniaxial\\
+%				Sets the first order anisotropy constant K1 to the specified value in J/m$^3$.  Should be used in combination with anisuniaxial or anis cubic.\\
+				\textit{arg}: first order anisotropy constant in J/m$^3$.
+
+\end{itemize}
+
+\subsection{Geometry input parameters}
+To define the magnet size, you must specify \emph{exactly two} of the three commands below.
+
+\begin{itemize}
+ \item {\textbf{partSize(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the size of the simulation domain, specified in meter.\\
+				\textbf{\textit{arg1, arg2, arg3}}: size in the $x$-, $y$- and $z$-direction in meter.\\
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{cellSize(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the size of the finite difference cells used in the simulation, specified in meter.\\
+				\textbf{\textit{arg1, arg2, arg3}}: size in the $x$-, $y$- and $z$-direction in meter.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{gridSize(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the number of finite difference (FD) cells used in the simulation.\\
+				\textbf{\textit{arg1, arg2, arg3}}: number of FD cells in the $x$-, $y$- and $z$-direction.
+				}\flushleft}
+
 \end{itemize}
 
 
-\subsubsection*{Initial magnetization state}
-\begin{tabular}{ll}
-\defcommand[$m_x$ $m_y$ $m_z$]{uniform}  & Initializes the magnetization to a uniform state.\\
-\defcommand[amplitude]{addnoise} & Adds random noise with the specified amplitude to a previously\\& defined magnetization state.
-\end{tabular}
+Comments
+\begin{enumerate}
+ \item After having set two of these values, the remaining one is calculated automatically. 
+ \item Due to GPU-hardware specifications, the resulting number of finite difference (FD) cells in the $x$-dimensions should be a product of 16.  If not, an error message will occure.
+ \item For performance reasons, the resulting number of FD cells ($N_x$, $N_y$, $N_z$) should be chosen such that $N_x\geq N_y \geq N_z$.
+ \item For performance reasons, the number of cells in each direction should preferentially be a power of two. Sizes $N_x=16\times2^{n_x}\times\{3,5 \mathrm{\,or\,} 7\}$, $N_y=2^{n_y}\times\{3,5 \mathrm{\,or\,} 7\}$ and $N_z=2^{n_z}\times\{3,5 \mathrm{\,or\,} 7\}$ are also possible, but slower. Other products of prime fractures result in much slower simulation times and should be avoided.  A warning will appear when the resulting number of FD cells leads to inferior efficiencies.
+ \item For a 2D simulation, one can simply use $N_x \times N_y \times 1$ cells. In that case, optimized algorithms for a 2D geometry are used. Note that only the last dimension ($z$) can be $1$ cell large, e.g., $1 \times N_y \times N_z$ is not a valid grid size.
+ \item Simulations following the 2.5D approach can be conducted when choosing the last dimension ($z$) equal to '\texttt{inf}'.  In this approach, the geometry is infinite in the $z$-direction leading to a 2D geometry discretization, the micromagnetic fields and material properties are invariant in the $z$-direction.  In this case the 2.5D demag kernel is used together with optimized algorithms.
+\end{enumerate}
+
+Other geometry related commands are
+
+\begin{itemize}
+
+ \item {\textbf{maxCellSize(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Can be used in stead of \texttt{cellsize}.  Sets the maximum size of the finite difference cells, specified in meter of the simulation domain.  In this case, \mumax adjusts the cellsize such that the resulting number of FD cells leads to efficient simulation times.\\
+				\textbf{\textit{arg1, arg2, arg3}}: maximum cell size in the $x$-, $y$- and $z$-direction in meter.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{periodic(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the number of periodic images in each direction when periodic boundary conditions are considered.  E.g. \texttt{periodic(0,0,20)} defines a geometry which is only periodic in the $z$-direction.  In the positive as well as in the negative $z$-direction, 20 periodic images are considered. On default, no periodicity is considered.\\
+				\textbf{\textit{arg1, arg2, arg3}}: number of periodic images in the positive and negative $x$-, $y$- and $z$-direction.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{ellipsoid(\textit{arg1, arg2, arg3}}):
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Make the geometry an ellipsoid with specified semi-axis.  Use \texttt{ellipsoid(arg1, arg2, inf)} to define a cylinder in the 2.5D approach.\\
+				\textbf{\textit{arg1, arg2, arg3}}: size of the semi-axis in the $x$-, $y$- and $z$-direction in meter.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{dotArrayRectangle(\textit{arg1, arg2, arg3, arg4, arg5, arg6}}):
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets a mask for a dot array with rectangular dots.\\
+				\textbf{\textit{arg1, arg2}}: size of the unit entity dot + separation in the $x$- and $y$-direction in meter.\\
+				\textbf{\textit{arg3, arg4}}: separation between the dots in the $x$- and $y$-direction.\\
+				\textbf{\textit{arg5, arg6}}: number of dots in the $x$- and $y$-direction.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{dotArrayEllips(\textit{arg1, arg2, arg3, arg4, arg5, arg6}}):
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets a mask for a dot array with ellips-shaped dots.\\
+				\textbf{\textit{arg1, arg2}}: size of the unit entity dot + separation in the $x$- and $y$-direction in meter.\\
+				\textbf{\textit{arg3, arg4}}: separation between the dots in the $x$- and $y$-direction.\\
+				\textbf{\textit{arg5, arg6}}: number of dots in the $x$- and $y$-direction.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{antiDotArrayRectangle(\textit{arg1, arg2, arg3, arg4, arg5, arg6}}):
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets a mask for an antidot array with rectangular holes.\\
+				\textbf{\textit{arg1, arg2}}: size of the unit entity hole + separation in the $x$- and $y$-direction in meter.\\
+				\textbf{\textit{arg3, arg4}}: separation between the holes in the $x$- and $y$-direction.\\
+				\textbf{\textit{arg5, arg6}}: number of holes in the $x$- and $y$-direction.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{antiDotArrayEllips(\textit{arg1, arg2, arg3, arg4, arg5, arg6}}):
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets a mask for an antidot array with ellips-shaped holes.\\
+				\textbf{\textit{arg1, arg2}}: size of the unit entity hole + separation in the $x$- and $y$-direction in meter.\\
+				\textbf{\textit{arg3, arg4}}: separation between the holes in the $x$- and $y$-direction.\\
+				\textbf{\textit{arg5, arg6}}: number of holes in the $x$- and $y$-direction.
+				}\flushleft}
+
+\end{itemize}
+
+
+\subsection{Defining the initial magnetization}
+
+
+\begin{itemize}
+ \item  {\textbf{uniform(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the magnetization uniform througout the sample in a specified direction.  \mumax normalizes the input and takes the amplitude is defined by the \texttt{msat} command.\\
+				\textbf{\textit{arg1, arg2, arg3}}: magnetization direction in the $x$-, $y$- and $z$-direction.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{setRandom():}
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the magnetization randomly througout the sample in a specified direction.  The magnetization has an amplitude which is defined by the \texttt{msat} command.  Note that the parenthesis should be added.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{addNoise(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Adds noise to the local magnetization. \\
+				\textbf{\textit{arg}}: amplitude of the noise, should be between 0 and 1.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{loadm(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Loads the magnetization state from a .omf file.  If the discretization grid does not correspond, an interpolation is made.\\
+				\textbf{\textit{arg}}: filename, myfile.omf.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{vortex(\textit{arg1, arg2})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the magnetization to a vortex state\\
+				\textbf{\textit{arg1}}: circulation\\
+				\textbf{\textit{arg2}}: polarization
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{vortexInArray(\textit{arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Set a vortex in a 2D array. A rectangular unit entitie (vortex + separation) is considered.  The total number of entities should fit the discretization grid.\\
+				\textbf{\textit{arg1}}: integer i $\rightarrow$ i'th vortex in $x$-direction.\\
+				\textbf{\textit{arg2}}: integer j $\rightarrow$ j'th vortex in $y$-direction.\\
+				\textbf{\textit{arg3, arg4}}: unit size (vortex size + separation) in the $x$- and $y$-direction in meter.\\
+				\textbf{\textit{arg5, arg6}}: separation in the $x$- and $y$-direction in meter.\\
+				\textbf{\textit{arg7}}: circulation\\
+				\textbf{\textit{arg8}}: polarization
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{setmCell(\textit{arg1, arg2, arg3, arg4, arg5, arg6})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the magnetization in a given cell.\\
+				\textbf{\textit{arg1, arg2, arg3}}: 3D cell index [i,j,k]\\
+				\textbf{\textit{arg4, arg5, arg6}}: magnetization [m$_x$, m$_y$, m$_z$]
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{setmRange(\textit{arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the magnetization in a given range of cells between [i$_1$,j$_1$,k$_1$] and [i$_2$,j$_2$,k$_2$] (inclusive)(exclusif).\\
+				\textbf{\textit{arg1, arg2, arg3}}: 3D cell index of bottom left range [i$_1$,j$_1$,k$_1$]\\
+				\textbf{\textit{arg4, arg5, arg6}}: 3D cell index [i$_2$,j$_2$,k$_2$]\\
+				\textbf{\textit{arg7, arg8, arg9}}: magnetization [m$_x$, m$_y$, m$_z$]
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{setm(\textit{arg1, arg2, arg3, arg4, arg5, arg6})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the magnetization in a cell with coordinates in meters.\\
+				\textbf{\textit{arg1, arg2, arg3}}: 3D cell index [x,y,z] in meters\\
+				\textbf{\textit{arg4, arg5, arg6}}: magnetization [m$_x$, m$_y$, m$_z$]
+				}\flushleft}
+
+\end{itemize}
+
+
+\subsection{Writing output}
+
+\begin{itemize}
+
+ \item {\textbf{save(\textit{arg1, arg2})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Saves data with automatic file name\\
+				\textbf{\textit{arg1}}: what to be saved: 'm', 'table', 'phi' (energy density), 'torque'\\
+				\textbf{\textit{arg2}}: format: 'png', 'binary', 'text'
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{savem(\textit{arg1, arg2})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Single save of the magnetization to a specified file (.omf)\\
+				\textbf{\textit{arg1}}: filename\\
+				\textbf{\textit{arg2}}: format: 'binary', 'text'
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{saveh(\textit{arg1, arg2})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Single save of the effective field to a specified file (.omf)\\
+				\textbf{\textit{arg1}}: filename\\
+				\textbf{\textit{arg2}}: format: 'binary', 'text'
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{autosave(\textit{arg1, arg2, arg3})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Periodic save of the magnetization to an automatic file.  The filename corresponds to the id which can be found in the datatable.\\
+				\textbf{\textit{arg1}}: what to be saved: 'm', 'table', 'phi' (energy density), 'torque'\\
+				\textbf{\textit{arg2}}: format: 'png', 'binary', 'text' (table can only be saved as 'text')\\
+				\textbf{\textit{arg3}}: periodicity in seconds.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{tabulate(\textit{arg1, arg2})}:  
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Determines what should be saved in the datatable, e.g. tabulate('m', True)\\
+				\textbf{\textit{arg1}}: what: 'm', 'E' (energy), 'torque' 'time', 'b', 'j', 'id', 'maxdm/dt', 'minmaxmz', 'corepos'\\
+				\textbf{\textit{arg2}}: boolean\\
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{subsampleOutput(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Reduce the resolution of saved output by a factor to save disk space\\
+				\textbf{\textit{arg}}: subsampling factor
+				}\flushleft}
+
+\end{itemize}
+
+
+\subsection{Adjusting the solver}
+
+The following commands can be used to change and/or fine tune the default solver and default solver settings.
+
+\begin{itemize}
+
+ \item {\textbf{solverType(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Overrides the standard solver type.\\
+				\textbf{\textit{arg}}: 'rk12', 'rk23', 'rk45', 'rkdp', 'rkck', 'euler', 'fixedeuler' or 'heun' 
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{maxError(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the maximum tolerable estimated error per solver step.\\
+				\textbf{\textit{arg}}: error
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{maxdt(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the maximum time step in seconds.\\
+				\textbf{\textit{arg}}: maximum time step in seconds.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{mindt(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the minimum time step in seconds.\\
+				\textbf{\textit{arg}}: minimum time step in seconds.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{maxdm(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the maximum magnetization step.\\
+				\textbf{\textit{arg}}: maximum magnetization step (normalized).
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{mindm(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the minimum magnetization step.\\
+				\textbf{\textit{arg}}: minimum magnetization step (normalized).
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{exchType(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Sets the exchange discretization scheme: 6 (default) or 12 neighbor scheme.  For 2D and 2.5D simulations, the corresponding 3D nomenclature should be used.\\
+				\textbf{\textit{arg}}: '6' or '12'.
+				}\flushleft}
+
+\end{itemize}
+
+
+\subsection{Defining the excitation}
+
+\begin{itemize}
+
+ \item {\textbf{applyStatic(\textit{arg1, arg2, arg3, arg4})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Apply a static field or current density.\\
+				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
+				\textbf{\textit{arg2, arg3, arg4}}: excitation $f$ with components [$f_x$, $f_y$, $f_z$].
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{applyRF(\textit{arg1, arg2, arg3, arg4, arg5})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Apply a radio frequent field or current density.\\
+				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
+				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$.\\
+				\textbf{\textit{arg5}}: frequency in Herz.
+				}\flushleft}
+
+% \item {\vspace{-0.4cm}\textbf{applyrframp(\textit{arg1, arg2, arg3, arg4, arg5, arg6})}:   ****** CHECK THIS *******
+%				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+%				Apply a radio frequent field or current density slowly ramped in time.\\
+%				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
+%				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$.\\
+%				\textbf{\textit{arg5}}: frequency in Herz.\\
+%				\textbf{\textit{arg6}}: ramptime in seconds.
+%				}\flushleft}
+%
+% \item {\vspace{-0.4cm}\textbf{applyrotating(\textit{arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9})}:   ****** CHECK THIS *******
+%				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+%				Apply a radio frequent, rotating field or current density.\\
+%				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
+%				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$.\\
+%				\textbf{\textit{arg5}}: frequency in Herz.\\
+%				\textbf{\textit{arg6}}: ramptime in seconds.\\
+%				\textbf{\textit{arg7, arg8, arg9}}: phase in $x$-, $y$- and $z$-direction.
+%				}\flushleft}
+
+% \item {\vspace{-0.4cm}\textbf{applypulse(\textit{arg1, arg2, arg3, arg4, arg5})}:   ****** CHECK THIS *******
+%				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+%				Apply one single pulse field or current density.\\
+%				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
+%				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$.\\
+%				\textbf{\textit{arg5}}: risetime in seconds.
+%				}\flushleft}
+
+% \item {\vspace{-0.4cm}\textbf{applysawtooth(\textit{arg1, arg2, arg3, arg4, arg5})}:   ****** CHECK THIS *******
+%				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+%				Apply a sawtooth field or current density.\\
+%				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
+%				\textbf{\textit{arg2, arg3, arg4}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$.\\
+%				\textbf{\textit{arg5}}: frequency.
+%				}\flushleft}
+%
+% \item {\vspace{-0.4cm}\textbf{applyrotatingburst(\textit{arg1, arg2, arg3, arg4, arg5, arg6})}:   ****** CHECK THIS *******
+%				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+%				Apply a rotating radio frequent field or current density.\\
+%				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
+%				\textbf{\textit{arg2}}: amplitude excitation.\\
+%				\textbf{\textit{arg3}}: frequency in Hertz.\\
+%				\textbf{\textit{arg4}}: phase.\\
+%				\textbf{\textit{arg5}}: risetime in seconds.\\
+%				\textbf{\textit{arg6}}: duration in seconds.
+%				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{applyPointwise(\textit{arg1, arg2, arg3, arg4})}: 
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Apply a pointwise-defined field/current defined by a number of time + field points.  The field is linearly interpolated between the defined points.	E.g.:\\ 
+				\qquad\texttt{applyPointwise('field', 0, 0,0,0)}\\
+				\qquad\texttt{applyPointwise('field', 1e-9, 1e-3,0,0)} \\
+				sets up a linear ramp in 1ns from 0 to 1 mT in the $x$-direction.  Arbitrary functions can be well approximated by specifying a large number of time+field combinations.\\
+				\textbf{\textit{arg1}}: 'field' for magnetic field in Tesla or 'current' for current density in J/m$^3$.\\
+				\textbf{\textit{arg2}}: time in seconds.\\
+				\textbf{\textit{arg3, arg4, arg5}}: amplitude for each component of the excitation $f = [f_x, f_y, f_z]$.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{fieldMask(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Set a space dependent mask to be multiplied pointwise by the applied magnetic field.  This allows the definition of time and space dependent fields $B(r,t) = B_x(t)*mask_x(r) + B_y(t)*mask_y(r) + B_y(t)*mask_z(r)$.  Here $B(t)= B_x(t) + B_y(t) + B_z(t)$ is defined with the functions above and while the mask defines the space dependency.\\
+				\textbf{\textit{arg}}: filename, in .omf format.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{currentMask(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Set a space dependent mask to be multiplied pointwise by the applied current density.  This allows the definition of time and space dependent current densities $J(r,t) = J_x(t)*mask_x(r) + J_y(t)*mask_y(r) + J_y(t)*mask_z(r)$.  Here $J(t)= J_x(t) + J_y(t) + J_z(t)$ is defined with the functions above and while the mask defines the space dependency.\\
+				\textbf{\textit{arg}}: filename, in .omf format.
+				}\flushleft}
+
+\end{itemize}
 
 
 
+\subsection{Run commands}
 
-\subsubsection{Applied magnetic field}
-\begin{tabular}{ll}
-\defcommand[$B_x$ $B_y$ $B_z$]{staticfield}  & Applies a static magnetic field, specified in tesla.\\
-\end{tabular}
+\begin{itemize}
 
-\subsubsection*{Scheduled output}
-\begin{tabular}{ll}
-\defcommand[what format interval]{autosave}  & $what$ = m (magnetization) or table.\\
-& $format$ = ascii, binary or png.\\
-& $interval$ = save output every $interval$ seconds.
-\end{tabular}
+ \item {\textbf{run(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Simulates for the time specified in seconds.\\
+				\textbf{\textit{arg}}: time specified in seconds.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{relax()}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Relaxes the magnetization to the energy minimum.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{energy(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Overrides wether or not the energy should be calculated.\\
+				\textbf{\textit{arg}}: 'true' or 'false'.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{step()}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Takes on single time step.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{steps(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Takes a given number of time steps.\\
+				\textbf{\textit{arg}}: number of timesteps.
+				}\flushleft}
+
+\end{itemize}
+
+
+\subsection{Getting feedback from \mumax}
+
+\begin{itemize}
+
+ \item {\textbf{getm(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Retrieves an average magnetization component.\\
+				\textbf{\textit{arg}}: integer: '0' for $x$-component, '1' for $y$-component, '2' for $z$-component.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{getMaxm(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Retrieves the maximum value of a magnetization component.\\
+				\textbf{\textit{arg}}: integer: '0' for $x$-component, '1' for $y$-component, '2' for $z$-component.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{getMinm(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Retrieves the minimum value of a magnetization component.\\
+				\textbf{\textit{arg}}: integer: '0' for $x$-component, '1' for $y$-component, '2' for $z$-component.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{getMaxTorque(\textit{arg})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Retrieves the maximum value of a torque component in units $\gamma M_{sat}$.\\
+				\textbf{\textit{arg}}: integer: '0' for $x$-component, '1' for $y$-component, '2' for $z$-component.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{getE()}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Retrieves the total energy in SI units.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{getCorepos(\textit{})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Retrieves the vortex core position in meters.  The center of the simulation corresponds to $(0,0)$.
+				}\flushleft}
+
+\end{itemize}
+
+\subsection{Miscellaneous}
+
+\begin{itemize}
+
+ \item {\textbf{desc(\textit{arg1, arg2})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Adds a description tag.\\
+				\textbf{\textit{arg1}}: key.\\
+				\textbf{\textit{arg2}}: value.
+				}\flushleft}
+
+ \item {\vspace{-0.4cm}\textbf{saveBenchmark(\textit{file})}:
+				\flushright\parbox{0.9 \textwidth}{\vspace{-0.25cm} 
+				Save benchmark info to a file.\\
+				\textbf{\textit{arg}}: filename.
+				}\flushleft}
+
+\end{itemize}
 
 
 \subsection{Output}
@@ -106,22 +585,4 @@ To define the magnet size, you must specify \emph{exactly two} of the three comm
 
 Upon running an input file, an \idx{output directory} with a corresponding name but ending with ``\file{.out}'' will be created to store the simulation output. It also contains a file \idxfile{output.log} that keeps a log of all the output that appeared on the screen.  
 
-
-\subsection{\mumax Arguments}
-
-\mumax is generally started by typing:
-
-\shell{\prog \textit{arguments} \textit{inputfile}}
-
-in a terminal. \cmd{\textit{arguments}} represents the (optional) \idx{command line arguments}, starting with a dash (``-'') or double-dash. These should always be specified \emph{before} the input file(s). They are meant for fine-tuning the program's behavior and may often be omitted. Here are the most important cases:
-
-\begin{tabular}{ll}
-\idxcmd{-help} & Print a complete list of command-line arguments.\\
-\idxcmd{-cpu} & Run on the CPU instead of the GPU. \\
-\idxcmd{-gpu=N}&  Run on GPU number ``N'' when multiple GPUs are present.\\& Default value is ``0'', the first GPU. \\
-\idxcmd{-silent}&  Do not print output to the screen (only to output.log) \\
-\idxcmd{-updatedisp=N}&  Update the ``live'' progress output every N milliseconds \\
-\idxcmd{-daemon}&  Run in deamon mode, see \ref{daemon} \\
-\idxcmd{-watch=N}&  When running in deamon mode, check for new input files every ``N'' seconds. See \ref{daemon}. \\
-\end{tabular}
 

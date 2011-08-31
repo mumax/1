@@ -97,8 +97,12 @@ func (d Cpu) normalizeMap(m, normMap uintptr, N int) {
 	C.cpu_normalize_map((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(normMap)), C.int(N))
 }
 
-func (d Cpu) deltaM(m, h uintptr, alpha, dtGilbert float32, N int) {
-	C.cpu_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha), C.float(dtGilbert), C.int(N))
+func (d Cpu) deltaM(m, h uintptr, alpha float32, alphaMask *DevTensor, dtGilbert float32, N int) {
+	var alphaMap unsafe.Pointer
+	if alphaMask != nil {
+		alphaMap = unsafe.Pointer(alphaMask.data)
+	}
+	C.cpu_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha), (*C.float)(alphaMap), C.float(dtGilbert), C.int(N))
 }
 
 func (d Cpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, jMask *DevTensor, dtGilb float32, size []int) {

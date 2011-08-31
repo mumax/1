@@ -149,6 +149,25 @@ func CopyUnpad(source, dest *DevTensor) {
 }
 
 
+func (t *DevTensor) Set(x, y, z int, value float32) {
+	N1 := t.size[1]
+	N2 := t.size[2]
+	index := x*N1*N2 + y*N2 + z
+	t.memcpyTo(&value, (t.data + uintptr(4*index)), 1)
+}
+
+
+func (t *DevTensor) Get(comp, x, y, z int) float32 {
+	var value float32
+	N0 := t.size[0]
+	N1 := t.size[1]
+	N2 := t.size[2]
+	index := comp*N0*N1*N2 + x*N1*N2 + y*N2 + z
+	t.memcpyFrom((t.data + uintptr(4*index)), &value, 1)
+	return value
+}
+
+
 func (t *DevTensor) String() string {
 	return fmt.Sprintf("%#v", t)
 }

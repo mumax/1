@@ -3,4 +3,4 @@ all:
 
 .PHONY:	clean
 clean:
-	rm -rf mumax mumax-sim
+	rm -rf mumax-sim

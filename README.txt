@@ -26,9 +26,6 @@ Installation
 
 * MuMax comes with pre-compiled binaries
 * Unpack the mumax archive to the destination of your choice. We will call this /home/me/path/to/mumax
-* In the unpacked mumax root directory, execute the setup.bash script:
-	./setup.bash
-  This needs to be repeated only when the mumax directory was moved.
 * MuMax can now be run by executing:
 	/home/me/path/to/mumax/bin/mumax
 * You can edit your hidden ".bashrc" file in your home directory and add this line:
@@ -71,5 +68,5 @@ To get a list of command-line arguments, run:
 arguments include, e.g., -cpu to run on CPU, -gpu=N to select one of multiple GPUs, ...
 
 
-
+An overview of the availbe functions in Python can be found in doc/refman.pdf or in the documentation of lib/mumax.py
 

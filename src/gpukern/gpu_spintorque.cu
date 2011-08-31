@@ -193,9 +193,16 @@ void gpu_spintorque_deltaM(float* m, float* h, float alpha, float beta, float ep
   dim3 gridsize(divUp(N1, BLOCKSIZE), divUp(N2, BLOCKSIZE));
   dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
   int N = N0 * N1 * N2;
-  float* jmapx = &jmap[0*N];
-  float* jmapy = &jmap[1*N];
-  float* jmapz = &jmap[2*N];
+
+  float* jmapx = NULL;
+  float* jmapy = NULL;
+  float* jmapz = NULL;
+
+  if(jmap != NULL){
+  	jmapx = &jmap[0*N];
+  	jmapy = &jmap[1*N];
+  	jmapz = &jmap[2*N];
+  }
   
   for(int i=0; i<N0; i++){
     _gpu_spintorque_deltaM<<<gridsize, blocksize>>>(&m[0*N], &m[1*N], &m[2*N], &h[0*N], &h[1*N], &h[2*N], alpha, beta, epsillon, u[0], u[1], u[2], jmapx,  jmapy, jmapz, dt_gilb, N0, N1, N2, i);

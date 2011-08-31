@@ -87,7 +87,9 @@ func (t *TabWriter) Flush() {
 }
 
 func (t *TabWriter) Close() {
-	if ! t.initiated{return}
+	if !t.initiated {
+		return
+	}
 	if t.PrintHeader {
 		fmt.Fprintln(t.tabout, "# Table End")
 	}

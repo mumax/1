@@ -5,7 +5,7 @@ You can run \prog in the background (in ``\idx{daemon}'' mode), which makes it s
 
 \shell{\prog \space -daemon \textit{arguments directory1 directory2 ...}}
 
-This lets the program search the listed directories for input files which will be automatically run. It will run all files ending with \file{.in}, for which the corresponding output directory (ending with \file{.out}) \emph{does not yet exist}.  When all simulations are finished, the directories will be re-checked for new input files every few seconds. So you can add new input files at any moment and they will queued for execution.
+This lets the program search the listed directories for input files which will be automatically run. It will run all files ending with \file{.py}, for which the corresponding output directory (ending with \file{.out}) \emph{does not yet exist}.  When all simulations are finished, the directories will be re-checked for new input files every few seconds. So you can add new input files at any moment and they will queued for execution.
 
 Note that when a directory \file{XXX.out} exists, the corresponding \file{XXX.in} file will not be run. Thus, when you want to re-run a simulation (e.g., after you have edited the input file), you need to remove the 
 \file{.out} directory.
@@ -18,23 +18,23 @@ Running in daemon mode provides a way to sequentially run a large batch of simul
 
 As a first example of the \mumax deamon we illustrate how to run a batch of simulations on your local machine.
 
-First, prepare all your input files in a local directory, e.g. \file{/home/me/sims}. The input files should end with ``\file{.in}''. Then run
+First, prepare all your input files in a local directory, e.g. \file{/home/me/sims}. The input files should end with ``\file{.py}''. Then run
 
 \shell{\prog\space -daemon -watch=0 /home/me/sims}
 
-This will run al the simulations and exit when done. Due to \cmd{-watch=0}, the deamon will not search for new input files when done but just exit. The progress will be reported on the screen so it can be followed live, but a log is also saved in each of the ``\file{.out}'' directories.
+This will run al the simulations and exit when done. Due to \cmd{-watch=0}, the daemon will not search for new input files when done but just exit. The progress will be reported on the screen so it can be followed live, but a log is also saved in each of the ``\file{.out}'' directories.
 
 This simple example is not very different from sequentially running the simulations directly from bash, as could be done with the command:
 
 \shell{for i in *.in; do \mumax \$i; done}
 
-In this exammple the only difference is that with the \mumax daemon you can still add additional files while the simulations are running. Below we show more advanced examples that would be rather hard to code in bash.
+In this example the only difference is that with the \mumax daemon you can still add additional files while the simulations are running. Below we show more advanced examples that would be rather hard to code in bash.
 
 \subsection{Simulating on a cluster}
 
 To distribute a batch of simulations over a cluster, you can simply create a shared network directory for your input files. Then start \prog \idxcmd{-daemon} \emph{\cmd{networkdir}} on each of the cluster nodes
-and they will all start to run the input files on the share in parallel. All the output is convieniently written back to the network share.
+and they will all start to run the input files on the share in parallel. All the output is conveniently written back to the network share. 
 
 \subsection{Simulating in a cloud}
 
-It often happens that someone has a local machine or cluster that is not used 100\% of the time. In that case, the idle time can easily be ``donated'' to an other group, and they can do the same with their idle time. To set up such collaborative network, create \emph{two} input file directories. E.g.: a local directory \file{mySims} for your own simulations and a remotely accessible directory \file{theirSims}. The remote directory could, e.g., be mounted with \idxcmd{sshfs} to provide secure access over the internet. Then run \prog \cmd{-daemon mySims theirSims} (on your local machine or on all of your cluster nodes). The program will then \emph{first} search \file{mySims} for input files to run. When there are no pending input files left on \file{mySims}, it will start running the input files in \file{theirSims}. Also, as soon as new input files are added to \file{mySims}, they will again be run with first priority. Thus, only time otherwise spent idle is donated to your collaborators. They can then of course use exactly the same setup to donate their idle time to you.
+It often happens that someone has a local machine or cluster that is not used 100\% of the time. In that case, the idle time can easily be ``donated'' to an other group, and they can do the same with their idle time. To set up such collaborative network, create \emph{two} input file directories. E.g.: a local directory \file{mySims} for your own simulations and a remotely accessible directory \file{theirSims}. The remote directory could, e.g., be mounted with \idxcmd{sshfs} or \idxcmd{nfs} to provide access over the net. Then run \prog \cmd{-daemon mySims theirSims} (on your local machine or on all of your cluster nodes). The program will then \emph{first} search \file{mySims} for input files to run. When there are no pending input files left on \file{mySims}, it will start running the input files in \file{theirSims}. Also, as soon as new input files are added to \file{mySims}, they will again be run with first priority. Thus, only time otherwise spent idle is donated to your collaborators. They can then of course use exactly the same setup to donate their idle time to you.

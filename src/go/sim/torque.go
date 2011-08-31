@@ -2,7 +2,8 @@ package sim
 
 import (
 	"mumax/tensor"
-	// 	"fmt"
+	"fmt"
+	"os"
 )
 
 
@@ -47,7 +48,7 @@ func (s *Sim) DeltaM(m, h *DevTensor, dt float32) {
 		N := m.size[1] * m.size[2] * m.size[3]
 		alpha := s.alpha
 		dtGilbert := dt / (1 + alpha*alpha)
-		s.deltaM(m.data, h.data, alpha, dtGilbert, N)
+		s.deltaM(m.data, h.data, alpha, s.alphaMask, dtGilbert, N)
 	}
 }
 
@@ -62,6 +63,13 @@ func (s *Sim) DeltaM(m, h *DevTensor, dt float32) {
 // u = current density / (2*cell size)
 // TODO we could cache some parameters
 func (s *Sim) SpintorqueDeltaM(m, h *DevTensor, dt float32) {
+
+	assert(s.alphaMask == nil) // space-dependent alpha not yet implemented.
+
+	if s.jMask == nil {
+		fmt.Fprintln(os.Stderr, RED+BOLD+"Spin-transfer torque requires a currentMask to be set"+RESET)
+		os.Exit(-7)
+	}
 
 	alpha := s.alpha
 	dtGilb := dt / (1 + alpha*alpha)

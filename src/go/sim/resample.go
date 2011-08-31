@@ -53,10 +53,9 @@ func subsample4(data *tensor.T4, small *tensor.T4, f int) {
 
 	// reset small array before adding to it
 	sl := small.List()
-	for i:= range sl{
+	for i := range sl {
 		sl[i] = 0
 	}
-
 
 	for c := range a {
 
@@ -82,8 +81,10 @@ func subsample4(data *tensor.T4, small *tensor.T4, f int) {
 }
 
 
-func min(a, b int) int{
-	if a < b {return a}
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
 	return b
 }
 

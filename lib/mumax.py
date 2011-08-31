@@ -32,18 +32,26 @@ def aexch(a):
 def alpha(a):
 	send1("alpha", a)
 
-
 ## Sets the anisotropy constant K1.
 def k1(k):
 	send1("k1", k)
 
+## Sets the anisotropy constant K2.
+def k2(k):
+	send1("k2", k)
+
 ## Defines the uniaxial anisotropy axis.
-def anisuniaxial(ux, uy, uz):
+def anisUniaxial(ux, uy, uz):
 	send3("anisuniaxial", ux, uy, uz)
 
 
+## Defines the uniaxial anisotropy axis.
+def anisCubic(u1x, u1y, u1z, u2x, u2y, u2z):
+	send("aniscubic", [u1x, u1y, u1z, u2x, u2y, u2z])
+
+
 ## Defines the spin polarization for spin-transfer torque
-def spinpolarization(p):
+def spinPolarization(p):
 	send1("spinpolarization", p)
 
 ## Defines the non-adiabaticity for spin-transfer torque
@@ -58,19 +66,19 @@ def temperature(T):
 # Geometry
 
 ## Sets the number of FD cells
-def gridsize(nx, ny, nz):
+def gridSize(nx, ny, nz):
 	send3("gridsize", nx, ny, nz)
 
 ## Sets the size of the magnet, in meters
-def partsize(x, y, z):
+def partSize(x, y, z):
 	send3("partsize", x, y, z)
 
 ## Sets the cell size, in meters
-def cellsize(x, y, z):
+def cellSize(x, y, z):
 	send3("cellsize", x, y, z)
 
 ## Sets the maximum cell size, in meters
-def maxcellsize(x, y, z):
+def maxCellSize(x, y, z):
 	send3("maxcellsize", x, y, z)
 
 ## Sets periodic boundary conditions.
@@ -84,9 +92,36 @@ def periodic(nx, ny, nz):
 def ellipsoid(rx, ry, rz):
 	send3("ellipsoid", rx, ry, rz)
 
-# Sets number of periods in given direction
+## only for geometry definition (normalized Msat is 0 or 1), .png format
+def mask(file):
+	send1("mask", file)
+
+##Sets number of periods in given direction
 def periodic(Nx, Ny, Nz):
   send3("periodic", Nx, Ny, Nz)
+
+## Sets the reduced saturation magnetization of cell with integer index x,y,z
+def setMsat(x, y, z, msat):
+	send('setmsat', [x, y, z, msat])
+
+## Sets the reduced saturation magnetization of a cell in the integer range [x1,y1,z1] -> [x2,y2,z2]
+def setMsatRange(x1, y1, z1, x2, y2, z2, msat):
+  send('SetMsatRange', [x1, y1, z1, x2, y2, z2, msat])
+
+## Sets the reduced saturation magnetization of an ellips-shaped region with center [cx, cy] and radii [rx, ry]
+def setMsatEllips(cx, cy, rx, ry, msat):
+  send('SetMsatEllips', [cx, cy, rx, ry, msat])
+
+## Sets the alpha multiplier of cell with integer index x,y,z.
+# The damping of that cell will be alpha*alphaMul.
+def setAlpha(x, y, z, alphaMul):
+	send('setalpha', [x, y, z, alphaMul])
+
+## Sets the alpha multiplier of a cell in the integer range [x1,y1,z1] -> [x2,y2,z2]
+# The damping of that cell will be alpha*alphaMul.
+def setAlphaRange(x1, y1, z1, x2, y2, z2, alpha):
+  send('SetAlphaRange', [x1, y1, z1, x2, y2, z2, alpha])
+
 
 
 # Initial magnetization
@@ -100,11 +135,11 @@ def uniform(mx, my, mz):
 	send3("uniform", mx, my, mz)
 
 ## Adds random noise to the magnetization
-def addnoise(amplitude):
+def addNoise(amplitude):
 	send1("addnoise", amplitude)
 
 ## Initializes the magnetization to a random state
-def setrandom():
+def setRandom():
 	send0("setrandom")
 
 ## Sets the magnetization to a vortex state
@@ -112,12 +147,32 @@ def vortex(circulation, polarization):
 	send2("vortex", circulation, polarization)
 
 ## Sets a vortex in an array
-def Vortex_in_array(i, j, basic_size, separation, circulation, polarization):
-  send("Vortex_in_array", [i, j, basic_size, separation, circulation, polarization])
-  
+#def vortexInArray(i, j, unit_size, separation, circulation, polarization):
+  #send("Vortex_in_array", [i, j, unit_size, separation, circulation, polarization])
+def vortexInArray(i, j, unit_size_x, unit_size_y, separation_x, separation_y, circulation, polarization):
+  send("VortexInArray", [i, j, unit_size_x, unit_size_y, separation_x, separation_y, circulation, polarization])
+ 
 ## Sets a mask for dot/vortex array (r: dot size in meters, sep: separation in meter, n: max[#dots in x-dir, #dots in y-dir])
-def	DotArray(r, sep, n):
+def	dotArray(r, sep, n):
 	send3("DotArray", r, sep, n)
+
+## Sets a mask for antidot array with rectangular holes.
+def dotArrayRectangle(unit_size_x, unit_size_y, separation_x, separation_y, Nx, Ny):
+  send("DotArrayRectangle", [unit_size_x, unit_size_y, separation_x, separation_y, Nx, Ny])
+
+## Sets a mask for antidot array with ellipsoidal holes.
+def dotArrayEllips(unit_size_x, unit_size_y, separation_x, separation_y, Nx, Ny):
+  send("DotArrayEllips", [unit_size_x, unit_size_y, separation_x, separation_y, Nx, Ny])
+
+## Sets a mask for antidot array with rectangular holes.
+def antiDotArrayRectangle(unit_size_x, unit_size_y, separation_x, separation_y, Nx, Ny):
+  send("AntiDotArrayRectangle", [unit_size_x, unit_size_y, separation_x, separation_y, Nx, Ny])
+
+## Sets a mask for antidot array with ellipsoidal holes.
+def antiDotArrayEllips(unit_size_x, unit_size_y, separation_x, separation_y, Nx, Ny):
+  send("AntiDotArrayEllips", [unit_size_x, unit_size_y, separation_x, separation_y, Nx, Ny])
+
+
 
 def SBW():
   send0("SBW")
@@ -132,26 +187,26 @@ def ANW():
   send0("ANW")
 
 # Sets the magnetization in cell with index i,j,k to (mx, my, mz)
-def setmcell(i, j, k, mx, my, mz):
+def setmCell(i, j, k, mx, my, mz):
 	send("setmcell", [i, j, k, mx, my, mz])
 
 ## Sets the magnetization in cell with index i,j,k to (mx, my, mz)
 #def setmcell(i, j, k, mx, my, mz):
   #send_3ints_3floats("setmcell", i, j, k, mx, my, mz)
 
-## Like setmcell but for a range of cells between x1,y1,z1 (inclusive) and x2,y2,z2 (exclusive)
-def setmrange(x1, y1, z1, x2, y2, z2, mx, my, mz):
+## Like setmcell but for a range of cells between x1,y1,z1 (inclusive) and x2,y2,z2 (inclusive)
+def setmRange(x1, y1, z1, x2, y2, z2, mx, my, mz):
 	send("setmrange", [x1, y1, z1, x2, y2, z2, mx, my, mz])
 
 ## Sets the magnetization in cell position x, y, z (in meters) to (mx, my, mz)
 def setm(x, y, z, mx, my, mz):
 	send("setm", [x, y, z, mx, my, mz])
 
-## Sets the magnetization to a ransendm state
-def setransendm():
-	send0("setransendm")
+## Sets the magnetization to a random state
+def setRandom():
+	send0("setrandom")
 
-## Sets the ransendm number seed
+## Sets the random number seed
 def seed(s):
 	send1("seed", s)
 
@@ -180,7 +235,7 @@ def tabulate(what, want):
 	send2("tabulate", what, want)
 
 ## Reduce the resolution of saved output by a factor to save disk space.
-def subsampleoutput(factor):
+def subsampleOutput(factor):
 	send1("subsampleoutput", factor)
 
 
@@ -191,7 +246,7 @@ def solvertype(solver):
 	send1("solvertype", solver)
 
 ## Sets the maximum tolerable estimated error per solver step
-def maxerror(error):
+def maxError(error):
 	send1("maxerror", error)
 
 ## Sets the maximum time step in seconds
@@ -221,11 +276,11 @@ def mindm(dm):
 # applyfunction('field', myfield, 1e-9, 10e-12)
 #
 # this applies the field for 1ns, sampled every 10ps with linear interpolation between the samples.
-def applyfunction(what, func, duration, timestep):
+def applyFunction(what, func, duration, timestep):
 	t=0
 	while t<=duration:
 		bx,by,bz = func(t)
-		applypointwise(what, t, bx, by, bz)
+		applyPointwise(what, t, bx, by, bz)
 		t+=timestep
 
 ## Apply a pointwise-defined field/current defined by a number of time + field points
@@ -235,7 +290,7 @@ def applyfunction(what, func, duration, timestep):
 #  applypointwise('field', 1e-9, 1e-3,0,0) 
 # Sets up a linear ramp in 1ns form 0 to 1mT along X.
 # Arbitrary functions can be well approximated by specifying a large number of time+field combinations.
-def applypointwise(what, time, bx, by, bz):
+def applyPointwise(what, time, bx, by, bz):
 	send("applypointwise", [what, time, bx, by, bz])
 
 
@@ -243,42 +298,42 @@ def applypointwise(what, time, bx, by, bz):
 #  This allows for space-dependent current densities to be defined.
 #  filename is an .omf file that defines the mask.
 #  J(r,t) = (jx(t) * mask_x(r), jy(t) * mask_y(r), jz(t) * mask_z(r))
-def currentmask(filename):
+def currentMask(filename):
 	send1("currentmask", filename)
 
 ## Set a space-dependent mask to be multiplied pointwise by the applied magnetic field
 #  This allows for space-dependent fields to be defined.
 #  filename is an .omf file that defines the mask.
 #  B(r,t) = (bx(t) * mask_x(r), by(t) * mask_y(r), bz(t) * mask_z(r))
-def fieldmask(filename):
+def fieldMask(filename):
 	send1("fieldmask", filename)
 
 ## Apply a static field/current
-def applystatic(what, bx, by, bz):
+def applyStatic(what, bx, by, bz):
 	send("applystatic", [what, bx, by, bz])
 
 ## Apply an RF field/current
-def applyrf(what, bx, by, bz, freq):
+def applyRF(what, bx, by, bz, freq):
 	send("applyrf", [what, bx, by, bz, freq])
 
 ## Apply an RF field/current, slowly ramped in
-def applyrframp(what, bx, by, bz, freq, ramptime):
+def applyRFRamp(what, bx, by, bz, freq, ramptime):
 	send("applyrframp", [what, bx, by, bz, freq, ramptime])
 
 ## Apply a rotating field/current
-def applyrotating(what, bx, by, bz, freq, phaseX, phaseY, phaseZ):
+def applyRotating(what, bx, by, bz, freq, phaseX, phaseY, phaseZ):
 	send("applyrotating", [what, bx, by, bz, freq, phaseX, phaseY, phaseZ])
 
 ## Apply a pulsed field/current
-def applypulse(what, bx, by, bz, risetime):
+def applyPulse(what, bx, by, bz, risetime):
 	send("applypulse", [what, bx, by, bz, risetime])
 
 ## Apply a sawtooth field/current
-def applysawtooth(what, bx, by, bz, freq):
+def applySawTooth(what, bx, by, bz, freq):
 	send("applysawtooth", [what, bx, by, bz, freq])
 
 ## Apply a rotating RF burst field/current
-def applyrotatingburst(what, b, freq, phase, risetime, duration):
+def applyRotatingBurst(what, b, freq, phase, risetime, duration):
 	send("applyrotatingburst", [what, b, freq, phase, risetime, duration])
 
 # Run
@@ -307,7 +362,7 @@ def desc(key, value):
 	send2("desc", key, value)	
 
 ## Save benchmark info to file
-def savebenchmark(file):
+def saveBenchmark(file):
 	send1("savebenchmark", file)
 
 
@@ -318,24 +373,29 @@ def getm(component):
 	send1("getm", component)
 	return recv()
 
+## Retrieves a magnetization component (0=mx, 1=my, 2=mz) at position x,y,z.
+def getmPos(component, x, y, z):
+	send("getmPos", [component, x, y, z])
+	return recv()
+
 ## Retrieves the maximum value of a magnetization component (0=x, 1=y, 2=z).
-def getmaxm(component):
+def getMaxm(component):
 	send1("getmaxm", component)
 	return recv()
 
 ## Retrives the vortex core position in meters, center = 0,0
-def getcorepos():
+def getCorepos():
 	send0("getcorepos")
 	return recv(), recv()
 
 ## Retrieves the minimum value of a magnetization component (0=x, 1=y, 2=z).
-def getminm(component):
+def getMinm(component):
 	send1("getminm", component)
 	return recv()
 
 ## Retrieves the maximum torque in units gamma*Msat
-def getmaxtorque(component):
-	send1("getmaxtorque")
+def getMaxTorque():
+	send0("getmaxtorque")
 	return recv()
 
 # Retrieves the total energy in SI units
@@ -346,15 +406,15 @@ def getE():
 ## Debug and fine-tuning
 
 ## Override whether the exchange interaction is included in the magnetostatic convolution.
-def exchinconv(b):
+def exchInConv(b):
 	send1("exchinconv", b)
 
 ## Set the exchange type (number of neighbors)
-def exchtype(t):
+def exchType(t):
 	send1("exchtype", t)
 
 ## Override the subcommand for calculating the magnetostatic kernel
-def kerneltype(cmd):
+def kernelType(cmd):
 	send1("kerneltype", cmd)
 
 ## Override whether or not (true/false) the magnetostatic field should be calculated
@@ -366,17 +426,18 @@ def energy(b):
 	send1("energy", b)
 
 
-## @internal
+## \internal
 def recv():
 	#stderr.write("py_recv: ") #debug
 	data = stdin.readline()
 	while len(data) == 0 or data[0] != "%":	# skip lines not starting with the % prefix
 		stderr.write("py recv():" + data + "\n") #debug
+		exit(10)
 		data = stdin.readline()
 	#stderr.write(data + "\n") #debug
 	return float(data[1:])
 
-## @internal: version of print() that flushes (critical to avoid communication deadlock)
+## @internal : version of print() that flushes (critical to avoid communication deadlock)
 def myprint(x):
 	#stderr.write("py_send: " + str(x) + "\n") #debug
 	#stderr.flush()

@@ -127,11 +127,11 @@ func (s *Sim) initGridSize() {
 	if s.size[Z] == 1 {
 		panic(InputErr("For a 2D geometry, use (X, Y, 1) cells, not (1, X, Y)"))
 	}
-	for i := range s.size3D {
+	/*	for i := range s.size3D {
 		if !IsGoodGridSize(i, s.size3D[i]) {
-			panic(InputErr("Unsuited grid size: " + fmt.Sprint(s.size3D[i]) + " (X,Y size must be 16*2^n*{1,2,5,7}), Z must be 2^n*{1,2,5,7}"))
+			s.Warn("Sub-optimal grid size: " + fmt.Sprint(s.size3D[i]) + " (X,Y size must be 16*2^n*{1,2,5,7}), Z must be 2^n*{1,2,5,7}")
 		}
-	}
+	}*/
 	s.avgNorm = float32(tensor.Prod(s.size3D))
 }
 

@@ -21,11 +21,29 @@ import (
 // Renders in 2D, automatically saves in a .png file.
 func Draw() {
 	outfile := replaceExt(filename, ".png")
-	out := MustOpenWRONLY(outfile)
-	defer out.Close()
-	draw.PNG(out, data)
+	if !FileExists(outfile) {
+		out := MustOpenWRONLY(outfile)
+		defer out.Close()
+		draw.PNG(out, data)
+	} else {
+		fmt.Fprintln(os.Stderr, "File exists:", outfile)
+	}
 }
 
+
+// Renders in 2D, automatically saves in a .png file.
+func DrawComp(c int) {
+	compname := string('x' + c)
+	c = 2-c // convert to z y x
+	outfile := replaceExt(filename, "_" + compname + ".png")
+	if !FileExists(outfile) {
+		out := MustOpenWRONLY(outfile)
+		defer out.Close()
+		draw.PNG(out, tensor.Component(data, c))
+	} else {
+		fmt.Fprintln(os.Stderr, "File exists:", outfile)
+	}
+}
 
 // Parameter for draw3d(), passed on to maxview
 var (

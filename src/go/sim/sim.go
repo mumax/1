@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	DEFAULT_SOLVERTYPE        = "rk23"
+	DEFAULT_SOLVERTYPE        = "rk12"
 	DEFAULT_MAXERROR          = 1e-4
 	DEFAULT_DEMAG_ACCURACY    = 8
 	DEFAULT_SPIN_POLARIZATION = 1
@@ -99,6 +99,7 @@ type Sim struct {
 	mDev           *DevTensor // magnetization on the device (GPU), 4D tensor
 	size3D         []int      //simulation grid size (without 3 as first element)
 	hDev           *DevTensor // effective field OR TORQUE, on the device. This is first used as a buffer for H, which is then overwritten by the torque.
+	alphaMask      *DevTensor // space-dependent alpha mask, multiplied by input.alpha
 	mLocal, hLocal *tensor.T4 // a "local" copy of the magnetization (i.e., not on the GPU) use for I/O
 	mUpToDate      bool       // Is mLocal up to date with mDev? If not, a copy from the device is needed before storing output.
 	phiDev         *DevTensor // energy density. Use getEDens(), assures this pointer is initiated.
@@ -196,10 +197,12 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.initWriters()
 	sim.input.anisKSI = []float32{0., 0., 0.} // even when not used these must be allocated
 	sim.input.anisAxes = []float32{0.}
+	// TODO(b): mumaxkern-go is slow but seems failsafe so it is the default for now
+	// change when mumaxkern-gpu is debugged.
 	if *cpu {
-		sim.input.kernelType = "mumaxkern-cpu"
+		sim.input.kernelType = "mumaxkern-go" //"mumaxkern-cpu"
 	} else {
-		sim.input.kernelType = "mumaxkern-gpu"
+		sim.input.kernelType = "mumaxkern-go" //"mumaxkern-gpu"
 	}
 	sim.exchInConv = true
 	sim.input.wantDemag = true

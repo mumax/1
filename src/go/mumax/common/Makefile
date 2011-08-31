@@ -16,6 +16,7 @@ GOFILES=\
 	strconv.go\
 	floatvector.go\
 	float32.go\
+	version.go\
 
 CLEANFILES+=$(PKGDIR)/$(TARG).a
 

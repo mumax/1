@@ -10,12 +10,12 @@ rm -rf $OUT
 mkdir $OUT
 
 
+cp doc/manual/manual.pdf $OUT
 cp setup.bash $OUT
 cp LICENSE.txt $OUT
 cp README.txt $OUT
 cp Makefile $OUT
 cp common.mk $OUT
-
 cp -r bin $OUT
 cp -r lib $OUT
 

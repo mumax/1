@@ -29,5 +29,6 @@ autosave("table", "ascii", 10e-12)
 rffield(1, 1, 1, 1e9)
 sawtoothfield(1e-3, 0, 0, 1000e6)
 run(10e-9)
+m = getmPos(0, 100, 10, 0)
 
 savebenchmark("benchmark.txt")
