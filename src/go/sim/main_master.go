@@ -64,7 +64,10 @@ func has_known_extension(filename string) bool {
 // Start a mumax/python/... slave subprocess and tee its output
 func main_master() {
 
-	shouldupgrade := CheckVersion("http://dynamag.ugent.be/mumax/latest-version.txt", VERSION)
+	shouldupgrade := false
+	if *flag_checkversion{
+		CheckVersion("http://dynamag.ugent.be/mumax/latest-version.txt", VERSION)
+	}
 
 	if !*silent {
 		fmt.Println(WELCOME)

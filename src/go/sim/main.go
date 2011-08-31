@@ -37,6 +37,7 @@ var (
 	threads   *int    = flag.Int("threads", 0, "Set the number of threads for the selected device (GPU or CPU). \"0\" means automatically set.")
 	updatedb  *int    = flag.Int("updatedisp", 200, "Update the terminal output every x milliseconds")
 	wisdir    *string = flag.String("wisdom", defaultWisdomDir(), "Absolute directory to store cached kernels. \"\" disables caching")
+	flag_checkversion    *bool = flag.Bool("check-version", true, "Check for now version at startup")
 	// 	dryrun    *bool   = flag.Bool("dryrun", false, "Go quickly through the simulation sequence without calculating anything. Useful for debugging") // todo implement
 	//  server    *bool   = flag.Bool("server", false, "Run as a slave node in a cluster")
 	//  port      *int    = flag.Int("port", 2527, "Which network port to use")
