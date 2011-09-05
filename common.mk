@@ -21,14 +21,14 @@ CFLAGS+=\
 NVCCFLAGS+=\
   --compiler-options -Werror\
   --compiler-options -fPIC\
-  --use_fast_math
-#  --compiler-options -O3\
+  --use_fast_math\
+  --compiler-options -O3\
 #  -G\
 # --compiler-options -DNDEBUG\
 # -DNDEBUG disables all assert() statements
 
 # Cuda libraries
-CUDALIBS= -l:libcudart.so -l:libcufft.so
+CUDALIBS= -l:libcudart.so -l:libcufft.so -l:libcurand.so
 #CUDALIBS= -lcudart -lcufft
 
 

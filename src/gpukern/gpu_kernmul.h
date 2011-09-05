@@ -1,3 +1,13 @@
+/*
+ *  This file is part of MuMax, a high-performance micromagnetic simulator.
+ *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
+ *  Use of this source code is governed by the GNU General Public License version 3
+ *  (as published by the Free Software Foundation) that can be found in the license.txt file.
+ *
+ *  Note that you are welcome to modify this code under condition that you do not remove any 
+ *  copyright notices and prominently state that you modified it, giving a relevant date.
+ */
+
 /**
  * @file
  *
@@ -41,7 +51,17 @@ void gpu_kernelmul3(float *fftMy, float *fftMz,
                     int nRealNumbers
                     );
 
-
+void gpu_kernelmul_biot_savart3D(float* fftJx, float* fftJy, float* fftJz,
+                                 float* fftKx, float* fftKy, float* fftKz,
+                                 int nRealNumbers);
+                                 
+void gpu_kernelmul_biot_savart3DNx1(float* fftJx, float* fftJy, float* fftJz,
+                                    float* fftKy, float* fftKz,
+                                    int nRealNumbers);
+                                    
+void gpu_kernelmul_biot_savart2D(float* fftJx,  float* fftJy,  float* fftJz,
+                                 float* fftKy, float* fftKz,
+                                 int nRealNumbers);
 #ifdef __cplusplus
 }
 #endif

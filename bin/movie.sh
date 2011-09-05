@@ -18,5 +18,5 @@ if [ ! -e $tmp/$i.jpg ]; then
 fi
 done;
 echo
-mencoder "mf://movie.tmp/*.jpg" -mf fps=20 -o movie.avi -ovc lavc
+mencoder "mf://movie.tmp/*.jpg" -mf fps=20 -o movie.avi -ovc copy
 rm -r $tmp

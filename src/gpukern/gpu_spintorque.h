@@ -1,8 +1,15 @@
-/**
- * @file
+/*
+ *  This file is part of MuMax, a high-performance micromagnetic simulator.
+ *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
+ *  Use of this source code is governed by the GNU General Public License version 3
+ *  (as published by the Free Software Foundation) that can be found in the license.txt file.
  *
+ *  Note that you are welcome to modify this code under condition that you do not remove any 
+ *  copyright notices and prominently state that you modified it, giving a relevant date.
+ */
+
+/**
  * @author Arne Vansteenkiste
- * @author Ben Van de Wiele
  */
 #ifndef gpu_spintorque_h
 #define gpu_spintorque_h
@@ -11,7 +18,6 @@
 extern "C" {
 #endif
 
-//void gpu_directionial_diff(float ux, float uy, float uz, float* in, float* out, int N0, int N1, int N2);
 
 /// Overwrites h with deltaM(m, h)
 void gpu_spintorque_deltaM(float* m,       ///< magnetization (all 3 components, contiguously)
@@ -20,6 +26,7 @@ void gpu_spintorque_deltaM(float* m,       ///< magnetization (all 3 components,
                            float beta,     ///< b(1+alpha*xi)
                            float epsillon, ///< b(xi-alpha)
                            float* u,       /// 0.5 * U_spintorque / cellsize[i]
+                           float* jmap,    /// space-dependent mask for J, pointwise multiplied: J = (jx * mask_x, jy * mask_y, jz * mask_z)
                            float dt_gilb,  ///< dt * gilbert factor
                            int N0,         ///< length of each of the components of m, h (1/3 of m's total length)
                            int N1,

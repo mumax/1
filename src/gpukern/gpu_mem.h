@@ -1,3 +1,13 @@
+/*
+ *  This file is part of MuMax, a high-performance micromagnetic simulator.
+ *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
+ *  Use of this source code is governed by the GNU General Public License version 3
+ *  (as published by the Free Software Foundation) that can be found in the license.txt file.
+ *
+ *  Note that you are welcome to modify this code under condition that you do not remove any 
+ *  copyright notices and prominently state that you modified it, giving a relevant date.
+ */
+
 /**
  * @file
  * This file provides some common functions for the GPU, like allocating arrays on it...
@@ -105,6 +115,11 @@ void memcpy_on_gpu(float* source,	///< source data pointer on the GPU
                        int nElements	///< number of floats (not bytes) to be copied
                        );
 
+void memcpy_on_gpu_async(float* source, ///< source data pointer on the GPU
+                       float* dest,   ///< destination data pointer on the GPU
+                       int nElements  ///< number of floats (not bytes) to be copied
+                       );
+
 /// @internal Reads one float from a GPU array, not extremely efficient.
 float gpu_array_get(float* dataptr, int index);
 
@@ -120,6 +135,12 @@ void gpu_zero(float* data,	///< data pointer on the GPU
               int nElements	///< number of floats (not bytes) to be zeroed
               );
 
+/**
+ * Set a range of floats on the GPU to zero, asynchroneously.
+ */
+void gpu_zero_async(float* data,  ///< data pointer on the GPU
+                    int nElements ///< number of floats (not bytes) to be zeroed
+                   );
 
 /**
  * @internal

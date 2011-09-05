@@ -1,0 +1,23 @@
+# A circular nanodot with periodic boundary conditions along the X-axis.
+# It should behave like an infinitely long chain of nanodots.
+# The magnetization is expected to align aling the X-axis
+
+maxerror	1e-3
+
+msat       	800E3   
+aexch      	1.3E-11     
+alpha      	2
+
+
+gridsize       	32 	32 	1    
+partsize   	100E-9  100E-9  20E-9
+ellipsoid	40e-9	40e-9	inf
+#reproduce along the X-axsis
+periodic	50	0	0
+
+uniform		1	1	0
+
+autosave	m	png	10e-12
+autosave	table	ascii	10e-12
+run          	1E-9
+

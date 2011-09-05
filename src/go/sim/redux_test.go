@@ -11,6 +11,7 @@ import (
 )
 
 var Ns []int = []int{2, 8, 16, 31, 33, 128, 255, 511, 1023, 1024, 1025, 20000}
+var Ns2 []int = []int{-2, -8, 16, -31, 33, 128, -255, 511, 1023, 1024, -1025, 20000}
 
 func TestSum(t *testing.T) {
 
@@ -25,6 +26,27 @@ func TestSum(t *testing.T) {
 		backend.memcpyTo(&(host[0]), dev, N)
 
 		sum := NewSum(backend, N)
+		result := sum.reduce_(dev)
+
+		if result != float32(N) {
+			t.Error("expected ", N, " got ", result)
+		}
+	}
+}
+
+func TestSumAbs(t *testing.T) {
+
+	for _, N := range Ns {
+
+		host := make([]float32, N)
+		for i := range host {
+			host[i] = -1.
+		}
+
+		dev := backend.newArray(N)
+		backend.memcpyTo(&(host[0]), dev, N)
+
+		sum := NewSumAbs(backend, N)
 		result := sum.reduce_(dev)
 
 		if result != float32(N) {

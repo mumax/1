@@ -9,20 +9,44 @@ package sim
 import "strings"
 
 type Solver interface {
-	Step()
+	step()
+	// 	String() string
 }
 
 func NewSolver(solvertype string, sim *Sim) Solver {
 	solvertype = strings.ToLower(solvertype)
 	switch solvertype {
 	default:
-		panic("Unknown solver type: " + solvertype + ". Options are: euler, semianal, heun.")
+		panic("Unknown solver type: " + solvertype + ". Options are: rk1, rk2, rk12, rk3, rk23, rk4, rkdp, rkck, semianal1")
+	case "rk1":
+		panic("Broken")
+		return NewRK1(sim)
+	case "rk2":
+		return NewRK2(sim)
+	case "rk12":
+		return NewRK12(sim)
+	case "rk3":
+		panic("Broken")
+		return NewRK3(sim)
+	case "rk23":
+		return NewRK23(sim)
+	case "rk4":
+		panic("Broken")
+		return NewRK4(sim)
+	case "rk45", "rkdp":
+		return NewRKDP(sim)
+	case "rkck":
+		return NewRKCK(sim)
 	case "euler":
 		return NewAdaptiveEuler(sim)
+	case "fixedeuler":
+		return NewEuler(sim)
 	case "heun":
 		return NewAdaptiveHeun(sim)
-		// 	case "semianal":
-		// 		return &SemiAnal{SolverState{0., sim}, 0} //0th order by default TODO: make selectable ("semianal0", "semianal1" ?)
+	case "semianal1":
+		return NewSemiAnal1(sim)
+	case "semianal2":
+		return NewSemiAnal2(sim)
 	}
 	panic("bug")
 	return nil // never reached

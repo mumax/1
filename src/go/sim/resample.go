@@ -12,7 +12,7 @@ package sim
 // not have the suited size.
 
 import (
-	"tensor"
+	"mumax/tensor"
 )
 
 // input is assumed vector field
@@ -36,6 +36,56 @@ func resample4(in *tensor.T4, size2 []int) *tensor.T4 {
 		}
 	}
 	return out
+}
+
+
+// input is assumed vector field
+func subsample4(data *tensor.T4, small *tensor.T4, f int) {
+	bigsize := data.Size()
+	smallsize := []int{3, bigsize[1] / f, bigsize[2] / f, bigsize[3] / f}
+	for i := range smallsize {
+		if smallsize[i] < 1 {
+			smallsize[i] = 1
+		}
+	}
+	A := data.Array()  // big array
+	a := small.Array() // small array
+
+	// reset small array before adding to it
+	sl := small.List()
+	for i := range sl {
+		sl[i] = 0
+	}
+
+	for c := range a {
+
+		for i := range a[c] {
+			for j := range a[c][i] {
+				for k := range a[c][i][j] {
+
+					n := 0
+
+					for I := i * f; I < min((i+1)*f, bigsize[1]); I++ {
+						for J := j * f; J < min((j+1)*f, bigsize[2]); J++ {
+							for K := k * f; K < min((k+1)*f, bigsize[3]); K++ {
+								n++
+								a[c][i][j][k] += A[c][I][J][K]
+							}
+						}
+					}
+					a[c][i][j][k] /= float32(n)
+				}
+			}
+		}
+	}
+}
+
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 

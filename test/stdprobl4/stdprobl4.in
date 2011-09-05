@@ -1,26 +1,28 @@
 # Micromagnetic standard problem 4
 
-metadata:  	description standard_problem_4
-maxerror:	1E-4
+
+desc info standard_problem_4
 
 # material
 msat       	800E3   
 aexch      	1.3E-11     
 alpha      	0.02
 
+solvertype rk23
+mindt 10e-15
 
 # geometry 
 gridsize       	128 	32 	1    
 partsize   	500E-9  125E-9  3E-9
 
 # initial magnetization
-load    	s-state.tensor
+loadm    	s-state.omf
 
 # run
-autosave	m	png	50E-12
-autosave m binary 50E-12
-autosave  m ascii 100E-12
-autosave	table	ascii	10E-12
-staticfield 	-24.6E-3     4.3E-3    0  # T
-run          	1E-9                      # s
+#autosave  m png 5e-12
+#autosave  m binary 5e-12
+#autosave	table	ascii	1e-12
+applystatic field 	-24.6E-3     4.3E-3    0  # T
+run          	1e-9                      # s
 
+#savebenchmark benchmark.txt

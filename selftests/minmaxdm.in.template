@@ -1,0 +1,27 @@
+# tests mindm/maxdm/dt for a fixed step solver (rk3)
+
+desc:  	description standard_problem_4
+solvertype:	rk3	
+dt		{dt}
+maxdm		{maxdm}
+mindm		{mindm}
+# material
+msat       	800E3   
+aexch      	1.3E-11     
+alpha      	0.02
+
+
+# geometry 
+gridsize       	128 	32 	1    
+partsize   	500E-9  125E-9  3E-9
+demagaccuracy	10
+
+# initial magnetization
+loadm 	s-state.omf
+
+# run
+autosave  table	ascii 10e-12
+autosave  m omf 10E-12
+staticfield 	-24.6E-3     4.3E-3    0  # T
+run          	0.2e-9                      # s
+

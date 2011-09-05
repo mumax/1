@@ -7,7 +7,7 @@
 package sim
 
 /*
-#include "cpukern.h"
+#include "../../cpukern/cpukern.h"
 */
 import "C"
 import "unsafe"
@@ -22,6 +22,7 @@ import "unsafe"
  */
 
 import (
+	. "mumax/common"
 	"fmt"
 	"os"
 )
@@ -32,8 +33,12 @@ type Cpu struct {
 	// intentionally empty, but the methods implement sim.Device
 }
 
-func (d Cpu) init() {
-	C.cpu_init()
+func (d Cpu) maxthreads() int {
+	return int(C.cpu_maxthreads())
+}
+
+func (d Cpu) init(threads, options int) {
+	C.cpu_init(C.int(threads), C.int(options))
 }
 
 func (d Cpu) setDevice(devid int) {
@@ -48,13 +53,36 @@ func (d Cpu) madd(a uintptr, cnst float32, b uintptr, N int) {
 	C.cpu_madd((*C.float)(unsafe.Pointer(a)), C.float(cnst), (*C.float)(unsafe.Pointer(b)), C.int(N))
 }
 
+func (d Cpu) madd2(a, b, c uintptr, N int) {
+	panic(Bug("unimplemented"))
+	//C.cpu_madd2((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), (*C.float)(unsafe.Pointer(c)), C.int(N))
+}
+
+func (c Cpu) addLinAnis(hx, hy, hz, mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, N int) {
+	panic(Bug("unimplemented"))
+}
+
 func (d Cpu) linearCombination(a, b uintptr, weightA, weightB float32, N int) {
 	C.cpu_linear_combination((*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(weightA), C.float(weightB), C.int(N))
 }
 
-func (d Cpu) reduce(operation int, input, output uintptr, buffer *float32, blocks, threads, N int) float32 {
-	//C.cpu_reduce(C.int(operation), (*C.float)(input), (*C.float)(output), C.int(blocks), C.int(threads), C.int(N))
+func (d Cpu) linearCombinationMany(result uintptr, vectors []uintptr, weights []float32, NElem int) {
 	panic("unimplemented")
+	//   C.cpu_linear_combination_many(
+	//     (*C.float)(unsafe.Pointer(result)),
+	//     (**C.float)(unsafe.Pointer(&vectors[0])),
+	//     (*C.float)(unsafe.Pointer(&weights[0])),
+	//     (C.int)(NElem)
+	//   )
+}
+
+func (d Cpu) scaledDotProduct(result, a, b uintptr, scale float32, N int) {
+	C.cpu_scale_dot_product((*C.float)(unsafe.Pointer(result)), (*C.float)(unsafe.Pointer(a)), (*C.float)(unsafe.Pointer(b)), C.float(scale), C.int(N))
+}
+
+func (d Cpu) reduce(operation int, input, output uintptr, buffer *float32, blocks, threads, N int) float32 {
+	return float32(C.cpu_reduce(C.int(operation), (*C.float)(unsafe.Pointer(input)), (*C.float)(unsafe.Pointer(output)), (*C.float)(unsafe.Pointer(buffer)), C.int(blocks), C.int(threads), C.int(N)))
+	//panic("unimplemented")
 }
 
 func (d Cpu) addConstant(a uintptr, cnst float32, N int) {
@@ -69,35 +97,73 @@ func (d Cpu) normalizeMap(m, normMap uintptr, N int) {
 	C.cpu_normalize_map((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(normMap)), C.int(N))
 }
 
-func (d Cpu) deltaM(m, h uintptr, alpha, dtGilbert float32, N int) {
-	C.cpu_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha), C.float(dtGilbert), C.int(N))
+func (d Cpu) deltaM(m, h uintptr, alpha float32, alphaMask *DevTensor, dtGilbert float32, N int) {
+	var alphaMap unsafe.Pointer
+	if alphaMask != nil {
+		alphaMap = unsafe.Pointer(alphaMask.data)
+	}
+	C.cpu_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha), (*C.float)(alphaMap), C.float(dtGilbert), C.int(N))
 }
 
-func (d Cpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, dtGilb float32, size []int) {
+func (d Cpu) spintorqueDeltaM(m, h uintptr, alpha, beta, epsillon float32, u []float32, jMask *DevTensor, dtGilb float32, size []int) {
 	//C.cpu_spintorque_deltaM((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(alpha),  C.float(beta),  C.float(epsillon), (*C.float)(unsafe.Pointer(&u[0])), C.float(dtGilb), C.int(size[0]), C.int(size[1]), C.int(size[2]))
 	panic(Bug("spin torque not implemented on CPU"))
 }
 
-func (d Cpu) semianalStep(m, h uintptr, dt, alpha float32, order, N int) {
-	switch order {
-	default:
-		panic(fmt.Sprintf("Unknown semianal order:", order))
-	case 0:
-		C.cpu_anal_fw_step_unsafe((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(dt), C.float(alpha), C.int(N))
+func (d Cpu) addLocalFields(m, h uintptr, Hext []float32, hMask *DevTensor, anisType int, anisK []float32, anisAxes []float32, N int) {
+	// hMask may be nil, then hMap must be NULL
+	var hMap unsafe.Pointer
+	if hMask != nil {
+		hMap = unsafe.Pointer(hMask.data)
 	}
+	C.cpu_add_local_fields((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), (*C.float)(hMap), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
+}
+
+func (d Cpu) addLocalFieldsPhi(m, h, phi uintptr, Hext []float32, hMask *DevTensor, anisType int, anisK []float32, anisAxes []float32, N int) {
+	// hMask may be nil, then hMap must be NULL
+	var hMap unsafe.Pointer
+	if hMask != nil {
+		hMap = unsafe.Pointer(hMask.data)
+	}
+	C.cpu_add_local_fields_H_and_phi((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), (*C.float)(unsafe.Pointer(phi)), C.int(N), (*C.float)(unsafe.Pointer(&Hext[0])), (*C.float)(hMap), C.int(anisType), (*C.float)(unsafe.Pointer(&anisK[0])), (*C.float)(unsafe.Pointer(&anisAxes[0])))
+}
+
+func (d Cpu) addExch(m, h uintptr, size, periodic, exchinconv []int, cellsize []float32, exchType int) {
+	C.cpu_add_exch((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), (*C.int)(unsafe.Pointer(&size[0])), (*C.int)(unsafe.Pointer(&periodic[0])), (*C.int)(unsafe.Pointer(&exchinconv[0])), (*C.float)(unsafe.Pointer(&cellsize[0])), C.int(exchType))
+}
+
+// func (d Cpu) semianalStep(min, mout, h uintptr, dt, alpha float32, N int) {
+// 	switch order {
+// 	default:
+// 		panic(fmt.Sprintf("Unknown semianal order:", order))
+// 	case 0:
+// 		panic("unimplemented")
+// 		//C.cpu_anal_fw_step_unsafe((*C.float)(unsafe.Pointer(m)), (*C.float)(unsafe.Pointer(h)), C.float(dt), C.float(alpha), C.int(N))
+// 	}
+// }
+
+func (d Cpu) semianalStep(min, mout, h uintptr, dt, alpha float32, N int) {
+	C.cpu_anal_fw_step((C.float)(dt), (C.float)(alpha), (C.int)(N), (*C.float)(unsafe.Pointer(min)), (*C.float)(unsafe.Pointer(mout)), (*C.float)(unsafe.Pointer(h)))
 }
 
 //___________________________________________________________________________________________________ Kernel multiplication
 
 
 func (d Cpu) extractReal(complex, real uintptr, NReal int) {
-	C.cpu_extract_real((*C.float)(unsafe.Pointer(complex)), (*C.float)(unsafe.Pointer(real)), C.int(NReal))
+	panic("deprecated")
+	//C.cpu_extract_real((*C.float)(unsafe.Pointer(complex)), (*C.float)(unsafe.Pointer(real)), C.int(NReal))
 }
 
 func (d Cpu) kernelMul(mx, my, mz, kxx, kyy, kzz, kyz, kxz, kxy uintptr, kerneltype, nRealNumbers int) {
 	switch kerneltype {
 	default:
 		panic(fmt.Sprintf("Unknown kernel type:", kerneltype))
+	case 4:
+		C.cpu_kernelmul4(
+			(*C.float)(unsafe.Pointer(mx)), (*C.float)(unsafe.Pointer(my)), (*C.float)(unsafe.Pointer(mz)),
+			(*C.float)(unsafe.Pointer(kxx)), (*C.float)(unsafe.Pointer(kyy)), (*C.float)(unsafe.Pointer(kzz)),
+			(*C.float)(unsafe.Pointer(kyz)),
+			C.int(nRealNumbers))
 	case 6:
 		C.cpu_kernelmul6(
 			(*C.float)(unsafe.Pointer(mx)), (*C.float)(unsafe.Pointer(my)), (*C.float)(unsafe.Pointer(mz)),
@@ -134,7 +200,12 @@ func (d Cpu) copyPadded(source, dest uintptr, sourceSize, destSize []int, direct
 func (d Cpu) newFFTPlan(dataSize, logicSize []int) uintptr {
 	Csize := (*C.int)(unsafe.Pointer(&dataSize[0]))
 	CpaddedSize := (*C.int)(unsafe.Pointer(&logicSize[0]))
-	return uintptr(unsafe.Pointer(C.new_cpuFFT3dPlan_inplace(Csize, CpaddedSize)))
+	return uintptr(unsafe.Pointer(C.new_cpuFFT3dPlan(Csize, CpaddedSize)))
+}
+
+func (d Cpu) freeFFTPlan(plan uintptr) {
+	//panic(Bug("Unimplemented"))
+	C.delete_cpuFFT3dPlan((*C.cpuFFT3dPlan)(unsafe.Pointer(plan)))
 }
 
 func (d Cpu) fft(plan uintptr, in, out uintptr, direction int) {
@@ -148,23 +219,10 @@ func (d Cpu) fft(plan uintptr, in, out uintptr, direction int) {
 	}
 }
 
-/// unsafe FFT
-// func (d Cpu) fftForward(plan uintptr, in, out uintptr) {
-// 	C.cpuFFT3dPlan_forward((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
-// }
-//
-//
-// /// unsafe FFT
-// func (d Cpu) fftInverse(plan uintptr, in, out uintptr) {
-// 	C.cpuFFT3dPlan_inverse((*C.cpuFFT3dPlan)(plan), (*C.float)(in), (*C.float)(out))
-// }
-
-
-// func(d Cpu) (fft *FFT) Normalization() int{
-//   return int(C.gpuFFT3dPlan_normalization((*C.gpuFFT3dPlan)(fft.plan)))
-// }
-
-
+func (d Cpu) gaussianNoise(data uintptr, mean, stddev float32, N int) {
+	panic("unimplemented")
+	//C.cpu_gaussian_noise((*C.float)(unsafe.Pointer(data)), C.float(mean), C.float(stddev), C.int(N))
+}
 //_______________________________________________________________________________ GPU memory allocation
 
 // Allocates an array of float32s on the CPU.
@@ -251,5 +309,4 @@ func (d Cpu) String() string {
 
 func (d Cpu) TimerPrintDetail() {
 	//C.timer_printdetail()
-	fmt.Println("meh...")
 }

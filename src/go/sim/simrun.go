@@ -7,7 +7,10 @@
 package sim
 
 import (
+	. "mumax/common"
 	"fmt"
+	"math"
+	clock "time"
 )
 
 // This file implements the methods for time stepping
@@ -21,13 +24,14 @@ func (s *Sim) Run(time float64) {
 	s.Normalize(s.mDev)
 	s.mUpToDate = false
 
+	s.start_benchmark()
 	for s.time < stop {
 
 		// save output if so scheduled
 		for _, out := range s.outschedule {
 			if out.NeedSave(float32(s.time) * s.UnitTime()) { // output entries want SI units
-				// assure the local copy of m is up to date and increment the autosave counter if neccesary
-				s.assureMUpToDate()
+				// assure the local copy of m is up to date and increment the autosave counter if necessary
+				s.assureOutputUpToDate()
 				// save
 				out.Save(s)
 				// TODO here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
@@ -37,22 +41,81 @@ func (s *Sim) Run(time float64) {
 		updateDashboard(s)
 
 		// step
-		s.Start("Step")
-		s.Step()
+		s.step()
 		s.steps++
-		s.time += float64(s.dt)
 		s.mUpToDate = false
-		s.Stop("Step")
 
+		if math.IsNaN(s.time) || math.IsInf(s.time, 0) {
+			panic("Time step = " + fmt.Sprint(s.dt))
+		}
 	}
-	// 	s.PrintTimer(os.Stdout)
+
+	s.stop_benchmark()
+	s.updateMLocal() // Even if no output was saved, mLocal should be up to date for a possible next relax()
+	s.assureOutputUpToDate()
 	//does not invalidate
 }
+
+// Take one time step
+func (s *Sim) Step() {
+	s.init()
+	s.mUpToDate = false
+
+	// save output if so scheduled
+	for _, out := range s.outschedule {
+		if out.NeedSave(float32(s.time) * s.UnitTime()) { // output entries want SI units
+			// assure the local copy of m is up to date and increment the autosave counter if necessary
+			s.assureOutputUpToDate()
+			// save
+			out.Save(s)
+			// TODO here it should say out.sinceoutput = s.time * s.unittime, not in each output struct...
+		}
+	}
+
+	updateDashboard(s)
+
+	s.step()
+	s.steps++
+	s.mUpToDate = false
+
+	if math.IsNaN(s.time) || math.IsInf(s.time, 0) {
+		panic("Time step = " + fmt.Sprint(s.dt))
+	}
+	//does not invalidate
+}
+
+// Takes n time steps
+func (s *Sim) Steps(n int) {
+	for i := 0; i < n; i++ {
+		s.Step()
+	}
+}
+
+var maxtorque float32 = DEFAULT_RELAX_MAX_TORQUE
+
+
+// re-initialize benchmark data
+func (s *Sim) start_benchmark() {
+	s.lastrunSteps = s.steps
+	s.lastrunWalltime = clock.Nanoseconds()
+	s.lastrunSimtime = s.time
+}
+
+
+// update benchmark data
+func (s *Sim) stop_benchmark() {
+	runtime := float64(clock.Nanoseconds()-s.lastrunWalltime) / 1e9 // time of last run in seconds
+	runsteps := s.steps - s.lastrunSteps
+	simtime := (s.time - s.lastrunSimtime) * float64(s.UnitTime())
+	s.LastrunStepsPerSecond = float64(runsteps) / runtime
+	s.LastrunSimtimePerSecond = simtime / runtime
+}
+
 
 // INTERNAL
 // Assures the local copy of m is up to date with that on the device
 // If necessary, it will be copied from the device and autosaveIdx will be incremented
-func (s *Sim) assureMUpToDate() {
+func (s *Sim) assureOutputUpToDate() {
 	s.init()
 	if !s.mUpToDate {
 		// 		Debugvv("Copying m from device to local memory")
@@ -60,5 +123,18 @@ func (s *Sim) assureMUpToDate() {
 		s.autosaveIdx++
 		s.mUpToDate = true
 	}
-	s.metadata["time"] = fmt.Sprint(s.time * float64(s.UnitTime()))
+	s.desc["time"] = s.time * float64(s.UnitTime())
+	s.desc["Bx"] = s.hextSI[Z]
+	s.desc["By"] = s.hextSI[Y]
+	s.desc["Bz"] = s.hextSI[X]
+	s.desc["torque"] = s.torque
+	s.desc["id"] = s.autosaveIdx
+	s.desc["iteration"] = s.steps
+}
+
+// Copies mDev to mLocal.
+// Necessary after each run(), relax(), ...
+func (s *Sim) updateMLocal() {
+	s.Println("Copy m from device to local")
+	TensorCopyFrom(s.mDev, s.mLocal)
 }

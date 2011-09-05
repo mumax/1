@@ -1,0 +1,20 @@
+msat       	800E3   
+aexch      	1.3E-11     
+alpha      	2
+
+partsize	500e-9	500e-9	50e-9
+gridsize	128	128	1
+cylinder
+edgecorrection	3
+
+vortex		1	1
+
+solvertype	heun
+maxerror	1e-4
+
+autosave	m	png	100e-12
+
+run		5e-9
+
+
+

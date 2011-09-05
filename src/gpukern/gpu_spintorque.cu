@@ -1,3 +1,13 @@
+/*
+ *  This file is part of MuMax, a high-performance micromagnetic simulator.
+ *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
+ *  Use of this source code is governed by the GNU General Public License version 3
+ *  (as published by the Free Software Foundation) that can be found in the license.txt file.
+ *
+ *  Note that you are welcome to modify this code under condition that you do not remove any 
+ *  copyright notices and prominently state that you modified it, giving a relevant date.
+ */
+
 #include "gpu_spintorque.h"
 #include "gpu_safe.h"
 #include "../macros.h"
@@ -7,7 +17,7 @@ extern "C" {
 #endif
 
 
-
+///@todo Not correct at the edges with a normmap!
 
 
 /// 2D, plane per plane, i=plane index
@@ -15,6 +25,7 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
                                        float* hx, float* hy, float* hz,
                                        float alpha, float beta, float epsillon,
                                        float ux, float uy, float uz,
+                                       float* jmapx, float* jmapy, float* jmapz,
                                        float dt_gilb,
                                        int N0, int N1, int N2, int i){
 
@@ -23,6 +34,18 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
   int I = i*N1*N2 + j*N2 + k;
   
   if (j < N1 && k < N2){
+
+	// space-dependent map
+	if(jmapx != NULL){
+		ux *= jmapx[I];
+	}
+	if(jmapy != NULL){
+		uy *= jmapy[I];
+	}
+	if(jmapz != NULL){
+		uz *= jmapz[I];
+	}
+
 
     // (1) calculate the directional derivative of (mx, my mz) along (ux,uy,uz).
     // Result is (diffmx, diffmy, diffmz) (= Hspin)
@@ -38,7 +61,14 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
       my1 = my[idx];
       mz1 = mz[idx];
     } else {
-     //
+      // How to handle edge cells?
+      // * leaving the m value zero gives too big a gradient
+      // * setting it to the central value gives the actual gradient / 2, should not hurt
+      // * problem with nonuniform norm!! what if a neighbor has zero norm (but still lies in the box)?
+      int idx = (i)*N1*N2 + j*N2 + k;
+      mx1 = mx[idx];
+      my1 = my[idx];
+      mz1 = mz[idx];
     }
     if (i+1 < N0){
       int idx = (i+1)*N1*N2 + j*N2 + k;
@@ -46,7 +76,10 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
       my2 = my[idx];
       mz2 = mz[idx];
     } else {
-      //
+      int idx = (i)*N1*N2 + j*N2 + k;
+      mx1 = mx[idx];
+      my1 = my[idx];
+      mz1 = mz[idx];
     } 
     float diffmx = ux * (mx2 - mx1);
     float diffmy = ux * (my2 - my1);
@@ -60,7 +93,10 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
       my1 = my[idx];
       mz1 = mz[idx];
     } else {
-      //
+      int idx = (i)*N1*N2 + (j)*N2 + k;
+      mx1 = mx[idx];
+      my1 = my[idx];
+      mz1 = mz[idx];
     } 
     if (j+1 < N1){
       int idx = (i)*N1*N2 + (j+1)*N2 + k;
@@ -68,7 +104,10 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
       my2 = my[idx];
       mz2 = mz[idx];
     } else {
-      //
+      int idx = (i)*N1*N2 + (j)*N2 + k;
+      mx2 = mx[idx];
+      my2 = my[idx];
+      mz2 = mz[idx];
     } 
     diffmx += uy * (mx2 - mx1);
     diffmy += uy * (my2 - my1);
@@ -82,7 +121,10 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
       my1 = my[idx];
       mz1 = mz[idx];
     } else {
-      //
+      int idx = (i)*N1*N2 + (j)*N2 + (k);
+      mx1 = mx[idx];
+      my1 = my[idx];
+      mz1 = mz[idx];
     } 
     if (k+1 < N2){
       int idx = (i)*N1*N2 + (j)*N2 + (k+1);
@@ -90,7 +132,10 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
       my2 = my[idx];
       mz2 = mz[idx];
     } else {
-      //
+      int idx = (i)*N1*N2 + (j)*N2 + (k);
+      mx2 = mx[idx];
+      my2 = my[idx];
+      mz2 = mz[idx];
     } 
     diffmx += uz * (mx2 - mx1);
     diffmy += uz * (my2 - my1);
@@ -143,14 +188,24 @@ __global__ void _gpu_spintorque_deltaM(float* mx, float* my, float* mz,
 
 #define BLOCKSIZE 16
 
-void gpu_spintorque_deltaM(float* m, float* h, float alpha, float beta, float epsillon, float* u, float dt_gilb, int N0,  int N1, int N2){
+void gpu_spintorque_deltaM(float* m, float* h, float alpha, float beta, float epsillon, float* u, float* jmap, float dt_gilb, int N0,  int N1, int N2){
 
   dim3 gridsize(divUp(N1, BLOCKSIZE), divUp(N2, BLOCKSIZE));
   dim3 blocksize(BLOCKSIZE, BLOCKSIZE, 1);
   int N = N0 * N1 * N2;
+
+  float* jmapx = NULL;
+  float* jmapy = NULL;
+  float* jmapz = NULL;
+
+  if(jmap != NULL){
+  	jmapx = &jmap[0*N];
+  	jmapy = &jmap[1*N];
+  	jmapz = &jmap[2*N];
+  }
   
   for(int i=0; i<N0; i++){
-    _gpu_spintorque_deltaM<<<gridsize, blocksize>>>(&m[0*N], &m[1*N], &m[2*N], &h[0*N], &h[1*N], &h[2*N], alpha, beta, epsillon, u[0], u[1], u[2], dt_gilb, N0, N1, N2, i);
+    _gpu_spintorque_deltaM<<<gridsize, blocksize>>>(&m[0*N], &m[1*N], &m[2*N], &h[0*N], &h[1*N], &h[2*N], alpha, beta, epsillon, u[0], u[1], u[2], jmapx,  jmapy, jmapz, dt_gilb, N0, N1, N2, i);
   }
   gpu_sync();
 }

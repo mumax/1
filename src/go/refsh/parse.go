@@ -6,15 +6,22 @@
 
 package refsh
 
+
+// This file implements parsing of function arguments to values
+
+
 import (
 	. "reflect"
 	"fmt"
 	"os"
-	"log"
 	"strconv"
 	"strings"
+	"math"
 )
 
+
+// INTERNAL
+// Parses the argument list "argv" to values suited for the function named by "fname".
 func (refsh *Refsh) parseArgs(fname string, argv []string) []Value {
 	function := refsh.resolve(fname)
 	nargs := function.NumIn()
@@ -31,6 +38,9 @@ func (refsh *Refsh) parseArgs(fname string, argv []string) []Value {
 	return args
 }
 
+
+// INTERNAL
+// Parses a string representation of a given type to a value
 // TODO: we need to return Value, err
 func parseArg(arg string, argtype Type) Value {
 	switch argtype.Name() {
@@ -38,20 +48,32 @@ func parseArg(arg string, argtype Type) Value {
 		panic(fmt.Sprint("Do not know how to parse ", argtype))
 	case "int":
 		return NewValue(parseInt(arg))
-	case "float":
-		return NewValue(parseFloat(arg))
+	case "int64":
+		return NewValue(parseInt64(arg))
 	case "float32":
 		return NewValue(parseFloat32(arg))
 	case "float64":
 		return NewValue(parseFloat64(arg))
+	case "bool":
+		return NewValue(parseBool(arg))
 	case "string":
 		return NewValue(arg)
 	}
-	log.Crash() // is never reached.
-	return NewValue(666)
+	panic("Bug")
+	return NewValue(666) // is never reached.
 }
 
+// INTERNAL
+func parseBool(str string) bool {
+	i, err := strconv.Atob(str)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Could not parse to bool:", str)
+		os.Exit(-3)
+	}
+	return i
+}
 
+// INTERNAL
 func parseInt(str string) int {
 	i, err := strconv.Atoi(str)
 	if err != nil {
@@ -61,16 +83,40 @@ func parseInt(str string) int {
 	return i
 }
 
-func parseFloat(str string) float {
-	i, err := strconv.Atof(strings.ToLower(str))
+// INTERNAL
+func parseInt64(str string) int64 {
+	i, err := strconv.Atoi64(str)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Could not parse to float:", str)
+		fmt.Fprintln(os.Stderr, "Could not parse to int64:", str)
 		os.Exit(-3)
 	}
 	return i
 }
 
+// INTERNAL
+//func parseFloat(str string) float {
+//	if str == "inf" {
+//		return float(math.Inf(1))
+//	}
+//	if str == "-inf" {
+//		return float(math.Inf(-1))
+//	}
+//	i, err := strconv.Atof(strings.ToLower(str))
+//	if err != nil {
+//		fmt.Fprintln(os.Stderr, "Could not parse to float:", str)
+//		os.Exit(-3)
+//	}
+//	return i
+//}
+
+// INTERNAL
 func parseFloat64(str string) float64 {
+	if str == "inf" {
+		return math.Inf(1)
+	}
+	if str == "-inf" {
+		return math.Inf(-1)
+	}
 	i, err := strconv.Atof64(strings.ToLower(str))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Could not parse to float64:", str)
@@ -79,7 +125,14 @@ func parseFloat64(str string) float64 {
 	return i
 }
 
+// INTERNAL
 func parseFloat32(str string) float32 {
+	if str == "inf" {
+		return float32(math.Inf(1))
+	}
+	if str == "-inf" {
+		return float32(math.Inf(-1))
+	}
 	i, err := strconv.Atof32(strings.ToLower(str))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Could not parse to float32:", str)

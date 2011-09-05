@@ -1,3 +1,13 @@
+/*
+ *  This file is part of MuMax, a high-performance micromagnetic simulator.
+ *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
+ *  Use of this source code is governed by the GNU General Public License version 3
+ *  (as published by the Free Software Foundation) that can be found in the license.txt file.
+ *
+ *  Note that you are welcome to modify this code under condition that you do not remove any 
+ *  copyright notices and prominently state that you modified it, giving a relevant date.
+ */
+
 /**
  * @file
  * Create and check CUDA thread launch configurations
@@ -16,6 +26,8 @@ extern "C" {
 /// Returns the maximum number of threads per block for this GPU
 int gpu_maxthreads();
 
+/// Overrides the maximum number of threads per block. max=0 means autoset.
+void gpu_setmaxthreads(int max);
 
 /**
  * Macro for 1D index "i" in a CUDA kernel.

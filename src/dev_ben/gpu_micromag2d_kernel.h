@@ -14,16 +14,6 @@
 #ifndef GPU_MICROMAG2D_KERNEL_H
 #define GPU_MICROMAG2D_KERNEL_H
 
-#include "tensor.h"
-#include "gputil.h"
-#include "param.h"
-//#include "gpufft2.h"
-#include "gpu_fft.h"
-#include "assert.h"
-#include "timer.h"
-#include <stdio.h>
-#include "gpu_conf.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

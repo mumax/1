@@ -1,3 +1,13 @@
+/*
+ *  This file is part of MuMax, a high-performance micromagnetic simulator.
+ *  Copyright 2010  Arne Vansteenkiste, Ben Van de Wiele.
+ *  Use of this source code is governed by the GNU General Public License version 3
+ *  (as published by the Free Software Foundation) that can be found in the license.txt file.
+ *
+ *  Note that you are welcome to modify this code under condition that you do not remove any 
+ *  copyright notices and prominently state that you modified it, giving a relevant date.
+ */
+
 #include "gpu_mem.h"
 #include "gpu_safe.h"
 #include "gpu_conf.h"
@@ -42,22 +52,42 @@ float* new_ram_array(int size){
 
 
 ///@internal kernel
-__global__ void _gpu_zero(float* a){
-  int i = ((blockIdx.x * blockDim.x) + threadIdx.x);
-  a[i] = 0.0f;
+__global__ void _gpu_zero(float* a, int N){
+  int i = threadindex;
+  if(i < N){
+    a[i] = 0.0f;
+  }
 }
 
-void gpu_zero(float* data, int nElements){
+void gpu_zero(float* data, int N){
+
+  dim3 gridSize, blockSize;
+  make1dconf(N, &gridSize, &blockSize);
+  _gpu_zero<<<gridSize, blockSize>>>(data, N);
+  gpu_sync();
+
+// NOTE: cudaMemset sometimes fails misteriously
+//   debugvv(fprintf(stderr, "gpu_zero(%p, %d)\n", data, nElements));
+//   gpu_safe( cudaMemset(data, 0, nElements*sizeof(float)) );
+//   gpu_sync();
+
+//   int gridSize = -1, blockSize = -1;
+//   make1dconf(nElements, &gridSize, &blockSize);
+//   _gpu_zero<<<gridSize, blockSize>>>(data);
+//   gpu_sync();
+
+  
+}
+
+void gpu_zero_async(float* data, int nElements){
   debugvv(fprintf(stderr, "gpu_zero(%p, %d)\n", data, nElements));
   gpu_safe( cudaMemset(data, 0, nElements*sizeof(float)) );
-  gpu_sync();
 //   int gridSize = -1, blockSize = -1;
 //   make1dconf(nElements, &gridSize, &blockSize);
 //   _gpu_zero<<<gridSize, blockSize>>>(data);
 //   gpu_sync();
   
 }
-
 
 float* _host_array = NULL;
 float* _device_array = NULL;
@@ -87,6 +117,7 @@ void memcpy_gpu_dir(float* source, float* dest, int nElements, int direction){
       memcpy_from_gpu(source,  dest, nElements);
   }
   else{
+	fprintf(stderr, "illegal memcpy direction: %d\n", direction);
     abort();
   }
 }
@@ -124,6 +155,15 @@ void memcpy_on_gpu(float* source, float* dest, int nElements){
   gpu_sync();
 }
 
+void memcpy_on_gpu_async(float* source, float* dest, int nElements){
+  assert(nElements > 0);
+  int status = cudaMemcpy(dest, source, nElements*sizeof(float), cudaMemcpyDeviceToDevice);
+  if(status != cudaSuccess){
+    fprintf(stderr, "CUDA could not copy %d floats from device addres %p to device addres %p\n", nElements, source, dest);
+    gpu_safe(status);
+  }
+}
+
 float gpu_array_get(float* dataptr, int index){
   float result = 666.0;
   memcpy_from_gpu(&(dataptr[index]), &result, 1);
@@ -148,7 +188,7 @@ void gpu_array_set(float* dataptr, int index, float value){
 //  * 1/3 of the FFT's will act on improperly aligned data, but for computation-limited kernels on 2.x GPU's, this should be barely notable
 //  * 1/2 of the transposes will be slowed down by about a factor of 2, but R2C FFT's always break the alignment, so there is no workaround anyway.
 
-int _gpu_stride_float_cache = 1;
+int _gpu_stride_float_cache = -1;
 
 /* We test for the optimal array stride by creating a 1x1 matrix and checking
  * the stride returned by CUDA.

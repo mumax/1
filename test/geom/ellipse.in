@@ -9,12 +9,12 @@ aexch      	1.3E-11
 alpha      	2
 
 # geometry 
-size       	1     32          128    
-cellsize   	3E-9  3.90625E-9  3.90625E-9  # m
-cylinder 
+gridsize       	128    	32	1
+partsize   	500E-9  125E-9  3E-9  # m
+ellipsoid 250e-9 62.5e-9 inf 
 
 # initial magnetization
-uniform 0 1 1
+uniform 1 1 1
 
 
 # run

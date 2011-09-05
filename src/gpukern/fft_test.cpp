@@ -20,7 +20,7 @@ void printt(char* tag, float* data, int N0, int N1, int N2){
 }
 
 int main(){
-  int N0=2, N1=4, N2=8;
+  int N0=1, N1=1024, N2=1024;
   int N = N0*N1*N2;
   int* size = new int[3];
   size[0] = N0;

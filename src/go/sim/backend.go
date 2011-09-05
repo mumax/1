@@ -7,8 +7,10 @@
 package sim
 
 import (
-	"tensor"
+	. "mumax/common"
+	"mumax/tensor"
 	"unsafe"
+	//"fmt"
 )
 
 /**
@@ -25,12 +27,12 @@ import (
 
 type Backend struct {
 	Device
-	// 	Initiated bool
+	gpuid int
 	Timer
 }
 
 func NewBackend(d Device) *Backend {
-	return &Backend{d, NewTimer()}
+	return &Backend{d, -1, NewTimer()}
 }
 
 //_________________________________________________________________________ safe wrappers for Device methods
@@ -43,6 +45,13 @@ func NewBackend(d Device) *Backend {
 // 		dev.Initiated = true
 // 	}
 // }
+
+func (dev *Backend) SetDevice(gpuid int) {
+	if dev.gpuid != gpuid {
+		dev.gpuid = gpuid
+		dev.setDevice(gpuid)
+	}
+}
 
 // Copies a number of float32s from host to GPU
 func (dev *Backend) memcpyTo(source *float32, dest uintptr, nFloats int) {
@@ -69,20 +78,6 @@ func (dev *Backend) copyUnpad(source, dest uintptr, sourceSize, destSize []int) 
 	dev.copyPadded(source, dest, sourceSize, destSize, CPY_UNPAD)
 }
 
-// // Gets one float32 from a Device array.
-// // Slow, for debug only
-// func (dev *Backend) arrayGet(array uintptr, index int) float32 {
-// 	var f float32
-// 	dev.memcpyFrom(dev.arrayOffset(array, index), &f, 1)
-// 	return f
-// }
-// 
-// // Sets one float32 on a Device array.
-// // Slow, for debug only
-// func (dev *Backend) arraySet(array uintptr, index int, value float32) {
-// 	dev.memcpyTo(&value, dev.arrayOffset(array, index), 1)
-// }
-
 
 // a[i] += b[i]
 func (dev *Backend) Add(a, b *DevTensor) {
@@ -90,11 +85,38 @@ func (dev *Backend) Add(a, b *DevTensor) {
 	dev.add(a.data, b.data, tensor.Prod(a.Size()))
 }
 
-// a[i] += b[i]
+// a[i] += cnst * b[i]
 func (dev *Backend) MAdd(a *DevTensor, cnst float32, b *DevTensor) {
 	assert(tensor.EqualSize(a.size, b.size))
-	dev.madd(a.data, cnst, b.data, tensor.Prod(a.Size()))
+	//fmt.Println("madd ", a, b)
+	//adata := a.data
+	//bdata := b.data
+	//asize :=  tensor.Prod(a.Size())
+	dev.madd(a.data, cnst, b.data, a.length)
 }
+
+// a[i] += b[i] * c[i]
+func (dev *Backend) MAdd2(a, b, c *DevTensor) {
+	assert(tensor.EqualSize(a.size, b.size))
+	assert(tensor.EqualSize(b.size, c.size))
+	dev.madd2(a.data, b.data, c.data, tensor.Prod(a.Size()))
+}
+
+func (dev *Backend) ScaledDotProduct(result, a, b *DevTensor, scale float32) {
+	assert(a.size[0] == 3)
+	assert(tensor.EqualSize(a.size, b.size))
+	assert(tensor.EqualSize(a.size[1:], result.size))
+	dev.scaledDotProduct(result.data, a.data, b.data, scale, tensor.Prod(result.size))
+}
+
+func (dev *Backend) AddLinAnis(h, m *DevTensor, K []*DevTensor) {
+	dev.addLinAnis(h.comp[X].data, h.comp[Y].data, h.comp[Z].data,
+		m.comp[X].data, m.comp[Y].data, m.comp[Z].data,
+		K[XX].data, K[YY].data, K[ZZ].data,
+		K[YZ].data, K[XZ].data, K[XY].data,
+		h.length)
+}
+
 
 // a[i]  = weightA * a[i] + weightB * b[i]
 func (dev *Backend) LinearCombination(a, b *DevTensor, weightA, weightB float32) {
@@ -107,13 +129,30 @@ func (dev *Backend) AddConstant(a *DevTensor, cnst float32) {
 	dev.addConstant(a.data, cnst, tensor.Prod(a.Size()))
 }
 
-// func (dev *Backend) Normalize(m *DevTensor) {
-// 	assert(len(m.size) == 4)
-// 	N := m.size[1] * m.size[2] * m.size[3]
-// 	dev.normalize(m.data, N)
-// }
 
+func (dev *Backend) AddLocalFields(m, h *DevTensor, hext []float32, hMask *DevTensor, anisType int, anisK, anisAxes []float32) {
+	assert(m.length == h.length)
+	assert(len(m.size) == 4)
+	//fmt.Printf("hext:%v, anistype:%v, anisK:%v, anisAxes:%v\n", hext, anisType, anisK, anisAxes)
+	dev.addLocalFields(m.data, h.data, hext, hMask, anisType, anisK, anisAxes, m.length/3)
+}
 
+func (dev *Backend) AddLocalFieldsEdens(m, h, phi *DevTensor, hext []float32, hMask *DevTensor, anisType int, anisK, anisAxes []float32) {
+	assert(m.length == h.length)
+	assert(len(m.size) == 4)
+	//fmt.Printf("hext:%v, anistype:%v, anisK:%v, anisAxes:%v\n", hext, anisType, anisK, anisAxes)
+	dev.addLocalFieldsPhi(m.data, h.data, phi.data, hext, hMask, anisType, anisK, anisAxes, m.length/3)
+}
+
+func (dev *Backend) GaussianNoise(target *DevTensor, stddev float32) {
+	dev.gaussianNoise(target.data, 0., stddev, tensor.Prod(target.size))
+}
+
+func (dev *Backend) SemianalStep(min, mout, h *DevTensor, dt, alpha float32) {
+	assert(min.length == h.length)
+	assert(min.length == mout.length)
+	dev.semianalStep(min.data, mout.data, h.data, dt, alpha, min.length/3)
+}
 
 func (b Backend) OverrideStride(stride int) {
 	panic("OverrideStride is currently not compatible with the used FFT, it should always be 1")

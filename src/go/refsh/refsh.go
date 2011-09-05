@@ -21,16 +21,15 @@ import (
 	"io"
 	"strings"
 	"unicode"
+	"fmt"
 )
 
-// Maximum number of functions.
-// TODO use a vector to make this unlimited.
-const CAPACITY = 100
 
 // Makes a new Refsh
 func New() *Refsh {
 	return NewRefsh()
 }
+
 
 // Adds a function to the list of known commands.
 // example: refsh.Add("exit", Exit)
@@ -40,12 +39,10 @@ func (r *Refsh) AddFunc(funcname string, function interface{}) {
 	if r.resolve(funcname) != nil {
 		panic("Aldready defined: " + funcname)
 	}
-
-	r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
-	r.funcnames[len(r.funcnames)-1] = funcname
-	r.funcs = r.funcs[0 : len(r.funcs)+1]
-	r.funcs[len(r.funcs)-1] = (*FuncWrapper)(f.(*FuncValue))
+	r.funcnames = append(r.funcnames, funcname)
+	r.funcs = append(r.funcs, (*FuncWrapper)(f.(*FuncValue)))
 }
+
 
 // Adds a method to the list of known commands
 // example: refsh.Add("field", reciever, "GetField")
@@ -65,12 +62,8 @@ func (r *Refsh) AddMethod(funcname string, reciever interface{}, methodname stri
 	if f == nil {
 		panic("Method does not exist: " + methodname)
 	}
-
-	r.funcnames = r.funcnames[0 : len(r.funcnames)+1]
-	r.funcnames[len(r.funcnames)-1] = funcname
-	r.funcs = r.funcs[0 : len(r.funcs)+1]
-
-	r.funcs[len(r.funcs)-1] = &MethodWrapper{NewValue(reciever), f}
+	r.funcnames = append(r.funcnames, funcname)
+	r.funcs = append(r.funcs, &MethodWrapper{NewValue(reciever), f})
 }
 
 // Adds all the public Methods of the reciever,
@@ -85,6 +78,7 @@ func (r *Refsh) AddAllMethods(reciever interface{}) {
 	}
 }
 
+
 // parses and executes the commands read from in
 // bash-like syntax:
 // command arg1 arg2
@@ -97,6 +91,7 @@ func (refsh *Refsh) Exec(in io.Reader) {
 		refsh.Call(cmd, args)
 	}
 }
+
 
 const prompt = ">> "
 
@@ -117,6 +112,7 @@ func (refsh *Refsh) Interactive() {
 	}
 }
 
+
 func exit() {
 	os.Exit(0)
 }
@@ -132,17 +128,13 @@ func (refsh *Refsh) ExecFlags() {
 	}
 }
 
+
 // Calls a function. Function name and arguments are passed as strings.
 // The function name should first have been added by refsh.Add();
 func (refsh *Refsh) Call(fname string, argv []string) []interface{} {
 	// Debug
-	refsh.Print(">>> ", fname, "\t ")
+	refsh.Errorln(">>> ", fname, "\t ", argv)
 	refsh.CallCount++
-
-	for _, a := range argv {
-		refsh.Print(a, "\t ")
-	}
-	refsh.Println()
 
 	function := refsh.resolve(fname)
 	if function == nil {
@@ -164,12 +156,14 @@ func (refsh *Refsh) Call(fname string, argv []string) []interface{} {
 }
 
 type Refsh struct {
-	funcnames    []string
-	funcs        []Caller
-	CrashOnError bool
-	CallCount    int     //counts number of commands executed
-	Output       Printer //Used to print output, may be nil
+	funcnames    []string          // known function or method names (we do not use a map to not exclude the possibility of overloading)
+	funcs        []Caller          // functions/methods corresponding to funcnames
+	help         map[string]string // help strings corresponding to funcnames
+	CrashOnError bool              // crash the program on a syntax error or just report it (e.g. for interactive mode)
+	CallCount    int               //counts number of commands executed
+	Output       Printer           //Used to print output, may be nil
 }
+
 
 type Printer interface {
 	Print(msg ...interface{})
@@ -177,26 +171,37 @@ type Printer interface {
 	Errorln(msg ...interface{})
 }
 
+
 func (refsh *Refsh) Print(msg ...interface{}) {
 	if refsh.Output != nil {
 		refsh.Output.Print(msg...)
+	} else {
+		fmt.Print(msg...)
 	}
 }
+
 
 func (refsh *Refsh) Println(msg ...interface{}) {
 	if refsh.Output != nil {
 		refsh.Output.Println(msg...)
+	} else {
+		fmt.Println(msg...)
 	}
 }
+
 
 func (refsh *Refsh) Errorln(msg ...interface{}) {
 	if refsh.Output != nil {
 		refsh.Output.Errorln(msg...)
+	} else {
+		fmt.Fprintln(os.Stderr, msg...)
 	}
 }
 
+
 func NewRefsh() *Refsh {
 	refsh := new(Refsh)
+	CAPACITY := 10 // Initial function name capacity, but can grow
 	refsh.funcnames = make([]string, CAPACITY)[0:0]
 	refsh.funcs = make([]Caller, CAPACITY)[0:0]
 	refsh.CrashOnError = true
@@ -204,6 +209,7 @@ func NewRefsh() *Refsh {
 	refsh.AddMethod("include", refsh, "Include")
 	return refsh
 }
+
 
 // executes the file
 func (refsh *Refsh) Include(file string) {

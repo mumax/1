@@ -8,13 +8,12 @@ package sim
 
 import (
 	. "math"
-	// 	"fmt"
 )
 
 type Material struct {
 	aExch   float32 // Exchange constant in J/m
 	mSat    float32 // Saturation magnetization in A/m
-	mu0     float32 // mu0 in N/A^2
+	mu0     float32 // mu0 in J/m A^2
 	gamma0  float32 // Gyromagnetic ratio in m/As
 	muB     float32 // Bohr magneton in Am^2
 	e       float32 // Electron charge in As
@@ -24,18 +23,14 @@ type Material struct {
 }
 
 
-func NewMaterial() *Material {
-	mat := new(Material)
-	mat.InitMaterial()
-	return mat
-}
+// Boltzmann's constant in J/K
+const kBSI = 1.380650424E-23 // J/K
 
-func (mat *Material) InitMaterial() {
-	mat.mu0 = 4.0E-7 * Pi
-	mat.gamma0 = 2.211E5
-	mat.muB = 9.2740091523E-24
-	mat.e = 1.60217646E-19
-}
+// func NewMaterial() *Material {
+// 	mat := new(Material)
+// 	mat.InitMaterial()
+// 	return mat
+// }
 
 
 //  Units:
@@ -45,6 +40,14 @@ func (mat *Material) InitMaterial() {
 //  ENERGY = A * LENGTH
 
 // The internal unit of length, expressed in meters.
+// NOTE: We use the exchange length here, but we could
+// have omitted the factor 2. The implication of including
+// the factor 2 here is, e.g.:
+//  * The factor 2 in the exchange field formulation has to be dropped
+//  * The factor 2 in the uniaxial anisotropy formulation has to be dropped
+//  * ...
+// This makes no difference in the end but should be noted.
+//  
 func (mat *Material) UnitLength() float32 {
 	assert(mat.Valid())
 	return float32(Sqrt(2. * float64(mat.aExch/(mat.mu0*mat.mSat*mat.mSat))))
@@ -68,6 +71,11 @@ func (mat *Material) UnitField() float32 {
 // The internal unit of energy, expressed in J.
 func (mat *Material) UnitEnergy() float32 {
 	return mat.aExch * mat.UnitLength()
+}
+
+// The internal unit of energy density, expressed in J/m^3.
+func (mat *Material) UnitEnergyDensity() float32 {
+	return mat.UnitEnergy() / mat.UnitVolume()
 }
 
 

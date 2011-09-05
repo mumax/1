@@ -1,23 +1,27 @@
 # Spintorque standard problem
 
-maxerror 1e-5
 
 aexch:  13e-12
 msat:   8e5
 
 partsize:  100e-9 100e-9 10e-9
-gridsize:  64     64	 1
+gridsize:  128 128 1
+
+tabulate j true
+#autosave m     png   10e-12
+#autosave table ascii 10e-12
 
 #relax
-loadm    relaxed.tensor
-
+#alpha   2
+#vortex	1 1
+#run     0.5e-9
+#save	m	omf
+loadm relaxed2D.omf
 
 #run
 alpha:            0.1
-currentdensity:   1e12 0 0
+applystatic j   1e12 0 0
 xi:               0.05
 spinpolarization: 1
 
-autosave m     png   100e-12
-autosave table ascii 20e-12
-run 10e-9
+run 1e-9

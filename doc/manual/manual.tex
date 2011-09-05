@@ -39,8 +39,12 @@ breakatwhitespace=false         % sets if automatic breaks should only happen at
 }
 
 
-\newcommand{\prog}{\texttt{simulate}\xspace}	% preliminary program name
-\newcommand{\doctitle}{Simulations manual}
+\newcommand{\mumax}{\textsc{MuMax}\xspace}	
+\newcommand{\nvidia}{n\textsc{vidia}\xspace}	
+\newcommand{\prog}{\texttt{mumax}\xspace}		% preliminary program name
+
+\newcommand{\doctitle}{MuMax manual}
+
 
 \usepackage[plainpages=false, colorlinks=true, citecolor=blue, linkcolor=blue, filecolor=blue, urlcolor=blue, bookmarks=true, pdftitle={\doctitle}, pdfauthor={Arne Vansteenkiste, Ben Van de Wiele}]{hyperref}
 \usepackage[all]{hypcap} % link to image shows image, not caption.
@@ -50,7 +54,7 @@ breakatwhitespace=false         % sets if automatic breaks should only happen at
 \newcommand{\idx}[1]{\emph{#1}\index{#1}}
 % used for terminal commands 
 \newcommand{\cmd}[1]{\texttt{#1}}
-\newcommand{\shell}[1]{\bigskip\fbox{\mbox{\cmd{#1}}}\bigskip}
+\newcommand{\shell}[1]{\bigskip\fbox{\mbox{\parbox{\textwidth}{\cmd{#1}}}}\bigskip}
 \newcommand{\idxcmd}[1]{\texttt{#1}\index{#1}}
 \newcommand{\file}[1]{\texttt{#1}}
 \newcommand{\idxfile}[1]{\texttt{#1}\index{#1}}
@@ -69,15 +73,18 @@ breakatwhitespace=false         % sets if automatic breaks should only happen at
 
 \tableofcontents
 
-\include{installation}
-\include{input}
-\include{daemon}
-\include{output}
+%\include{physics} % 
+\include{intro} % Arne
+\include{installation} % Arne
+\include{input} % Ben
+\include{examples} % Arne
+\include{daemon} % Arne 
+%\include{output} % Ben
 
 \appendix
+\include{gpl}
 
-
-%\bibliography{biblio}
+\bibliography{bibliography}
 
 \printindex
 

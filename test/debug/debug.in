@@ -1,0 +1,21 @@
+
+kerneltype mumaxkern-gpu
+#exchtype 12
+#exchinconv false
+# demag false
+
+# material
+msat        800E3   
+aexch       1.3E-11     
+alpha       0.02
+
+# geometry 
+partsize    500E-9  125E-9  3E-9
+gridsize    8 8 4   
+periodic    0 0 0 
+
+# initial magnetization
+uniform     1 1 1
+
+# run
+saveh gpu.omf text

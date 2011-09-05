@@ -23,18 +23,18 @@ type AdaptiveEuler struct {
 func NewAdaptiveEuler(s *Sim) *AdaptiveEuler {
 	e := new(AdaptiveEuler)
 	e.Sim = s
-	assert(e.backend != nil)
+	//assert(e.Backend != nil)
 	// We use the "maximum norm" of the torque to set dt.
 	// Using the Euclidian norm would also work.
-	e.Reductor.InitMaxAbs(e.backend, prod(s.size4D[0:]))
-	if s.maxDm == 0. {
-		s.maxDm = EULER_DEFAULT_MAXDM
-	}
+	e.Reductor.InitMaxAbs(s.Backend, prod(s.size4D[0:]))
+	//	if s.maxDm == 0. {
+	//		s.maxDm = EULER_DEFAULT_MAXDM
+	//	}
 	return e
 }
 
-func (this *AdaptiveEuler) Step() {
-	m, h := this.mDev, this.h
+func (this *AdaptiveEuler) step() {
+	m, h := this.mDev, this.hDev
 
 	// 	this.Normalize(this.m)
 	this.calcHeff(m, h)
@@ -42,13 +42,14 @@ func (this *AdaptiveEuler) Step() {
 	torque := h // h is overwritten by deltaM
 
 	// only set an adaptive step if maxDm is defined.
-	if this.maxDm != 0. {
+	if this.input.maxDm != 0. {
 		maxtorque := this.Reduce(torque)
-		this.dt = this.maxDm / maxtorque
+		this.dt = this.input.maxDm / maxtorque
 	}
 
 	this.MAdd(m, this.dt, torque)
 	this.Normalize(m)
+	this.time += float64(this.dt)
 }
 
 func (this *AdaptiveEuler) String() string {

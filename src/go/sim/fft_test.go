@@ -8,21 +8,79 @@ package sim
 
 import (
 	"testing"
-	"tensor"
+	"mumax/tensor"
 	"fmt"
-	_ "rand"
+	"rand"
 )
 
+var backend = GPU
+
 var fft_test_sizes [][]int = [][]int{
-	[]int{1, 4, 8}} //,
-// 	[]int{2, 4, 8}}
+	{1, 16, 16}}
+
+func TestTimeFFT(t *testing.T) {
+	// func testFFTPadded2(t *testing.T) {
+
+	var basic_size []int = []int{1, 32, 32}
+	var size []int = []int{1, 16, 16}
+
+	for i := 1; i < 11; i++ {
+		size[0] = basic_size[0]
+		size[1] = i * basic_size[1]
+		size[2] = i * basic_size[2]
+
+		fmt.Println("cnt: ", i, "Size in: ", size)
+		fmt.Println()
+		fmt.Println()
+		fmt.Println()
+		fmt.Println()
+		fmt.Println()
+		paddedsize := padSize(size, []int{0, 0, 0})
+
+		fft := NewFFTPadded(backend, size, paddedsize)
+		fftP := NewFFT(backend, paddedsize) // with manual padding
+
+		fmt.Println(fft)
+		fmt.Println(fftP)
+
+		outsize := fftP.PhysicSize()
+
+		host := tensor.NewT(size)
+		dev, devT, devTT := NewTensor(backend, size), NewTensor(backend, outsize), NewTensor(backend, size)
+
+		host.List()[0] = 1.
+		for i := 0; i < size[0]; i++ {
+			for j := 0; j < size[1]; j++ {
+				for k := 0; k < size[2]; k++ {
+					host.List()[i*size[1]*size[2]+j*size[2]+k] = rand.Float32() //1.
+				}
+			}
+		}
+
+		TensorCopyTo(host, dev)
+
+		for j := 1; j < 10; j++ {
+			fft.Forward(dev, devT)
+			fft.Inverse(devT, devTT)
+		}
+
+		fft.Free()
+		fftP.Free()
+
+		dev.Free()
+		devT.Free()
+		devTT.Free()
+
+	}
+
+}
 
 
 func TestFFTPadded(t *testing.T) {
 
 	for _, size := range fft_test_sizes {
-
-		paddedsize := padSize(size)
+		fmt.Println("Size: ", size)
+		paddedsize := padSize(size, []int{0, 0, 0})
 
 		fft := NewFFTPadded(backend, size, paddedsize)
 		fftP := NewFFT(backend, paddedsize) // with manual padding
@@ -35,13 +93,14 @@ func TestFFTPadded(t *testing.T) {
 		dev, devT, devTT := NewTensor(backend, size), NewTensor(backend, outsize), NewTensor(backend, size)
 		devP, devPT, devPTT := NewTensor(backend, paddedsize), NewTensor(backend, outsize), NewTensor(backend, paddedsize)
 
-		host, hostT, hostTT := tensor.NewTensorN(size), tensor.NewTensorN(outsize), tensor.NewTensorN(size)
-		hostP, hostPT, hostPTT := tensor.NewTensorN(paddedsize), tensor.NewTensorN(outsize), tensor.NewTensorN(paddedsize)
+		host, hostT, hostTT := tensor.NewT(size), tensor.NewT(outsize), tensor.NewT(size)
+		hostP, hostPT, hostPTT := tensor.NewT(paddedsize), tensor.NewT(outsize), tensor.NewT(paddedsize)
 
+		host.List()[0] = 1.
 		for i := 0; i < size[0]; i++ {
 			for j := 0; j < size[1]; j++ {
 				for k := 0; k < size[2]; k++ {
-					host.List()[i*size[1]*size[2]+j*size[2]+k] = 1. //rand.Float() //1.
+					host.List()[i*size[1]*size[2]+j*size[2]+k] = rand.Float32() //1.
 					hostP.List()[i*paddedsize[1]*paddedsize[2]+j*paddedsize[2]+k] = host.List()[i*size[1]*size[2]+j*size[2]+k]
 				}
 			}
@@ -61,6 +120,15 @@ func TestFFTPadded(t *testing.T) {
 
 		fftP.Inverse(devPT, devPTT)
 		TensorCopyFrom(devPTT, hostPTT)
+
+		fmt.Println("in:")
+		//host.WriteTo(os.Stdout)
+
+		fmt.Println("out(padded):")
+		//hostT.WriteTo(os.Stdout)
+
+		fmt.Println("backtransformed:")
+		//hostTT.WriteTo(os.Stdout)
 
 		var (
 			errorTT  float32 = 0
@@ -99,54 +167,72 @@ func TestFFTPadded(t *testing.T) {
 
 func TestFFT(t *testing.T) {
 
-	// 	for _, size := range fft_test_sizes {
-	// 
-	// 		paddedsize := []int{2 * size[0], 2 * size[1], 2 * size[2]}
-	// 
-	// 		fft := NewFFTPadded(backend, size, paddedsize)
-	// 		fmt.Println(fft)
-	// 		outsize := fft.PhysicSize()
-	// 
-	// 		devIn, devOut := NewTensor(backend, size), NewTensor(backend, outsize)
-	// 		host1, host2 := tensor.NewTensorN(size), tensor.NewTensorN(size)
-	// 
-	// 		for i := 0; i < tensor.N(host1); i++ {
-	// 			host1.List()[i] = rand.Float() //float32(i%100) / 100
-	// 		}
-	// 
-	// 		// 		host1.List()[0] = 1.
-	// 
-	// 
-	// 		TensorCopyTo(host1, devIn)
-	// 		tensor.Format(os.Stdout, devIn)
-	// 		fft.Forward(devIn, devOut)
-	// 		tensor.Format(os.Stdout, devOut)
-	// 		fft.Inverse(devOut, devIn)
-	// 		tensor.Format(os.Stdout, devIn)
-	// 		TensorCopyFrom(devIn, host2)
-	// 
-	// 		N := float32(fft.Normalization())
-	// 		var maxError float32 = 0
-	// 		for i := range host2.List() {
-	// 			host2.List()[i] /= N
-	// 			if abs(host2.List()[i]-host1.List()[i]) > maxError {
-	// 				maxError = abs(host2.List()[i] - host1.List()[i])
-	// 			}
-	// 		}
-	// 		//tensor.Format(os.Stdout, host2)
-	// 		fmt.Println("FFT error:", maxError)
-	// 		if maxError > 1E-4 {
-	// 			t.Fail()
-	// 		}
-	// 	}
+	for _, size := range fft_test_sizes {
+		fmt.Println("Size: ", size)
+		fft := NewFFT(backend, size)
+		fmt.Println(fft)
+		outsize := fft.PhysicSize()
+
+		dev, devT, devTT := NewTensor(backend, size), NewTensor(backend, outsize), NewTensor(backend, size)
+
+		host, hostT, hostTT := tensor.NewT(size), tensor.NewT(outsize), tensor.NewT(size)
+
+		for i := 0; i < size[0]; i++ {
+			for j := 0; j < size[1]; j++ {
+				for k := 0; k < size[2]; k++ {
+					host.List()[i*size[1]*size[2]+j*size[2]+k] = 0. + 1.*(rand.Float32()-.5) //1.
+				}
+			}
+		}
+		//     host.List()[63] = 1.
+
+		//     list := host.List()
+		//     for i:= range list{
+		//       list[i]=float32(i)
+		//     }
+
+		TensorCopyTo(host, dev)
+
+		fft.Forward(dev, devT)
+		TensorCopyFrom(devT, hostT)
+
+		fft.Inverse(devT, devTT)
+		TensorCopyFrom(devTT, hostTT)
+
+		fmt.Println("in:")
+		//host.WriteTo(os.Stdout)
+
+		fmt.Println("out:")
+		//hostT.WriteTo(os.Stdout)
+
+		fmt.Println("backtransformed:")
+		//hostTT.WriteTo(os.Stdout)
+
+		var (
+			errorTT float32 = 0
+		)
+
+		fmt.Println("Normalization: ", fft.Normalization())
+		for i := range hostTT.List() {
+			hostTT.List()[i] /= float32(fft.Normalization())
+			if abs(host.List()[i]-hostTT.List()[i]) > errorTT {
+				errorTT = abs(host.List()[i] - hostTT.List()[i])
+			}
+		}
+		//tensor.Format(os.Stdout, host2)
+		fmt.Println("transformed² FFT error:                    ", errorTT)
+		if errorTT > 1E-4 {
+			t.Fail()
+		}
+	}
 
 }
 
 
-// func abs(r float32) float32 {
-// 	if r < 0 {
-// 		return -r
-// 	}
-// 	//else
-// 	return r
-// }
+func abs(r float32) float32 {
+	if r < 0 {
+		return -r
+	}
+	//else
+	return r
+}

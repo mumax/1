@@ -1,3 +1,4 @@
+//  This file is part of MuMax, a high-performance micromagnetic simulator
 //  Copyright 2010  Arne Vansteenkiste
 //  Use of this source code is governed by the GNU General Public License version 3
 //  (as published by the Free Software Foundation) that can be found in the license.txt file.
@@ -7,8 +8,9 @@
 package sim
 
 import (
-	"fmt"
+	. "mumax/common"
 )
+
 
 type Reductor struct {
 	*Backend
@@ -18,6 +20,7 @@ type Reductor struct {
 	blocks, threads, N int
 }
 
+
 // Reduces the data,
 // i.e., calucates the sum, maximum, ...
 // depending on the value of "operation".
@@ -26,10 +29,12 @@ func (r *Reductor) Reduce(input *DevTensor) float32 {
 	return r.reduce(r.operation, input.data, r.devbuffer, &(r.hostbuffer[0]), r.blocks, r.threads, r.N)
 }
 
+
 // Unsafe version of Reduce().
 func (r *Reductor) reduce_(data uintptr) float32 {
 	return r.reduce(r.operation, data, r.devbuffer, &(r.hostbuffer[0]), r.blocks, r.threads, r.N)
 }
+
 
 func NewSum(b *Backend, N int) *Reductor {
 	r := new(Reductor)
@@ -44,16 +49,43 @@ func (r *Reductor) InitSum(b *Backend, N int) {
 }
 
 
+func NewSumAbs(b *Backend, N int) *Reductor {
+	r := new(Reductor)
+	r.InitSumAbs(b, N)
+	return r
+}
+
+func (r *Reductor) InitSumAbs(b *Backend, N int) {
+	r.init(b, N)
+	r.operation = SUMABS
+}
+
+
 func NewMax(b *Backend, N int) *Reductor {
 	r := new(Reductor)
 	r.InitMax(b, N)
 	return r
 }
 
+
 func (r *Reductor) InitMax(b *Backend, N int) {
 	r.init(b, N)
 	r.operation = MAX
 }
+
+
+func NewMin(b *Backend, N int) *Reductor {
+	r := new(Reductor)
+	r.InitMin(b, N)
+	return r
+}
+
+
+func (r *Reductor) InitMin(b *Backend, N int) {
+	r.init(b, N)
+	r.operation = MIN
+}
+
 
 func NewMaxAbs(b *Backend, N int) *Reductor {
 	r := new(Reductor)
@@ -73,7 +105,11 @@ func (r *Reductor) init(b *Backend, N int) {
 	assert(b != nil)
 	r.Backend = b
 
-	r.threads = 128 //TODO use device default
+	r.threads = b.maxthreads() / 2 // does not work up to maxthreads
+	if r.threads == 0 {            // for cpu and 1 thread, this becomes 0
+		r.threads = 1
+	}
+
 	for N <= r.threads {
 		r.threads /= 2
 	}
@@ -96,23 +132,23 @@ func divUp(x, y int) int {
 // When there are only a few numbers left, it becomes more efficient
 // to reduce them on the CPU (we need a copy from the device anyway,
 // so why not copy a few numbers).
-func local_reduce(operation int, data []float32) float32 {
-	fmt.Println(data)
-	result := float32(0.)
-	switch operation {
-	default:
-		panic("bug")
-	case ADD:
-		for i := range data {
-			result += data[i]
-		}
-	case MAX:
-		result = data[0]
-		for i := range data {
-			if result < data[i] {
-				result = data[i]
-			}
-		}
-	}
-	return result
-}
+// func local_reduce(operation int, data []float32) float32 {
+// 	fmt.Println(data)
+// 	result := float32(0.)
+// 	switch operation {
+// 	default:
+// 		panic("bug")
+// 	case ADD:
+// 		for i := range data {
+// 			result += data[i]
+// 		}
+// 	case MAX:
+// 		result = data[0]
+// 		for i := range data {
+// 			if result < data[i] {
+// 				result = data[i]
+// 			}
+// 		}
+// 	}
+// 	return result
+// }

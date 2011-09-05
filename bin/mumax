@@ -1,0 +1,11 @@
+#! /bin/bash
+export SIMROOT=$(readlink -f $(dirname $(readlink -f $0))/..)
+#echo SIMROOT: $SIMROOT
+export GOMAXPROCS=$(grep processor /proc/cpuinfo | wc -l) 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SIMROOT/lib:$SIMROOT/lib/fftw/lib
+#echo LD_LIBRARY_PATH: $LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$SIMROOT/lib/fftw/lib:$LD_LIBRARY_PATH
+export PYTHONPATH=$PYTHONPATH:$SIMROOT/lib
+export PATH=$PATH:$SIMROOT/bin
+export LD_LIBRARY_PATH=$SIMROOT/lib:$LD_LIBRARY_PATH
+exec -a mumax $SIMROOT/bin/mumax-sim $@

@@ -1,0 +1,15 @@
+*.out
+*.la
+*.a
+*.lo
+*.o
+*.so*
+*.6
+*.8
+*~
+*.swp
+*.pyc
+_cgo_export.h
+_obj/
+*.jar
+*.class

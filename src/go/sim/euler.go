@@ -14,13 +14,19 @@ type Euler struct {
 	*Sim
 }
 
+func NewEuler(sim *Sim) *Euler {
+	e := new(Euler)
+	e.Sim = sim
+	return e
+}
+
 func (this *Euler) String() string {
 	return "Euler"
 }
 
 
-func (this *Euler) Step() {
-	m, h := this.mDev, this.h
+func (this *Euler) step() {
+	m, h := this.mDev, this.hDev
 
 	// 	this.Normalize(this.m)
 	this.calcHeff(m, h)
@@ -29,4 +35,5 @@ func (this *Euler) Step() {
 
 	this.Add(m, deltaM)
 	this.Normalize(m)
+	this.time += float64(this.dt)
 }

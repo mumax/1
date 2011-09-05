@@ -6,6 +6,13 @@
 
 package sim
 
+import (
+	. "mumax/common"
+	"mumax/tensor"
+	"rand"
+	"os"
+	"fmt"
+)
 
 // 3D real-to-complex / complex-to-real transform. Handles zero-padding efficiently (if applicable)
 type FFT struct {
@@ -22,6 +29,14 @@ func NewFFT(b *Backend, logicSize []int) *FFT {
 	return NewFFTPadded(b, logicSize, logicSize)
 }
 
+// Frees the underlying FFT plan.
+// It is safe to double-free.
+func (fft *FFT) Free() {
+	if fft.plan != 0 {
+		fft.freeFFTPlan(fft.plan)
+		fft.plan = 0
+	}
+}
 
 /**
  * logicSize is the size of the real input data, but this may contain a lot of zeros.
@@ -78,9 +93,30 @@ func (fft *FFT) Inverse(in, out *DevTensor) {
 }
 
 
-func (fft *FFT) InverseInplace(data *DevTensor) {
-	fft.Inverse(data, data)
+func (fft *FFT) Test(inHost, outHost *tensor.T3, inDev, outDev *DevTensor) {
+	in := inHost.List()
+	for i := range in {
+		in[i] = rand.Float32()
+	}
+	TensorCopyTo(inHost, inDev)
+	fft.Forward(inDev, outDev)
+	fft.Inverse(outDev, inDev)
+	TensorCopyFrom(inDev, outHost)
+	out := outHost.List()
+	var maxErr float32 = 0
+	for i := range in {
+		if Abs(in[i]-out[i]) > maxErr {
+			maxErr = Abs(in[i] - out[i])
+		}
+	}
+	if maxErr > 1e-5 {
+		fmt.Fprintln(os.Stderr, "FFT selftest error = ", maxErr)
+	}
 }
+
+//func (fft *FFT) InverseInplace(data *DevTensor) {
+//	fft.Inverse(data, data)
+//}
 
 
 /**

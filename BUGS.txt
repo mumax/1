@@ -7,7 +7,7 @@ known bugs
  Solution: runtime.LockOSThread(). Probably the go png encoder uses goroutines which causes the CUDA context be accessed by a thread that didn't create it.
 
 
-[0002] OPEN arne:
+[0002] SOLVED arne:
  We can not handle big simulations yet:
  make3dconf(), cufft() fail and we allocate to much memory as well.
 
@@ -19,23 +19,99 @@ known bugs
  also: load m state does not work with relative path.
  try: setWD
 
-[0005] OPEN arne:
+[0005] SOLVED arne:
  no default solver type is set
 
 [0006] OPEN arne:
  we should not crash on illegal input
 
-[0007] OPEN arne:
+[0007] SOLVED arne:
  the simulation finishes immediately when no initial m is set (time step is infinite). should be illegal arg error.
 
 [0008] OPEN arne:
  the simulation state gets re-initialized too often.
+ -> already much improved by kernelwisdom, but could be better
 
 [0009] OPEN arne:
  crash reports are not redirected to output.log
 
-[0010] OPEN arne:
+[0010] SOLVED arne:
  when no maxerror is specified, the time step is very small.
+ -> rk23 with maxerror = 1e-5 works nicely and fast, is now the default
 
-[0011] OPEN arne:
+[0011] SOLVED arne:
+ when more than one input file is specified the GPU gets initialized twice-> CUDA setGPU error
+ -> Backend now stored gpuid, SetDevice() is safe even if gpuid already set.
+
+[0012] SOLVED arne:
  png's are saved according to the left-hand-rule. the X,Y,Z axes lie very annoying (Z should be out-of-plane)
+ -> Input is now always: largest("user X"), large("user Y"), small ("user Z"), png's stored accordingly
+
+[0013] OPEN arne:
+.tensor format still saves in XYZ 
+
+[0014] OPEN arne:
+ simulation should crash on infinite/NaN time step, 
+
+[0015] SOLVED arne:
+ simulation should give error message when no initial magnetization is set (or when it is zero/contains zeros)
+
+[0016] OPEN arne:
+ simulate daemon does not yet pass wisdom argument to child process (todo: also check other arguments while on it)
+
+[0017] OPEN arne:
+ bad time steps are not undone, simulation does not crash when m=NaN
+
+[0018] OPEN arne:
+ time evolution of non-normalized spins is (most probably) wrong: "Ms" term in LL is not 1 and should not be ignored.
+ for the moment, edge smoothness should not be turned on by default.
+
+[0019] SOLVED arne:
+ should not crash on (slightly) too big imag parts, only warn.
+
+[0020]
+ non-uniform normalization does not work correctly for 3D sims?
+ for thickness 4: normalization fails, simulations goes NaN, thickness 1,2,8 are OK though.
+ ok for uniform normalization...
+
+[0021]
+ single-threaded CPU code does not speed up by using multiple threads, although it does occupy all processors.
+
+[0022]
+ spin-torque term is not correct at the edge cells (both edge of the box and edge of the normmap)
+
+[0023]
+ gpu_copy_unpad crashes on some geometries (e.g. 32^3 but not 64^3)
+
+[0024]
+Default rk23 error per step sometimes too small: timestep becomes 1e-17 ps for relaxing a simple 64x64x64 uniform sphere...
+
+[0025]
+ average m also averages over cells with zero msat, so the saturated state does not have m=1. Perhaps calculate the correction factor ("volume of nonzero cells") once? and multiply only when data is saved? It should also be state in the manual
+
+[0026] FIXED
+setting the solver type causes nil pointer dereference
+
+[0027] FIXED
+setting a fixed-step solver causes nilpointer
+
+[0028]
+sim.RemoveExtension crashes on no extension
+
+[0029]
+anisotropy can crash rk23 rk4, but seems to depend on whether or not datatable is saved (?)
+It does not seem to cause bad time steps, just a NaN field. Even on CPU (?)
+
+[0030]
+fixed step solvers do not work with only maxdm set, still need to set an initial dt. Also, it does not always get overriden by maxDm
+
+[0031]
+autosave PNG broken, saves noise.
+
+[0032]
+-l:lib....so does not work on old CentOS, should be -l...
+(Thanks Mykola Dvornik)
+
+[0033]
+Space in path to input file breaks simulation
+(Thanks Ajay Ganwar)

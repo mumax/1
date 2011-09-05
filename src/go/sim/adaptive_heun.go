@@ -20,9 +20,9 @@ type AdaptiveHeun struct {
 func NewAdaptiveHeun(sim *Sim) *AdaptiveHeun {
 	this := new(AdaptiveHeun)
 	this.Sim = sim
-	this.m1est = NewTensor(sim.backend, Size4D(sim.size[0:]))
-	this.t0 = NewTensor(sim.backend, Size4D(sim.size[0:]))
-	this.Reductor.InitMaxAbs(this.backend, prod(sim.size4D[0:]))
+	this.m1est = NewTensor(sim.Backend, Size4D(sim.size[0:]))
+	this.t0 = NewTensor(sim.Backend, Size4D(sim.size[0:]))
+	this.Reductor.InitMaxAbs(sim.Backend, prod(sim.size4D[0:]))
 	// There has to be an initial dt set so we can start
 	if this.dt == 0. {
 		this.dt = 0.00001 // initial dt guess (internal units)
@@ -31,35 +31,48 @@ func NewAdaptiveHeun(sim *Sim) *AdaptiveHeun {
 }
 
 
-func (s *AdaptiveHeun) Step() {
+func (s *AdaptiveHeun) step() {
 
 	m := s.mDev
 	m1est := s.m1est
 
-	s.calcHeff(m, s.h)
-	s.DeltaM(m, s.h, s.dt)
-	TensorCopyOn(s.h, s.t0)
+	s.calcHeff(m, s.hDev)
+	s.DeltaM(m, s.hDev, s.dt)
+	TensorCopyOn(s.hDev, s.t0)
 	TensorCopyOn(m, m1est)
 	s.Add(m1est, s.t0)
-	s.Normalize(m1est) // euler estimate
+	s.Normalize(m1est) // Euler estimate
 
-	s.calcHeff(s.m1est, s.h)
-	s.DeltaM(s.m1est, s.h, s.dt)
-	tm1est := s.h
+	s.calcHeff(s.m1est, s.hDev)
+	s.DeltaM(s.m1est, s.hDev, s.dt)
+	tm1est := s.hDev
 	t := tm1est
 	s.LinearCombination(t, s.t0, 0.5, 0.5)
 	s.Add(m, t)
-	s.Normalize(m) // heun solution
+	s.Normalize(m) // Heun solution
 
-	if s.maxError != 0. {
-		s.MAdd(m1est, -1, m) // difference between heun and euler
+	s.time += float64(s.dt)
+
+	if s.input.maxError != 0. {
+		s.MAdd(m1est, -1, m) // difference between Heun and Euler
 		error := s.Reduce(m1est)
 		s.stepError = error
 		// TODO if error is too large, undo the step
 
 		// calculate new step
-		s.dt = s.dt * s.maxError / error
+		factor := s.input.maxError / error
+		// do not increase by time step by more than 100%
+		if factor > 2. {
+			factor = 2.
+		}
+		// do not decrease to less than 1%
+		if factor < 0.01 {
+			factor = 0.01
+		}
+
+		s.dt = s.dt * factor
 	}
+
 }
 
 

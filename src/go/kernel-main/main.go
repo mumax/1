@@ -1,76 +1,48 @@
-//
+//  This file is part of MuMax, a high-performance micromagnetic simulator
+//  Copyright 2010  Arne Vansteenkiste
+//  Use of this source code is governed by the GNU General Public License version 3
+//  (as published by the Free Software Foundation) that can be found in the license.txt file.
+//  Note that you are welcome to modify this code under the condition that you do not remove any 
+//  copyright notices and prominently state that you modified it, giving a relevant date.
+
 package main
 
+// Calculates a micromagnetic kernel and dumps it to stdout,
+// to be read by kernelpipe.go
+
 import (
-	"tensor"
+	. "mumax/common"
+	"mumax/tensor"
 	"sim"
+	"flag"
 	"os"
-	"fmt"
 )
 
 
 func main() {
-	commands, args := parseArgs()
-	for i := range commands {
-		exec(commands[i], args[i])
-	}
-	for i := range units.CellSize {
-		units.CellSize[i] /= units.UnitLength()
-	}
-	//units.PrintInfo(os.Stderr);
-	makeKernel()
-}
-
-func makeKernel() {
-	demag := sim.FaceKernel(units.Size, units.CellSize, 8)
-	exch := sim.Exch6NgbrKernel(units.Size, units.CellSize)
-	kernel := tensor.Add(exch, demag)
-	tensor.Write(os.Stdout, kernel)
-}
-
-var units Units = *NewUnits()
-
-var demagtype string = "cuboid"
-var exchtype string = "exch6"
-
-
-func exec(command string, args []string) {
-	switch command {
-	case "--size":
-		units.Size = parseSize(args)
-	case "--cellsize":
-		units.CellSize = parseCellSize(args)
-	case "--aexch":
-		argCount(command, args, 1, 1)
-		units.AExch = Atof(args[0])
-	case "--msat":
-		argCount(command, args, 1, 1)
-		units.MSat = Atof(args[0])
-	case "--dipole":
-		demagtype = "dipole"
-	case "--cuboid":
-		demagtype = "cuboid"
-	default:
-		fmt.Fprintln(os.Stderr, "unknown command:", command)
-		os.Exit(-1)
+	flag.Parse()
+	if flag.NArg() != 10 {
+		panic(InputErr("Need 10 command-line arguments"))
 	}
 
-}
+	size := []int{0, 0, 0}
+	cellSize := []float32{0, 0, 0}
+	periodic := []int{0, 0, 0}
 
-func parseSize(args []string) []int {
-	argCount("size", args, 3, 3)
-	size := make([]int, 3)
-	for i := 0; i < 3; i++ {
-		size[i] = Atoi(args[i])
-	}
-	return size
-}
+	size[X] = Atoi(flag.Arg(0))
+	size[Y] = Atoi(flag.Arg(1))
+	size[Z] = Atoi(flag.Arg(2))
+	cellSize[X] = Atof32(flag.Arg(3))
+	cellSize[Y] = Atof32(flag.Arg(4))
+	cellSize[Z] = Atof32(flag.Arg(5))
+	periodic[X] = Atoi(flag.Arg(6))
+	periodic[Y] = Atoi(flag.Arg(7))
+	periodic[Z] = Atoi(flag.Arg(8))
+	// nThreads not used
 
-func parseCellSize(args []string) []float {
-	argCount("size", args, 3, 3)
-	size := make([]float, 3)
-	for i := 0; i < 3; i++ {
-		size[i] = Atof(args[i])
+	demag := sim.FaceKernel6(size, cellSize, 8, periodic)
+
+	for i := range demag {
+		tensor.Write(os.Stdout, demag[i])
 	}
-	return size
 }

@@ -15,6 +15,12 @@ func (s *Sim) AExch(a float32) {
 	s.invalidate()
 }
 
+// Sets the exchange type (number of neighbors for the laplacian evaluation)
+func (s *Sim) ExchangeType(neighbors int) {
+	s.input.exchType = neighbors
+	s.invalidate()
+}
+
 // Sets the saturation magnetization, defined in A/m
 func (s *Sim) MSat(ms float32) {
 	s.input.msat = ms
@@ -24,5 +30,5 @@ func (s *Sim) MSat(ms float32) {
 // Sets the damping coefficient
 func (s *Sim) Alpha(a float32) {
 	s.alpha = a
-	s.invalidate() // should not invalidate
+	//s.invalidate() // does not invalidate (double check?)
 }

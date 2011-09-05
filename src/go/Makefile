@@ -1,41 +1,37 @@
-# todo: we need to express the depencies between the packages
-
-include ../../common.mk
-
 all:
-	make install -C iotool
-	make install -C tensor
-	make install -C refsh
-	make install -C sim
-
-	make -C outtools
-# 	make -C tensor-main
-# 	make -C kernel-main
-# 	make -C config-main
-# 	make -C draw
-	make -C main
+	gomake -C mumax
+	gomake install -C refsh
+	gomake -C omftools
+	gomake -C odttools
+	gomake -C template
+	gomake -C maxtest
+	cp -f ../../lib/libgpukern.so sim/
+	gomake -C sim
+	gomake install -C sim
+	gomake -C main
+	gomake -C kernel-main
 
 .PHONY: clean
 clean:
-	make clean -C iotool
-	make clean -C tensor
-	make clean -C sim
-	make clean -C refsh
-
-	make clean -C outtools
-	make clean -C tensor-main
-	make clean -C config-main
-	make clean -C draw
-	make clean -C main
+	gomake clean -C mumax
+	gomake clean -C omftools
+	gomake clean -C odttools
+	gomake clean -C template
+	gomake clean -C sim
+	gomake clean -C refsh
+	gomake clean -C maxtest
+	gomake clean -C outtools
+	gomake clean -C tensor-main
+	gomake clean -C config-main
+	gomake clean -C main
+	gomake clean -C kernel-main
 
 	rm -f $(GOROOT)/pkg/$(GOOS)_$(GOARCH)/sim.a
 	rm -f $(GOROOT)/pkg/$(GOOS)_$(GOARCH)/cgo_sim.so
 	
 
-
 test:	all
-	make test -C tensor2
-	make test -C tensor
-	make test -C sim
+	gomake test -C mumax
+	gomake test -C sim
 
 
