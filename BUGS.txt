@@ -107,3 +107,11 @@ fixed step solvers do not work with only maxdm set, still need to set an initial
 
 [0031]
 autosave PNG broken, saves noise.
+
+[0032]
+-l:lib....so does not work on old CentOS, should be -l...
+(Thanks Mykola Dvornik)
+
+[0033]
+Space in path to input file breaks simulation
+(Thanks Ajay Ganwar)
