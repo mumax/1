@@ -199,11 +199,7 @@ func NewSim(outputdir string, backend *Backend) *Sim {
 	sim.input.anisAxes = []float32{0.}
 	// TODO(b): mumaxkern-go is slow but seems failsafe so it is the default for now
 	// change when mumaxkern-gpu is debugged.
-	if *cpu {
-		sim.input.kernelType = "mumaxkern-go" //"mumaxkern-cpu"
-	} else {
-		sim.input.kernelType = "mumaxkern-go" //"mumaxkern-gpu"
-	}
+	sim.input.kernelType = "mumaxkern-go" //"mumaxkern-cpu"
 	sim.exchInConv = true
 	sim.input.wantDemag = true
 	sim.input.tabulate = make([]bool, TAB_LEN)
@@ -224,9 +220,9 @@ const (
 // this flag is the bitwise OR of flags like FFTW_PATIENT, ...
 func parseDeviceOptions() int {
 	flags := 0
-	if *patient {
-		flags |= FFTW_PATIENT_FLAG
-	}
+//	if *patient {
+//		flags |= FFTW_PATIENT_FLAG
+//	}
 	return flags
 }
 

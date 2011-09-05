@@ -5,7 +5,6 @@ all:
 	gomake -C odttools
 	gomake -C template
 	gomake -C maxtest
-	cp -f ../../lib/libcpukern.so sim/
 	cp -f ../../lib/libgpukern.so sim/
 	gomake -C sim
 	gomake install -C sim

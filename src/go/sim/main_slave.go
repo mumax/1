@@ -52,13 +52,8 @@ func main_slave() {
 
 		// Set the device
 		var backend *Backend
-		if *cpu {
-			backend = CPU
-
-		} else {
-			backend = GPU
-			backend.SetDevice(*gpuid)
-		}
+		backend = GPU
+		backend.SetDevice(*gpuid)
 
 		sim := NewSim(outfile, backend)
 		defer sim.Close()

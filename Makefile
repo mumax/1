@@ -17,7 +17,6 @@ all:
 clean:
 	make clean -C bin
 	make clean -C src
-	make clean -C dep
 	make clean -C lib
 	
 doc:
