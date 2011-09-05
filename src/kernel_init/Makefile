@@ -1,10 +1,10 @@
 include ../../common.mk
 
-CFLAGS+=-I../cpukern -I../tensor -L../../lib -I../../lib/fftw/include
+CFLAGS+=-I../tensor -L../../lib
 
 NVCCFLAGS+=-I../cpukern -I../gpukern -I../tensor -L../../lib
 
-all: mumaxkern-gpu mumaxkern-cpu
+all: mumaxkern-gpu 
 
 
 mumaxkern-gpu: gpu_kernel_micromag2d.o gpu_kernel_micromag3d.o mumaxkern-gpu.o
