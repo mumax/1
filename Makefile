@@ -9,13 +9,9 @@
 
 
 all:
+	make -C lib
 	make -C src
 	make -C bin
-	make -C doc
-
-depend:
-	make -C lib
-	make -C dep
 
 .PHONY: clean
 clean:
