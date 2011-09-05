@@ -26,10 +26,10 @@ import (
 	"fmt"
 )
 
-const VERSION = 2492
+const VERSION = 2494
 
 const WELCOME = `
-  MuMax 0.9.2492
+  MuMax 1.0.2494 beta
   (c) Arne Vansteenkiste & Ben Van de Wiele,
       DyNaMat/EELAB Ghent University.
 
@@ -38,8 +38,6 @@ const WELCOME = `
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
-  This is a beta version for testing purposes.
-  
 `
 
 // Recognized input file extensions
