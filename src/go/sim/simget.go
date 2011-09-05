@@ -76,6 +76,6 @@ func (s *Sim) GetE() {
 
 
 // Gets the time in seconds
-func (s *Sim) GetTime(){
+func (s *Sim) GetTime() {
 	Send(s.time * float64(s.UnitTime()))
 }

@@ -303,8 +303,8 @@ func (s *Sim) SetMsatEllips(cx, cy, sx, sy, msat float32) {
 
 	s.initGeom()
 	s.initMsatMask()
-	rx := sx/2.0
-	ry := sy/2.0
+	rx := sx / 2.0
+	ry := sy / 2.0
 
 	c := s.input.cellSize
 	start_x := int(math.Floor(float64((cx - rx) / c[2])))

@@ -220,9 +220,9 @@ const (
 // this flag is the bitwise OR of flags like FFTW_PATIENT, ...
 func parseDeviceOptions() int {
 	flags := 0
-//	if *patient {
-//		flags |= FFTW_PATIENT_FLAG
-//	}
+	//	if *patient {
+	//		flags |= FFTW_PATIENT_FLAG
+	//	}
 	return flags
 }
 

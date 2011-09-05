@@ -21,21 +21,21 @@ import (
 // WARNING: most flags added here will need to be passed on to a deamon's child process
 // after adding a flag, edit daemon.go accordingly!
 var (
-	help      *bool   = flag.Bool("help", false, "Print a help message and exit.")
-	example   *string = flag.String("example", "", "Create an example input file. E.g.: -example=file.in")
-	stdin     *bool   = flag.Bool("stdin", false, "Read input from stdin instead of file. Specify a dummy input file name to determine the output directory name.")
-	slave     *bool   = flag.Bool("slave", false, "When as child of another process")
-	silent    *bool   = flag.Bool("silent", false, "Do not show simulation output on the screen, only save to output.log")
-	daemon    *bool   = flag.Bool("daemon", false, "Watch directories for new input files and run them automatically.")
-	random    *bool   = flag.Bool("random", false, "With daemon: run input files in random order.")
-	watch     *int    = flag.Int("watch", 60, "With -daemon, re-check for new input files every N seconds. -watch=0 disables watching, program exits when no new input files are left.")
-	walltime  *int    = flag.Int("walltime", 0, "With -daemon, keep the deamon alive for N hours. Handy for nightly runs. -walltime=0 (default) runs the daemon forever.")
-	verbosity *int    = flag.Int("verbosity", 2, "Control the debug verbosity (0 - 3)")
-	gpuid     *int    = flag.Int("gpu", 0, "Select a GPU when more than one is present. Default GPU = 0") //TODO: also for master
-	threads   *int    = flag.Int("threads", 0, "Set the number of threads for the selected device (GPU or CPU). \"0\" means automatically set.")
-	updatedb  *int    = flag.Int("updatedisp", 200, "Update the terminal output every x milliseconds")
-	wisdir    *string = flag.String("wisdom", defaultWisdomDir(), "Absolute directory to store cached kernels. \"\" disables caching")
-	flag_checkversion    *bool = flag.Bool("check-version", true, "Check for now version at startup")
+	help              *bool   = flag.Bool("help", false, "Print a help message and exit.")
+	example           *string = flag.String("example", "", "Create an example input file. E.g.: -example=file.in")
+	stdin             *bool   = flag.Bool("stdin", false, "Read input from stdin instead of file. Specify a dummy input file name to determine the output directory name.")
+	slave             *bool   = flag.Bool("slave", false, "When as child of another process")
+	silent            *bool   = flag.Bool("silent", false, "Do not show simulation output on the screen, only save to output.log")
+	daemon            *bool   = flag.Bool("daemon", false, "Watch directories for new input files and run them automatically.")
+	random            *bool   = flag.Bool("random", false, "With daemon: run input files in random order.")
+	watch             *int    = flag.Int("watch", 60, "With -daemon, re-check for new input files every N seconds. -watch=0 disables watching, program exits when no new input files are left.")
+	walltime          *int    = flag.Int("walltime", 0, "With -daemon, keep the deamon alive for N hours. Handy for nightly runs. -walltime=0 (default) runs the daemon forever.")
+	verbosity         *int    = flag.Int("verbosity", 2, "Control the debug verbosity (0 - 3)")
+	gpuid             *int    = flag.Int("gpu", 0, "Select a GPU when more than one is present. Default GPU = 0") //TODO: also for master
+	threads           *int    = flag.Int("threads", 0, "Set the number of threads for the selected device (GPU or CPU). \"0\" means automatically set.")
+	updatedb          *int    = flag.Int("updatedisp", 200, "Update the terminal output every x milliseconds")
+	wisdir            *string = flag.String("wisdom", defaultWisdomDir(), "Absolute directory to store cached kernels. \"\" disables caching")
+	flag_checkversion *bool   = flag.Bool("check-version", true, "Check for now version at startup")
 	// 	dryrun    *bool   = flag.Bool("dryrun", false, "Go quickly through the simulation sequence without calculating anything. Useful for debugging") // todo implement
 	//  server    *bool   = flag.Bool("server", false, "Run as a slave node in a cluster")
 	//  port      *int    = flag.Int("port", 2527, "Which network port to use")

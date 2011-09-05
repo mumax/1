@@ -65,7 +65,7 @@ func has_known_extension(filename string) bool {
 func main_master() {
 
 	shouldupgrade := false
-	if *flag_checkversion{
+	if *flag_checkversion {
 		CheckVersion("http://dynamag.ugent.be/mumax/latest-version.txt", VERSION)
 	}
 

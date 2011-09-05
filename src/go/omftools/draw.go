@@ -34,8 +34,8 @@ func Draw() {
 // Renders in 2D, automatically saves in a .png file.
 func DrawComp(c int) {
 	compname := string('x' + c)
-	c = 2-c // convert to z y x
-	outfile := replaceExt(filename, "_" + compname + ".png")
+	c = 2 - c // convert to z y x
+	outfile := replaceExt(filename, "_"+compname+".png")
 	if !FileExists(outfile) {
 		out := MustOpenWRONLY(outfile)
 		defer out.Close()
