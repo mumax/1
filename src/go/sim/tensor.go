@@ -159,10 +159,11 @@ func (t *DevTensor) Set(x, y, z int, value float32) {
 
 func (t *DevTensor) Get(comp, x, y, z int) float32 {
 	var value float32
-	N0 := t.size[0]
-	N1 := t.size[1]
-	N2 := t.size[2]
-	index := comp*N0*N1*N2 + x*N1*N2 + y*N2 + z
+	//Nc := t.size[0]
+	N0 := t.size[1]
+	N1 := t.size[2]
+	N2 := t.size[3]
+	index := comp * N0*N1*N2 + x * N1*N2 + y * N2 + z
 	t.memcpyFrom((t.data + uintptr(4*index)), &value, 1)
 	return value
 }
