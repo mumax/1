@@ -1,0 +1,31 @@
+# OOMMF: rectangular mesh v1.0
+# Segment count: 1
+# Begin: Segment
+# Begin: Header
+# Title: uniform current mask
+# meshtype: rectangular
+# meshunit: m
+# xbase: 0
+# ybase: 0
+# zbase: 0
+# xstepsize: 1
+# ystepsize: 1
+# zstepsize: 1
+# xmin: 0
+# ymin: 0
+# zmin: 0
+# xmax: 1
+# ymax: 1
+# zmax: 1
+# xnodes: 1
+# ynodes: 1
+# znodes: 1
+# ValueRangeMinMag: 1e-08
+# ValueRangeMaxMag: 1
+# valueunit: A/m
+# valuemultiplier: 800000
+# End: Header
+# Begin: Data Text
+1 1 1
+# End: Data Text
+# End: Segment
