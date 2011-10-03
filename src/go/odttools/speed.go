@@ -174,7 +174,9 @@ func InplaneRMS(data1, data2 string, peakcolName string, max float32) {
 	peak := false
 	for i := range col1 {
 		data1 := col1[i]
+		println(data1)
 		data2 := col2[i]
+		println(data2)
 		rms += float64(data1*data1 + data2*data2)
 		N++
 		if peakcol[i] > max {
