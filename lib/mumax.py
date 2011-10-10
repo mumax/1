@@ -83,7 +83,8 @@ def maxCellSize(x, y, z):
 
 ## Sets periodic boundary conditions.
 # The magnetic is repeated nx, ny, nz times in the x,y,z direction (to the left and to the rigth), respectively.
-# A value of 0 means no periodicity in that direction.
+# A value of 0 means no periodicity in that direction. Big values of nx,ny,nz lead to slow initialization,
+# but only the first time a simulation with these parameters is run.
 def periodic(nx, ny, nz):
 	send3('periodic', nx, ny, nz)
 
@@ -96,9 +97,6 @@ def ellipsoid(rx, ry, rz):
 def mask(file):
 	send1("mask", file)
 
-##Sets number of periods in given direction
-def periodic(Nx, Ny, Nz):
-  send3("periodic", Nx, Ny, Nz)
 
 ## Sets the reduced saturation magnetization of cell with integer index x,y,z
 def setMsat(x, y, z, msat):
@@ -121,7 +119,6 @@ def setAlpha(x, y, z, alphaMul):
 # The damping of that cell will be alpha*alphaMul.
 def setAlphaRange(x1, y1, z1, x2, y2, z2, alpha):
   send('SetAlphaRange', [x1, y1, z1, x2, y2, z2, alpha])
-
 
 
 # Initial magnetization
@@ -182,17 +179,17 @@ def antiDotArrayEllips(unit_size_x, unit_size_y, separation_x, separation_y, Nx,
 
 
 
-def SBW():
-  send0("SBW")
-
-def SNW():
-  send0("SNW")
-
-def ABW():
-  send0("ABW")
-
-def ANW():
-  send0("ANW")
+#def SBW():
+#  send0("SBW")
+#
+#def SNW():
+#  send0("SNW")
+#
+#def ABW():
+#  send0("ABW")
+#
+#def ANW():
+#  send0("ANW")
 
 # Sets the magnetization in cell with index i,j,k to (mx, my, mz)
 def setmCell(i, j, k, mx, my, mz):
@@ -206,9 +203,9 @@ def setmCell(i, j, k, mx, my, mz):
 def setmRange(x1, y1, z1, x2, y2, z2, mx, my, mz):
 	send("setmrange", [x1, y1, z1, x2, y2, z2, mx, my, mz])
 
-## Sets the magnetization in cell position x, y, z (in meters) to (mx, my, mz)
-def setm(x, y, z, mx, my, mz):
-	send("setm", [x, y, z, mx, my, mz])
+### Sets the magnetization in cell position x, y, z (in meters) to (mx, my, mz)
+#def setm(x, y, z, mx, my, mz):
+#	send("setm", [x, y, z, mx, my, mz])
 
 ## Sets the magnetization to a random state
 def setRandom():
@@ -249,7 +246,7 @@ def subsampleOutput(factor):
 
 # Solver
 
-## Overrides the solver type. E.g.: rk32, rk4, semianal...
+## Overrides the solver type. E.g.: rk32, rk12, semianal...
 def solvertype(solver):
 	send1("solvertype", solver)
 
@@ -324,29 +321,30 @@ def applyStatic(what, bx, by, bz):
 def applyRF(what, bx, by, bz, freq):
 	send("applyrf", [what, bx, by, bz, freq])
 
-## Apply an RF field/current, slowly ramped in
-def applyRFRamp(what, bx, by, bz, freq, ramptime):
-	send("applyrframp", [what, bx, by, bz, freq, ramptime])
-
-## Apply a rotating field/current
-def applyRotating(what, bx, by, bz, freq, phaseX, phaseY, phaseZ):
-	send("applyrotating", [what, bx, by, bz, freq, phaseX, phaseY, phaseZ])
-
-## Apply a pulsed field/current
-def applyPulse(what, bx, by, bz, risetime):
-	send("applypulse", [what, bx, by, bz, risetime])
-
-## Apply a sawtooth field/current
-def applySawTooth(what, bx, by, bz, freq):
-	send("applysawtooth", [what, bx, by, bz, freq])
-
-## Apply a rotating RF burst field/current
-def applyRotatingBurst(what, b, freq, phase, risetime, duration):
-	send("applyrotatingburst", [what, b, freq, phase, risetime, duration])
+### Apply an RF field/current, slowly ramped in
+#def applyRFRamp(what, bx, by, bz, freq, ramptime):
+#	send("applyrframp", [what, bx, by, bz, freq, ramptime])
+#
+### Apply a rotating field/current
+#def applyRotating(what, bx, by, bz, freq, phaseX, phaseY, phaseZ):
+#	send("applyrotating", [what, bx, by, bz, freq, phaseX, phaseY, phaseZ])
+#
+### Apply a pulsed field/current
+#def applyPulse(what, bx, by, bz, risetime):
+#	send("applypulse", [what, bx, by, bz, risetime])
+#
+### Apply a sawtooth field/current
+#def applySawTooth(what, bx, by, bz, freq):
+#	send("applysawtooth", [what, bx, by, bz, freq])
+#
+### Apply a rotating RF burst field/current
+#def applyRotatingBurst(what, b, freq, phase, risetime, duration):
+#	send("applyrotatingburst", [what, b, freq, phase, risetime, duration])
 
 # Run
 
 ## Relaxes the magnetization up to the specified maximum residual torque
+# @warning This function does not work very well yet.
 def relax():
 	send0("relax")
 
@@ -418,28 +416,34 @@ def getTime():
 
 ## Debug and fine-tuning
 
-## Override whether the exchange interaction is included in the magnetostatic convolution.
+## @internal Override whether the exchange interaction is included in the magnetostatic convolution.
+# @note internal use only
 def exchInConv(b):
 	send1("exchinconv", b)
 
-## Set the exchange type (number of neighbors)
+## @internal Set the exchange type (number of neighbors)
+# @note internal use only
 def exchType(t):
 	send1("exchtype", t)
 
-## Override the subcommand for calculating the magnetostatic kernel
+## @internal Override the subcommand for calculating the magnetostatic kernel
+# @note internal use only
 def kernelType(cmd):
 	send1("kerneltype", cmd)
 
-## Override whether or not (true/false) the magnetostatic field should be calculated
+## @internal Override whether or not (true/false) the magnetostatic field should be calculated
+# @note internal use only
 def demag(b):
 	send1("demag", cmd)
 
-# Override whether or not (true/false) the energy should be calculated
+# @internal Override whether or not (true/false) the energy should be calculated
+# @note internal use only
 def energy(b):
 	send1("energy", b)
 
 
-## \internal
+## @internal
+# @note internal use only
 def recv():
 	#stderr.write("py_recv: ") #debug
 	data = stdin.readline()
@@ -451,6 +455,7 @@ def recv():
 	return float(data[1:])
 
 ## @internal : version of print() that flushes (critical to avoid communication deadlock)
+# @note internal use only
 def myprint(x):
 	#stderr.write("py_send: " + str(x) + "\n") #debug
 	#stderr.flush()
@@ -459,22 +464,27 @@ def myprint(x):
 	stdout.flush()
 
 ## @internal. Shorthand for running a command with one argument
+# @note internal use only
 def send0(command):
 	myprint(command)
 
 ## @internal. Shorthand for running a command with one argument
+# @note internal use only
 def send1(command, arg):
 	myprint(command + " " + str(arg))
 
 ## @internal. Shorthand for running a command with two arguments
+# @note internal use only
 def send2(command, arg1, arg2):
 	myprint(command + " " + str(arg1) + " " + str(arg2))
 
 ## @internal. Shorthand for running a command with three arguments
+# @note internal use only
 def send3(command, arg1, arg2, arg3):
 	myprint(command + " " + str(arg1) + " " + str(arg2) + " " + str(arg3))
 
 ## @internal. Shorthand for running a command with arguments
+# @note internal use only
 def send(command, args):
 	for a in args:
 		command += " " + str(a)

@@ -29,7 +29,7 @@ import (
 const VERSION = 2495
 
 const WELCOME = `
-  MuMax 1.0.2495 beta
+  MuMax 1.0.2503 beta
   (c) Arne Vansteenkiste & Ben Van de Wiele,
       DyNaMat/EELAB Ghent University.
 
