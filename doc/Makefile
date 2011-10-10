@@ -1,6 +1,7 @@
 all:
 	make -C libraries
 	make -C manual
+	make -C api
 
 .PHONY: clean
 clean:

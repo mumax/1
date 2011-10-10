@@ -11,6 +11,7 @@ mkdir $OUT
 
 
 cp doc/manual/manual.pdf $OUT
+cp doc/api/latex/refman.pdf $OUT/python_api.pdf
 cp setup.bash $OUT
 cp LICENSE.txt $OUT
 cp README.txt $OUT
