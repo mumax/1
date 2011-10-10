@@ -1,4 +1,4 @@
-  MuMax 0.6.x
+  MuMax 1.0
   (c) Arne Vansteenkiste & Ben Van de Wiele,
       DyNaMat/EELAB Ghent University.
 
@@ -6,8 +6,6 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
-
-  This is a beta version for testing purposes.
 
 
 
@@ -40,12 +38,12 @@ Re-compiling
 
 MuMax comes with pre-compiled binaries. To re-compile MuMax you will need, at least:
 * nVIDIA's CUDA 3.2 toolkit, See: http://developer.nvidia.com/object/cuda_3_2_downloads.html.
-* A compiler for the GO programming language and fully set environment. See: http://golang.org/doc/install.html
+* A compiler for the GO programming language VERSION r.56 (not the most recent one!) and fully set environment. See: http://golang.org/doc/install.html
 * A C/C++ compiler
 * A java compiler
 
 To recompile MuMax, execute from its root directory:
-	make clean depend all
+	make clean all
 
 
 
@@ -57,8 +55,6 @@ mumax/examples contains a few example input files. They can be written in two fo
 * Python (".py"), which uses the same commands as the ".in" format but with python syntax like "msat(800e3)". See example.py
 
 Run the input files with:
-	mumax file.in
-or
 	mumax file.py
 
 A correspondingly named "file.out" directory will be created where all output is saved.

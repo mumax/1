@@ -22,7 +22,6 @@ import (
 // after adding a flag, edit daemon.go accordingly!
 var (
 	help              *bool   = flag.Bool("help", false, "Print a help message and exit.")
-	example           *string = flag.String("example", "", "Create an example input file. E.g.: -example=file.in")
 	stdin             *bool   = flag.Bool("stdin", false, "Read input from stdin instead of file. Specify a dummy input file name to determine the output directory name.")
 	slave             *bool   = flag.Bool("slave", false, "When as child of another process")
 	silent            *bool   = flag.Bool("silent", false, "Do not show simulation output on the screen, only save to output.log")
@@ -54,10 +53,10 @@ func Main() {
 		os.Exit(0)
 	}
 
-	if *example != "" {
-		Example(*example)
-		os.Exit(0)
-	}
+	//if *example != "" {
+	//	Example(*example)
+	//	os.Exit(0)
+	//}
 
 	Verbosity = *verbosity
 	if *daemon {
