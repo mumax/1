@@ -21,8 +21,8 @@ func Help() {
 
 // Error message for no input files 
 func NoInputFiles() {
-	helpmsg := `No input files. Usage: mumax file.in
-Type mumax -example=file.in to create an example input file.
+	helpmsg := `No input files. Usage: mumax file.py
+See the examples/ directory and python API.
 mumax -help will print more command line options.
 `
 	fmt.Fprintln(os.Stderr, helpmsg)
