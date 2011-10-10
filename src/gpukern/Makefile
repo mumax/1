@@ -27,9 +27,10 @@ OFILES=\
 
 all: libgpukern.so
 
+.PHONY: libgpukern.so
 libgpukern.so: $(OFILES)
 	$(NVCC) -shared $(NVCCFLAGS) $(OFILES) $(CUDALIBS) $(L) -o libgpukern.so
-	cp -f $(CURDIR)/libgpukern.so $(CURDIR)/../../lib
+	cp  $(CURDIR)/libgpukern.so $(CURDIR)/../../lib
 
 libgpukern.a:	$(OFILES)
 	ar rcs libgpukern.a $(OFILES)
