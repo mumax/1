@@ -28,8 +28,7 @@ rm -rf $OUT/src/dev_arne
 rm -rf $OUT/src/dev_ben
 
 mkdir $OUT/examples
-cp -r examples/*.in $OUT/examples
-cp -r examples/*.py $OUT/examples
+cp -r examples/*.{py,omf,png} $OUT/examples
 
 
 tar cv $OUT | gzip > mumax.tar.gz
