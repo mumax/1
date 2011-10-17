@@ -56,14 +56,14 @@ func (s *Sim) LookupKernel(size []int, cellsize []float32, accuracy int, periodi
 	// try to load cached kernel
 	kerndir := s.wisdomdir + "/" + wisdomFileName(size, cellsize, accuracy, periodic, s.input.kernelType)
 	if fileExists(kerndir) {
-		Println("using wisdom: ", kerndir)
+		//Println("using wisdom: ", kerndir)
 		kernel = make([]*tensor.T3, 6)
 		for i := range kernel {
 			if s.needKernComp(i) {
 				kernel[i] = s.loadKernComp(kerndir, i)
 			}
 		}
-		Println("wisdom loaded")
+		//Println("wisdom loaded")
 		return
 	} else {
 		kernel = s.CalcDemagKernel(size, cellsize, accuracy, periodic)
@@ -96,7 +96,7 @@ func (s *Sim) storeKernel(kernel []*tensor.T3, kerndir string) {
 		return
 	}
 
-	Println("storing wisdom: ", kerndir)
+	//Println("storing wisdom: ", kerndir)
 
 	// If anything goes wrong unexpectedly, then the kernel could not be saved,
 	// but we should continue to run.
@@ -119,7 +119,7 @@ func (s *Sim) storeKernel(kernel []*tensor.T3, kerndir string) {
 			tensor.WriteF(file, kernel[i])
 		}
 	}
-	fmt.Println("storing wisdom OK")
+	//fmt.Println("storing wisdom OK")
 }
 
 
