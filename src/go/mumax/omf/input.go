@@ -65,6 +65,9 @@ type Info struct {
 	ValueMultiplier float32
 	ValueUnit       string
 	Format          string // binary or text
+	OVFVersion	int
+	TotalTime	float64
+	StageTime	float64
 	DataFormat      string // 4 or 8
 	StepSize        [3]float32
 	MeshUnit        string

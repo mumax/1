@@ -94,27 +94,40 @@ func (p *Periodic) SetInterval(interval float32) {
 // No interval is stored yet, so the result can be used for a single save or an interval can be set to use
 // it for scheduled output.
 func resolve(what, format string) Output {
+	//var ovfver int
+	//switch version {
+	//default:
+	//	panic("Unknown version of the ovf " + version + ". options are ovf1, ovf2. Falling back to default value of ovf2")  
+	//	ovfver = 2
+	//case "ovf1":
+	//	ovfver = 1
+	//case "ovf2":
+	//	ovfver = 2
+	//}
+
 	switch what {
 	default:
 		panic("unknown output quantity " + what + ". options are: m, table")
 	case "m":
 		switch format {
 		default:
-			panic("unknown format " + format + ". options are: binary (=binary4,omf), text (=ascii), png")
+			panic("unknown format " + format + ". options are: binary (=binary4,omf,binary4_2, omf_2), text (=ascii), png")
 		case "png":
 			return &MPng{&Periodic{0., 0.}}
 		case "binary", "binary4", "omf":
-			return &MOmf{&Periodic{0., 0.}, "binary"}
+			return &MOmf{&Periodic{0., 0.}, "binary", 1} // 1 tells the version of ovf format to be used
+		case "binary_2", "binary4_2", "omf_2":
+			return &MOmf{&Periodic{0., 0.}, "binary", 2} // 2 tells the version of ovf format to be used
 		case "text", "ascii":
-			return &MOmf{&Periodic{0., 0.}, "text"}
+			return &MOmf{&Periodic{0., 0.}, "text", 1}
 		}
 	case "table":
 		//format gets ignored for now
 		return &Table{&Periodic{0., 0.}}
 	case "phi", "energydensity":
-		return &Edens{&Periodic{0., 0.}, format}
+		return &Edens{&Periodic{0., 0.}, format, 1}
 	case "torque":
-		return &Torque{&Periodic{0., 0.}, format}
+		return &Torque{&Periodic{0., 0.}, format, 1}
 	}
 	panic("bug")
 	return nil // not reached
@@ -281,6 +294,7 @@ func m_average(m *tensor.T4) (mx, my, mz float32) {
 type MOmf struct {
 	*Periodic
 	format string
+	ovfversion int
 }
 
 // INTERNAL
@@ -297,7 +311,10 @@ func (m *MOmf) Save(s *Sim) {
 	file.ValueMultiplier = s.mSat
 	file.ValueUnit = "A/m"
 	file.Format = m.format
+	file.OVFVersion = m.ovfversion
 	file.DataFormat = "4"
+	file.StageTime = float64(m.Periodic.period)
+	file.TotalTime = s.time * float64(s.UnitTime())
 	omf.FEncode(fname, file)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
 }
@@ -331,6 +348,7 @@ func subsampleOutput(in *tensor.T4) *tensor.T4 {
 type Edens struct {
 	*Periodic
 	format string
+	ovfversion int
 }
 
 
@@ -356,6 +374,9 @@ func (m *Edens) Save(s *Sim) {
 	file.ValueMultiplier = s.mSat
 	file.ValueUnit = "internal"
 	file.Format = m.format
+	file.OVFVersion = m.ovfversion
+	file.StageTime = float64(m.Periodic.period)
+	file.TotalTime = s.time * float64(s.UnitTime())
 	file.DataFormat = "4"
 	omf.FEncode(fname, file)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
@@ -366,6 +387,7 @@ func (m *Edens) Save(s *Sim) {
 type Torque struct {
 	*Periodic
 	format string
+	ovfversion int
 }
 
 func (m *Torque) Save(s *Sim) {
@@ -379,6 +401,9 @@ func (m *Torque) Save(s *Sim) {
 	file.ValueMultiplier = 1
 	file.ValueUnit = ""
 	file.Format = m.format
+	file.OVFVersion = m.ovfversion
+	file.StageTime = float64(m.Periodic.period)
+	file.TotalTime = s.time * float64(s.UnitTime())
 	file.DataFormat = "4"
 	omf.FEncode(fname, file)
 	m.sinceoutput = float32(s.time) * s.UnitTime()
@@ -395,6 +420,7 @@ func (s *Sim) saveOmf(data *tensor.T4, filename, unit, format string) {
 	file.ValueMultiplier = 1
 	file.ValueUnit = unit
 	file.Format = format
+	file.OVFVersion = 1
 	file.DataFormat = "4"
 	omf.FEncode(filename, file)
 }
