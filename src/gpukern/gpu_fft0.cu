@@ -15,7 +15,6 @@
 #include "gpu_conf.h"
 #include "gpu_mem.h"
 #include "gpu_zeropad.h"
-#include "timer.h"
 #include <stdio.h>
 #include <assert.h>
 

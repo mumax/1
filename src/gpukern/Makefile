@@ -13,7 +13,6 @@ OFILES=\
 	gpu_kernmul.o\
 	gpu_zeropad.o\
 	gpu_init.o\
-	timer.o\
 	gpu_stream.o\
 	gpu_reduction.o\
 	gpu_fftbig.o\
@@ -36,8 +35,6 @@ libgpukern.a:	$(OFILES)
 	ar rcs libgpukern.a $(OFILES)
 # 	ln -sf $(CURDIR)/libgpukern.a $(CURDIR)/../../lib
 
-timer.o:  timer.h timer.cpp
-	$(CPP) -c $(CFLAGS) $(OMPFLAGS) timer.cpp
 
 gpu_stream.o:  gpu_stream.h gpu_stream.cu
 	$(NVCC) -c $(CUDALIBS) $(NVCCFLAGS) gpu_stream.cu

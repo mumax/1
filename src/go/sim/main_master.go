@@ -26,10 +26,10 @@ import (
 	"fmt"
 )
 
-const VERSION = 2514
+const VERSION = 2516
 
 const WELCOME = `
-  MuMax 1.1.2514 beta
+  MuMax 1.1.2516 beta
   (c) Arne Vansteenkiste & Ben Van de Wiele,
       DyNaMat/EELAB Ghent University.
 

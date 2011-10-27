@@ -12,7 +12,6 @@
 #include "gpu_conf.h"
 #include "gpu_safe.h"
 #include "assert.h"
-#include "timer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,7 +66,7 @@ void gpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
                     float* fftKyz, float* fftKxz, float* fftKxy,
                     int nRealNumbers){
 
-  timer_start("kernel_mul");
+  //timer_start("kernel_mul");
   assert(nRealNumbers > 0);
   assert(nRealNumbers % 2 == 0);
 
@@ -78,7 +77,7 @@ void gpu_kernelmul6(float* fftMx,  float* fftMy,  float* fftMz,
                                            fftKxx, fftKyy, fftKzz,
                                            fftKyz, fftKxz, fftKxy, nRealNumbers/2);
   gpu_sync();
-  timer_stop("kernel_mul");
+  //timer_stop("kernel_mul");
   
   return;
 }
@@ -127,7 +126,7 @@ void gpu_kernelmul4(float *fftMx, float *fftMy, float *fftMz,
                     float *fftKxx, float *fftKyy, float *fftKzz, float *fftKyz, 
                     int nRealNumbers){
 
-  timer_start("kernel_mul");
+  //timer_start("kernel_mul");
   assert(nRealNumbers > 0);
   assert(nRealNumbers % 2 == 0);
 
@@ -136,7 +135,7 @@ void gpu_kernelmul4(float *fftMx, float *fftMy, float *fftMz,
 
   _gpu_kernelmul4<<<gridSize, blockSize>>>(fftMx, fftMy, fftMz, fftKxx, fftKyy, fftKzz, fftKyz, nRealNumbers/2);
   gpu_sync();
-  timer_stop("kernel_mul");
+  //timer_stop("kernel_mul");
  
   return;
 }
@@ -179,7 +178,7 @@ void gpu_kernelmul3(float *fftMy, float *fftMz,
                     float *fftKyy, float *fftKzz, float *fftKyz, 
                     int nRealNumbers){
 
-  timer_start("kernel_mul");
+  //timer_start("kernel_mul");
   assert(nRealNumbers > 0);
   assert(nRealNumbers % 2 == 0);
 
@@ -188,7 +187,7 @@ void gpu_kernelmul3(float *fftMy, float *fftMz,
 
   _gpu_kernelmul3<<<gridSize, blockSize>>>(fftMy, fftMz, fftKyy, fftKzz, fftKyz, nRealNumbers/2);
   gpu_sync();
-  timer_stop("kernel_mul");
+  //timer_stop("kernel_mul");
  
   return;
 }
@@ -237,7 +236,7 @@ void gpu_kernelmul_biot_savart3D(float* fftJx, float* fftJy, float* fftJz,
                                  float* fftKx, float* fftKy, float* fftKz,
                                  int nRealNumbers){
 
-  timer_start("kernel_mul");
+  //timer_start("kernel_mul");
   assert(nRealNumbers > 0);
   assert(nRealNumbers % 2 == 0);
 
@@ -248,7 +247,7 @@ void gpu_kernelmul_biot_savart3D(float* fftJx, float* fftJy, float* fftJz,
                                            fftKx, fftKy, fftKz,
                                            nRealNumbers/2);
   gpu_sync();
-  timer_stop("kernel_mul");
+  //timer_stop("kernel_mul");
   
   return;
 }
@@ -296,7 +295,7 @@ void gpu_kernelmul_biot_savart3DNx1(float* fftJx, float* fftJy, float* fftJz,
                                     float* fftKy, float* fftKz,
                                     int nRealNumbers){
 
-  timer_start("kernel_mul");
+  //timer_start("kernel_mul");
   assert(nRealNumbers > 0);
   assert(nRealNumbers % 2 == 0);
 
@@ -305,7 +304,7 @@ void gpu_kernelmul_biot_savart3DNx1(float* fftJx, float* fftJy, float* fftJz,
 
   _gpu_kernelmul_biot_savart3D_Nx1<<<gridSize, blockSize>>>(fftJx, fftJy, fftJz, fftKy, fftKz, nRealNumbers/2);
   gpu_sync();
-  timer_stop("kernel_mul");
+  //timer_stop("kernel_mul");
   
   return;
 }
@@ -344,7 +343,7 @@ void gpu_kernelmul_biot_savart2D(float* fftJx,  float* fftJy,  float* fftJz,
                                  float* fftKy, float* fftKz,
                                  int nRealNumbers){
 
-  timer_start("kernel_mul");
+  //timer_start("kernel_mul");
   assert(nRealNumbers > 0);
   assert(nRealNumbers % 2 == 0);
 
@@ -353,7 +352,7 @@ void gpu_kernelmul_biot_savart2D(float* fftJx,  float* fftJy,  float* fftJz,
 
   _gpu_kernelmul_biot_savart2D<<<gridSize, blockSize>>>(fftJx, fftJy, fftJz, fftKy, fftKz, nRealNumbers/2);
   gpu_sync();
-  timer_stop("kernel_mul");
+  //timer_stop("kernel_mul");
   
   return;
 }

@@ -16,7 +16,6 @@
 #include "gpu_conf.h"
 #include "gpu_stream.h"
 #include <assert.h>
-#include "timer.h"
 #include "../macros.h"
 
 #ifdef __cplusplus

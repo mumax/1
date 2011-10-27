@@ -10,7 +10,6 @@
 
 #include "gpu_anal.h"
 #include "../macros.h"
-#include "timer.h"
 #include <stdio.h>
 #include <assert.h>
 

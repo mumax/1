@@ -15,7 +15,6 @@
 #include "gpu_transpose2.h"
 #include "gpu_conf.h"
 #include <assert.h>
-#include "timer.h"
 #include "gpu_mem.h"
 #include "gpu_safe.h"
 
